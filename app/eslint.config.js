@@ -9,7 +9,8 @@ module.exports = [
   {
     rules: {
       'react/no-unescaped-entities': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      // built-in no-unused-vars (works for both JS and TS via expo preset)
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
 ];
