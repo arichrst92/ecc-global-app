@@ -336,13 +336,19 @@ Mockup ada upload di:
 
 🚧 **M9 Homecell endpoints** — kemungkinan sudah ada di Swagger, perlu konfirmasi.
 
-### Self-registration di M1
+### Self-registration di M1 — DECIDED 2026-05-19
 
-Penting decide sekarang: **mobile bisa register jemaat baru, atau register lewat admin only?**
+**Decision**: **Mobile self-register dengan auto-active** (per product preference).
 
-Kalau **register via mobile diizinkan** — perlu endpoint baru + admin approval flow.
+Endpoint yang perlu BE: `POST /auth/register` dengan validation OTP enrollment yang sudah verified.
 
-Kalau **register via admin only** (lebih simple untuk fase awal) — mockup sign-up screen jadi info-only ("Hubungi pengurus cabang") dan tombol sign-up bisa di-hide.
+Anti-abuse:
+- Rate limit per HP (1 register / nomor)
+- Rate limit per IP (sudah ada di OTP request)
+- Admin cabang dapat notif "Jemaat baru terdaftar: <nama>" untuk transparency
+- Audit log creation
+
+Detail spec di [`backend-meeting-brief.md`](./backend-meeting-brief.md) Section 1.
 
 ---
 
