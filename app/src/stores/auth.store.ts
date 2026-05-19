@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '@/utils/storage';
 import type { User } from '@/types/api';
 
 const KEYS = {
@@ -32,9 +32,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   hydrate: async () => {
     try {
       const [accessToken, refreshToken, userJson] = await Promise.all([
-        SecureStore.getItemAsync(KEYS.accessToken),
-        SecureStore.getItemAsync(KEYS.refreshToken),
-        SecureStore.getItemAsync(KEYS.user),
+        storage.getItem(KEYS.accessToken),
+        storage.getItem(KEYS.refreshToken),
+        storage.getItem(KEYS.user),
       ]);
       const user = userJson ? (JSON.parse(userJson) as User) : null;
       set({
@@ -51,31 +51,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setTokens: async (accessToken, refreshToken) => {
     await Promise.all([
-      SecureStore.setItemAsync(KEYS.accessToken, accessToken),
-      SecureStore.setItemAsync(KEYS.refreshToken, refreshToken),
+      storage.setItem(KEYS.accessToken, accessToken),
+      storage.setItem(KEYS.refreshToken, refreshToken),
     ]);
     set({ accessToken, refreshToken });
   },
 
   setUser: async (user) => {
-    await SecureStore.setItemAsync(KEYS.user, JSON.stringify(user));
+    await storage.setItem(KEYS.user, JSON.stringify(user));
     set({ user, isAuthenticated: !!get().accessToken });
   },
 
   login: async (accessToken, refreshToken, user) => {
     await Promise.all([
-      SecureStore.setItemAsync(KEYS.accessToken, accessToken),
-      SecureStore.setItemAsync(KEYS.refreshToken, refreshToken),
-      SecureStore.setItemAsync(KEYS.user, JSON.stringify(user)),
+      storage.setItem(KEYS.accessToken, accessToken),
+      storage.setItem(KEYS.refreshToken, refreshToken),
+      storage.setItem(KEYS.user, JSON.stringify(user)),
     ]);
     set({ accessToken, refreshToken, user, isAuthenticated: true });
   },
 
   logout: async () => {
     await Promise.all([
-      SecureStore.deleteItemAsync(KEYS.accessToken),
-      SecureStore.deleteItemAsync(KEYS.refreshToken),
-      SecureStore.deleteItemAsync(KEYS.user),
+      storage.deleteItem(KEYS.accessToken),
+      storage.deleteItem(KEYS.refreshToken),
+      storage.deleteItem(KEYS.user),
     ]);
     set({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false });
   },

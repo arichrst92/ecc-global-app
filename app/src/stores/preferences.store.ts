@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '@/utils/storage';
 import { setLanguage, type SupportedLang } from '@/i18n';
 
 const KEY = 'ecc.preferences';
@@ -32,7 +32,7 @@ export const usePreferencesStore = create<PrefsStore>((set, get) => ({
   ...DEFAULTS,
 
   hydrate: async () => {
-    const json = await SecureStore.getItemAsync(KEY);
+    const json = await storage.getItem(KEY);
     if (json) {
       try {
         const parsed = { ...DEFAULTS, ...(JSON.parse(json) as Partial<Prefs>) };
@@ -47,18 +47,18 @@ export const usePreferencesStore = create<PrefsStore>((set, get) => ({
   setLanguage: async (language) => {
     set({ language });
     await setLanguage(language);
-    await SecureStore.setItemAsync(KEY, JSON.stringify({ ...get(), language }));
+    await storage.setItem(KEY, JSON.stringify({ ...get(), language }));
   },
 
   toggleDark: async () => {
     const darkMode = !get().darkMode;
     set({ darkMode });
-    await SecureStore.setItemAsync(KEY, JSON.stringify({ ...get(), darkMode }));
+    await storage.setItem(KEY, JSON.stringify({ ...get(), darkMode }));
   },
 
   setNotif: async (key, value) => {
     const notif = { ...get().notif, [key]: value };
     set({ notif });
-    await SecureStore.setItemAsync(KEY, JSON.stringify({ ...get(), notif }));
+    await storage.setItem(KEY, JSON.stringify({ ...get(), notif }));
   },
 }));
