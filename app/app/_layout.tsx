@@ -1,46 +1,67 @@
+import '../global.css';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { useColorScheme } from '../components/useColorScheme';
+import '@/i18n';
+import { useAuthStore } from '@/stores/auth.store';
+import { usePreferencesStore } from '@/stores/preferences.store';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000, // 1 menit default
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  const [hydrated, setHydrated] = useState(false);
+  const hydrateAuth = useAuthStore((s) => s.hydrate);
+  const hydratePrefs = usePreferencesStore((s) => s.hydrate);
+
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
+    Promise.all([hydrateAuth(), hydratePrefs()]).then(() => setHydrated(true));
+  }, [hydrateAuth, hydratePrefs]);
+
+  useEffect(() => {
+    if (loaded && hydrated) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, hydrated]);
 
-  if (!loaded) {
+  if (!loaded || !hydrated) {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootLayoutNav />
+    </QueryClientProvider>
+  );
 }
 
 function RootLayoutNav() {

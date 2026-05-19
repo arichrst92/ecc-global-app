@@ -1,0 +1,8 @@
+node_modules
+.expo
+dist
+ios/Pods
+android/build
+android/.gradle
+*.lock
+package-lock.json

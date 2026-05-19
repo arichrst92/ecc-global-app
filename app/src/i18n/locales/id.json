@@ -1,0 +1,49 @@
+{
+  "common": {
+    "back": "Kembali",
+    "next": "Lanjut",
+    "skip": "Lewati",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "loading": "Memuat...",
+    "retry": "Coba lagi",
+    "share": "Bagikan",
+    "copy": "Salin",
+    "copied": "Tersalin!",
+    "delete": "Hapus",
+    "confirm": "Konfirmasi"
+  },
+  "nav": {
+    "home": "Beranda",
+    "ibadah": "Ibadah",
+    "event": "Event",
+    "persembahan": "Beri",
+    "profile": "Profil",
+    "scanner": "Scanner"
+  },
+  "auth": {
+    "welcome_title": "Selamat Datang di ECC",
+    "welcome_sub": "Pilih cara Anda untuk mulai",
+    "signin_otp": "Masuk dengan OTP WhatsApp",
+    "signin_face": "Masuk dengan Face Recognition",
+    "signup": "Daftar Akun Baru",
+    "guest": "Lanjut sebagai Tamu",
+    "phone_label": "Nomor HP",
+    "phone_placeholder": "0821 ... atau +62 ...",
+    "send_otp": "Kirim OTP",
+    "otp_title": "Masukkan kode OTP",
+    "otp_sub": "Kode dikirim ke WhatsApp",
+    "otp_resend": "Kirim ulang OTP",
+    "otp_resend_in": "Kirim ulang dalam {{seconds}}s",
+    "otp_verify": "Verifikasi",
+    "not_registered": "Belum terdaftar? Hubungi pengurus cabang Anda.",
+    "logout": "Keluar"
+  },
+  "error": {
+    "network": "Tidak ada koneksi internet. Coba lagi.",
+    "not_found": "Data tidak ditemukan.",
+    "too_many_requests": "Terlalu banyak permintaan, coba beberapa saat lagi.",
+    "unauthorized": "Sesi telah berakhir. Silakan masuk ulang.",
+    "generic": "Terjadi kesalahan. Coba lagi nanti."
+  }
+}

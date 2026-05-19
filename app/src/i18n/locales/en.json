@@ -1,0 +1,49 @@
+{
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "share": "Share",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "delete": "Delete",
+    "confirm": "Confirm"
+  },
+  "nav": {
+    "home": "Home",
+    "ibadah": "Services",
+    "event": "Events",
+    "persembahan": "Give",
+    "profile": "Profile",
+    "scanner": "Scanner"
+  },
+  "auth": {
+    "welcome_title": "Welcome to ECC",
+    "welcome_sub": "Choose how to get started",
+    "signin_otp": "Sign in with WhatsApp OTP",
+    "signin_face": "Sign in with Face Recognition",
+    "signup": "Create New Account",
+    "guest": "Continue as Guest",
+    "phone_label": "Phone number",
+    "phone_placeholder": "0821... or +62...",
+    "send_otp": "Send OTP",
+    "otp_title": "Enter OTP code",
+    "otp_sub": "Code sent via WhatsApp",
+    "otp_resend": "Resend OTP",
+    "otp_resend_in": "Resend in {{seconds}}s",
+    "otp_verify": "Verify",
+    "not_registered": "Not registered yet? Contact your branch admin.",
+    "logout": "Sign Out"
+  },
+  "error": {
+    "network": "No internet connection. Please try again.",
+    "not_found": "Data not found.",
+    "too_many_requests": "Too many requests, please wait a moment.",
+    "unauthorized": "Session expired. Please sign in again.",
+    "generic": "Something went wrong. Please try again."
+  }
+}
