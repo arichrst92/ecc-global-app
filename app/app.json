@@ -41,14 +41,16 @@
           "cameraPermission": "ECC Global App butuh akses kamera untuk scan QR jemaat dan face recognition.",
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "apiBaseUrl": "http://localhost:4100",
-      "env": "development"
+      "apiBaseUrl": "https://core-api.eccchurch.global",
+      "apiPortDev": 4100
     }
   }
 }
