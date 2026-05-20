@@ -64,6 +64,9 @@ export default function EventPaymentScreen() {
     if (result.canceled || !result.assets[0]) return;
 
     const asset = result.assets[0];
+    // Per BE patch 2026-05-21f flexImageUpload: BE accept jpeg/png/webp/heic/heif/gif
+    // + application/octet-stream (Android camera kadang tidak set MIME).
+    // iOS HEIC Live Photo auto-convert ke WebP di server. Mobile passthrough saja.
     const fileName = asset.fileName ?? `bukti-${Date.now()}.jpg`;
     const type = asset.mimeType ?? 'image/jpeg';
 

@@ -1143,6 +1143,103 @@ Untuk dashboard mobile yang refresh data:
 
 Untuk caching, biarkan browser/OS-level cache handle. Karena `?v=` berbeda saat foto di-update, cache otomatis refresh.
 
+## File upload (multipart) — universal pattern
+
+Semua endpoint upload image di backend pakai helper `flexImageUpload` yang lenient:
+
+### Field name fleksibel
+
+Backend accept semua nama field umum: **`foto`, `bukti`, `file`, `image`** — pilih yang paling readable di mobile codebase. Field pertama yang berisi image akan dipakai (kalau kirim multiple, sisanya di-ignore).
+
+```typescript
+// React Native FormData — semua works:
+const formData = new FormData();
+
+formData.append('foto', { uri, type: 'image/jpeg', name: 'foto.jpg' });   // ✓
+formData.append('bukti', { uri, type: 'image/jpeg', name: 'bukti.jpg' }); // ✓
+formData.append('file', { uri, type: 'image/jpeg', name: 'file.jpg' });   // ✓
+formData.append('image', { uri, type: 'image/jpeg', name: 'image.jpg' }); // ✓
+```
+
+> **Konvensi rekomendasi**: pakai field name sesuai konteks — `foto` untuk profile, `bukti` untuk bukti transfer, `hero` untuk hero image. BE tidak peduli, ini cuma untuk readability mobile codebase.
+
+### MIME types yang diterima
+
+| Format | MIME | Catatan |
+|---|---|---|
+| JPEG | `image/jpeg`, `image/jpg` | ✓ Standard |
+| PNG | `image/png` | ✓ Standard |
+| WebP | `image/webp` | ✓ Standard |
+| HEIC | `image/heic` | ✓ iOS Live Photo, auto-convert ke WebP |
+| HEIF | `image/heif` | ✓ iOS Live Photo, auto-convert ke WebP |
+| GIF | `image/gif` | ✓ Frame pertama ja yang disimpan |
+| Octet-stream | `application/octet-stream` | ✓ Toleran (Android camera kadang tidak set MIME) |
+
+### Size limit
+
+Default **5 MB**. Backend resize otomatis (max 1024/1600/2000px depend jenis). Mobile **tidak perlu** kompres dulu, tapi disarankan untuk bandwidth.
+
+### Endpoint upload yang ada
+
+| Endpoint | Auth | Purpose |
+|---|---|---|
+| `POST /admin/me/foto` | JWT | Foto profile diri (Phase 1) |
+| `POST /admin/event/:id/peserta/:participationId/bukti` | JWT | Bukti transfer event berbayar |
+| `POST /admin/event/:id/hero` | JWT | Hero image event |
+| `POST /admin/event/:id/qris` | JWT | QRIS image event |
+| `POST /admin/cabang/:id/rekening/:rekeningId/qris` | JWT | QRIS per rekening cabang |
+| `POST /admin/news/:id/hero` / `/admin/renungan/:id/hero` | JWT | Hero image news/renungan |
+| `POST /upload/jemaat/:jemaatId/foto` | JWT | Foto jemaat (legacy) |
+| `POST /upload/user/me/foto` | JWT | Foto user/avatar (legacy) |
+
+### Contoh React Native — upload bukti transfer
+
+```typescript
+async function uploadBukti(eventId: string, participationId: string, photoUri: string) {
+  const formData = new FormData();
+  // @ts-ignore — RN FormData accept this shape
+  formData.append('bukti', {
+    uri: photoUri,
+    type: 'image/jpeg',
+    name: 'bukti-transfer.jpg',
+  });
+
+  const res = await fetch(
+    `${BASE_URL}/admin/event/${eventId}/peserta/${participationId}/bukti`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        // JANGAN set Content-Type — RN auto-set dengan boundary
+      },
+      body: formData,
+    }
+  );
+
+  const data = await res.json();
+  if (!data.success) {
+    // data.error.message akan kasih clue:
+    // - "File bukti transfer wajib..." → field name salah / body kosong
+    // - "Tipe file tidak didukung (image/xxx)..." → MIME unexpected
+    // - "File terlalu besar..." → > 5MB
+    throw new Error(data.error.message);
+  }
+  return data.data; // updated EventParticipation
+}
+```
+
+### Common errors
+
+| Status | Code | Penyebab | Fix |
+|---|---|---|---|
+| 400 | `BAD_REQUEST` | "File bukti transfer wajib..." | Body kosong / field name tidak terkirim. Cek FormData append + JANGAN set Content-Type manual |
+| 400 | `BAD_REQUEST` | "Tipe file tidak didukung..." | MIME bukan image — cek mimeType yang di-set di FormData |
+| 400 | `BAD_REQUEST` | "File terlalu besar. Maksimum 5 MB..." | Kompres dulu (resize ke 1600px width / quality 80) |
+| 400 | `BAD_REQUEST` | "Hanya boleh upload 1 file." | Multiple files di-append, BE batasi 1 |
+| 404 | `NOT_FOUND` | Partisipasi tidak ditemukan | Cek path param `eventId` dan `participationId` |
+
+> **Bug fix 2026-05-21f**: sebelumnya BE hanya accept field name `foto` + MIME jpeg/png/webp. iOS HEIC ditolak, dan mobile dev yang pakai field name `bukti` (logical untuk endpoint /bukti) dapat 400 misterius. Sudah di-fix dengan helper baru `flexImageUpload` yang lenient.
+
 ---
 
 # 12. Mobile App Phase 1 — Self-Service, Family, Branch Change

@@ -52,7 +52,12 @@ export function registerPesertaBatch(eventId: string, payload: BatchRegisterPayl
   return api.post<BatchRegisterResponse>(`/admin/event/${eventId}/peserta/batch`, payload);
 }
 
-/** POST /admin/event/:eventId/peserta/:participationId/bukti — multipart upload */
+/**
+ * POST /admin/event/:eventId/peserta/:participationId/bukti — multipart upload.
+ * Per BE patch 2026-05-21f (flexImageUpload helper): field name 'bukti' lebih
+ * semantic untuk endpoint ini. BE accept juga 'foto', 'file', 'image' — semua OK.
+ * MIME yang accepted: jpeg/png/webp/heic/heif/gif + octet-stream.
+ */
 export function uploadBukti(
   eventId: string,
   participationId: string,
@@ -60,7 +65,7 @@ export function uploadBukti(
 ) {
   const formData = new FormData();
   // @ts-expect-error RN FormData accepts file objects
-  formData.append('foto', file);
+  formData.append('bukti', file);
   return api.upload<EventParticipation>(
     `/admin/event/${eventId}/peserta/${participationId}/bukti`,
     formData,

@@ -63,6 +63,17 @@
   - Detail di [`backend-request-optional-signup-fields.md`](./backend-request-optional-signup-fields.md) BE response.
 - M6 todo: Profile screen handle null untuk `tanggalLahir` / `alamat` → "Belum diisi" placeholder dengan tap-to-edit.
 
+### Phase 2 patch (2026-05-21f)
+
+- ✅ **flexImageUpload helper** — BE upload endpoints sekarang lenient.
+- Field name fleksibel: `foto`, `bukti`, `file`, `image` semua OK (pakai yang paling semantic per context).
+- MIME accepted: jpeg/png/webp/heic/heif/gif + octet-stream. iOS HEIC Live Photo auto-convert ke WebP di server. Android camera yang tidak set MIME tetap accepted (octet-stream).
+- Endpoint affected: `POST /admin/me/foto`, `/admin/event/:id/peserta/:pid/bukti`, `/admin/event/:id/hero`, `/admin/event/:id/qris`, `/admin/cabang/:id/rekening/:rkId/qris`, `/admin/news|renungan/:id/hero`.
+- Mobile implementation:
+  - `src/api/event.ts`: `uploadBukti` ganti field name `foto` → `bukti` (semantic).
+  - `app/event/[id]/payment.tsx`: passthrough mimeType dari ImagePicker (gak filter, biarkan BE convert).
+  - `src/api/me.ts`: `uploadMyFoto` tetap pakai `foto` (semantic untuk profile).
+
 ---
 
 ## Detail implementasi penting per endpoint
