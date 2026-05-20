@@ -2,7 +2,7 @@ import '../global.css';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
@@ -11,19 +11,16 @@ import { useColorScheme } from '@/components/useColorScheme';
 import '@/i18n';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
+import { ToastContainer } from '@/components/ui/Toast';
 
 export { ErrorBoundary } from 'expo-router';
-
-export const unstable_settings = {
-  initialRouteName: '(tabs)',
-};
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60_000, // 1 menit default
+      staleTime: 60_000,
       retry: 1,
       refetchOnWindowFocus: false,
     },
@@ -60,18 +57,35 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <RootLayoutNav />
+      <ToastContainer />
     </QueryClientProvider>
   );
 }
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const segments = useSegments();
+  const router = useRouter();
+
+  // Auth-aware redirect logic
+  useEffect(() => {
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!isAuthenticated && !inAuthGroup) {
+      // Not authed, not on auth screen → redirect ke welcome
+      router.replace('/(auth)/welcome');
+    } else if (isAuthenticated && inAuthGroup) {
+      // Authed but on auth screen → redirect ke tabs
+      router.replace('/(tabs)');
+    }
+  }, [isAuthenticated, segments, router]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
       </Stack>
     </ThemeProvider>
   );
