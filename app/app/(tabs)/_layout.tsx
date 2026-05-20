@@ -15,6 +15,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: '#F97316',
         tabBarInactiveTintColor: '#737373',
         tabBarStyle: {
+          backgroundColor: '#FFFFFF', // explicit — supaya dark mode iOS tidak bikin hitam
           borderTopWidth: 1,
           borderTopColor: '#E5E5E5',
           paddingTop: 6,

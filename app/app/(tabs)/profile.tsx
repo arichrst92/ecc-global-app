@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
 import { LogOut, AlertTriangle, ChevronRight, BookOpen, Bell, QrCode, Printer } from 'lucide-react-native';
 
@@ -25,10 +26,11 @@ export default function ProfileTab() {
 
   return (
     <View className="flex-1 bg-neutral-50">
+      <StatusBar style="light" />
       {/* Header */}
-      <View className="bg-brand-500 pb-12 rounded-b-3xl">
+      <View className="bg-brand-500 rounded-b-3xl">
         <SafeAreaView edges={['top']}>
-          <View className="px-5 pt-4 pb-3">
+          <View className="px-5 pt-4 pb-8">
             <Text className="text-white text-lg font-bold mb-4">{t('profile.title')}</Text>
             <View className="flex-row items-center gap-4">
               <Avatar
@@ -50,8 +52,8 @@ export default function ProfileTab() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
       >
-        {/* Member code card */}
-        <Pressable className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100 -mt-6 mb-4">
+        {/* Member code card — no negative margin, sits below header dengan jarak normal */}
+        <Pressable className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100 mb-4">
           <View className="w-14 h-14 rounded-xl bg-brand-500 items-center justify-center">
             <QrCode size={26} color="#fff" />
           </View>

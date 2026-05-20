@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays } from 'lucide-react-native';
@@ -56,6 +57,7 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
+      <StatusBar style="light" />
       <ScrollView
         className="flex-1"
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />}
@@ -65,7 +67,7 @@ export default function HomeScreen() {
         <ViewingBanner />
 
         {/* Header gradient */}
-        <View className="bg-brand-500 pb-12 rounded-b-3xl">
+        <View className="bg-brand-500 pb-6 rounded-b-3xl">
           <SafeAreaView edges={['top']}>
             <View className="flex-row items-center justify-between px-5 pt-4 pb-3">
               <View className="flex-row items-center gap-3 flex-1">
@@ -110,7 +112,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Today's Service */}
-        <View className="px-5 -mt-6">
+        <View className="px-5 mt-4">
           {todayService ? (
             <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
               <View className="p-4">

@@ -1,13 +1,13 @@
 import '../global.css';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
-
-import { useColorScheme } from '@/components/useColorScheme';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '@/i18n';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
@@ -67,15 +67,20 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RootLayoutNav />
-      <ToastContainer />
-    </QueryClientProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        {/* Default StatusBar — 'auto' adapt ke system color scheme (light mode = dark icons).
+            Individual screens dengan orange header pakai <StatusBar style="light" />
+            untuk override (icons putih supaya visible di atas orange). */}
+        <StatusBar style="dark" translucent backgroundColor="transparent" />
+        <RootLayoutNav />
+        <ToastContainer />
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const jemaatId = useAuthStore((s) => s.user?.jemaatId);
   const segments = useSegments();
@@ -102,8 +107,8 @@ function RootLayoutNav() {
   }, [jemaatId, rehydrateEventFlow]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
+    <ThemeProvider value={DefaultTheme}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FFFFFF' } }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
       </Stack>

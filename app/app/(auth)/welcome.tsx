@@ -1,8 +1,8 @@
-import { Text, View, Pressable } from 'react-native';
+import { Image, Text, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Church, MessageCircleMore, ScanFace, UserPlus, Eye, ChevronRight } from 'lucide-react-native';
+import { MessageCircleMore, ScanFace, UserPlus, Eye, ChevronRight } from 'lucide-react-native';
 
 import { useToast } from '@/components/ui/Toast';
 
@@ -59,14 +59,16 @@ export default function WelcomeScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-b from-brand-50 to-white">
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="flex-1 px-6">
         {/* Hero */}
         <View className="items-center mt-6 mb-8">
-          <View className="w-20 h-20 rounded-3xl bg-brand-500 items-center justify-center mb-4 shadow-lg">
-            <Church size={40} color="#fff" />
-          </View>
-          <Text className="text-2xl font-bold text-neutral-900">{t('auth.welcome_title')}</Text>
+          <Image
+            source={require('../../assets/images/logo-ecc.webp')}
+            style={{ width: 96, height: 96 }}
+            resizeMode="contain"
+          />
+          <Text className="text-2xl font-bold text-neutral-900 mt-4">ECC Global App</Text>
           <Text className="text-neutral-500 text-sm mt-1">{t('auth.welcome_sub')}</Text>
         </View>
 
@@ -90,10 +92,22 @@ export default function WelcomeScreen() {
             <OptionCard key={i} option={o} />
           ))}
         </View>
+
+        {/* Powered by IDEA — di bawah tombol Guest */}
+        <View className="items-center mt-6">
+          <View className="flex-row items-center gap-2">
+            <Text className="text-xs text-neutral-400">Powered by</Text>
+            <Image
+              source={require('../../assets/images/logo-idea.webp')}
+              style={{ width: 56, height: 20 }}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
       </View>
 
       {/* Footer */}
-      <View className="px-6 pb-6">
+      <View className="px-6 pb-4">
         <Text className="text-xs text-neutral-400 text-center leading-relaxed">
           {t('auth.tos_notice')}
         </Text>
