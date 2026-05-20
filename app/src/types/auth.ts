@@ -22,8 +22,9 @@ export type RegisterPayload = {
   jenisKelamin: 'L' | 'P';
   alamat: string;
   cabangId: string;
-  homecellId?: string | null;
-  fotoBase64?: string;
+  // Note: homecellId & fotoBase64 dihapus dari signup mobile.
+  // Homecell: admin assign manual atau jemaat tambah via Settings setelah login.
+  // Foto: upload di Settings → Edit Foto via POST /admin/me/foto multipart.
 };
 
 export type AuthSuccessData = {

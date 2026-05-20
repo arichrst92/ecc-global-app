@@ -4,11 +4,12 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Camera, Info } from 'lucide-react-native';
+import { ArrowLeft, Info } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Stepper } from '@/components/ui/Stepper';
 import { TextField } from '@/components/ui/TextField';
+import { DateField } from '@/components/ui/DateField';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Picker } from '@/components/ui/Picker';
 import { register } from '@/api/auth';
@@ -58,7 +59,6 @@ export default function SignupDataScreen() {
         jenisKelamin: jenisKelamin as 'L' | 'P',
         alamat,
         cabangId,
-        homecellId: null,
       }),
     onSuccess: async (data) => {
       // Save tokens + user, lalu navigate ke success
@@ -135,17 +135,6 @@ export default function SignupDataScreen() {
         <Text className="text-2xl font-bold text-neutral-900 mt-3 mb-1">{t('signup.data_title')}</Text>
         <Text className="text-neutral-500 text-sm mb-5">{t('signup.data_sub')}</Text>
 
-        {/* Photo placeholder - upload feature di iterasi berikutnya */}
-        <View className="bg-white rounded-2xl p-4 mb-3 flex-row items-center gap-4 border border-neutral-100">
-          <View className="w-16 h-16 rounded-2xl bg-brand-100 items-center justify-center">
-            <Camera size={24} color="#EA580C" />
-          </View>
-          <View className="flex-1">
-            <Text className="font-semibold text-sm text-neutral-900">{t('signup.photo')}</Text>
-            <Text className="text-xs text-neutral-500 mt-0.5">{t('signup.photo_optional')}</Text>
-          </View>
-        </View>
-
         {/* Form fields */}
         <View className="bg-white rounded-2xl p-4 gap-3 border border-neutral-100">
           <TextField
@@ -160,19 +149,15 @@ export default function SignupDataScreen() {
             editable={!mutation.isPending}
           />
 
-          <TextField
+          <DateField
             label={t('signup.dob')}
-            placeholder="YYYY-MM-DD"
-            helper="Format: 1995-03-15"
+            placeholder={t('signup.dob_placeholder')}
             value={tanggalLahir}
-            onChangeText={(v) => {
+            onChange={(v) => {
               setField('tanggalLahir', v);
               setErrors((e) => ({ ...e, tanggalLahir: undefined }));
             }}
             error={errors.tanggalLahir}
-            keyboardType="numeric"
-            maxLength={10}
-            editable={!mutation.isPending}
           />
 
           <SegmentedControl<'L' | 'P'>

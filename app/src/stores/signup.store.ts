@@ -3,19 +3,18 @@ import { create } from 'zustand';
 /**
  * Ephemeral state untuk sign-up wizard (3 step).
  * TIDAK persist (Zustand in-memory only) — reset saat user keluar atau selesai.
+ *
+ * Note: homecell DIHAPUS — BE bisa di-set admin manual atau via Settings setelah login.
+ *       Foto profil juga TIDAK di signup — user upload di Settings → Edit Foto.
  */
 type SignupState = {
-  // Step 1
-  noHp: string; // E.164 setelah normalize
-  // Step 2 (just marker bahwa OTP sudah verified — actual auth via /auth/register)
+  noHp: string;
   otpVerified: boolean;
-  // Step 3
   namaLengkap: string;
   tanggalLahir: string; // YYYY-MM-DD
   jenisKelamin: 'L' | 'P' | '';
   alamat: string;
   cabangId: string;
-  homecellId: string | null;
 
   setNoHp: (v: string) => void;
   setOtpVerified: (v: boolean) => void;
@@ -31,7 +30,6 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
   jenisKelamin: '',
   alamat: '',
   cabangId: '',
-  homecellId: null,
 };
 
 export const useSignupStore = create<SignupState>((set) => ({
