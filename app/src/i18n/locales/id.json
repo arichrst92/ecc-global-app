@@ -137,6 +137,26 @@
   "placeholder": {
     "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."
   },
+  "content": {
+    "title": "Berita & Renungan",
+    "tab_news": "Berita",
+    "tab_renungan": "Renungan",
+    "empty_news": "Belum ada berita",
+    "empty_renungan": "Belum ada renungan",
+    "empty_msg": "Konten baru akan muncul di sini.",
+    "bible_verse": "Ayat Hari Ini",
+    "prev": "Sebelumnya",
+    "next": "Berikutnya"
+  },
+  "persembahan": {
+    "title": "Persembahan",
+    "notice": "Persembahan diberikan secara sukarela. Mohon konfirmasi ke admin cabang setelah transfer untuk pencatatan.",
+    "show_qris": "Tampilkan QRIS",
+    "qris_hint": "Scan dengan aplikasi mobile banking atau e-wallet apa pun.",
+    "no_qris": "QRIS belum tersedia untuk rekening ini.",
+    "empty_title": "Belum ada rekening",
+    "empty_msg": "Cabang ini belum menambahkan rekening persembahan."
+  },
   "event": {
     "title": "Event & Movement",
     "filter_all": "Semua",

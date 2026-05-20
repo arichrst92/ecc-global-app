@@ -167,12 +167,12 @@ export default function HomeScreen() {
         {/* Renungan today */}
         <Section
           title={t('home.today_devotional')}
-          onSeeAll={() => router.push('/(tabs)/event' /* TODO: news-list with renungan tab di M4 */)}
+          onSeeAll={() => router.push('/content?tab=renungan')}
         >
           {renungan ? (
             <Pressable
               className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
-              onPress={() => router.push('/(tabs)/event' /* TODO M4: navigate ke renungan detail */)}
+              onPress={() => router.push(`/content/renungan/${renungan.slug || renungan.id}`)}
             >
               <HeroImage
                 url={renungan.heroImageUrl}
@@ -250,7 +250,7 @@ export default function HomeScreen() {
         {/* Latest News */}
         <Section
           title={t('home.latest_news')}
-          onSeeAll={() => router.push('/(tabs)/event' /* TODO M4 */)}
+          onSeeAll={() => router.push('/content?tab=news')}
         >
           {newsQuery.isPending ? (
             <SkeletonCard height={80} />
@@ -265,7 +265,7 @@ export default function HomeScreen() {
                 <Pressable
                   key={n.id}
                   className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
-                  onPress={() => router.push('/(tabs)/event' /* TODO M4 */)}
+                  onPress={() => router.push(`/content/news/${n.slug || n.id}`)}
                 >
                   <HeroImage
                     url={n.heroImageUrl}

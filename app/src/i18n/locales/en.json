@@ -137,6 +137,26 @@
   "placeholder": {
     "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."
   },
+  "content": {
+    "title": "News & Devotionals",
+    "tab_news": "News",
+    "tab_renungan": "Devotionals",
+    "empty_news": "No news yet",
+    "empty_renungan": "No devotionals yet",
+    "empty_msg": "New content will appear here.",
+    "bible_verse": "Today's Verse",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "persembahan": {
+    "title": "Giving",
+    "notice": "Giving is voluntary. Please confirm with branch admin after transferring for proper record.",
+    "show_qris": "Show QRIS",
+    "qris_hint": "Scan with any mobile banking or e-wallet app.",
+    "no_qris": "QRIS is not yet available for this account.",
+    "empty_title": "No accounts yet",
+    "empty_msg": "This branch hasn't added giving accounts."
+  },
   "event": {
     "title": "Events & Movements",
     "filter_all": "All",
