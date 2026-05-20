@@ -1,173 +1,261 @@
-import { useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bell, LogOut, Construction, AlertTriangle } from 'lucide-react-native';
+import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, BookOpen, Newspaper } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/auth.store';
-import { useLogout } from '@/hooks/useLogout';
-import { formatPhoneDisplay } from '@/utils/phone';
+import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
+import { env } from '@/config/env';
 
-export default function HomePlaceholder() {
+function formatTime(hhmm: string): string {
+  return hhmm; // BE return "08:00" — display apa adanya
+}
+
+export default function HomeScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  const logoutMutation = useLogout();
-  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  function confirmLogout() {
-    setConfirmOpen(false);
-    logoutMutation.mutate();
+  const statsQuery = useMyStats();
+  const todayQuery = useTodayServices();
+  const renunganQuery = useLatestRenungan();
+  const newsQuery = useLatestNews();
+
+  const isRefreshing =
+    statsQuery.isRefetching ||
+    todayQuery.isRefetching ||
+    renunganQuery.isRefetching ||
+    newsQuery.isRefetching;
+
+  function refresh() {
+    statsQuery.refetch();
+    todayQuery.refetch();
+    renunganQuery.refetch();
+    newsQuery.refetch();
   }
 
   if (!user) return null;
 
+  const todayService = todayQuery.data?.[0] ?? null;
+  const streak = statsQuery.data?.streakWeeks ?? 0;
+  const renungan = renunganQuery.data;
+  const news = newsQuery.data ?? [];
+
   return (
     <View className="flex-1 bg-neutral-50">
-      {/* Header */}
-      <View className="bg-brand-500 pb-8 rounded-b-3xl">
-        <SafeAreaView edges={['top']}>
-          <View className="flex-row items-center justify-between px-5 pt-4 pb-3">
-            <View className="flex-row items-center gap-3">
-              <Avatar
-                name={user.namaLengkap}
-                fotoUrl={user.fotoUrl}
-                size={44}
-                className="bg-white/20"
-              />
-              <View>
-                <Text className="text-white/80 text-xs">{t('home.greeting')}</Text>
-                <Text className="text-white font-semibold">{user.namaLengkap.split(' ')[0]}</Text>
-              </View>
-            </View>
-            <View className="bg-white/15 rounded-full p-2">
-              <Bell size={20} color="#fff" />
-            </View>
-          </View>
-        </SafeAreaView>
-      </View>
-
-      <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 16, paddingBottom: 32 }}>
-        {/* Placeholder card */}
-        <View className="bg-white rounded-2xl p-5 mb-4 border border-neutral-100">
-          <View className="w-12 h-12 rounded-xl bg-amber-50 items-center justify-center mb-3">
-            <Construction size={24} color="#D97706" />
-          </View>
-          <Text className="text-lg font-bold text-neutral-900 mb-1">
-            {t('home.placeholder_title')}
-          </Text>
-          <Text className="text-sm text-neutral-500 leading-relaxed">
-            {t('home.placeholder_msg')}
-          </Text>
-        </View>
-
-        {/* User info card */}
-        <View className="bg-white rounded-2xl p-4 mb-4 border border-neutral-100">
-          <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
-            {t('home.user_info')}
-          </Text>
-          <InfoRow label={t('home.member_code')} value={user.kode} mono />
-          <InfoRow label={t('auth.phone_label')} value={formatPhoneDisplay(user.noHp)} />
-          <InfoRow label={t('home.full_name')} value={user.namaLengkap} />
-          <InfoRow
-            label={t('home.role')}
-            value={user.isFulltimer ? 'Fulltimer' : 'Jemaat'}
-            isLast
-          />
-        </View>
-
-        {/* Next milestones hint */}
-        <View className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4">
-          <Text className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">
-            {t('home.next_steps')}
-          </Text>
-          <Text className="text-sm text-blue-900 leading-relaxed">
-            {t('home.next_steps_msg')}
-          </Text>
-        </View>
-
-        <Button
-          label={t('auth.logout')}
-          variant="danger"
-          onPress={() => setConfirmOpen(true)}
-          loading={logoutMutation.isPending}
-          leftIcon={<LogOut size={16} color="#fff" />}
-          fullWidth
-        />
-      </ScrollView>
-
-      {/* Confirm modal — cross-platform reliable (vs Alert.alert) */}
-      <Modal
-        visible={confirmOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setConfirmOpen(false)}
+      <ScrollView
+        className="flex-1"
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />}
+        contentContainerStyle={{ paddingBottom: 32 }}
       >
-        <Pressable
-          onPress={() => setConfirmOpen(false)}
-          className="flex-1 bg-black/50 items-center justify-center px-6"
+        {/* Header gradient */}
+        <View className="bg-brand-500 pb-12 rounded-b-3xl">
+          <SafeAreaView edges={['top']}>
+            <View className="flex-row items-center justify-between px-5 pt-4 pb-3">
+              <View className="flex-row items-center gap-3 flex-1">
+                <Avatar
+                  name={user.namaLengkap}
+                  fotoUrl={user.fotoUrl}
+                  size={44}
+                  className="bg-white/20"
+                />
+                <View className="flex-1">
+                  <Text className="text-white/80 text-xs">{t('home.greeting')}</Text>
+                  <Text className="text-white font-semibold" numberOfLines={1}>
+                    {user.namaLengkap.split(' ')[0]}
+                  </Text>
+                </View>
+              </View>
+              <Pressable className="bg-white/15 rounded-full p-2">
+                <Bell size={20} color="#fff" />
+              </Pressable>
+            </View>
+
+            {/* Streak banner */}
+            {streak > 0 ? (
+              <View className="mx-5 mt-1 bg-white/10 rounded-2xl p-3 flex-row items-center gap-3">
+                <View className="w-10 h-10 rounded-xl bg-amber-300 items-center justify-center">
+                  <Text className="text-lg">🔥</Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white/80 text-xs">{t('home.streak_label')}</Text>
+                  <Text className="text-white font-semibold">
+                    {t('home.streak_weeks', { count: streak })}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+          </SafeAreaView>
+        </View>
+
+        {/* Today's Service */}
+        <View className="px-5 -mt-6">
+          {todayService ? (
+            <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
+              <View className="p-4">
+                <View className="flex-row items-center gap-2 mb-2">
+                  <View className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <Text className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
+                    {t('home.today_service')}
+                  </Text>
+                </View>
+                <Text className="text-lg font-bold text-neutral-900">{todayService.nama}</Text>
+                <View className="flex-row items-center gap-2 mt-1.5">
+                  <Clock size={14} color="#737373" />
+                  <Text className="text-sm text-neutral-500">
+                    {formatTime(todayService.jamMulai)} - {formatTime(todayService.jamSelesai)}
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-2 mt-1">
+                  <MapPin size={14} color="#737373" />
+                  <Text className="text-sm text-neutral-500 flex-1" numberOfLines={1}>
+                    {todayService.lokasi}
+                  </Text>
+                </View>
+              </View>
+              <View className="flex-row border-t border-neutral-100">
+                <Pressable
+                  className="flex-1 py-3 flex-row items-center justify-center gap-2"
+                  onPress={() => router.push(`/ibadah/${todayService.ibadahId}`)}
+                >
+                  <Church size={16} color="#525252" />
+                  <Text className="text-sm font-medium text-neutral-700">{t('home.detail')}</Text>
+                </Pressable>
+                <View className="w-px bg-neutral-100" />
+                <Pressable
+                  className="flex-1 py-3 flex-row items-center justify-center gap-2"
+                  onPress={() => router.push('/qr-card')}
+                >
+                  <QrCode size={16} color="#EA580C" />
+                  <Text className="text-sm font-semibold text-brand-600">{t('home.show_qr')}</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : todayQuery.isPending ? (
+            <SkeletonCard height={120} />
+          ) : (
+            <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
+              <Church size={28} color="#A3A3A3" />
+              <Text className="text-sm text-neutral-500 mt-2">{t('home.no_service_today')}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Renungan today */}
+        <Section
+          title={t('home.today_devotional')}
+          onSeeAll={() => router.push('/(tabs)/event' /* TODO: news-list with renungan tab di M4 */)}
         >
-          <Pressable onPress={() => { /* prevent close saat tap card */ }} className="bg-white rounded-2xl p-5 w-full max-w-sm">
-            <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
-              <AlertTriangle size={24} color="#DC2626" />
-            </View>
-            <Text className="text-lg font-bold text-neutral-900 mb-1">
-              {t('auth.logout_confirm_title')}
-            </Text>
-            <Text className="text-sm text-neutral-500 mb-4 leading-relaxed">
-              {t('auth.logout_confirm_msg')}
-            </Text>
-            <View className="flex-row gap-2">
-              <View className="flex-1">
-                <Button
-                  label={t('common.cancel')}
-                  variant="secondary"
-                  onPress={() => setConfirmOpen(false)}
-                  fullWidth
-                  disabled={logoutMutation.isPending}
-                />
+          {renungan ? (
+            <Pressable
+              className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
+              onPress={() => router.push('/(tabs)/event' /* TODO M4: navigate ke renungan detail */)}
+            >
+              <View
+                className="h-24 bg-gradient-to-br from-amber-200 to-orange-200 items-end justify-end p-3"
+                style={{ backgroundColor: '#FED7AA' }}
+              >
+                <Text style={{ fontSize: 36 }}>📖</Text>
               </View>
-              <View className="flex-1">
-                <Button
-                  label={t('auth.logout')}
-                  variant="danger"
-                  onPress={confirmLogout}
-                  fullWidth
-                  loading={logoutMutation.isPending}
-                />
+              <View className="p-3.5">
+                <Text className="text-xs text-brand-600 font-semibold">
+                  {renungan.ayatAlkitab} · {t('home.today_service').split(' ')[1] /* "Hari ini"/"today" approx */}
+                </Text>
+                <Text className="font-bold text-neutral-900 mt-1" numberOfLines={1}>
+                  {renungan.judul}
+                </Text>
+                <Text className="text-sm text-neutral-500 mt-1" numberOfLines={2}>
+                  {renungan.ringkasan}
+                </Text>
               </View>
+            </Pressable>
+          ) : renunganQuery.isPending ? (
+            <SkeletonCard height={140} />
+          ) : null}
+        </Section>
+
+        {/* Latest News */}
+        <Section
+          title={t('home.latest_news')}
+          onSeeAll={() => router.push('/(tabs)/event' /* TODO M4 */)}
+        >
+          {newsQuery.isPending ? (
+            <SkeletonCard height={80} />
+          ) : news.length === 0 ? (
+            <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
+              <Newspaper size={24} color="#A3A3A3" />
+              <Text className="text-sm text-neutral-500 mt-2">Belum ada berita</Text>
             </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+          ) : (
+            <View className="gap-2.5">
+              {news.map((n) => (
+                <Pressable
+                  key={n.id}
+                  className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+                  onPress={() => router.push('/(tabs)/event' /* TODO M4 */)}
+                >
+                  <View
+                    className="w-14 h-14 rounded-xl items-center justify-center"
+                    style={{ backgroundColor: '#F5F5F5' }}
+                  >
+                    {n.heroImageUrl ? (
+                      // Placeholder icon untuk MVP — proper image M4
+                      <BookOpen size={22} color="#737373" />
+                    ) : (
+                      <Newspaper size={22} color="#737373" />
+                    )}
+                  </View>
+                  <View className="flex-1">
+                    <Text className="font-semibold text-sm text-neutral-900" numberOfLines={1}>
+                      {n.judul}
+                    </Text>
+                    <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={2}>
+                      {n.ringkasan}
+                    </Text>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </Section>
+      </ScrollView>
     </View>
   );
 }
 
-function InfoRow({
-  label,
-  value,
-  mono,
-  isLast,
+function Section({
+  title,
+  onSeeAll,
+  children,
 }: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  isLast?: boolean;
+  title: string;
+  onSeeAll?: () => void;
+  children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
+  return (
+    <View className="px-5 mt-5">
+      <View className="flex-row items-center justify-between mb-2.5">
+        <Text className="font-bold text-neutral-900">{title}</Text>
+        {onSeeAll ? (
+          <Pressable onPress={onSeeAll} className="flex-row items-center gap-0.5">
+            <Text className="text-xs text-brand-600 font-semibold">{t('home.see_all')}</Text>
+            <ChevronRight size={14} color="#EA580C" />
+          </Pressable>
+        ) : null}
+      </View>
+      {children}
+    </View>
+  );
+}
+
+function SkeletonCard({ height }: { height: number }) {
   return (
     <View
-      className={`flex-row items-center justify-between py-2.5 ${
-        isLast ? '' : 'border-b border-neutral-100'
-      }`}
-    >
-      <Text className="text-sm text-neutral-500">{label}</Text>
-      <Text
-        className={`text-sm font-semibold text-neutral-900 ${mono ? 'tracking-widest' : ''}`}
-      >
-        {value}
-      </Text>
-    </View>
+      className="bg-neutral-100 rounded-2xl"
+      style={{ height }}
+    />
   );
 }

@@ -106,14 +106,36 @@
   },
   "home": {
     "greeting": "Halo,",
-    "placeholder_title": "M1 Auth Flow Berhasil! 🎉",
-    "placeholder_msg": "Anda sekarang login dengan akun yang sebenarnya dari ECC backend. Token disimpan secure di Keychain/Keystore, auto-refresh tiap 15 menit, persistent across app restart.",
-    "user_info": "Info Akun Anda",
+    "today_service": "Ibadah Hari Ini",
+    "no_service_today": "Tidak ada ibadah hari ini",
+    "see_all": "Lihat semua",
+    "today_devotional": "Renungan Hari Ini",
+    "upcoming_events": "Event Mendatang",
+    "latest_news": "Kabar Terbaru",
+    "streak_label": "Streak Hadir",
+    "streak_weeks": "{{count}} minggu berturut-turut",
+    "show_qr": "Tampilkan QR",
+    "detail": "Detail",
     "member_code": "Kode Jemaat",
     "full_name": "Nama Lengkap",
-    "role": "Peran",
-    "next_steps": "Langkah Selanjutnya",
-    "next_steps_msg": "M2: Home dashboard lengkap, kalender ibadah, QR Card carousel untuk family. Sedang dalam pengembangan."
+    "role": "Peran"
+  },
+  "profile": {
+    "title": "Profil Saya",
+    "quick_access": "Akses Cepat",
+    "bible": "Alkitab",
+    "notifications": "Notifikasi",
+    "printer": "Printer",
+    "settings_title": "Pengaturan",
+    "edit_profile": "Edit Profil",
+    "change_branch": "Ganti Cabang Home",
+    "language": "Bahasa",
+    "about": "Tentang Aplikasi"
+  },
+  "placeholder": {
+    "ibadah_msg": "Daftar dan kalender ibadah cabang Anda. Sedang dalam pengembangan untuk M2.",
+    "event_msg": "Event-event mendatang, pendaftaran, dan pembayaran. Akan tersedia di M3.",
+    "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

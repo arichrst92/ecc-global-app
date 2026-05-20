@@ -26,6 +26,34 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
+      <Tabs.Screen
+        name="ibadah"
+        options={{
+          title: t('nav.ibadah'),
+          tabBarIcon: ({ color, size }) => <Church color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="event"
+        options={{
+          title: t('nav.event'),
+          tabBarIcon: ({ color, size }) => <CalendarDays color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="persembahan"
+        options={{
+          title: t('nav.persembahan'),
+          tabBarIcon: ({ color, size }) => <HandHeart color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: t('nav.profile'),
+          tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />,
+        }}
+      />
     </Tabs>
   );
 }

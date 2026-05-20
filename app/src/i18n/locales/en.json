@@ -106,14 +106,36 @@
   },
   "home": {
     "greeting": "Hi,",
-    "placeholder_title": "M1 Auth Flow Complete! 🎉",
-    "placeholder_msg": "You are now logged in with a real account from ECC backend. Tokens are stored securely in Keychain/Keystore, auto-refresh every 15 minutes, and persist across app restart.",
-    "user_info": "Your Account Info",
+    "today_service": "Today's Service",
+    "no_service_today": "No service today",
+    "see_all": "See all",
+    "today_devotional": "Today's Devotional",
+    "upcoming_events": "Upcoming Events",
+    "latest_news": "Latest News",
+    "streak_label": "Attendance Streak",
+    "streak_weeks": "{{count}} weeks in a row",
+    "show_qr": "Show QR",
+    "detail": "Detail",
     "member_code": "Member Code",
     "full_name": "Full Name",
-    "role": "Role",
-    "next_steps": "Next Steps",
-    "next_steps_msg": "M2: Full home dashboard, service calendar, QR Card carousel for family. Coming next."
+    "role": "Role"
+  },
+  "profile": {
+    "title": "My Profile",
+    "quick_access": "Quick Access",
+    "bible": "Bible",
+    "notifications": "Notifications",
+    "printer": "Printer",
+    "settings_title": "Settings",
+    "edit_profile": "Edit Profile",
+    "change_branch": "Change Home Branch",
+    "language": "Language",
+    "about": "About App"
+  },
+  "placeholder": {
+    "ibadah_msg": "Service list and calendar for your branch. Coming in M2.",
+    "event_msg": "Upcoming events, registration, and payment. Coming in M3.",
+    "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."
   },
   "error": {
     "network": "No internet connection. Please try again.",
