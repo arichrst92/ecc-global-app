@@ -8,7 +8,7 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react-native';
 
 import { OtpInput } from '@/components/ui/OtpInput';
 import { useToast } from '@/components/ui/Toast';
-import { requestOtp, verifyOtp } from '@/api/auth';
+import { requestOtp, verifyOtpLogin } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { ApiError } from '@/types/api';
@@ -33,7 +33,7 @@ export default function LoginOtpScreen() {
   }, [cooldown]);
 
   const verifyMutation = useMutation({
-    mutationFn: async (code: string) => verifyOtp({ noHp, kode: code, purpose: 'LOGIN' }),
+    mutationFn: async (code: string) => verifyOtpLogin({ noHp, kode: code }),
     onSuccess: async (data) => {
       await login(data.accessToken, data.refreshToken, data.user);
       showToast(t('auth.login_success'), 'success');

@@ -76,6 +76,7 @@
     "otp_verified": "OTP verified",
     "data_title": "Personal Info",
     "data_sub": "Complete your profile to finish registration",
+    "otp_window": "{{minutes}}:{{seconds}} left to finish registration",
     "full_name": "Full Name",
     "full_name_placeholder": "e.g. Ari Christian",
     "dob": "Date of Birth",

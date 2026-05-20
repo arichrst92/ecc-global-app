@@ -1231,9 +1231,28 @@ POST /auth/otp/verify
 { "noHp": "+6281234567890", "kode": "123456", "purpose": "ENROLLMENT" }
 ```
 
-Response sama dengan login, tapi karena belum ada Jemaat row, sebenarnya BE belum return user data — flow dilanjut ke /auth/register.
+**Response untuk `purpose=ENROLLMENT` BERBEDA dari LOGIN** — karena jemaat belum ada, BE tidak return JWT. Cuma marker bahwa OTP sudah ter-verify dan mobile boleh lanjut ke `/auth/register`.
 
-> **Implementation note:** sementara mobile app bisa abaikan auth response dari verify ENROLLMENT (atau backend di-tweak untuk return marker `pendingRegistration: true`). Yang penting OtpVerification record sudah ditandai `usedAt != null`, jadi step register tinggal pickup.
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "otpVerified": true,
+    "purpose": "ENROLLMENT",
+    "noHp": "+6281234567890",
+    "pendingRegistration": true,
+    "nextStep": "POST /auth/register",
+    "validForSeconds": 900
+  },
+  "message": "OTP terverifikasi. Lanjutkan ke /auth/register untuk menyelesaikan registrasi."
+}
+```
+
+Mobile harus segera lanjut ke `POST /auth/register` dalam 15 menit (sesuai `validForSeconds`). Setelah itu, OTP verify expired dan user harus request ulang.
+
+> **Bug fix 2026-05-21c**: sebelumnya endpoint ini selalu coba lookup jemaat by noHp setelah verify → untuk ENROLLMENT throw "Data tidak ditemukan" karena jemaat memang belum ada. Sudah di-fix — verify ENROLLMENT sekarang skip lookup.
 
 ### Step 3: Submit data diri
 

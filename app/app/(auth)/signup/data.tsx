@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Info } from 'lucide-react-native';
+import { ArrowLeft, Info, Clock } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Stepper } from '@/components/ui/Stepper';
@@ -45,10 +45,36 @@ export default function SignupDataScreen() {
   const jenisKelamin = useSignupStore((s) => s.jenisKelamin);
   const alamat = useSignupStore((s) => s.alamat);
   const cabangId = useSignupStore((s) => s.cabangId);
+  const otpVerifiedExpiresAt = useSignupStore((s) => s.otpVerifiedExpiresAt);
   const setField = useSignupStore((s) => s.setField);
   const reset = useSignupStore((s) => s.reset);
 
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+
+  // Countdown timer untuk window OTP enrollment (15 min)
+  useEffect(() => {
+    if (!otpVerifiedExpiresAt) return;
+    const update = () => {
+      const remaining = Math.max(0, Math.floor((otpVerifiedExpiresAt - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+      // Auto-redirect kalau expired
+      if (remaining === 0) {
+        Alert.alert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [
+          {
+            text: 'OK',
+            onPress: () => {
+              reset();
+              router.replace('/(auth)/signup');
+            },
+          },
+        ]);
+      }
+    };
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, [otpVerifiedExpiresAt, reset, router, t]);
 
   const branchesQuery = useBranches();
 
@@ -139,7 +165,30 @@ export default function SignupDataScreen() {
         <Stepper current={3} total={3} />
 
         <Text className="text-2xl font-bold text-neutral-900 mt-3 mb-1">{t('signup.data_title')}</Text>
-        <Text className="text-neutral-500 text-sm mb-5">{t('signup.data_sub')}</Text>
+        <Text className="text-neutral-500 text-sm mb-3">{t('signup.data_sub')}</Text>
+
+        {/* OTP window countdown */}
+        {secondsLeft !== null && secondsLeft > 0 ? (
+          <View
+            className={`flex-row items-center gap-2 px-3 py-2 rounded-xl mb-4 ${
+              secondsLeft < 120
+                ? 'bg-amber-50 border border-amber-200'
+                : 'bg-neutral-50 border border-neutral-200'
+            }`}
+          >
+            <Clock size={14} color={secondsLeft < 120 ? '#D97706' : '#737373'} />
+            <Text
+              className={`text-xs flex-1 ${
+                secondsLeft < 120 ? 'text-amber-800 font-medium' : 'text-neutral-600'
+              }`}
+            >
+              {t('signup.otp_window', {
+                minutes: Math.floor(secondsLeft / 60),
+                seconds: String(secondsLeft % 60).padStart(2, '0'),
+              })}
+            </Text>
+          </View>
+        ) : null}
 
         {/* Form fields */}
         <View className="bg-white rounded-2xl p-4 gap-3 border border-neutral-100">

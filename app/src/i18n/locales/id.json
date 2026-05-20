@@ -76,6 +76,7 @@
     "otp_verified": "OTP terverifikasi",
     "data_title": "Data Diri",
     "data_sub": "Lengkapi profil Anda untuk menyelesaikan pendaftaran",
+    "otp_window": "Sisa waktu {{minutes}}:{{seconds}} untuk menyelesaikan pendaftaran",
     "full_name": "Nama Lengkap",
     "full_name_placeholder": "Mis. Ari Christian",
     "dob": "Tanggal Lahir",

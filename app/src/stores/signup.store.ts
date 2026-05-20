@@ -10,6 +10,8 @@ import { create } from 'zustand';
 type SignupState = {
   noHp: string;
   otpVerified: boolean;
+  /** Unix ms timestamp kapan OTP verify expired (validForSeconds dari BE response) */
+  otpVerifiedExpiresAt: number | null;
   namaLengkap: string;
   tanggalLahir: string; // YYYY-MM-DD
   jenisKelamin: 'L' | 'P' | '';
@@ -17,7 +19,7 @@ type SignupState = {
   cabangId: string;
 
   setNoHp: (v: string) => void;
-  setOtpVerified: (v: boolean) => void;
+  setOtpVerified: (validForSeconds: number) => void;
   setField: <K extends keyof SignupState>(key: K, value: SignupState[K]) => void;
   reset: () => void;
 };
@@ -25,6 +27,7 @@ type SignupState = {
 const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 'reset'> = {
   noHp: '',
   otpVerified: false,
+  otpVerifiedExpiresAt: null,
   namaLengkap: '',
   tanggalLahir: '',
   jenisKelamin: '',
@@ -35,7 +38,19 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
 export const useSignupStore = create<SignupState>((set) => ({
   ...initial,
   setNoHp: (v) => set({ noHp: v }),
-  setOtpVerified: (v) => set({ otpVerified: v }),
+  setOtpVerified: (validForSeconds) =>
+    set({
+      otpVerified: true,
+      otpVerifiedExpiresAt: Date.now() + validForSeconds * 1000,
+    }),
   setField: (key, value) => set({ [key]: value } as Partial<SignupState>),
   reset: () => set(initial),
 }));
+
+/**
+ * Helper: cek apakah window OTP enrollment masih valid.
+ * Per BE: 15 menit dari verify success → harus lanjut /auth/register.
+ */
+export function isOtpEnrollmentValid(state: SignupState): boolean {
+  return state.otpVerified && state.otpVerifiedExpiresAt !== null && Date.now() < state.otpVerifiedExpiresAt;
+}

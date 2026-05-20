@@ -9,6 +9,7 @@ import type {
   VerifyOtpPayload,
   RegisterPayload,
   AuthSuccessData,
+  EnrollmentVerifyResponse,
   FaceLoginPayload,
   LogoutPayload,
 } from '@/types/auth';
@@ -26,12 +27,39 @@ export function requestOtp(payload: RequestOtpPayload) {
 }
 
 /**
- * POST /auth/otp/verify
- * Verify OTP yang user input. Untuk LOGIN: return access + refresh token + user.
- * Untuk ENROLLMENT: mark OtpVerification.usedAt — flow lanjut ke /auth/register.
+ * POST /auth/otp/verify (purpose=LOGIN)
+ * Verify OTP login → dapat access + refresh token + user (langsung auth).
  *
  * Errors:
  * - 401 UNAUTHORIZED: OTP salah / kadaluarsa
+ */
+export function verifyOtpLogin(payload: Omit<VerifyOtpPayload, 'purpose'>) {
+  return api.post<AuthSuccessData>(
+    '/auth/otp/verify',
+    { ...payload, purpose: 'LOGIN' },
+    { skipAuth: true },
+  );
+}
+
+/**
+ * POST /auth/otp/verify (purpose=ENROLLMENT)
+ * Per BE patch 2026-05-21c: response BERBEDA dari LOGIN — tidak ada JWT.
+ * Cuma marker bahwa OTP verified + window 15 menit untuk lanjut /auth/register.
+ *
+ * Errors:
+ * - 401 UNAUTHORIZED: OTP salah / kadaluarsa
+ */
+export function verifyOtpEnrollment(payload: Omit<VerifyOtpPayload, 'purpose'>) {
+  return api.post<EnrollmentVerifyResponse>(
+    '/auth/otp/verify',
+    { ...payload, purpose: 'ENROLLMENT' },
+    { skipAuth: true },
+  );
+}
+
+/**
+ * @deprecated Pakai verifyOtpLogin atau verifyOtpEnrollment — response shape berbeda.
+ * Tetap ada untuk backward compat selama refactor.
  */
 export function verifyOtp(payload: VerifyOtpPayload) {
   return api.post<AuthSuccessData>('/auth/otp/verify', payload, { skipAuth: true });

@@ -40,6 +40,18 @@
   Mobile implementation: `src/api/cabang.ts`, `src/hooks/useBranches.ts` dengan 2-layer cache
   (React Query + persistent storage 24 jam TTL).
 
+### Phase 2 patch (2026-05-21c)
+
+- ✅ **Verify OTP ENROLLMENT response shape clarified** — sebelumnya BE bug throw "Data tidak ditemukan" karena coba lookup jemaat after verify. Fixed sekarang.
+- New response shape: `{otpVerified, purpose, noHp, pendingRegistration, nextStep, validForSeconds}` — TANPA JWT (jemaat belum ada).
+- Window 15 menit (`validForSeconds: 900`) — mobile harus lanjut `/auth/register` dalam batas waktu ini.
+- Mobile implementation:
+  - `src/api/auth.ts`: split jadi `verifyOtpLogin()` + `verifyOtpEnrollment()` dengan return type berbeda.
+  - `src/types/auth.ts`: new `EnrollmentVerifyResponse` type.
+  - `src/stores/signup.store.ts`: tambah `otpVerifiedExpiresAt` field.
+  - `app/(auth)/signup/otp.tsx`: pakai `verifyOtpEnrollment`, simpan `validForSeconds` ke store.
+  - `app/(auth)/signup/data.tsx`: countdown timer banner, auto-redirect kalau expired.
+
 ---
 
 ## Detail implementasi penting per endpoint

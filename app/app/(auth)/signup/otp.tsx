@@ -9,7 +9,7 @@ import { ArrowLeft, ShieldCheck } from 'lucide-react-native';
 import { OtpInput } from '@/components/ui/OtpInput';
 import { Stepper } from '@/components/ui/Stepper';
 import { useToast } from '@/components/ui/Toast';
-import { requestOtp, verifyOtp } from '@/api/auth';
+import { requestOtp, verifyOtpEnrollment } from '@/api/auth';
 import { useSignupStore } from '@/stores/signup.store';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { ApiError } from '@/types/api';
@@ -32,18 +32,15 @@ export default function SignupOtpScreen() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  // Per BE docs section 12.1: verify OTP ENROLLMENT might return empty response
-  // (BE belum return user, flow lanjut ke /auth/register).
-  // Mobile abaikan response — yang penting BE tandai OtpVerification.usedAt.
+  // Per BE patch 2026-05-21c: verify OTP ENROLLMENT return structured data:
+  // { otpVerified, purpose, noHp, pendingRegistration, nextStep, validForSeconds }
+  // — tanpa JWT (jemaat belum ada). Mobile simpan validForSeconds untuk track
+  // window 15 menit sebelum harus lanjut /auth/register.
   const verifyMutation = useMutation({
-    mutationFn: async (code: string) =>
-      verifyOtp({ noHp, kode: code, purpose: 'ENROLLMENT' }).catch((err) => {
-        // Kalau error tapi sebenarnya OK (mis. BE return non-standard untuk enrollment),
-        // tetap propagate — biarkan code register di-handle di step berikut
-        throw err;
-      }),
-    onSuccess: () => {
-      setOtpVerified(true);
+    mutationFn: async (code: string) => verifyOtpEnrollment({ noHp, kode: code }),
+    onSuccess: (data) => {
+      // BE return validForSeconds (default 900 = 15 menit)
+      setOtpVerified(data.validForSeconds);
       showToast(t('signup.otp_verified'), 'success');
       router.push('/(auth)/signup/data');
     },

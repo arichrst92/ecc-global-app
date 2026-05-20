@@ -34,6 +34,22 @@ export type AuthSuccessData = {
   user: User;
 };
 
+/**
+ * Response shape khusus untuk verify OTP dengan purpose=ENROLLMENT.
+ * BERBEDA dari LOGIN — tidak ada JWT karena jemaat belum ada di DB.
+ * Cuma marker bahwa OTP sudah verified, mobile boleh lanjut /auth/register.
+ *
+ * Per BE patch 2026-05-21c.
+ */
+export type EnrollmentVerifyResponse = {
+  otpVerified: true;
+  purpose: 'ENROLLMENT';
+  noHp: string;
+  pendingRegistration: true;
+  nextStep: 'POST /auth/register';
+  validForSeconds: number; // default 900 (15 menit)
+};
+
 export type FaceLoginPayload = {
   noHp: string;
   descriptor: number[]; // 128-dim Float32 array
