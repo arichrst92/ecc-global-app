@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { Platform, TextInput, View } from 'react-native';
 
 type Props = {
   length?: number;
@@ -48,7 +48,7 @@ export function OtpInput({
   }
 
   return (
-    <View className="flex-row justify-between gap-2">
+    <View className="flex-row justify-center gap-2">
       {digits.map((d, i) => (
         <TextInput
           key={i}
@@ -61,10 +61,24 @@ export function OtpInput({
           keyboardType="number-pad"
           maxLength={1}
           textAlign="center"
+          textAlignVertical="center"
           autoFocus={autoFocus && i === 0}
           editable={!disabled}
           selectTextOnFocus
-          className={`w-12 h-14 rounded-xl border text-2xl font-semibold text-neutral-900 ${
+          // Inline style untuk centering reliable di kedua platform
+          style={{
+            width: 48,
+            height: 56,
+            fontSize: 22,
+            fontWeight: '600',
+            color: '#171717',
+            textAlign: 'center',
+            // Android: hilangkan font padding extra yang bikin off-center
+            ...(Platform.OS === 'android' ? { includeFontPadding: false, paddingVertical: 0 } : {}),
+            // iOS: paddingTop=0 untuk vertical center
+            ...(Platform.OS === 'ios' ? { paddingTop: 0, paddingBottom: 0 } : {}),
+          }}
+          className={`rounded-xl border ${
             d ? 'border-brand-500 bg-brand-50' : 'border-neutral-300 bg-white'
           }`}
         />
