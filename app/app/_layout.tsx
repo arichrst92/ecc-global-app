@@ -12,6 +12,7 @@ import '@/i18n';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { ToastContainer } from '@/components/ui/Toast';
+import { prefetchBranches } from '@/hooks/useBranches';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -42,6 +43,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     Promise.all([hydrateAuth(), hydratePrefs()]).then(() => setHydrated(true));
+    // Prefetch cabang list di background — tidak block hydration
+    prefetchBranches(queryClient);
   }, [hydrateAuth, hydratePrefs]);
 
   useEffect(() => {

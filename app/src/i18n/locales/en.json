@@ -87,6 +87,8 @@
     "address_placeholder": "Current residence address",
     "branch": "Church Branch",
     "branch_placeholder": "Choose your home branch",
+    "branch_loading": "Loading branches...",
+    "branch_error": "Failed to load branches. Tap to retry.",
     "branch_modal_title": "Choose Church Branch",
     "submit": "Register Now",
     "auto_active_notice": "After registration, your account is instantly active and you'll be signed in automatically.",

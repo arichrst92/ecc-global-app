@@ -32,6 +32,14 @@
 - Translation konten id/en — konten tetap Indonesia
 - Branch change SLA — admin manual flow, no hard deadline
 
+### Phase 2 patch (2026-05-21b)
+
+- ✅ **Public cabang list endpoint** `GET /auth/cabang` live — solve M1.9 hardcoded list issue.
+  Spec lengkap + BE response di [`backend-request-cabang-list.md`](./backend-request-cabang-list.md).
+  Bonus: BE include `latitude`/`longitude` untuk future "cabang terdekat" feature.
+  Mobile implementation: `src/api/cabang.ts`, `src/hooks/useBranches.ts` dengan 2-layer cache
+  (React Query + persistent storage 24 jam TTL).
+
 ---
 
 ## Detail implementasi penting per endpoint

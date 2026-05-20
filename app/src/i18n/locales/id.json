@@ -87,6 +87,8 @@
     "address_placeholder": "Alamat domisili saat ini",
     "branch": "Cabang Gereja",
     "branch_placeholder": "Pilih cabang home Anda",
+    "branch_loading": "Memuat daftar cabang...",
+    "branch_error": "Gagal memuat cabang. Tap untuk coba lagi.",
     "branch_modal_title": "Pilih Cabang Gereja",
     "submit": "Daftar Sekarang",
     "auto_active_notice": "Setelah daftar, akun Anda langsung aktif. Anda akan otomatis masuk ke aplikasi.",

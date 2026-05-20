@@ -15,7 +15,7 @@ import { Picker } from '@/components/ui/Picker';
 import { register } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
 import { useSignupStore } from '@/stores/signup.store';
-import { BRANCHES } from '@/constants/branches';
+import { useBranches } from '@/hooks/useBranches';
 import { ApiError } from '@/types/api';
 
 type FieldErrors = Partial<{
@@ -49,6 +49,8 @@ export default function SignupDataScreen() {
   const reset = useSignupStore((s) => s.reset);
 
   const [errors, setErrors] = useState<FieldErrors>({});
+
+  const branchesQuery = useBranches();
 
   const mutation = useMutation({
     mutationFn: async () =>
@@ -119,7 +121,11 @@ export default function SignupDataScreen() {
     ]);
   }
 
-  const branchOptions = BRANCHES.map((b) => ({ value: b.id, label: b.nama, sub: b.alamat }));
+  const branchOptions = (branchesQuery.data ?? []).map((b) => ({
+    value: b.id,
+    label: b.nama,
+    sub: b.alamat,
+  }));
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-50">
@@ -192,7 +198,13 @@ export default function SignupDataScreen() {
 
           <Picker
             label={t('signup.branch')}
-            placeholder={t('signup.branch_placeholder')}
+            placeholder={
+              branchesQuery.isPending
+                ? t('signup.branch_loading')
+                : branchesQuery.isError
+                ? t('signup.branch_error')
+                : t('signup.branch_placeholder')
+            }
             value={cabangId}
             options={branchOptions}
             onChange={(v) => {
@@ -202,6 +214,14 @@ export default function SignupDataScreen() {
             error={errors.cabangId}
             modalTitle={t('signup.branch_modal_title')}
           />
+          {branchesQuery.isError ? (
+            <Text
+              className="text-xs text-brand-600 font-semibold -mt-2"
+              onPress={() => branchesQuery.refetch()}
+            >
+              {t('common.retry')}
+            </Text>
+          ) : null}
         </View>
 
         <View className="mt-4 mb-6 p-3 bg-blue-50 border border-blue-100 rounded-xl flex-row gap-2">

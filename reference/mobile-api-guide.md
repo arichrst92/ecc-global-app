@@ -1149,6 +1149,63 @@ Untuk caching, biarkan browser/OS-level cache handle. Karena `?v=` berbeda saat 
 
 > **Status:** All endpoints di section ini ditambahkan pada **2026-05-21** sebagai respons feedback tim mobile app (`api-gap-analysis.md` + `backend-meeting-brief.md`). Mereka melengkapi cakupan M1–M9 di mobile dev plan.
 
+## 12.0 Public Cabang Catalog (Pre-Auth)
+
+Untuk picker cabang di signup screen, mobile butuh list cabang **sebelum** user authenticated. Endpoint ini public (no auth), rate-limited per IP.
+
+> **Background:** request asli di `docs/backend-request-cabang-list.md` (mobile 2026-05-20).
+
+```
+GET /auth/cabang
+GET /auth/cabang?isActive=false   # hanya yang nonaktif (rare)
+GET /auth/cabang?isActive=all     # semua, termasuk nonaktif
+```
+
+Default = `isActive=true` (hanya cabang aktif).
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "nama": "ECC Jakarta",
+      "kode": "JKT",
+      "alamat": "Jl. Sudirman No.1, Jakarta Pusat",
+      "latitude": -6.2088,
+      "longitude": 106.8456,
+      "isActive": true
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "nama": "ECC Bandung",
+      "kode": "BDG",
+      "alamat": "Jl. Asia Afrika No.15, Bandung",
+      "latitude": -6.9175,
+      "longitude": 107.6191,
+      "isActive": true
+    }
+  ]
+}
+```
+
+**Field whitelist (BE-side):** `id, nama, kode, alamat, latitude, longitude, isActive`. **Tidak ada**: kontak admin, sinodeId, jumlah jemaat. Untuk display kota gunakan `nama` (konvensi naming = "ECC <Kota>") atau parse `alamat`. Kolom `kota` terpisah tidak ada di schema saat ini.
+
+**Rate limit:** 30 request/menit/IP. Lihat header `RateLimit-Remaining` untuk monitor sisa quota.
+
+**Caching guide (mobile):**
+
+- Cache full response di local store (mis. `expo-secure-store` key `ecc.branches`) + timestamp
+- Cache age < 24 jam → pakai cache
+- Pull-to-refresh atau cache expired → fetch ulang
+- Cabang nonaktif jangan ditampilkan di picker (tapi data tetap ada di-cache buat backward-compat — kalau user terlanjur pilih cabang yang sekarang nonaktif, signup akan ditolak BE dengan 400 di `/auth/register`)
+
+**Validation di `/auth/register`:** BE tetap re-validate `cabangId` (must exist + `isActive=true`). Mobile tidak perlu enforce di sisi client — kalau stale cache kasih cabang nonaktif, error message dari server cukup informatif.
+
+---
+
 ## 12.1 Self-Registration (M1)
 
 Flow: request OTP `purpose=ENROLLMENT` → verify OTP → submit form data → akun langsung aktif.
@@ -1931,6 +1988,7 @@ Endpoint punya rate limit untuk cegah abuse:
 | `/auth/otp/request` | 5 request per 15 menit per IP |
 | `/auth/otp/verify`, `/auth/face/login` | 10 attempt per 15 menit per IP |
 | `/auth/register` | 3 register per jam per IP |
+| `/auth/cabang` | 30 per menit per IP |
 | `/auth/refresh` | 30 per 5 menit per IP |
 | `/admin/*` (after auth) | 300 per menit per user |
 | `/api/v1/*` | 120 per menit per API key |
@@ -1984,6 +2042,7 @@ Re-evaluasi dari `api-gap-analysis.md` mobile team setelah Phase 1 deploy.
 
 | Mobile Milestone | Status Sebelum | Status Sekarang | Endpoint Baru |
 |---|---|---|---|
+| M1 Public cabang picker | 🔴 missing (hardcoded di mobile) | 🟢 ready | `GET /auth/cabang` |
 | M1 Auth + Self-register | 🟡 sign-up missing | 🟢 ready | `POST /auth/register` |
 | M2 Streak hadir | 🔴 missing | 🟢 ready | `GET /admin/me/stats` |
 | M3 Batch event register | 🔴 missing | 🟢 ready | `POST /admin/event/:id/peserta/batch` |

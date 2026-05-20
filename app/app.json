@@ -41,7 +41,8 @@
           "cameraPermission": "ECC Companion butuh akses kamera untuk scan QR jemaat dan face recognition.",
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true
