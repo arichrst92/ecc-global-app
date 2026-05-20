@@ -97,7 +97,7 @@ export default function ProfileTab() {
         </View>
 
         <Text className="text-xs text-neutral-400 text-center mt-4">
-          ECC Companion · v0.1.0
+          ECC Global App v0.1.0
         </Text>
       </ScrollView>
 
