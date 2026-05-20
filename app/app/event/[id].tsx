@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ArrowLeft, ArrowRight, Bookmark, Calendar, Check, CheckCircle2, Clock, MapPin, Share2, Upload, Users, X } from 'lucide-react-native';
 
@@ -59,18 +59,32 @@ export default function EventDetailScreen() {
   }, [event?.id, event?.myParticipation?.id, event?.myParticipation?.status]);
 
   // Untuk render, prefer BE participation. Fallback ke local (offline mode).
-  const participation = event?.myParticipation
+  // BATAL = sudah cancel → treat sebagai not-registered (user bisa re-register).
+  // BE patch 21g support reactivate row BATAL ke DAFTAR saat user POST register lagi.
+  // Catatan: kalau BE jawab BATAL, abaikan local cache juga (stale dari sebelum cancel).
+  const beHasResponded = !!event;
+  const beSaysBatal =
+    !!event?.myParticipation && event.myParticipation.status === 'BATAL';
+  const beActive =
+    event?.myParticipation && event.myParticipation.status !== 'BATAL'
+      ? event.myParticipation
+      : null;
+  const participation = beActive
     ? {
-        participationId: event.myParticipation.id,
-        eventId: event.id,
-        status: event.myParticipation.status,
-        registeredAt: new Date(event.myParticipation.registeredAt).getTime(),
-        jemaatId: event.myParticipation.jemaatId,
+        participationId: beActive.id,
+        eventId: event!.id,
+        status: beActive.status,
+        registeredAt: new Date(beActive.registeredAt).getTime(),
+        jemaatId: beActive.jemaatId,
       }
-    : localParticipation;
+    : // BE belum respon → trust local. BE bilang BATAL → ignore local stale.
+      beHasResponded && beSaysBatal
+      ? null
+      : localParticipation;
 
   const showToast = useToast((s) => s.show);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   // Mutation cancel registration
   const cancelMutation = useMutation({
@@ -85,8 +99,10 @@ export default function EventDetailScreen() {
         result.alreadyCancelled ? t('event.already_cancelled') : t('event.cancel_success'),
         'success',
       );
-      // Refetch event detail untuk update pesertaCount
-      query.refetch();
+      // Invalidate event queries supaya myParticipation di detail re-fetch
+      // dan tombol kembali jadi "Daftar Sekarang"
+      await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
+      await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
     },
     onError: (err) => {
       setCancelModalOpen(false);
