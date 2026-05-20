@@ -11,7 +11,9 @@
     "copy": "Copy",
     "copied": "Copied!",
     "delete": "Delete",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "account_name": "Account Name",
+    "account_number": "Account Number"
   },
   "nav": {
     "home": "Home",
@@ -133,8 +135,43 @@
     "about": "About App"
   },
   "placeholder": {
-    "event_msg": "Upcoming events, registration, and payment. Coming in M3.",
     "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."
+  },
+  "event": {
+    "title": "Events & Movements",
+    "filter_all": "All",
+    "free": "Free",
+    "paid": "Paid",
+    "quota_full": "Quota Full",
+    "empty_title": "No events yet",
+    "empty_msg": "No published events at the moment.",
+    "empty_filter_title": "No results",
+    "empty_filter_msg": "Try changing the filter or the viewing branch.",
+    "participants_count": "{{count}} people registered",
+    "participants_label": "registered",
+    "about_event": "About this event",
+    "fee_label": "Fee",
+    "register_now": "Register Now",
+    "register_title": "Confirm Registration",
+    "register_as": "Registering as",
+    "note_label": "Note (optional)",
+    "note_placeholder": "e.g. T-shirt size L, food allergy, etc",
+    "register_confirm": "Confirm Register",
+    "register_success": "Registration successful",
+    "after_register_notice": "After registering, you'll be asked to upload transfer proof. Completes when admin verifies.",
+    "after_register_free_notice": "Free event. After registering you are automatically a participant.",
+    "payment_title": "Payment Info",
+    "transfer_to": "Transfer to:",
+    "or_qris": "Or scan QRIS:",
+    "upload_proof": "Upload Transfer Proof",
+    "upload_proof_subtitle": "JPG, PNG (max 5 MB)",
+    "permission_denied": "Gallery access denied. Enable in Settings to upload photos.",
+    "uploaded_waiting": "Proof uploaded — awaiting admin verification",
+    "status_daftar": "Registered",
+    "status_menunggu": "Awaiting Verification",
+    "status_bayar": "Paid",
+    "status_hadir": "Attended",
+    "back_to_home": "Back to Home"
   },
   "branch": {
     "active_label": "Active branch",

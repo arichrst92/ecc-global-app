@@ -11,7 +11,9 @@
     "copy": "Salin",
     "copied": "Tersalin!",
     "delete": "Hapus",
-    "confirm": "Konfirmasi"
+    "confirm": "Konfirmasi",
+    "account_name": "Atas Nama",
+    "account_number": "Nomor Rekening"
   },
   "nav": {
     "home": "Beranda",
@@ -133,8 +135,43 @@
     "about": "Tentang Aplikasi"
   },
   "placeholder": {
-    "event_msg": "Event-event mendatang, pendaftaran, dan pembayaran. Akan tersedia di M3.",
     "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."
+  },
+  "event": {
+    "title": "Event & Movement",
+    "filter_all": "Semua",
+    "free": "Gratis",
+    "paid": "Berbayar",
+    "quota_full": "Kuota Penuh",
+    "empty_title": "Belum ada event",
+    "empty_msg": "Belum ada event yang dipublikasikan saat ini.",
+    "empty_filter_title": "Tidak ada hasil",
+    "empty_filter_msg": "Coba ubah filter atau cabang yang sedang di-view.",
+    "participants_count": "{{count}} orang sudah daftar",
+    "participants_label": "peserta terdaftar",
+    "about_event": "Tentang Event",
+    "fee_label": "Biaya",
+    "register_now": "Daftar Sekarang",
+    "register_title": "Konfirmasi Pendaftaran",
+    "register_as": "Mendaftar sebagai",
+    "note_label": "Catatan (opsional)",
+    "note_placeholder": "Mis. ukuran kaos L, alergi makanan, dll",
+    "register_confirm": "Konfirmasi Daftar",
+    "register_success": "Pendaftaran berhasil",
+    "after_register_notice": "Setelah daftar, Anda diminta upload bukti transfer. Pendaftaran selesai setelah admin verifikasi pembayaran.",
+    "after_register_free_notice": "Event gratis. Setelah daftar, Anda otomatis terdaftar sebagai peserta.",
+    "payment_title": "Info Pembayaran",
+    "transfer_to": "Transfer ke rekening:",
+    "or_qris": "Atau scan QRIS:",
+    "upload_proof": "Upload Bukti Transfer",
+    "upload_proof_subtitle": "JPG, PNG (maks 5 MB)",
+    "permission_denied": "Izin akses galeri ditolak. Aktifkan di Pengaturan untuk upload foto.",
+    "uploaded_waiting": "Bukti terupload — menunggu verifikasi admin",
+    "status_daftar": "Terdaftar",
+    "status_menunggu": "Menunggu Verifikasi",
+    "status_bayar": "Lunas",
+    "status_hadir": "Hadir",
+    "back_to_home": "Kembali ke Beranda"
   },
   "branch": {
     "active_label": "Cabang aktif",

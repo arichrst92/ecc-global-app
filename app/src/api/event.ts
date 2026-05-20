@@ -1,0 +1,68 @@
+/**
+ * Event API per mobile-api-guide section 5 + 15.
+ */
+
+import { api } from './client';
+import type {
+  EventListItem,
+  EventDetail,
+  EventParticipation,
+  BatchRegisterResponse,
+} from '@/types/event';
+
+type ListOptions = {
+  cabangId?: string;
+  page?: number;
+  limit?: number;
+};
+
+/** GET /admin/event?isPublished=true */
+export function listEvents(opts: ListOptions = {}) {
+  const params = new URLSearchParams({ isPublished: 'true' });
+  if (opts.cabangId) params.set('cabangId', opts.cabangId);
+  if (opts.page) params.set('page', String(opts.page));
+  if (opts.limit) params.set('limit', String(opts.limit));
+  return api.get<EventListItem[]>(`/admin/event?${params}`);
+}
+
+/** GET /admin/event/:idOrSlug — accepts UUID or slug */
+export function getEventDetail(idOrSlug: string) {
+  return api.get<EventDetail>(`/admin/event/${idOrSlug}`);
+}
+
+type RegisterPayload = {
+  jemaatId: string;
+  nominalBayar?: number;
+  catatan?: string;
+};
+
+/** POST /admin/event/:eventId/peserta — single jemaat registration */
+export function registerPeserta(eventId: string, payload: RegisterPayload) {
+  return api.post<EventParticipation>(`/admin/event/${eventId}/peserta`, payload);
+}
+
+type BatchRegisterPayload = {
+  jemaatIds: string[];
+  nominalBayarPerOrang?: number;
+  catatan?: string;
+};
+
+/** POST /admin/event/:eventId/peserta/batch — multi-family registration (Phase 1) */
+export function registerPesertaBatch(eventId: string, payload: BatchRegisterPayload) {
+  return api.post<BatchRegisterResponse>(`/admin/event/${eventId}/peserta/batch`, payload);
+}
+
+/** POST /admin/event/:eventId/peserta/:participationId/bukti — multipart upload */
+export function uploadBukti(
+  eventId: string,
+  participationId: string,
+  file: { uri: string; name: string; type: string },
+) {
+  const formData = new FormData();
+  // @ts-expect-error RN FormData accepts file objects
+  formData.append('foto', file);
+  return api.upload<EventParticipation>(
+    `/admin/event/${eventId}/peserta/${participationId}/bukti`,
+    formData,
+  );
+}

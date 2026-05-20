@@ -3,7 +3,7 @@ import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, BookOpen, Newspaper } from 'lucide-react-native';
+import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, BookOpen, Newspaper, CalendarDays } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { BranchChip } from '@/components/branch/BranchChip';
@@ -11,13 +11,15 @@ import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
+import { useHomeEvents } from '@/hooks/useHomeEvents';
+import { formatDate } from '@/utils/date';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
 }
 
 export default function HomeScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const [switcherOpen, setSwitcherOpen] = useState(false);
@@ -26,18 +28,22 @@ export default function HomeScreen() {
   const todayQuery = useTodayServices();
   const renunganQuery = useLatestRenungan();
   const newsQuery = useLatestNews();
+  const eventsQuery = useHomeEvents();
+  const lang = i18n.language;
 
   const isRefreshing =
     statsQuery.isRefetching ||
     todayQuery.isRefetching ||
     renunganQuery.isRefetching ||
-    newsQuery.isRefetching;
+    newsQuery.isRefetching ||
+    eventsQuery.isRefetching;
 
   function refresh() {
     statsQuery.refetch();
     todayQuery.refetch();
     renunganQuery.refetch();
     newsQuery.refetch();
+    eventsQuery.refetch();
   }
 
   if (!user) return null;
@@ -186,6 +192,53 @@ export default function HomeScreen() {
           ) : renunganQuery.isPending ? (
             <SkeletonCard height={140} />
           ) : null}
+        </Section>
+
+        {/* Upcoming Events */}
+        <Section
+          title={t('home.upcoming_events')}
+          onSeeAll={() => router.push('/(tabs)/event')}
+        >
+          {eventsQuery.isPending ? (
+            <SkeletonCard height={140} />
+          ) : (eventsQuery.data?.length ?? 0) === 0 ? null : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 12, paddingRight: 5 }}
+            >
+              {(eventsQuery.data ?? []).map((e) => {
+                const isFree = e.tipeBayar === 'GRATIS';
+                const priceText = isFree
+                  ? t('event.free')
+                  : `Rp ${(Number(e.nominal) / 1000).toLocaleString('id-ID')}rb`;
+                return (
+                  <Pressable
+                    key={e.id}
+                    onPress={() => router.push(`/event/${e.slug || e.id}`)}
+                    className="w-56 bg-white rounded-2xl overflow-hidden border border-neutral-100"
+                  >
+                    <View className="h-24 bg-brand-300 items-center justify-center">
+                      <Text style={{ fontSize: 40 }}>🎉</Text>
+                    </View>
+                    <View className="p-3">
+                      <Text className="text-[10px] text-neutral-500 mb-1" numberOfLines={1}>
+                        {formatDate(e.tanggalMulai, lang)}
+                      </Text>
+                      <Text className="font-semibold text-sm text-neutral-900" numberOfLines={2}>
+                        {e.judul}
+                      </Text>
+                      <Text
+                        className={`text-xs font-semibold mt-1 ${isFree ? 'text-emerald-600' : 'text-amber-600'}`}
+                      >
+                        {priceText}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          )}
         </Section>
 
         {/* Latest News */}
