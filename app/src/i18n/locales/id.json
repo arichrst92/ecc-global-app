@@ -133,9 +133,29 @@
     "about": "Tentang Aplikasi"
   },
   "placeholder": {
-    "ibadah_msg": "Daftar dan kalender ibadah cabang Anda. Sedang dalam pengembangan untuk M2.",
     "event_msg": "Event-event mendatang, pendaftaran, dan pembayaran. Akan tersedia di M3.",
     "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."
+  },
+  "qr": {
+    "title": "Kartu QR Saya",
+    "instruction": "Tampilkan kode ini saat masuk gereja",
+    "your_code": "Kode jemaat:",
+    "blur_warning": "QR akan disembunyikan dalam",
+    "reveal_again": "Tampilkan Kembali"
+  },
+  "ibadah": {
+    "title": "Jadwal Ibadah",
+    "detail_title": "Detail Ibadah",
+    "empty_title": "Belum ada jadwal",
+    "empty_msg": "Belum ada ibadah dalam 30 hari ke depan. Cek kembali nanti.",
+    "time": "Waktu",
+    "schedule": "Jadwal",
+    "location": "Lokasi",
+    "online_service": "Ibadah online tersedia",
+    "team": "Petugas Pelayanan",
+    "team_tba": "Petugas akan diumumkan",
+    "every_day": "Setiap {{day}}",
+    "show_my_qr": "Tampilkan QR Saya"
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

@@ -133,9 +133,29 @@
     "about": "About App"
   },
   "placeholder": {
-    "ibadah_msg": "Service list and calendar for your branch. Coming in M2.",
     "event_msg": "Upcoming events, registration, and payment. Coming in M3.",
     "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."
+  },
+  "qr": {
+    "title": "My QR Card",
+    "instruction": "Show this code when entering the church",
+    "your_code": "Member code:",
+    "blur_warning": "QR will be hidden in",
+    "reveal_again": "Reveal Again"
+  },
+  "ibadah": {
+    "title": "Service Schedule",
+    "detail_title": "Service Details",
+    "empty_title": "No upcoming services",
+    "empty_msg": "No services in the next 30 days. Check back later.",
+    "time": "Time",
+    "schedule": "Schedule",
+    "location": "Location",
+    "online_service": "Online service available",
+    "team": "Ministry Team",
+    "team_tba": "Team to be announced",
+    "every_day": "Every {{day}}",
+    "show_my_qr": "Show My QR"
   },
   "error": {
     "network": "No internet connection. Please try again.",
