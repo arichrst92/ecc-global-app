@@ -2,10 +2,11 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, Bookmark, Calendar, MapPin, Share2, Users } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Bookmark, Calendar, Check, CheckCircle2, Clock, MapPin, Share2, Upload, Users } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useEventDetail } from '@/hooks/useEvents';
+import { useEventFlowStore } from '@/stores/event-flow.store';
 import { formatDate } from '@/utils/date';
 
 export default function EventDetailScreen() {
@@ -16,6 +17,10 @@ export default function EventDetailScreen() {
 
   const query = useEventDetail(id);
   const event = query.data;
+  // Cek apakah user sudah daftar event ini (dari persistent store)
+  const participation = useEventFlowStore((s) =>
+    event ? s.getParticipation(event.id) : null,
+  );
 
   const isFree = event?.tipeBayar === 'GRATIS';
   const isFull = event?.quotaPeserta != null && event.pesertaCount >= event.quotaPeserta;
@@ -162,29 +167,134 @@ export default function EventDetailScreen() {
         ) : null}
       </ScrollView>
 
-      {/* Sticky bottom CTA */}
+      {/* Sticky bottom CTA — conditional based on participation status */}
       {event ? (
         <View className="bg-white border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
-            <View className="flex-row items-center gap-3">
-              <View>
-                <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
-                <Text className="text-lg font-bold text-neutral-900">{priceLabel}</Text>
+            {participation ? (
+              <ParticipationCTA
+                status={participation.status}
+                tipeBayar={event.tipeBayar}
+                priceLabel={priceLabel}
+                onContinuePayment={() => router.push(`/event/${id}/payment`)}
+              />
+            ) : (
+              // Belum daftar — show normal register CTA
+              <View className="flex-row items-center gap-3">
+                <View>
+                  <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
+                  <Text className="text-lg font-bold text-neutral-900">{priceLabel}</Text>
+                </View>
+                <View className="flex-1">
+                  <Button
+                    label={isFull ? t('event.quota_full') : t('event.register_now')}
+                    onPress={() => router.push(`/event/${id}/register`)}
+                    disabled={isFull}
+                    fullWidth
+                    size="lg"
+                    rightIcon={<ArrowRight size={16} color="#fff" />}
+                  />
+                </View>
               </View>
-              <View className="flex-1">
-                <Button
-                  label={isFull ? t('event.quota_full') : t('event.register_now')}
-                  onPress={() => router.push(`/event/${id}/register`)}
-                  disabled={isFull}
-                  fullWidth
-                  size="lg"
-                  rightIcon={<ArrowRight size={16} color="#fff" />}
-                />
-              </View>
-            </View>
+            )}
           </SafeAreaView>
         </View>
       ) : null}
+    </View>
+  );
+}
+
+function ParticipationCTA({
+  status,
+  tipeBayar,
+  priceLabel,
+  onContinuePayment,
+}: {
+  status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
+  tipeBayar: 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS';
+  priceLabel: string;
+  onContinuePayment: () => void;
+}) {
+  const { t } = useTranslation();
+  const isFree = tipeBayar === 'GRATIS';
+
+  // DAFTAR + berbayar → user sudah daftar tapi belum upload bukti
+  if (status === 'DAFTAR' && !isFree) {
+    return (
+      <View>
+        <View className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-3 flex-row items-center gap-2">
+          <Clock size={16} color="#D97706" />
+          <Text className="text-xs text-amber-800 flex-1 font-medium">
+            {t('event.continue_payment_notice')}
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-3">
+          <View>
+            <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
+            <Text className="text-lg font-bold text-neutral-900">{priceLabel}</Text>
+          </View>
+          <View className="flex-1">
+            <Button
+              label={t('event.continue_payment')}
+              onPress={onContinuePayment}
+              fullWidth
+              size="lg"
+              leftIcon={<Upload size={16} color="#fff" />}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // MENUNGGU_VERIFIKASI → user sudah upload bukti, tunggu admin
+  if (status === 'MENUNGGU_VERIFIKASI') {
+    return (
+      <View className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex-row items-center gap-3">
+        <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
+          <Clock size={18} color="#fff" />
+        </View>
+        <View className="flex-1">
+          <Text className="font-semibold text-amber-900 text-sm">{t('event.status_menunggu')}</Text>
+          <Text className="text-xs text-amber-700 mt-0.5">
+            {t('event.waiting_admin_verification')}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  // BAYAR → confirmed, tunggu hari H untuk hadir
+  if (status === 'BAYAR') {
+    return (
+      <View className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex-row items-center gap-3">
+        <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
+          <CheckCircle2 size={18} color="#fff" />
+        </View>
+        <View className="flex-1">
+          <Text className="font-semibold text-emerald-900 text-sm">{t('event.status_bayar')}</Text>
+          <Text className="text-xs text-emerald-700 mt-0.5">
+            {t('event.see_you_at_event')}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  // HADIR atau DAFTAR-gratis → success
+  return (
+    <View className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex-row items-center gap-3">
+      <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
+        <Check size={18} color="#fff" />
+      </View>
+      <View className="flex-1">
+        <Text className="font-semibold text-emerald-900 text-sm">
+          {status === 'HADIR' ? t('event.status_hadir') : t('event.already_registered')}
+        </Text>
+        <Text className="text-xs text-emerald-700 mt-0.5">
+          {status === 'HADIR' ? t('event.attended_thanks') : t('event.see_you_at_event')}
+        </Text>
+      </View>
     </View>
   );
 }

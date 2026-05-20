@@ -24,7 +24,7 @@ export default function EventRegisterScreen() {
   const user = useAuthStore((s) => s.user);
   const catatan = useEventFlowStore((s) => s.catatan);
   const setCatatan = useEventFlowStore((s) => s.setCatatan);
-  const setParticipationId = useEventFlowStore((s) => s.setParticipationId);
+  const addParticipation = useEventFlowStore((s) => s.addParticipation);
 
   const eventQuery = useEventDetail(id);
   const event = eventQuery.data;
@@ -38,8 +38,18 @@ export default function EventRegisterScreen() {
         catatan: catatan || undefined,
       });
     },
-    onSuccess: (data) => {
-      setParticipationId(data.id);
+    onSuccess: async (data) => {
+      // Persist participation supaya bisa "lanjut pembayaran" kalau user
+      // keluar app sebelum upload bukti
+      if (event) {
+        await addParticipation({
+          participationId: data.id,
+          eventId: event.id,
+          status: data.status,
+          registeredAt: Date.now(),
+        });
+      }
+
       if (event?.tipeBayar === 'GRATIS') {
         // Skip payment screen — daftar selesai
         Alert.alert(t('event.register_success'), undefined, [

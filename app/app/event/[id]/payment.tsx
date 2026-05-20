@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, Copy, Home, Upload } from 'lucide-react-native';
+import { ArrowLeft, Camera, Check, Copy, Home, RefreshCw, Send } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -16,29 +16,52 @@ import { uploadBukti } from '@/api/event';
 import { env } from '@/config/env';
 import { ApiError } from '@/types/api';
 
+type PickedImage = {
+  uri: string;
+  name: string;
+  type: string;
+  width?: number;
+  height?: number;
+};
+
 export default function EventPaymentScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const showToast = useToast((s) => s.show);
-  const participationId = useEventFlowStore((s) => s.currentParticipationId);
-  const resetFlow = useEventFlowStore((s) => s.reset);
 
   const eventQuery = useEventDetail(id);
   const event = eventQuery.data;
 
+  // Cek participation dari persistent store
+  const participation = useEventFlowStore((s) =>
+    event ? s.getParticipation(event.id) : null,
+  );
+  const updateStatus = useEventFlowStore((s) => s.updateParticipationStatus);
+  const resetFlow = useEventFlowStore((s) => s.resetFlow);
+
+  // State untuk image preview (sebelum submit)
+  const [pickedImage, setPickedImage] = useState<PickedImage | null>(null);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
   const uploadMutation = useMutation({
-    mutationFn: async (file: { uri: string; name: string; type: string }) => {
-      if (!event || !participationId) throw new Error('Missing context');
-      return uploadBukti(event.id, participationId, file);
+    mutationFn: async () => {
+      if (!event || !participation || !pickedImage) throw new Error('Missing context');
+      return uploadBukti(event.id, participation.participationId, {
+        uri: pickedImage.uri,
+        name: pickedImage.name,
+        type: pickedImage.type,
+      });
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const url = data.buktiTransferUrl
         ? `${env.apiBaseUrl}${data.buktiTransferUrl}`
         : null;
       setUploadedUrl(url);
+      // Update status di persistent store → MENUNGGU_VERIFIKASI
+      if (event) {
+        await updateStatus(event.id, 'MENUNGGU_VERIFIKASI');
+      }
       showToast(t('event.uploaded_waiting'), 'success');
     },
     onError: (err) => {
@@ -47,8 +70,7 @@ export default function EventPaymentScreen() {
     },
   });
 
-  async function pickAndUpload() {
-    // Request permission
+  async function pickImage() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
       Alert.alert(t('event.permission_denied'));
@@ -65,15 +87,37 @@ export default function EventPaymentScreen() {
 
     const asset = result.assets[0];
     // Per BE patch 2026-05-21f flexImageUpload: BE accept jpeg/png/webp/heic/heif/gif
-    // + application/octet-stream (Android camera kadang tidak set MIME).
-    // iOS HEIC Live Photo auto-convert ke WebP di server. Mobile passthrough saja.
-    const fileName = asset.fileName ?? `bukti-${Date.now()}.jpg`;
-    const type = asset.mimeType ?? 'image/jpeg';
-
-    uploadMutation.mutate({
+    // + application/octet-stream. iOS HEIC Live Photo auto-convert ke WebP di server.
+    setPickedImage({
       uri: asset.uri,
-      name: fileName,
-      type,
+      name: asset.fileName ?? `bukti-${Date.now()}.jpg`,
+      type: asset.mimeType ?? 'image/jpeg',
+      width: asset.width,
+      height: asset.height,
+    });
+  }
+
+  async function takePhoto() {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert(t('event.camera_permission_denied'));
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.8,
+      allowsEditing: false,
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    const asset = result.assets[0];
+    setPickedImage({
+      uri: asset.uri,
+      name: asset.fileName ?? `bukti-${Date.now()}.jpg`,
+      type: asset.mimeType ?? 'image/jpeg',
+      width: asset.width,
+      height: asset.height,
     });
   }
 
@@ -90,6 +134,7 @@ export default function EventPaymentScreen() {
   if (!event) return null;
 
   const nominal = Number(event.nominal);
+  const isUploaded = !!uploadedUrl;
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -111,19 +156,21 @@ export default function EventPaymentScreen() {
         {/* Status pill */}
         <View className="bg-amber-50 border border-amber-100 rounded-2xl p-3 mb-4 flex-row items-center gap-3">
           <View className="w-8 h-8 rounded-full bg-amber-500 items-center justify-center">
-            <Text className="text-white text-xs font-bold">1</Text>
+            <Text className="text-white text-xs font-bold">{isUploaded ? '2' : '1'}</Text>
           </View>
           <View className="flex-1">
             <Text className="text-sm font-semibold text-amber-900">
-              {t('event.status_daftar')} → {t('event.status_menunggu')}
+              {isUploaded ? t('event.status_menunggu') : t('event.status_daftar')}
+              {' → '}
+              {isUploaded ? t('event.status_bayar') : t('event.status_menunggu')}
             </Text>
             <Text className="text-xs text-amber-700 mt-0.5">
-              Transfer & upload bukti untuk lanjut ke verifikasi
+              {isUploaded ? t('event.waiting_admin_verification') : t('event.transfer_then_upload')}
             </Text>
           </View>
         </View>
 
-        {/* Bank info */}
+        {/* Bank info — tetap tampil meskipun sudah uploaded, untuk reference */}
         {event.bankNama && event.bankNomor ? (
           <>
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
@@ -135,13 +182,13 @@ export default function EventPaymentScreen() {
                   <Text className="font-bold text-blue-600 text-sm">{event.bankNama}</Text>
                 </View>
                 <View className="flex-1">
-                  <Text className="text-xs text-neutral-500">{t('common.account_name') || 'Atas Nama'}</Text>
+                  <Text className="text-xs text-neutral-500">{t('common.account_name')}</Text>
                   <Text className="font-semibold text-neutral-900">{event.bankAtasNama}</Text>
                 </View>
               </View>
 
               <View className="mt-3 pt-3 border-t border-neutral-100">
-                <Text className="text-xs text-neutral-500">{t('common.account_number') || 'Nomor Rekening'}</Text>
+                <Text className="text-xs text-neutral-500">{t('common.account_number')}</Text>
                 <View className="flex-row items-center justify-between mt-1">
                   <Text className="font-mono text-lg font-bold text-neutral-900">
                     {event.bankNomor}
@@ -183,43 +230,90 @@ export default function EventPaymentScreen() {
           </>
         ) : null}
 
-        {/* Upload bukti */}
-        {uploadedUrl ? (
-          <View className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex-row items-center gap-3">
-            <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
-              <Check size={20} color="#fff" />
+        {/* Upload bukti section */}
+        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+          {t('event.proof_section')}
+        </Text>
+
+        {isUploaded ? (
+          // Sudah ter-submit ke BE — preview server-side image
+          <View className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+            <View className="flex-row items-center gap-3 mb-3">
+              <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
+                <Check size={20} color="#fff" />
+              </View>
+              <View className="flex-1">
+                <Text className="font-semibold text-emerald-900 text-sm">
+                  {t('event.uploaded_waiting')}
+                </Text>
+                <Text className="text-xs text-emerald-700 mt-0.5">
+                  {t('event.waiting_admin_verification')}
+                </Text>
+              </View>
             </View>
-            <View className="flex-1">
-              <Text className="font-semibold text-emerald-900 text-sm">
-                {t('event.uploaded_waiting')}
-              </Text>
-              <Text className="text-xs text-emerald-700 mt-0.5">
-                Admin akan verifikasi dalam 1-24 jam
-              </Text>
+            {uploadedUrl ? (
+              <Image
+                source={{ uri: uploadedUrl }}
+                style={{ width: '100%', height: 200, borderRadius: 12 }}
+                resizeMode="cover"
+              />
+            ) : null}
+          </View>
+        ) : pickedImage ? (
+          // Image picked, belum submit — preview + actions
+          <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+            <Image
+              source={{ uri: pickedImage.uri }}
+              style={{ width: '100%', height: 280 }}
+              resizeMode="cover"
+            />
+            <View className="p-3 flex-row gap-2">
+              <View className="flex-1">
+                <Button
+                  label={t('event.replace_photo')}
+                  variant="secondary"
+                  onPress={pickImage}
+                  loading={false}
+                  leftIcon={<RefreshCw size={14} color="#404040" />}
+                  size="md"
+                  fullWidth
+                  disabled={uploadMutation.isPending}
+                />
+              </View>
             </View>
           </View>
         ) : (
-          <Pressable
-            onPress={pickAndUpload}
-            disabled={uploadMutation.isPending}
-            className={`p-5 border-2 border-dashed rounded-2xl items-center gap-2 ${
-              uploadMutation.isPending ? 'border-neutral-300 bg-neutral-50' : 'border-brand-300 bg-brand-50/50'
-            }`}
-          >
-            <View className="w-12 h-12 rounded-xl bg-brand-100 items-center justify-center">
-              <Upload size={20} color="#EA580C" />
-            </View>
-            <Text className="font-semibold text-sm text-neutral-900">
-              {uploadMutation.isPending ? 'Mengupload...' : t('event.upload_proof')}
-            </Text>
-            <Text className="text-xs text-neutral-500">{t('event.upload_proof_subtitle')}</Text>
-          </Pressable>
+          // Belum pick image — show 2 options: gallery + camera
+          <View className="bg-white rounded-2xl border border-neutral-100 p-4 gap-2">
+            <Pressable
+              onPress={pickImage}
+              className="p-4 border-2 border-dashed border-brand-300 rounded-xl items-center gap-2"
+            >
+              <View className="w-12 h-12 rounded-xl bg-brand-100 items-center justify-center">
+                <Camera size={20} color="#EA580C" />
+              </View>
+              <Text className="font-semibold text-sm text-neutral-900">
+                {t('event.pick_from_gallery')}
+              </Text>
+              <Text className="text-xs text-neutral-500">{t('event.upload_proof_subtitle')}</Text>
+            </Pressable>
+            <Pressable
+              onPress={takePhoto}
+              className="p-3 border border-neutral-200 rounded-xl flex-row items-center justify-center gap-2"
+            >
+              <Camera size={16} color="#525252" />
+              <Text className="text-sm font-medium text-neutral-700">
+                {t('event.take_photo')}
+              </Text>
+            </Pressable>
+          </View>
         )}
       </ScrollView>
 
-      {uploadedUrl ? (
-        <View className="bg-white border-t border-neutral-100 px-5 py-3">
-          <SafeAreaView edges={['bottom']}>
+      {/* Sticky bottom action — submit button atau back home */}
+      <View className="bg-white border-t border-neutral-100 px-5 py-3">
+        <SafeAreaView edges={['bottom']}>
+          {isUploaded ? (
             <Button
               label={t('event.back_to_home')}
               onPress={handleDone}
@@ -227,9 +321,28 @@ export default function EventPaymentScreen() {
               fullWidth
               size="lg"
             />
-          </SafeAreaView>
-        </View>
-      ) : null}
+          ) : pickedImage ? (
+            <Button
+              label={t('event.submit_payment')}
+              onPress={() => uploadMutation.mutate()}
+              loading={uploadMutation.isPending}
+              leftIcon={<Send size={16} color="#fff" />}
+              fullWidth
+              size="lg"
+            />
+          ) : (
+            // Belum pick image — disabled submit button sebagai cue
+            <Button
+              label={t('event.submit_payment')}
+              onPress={() => {}}
+              disabled
+              leftIcon={<Send size={16} color="#fff" />}
+              fullWidth
+              size="lg"
+            />
+          )}
+        </SafeAreaView>
+      </View>
     </View>
   );
 }

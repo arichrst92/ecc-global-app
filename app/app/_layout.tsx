@@ -12,6 +12,7 @@ import '@/i18n';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useBranchStore } from '@/stores/branch.store';
+import { useEventFlowStore } from '@/stores/event-flow.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { prefetchBranches } from '@/hooks/useBranches';
 
@@ -38,16 +39,22 @@ export default function RootLayout() {
   const hydrateAuth = useAuthStore((s) => s.hydrate);
   const hydratePrefs = usePreferencesStore((s) => s.hydrate);
   const hydrateBranch = useBranchStore((s) => s.hydrate);
+  const hydrateEventFlow = useEventFlowStore((s) => s.hydrate);
 
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
   useEffect(() => {
-    Promise.all([hydrateAuth(), hydratePrefs(), hydrateBranch()]).then(() => setHydrated(true));
+    Promise.all([
+      hydrateAuth(),
+      hydratePrefs(),
+      hydrateBranch(),
+      hydrateEventFlow(),
+    ]).then(() => setHydrated(true));
     // Prefetch cabang list di background — tidak block hydration
     prefetchBranches(queryClient);
-  }, [hydrateAuth, hydratePrefs, hydrateBranch]);
+  }, [hydrateAuth, hydratePrefs, hydrateBranch, hydrateEventFlow]);
 
   useEffect(() => {
     if (loaded && hydrated) {

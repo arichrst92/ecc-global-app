@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { logout as apiLogout } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
 import { useBranchStore } from '@/stores/branch.store';
+import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useToast } from '@/components/ui/Toast';
 
 /**
@@ -24,6 +25,7 @@ export function useLogout() {
   const refreshToken = useAuthStore((s) => s.refreshToken);
   const clearAuth = useAuthStore((s) => s.logout);
   const resetBranch = useBranchStore((s) => s.resetToHome);
+  const clearEventFlow = useEventFlowStore((s) => s.clearAll);
   const showToast = useToast((s) => s.show);
 
   return useMutation({
@@ -44,6 +46,10 @@ export function useLogout() {
       // 3) Reset branch viewing context (kalau user re-login dengan akun beda,
       //    jangan inherit viewing branch dari user lama)
       await resetBranch();
+
+      // 4) Clear event participations cache (kalau user lain re-login,
+      //    jangan inherit data participation user lama)
+      await clearEventFlow();
 
       // 4) Clear local auth state + persistent secure storage
       await clearAuth();
