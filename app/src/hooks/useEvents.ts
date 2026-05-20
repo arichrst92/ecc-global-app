@@ -3,16 +3,38 @@ import { useQuery } from '@tanstack/react-query';
 import { listEvents, getEventDetail, getMyParticipation } from '@/api/event';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ApiError } from '@/types/api';
-import type { EventParticipation } from '@/types/event';
+import type { EventParticipation, EventListItem } from '@/types/event';
 
-/** Event list filtered by viewing cabang */
+/**
+ * Event list dengan visibility scope inklusif:
+ * - **Global events** (sinode=null, cabang=null) → tampil untuk semua user
+ * - **Sinode events** (sinode set, cabang=null) → tampil untuk semua cabang di sinode itu
+ * - **Cabang events** (cabang set) → tampil hanya untuk user yang viewing cabang itu
+ *
+ * Implementation: fetch SEMUA event published, filter client-side. Lebih hemat
+ * daripada 2x roundtrip (global + cabang) karena event count per sinode tipikal kecil.
+ *
+ * Future: kalau scale grow, request BE add `includeGlobal=true` query param
+ * supaya filtering jadi BE-side. Untuk sekarang client-filter cukup.
+ */
 export function useEventList() {
-  const { viewingCabangId, isLoading } = useViewingBranch();
+  const { viewingCabangId, branch, isLoading } = useViewingBranch();
+  const cabangId = viewingCabangId ?? branch?.id ?? null;
   return useQuery({
-    queryKey: ['event', 'list', viewingCabangId ?? 'all'],
-    queryFn: () => listEvents({ cabangId: viewingCabangId ?? undefined, limit: 20 }),
+    queryKey: ['event', 'list', cabangId ?? 'all'],
+    // Fetch semua event published — TIDAK pass cabangId filter ke BE
+    queryFn: () => listEvents({ limit: 50 }),
     enabled: !isLoading,
-    staleTime: 5 * 60_000, // 5 menit
+    staleTime: 5 * 60_000,
+    select: (data): EventListItem[] => {
+      if (!cabangId) return data; // belum login / branch belum resolved → show all
+      return data.filter((e) => {
+        // Global event → tampil
+        if (!e.cabang) return true;
+        // Cabang-specific → tampil hanya kalau match viewing cabang
+        return e.cabang.id === cabangId;
+      });
+    },
   });
 }
 

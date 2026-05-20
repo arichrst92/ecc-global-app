@@ -212,9 +212,18 @@ export default function HomeScreen() {
             >
               {(eventsQuery.data ?? []).map((e) => {
                 const isFree = e.tipeBayar === 'GRATIS';
+                const isBebas = e.tipeBayar === 'NOMINAL_BEBAS';
+                // Color: GRATIS hijau, NOMINAL_BEBAS biru (sukarela), NOMINAL_TETAP amber (berbayar)
                 const priceText = isFree
                   ? t('event.free')
-                  : `Rp ${(Number(e.nominal) / 1000).toLocaleString('id-ID')}rb`;
+                  : isBebas
+                    ? lang === 'id' ? 'Persembahan' : 'Donation'
+                    : `Rp ${(Number(e.nominal) / 1000).toLocaleString('id-ID')}rb`;
+                const priceColorClass = isFree
+                  ? 'text-emerald-600'
+                  : isBebas
+                    ? 'text-blue-600'
+                    : 'text-amber-600';
                 return (
                   <Pressable
                     key={e.id}
@@ -234,9 +243,7 @@ export default function HomeScreen() {
                       <Text className="font-semibold text-sm text-neutral-900" numberOfLines={2}>
                         {e.judul}
                       </Text>
-                      <Text
-                        className={`text-xs font-semibold mt-1 ${isFree ? 'text-emerald-600' : 'text-amber-600'}`}
-                      >
+                      <Text className={`text-xs font-semibold mt-1 ${priceColorClass}`}>
                         {priceText}
                       </Text>
                     </View>
