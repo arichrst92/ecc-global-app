@@ -28,9 +28,20 @@ export function listEvents(opts: ListOptions = {}) {
   return api.get<EventListItem[]>(`/admin/event?${params}`);
 }
 
-/** GET /admin/event/:idOrSlug — accepts UUID or slug */
+/** GET /admin/event/:idOrSlug — accepts UUID or slug.
+ * Per BE patch 2026-05-21i, response includes `myParticipation` field. */
 export function getEventDetail(idOrSlug: string) {
   return api.get<EventDetail>(`/admin/event/${idOrSlug}`);
+}
+
+/** GET /admin/event/:idOrSlug/peserta/me — fetch user's participation.
+ * Per BE patch 2026-05-21i. Returns participation row atau throws ApiError
+ * dengan code 'NOT_FOUND' kalau user belum daftar.
+ *
+ * Pakai post-mutation (register/cancel/upload) supaya lebih ringan daripada
+ * refetch detail penuh. Untuk initial load, prefer `myParticipation` di detail. */
+export function getMyParticipation(idOrSlug: string) {
+  return api.get<EventParticipation>(`/admin/event/${idOrSlug}/peserta/me`);
 }
 
 type RegisterPayload = {

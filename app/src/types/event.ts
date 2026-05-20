@@ -34,7 +34,9 @@ export type EventListItem = {
   pesertaCount: number;
 };
 
-/** Detail dari GET /admin/event/:idOrSlug */
+/** Detail dari GET /admin/event/:idOrSlug. Per BE patch 2026-05-21i:
+ * `myParticipation` field included (null kalau user belum daftar). Source of
+ * truth untuk participation status — local store dipakai untuk offline cache. */
 export type EventDetail = EventListItem & {
   deskripsi: string; // markdown
   qrisImageUrl?: string | null;
@@ -43,6 +45,7 @@ export type EventDetail = EventListItem & {
   bankAtasNama?: string | null;
   tags?: string[];
   author?: { id: string; jemaat: { id: string; namaLengkap: string } };
+  myParticipation?: EventParticipation | null;
 };
 
 /** Participation/Peserta row */

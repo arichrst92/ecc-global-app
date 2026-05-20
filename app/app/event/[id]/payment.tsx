@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, ArrowLeft, Camera, Check, Copy, Home, RefreshCw, Send } from 'lucide-react-native';
+import { ArrowLeft, Camera, Check, Copy, Home, RefreshCw, Send } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -32,6 +32,7 @@ export default function EventPaymentScreen() {
 
   const eventQuery = useEventDetail(id);
   const event = eventQuery.data;
+  const queryClient = useQueryClient();
 
   // Cek participation dari persistent store
   const participation = useEventFlowStore((s) =>
@@ -62,6 +63,9 @@ export default function EventPaymentScreen() {
       if (event) {
         await updateStatus(event.id, 'MENUNGGU_VERIFIKASI');
       }
+      // Invalidate event queries supaya myParticipation.status di detail ke-update
+      await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
+      await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
       showToast(t('event.uploaded_waiting'), 'success');
     },
     onError: (err) => {
@@ -135,9 +139,6 @@ export default function EventPaymentScreen() {
 
   const nominal = Number(event.nominal);
   const isUploaded = !!uploadedUrl;
-  // Edge case: participation di-recover dari 409 conflict, participationId
-  // tidak diketahui — upload bukti tidak bisa dilakukan, user perlu hubungi admin
-  const isUnknownParticipation = participation?.participationId === 'unknown';
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -156,16 +157,6 @@ export default function EventPaymentScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
       >
-        {/* Unknown participationId warning — recovery dari 409 */}
-        {isUnknownParticipation ? (
-          <View className="bg-red-50 border border-red-200 rounded-2xl p-3 mb-4 flex-row items-start gap-3">
-            <AlertCircle size={20} color="#DC2626" />
-            <Text className="text-xs text-red-800 flex-1 leading-relaxed">
-              {t('event.participation_id_unknown')}
-            </Text>
-          </View>
-        ) : null}
-
         {/* Status pill */}
         <View className="bg-amber-50 border border-amber-100 rounded-2xl p-3 mb-4 flex-row items-center gap-3">
           <View className="w-8 h-8 rounded-full bg-amber-500 items-center justify-center">
@@ -339,7 +330,6 @@ export default function EventPaymentScreen() {
               label={t('event.submit_payment')}
               onPress={() => uploadMutation.mutate()}
               loading={uploadMutation.isPending}
-              disabled={isUnknownParticipation}
               leftIcon={<Send size={16} color="#fff" />}
               fullWidth
               size="lg"

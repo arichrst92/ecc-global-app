@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -22,11 +22,52 @@ export default function EventDetailScreen() {
 
   const query = useEventDetail(id);
   const event = query.data;
-  // Cek apakah user sudah daftar event ini (dari persistent store)
-  const participation = useEventFlowStore((s) =>
+
+  const addParticipation = useEventFlowStore((s) => s.addParticipation);
+  const removeParticipation = useEventFlowStore((s) => s.removeParticipation);
+  const localParticipation = useEventFlowStore((s) =>
     event ? s.getParticipation(event.id) : null,
   );
-  const removeParticipation = useEventFlowStore((s) => s.removeParticipation);
+
+  // Sync BE → local store. Per BE patch 2026-05-21i, event detail include
+  // `myParticipation`. BE jadi source of truth — kalau local stale, fix it.
+  useEffect(() => {
+    if (!event) return;
+    const beParticipation = event.myParticipation;
+    if (beParticipation && beParticipation.status !== 'BATAL') {
+      // BE punya data → update local kalau berbeda
+      if (
+        !localParticipation ||
+        localParticipation.participationId !== beParticipation.id ||
+        localParticipation.status !== beParticipation.status
+      ) {
+        addParticipation({
+          participationId: beParticipation.id,
+          eventId: event.id,
+          status: beParticipation.status,
+          registeredAt: new Date(beParticipation.registeredAt).getTime(),
+        });
+      }
+    } else {
+      // BE confirm belum daftar (null atau BATAL) → bersihkan local stale
+      if (localParticipation) {
+        removeParticipation(event.id);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event?.id, event?.myParticipation?.id, event?.myParticipation?.status]);
+
+  // Untuk render, prefer BE participation. Fallback ke local (offline mode).
+  const participation = event?.myParticipation
+    ? {
+        participationId: event.myParticipation.id,
+        eventId: event.id,
+        status: event.myParticipation.status,
+        registeredAt: new Date(event.myParticipation.registeredAt).getTime(),
+        jemaatId: event.myParticipation.jemaatId,
+      }
+    : localParticipation;
+
   const showToast = useToast((s) => s.show);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
 

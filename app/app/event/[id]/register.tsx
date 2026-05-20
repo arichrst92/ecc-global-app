@@ -1,7 +1,7 @@
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check, Info } from 'lucide-react-native';
 
@@ -25,6 +25,7 @@ export default function EventRegisterScreen() {
   const catatan = useEventFlowStore((s) => s.catatan);
   const setCatatan = useEventFlowStore((s) => s.setCatatan);
   const addParticipation = useEventFlowStore((s) => s.addParticipation);
+  const queryClient = useQueryClient();
 
   const eventQuery = useEventDetail(id);
   const event = eventQuery.data;
@@ -40,7 +41,7 @@ export default function EventRegisterScreen() {
     },
     onSuccess: async (data) => {
       // Persist participation supaya bisa "lanjut pembayaran" kalau user
-      // keluar app sebelum upload bukti
+      // keluar app sebelum upload bukti (offline fallback)
       if (event) {
         await addParticipation({
           participationId: data.id,
@@ -49,6 +50,10 @@ export default function EventRegisterScreen() {
           registeredAt: Date.now(),
         });
       }
+
+      // Invalidate event queries supaya myParticipation field di detail ke-update
+      await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
+      await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
 
       if (event?.tipeBayar === 'GRATIS') {
         // Skip payment screen — daftar selesai
@@ -63,9 +68,10 @@ export default function EventRegisterScreen() {
       if (err instanceof ApiError) {
         if (err.code === 'CONFLICT') {
           // Heuristik: kalau pesan menyebut "sudah terdaftar"/"already registered"
-          // → user sudah punya participation di BE, local state kemungkinan hilang
-          // (logout/login, fresh install, secure-store wiped).
-          // Otherwise (quota penuh, dll) → tampil sebagai info biasa.
+          // → user sudah punya participation di BE, local state kemungkinan hilang.
+          // Per BE patch 2026-05-21i, event detail include `myParticipation` —
+          // tinggal invalidate cache dan event detail akan auto-sync dari BE.
+          // Otherwise (quota penuh) → tampil error biasa.
           const msg = err.message.toLowerCase();
           const isAlreadyRegistered =
             msg.includes('sudah terdaftar') ||
@@ -73,15 +79,9 @@ export default function EventRegisterScreen() {
             msg.includes('duplicate');
 
           if (isAlreadyRegistered && event) {
-            // Auto-recover: tambah placeholder participation, redirect ke detail
-            // BE belum kirim participationId di error response — pakai marker
-            // 'unknown' supaya payment screen tahu perlu fetch ulang
-            await addParticipation({
-              participationId: 'unknown',
-              eventId: event.id,
-              status: 'DAFTAR',
-              registeredAt: Date.now(),
-            });
+            // Invalidate event detail → re-fetch akan dapat myParticipation dari BE
+            await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
+            await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
             Alert.alert(
               t('event.already_registered'),
               t('event.already_registered_recovery'),

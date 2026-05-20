@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-20
 **Priority**: 🟡 **MEDIUM** — UX issue, ada workaround tapi tidak ideal
-**Status**: Pending
+**Status**: ✅ **RESOLVED 2026-05-21** — lihat section "Backend Response" di akhir doc
 
 ---
 
@@ -230,3 +230,179 @@ Mobile akan adopt endpoint segera setelah BE deploy — sudah ada placeholder co
 ## Kontak
 
 Mobile dev — Ari Christian (`arichrst@ide.asia`)
+
+---
+
+# Backend Response — 2026-05-21
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Untuk**: Mobile dev (Ari Christian)
+**Status**: ✅ **DELIVERED**
+
+## Ringkasan
+
+**Kedua approach diimplementasikan** (sesuai rekomendasi mobile "pilih alternative kalau bisa" — kami kasih keduanya):
+
+1. ✅ Field `myParticipation` di response `GET /admin/event/:idOrSlug` — efisien single round-trip
+2. ✅ Endpoint terpisah `GET /admin/event/:idOrSlug/peserta/me` — untuk refresh setelah mutation
+
+Tidak ada breaking change. Cost tambahan: 1 query Postgres saat detail loaded (~ms).
+
+## Spec final
+
+### Option A — Field `myParticipation` di event detail (recommended untuk initial load)
+
+```
+GET /admin/event/{idOrSlug}
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "evt-uuid-...",
+    "judul": "Retreat Pemuda 2026",
+    "...": "...field event lain...",
+    "pesertaCount": 23,
+    "myParticipation": {
+      "id": "part-uuid-...",
+      "eventId": "evt-uuid-...",
+      "jemaatId": "ab12cd34-...",
+      "status": "DAFTAR",
+      "nominalBayar": "750000",
+      "catatan": "Ukuran kaos L",
+      "buktiTransferUrl": null,
+      "registeredAt": "2026-05-15T10:30:00.000Z",
+      "paidAt": null,
+      "attendedAt": null,
+      "cancelledAt": null
+    }
+  }
+}
+```
+
+Kalau user belum daftar: `"myParticipation": null`.
+
+### Option B — Standalone `GET /:idOrSlug/peserta/me` (recommended untuk refetch post-mutation)
+
+```
+GET /admin/event/{idOrSlug}/peserta/me
+Authorization: Bearer <JWT>
+```
+
+**Response 200 (terdaftar):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "part-uuid-...",
+    "eventId": "evt-uuid-...",
+    "jemaatId": "jemaat-uuid-...",
+    "status": "DAFTAR",
+    ...
+  }
+}
+```
+
+**Response 404 (belum daftar):**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Anda belum terdaftar di event ini."
+  }
+}
+```
+
+Accept id atau slug (sama pola endpoint detail).
+
+## Pattern recommendation
+
+| Scenario | Pakai |
+|---|---|
+| Initial load event detail | `GET /:idOrSlug` → baca `data.myParticipation` (1 query) |
+| Refresh setelah register / cancel / upload bukti | `GET /:idOrSlug/peserta/me` (lebih ringan) |
+| Multi-event list (mis. home screen, "event saya") | TBD — kalau perlu batch lookup, request endpoint baru |
+
+## Acceptance criteria checklist
+
+- [x] User authenticated → `myParticipation` field populated (atau null)
+- [x] User belum daftar → field `null` (bukan absent, supaya distinguish dari client outdated)
+- [x] Standalone endpoint 200 / 404 sesuai status
+- [x] Accept id atau slug
+- [x] OpenAPI di Swagger (tag "Movement · Event")
+- [x] No breaking change — `myParticipation` purely additive
+- [x] Pure read endpoint — idempotent, aman polling
+
+## Implementasi notes
+
+**Route ordering**: `GET /:idOrSlug/peserta/me` di-register sebelum existing routes `:participationId/*`. Beda HTTP method dengan `DELETE /peserta/me`, jadi Express handle independently, tapi konvensi codebase: route `me` di-group sebelum route `:participationId`.
+
+**Resolve via JWT**: pakai `req.user.jemaatId` (sudah di-resolve oleh `requireAuth` middleware di `/admin/*`). Tidak ada cek owner explicit — by design, user tidak bisa "see" participation orang lain.
+
+**Defensive null**: kalau request tidak punya `req.user` (theoretical — admin/* sudah pasti JWT-required), `myParticipation` set ke `null`. Tidak crash.
+
+**Performance**: query `eventParticipation.findUnique({ where: { eventId_jemaatId } })` pakai composite unique index — sub-ms. Cache 5 menit di React Query mengurangi load.
+
+## Field reference
+
+Semua field yang di-return di `myParticipation` row:
+
+| Field | Tipe | Catatan |
+|---|---|---|
+| `id` | UUID | participationId untuk upload bukti |
+| `eventId` | UUID | echo dari event |
+| `jemaatId` | UUID | echo dari current user |
+| `status` | enum | DAFTAR \| MENUNGGU_VERIFIKASI \| BAYAR \| HADIR \| BATAL |
+| `nominalBayar` | string (Decimal) | nullable kalau GRATIS |
+| `catatan` | string | nullable |
+| `buktiTransferUrl` | string | URL bukti, null kalau belum upload |
+| `registeredAt` | ISO timestamp | saat daftar |
+| `paidAt` | ISO timestamp | saat admin approve, null kalau belum |
+| `attendedAt` | ISO timestamp | saat check-in HADIR, null kalau belum |
+| `cancelledAt` | ISO timestamp | saat BATAL, null kalau aktif |
+
+## File yang berubah
+
+| File | Perubahan |
+|---|---|
+| `apps/core-api/src/routes/admin/event.ts` | Detail handler include `myParticipation`, new `GET /:idOrSlug/peserta/me` |
+| `apps/core-api/src/openapi.ts` | Register path baru |
+| `docs/mobile-api-guide.md` | Section 5.2 (myParticipation field) + section 5.2.1 (standalone) + Gap Status table |
+| `knowledge-base.md` | Section 26 patch **2026-05-21i** |
+
+## Action item untuk mobile team
+
+- [ ] Update `useEventDetail` hook — parse `data.myParticipation` dan sync ke `useEventFlowStore`
+- [ ] Hapus / sederhanakan workaround 409 CONFLICT recovery (placeholder participationId='unknown' tidak perlu lagi)
+- [ ] Add `useMyParticipation(eventId)` hook untuk standalone fetch (pakai post-mutation)
+- [ ] Render CTA berdasarkan `myParticipation` dari BE (bukan local store sebagai primary)
+- [ ] Local store tetap dipakai untuk offline UX, tapi rekonsiliasi dengan BE saat online
+
+## Bonus catatan
+
+**Source of truth shift**: setelah patch ini, mobile harus treat BE response sebagai authoritative untuk participation status. Local storage masih useful untuk offline cache, tapi saat online flow harus:
+
+```typescript
+useEffect(() => {
+  if (eventDetail.data?.myParticipation) {
+    // Sync ke local store
+    upsertParticipation(eventDetail.data.myParticipation);
+  } else if (eventDetail.data && !eventDetail.data.myParticipation) {
+    // BE confirm belum daftar — clean local stale
+    removeParticipation(eventId);
+  }
+}, [eventDetail.data]);
+```
+
+Ini sekaligus solve issue "tombol Daftar Sekarang muncul padahal user sudah daftar" — root cause exactly seperti yang dijelaskan di TL;DR request ini.
+
+---
+
+*Ticket closed 2026-05-21. Live di Swagger `{BASE_URL}/docs#/Movement-·-Event/get_admin_event__idOrSlug__peserta_me`.*
