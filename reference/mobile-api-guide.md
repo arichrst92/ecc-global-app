@@ -1256,6 +1256,8 @@ Mobile harus segera lanjut ke `POST /auth/register` dalam 15 menit (sesuai `vali
 
 ### Step 3: Submit data diri
 
+**Minimal payload (3 field wajib):**
+
 ```
 POST /auth/register
 Content-Type: application/json
@@ -1263,16 +1265,41 @@ Content-Type: application/json
 {
   "noHp": "+6281234567890",
   "namaLengkap": "Budi Santoso",
-  "tanggalLahir": "1995-03-15",
   "jenisKelamin": "L",
-  "alamat": "Jl. Sudirman No. 123, Jakarta",
+  "cabangId": "11111111-1111-1111-1111-111111111111"
+}
+```
+
+**Full payload (semua field optional):**
+
+```json
+{
+  "noHp": "+6281234567890",
+  "namaLengkap": "Budi Santoso",
+  "jenisKelamin": "L",
   "cabangId": "11111111-1111-1111-1111-111111111111",
+
+  "tanggalLahir": "1995-03-15",
+  "alamat": "Jl. Sudirman No. 123, Jakarta",
   "homecellId": null,
   "fotoBase64": "data:image/jpeg;base64,/9j/4AAQSk..."
 }
 ```
 
-`fotoBase64` opsional — bisa upload terpisah via `POST /admin/me/foto` setelah register.
+**Field requirements:**
+
+| Field | Required | Catatan |
+|---|---|---|
+| `noHp` | ✅ | Format E.164 (`+62...`), harus match dengan OTP verified |
+| `namaLengkap` | ✅ | Min 2 karakter |
+| `jenisKelamin` | ✅ | `"L"` atau `"P"` |
+| `cabangId` | ✅ | UUID cabang aktif (dari `GET /auth/cabang`) |
+| `tanggalLahir` | ⚪ optional | ISO date `YYYY-MM-DD`. Kalau tidak diisi → DB simpan `null` |
+| `alamat` | ⚪ optional | Max 500 char. Kalau tidak diisi → DB simpan `null` |
+| `homecellId` | ⚪ optional | UUID, kalau ada langsung jadi member homecell |
+| `fotoBase64` | ⚪ optional | Bisa upload terpisah via `POST /admin/me/foto` |
+
+> **Decision (2026-05-21d)**: signup form mobile cuma butuh nama + jenis kelamin + cabang. `tanggalLahir` dan `alamat` bisa user lengkapi via `PATCH /admin/me` setelah login. Tujuan: minimize friction onboarding.
 
 **Response 201:**
 
