@@ -3,7 +3,8 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
-import { LogOut, AlertTriangle, ChevronRight, BookOpen, Bell, QrCode, Printer } from 'lucide-react-native';
+import { LogOut, AlertTriangle, ChevronRight, BookOpen, Bell, QrCode, Printer, Users } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +15,7 @@ import { formatPhoneDisplay } from '@/utils/phone';
 export default function ProfileTab() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
+  const router = useRouter();
   const logoutMutation = useLogout();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -69,9 +71,27 @@ export default function ProfileTab() {
           {t('profile.quick_access')}
         </Text>
         <View className="flex-row gap-2 mb-4">
-          <QuickTile icon={<BookOpen size={20} color="#D97706" />} bg="bg-amber-50" label={t('profile.bible')} />
-          <QuickTile icon={<Bell size={20} color="#EA580C" />} bg="bg-brand-50" label={t('profile.notifications')} />
-          <QuickTile icon={<Printer size={20} color="#1d4ed8" />} bg="bg-blue-50" label={t('profile.printer')} />
+          <QuickTile
+            icon={<Users size={20} color="#059669" />}
+            bg="bg-emerald-50"
+            label={t('profile.family')}
+            onPress={() => router.push('/family')}
+          />
+          <QuickTile
+            icon={<BookOpen size={20} color="#D97706" />}
+            bg="bg-amber-50"
+            label={t('profile.bible')}
+          />
+          <QuickTile
+            icon={<Bell size={20} color="#EA580C" />}
+            bg="bg-brand-50"
+            label={t('profile.notifications')}
+          />
+          <QuickTile
+            icon={<Printer size={20} color="#1d4ed8" />}
+            bg="bg-blue-50"
+            label={t('profile.printer')}
+          />
         </View>
 
         {/* Settings menu */}
@@ -80,6 +100,7 @@ export default function ProfileTab() {
         </Text>
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <MenuRow label={t('profile.edit_profile')} />
+          <MenuRow label={t('profile.family')} onPress={() => router.push('/family')} />
           <MenuRow label={t('profile.change_branch')} />
           <MenuRow label={t('profile.language')} sub="Bahasa Indonesia" />
           <MenuRow label={t('profile.about')} sub="v0.1.0" isLast />
@@ -152,18 +173,43 @@ export default function ProfileTab() {
   );
 }
 
-function QuickTile({ icon, bg, label }: { icon: React.ReactNode; bg: string; label: string }) {
+function QuickTile({
+  icon,
+  bg,
+  label,
+  onPress,
+}: {
+  icon: React.ReactNode;
+  bg: string;
+  label: string;
+  onPress?: () => void;
+}) {
   return (
-    <View className="flex-1 bg-white rounded-2xl p-3 items-center gap-1.5 border border-neutral-100">
+    <Pressable
+      onPress={onPress}
+      className="flex-1 bg-white rounded-2xl p-3 items-center gap-1.5 border border-neutral-100"
+    >
       <View className={`w-10 h-10 rounded-xl ${bg} items-center justify-center`}>{icon}</View>
-      <Text className="text-[11px] font-semibold text-neutral-700 text-center">{label}</Text>
-    </View>
+      <Text className="text-[11px] font-semibold text-neutral-700 text-center" numberOfLines={1}>
+        {label}
+      </Text>
+    </Pressable>
   );
 }
 
-function MenuRow({ label, sub, isLast }: { label: string; sub?: string; isLast?: boolean }) {
+function MenuRow({
+  label,
+  sub,
+  isLast,
+  onPress,
+}: {
+  label: string;
+  sub?: string;
+  isLast?: boolean;
+  onPress?: () => void;
+}) {
   return (
-    <Pressable className="p-4 flex-row items-center gap-3">
+    <Pressable onPress={onPress} className="p-4 flex-row items-center gap-3">
       <View className="flex-1">
         <Text className="text-sm font-medium text-neutral-900">{label}</Text>
         {sub ? <Text className="text-xs text-neutral-500 mt-0.5">{sub}</Text> : null}
