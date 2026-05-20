@@ -9,7 +9,6 @@ import { ArrowLeft, Info, Clock } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
 import { Stepper } from '@/components/ui/Stepper';
 import { TextField } from '@/components/ui/TextField';
-import { DateField } from '@/components/ui/DateField';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Picker } from '@/components/ui/Picker';
 import { register } from '@/api/auth';
@@ -20,18 +19,15 @@ import { ApiError } from '@/types/api';
 
 type FieldErrors = Partial<{
   namaLengkap: string;
-  tanggalLahir: string;
   jenisKelamin: string;
-  alamat: string;
   cabangId: string;
 }>;
 
-function validateDate(s: string): boolean {
-  // YYYY-MM-DD format check + valid Date
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
-  const d = new Date(s);
-  return !isNaN(d.getTime()) && d <= new Date();
-}
+// Placeholder values untuk field yang dihapus dari signup mobile.
+// User isi nanti di Profile → Edit. BE pending request untuk make optional
+// (lihat docs/backend-request-optional-signup-fields.md).
+const PLACEHOLDER_TANGGAL_LAHIR = '2000-01-01';
+const PLACEHOLDER_ALAMAT = 'Belum diisi';
 
 export default function SignupDataScreen() {
   const { t } = useTranslation();
@@ -41,9 +37,7 @@ export default function SignupDataScreen() {
   // Get state via individual selectors untuk reactivity
   const noHp = useSignupStore((s) => s.noHp);
   const namaLengkap = useSignupStore((s) => s.namaLengkap);
-  const tanggalLahir = useSignupStore((s) => s.tanggalLahir);
   const jenisKelamin = useSignupStore((s) => s.jenisKelamin);
-  const alamat = useSignupStore((s) => s.alamat);
   const cabangId = useSignupStore((s) => s.cabangId);
   const otpVerifiedExpiresAt = useSignupStore((s) => s.otpVerifiedExpiresAt);
   const setField = useSignupStore((s) => s.setField);
@@ -58,7 +52,6 @@ export default function SignupDataScreen() {
     const update = () => {
       const remaining = Math.max(0, Math.floor((otpVerifiedExpiresAt - Date.now()) / 1000));
       setSecondsLeft(remaining);
-      // Auto-redirect kalau expired
       if (remaining === 0) {
         Alert.alert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [
           {
@@ -83,13 +76,13 @@ export default function SignupDataScreen() {
       register({
         noHp,
         namaLengkap,
-        tanggalLahir,
+        // Placeholder fields — user lengkapi nanti di Profile
+        tanggalLahir: PLACEHOLDER_TANGGAL_LAHIR,
         jenisKelamin: jenisKelamin as 'L' | 'P',
-        alamat,
+        alamat: PLACEHOLDER_ALAMAT,
         cabangId,
       }),
     onSuccess: async (data) => {
-      // Save tokens + user, lalu navigate ke success
       await login(data.accessToken, data.refreshToken, data.user);
       router.replace('/(auth)/signup/success');
     },
@@ -99,9 +92,7 @@ export default function SignupDataScreen() {
           const fe = err.details.fieldErrors;
           setErrors({
             namaLengkap: fe.namaLengkap?.[0],
-            tanggalLahir: fe.tanggalLahir?.[0],
             jenisKelamin: fe.jenisKelamin?.[0],
-            alamat: fe.alamat?.[0],
             cabangId: fe.cabangId?.[0],
           });
         } else if (err.code === 'UNAUTHORIZED') {
@@ -122,9 +113,7 @@ export default function SignupDataScreen() {
   function submit() {
     const next: FieldErrors = {};
     if (!namaLengkap || namaLengkap.length < 2) next.namaLengkap = t('signup.error_name_required');
-    if (!tanggalLahir || !validateDate(tanggalLahir)) next.tanggalLahir = t('signup.error_date_invalid');
     if (!jenisKelamin) next.jenisKelamin = t('signup.error_gender_required');
-    if (!alamat || alamat.length < 5) next.alamat = t('signup.error_address_required');
     if (!cabangId) next.cabangId = t('signup.error_branch_required');
 
     setErrors(next);
@@ -190,7 +179,7 @@ export default function SignupDataScreen() {
           </View>
         ) : null}
 
-        {/* Form fields */}
+        {/* Form fields — minimal: nama, gender, cabang */}
         <View className="bg-white rounded-2xl p-4 gap-3 border border-neutral-100">
           <TextField
             label={t('signup.full_name')}
@@ -202,17 +191,6 @@ export default function SignupDataScreen() {
             }}
             error={errors.namaLengkap}
             editable={!mutation.isPending}
-          />
-
-          <DateField
-            label={t('signup.dob')}
-            placeholder={t('signup.dob_placeholder')}
-            value={tanggalLahir}
-            onChange={(v) => {
-              setField('tanggalLahir', v);
-              setErrors((e) => ({ ...e, tanggalLahir: undefined }));
-            }}
-            error={errors.tanggalLahir}
           />
 
           <SegmentedControl<'L' | 'P'>
@@ -230,20 +208,6 @@ export default function SignupDataScreen() {
           {errors.jenisKelamin ? (
             <Text className="text-xs text-red-600 -mt-2">{errors.jenisKelamin}</Text>
           ) : null}
-
-          <TextField
-            label={t('signup.address')}
-            placeholder={t('signup.address_placeholder')}
-            value={alamat}
-            onChangeText={(v) => {
-              setField('alamat', v);
-              setErrors((e) => ({ ...e, alamat: undefined }));
-            }}
-            error={errors.alamat}
-            multiline
-            numberOfLines={3}
-            editable={!mutation.isPending}
-          />
 
           <Picker
             label={t('signup.branch')}
@@ -273,9 +237,14 @@ export default function SignupDataScreen() {
           ) : null}
         </View>
 
-        <View className="mt-4 mb-6 p-3 bg-blue-50 border border-blue-100 rounded-xl flex-row gap-2">
+        <View className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl flex-row gap-2">
           <Info size={16} color="#1d4ed8" />
-          <Text className="text-xs text-blue-800 flex-1">{t('signup.auto_active_notice')}</Text>
+          <Text className="text-xs text-blue-800 flex-1">{t('signup.minimal_notice')}</Text>
+        </View>
+
+        <View className="mt-3 mb-6 p-3 bg-brand-50 border border-brand-100 rounded-xl flex-row gap-2">
+          <Info size={16} color="#EA580C" />
+          <Text className="text-xs text-brand-800 flex-1">{t('signup.auto_active_notice')}</Text>
         </View>
       </ScrollView>
 

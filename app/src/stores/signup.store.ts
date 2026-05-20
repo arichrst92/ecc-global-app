@@ -4,8 +4,12 @@ import { create } from 'zustand';
  * Ephemeral state untuk sign-up wizard (3 step).
  * TIDAK persist (Zustand in-memory only) — reset saat user keluar atau selesai.
  *
- * Note: homecell DIHAPUS — BE bisa di-set admin manual atau via Settings setelah login.
- *       Foto profil juga TIDAK di signup — user upload di Settings → Edit Foto.
+ * Signup minimal — hanya 3 field user-facing: nama, gender, cabang.
+ * - tanggalLahir & alamat dihapus (per user request 2026-05-21):
+ *   data bisa dilengkapi nanti di Profile → Edit Profile.
+ *   Mobile kirim placeholder values ke BE (pending request untuk make optional).
+ * - homecell: admin assign manual atau via Settings setelah login.
+ * - foto: upload di Settings → Edit Foto via POST /admin/me/foto multipart.
  */
 type SignupState = {
   noHp: string;
@@ -13,9 +17,7 @@ type SignupState = {
   /** Unix ms timestamp kapan OTP verify expired (validForSeconds dari BE response) */
   otpVerifiedExpiresAt: number | null;
   namaLengkap: string;
-  tanggalLahir: string; // YYYY-MM-DD
   jenisKelamin: 'L' | 'P' | '';
-  alamat: string;
   cabangId: string;
 
   setNoHp: (v: string) => void;
@@ -29,9 +31,7 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
   otpVerified: false,
   otpVerifiedExpiresAt: null,
   namaLengkap: '',
-  tanggalLahir: '',
   jenisKelamin: '',
-  alamat: '',
   cabangId: '',
 };
 
