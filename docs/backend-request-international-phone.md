@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-20
 **Priority**: 🟢 **LOW-MEDIUM** — UX issue untuk jemaat luar negeri (WNI diaspora, missionari, jemaat international). Tidak blocker untuk launch domestik.
-**Status**: Pending
+**Status**: ✅ **RESOLVED 2026-05-21** (BE side) — WhatsApp provider verification masih open (ops). Lihat section "Backend Response" di akhir doc.
 
 ---
 
@@ -150,3 +150,132 @@ Sebelum implement, kami butuh konfirmasi:
 ## Kontak
 
 Mobile dev — Ari Christian (`arichrst@ide.asia`)
+
+---
+
+# Backend Response — 2026-05-21
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Untuk**: Mobile dev (Ari Christian)
+**Status**: ✅ **DELIVERED (BE side)** — provider verification still pending ops
+
+## Ringkasan
+
+BE validation di-update untuk accept E.164 dari country apa saja yang valid. Pakai `libphonenumber-js` (sama lib dengan rekomendasi mobile di request #1).
+
+**Yang sudah di-deliver BE-side**:
+
+1. ✅ `noHpSchema` di `packages/shared-types/src/schemas/common.ts` diganti dari regex `+62` only ke `isValidPhoneNumber()` dari libphonenumber-js
+2. ✅ Semua endpoint yang inherit `noHpSchema` otomatis ikut: `/auth/otp/request`, `/auth/otp/verify`, `/auth/face/login`, `/auth/register`, `/admin/jemaat` (create/update), `/admin/me/family/link-by-phone`, `/admin/me/family/register-new`
+3. ✅ Database schema tidak butuh migration — kolom `noHp` sudah `VARCHAR(20)` (cukup untuk E.164 max 15 digit + `+`), tidak ada constraint assume +62 prefix
+4. ✅ Existing data `+62XXX` tetap valid (semua E.164 backward-compat)
+5. ✅ Mobile-api-guide section "Phone number normalization" updated dengan format internasional
+
+**Yang TIDAK di-deliver BE-side (pending ops/product)**:
+
+1. ❌ WhatsApp Business provider verification — perlu check apakah provider Fonnte/Twilio/Meta yang dipakai bisa kirim ke country tertentu, dan budget per country (international rates 2-4x lebih mahal)
+2. ❌ Telemetry tracking non-+62 OTP requests (nice-to-have, defer)
+
+## Perubahan code
+
+### 1. `packages/shared-types/package.json` — dependency baru
+
+```json
+"dependencies": {
+  "@asteasolutions/zod-to-openapi": "^7.1.1",
+  "libphonenumber-js": "^1.11.0",
+  "zod": "^3.23.0"
+}
+```
+
+User perlu run `pnpm install` di root setelah pull.
+
+### 2. `packages/shared-types/src/schemas/common.ts` — schema validator
+
+```typescript
+// SEBELUM
+import { z } from 'zod';
+
+export const noHpSchema = z.string().trim()
+  .regex(/^\+62[0-9]{8,13}$/, 'Format no HP harus E.164 (+62...)');
+
+// SESUDAH
+import { z } from 'zod';
+import { isValidPhoneNumber } from 'libphonenumber-js';
+
+export const noHpSchema = z.string().trim()
+  .refine(
+    (v) => {
+      try { return isValidPhoneNumber(v); }
+      catch { return false; }
+    },
+    {
+      message:
+        'Format no HP harus E.164 internasional yang valid (contoh: +6281234567890, +6512345678, +14155551234)',
+    },
+  );
+```
+
+## Validation behavior per country
+
+| Country | Format E.164 | BE accept? |
+|---|---|---|
+| Indonesia (+62) | `+6281234567890` | ✅ (identical dengan regex lama) |
+| Singapore (+65) | `+6591234567` | ✅ |
+| Malaysia (+60) | `+60123456789` | ✅ |
+| Hong Kong (+852) | `+85291234567` | ✅ |
+| Australia (+61) | `+61412345678` | ✅ |
+| US/Canada (+1) | `+14155551234` | ✅ |
+| UK (+44) | `+447911123456` | ✅ |
+| Format invalid (terlalu pendek, prefix salah) | mis. `+62812` | ❌ 400 VALIDATION_ERROR |
+
+## Acceptance criteria checklist
+
+- [x] `libphonenumber-js` ter-install di `shared-types`
+- [x] Validation schema di-update — accept E.164 any country
+- [x] Existing +62 numbers tetap valid (no migration needed)
+- [x] No constraint/index assume +62
+- [x] mobile-api-guide.md updated dengan instruksi normalize via libphonenumber-js
+- [ ] **PENDING (ops)**: Verify WhatsApp provider support international delivery + cek pricing
+- [ ] **PENDING (ops, low priority)**: Telemetry tracking non-+62 requests
+
+## Mobile-side action items
+
+Setelah pull BE update:
+
+- [ ] Install `libphonenumber-js` di mobile app: `pnpm add libphonenumber-js`
+- [ ] Update `PhoneInput` component — tambah country picker (default ID +62)
+- [ ] Update `normalizePhone()` helper pakai `parsePhoneNumber(input, defaultCountry).format('E.164')`
+- [ ] Real-time validation per country yang dipilih
+- [ ] Persist last-used country di SecureStore (`Constants.expoConfig.extra.lastUsedCountry` atau key di secure-store)
+- [ ] Test dengan beberapa nomor: +62, +65, +1 (subjek WhatsApp provider support)
+
+## Bonus catatan
+
+**Disable country sementara** (kalau provider tidak support): saat ini BE tidak punya country allowlist. Kalau perlu block country tertentu (mis. China), bisa ditambah di Zod `.refine()` dengan `parsePhoneNumber(v).country` check. Buka request terpisah kalau perlu.
+
+**Migration data**: tidak perlu — existing `+62XXX` rows tetap valid E.164.
+
+**Performance**: `isValidPhoneNumber` ~0.1ms per call (lib dengan metadata di-bundled). Negligible impact.
+
+## File yang berubah
+
+| File | Perubahan |
+|---|---|
+| `packages/shared-types/package.json` | Tambah `libphonenumber-js ^1.11.0` |
+| `packages/shared-types/src/schemas/common.ts` | Replace regex dengan `isValidPhoneNumber()` |
+| `docs/mobile-api-guide.md` | Section "Phone number normalization" diperluas |
+| `knowledge-base.md` | Section 26 patch **2026-05-21k** |
+
+## Pre-deploy checklist (ops)
+
+Sebelum production rollout multi-country:
+
+- [ ] Konfirmasi provider WhatsApp support country target (subset 7 country: ID/SG/MY/HK/AU/UK/US untuk awal)
+- [ ] Check pricing per country — international rates ~$0.04-0.08 vs $0.02 ID
+- [ ] Set budget ceiling untuk international OTP (optional rate limit per-country untuk cost control)
+- [ ] Communicate ke admin: ada flow alternatif buat country yang WhatsApp tidak available
+
+---
+
+*Ticket closed (BE side) 2026-05-21. Mobile dev silakan adopt, tapi tunggu konfirmasi ops sebelum rollout multi-country ke production.*

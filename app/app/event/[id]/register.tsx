@@ -79,6 +79,7 @@ export default function EventRegisterScreen() {
           eventId: event.id,
           status: data.status,
           registeredAt: Date.now(),
+          nominalBayar: data.nominalBayar ? Number(data.nominalBayar) : null,
         });
       }
 

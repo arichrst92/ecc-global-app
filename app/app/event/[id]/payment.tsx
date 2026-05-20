@@ -137,7 +137,19 @@ export default function EventPaymentScreen() {
 
   if (!event) return null;
 
-  const nominal = Number(event.nominal);
+  // Untuk NOMINAL_BEBAS, nominal yang dibayar = nominalBayar yang user input
+  // saat register. Source priority:
+  //   1. BE myParticipation.nominalBayar (truth setelah refetch)
+  //   2. Local store participation.nominalBayar (instant fallback sebelum refetch)
+  //   3. event.nominal (fixed value untuk NOMINAL_TETAP, atau 0 untuk BEBAS)
+  const isBebas = event.tipeBayar === 'NOMINAL_BEBAS';
+  const beNominal = event.myParticipation?.nominalBayar
+    ? Number(event.myParticipation.nominalBayar)
+    : null;
+  const localNominal = participation?.nominalBayar ?? null;
+  const nominal = isBebas
+    ? beNominal ?? localNominal ?? Number(event.nominal)
+    : Number(event.nominal);
   const isUploaded = !!uploadedUrl;
 
   return (

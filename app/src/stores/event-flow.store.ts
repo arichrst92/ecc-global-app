@@ -30,6 +30,9 @@ export type ParticipationInfo = {
   status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
   registeredAt: number; // unix ms
   jemaatId: string; // owner — supaya tidak cross-leak antar user
+  /** Untuk NOMINAL_BEBAS, simpan nominal yang user input supaya payment screen
+   * tampil sebelum BE refetch selesai. Untuk NOMINAL_TETAP / GRATIS, optional. */
+  nominalBayar?: number | null;
 };
 
 type StoredShape = {

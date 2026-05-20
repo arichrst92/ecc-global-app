@@ -127,8 +127,18 @@ export default function EventDetailScreen() {
   const priceLabel = (() => {
     if (!event) return '';
     if (event.tipeBayar === 'GRATIS') return t('event.free');
-    if (event.tipeBayar === 'NOMINAL_BEBAS')
+    if (event.tipeBayar === 'NOMINAL_BEBAS') {
+      // Kalau user sudah daftar dengan nominal tertentu, tampil amount-nya.
+      // Otherwise tampil generic "Persembahan" untuk user yang belum daftar.
+      const userNominal =
+        event.myParticipation?.nominalBayar
+          ? Number(event.myParticipation.nominalBayar)
+          : participation?.nominalBayar ?? null;
+      if (userNominal && userNominal > 0) {
+        return `Rp ${userNominal.toLocaleString('id-ID')}`;
+      }
       return lang === 'id' ? 'Persembahan' : 'Donation';
+    }
     const num = Number(event.nominal);
     return `Rp ${num.toLocaleString('id-ID')}`;
   })();
