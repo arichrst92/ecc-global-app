@@ -1,48 +1,24 @@
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Bell, LogOut, Construction } from 'lucide-react-native';
+import { Bell, LogOut, Construction, AlertTriangle } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/auth.store';
-import { logout as apiLogout } from '@/api/auth';
+import { useLogout } from '@/hooks/useLogout';
 import { formatPhoneDisplay } from '@/utils/phone';
 
 export default function HomePlaceholder() {
   const { t } = useTranslation();
-  const showToast = useToast((s) => s.show);
   const user = useAuthStore((s) => s.user);
-  const refreshToken = useAuthStore((s) => s.refreshToken);
-  const logout = useAuthStore((s) => s.logout);
+  const logoutMutation = useLogout();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      if (refreshToken) {
-        try {
-          await apiLogout({ refreshToken });
-        } catch {
-          // Tetap lanjut clear local even kalau API fail
-        }
-      }
-      await logout();
-    },
-    onSuccess: () => {
-      showToast(t('auth.logout_success'), 'success');
-    },
-  });
-
-  function handleLogout() {
-    Alert.alert(t('auth.logout_confirm_title'), t('auth.logout_confirm_msg'), [
-      { text: t('common.cancel'), style: 'cancel' },
-      {
-        text: t('auth.logout'),
-        style: 'destructive',
-        onPress: () => logoutMutation.mutate(),
-      },
-    ]);
+  function confirmLogout() {
+    setConfirmOpen(false);
+    logoutMutation.mutate();
   }
 
   if (!user) return null;
@@ -114,12 +90,57 @@ export default function HomePlaceholder() {
         <Button
           label={t('auth.logout')}
           variant="danger"
-          onPress={handleLogout}
+          onPress={() => setConfirmOpen(true)}
           loading={logoutMutation.isPending}
           leftIcon={<LogOut size={16} color="#fff" />}
           fullWidth
         />
       </ScrollView>
+
+      {/* Confirm modal — cross-platform reliable (vs Alert.alert) */}
+      <Modal
+        visible={confirmOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setConfirmOpen(false)}
+      >
+        <Pressable
+          onPress={() => setConfirmOpen(false)}
+          className="flex-1 bg-black/50 items-center justify-center px-6"
+        >
+          <Pressable onPress={() => { /* prevent close saat tap card */ }} className="bg-white rounded-2xl p-5 w-full max-w-sm">
+            <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
+              <AlertTriangle size={24} color="#DC2626" />
+            </View>
+            <Text className="text-lg font-bold text-neutral-900 mb-1">
+              {t('auth.logout_confirm_title')}
+            </Text>
+            <Text className="text-sm text-neutral-500 mb-4 leading-relaxed">
+              {t('auth.logout_confirm_msg')}
+            </Text>
+            <View className="flex-row gap-2">
+              <View className="flex-1">
+                <Button
+                  label={t('common.cancel')}
+                  variant="secondary"
+                  onPress={() => setConfirmOpen(false)}
+                  fullWidth
+                  disabled={logoutMutation.isPending}
+                />
+              </View>
+              <View className="flex-1">
+                <Button
+                  label={t('auth.logout')}
+                  variant="danger"
+                  onPress={confirmLogout}
+                  fullWidth
+                  loading={logoutMutation.isPending}
+                />
+              </View>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
