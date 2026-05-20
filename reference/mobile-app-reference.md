@@ -827,24 +827,115 @@ Semantic versioning: `Major.Minor.Patch+Build`.
 
 ---
 
-## 18. Open Questions & Decisions Needed
+## 18. Open Questions & Decisions
 
-Vendor mobile perlu konfirmasi dari product team ECC:
+### Sudah diputuskan (per 2026-05-19 + 2026-05-21)
+
+- [x] **Self-registration dari mobile?** → **YES, auto-active**. Flow: OTP enrollment → POST /auth/register. Anti-abuse: rate limit 3/jam/IP + 1 register per nomor. Lihat section 20.
+- [x] **Family management confirmation flow?** → **Auto-verify** (trust-based, tidak ada 2-way confirm). Kolom `isVerified` di schema tetap di-keep — kalau perlu, switch ke confirmation flow di Phase 2 tanpa migrasi schema.
+- [x] **Push notification infrastructure?** → **Defer total**. Mobile pakai local notification (expo-notifications) untuk reminder ibadah saja. Backend tidak punya endpoint device token / notification model sampai infra ready.
+- [x] **Bilingual content?** → **UI translated (id/en), konten Indonesia**. Tidak ada field `judulEn` / `kontenEn` di backend.
+- [x] **Streak hadir source?** → **Endpoint stats dedicated** (`GET /admin/me/stats`) — bukan hitung client-side dari list reservasi.
+
+### Masih open
 
 - [ ] Native (Swift+Kotlin) vs cross-platform (Flutter / React Native)?
 - [ ] App store: ECC sendiri yang punya akun developer atau vendor?
 - [ ] Single app untuk semua persona (jemaat + volunteer + admin) atau split?
-- [ ] Bahasa: hanya Indonesia, atau juga English untuk expat?
-- [ ] Apakah ada budget untuk push notification service (FCM gratis tapi backend perlu work)?
-- [ ] Apakah jemaat baru bisa self-register dari mobile atau harus diadd admin?
+- [ ] Bahasa label UI: hanya Indonesia, atau juga English untuk expat?
 - [ ] Self-service forgot face / reset descriptor dari mobile?
 - [ ] Apakah mobile perlu show donation history personal (kalau backend track)?
 - [ ] Offline scanner mode: berapa lama queue di-keep?
 - [ ] White-label per sinode (mis. ECC, GBI, dll punya brand mereka sendiri) atau single brand?
+- [ ] Branch change: apakah ada SLA approval (mis. 24 jam) atau dibiarkan tanpa target?
+- [ ] Family link confirmation: kapan switch dari auto-verify ke 2-way confirm? (Trigger: kalau ada abuse case)
 
 ---
 
-## 19. Resources
+## 20. Phase 1 Implementation Status (per 2026-05-21)
+
+Response terhadap feedback tim mobile app (`api-gap-analysis.md` + `backend-meeting-brief.md`). Semua endpoint yang ditandai 🔴 di gap analysis sebagian besar sudah di-implement, kecuali push notif yang sengaja di-defer.
+
+### Schema baru
+
+| Model | Tabel | Purpose |
+|---|---|---|
+| `FamilyRelation` | `family_relation` | Self-managed family network (M5). Auto-verify, reciprocal pair |
+| `BranchChangeRequest` | `branch_change_request` | Mobile submit permintaan pindah cabang (M6) |
+| Jemaat extension | `jemaat.primary_guardian_id`, `jemaat.registered_via_jemaat_id` | Dependent (anak balita tanpa HP) + audit self-onboarding |
+
+Migration: `packages/database/prisma/migrations/20260521100000_mobile_app_phase1/`.
+
+### Endpoint baru (semuanya sudah live di Swagger)
+
+**Auth:**
+
+- `POST /auth/register` — self-registration jemaat baru (post-OTP enrollment)
+
+**Self-service `/admin/me/*`:**
+
+- `GET /admin/me` — full profile (Jemaat + User + cabang + roles + homecells)
+- `PATCH /admin/me` — edit field subset (nama, email, alamat, tanggalLahir, jenisKelamin)
+- `POST /admin/me/foto` — upload foto profile (multipart, max 5MB)
+- `GET /admin/me/stats` — streak, attended this year, events joined
+- `GET /admin/me/scanner-events` — event yang user-nya scanner
+- `GET /admin/me/scanner-ibadah` — ibadah yang user-nya scanner
+- `GET /admin/me/homecell-managed` — homecell yang user-nya PIC
+- `GET /admin/me/homecell-area-managed` — area yang user-nya PIC
+- `GET /admin/me/family` — list family network
+- `POST /admin/me/family/link-by-kode` — link via QR scan
+- `POST /admin/me/family/link-by-phone` — link via no HP
+- `POST /admin/me/family/register-new` — register anak balita + auto-link
+- `PATCH /admin/me/family/:jemaatId` — update role
+- `DELETE /admin/me/family/:jemaatId` — unlink (kedua arah)
+- `GET /admin/me/branch-change-requests` — riwayat permohonan user
+- `POST /admin/me/branch-change-request` — submit permohonan baru
+
+**Event:**
+
+- `POST /admin/event/:id/peserta/batch` — daftar multi-jemaat sekaligus (M3)
+- `GET /admin/event/:id/checkin/stats` — live count untuk scanner mode
+
+**Ibadah:**
+
+- `GET /admin/ibadah/:id/checkin/stats?tanggalIbadah=YYYY-MM-DD` — live count per occurrence
+
+**Homecell:**
+
+- `POST /admin/homecell/:id/members/by-kode` — tambah member via QR scan
+
+**Admin queue:**
+
+- `GET /admin/branch-change-request` — list request (filter status, cabangId)
+- `GET /admin/branch-change-request/:id` — detail
+- `POST /admin/branch-change-request/:id/review` — approve / reject
+
+### Penting untuk mobile dev
+
+1. **Self-registration auto-active**: jemaat baru langsung dapat token + bisa pakai app penuh. Cabang admin tidak block usage — kalau perlu verify, lakukan di portal (Jemaat list, ada filter tanggalBergabung hari ini).
+
+2. **Family auto-verify**: A link B → both arah ke-create reciprocal (CHILD ↔ PARENT, SPOUSE ↔ SPOUSE, SIBLING ↔ SIBLING). Tidak ada notifikasi ke jemaat B. Kalau A salah link, A bisa unlink sendiri — tidak perlu approval B. Trade-off: trust-based, future bisa switch ke 2-way confirm.
+
+3. **Dependent jemaat (anak balita)**: register-new tanpa noHp → jemaat baru di-create dengan `primaryGuardianId = parent's jemaatId`. Tidak bisa login mandiri. Mobile: jangan show login flow untuk dependent — manage via parent's app.
+
+4. **Scanner endpoint pattern**: pakai `GET /admin/me/scanner-events` (atau `/scanner-ibadah`) untuk tahu user authorized di mana. Reactive pattern (try scan → 403 → friendly error) tetap works, tapi proaktif lebih clean UX.
+
+5. **Stats polling**: `GET /:id/checkin/stats` aman di-poll 10-15 detik. Rate limit admin 300/menit → 4-6/menit cukup longgar.
+
+6. **Branch change**: max 1 PENDING per jemaat. User harus tunggu admin approve/reject sebelum bisa submit baru. Tidak ada notifikasi otomatis ke jemaat saat approved — mobile harus poll `GET /admin/me/branch-change-requests` (atau show di Settings page yang user buka sesekali).
+
+### Yang ditunda (Phase 2+)
+
+- **Push notifications**: device token registry + notification model + FCM/APNS sender. Mobile pakai local notif untuk reminder.
+- **WA confirmation untuk family link**: switch dari auto-verify. Trigger kalau ada abuse case.
+- **WebSocket realtime**: scanner stats current pakai polling.
+- **Bookmark renungan server-side**: bisa local-only di AsyncStorage.
+- **Translation konten id/en**: konten tetap Indonesia.
+- **Branch change SLA**: tidak ada hard deadline, admin manual flow.
+
+---
+
+## 21. Resources
 
 | Doc | Lokasi |
 |---|---|
@@ -865,4 +956,4 @@ Vendor mobile perlu konfirmasi dari product team ECC:
 
 ---
 
-*Document version: 1.0 · Last updated: 2026-05-20 · For ECC Mobile App vendor onboarding.*
+*Document version: 1.1 · Last updated: 2026-05-21 · For ECC Mobile App vendor onboarding. v1.1 = Phase 1 endpoints (M1-M9 gap analysis response).*

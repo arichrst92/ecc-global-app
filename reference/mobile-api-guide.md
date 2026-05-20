@@ -1145,17 +1145,796 @@ Untuk caching, biarkan browser/OS-level cache handle. Karena `?v=` berbeda saat 
 
 ---
 
-# 12. Rate Limits
+# 12. Mobile App Phase 1 — Self-Service, Family, Branch Change
+
+> **Status:** All endpoints di section ini ditambahkan pada **2026-05-21** sebagai respons feedback tim mobile app (`api-gap-analysis.md` + `backend-meeting-brief.md`). Mereka melengkapi cakupan M1–M9 di mobile dev plan.
+
+## 12.1 Self-Registration (M1)
+
+Flow: request OTP `purpose=ENROLLMENT` → verify OTP → submit form data → akun langsung aktif.
+
+### Step 1: Request OTP enrollment
+
+```
+POST /auth/otp/request
+Content-Type: application/json
+
+{
+  "noHp": "+6281234567890",
+  "purpose": "ENROLLMENT"
+}
+```
+
+Beda dengan `purpose=LOGIN`: BE tidak require nomor sudah terdaftar — yang penting nomor belum dipakai jemaat lain. Kalau sudah, response 409.
+
+### Step 2: Verify OTP
+
+```
+POST /auth/otp/verify
+{ "noHp": "+6281234567890", "kode": "123456", "purpose": "ENROLLMENT" }
+```
+
+Response sama dengan login, tapi karena belum ada Jemaat row, sebenarnya BE belum return user data — flow dilanjut ke /auth/register.
+
+> **Implementation note:** sementara mobile app bisa abaikan auth response dari verify ENROLLMENT (atau backend di-tweak untuk return marker `pendingRegistration: true`). Yang penting OtpVerification record sudah ditandai `usedAt != null`, jadi step register tinggal pickup.
+
+### Step 3: Submit data diri
+
+```
+POST /auth/register
+Content-Type: application/json
+
+{
+  "noHp": "+6281234567890",
+  "namaLengkap": "Budi Santoso",
+  "tanggalLahir": "1995-03-15",
+  "jenisKelamin": "L",
+  "alamat": "Jl. Sudirman No. 123, Jakarta",
+  "cabangId": "11111111-1111-1111-1111-111111111111",
+  "homecellId": null,
+  "fotoBase64": "data:image/jpeg;base64,/9j/4AAQSk..."
+}
+```
+
+`fotoBase64` opsional — bisa upload terpisah via `POST /admin/me/foto` setelah register.
+
+**Response 201:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "eyJ...",
+    "refreshToken": "eyJ...",
+    "expiresIn": 900,
+    "user": {
+      "id": "8f3c8e22-…",
+      "jemaatId": "ab12cd34-…",
+      "namaLengkap": "Budi Santoso",
+      "noHp": "+6281234567890",
+      "isFulltimer": false,
+      "canAccessPortal": false,
+      "menuAccess": { /* sesuai role default Jemaat:Jemaat Tetap */ },
+      "hasFaceEnrolled": false,
+      "fotoUrl": "/uploads/profiles/jemaat/ab12cd34.webp?v=…"
+    }
+  },
+  "meta": {
+    "kind": "register",
+    "jemaatCreatedId": "ab12cd34-…",
+    "userCreatedId": "8f3c8e22-…"
+  }
+}
+```
+
+**Error responses:**
+
+| Status | Code | Penyebab |
+|---|---|---|
+| 401 | `UNAUTHORIZED` | OTP enrollment belum diverify atau sudah > 15 menit |
+| 409 | `CONFLICT` | Nomor sudah terdaftar |
+| 400 | `BAD_REQUEST` | Cabang tidak valid / nonaktif |
+| 429 | `TOO_MANY_REQUESTS` | > 3 register/jam dari IP yang sama |
+
+Auto-assign role: kalau seed punya role "Jemaat" dengan subrole "Jemaat Tetap", jemaat baru langsung dapat assignment ini. Kalau tidak, jemaat tetap dibuat tanpa role (admin perlu assign manual).
+
+## 12.2 Profile Self-Service (M6)
+
+### GET /admin/me — profil diri
+
+```
+GET /admin/me
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "ab12cd34-…",
+    "namaLengkap": "Ari Christian",
+    "kode": "A3K7P9XQ",
+    "noHp": "+6282115678446",
+    "tanggalLahir": "1992-05-15",
+    "jenisKelamin": "L",
+    "alamat": "Jl. ...",
+    "fotoUrl": "/uploads/profiles/jemaat/ab12cd34.webp?v=…",
+    "cabang": { "id": "11111-…", "nama": "ECC Jakarta", "kode": "JKT" },
+    "jemaatRoles": [
+      { "role": { "nama": "Fulltimer" }, "subRole": { "nama": "Administration" }, "subRoleStatus": { "nama": "Staff" } }
+    ],
+    "homecellMembership": [
+      { "homecell": { "id": "…", "nama": "Sudirman 1", "area": { "id": "…", "nama": "Jakarta Pusat" } } }
+    ],
+    "user": { "id": "…", "fotoUrl": null, "faceEnrolledAt": null }
+  }
+}
+```
+
+### PATCH /admin/me — edit field tertentu
+
+Field yang boleh self-edit: `namaLengkap`, `email`, `tanggalLahir`, `jenisKelamin`, `alamat`.
+
+**Tidak boleh:** `noHp` (perlu OTP), `cabangId` (pakai branch change request), `kode` (immutable).
+
+```
+PATCH /admin/me
+Authorization: Bearer <JWT>
+
+{
+  "alamat": "Jl. Baru No. 99, Jakarta",
+  "email": "ari@example.com"
+}
+```
+
+**Response 200:** updated Jemaat object.
+
+### POST /admin/me/foto — upload foto profil
+
+Multipart, field `foto`, max 5MB, JPEG/PNG/WebP. Resize otomatis ke 1024px max.
+
+```
+POST /admin/me/foto
+Authorization: Bearer <JWT>
+Content-Type: multipart/form-data
+
+foto: <binary>
+```
+
+**Response 200:**
+
+```json
+{ "success": true, "data": { "id": "ab12cd34-…", "fotoUrl": "/uploads/profiles/jemaat/ab12cd34.webp?v=1716190000000" } }
+```
+
+`?v=…` cache buster otomatis ter-update setiap upload.
+
+## 12.3 Stats — Streak & Summary (M2)
+
+```
+GET /admin/me/stats
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "streakWeeks": 4,
+    "attendedThisYear": 18,
+    "eventsJoined": 3,
+    "homecellsActive": 1,
+    "totalAttended": 32
+  }
+}
+```
+
+**Definisi:**
+
+- `streakWeeks` — jumlah minggu berturut-turut user punya ≥ 1 reservasi `status=JOIN`. Toleran 1 minggu (kalau minggu ini belum sempat hadir tapi minggu lalu hadir, streak tidak break). Max 52.
+- `attendedThisYear` — total reservasi `status=JOIN` tahun berjalan (Jan 1 → hari ini).
+- `eventsJoined` — total `EventParticipation` `status != BATAL`.
+- `homecellsActive` — jumlah membership homecell yang `isActive=true`.
+- `totalAttended` — total reservasi JOIN dalam 52 minggu terakhir (untuk grafik).
+
+## 12.4 Scanner List (M7)
+
+User yang ditandai `canScanAttendance=true` di salah satu petugas event/ibadah dapat scan QR di endpoint `/checkin`. Mobile app pakai list ini untuk show tombol "Scanner Mode" hanya kalau user authorized.
+
+### GET /admin/me/scanner-events
+
+```
+GET /admin/me/scanner-events
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "eventId": "ev-uuid",
+      "judul": "Retreat Pemuda 2026",
+      "slug": "retreat-pemuda-2026",
+      "tanggalMulai": "2026-06-12T09:00:00.000Z",
+      "tanggalSelesai": "2026-06-14T18:00:00.000Z",
+      "lokasi": "Wisma Anugrah, Puncak",
+      "pelayananNama": "Usher",
+      "role": "Leader",
+      "level": 10
+    }
+  ]
+}
+```
+
+Hanya event dengan `butuhKehadiran=true` yang muncul.
+
+### GET /admin/me/scanner-ibadah
+
+```
+GET /admin/me/scanner-ibadah
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "ibadahId": "ib-uuid",
+      "nama": "Ibadah Minggu Pagi",
+      "cabangId": "cb-uuid",
+      "tipeJadwal": "WEEKLY",
+      "hari": "MINGGU",
+      "jamMulai": "08:00",
+      "jamSelesai": "10:00",
+      "lokasi": "Aula Utama",
+      "kategori": "Ibadah Umum",
+      "pelayananNama": "Usher",
+      "role": "Member",
+      "level": 0
+    }
+  ]
+}
+```
+
+De-duped by ibadahId (kalau user di banyak pelayanan untuk 1 ibadah, hanya muncul 1x).
+
+## 12.5 Stats Kehadiran (Scanner Live Counts) (M7)
+
+Polling-friendly. Disarankan poll interval 10-15 detik saat scanner mode active.
+
+### Event
+
+```
+GET /admin/event/{id}/checkin/stats
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "eventId": "ev-uuid",
+    "quotaPeserta": 200,
+    "total": 187,
+    "hadir": 142,
+    "byStatus": {
+      "DAFTAR": 12,
+      "MENUNGGU_VERIFIKASI": 5,
+      "BAYAR": 28,
+      "HADIR": 142,
+      "BATAL": 3
+    },
+    "lastUpdated": "2026-06-12T10:23:45.123Z"
+  }
+}
+```
+
+`total` = jumlah peserta non-BATAL. `hadir` = sudah check-in. Quota progress = `total / quotaPeserta`.
+
+### Ibadah (per tanggal)
+
+```
+GET /admin/ibadah/{id}/checkin/stats?tanggalIbadah=2026-05-19
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "ibadahId": "ib-uuid",
+    "tanggalIbadah": "2026-05-19",
+    "reserved": 23,
+    "joined": 487,
+    "cancelled": 4,
+    "total": 510,
+    "lastUpdated": "2026-05-19T09:45:01.000Z"
+  }
+}
+```
+
+`tanggalIbadah` opsional — default hari ini.
+
+## 12.6 Homecell Self-Service (M9)
+
+Endpoint untuk user yang PIC homecell atau PIC area di mobile app.
+
+### GET /admin/me/homecell-managed
+
+Homecell yang user-nya PIC (`Homecell.picJemaatId = user.jemaatId`).
+
+```
+GET /admin/me/homecell-managed
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "hc-uuid",
+      "nama": "Sudirman 1",
+      "alamat": null,
+      "hari": null,
+      "jam": null,
+      "area": { "id": "ar-uuid", "nama": "Jakarta Pusat", "cabang": { "id": "cb-uuid", "nama": "ECC Jakarta" } },
+      "memberCount": 7
+    }
+  ]
+}
+```
+
+### GET /admin/me/homecell-area-managed
+
+Area yang user-nya PIC.
+
+```
+GET /admin/me/homecell-area-managed
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "ar-uuid",
+      "nama": "Jakarta Pusat",
+      "cabang": { "id": "cb-uuid", "nama": "ECC Jakarta" },
+      "homecellCount": 4
+    }
+  ]
+}
+```
+
+### POST /admin/homecell/{id}/members/by-kode
+
+Tambah member homecell via scan QR kode jemaat.
+
+```
+POST /admin/homecell/hc-uuid/members/by-kode
+Authorization: Bearer <JWT>
+
+{ "kode": "A3K7P9XQ" }
+```
+
+**Response 201:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "hm-uuid",
+    "homecellId": "hc-uuid",
+    "jemaatId": "ab12cd34-…",
+    "isActive": true,
+    "tanggalBergabung": "2026-05-21",
+    "jemaat": { "namaLengkap": "Budi", "kode": "A3K7P9XQ", "fotoUrl": "…" }
+  }
+}
+```
+
+**Errors:** 404 kode tidak ditemukan, 400 jemaat sudah jadi member.
+
+> **Catatan:** endpoint POST /admin/homecell/{id}/members (lama, by jemaatId) tetap ada — pakai itu untuk admin portal yang udah pilih jemaat dari dropdown.
+
+---
+
+# 13. Mobile App Phase 1 — Family Management (M5)
+
+Endpoint family-relasi self-managed di mobile. Berbeda dengan `JemaatRelasi` (master data admin), `FamilyRelation` adalah jaringan yang user bangun sendiri di app.
+
+**Decision (2026-05-19): auto-verify** — link langsung verified, tanpa flow konfirmasi 2 arah. Trust-based. Kolom `isVerified` tetap ada di schema untuk future kalau mau switch ke confirmation flow.
+
+## 13.1 Roles
+
+| Role | Arti (dari perspektif "current user" A) |
+|---|---|
+| `SPOUSE` | A pasangan B (reciprocal: B juga SPOUSE A) |
+| `CHILD` | A adalah anak dari B → reciprocal: B adalah PARENT A |
+| `PARENT` | A adalah orang tua dari B → reciprocal: B adalah CHILD A |
+| `SIBLING` | A saudara kandung B (reciprocal: B SIBLING A) |
+
+Saat user link A→B sebagai `CHILD`, backend auto-create reciprocal row B→A sebagai `PARENT`. User unlink → kedua arah ke-hapus.
+
+## 13.2 List Family
+
+```
+GET /admin/me/family
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "fr-uuid",
+      "role": "SPOUSE",
+      "isVerified": true,
+      "createdAt": "2026-05-21T...",
+      "jemaat": {
+        "id": "j2-uuid",
+        "namaLengkap": "Maria Christian",
+        "noHp": "+6281111111111",
+        "kode": "B7X2Y9PQ",
+        "fotoUrl": "/uploads/profiles/jemaat/j2-uuid.webp?v=…",
+        "tanggalLahir": "1995-08-21",
+        "jenisKelamin": "P",
+        "cabang": { "id": "cb-uuid", "nama": "ECC Jakarta" },
+        "isDependent": false
+      }
+    },
+    {
+      "id": "fr-uuid-2",
+      "role": "PARENT",
+      "isVerified": true,
+      "createdAt": "2026-05-21T...",
+      "jemaat": {
+        "id": "j3-uuid",
+        "namaLengkap": "Yosua Christian",
+        "noHp": null,
+        "kode": "C8M3N1OP",
+        "fotoUrl": null,
+        "tanggalLahir": "2022-03-10",
+        "jenisKelamin": "L",
+        "cabang": { "id": "cb-uuid", "nama": "ECC Jakarta" },
+        "isDependent": true
+      }
+    }
+  ]
+}
+```
+
+`isDependent=true` artinya jemaat tsb tidak punya noHp dan user current adalah `primaryGuardian` — biasanya anak balita yang di-register-new via parent.
+
+## 13.3 Link via Scan QR
+
+```
+POST /admin/me/family/link-by-kode
+Authorization: Bearer <JWT>
+
+{
+  "kode": "B7X2Y9PQ",
+  "role": "SPOUSE"
+}
+```
+
+**Response 201:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "fr-uuid",
+    "jemaatAId": "current-user-jemaatId",
+    "jemaatBId": "j2-uuid",
+    "role": "SPOUSE",
+    "isVerified": true,
+    "target": { "id": "j2-uuid", "namaLengkap": "Maria", "kode": "B7X2Y9PQ" }
+  }
+}
+```
+
+Errors: 404 kode tidak ditemukan, 400 link diri sendiri.
+
+## 13.4 Link via No HP
+
+```
+POST /admin/me/family/link-by-phone
+Authorization: Bearer <JWT>
+
+{
+  "noHp": "+6281111111111",
+  "role": "SIBLING"
+}
+```
+
+**Response 201:** sama struktur dengan link-by-kode.
+
+## 13.5 Register-new + Auto-link (anak balita / dependent)
+
+Untuk register jemaat yang belum punya akun (anak balita / lansia tanpa HP), lalu langsung jadi family member current user.
+
+```
+POST /admin/me/family/register-new
+Authorization: Bearer <JWT>
+
+{
+  "namaLengkap": "Yosua Christian",
+  "role": "CHILD",
+  "tanggalLahir": "2022-03-10",
+  "jenisKelamin": "L",
+  "alamat": null,
+  "noHp": null,
+  "cabangId": null
+}
+```
+
+- `cabangId` default = cabang user current.
+- `noHp` opsional. Kalau tidak diisi → jemaat baru di-mark sebagai **dependent** (`primaryGuardianId = current user jemaatId`). Tidak bisa login mandiri.
+
+**Response 201:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "jemaat": {
+      "id": "j-new-uuid",
+      "namaLengkap": "Yosua Christian",
+      "kode": "C8M3N1OP",
+      "noHp": null
+    },
+    "family": {
+      "id": "fr-uuid",
+      "role": "CHILD",
+      "isVerified": true
+    }
+  }
+}
+```
+
+## 13.6 Update Role
+
+```
+PATCH /admin/me/family/{jemaatId}
+Authorization: Bearer <JWT>
+
+{ "role": "SIBLING" }
+```
+
+`{jemaatId}` di path = jemaat target (jemaatB di row family relation).
+
+**Response 200:** updated FamilyRelation row.
+
+## 13.7 Unlink
+
+```
+DELETE /admin/me/family/{jemaatId}
+Authorization: Bearer <JWT>
+```
+
+Hapus kedua arah (A→B + B→A). 204 No Content. Tidak menghapus akun Jemaat target — hanya hubungan.
+
+---
+
+# 14. Mobile App Phase 1 — Branch Change Request (M6)
+
+User submit permohonan pindah cabang. Admin approve di portal → `Jemaat.cabangId` di-update.
+
+## 14.1 Submit Request (User)
+
+```
+POST /admin/me/branch-change-request
+Authorization: Bearer <JWT>
+
+{
+  "targetCabangId": "cb-bandung-uuid",
+  "reason": "Saya pindah domisili ke Bandung mulai Juni 2026"
+}
+```
+
+**Response 201:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "bcr-uuid",
+    "jemaatId": "ab12cd34-…",
+    "currentCabangId": "cb-jakarta-uuid",
+    "targetCabangId": "cb-bandung-uuid",
+    "reason": "…",
+    "status": "PENDING",
+    "reviewedBy": null,
+    "reviewedAt": null,
+    "reviewNote": null,
+    "createdAt": "…",
+    "updatedAt": "…"
+  }
+}
+```
+
+**Errors:**
+
+| Status | Code | Penyebab |
+|---|---|---|
+| 400 | `BAD_REQUEST` | Cabang tujuan sama dengan cabang saat ini |
+| 400 | `BAD_REQUEST` | Cabang tidak valid / nonaktif |
+| 409 | `CONFLICT` | Sudah ada permohonan PENDING (1 PENDING per jemaat) |
+
+## 14.2 List Riwayat Request (User)
+
+```
+GET /admin/me/branch-change-requests
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "bcr-uuid",
+      "currentCabangId": "cb-jakarta-uuid",
+      "targetCabangId": "cb-bandung-uuid",
+      "reason": "…",
+      "status": "APPROVED",
+      "reviewedBy": "admin-jemaatId",
+      "reviewedAt": "…",
+      "reviewNote": "Welcome ke ECC Bandung!",
+      "createdAt": "…"
+    }
+  ]
+}
+```
+
+Mobile poll endpoint ini saat ada perubahan status (atau saat user open Settings page).
+
+## 14.3 Admin Queue (Portal)
+
+```
+GET /admin/branch-change-request?status=PENDING&page=1&limit=20
+Authorization: Bearer <JWT>
+```
+
+**Response 200:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "bcr-uuid",
+      "jemaat": { "id": "…", "namaLengkap": "Budi", "noHp": "+62…", "fotoUrl": "…" },
+      "currentCabang": { "id": "…", "nama": "ECC Jakarta", "kode": "JKT" },
+      "targetCabang": { "id": "…", "nama": "ECC Bandung", "kode": "BDG" },
+      "reason": "…",
+      "status": "PENDING",
+      "reviewer": null,
+      "createdAt": "…"
+    }
+  ],
+  "meta": { "page": 1, "limit": 20, "total": 1, "totalPages": 1 }
+}
+```
+
+## 14.4 Approve / Reject
+
+```
+POST /admin/branch-change-request/{id}/review
+Authorization: Bearer <JWT>
+
+{
+  "decision": "APPROVED",
+  "reviewNote": "OK, welcome ke ECC Bandung!"
+}
+```
+
+Saat APPROVED, BE transaksi:
+1. Update `BranchChangeRequest.status` → `APPROVED`, set `reviewedBy/reviewedAt`.
+2. Update `Jemaat.cabangId` → `targetCabangId`.
+
+**Response 200:** updated request row.
+
+---
+
+# 15. Mobile App Phase 1 — Batch Event Registration (M3)
+
+Daftarkan multiple anggota keluarga sekaligus ke 1 event.
+
+## 15.1 Endpoint
+
+```
+POST /admin/event/{eventId}/peserta/batch
+Authorization: Bearer <JWT>
+
+{
+  "jemaatIds": [
+    "ab12cd34-…",
+    "ab12cd35-…",
+    "ab12cd36-…"
+  ],
+  "nominalBayarPerOrang": 250000,
+  "catatan": "Keluarga Christian — 3 orang"
+}
+```
+
+- Max 20 jemaat per request.
+- `nominalBayarPerOrang` ignored kalau event GRATIS. Untuk `NOMINAL_TETAP`, auto-set ke `event.nominal`. Untuk `NOMINAL_BEBAS`, dipakai dengan batas minimum.
+
+## 15.2 Response — partial success pattern
+
+```json
+{
+  "success": true,
+  "data": {
+    "successful": [
+      { "id": "ep1-uuid", "jemaatId": "ab12cd34-…", "status": "DAFTAR", "nominalBayar": "250000", "jemaat": { "namaLengkap": "Ari" } },
+      { "id": "ep2-uuid", "jemaatId": "ab12cd35-…", "status": "DAFTAR", "nominalBayar": "250000", "jemaat": { "namaLengkap": "Maria" } }
+    ],
+    "failed": [
+      {
+        "jemaatId": "ab12cd36-…",
+        "error": { "code": "DUPLICATE", "message": "Jemaat sudah terdaftar di event ini." }
+      }
+    ]
+  }
+}
+```
+
+**Failure codes per jemaatId:**
+
+| Code | Arti |
+|---|---|
+| `QUOTA_FULL` | Slot event sudah penuh (per-row check) |
+| `DUPLICATE` | Jemaat sudah terdaftar di event ini |
+| `NOT_FOUND` | Jemaat ID tidak ada |
+| `INTERNAL` | Error tak terduga (unlikely) |
+
+Mobile app handle: tampilkan summary "✓ 2 berhasil, ✗ 1 gagal" + tap untuk lihat detail.
+
+> Untuk register **single jemaat** (mis. user daftar diri sendiri), tetap pakai endpoint lama `POST /admin/event/{eventId}/peserta` — lebih ringkas dan validation lebih ketat.
+
+---
+
+# 16. Rate Limits
 
 Endpoint punya rate limit untuk cegah abuse:
 
 | Endpoint | Limit |
 |---|---|
-| `/auth/otp/request` | 3 request per 5 menit per IP |
-| `/auth/otp/verify`, `/auth/face/login` | 5 attempt per 5 menit per IP |
-| `/auth/refresh` | 30 per menit per IP |
-| `/admin/*` (after auth) | 100 per menit per user |
-| `/api/v1/*` | 60 per menit per API key |
+| `/auth/otp/request` | 5 request per 15 menit per IP |
+| `/auth/otp/verify`, `/auth/face/login` | 10 attempt per 15 menit per IP |
+| `/auth/register` | 3 register per jam per IP |
+| `/auth/refresh` | 30 per 5 menit per IP |
+| `/admin/*` (after auth) | 300 per menit per user |
+| `/api/v1/*` | 120 per menit per API key |
+| Upload endpoints | 20 per menit per user |
 
 Response 429:
 
@@ -1163,17 +1942,17 @@ Response 429:
 {
   "success": false,
   "error": {
-    "code": "TOO_MANY_REQUESTS",
-    "message": "Terlalu banyak permintaan, coba lagi nanti"
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Terlalu banyak permintaan. Coba lagi nanti."
   }
 }
 ```
 
-Header `Retry-After: <seconds>` di response — mobile app harus respect ini.
+Header `RateLimit-*` (draft-7) ada di response sukses untuk monitor sisa quota. Header `Retry-After` ada di response 429.
 
 ---
 
-# 13. Environment URLs
+# 17. Environment URLs
 
 | Variable | Development | Production |
 |---|---|---|
@@ -1185,7 +1964,7 @@ Untuk staging atau preview, biasanya `https://staging-core-api.eccchurch.global`
 
 ---
 
-# 14. Spec Lengkap
+# 18. Spec Lengkap
 
 OpenAPI 3.0 spec auto-generated tersedia di:
 
@@ -1199,7 +1978,35 @@ Setiap endpoint admin punya gembok di Swagger UI — klik untuk paste JWT, lalu 
 
 ---
 
-# 15. Support
+# 19. Gap Status (Per 2026-05-21)
+
+Re-evaluasi dari `api-gap-analysis.md` mobile team setelah Phase 1 deploy.
+
+| Mobile Milestone | Status Sebelum | Status Sekarang | Endpoint Baru |
+|---|---|---|---|
+| M1 Auth + Self-register | 🟡 sign-up missing | 🟢 ready | `POST /auth/register` |
+| M2 Streak hadir | 🔴 missing | 🟢 ready | `GET /admin/me/stats` |
+| M3 Batch event register | 🔴 missing | 🟢 ready | `POST /admin/event/:id/peserta/batch` |
+| M4 Bilingual content | 🟡 partial | 🟡 unchanged (mobile UI only, konten Indo) | — |
+| M5 Family management | 🔴 missing | 🟢 ready (auto-verify) | 6 endpoint `/admin/me/family/*` |
+| M6 Profile self-edit | 🟡 partial | 🟢 ready | `PATCH /admin/me`, `POST /admin/me/foto` |
+| M6 Branch change | 🔴 missing | 🟢 ready | `POST /admin/me/branch-change-request` + admin queue |
+| M6 Push notifications | 🔴 missing | 🔴 defer total | — |
+| M7 Scanner list | 🔴 missing | 🟢 ready | `GET /admin/me/scanner-events`, `/scanner-ibadah` |
+| M7 Live attendance count | 🔴 missing | 🟢 ready (polling) | `GET /admin/{event,ibadah}/:id/checkin/stats` |
+| M9 Homecell PIC self-service | 🟡 partial | 🟢 ready | `/admin/me/homecell-managed`, `/admin/me/homecell-area-managed`, `POST /admin/homecell/:id/members/by-kode` |
+| M11 Face enrollment | 🟡 partial | 🟢 ready | `POST /auth/face/enroll` (already existed) |
+
+**Yang masih ditunda (Phase 2+):**
+
+- Push notification infrastructure (FCM/APNS sender, device token registry, notification model).
+- WA confirmation flow untuk family link (current = auto-verify; bisa di-switch ke 2-way confirm di future).
+- WebSocket realtime (current scanner stats pakai polling, cukup untuk MVP).
+- Bilingual content (konten news/renungan tetap Indonesia, UI label di mobile yang diterjemahkan).
+
+---
+
+# 20. Support
 
 - Dokumen ini ada di repo: `docs/mobile-api-guide.md`
 - Spec lengkap auto-update saat backend deploy.
