@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { listEvents, getEventDetail, getMyParticipation } from '@/api/event';
+import {
+  listEvents,
+  getEventDetail,
+  getMyParticipation,
+  listMyDonations,
+} from '@/api/event';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ApiError } from '@/types/api';
 import type { EventParticipation, EventListItem } from '@/types/event';
@@ -67,5 +72,29 @@ export function useMyParticipation(idOrSlug: string | undefined, enabled = true)
     },
     enabled: !!idOrSlug && enabled,
     staleTime: 60_000, // 1 menit — refresh lebih sering daripada detail
+  });
+}
+
+/**
+ * Fetch user's donations untuk event ini. Per BE patch 2026-05-21l.
+ * Returns donations[] + totalConfirmed (SUM nominal status=BAYAR).
+ * Untuk NOMINAL_BEBAS bisa berisi banyak rows; untuk NOMINAL_TETAP biasanya 1.
+ */
+export function useMyDonations(idOrSlug: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['event', 'my-donations', idOrSlug],
+    queryFn: async () => {
+      try {
+        return await listMyDonations(idOrSlug!);
+      } catch (err) {
+        // NOT_FOUND = user belum punya participation → no donations
+        if (err instanceof ApiError && err.code === 'NOT_FOUND') {
+          return { donations: [], totalConfirmed: 0 };
+        }
+        throw err;
+      }
+    },
+    enabled: !!idOrSlug && enabled,
+    staleTime: 60_000,
   });
 }

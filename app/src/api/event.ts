@@ -11,6 +11,7 @@ import type {
   EventDetail,
   EventParticipation,
   BatchRegisterResponse,
+  EventDonation,
 } from '@/types/event';
 
 type ListOptions = {
@@ -101,10 +102,9 @@ export async function cancelMyParticipation(eventId: string): Promise<{
 }
 
 /**
- * POST /admin/event/:eventId/peserta/:participationId/bukti — multipart upload.
- * Per BE patch 2026-05-21f (flexImageUpload helper): field name 'bukti' lebih
- * semantic untuk endpoint ini. BE accept juga 'foto', 'file', 'image' — semua OK.
- * MIME yang accepted: jpeg/png/webp/heic/heif/gif + octet-stream.
+ * POST /admin/event/:eventId/peserta/:participationId/bukti — DEPRECATED.
+ * Pakai uploadDonationBukti() di flow baru per BE patch 2026-05-21l.
+ * Tetap available untuk backward-compat dengan kode lama.
  */
 export function uploadBukti(
   eventId: string,
@@ -118,4 +118,117 @@ export function uploadBukti(
     `/admin/event/${eventId}/peserta/${participationId}/bukti`,
     formData,
   );
+}
+
+// ============================================================================
+// EventDonation API — BE patch 2026-05-21l (Opsi B sub-table)
+// Setiap "pembayaran" event = 1 donation row. Untuk NOMINAL_BEBAS bisa multi.
+// ============================================================================
+
+type CreateDonationPayload = {
+  /** Untuk NOMINAL_TETAP harus == event.nominal. Untuk NOMINAL_BEBAS bebas (>= min). */
+  nominalBayar: number;
+  catatan?: string;
+};
+
+/**
+ * GET /admin/event/:idOrSlug/donations/me — list donations user di event ini.
+ * Response berisi data array + meta.totalConfirmed (SUM nominal status=BAYAR).
+ * Returns custom shape karena perlu akses meta.
+ */
+export async function listMyDonations(idOrSlug: string): Promise<{
+  donations: EventDonation[];
+  totalConfirmed: number;
+}> {
+  const accessToken = useAuthStore.getState().accessToken;
+  const res = await fetch(
+    `${env.apiBaseUrl}/admin/event/${idOrSlug}/donations/me`,
+    {
+      method: 'GET',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    },
+  );
+  const json = (await res.json()) as
+    | {
+        success: true;
+        data: EventDonation[];
+        meta?: { totalConfirmed?: number };
+      }
+    | { success: false; error: { code: string; message: string } };
+  if (!json.success) {
+    throw new ApiError(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { code: json.error.code as any, message: json.error.message },
+      res.status,
+    );
+  }
+  return {
+    donations: json.data,
+    totalConfirmed: json.meta?.totalConfirmed ?? 0,
+  };
+}
+
+/**
+ * POST /admin/event/:idOrSlug/donations — create donation baru.
+ * BE auto-resolve atau create EventParticipation kalau user belum register.
+ * Untuk NOMINAL_BEBAS bisa di-call berkali-kali.
+ */
+export function createDonation(idOrSlug: string, payload: CreateDonationPayload) {
+  return api.post<EventDonation>(`/admin/event/${idOrSlug}/donations`, payload);
+}
+
+/**
+ * POST /admin/event/:idOrSlug/donations/:donationId/bukti — upload bukti
+ * transfer per donation. Per BE patch 2026-05-21l. Pakai field flexImageUpload
+ * (jpeg/png/webp/heic/heif/gif accepted).
+ */
+export function uploadDonationBukti(
+  idOrSlug: string,
+  donationId: string,
+  file: { uri: string; name: string; type: string },
+) {
+  const formData = new FormData();
+  // @ts-expect-error RN FormData accepts file objects
+  formData.append('bukti', file);
+  return api.upload<EventDonation>(
+    `/admin/event/${idOrSlug}/donations/${donationId}/bukti`,
+    formData,
+  );
+}
+
+/**
+ * DELETE /admin/event/:idOrSlug/donations/:donationId — cancel donation.
+ * Soft delete (status BATAL). Idempotent: kalau sudah BATAL, return
+ * meta.alreadyCancelled=true.
+ */
+export async function cancelDonation(idOrSlug: string, donationId: string): Promise<{
+  donation: EventDonation;
+  alreadyCancelled: boolean;
+}> {
+  const accessToken = useAuthStore.getState().accessToken;
+  const res = await fetch(
+    `${env.apiBaseUrl}/admin/event/${idOrSlug}/donations/${donationId}`,
+    {
+      method: 'DELETE',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    },
+  );
+  const json = (await res.json()) as
+    | {
+        success: true;
+        data: EventDonation;
+        meta?: { alreadyCancelled?: boolean };
+      }
+    | { success: false; error: { code: string; message: string } };
+  if (!json.success) {
+    throw new ApiError(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { code: json.error.code as any, message: json.error.message },
+      res.status,
+    );
+  }
+  return {
+    donation: json.data,
+    alreadyCancelled: !!json.meta?.alreadyCancelled,
+  };
 }

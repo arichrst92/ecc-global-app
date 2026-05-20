@@ -4,16 +4,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ArrowLeft, ArrowRight, Bookmark, Calendar, Check, CheckCircle2, Clock, MapPin, Share2, Upload, Users, X } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, ArrowRight, Bookmark, Calendar, Check, CheckCircle2, Clock, HandHeart, MapPin, Share2, Upload, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useToast } from '@/components/ui/Toast';
 import { cancelMyParticipation } from '@/api/event';
-import { useEventDetail } from '@/hooks/useEvents';
+import { useEventDetail, useMyDonations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
+import type { EventDonation } from '@/types/event';
 
 export default function EventDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -23,6 +24,9 @@ export default function EventDetailScreen() {
 
   const query = useEventDetail(id);
   const event = query.data;
+  // Donations history khusus NOMINAL_BEBAS — per BE patch 2026-05-21l
+  const isBebas = event?.tipeBayar === 'NOMINAL_BEBAS';
+  const donationsQuery = useMyDonations(id, !!event && isBebas);
 
   const addParticipation = useEventFlowStore((s) => s.addParticipation);
   const removeParticipation = useEventFlowStore((s) => s.removeParticipation);
@@ -275,6 +279,15 @@ export default function EventDetailScreen() {
                   ))}
                 </View>
               ) : null}
+
+              {/* Donations history — khusus NOMINAL_BEBAS yang punya donations */}
+              {isBebas && donationsQuery.data && donationsQuery.data.donations.length > 0 ? (
+                <DonationsHistory
+                  donations={donationsQuery.data.donations}
+                  totalConfirmed={donationsQuery.data.totalConfirmed}
+                  lang={lang}
+                />
+              ) : null}
             </View>
           </>
         ) : null}
@@ -284,7 +297,31 @@ export default function EventDetailScreen() {
       {event ? (
         <View className="bg-white border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
-            {participation ? (
+            {isBebas ? (
+              // NOMINAL_BEBAS: special CTA "Beri Donasi" / "Beri Donasi Lagi"
+              <View className="flex-row items-center gap-3">
+                <View>
+                  <Text className="text-xs text-neutral-500">{t('event.total_given')}</Text>
+                  <Text className="text-lg font-bold text-blue-600">
+                    Rp{' '}
+                    {(donationsQuery.data?.totalConfirmed ?? 0).toLocaleString('id-ID')}
+                  </Text>
+                </View>
+                <View className="flex-1">
+                  <Button
+                    label={
+                      (donationsQuery.data?.donations.length ?? 0) > 0
+                        ? t('event.donate_again')
+                        : t('event.donate_now')
+                    }
+                    onPress={() => router.push(`/event/${id}/donate`)}
+                    leftIcon={<HandHeart size={16} color="#fff" />}
+                    fullWidth
+                    size="lg"
+                  />
+                </View>
+              </View>
+            ) : participation ? (
               <ParticipationCTA
                 status={participation.status}
                 tipeBayar={event.tipeBayar}
@@ -486,6 +523,100 @@ function ParticipationCTA({
           <Text className="text-sm font-medium text-red-600">{t('event.cancel_registration')}</Text>
         </Pressable>
       ) : null}
+    </View>
+  );
+}
+
+function DonationsHistory({
+  donations,
+  totalConfirmed,
+  lang,
+}: {
+  donations: EventDonation[];
+  totalConfirmed: number;
+  lang: string;
+}) {
+  const { t } = useTranslation();
+  // Sort newest first
+  const sorted = [...donations].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  );
+  return (
+    <View className="mt-6">
+      <View className="flex-row items-baseline justify-between mb-3">
+        <Text className="text-lg font-bold text-neutral-900">
+          {t('event.donations_history')}
+        </Text>
+        <Text className="text-xs text-neutral-500">
+          {donations.length} {t('event.donations_count')}
+        </Text>
+      </View>
+
+      {/* Total summary */}
+      <View className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mb-3 flex-row items-center gap-3">
+        <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
+          <CheckCircle2 size={18} color="#fff" />
+        </View>
+        <View className="flex-1">
+          <Text className="text-xs text-emerald-700">{t('event.total_confirmed')}</Text>
+          <Text className="text-xl font-bold text-emerald-900">
+            Rp {totalConfirmed.toLocaleString('id-ID')}
+          </Text>
+        </View>
+      </View>
+
+      {/* List */}
+      <View className="gap-2">
+        {sorted.map((d) => (
+          <DonationRow key={d.id} donation={d} lang={lang} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function DonationRow({ donation, lang }: { donation: EventDonation; lang: string }) {
+  const { t } = useTranslation();
+  const isBayar = donation.status === 'BAYAR';
+  const isWaiting = donation.status === 'MENUNGGU_VERIFIKASI';
+  const isCancelled = donation.status === 'BATAL';
+
+  const statusLabel = isBayar
+    ? t('event.status_bayar')
+    : isWaiting
+      ? t('event.status_menunggu')
+      : t('event.status_batal');
+  const statusColor = isBayar
+    ? 'bg-emerald-100 text-emerald-700'
+    : isWaiting
+      ? 'bg-amber-100 text-amber-700'
+      : 'bg-neutral-200 text-neutral-600';
+
+  return (
+    <View
+      className={`bg-white rounded-2xl p-3 border border-neutral-100 ${
+        isCancelled ? 'opacity-60' : ''
+      }`}
+    >
+      <View className="flex-row items-center gap-3">
+        <View className="flex-1">
+          <Text
+            className={`text-base font-bold ${
+              isCancelled ? 'text-neutral-500 line-through' : 'text-neutral-900'
+            }`}
+          >
+            Rp {Number(donation.nominalBayar).toLocaleString('id-ID')}
+          </Text>
+          <Text className="text-xs text-neutral-500 mt-0.5">
+            {formatDate(donation.createdAt, lang)}
+          </Text>
+        </View>
+        <View className={`px-2.5 py-1 rounded-full ${statusColor.split(' ')[0]}`}>
+          <Text className={`text-[10px] font-bold ${statusColor.split(' ')[1]}`}>
+            {statusLabel}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
