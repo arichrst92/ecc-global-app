@@ -275,6 +275,9 @@ tailwind.config = {
         <div class="chip" onclick="go('family-register')">Daftar Keluarga Baru</div>
         <div class="chip" onclick="go('bible-home')">Alkitab</div>
         <div class="chip" onclick="go('bible-chapter')">Alkitab Pasal</div>
+        <div class="chip" onclick="state.showBranchSwitcher=true; go('home')">🔀 Switch Cabang</div>
+        <div class="chip" onclick="state.viewingCabangId='bdg'; go('home')">→ Lihat Bandung</div>
+        <div class="chip" onclick="resetToHomeBranch(); go('home')">↩ Reset ke Home</div>
       </div>
     </div>
 
@@ -323,6 +326,11 @@ const state = {
   // Bible
   bibleCurrent: null, // {bookId, chapter}
   bibleFontSize: 'md', // sm | md | lg
+  // Branch context switcher (roaming) — beda dari home branch
+  // Default = home branch. User bisa switch view ke cabang lain saat traveling.
+  // Ibadah, Event, Persembahan, News cabang-specific ikut switch. Profile/Family/QR tidak.
+  viewingCabangId: 'jkt', // default = home branch
+  showBranchSwitcher: false, // bottom sheet open state
 };
 
 const i18n = {
@@ -499,10 +507,19 @@ const i18n = {
     notif_title: 'Notifikasi', notif_mark_all: 'Tandai semua dibaca',
     notif_empty: 'Belum ada notifikasi',
     notif_today: 'Hari ini', notif_yesterday: 'Kemarin', notif_earlier: 'Sebelumnya',
-    // Ganti cabang
+    // Ganti cabang home (permanent, perlu approval)
     branch_change_title: 'Ganti Cabang Home', branch_current: 'Cabang Anda saat ini',
     branch_choose: 'Pilih cabang baru', branch_request: 'Ajukan Perubahan',
     branch_pending: 'Perubahan cabang menunggu persetujuan admin (1-3 hari kerja).',
+    // Branch switcher (roaming, instant, no approval)
+    branch_switcher_title: 'Lihat Cabang Lain',
+    branch_switcher_sub: 'Sedang traveling? Lihat ibadah & event di cabang yang Anda kunjungi.',
+    branch_switcher_home: 'Cabang Home',
+    branch_switcher_other: 'Cabang Lain',
+    branch_switcher_reset: 'Kembali ke Cabang Home',
+    branch_viewing_banner: 'Sedang menjelajahi',
+    branch_back_home: 'Kembali ke Home',
+    branch_chip_label: 'Cabang aktif',
     // Printer
     printer_title: 'Printer Label QR', printer_status_off: 'Belum tersambung',
     printer_status_on: 'Tersambung', printer_scan: 'Cari Perangkat Bluetooth',
@@ -686,6 +703,14 @@ const i18n = {
     branch_change_title: 'Change Home Branch', branch_current: 'Your current branch',
     branch_choose: 'Choose new branch', branch_request: 'Request Change',
     branch_pending: 'Branch change is pending admin approval (1-3 business days).',
+    branch_switcher_title: 'View Another Branch',
+    branch_switcher_sub: 'Traveling? See services & events at the branch you are visiting.',
+    branch_switcher_home: 'Home Branch',
+    branch_switcher_other: 'Other Branches',
+    branch_switcher_reset: 'Back to Home Branch',
+    branch_viewing_banner: 'Currently viewing',
+    branch_back_home: 'Back to Home',
+    branch_chip_label: 'Active branch',
     printer_title: 'QR Label Printer', printer_status_off: 'Not connected',
     printer_status_on: 'Connected', printer_scan: 'Scan Bluetooth Devices',
     printer_connect: 'Connect', printer_disconnect: 'Disconnect',
@@ -740,16 +765,23 @@ const mockUser = {
 };
 
 const mockIbadah = [
-  { id: 'ib1', nama: 'Ibadah Minggu Pagi', kategori: 'Ibadah Umum', tanggal: '2026-05-24', hari: 'Minggu', jamMulai: '08:00', jamSelesai: '10:00', lokasi: 'Aula Utama, ECC Jakarta', tipe: 'WEEKLY', reserved: false },
-  { id: 'ib2', nama: 'Ibadah Minggu Sore', kategori: 'Ibadah Umum', tanggal: '2026-05-24', hari: 'Minggu', jamMulai: '17:00', jamSelesai: '19:00', lokasi: 'Aula Utama, ECC Jakarta', tipe: 'WEEKLY', reserved: false },
-  { id: 'ib3', nama: 'Ibadah Doa', kategori: 'Ibadah Doa', tanggal: '2026-05-21', hari: 'Kamis', jamMulai: '19:00', jamSelesai: '20:30', lokasi: 'Ruang Doa Lt.2', tipe: 'WEEKLY', reserved: true },
-  { id: 'ib4', nama: 'Ibadah Pemuda', kategori: 'Ibadah Pemuda', tanggal: '2026-05-23', hari: 'Sabtu', jamMulai: '18:30', jamSelesai: '20:30', lokasi: 'Aula Youth', tipe: 'WEEKLY', reserved: false },
-  { id: 'ib5', nama: 'Sekolah Minggu', kategori: 'Ibadah Anak', tanggal: '2026-05-24', hari: 'Minggu', jamMulai: '09:00', jamSelesai: '10:00', lokasi: 'Ruang Anak Lt.3', tipe: 'WEEKLY', reserved: false },
+  // ECC Jakarta
+  { id: 'ib1', cabangId: 'jkt', nama: 'Ibadah Minggu Pagi', kategori: 'Ibadah Umum', tanggal: '2026-05-24', hari: 'Minggu', jamMulai: '08:00', jamSelesai: '10:00', lokasi: 'Aula Utama, ECC Jakarta', tipe: 'WEEKLY', reserved: false },
+  { id: 'ib2', cabangId: 'jkt', nama: 'Ibadah Minggu Sore', kategori: 'Ibadah Umum', tanggal: '2026-05-24', hari: 'Minggu', jamMulai: '17:00', jamSelesai: '19:00', lokasi: 'Aula Utama, ECC Jakarta', tipe: 'WEEKLY', reserved: false },
+  { id: 'ib3', cabangId: 'jkt', nama: 'Ibadah Doa', kategori: 'Ibadah Doa', tanggal: '2026-05-21', hari: 'Kamis', jamMulai: '19:00', jamSelesai: '20:30', lokasi: 'Ruang Doa Lt.2, ECC Jakarta', tipe: 'WEEKLY', reserved: true },
+  { id: 'ib4', cabangId: 'jkt', nama: 'Ibadah Pemuda', kategori: 'Ibadah Pemuda', tanggal: '2026-05-23', hari: 'Sabtu', jamMulai: '18:30', jamSelesai: '20:30', lokasi: 'Aula Youth, ECC Jakarta', tipe: 'WEEKLY', reserved: false },
+  { id: 'ib5', cabangId: 'jkt', nama: 'Sekolah Minggu', kategori: 'Ibadah Anak', tanggal: '2026-05-24', hari: 'Minggu', jamMulai: '09:00', jamSelesai: '10:00', lokasi: 'Ruang Anak Lt.3, ECC Jakarta', tipe: 'WEEKLY', reserved: false },
+  // ECC Bandung (untuk demo branch switcher)
+  { id: 'ib6', cabangId: 'bdg', nama: 'Ibadah Minggu Pagi', kategori: 'Ibadah Umum', tanggal: '2026-05-24', hari: 'Minggu', jamMulai: '08:00', jamSelesai: '10:00', lokasi: 'Aula Utama, ECC Bandung', tipe: 'WEEKLY', reserved: false },
+  { id: 'ib7', cabangId: 'bdg', nama: 'Ibadah Pemuda', kategori: 'Ibadah Pemuda', tanggal: '2026-05-23', hari: 'Sabtu', jamMulai: '18:00', jamSelesai: '20:00', lokasi: 'Ruang Pemuda, ECC Bandung', tipe: 'WEEKLY', reserved: false },
+  { id: 'ib8', cabangId: 'bdg', nama: 'Ibadah Doa Pagi', kategori: 'Ibadah Doa', tanggal: '2026-05-22', hari: 'Jumat', jamMulai: '06:00', jamSelesai: '07:30', lokasi: 'Ruang Doa, ECC Bandung', tipe: 'WEEKLY', reserved: false },
+  // ECC Surabaya
+  { id: 'ib9', cabangId: 'sby', nama: 'Ibadah Minggu Pagi', kategori: 'Ibadah Umum', tanggal: '2026-05-24', hari: 'Minggu', jamMulai: '09:00', jamSelesai: '11:00', lokasi: 'Aula Utama, ECC Surabaya', tipe: 'WEEKLY', reserved: false },
 ];
 
 const mockEvents = [
   {
-    id: 'evt1', slug: 'retreat-pemuda-2026',
+    id: 'evt1', slug: 'retreat-pemuda-2026', cabangId: 'jkt',
     judul: 'Retreat Pemuda 2026',
     ringkasan: 'Retreat 3 hari di Puncak — "Hidup Diubahkan oleh Firman".',
     deskripsi: 'Bergabunglah dalam retreat tahunan pemuda ECC! Kita akan menikmati 3 hari di Wisma Cibubur, Puncak dengan ibadah, sharing kelompok, outbond, dan saat teduh. Tema tahun ini: "Hidup Diubahkan oleh Firman" — bagaimana Alkitab membentuk identitas kita di tengah dunia yang berubah.',
@@ -762,7 +794,7 @@ const mockEvents = [
     tags: ['youth', 'retreat'],
   },
   {
-    id: 'evt2', slug: 'kkr-keluarga',
+    id: 'evt2', slug: 'kkr-keluarga', cabangId: 'jkt',
     judul: 'KKR Keluarga: Rumah Tangga yang Diberkati',
     ringkasan: 'Pembicara: Pdt. Daniel Santoso. Gratis untuk semua jemaat.',
     deskripsi: 'Kebaktian Kebangunan Rohani khusus keluarga. Topik: bagaimana membangun rumah tangga yang berakar pada firman. Sesi 1: hubungan suami-istri. Sesi 2: parenting di era digital. Tersedia child care untuk anak 2-10 tahun.',
@@ -775,7 +807,7 @@ const mockEvents = [
     tags: ['family', 'kkr'],
   },
   {
-    id: 'evt3', slug: 'penggalangan-pembangunan',
+    id: 'evt3', slug: 'penggalangan-pembangunan', cabangId: null, // sinode-wide (semua cabang)
     judul: 'Penggalangan Dana Pembangunan Gedung Baru',
     ringkasan: 'Target Rp 2 Miliar. Setiap persembahan berarti.',
     deskripsi: 'Kami sedang membangun gedung baru di Jakarta Timur untuk melayani jemaat di area Bekasi-Cikarang. Mohon dukungan doa dan dana.',
@@ -786,6 +818,33 @@ const mockEvents = [
     butuhKehadiran: false,
     heroEmoji: '🏗️',
     tags: ['building', 'fundraising'],
+  },
+  // ECC Bandung events (untuk demo branch switcher)
+  {
+    id: 'evt4', slug: 'persekutuan-pekerja-bandung', cabangId: 'bdg',
+    judul: 'Persekutuan Pekerja Bandung',
+    ringkasan: 'Persekutuan mingguan untuk para pekerja di Bandung.',
+    deskripsi: 'Persekutuan rutin tiap Jumat malam untuk para pekerja muda. Worship + sharing + makan malam bersama.',
+    tanggalMulai: '06 Jun 2026', tanggalSelesai: '06 Jun 2026',
+    lokasi: 'Aula ECC Bandung',
+    tipeBayar: 'GRATIS', nominal: 0,
+    quotaPeserta: 80, pesertaCount: 42,
+    butuhKehadiran: true,
+    heroEmoji: '🤝',
+    tags: ['fellowship', 'professional'],
+  },
+  {
+    id: 'evt5', slug: 'sekolah-doa-bandung', cabangId: 'bdg',
+    judul: 'Sekolah Doa Angkatan III',
+    ringkasan: '8 sesi mendalami doa Tuhan Yesus dan praktik doa harian.',
+    deskripsi: 'Kelas pemuridan khusus topik doa. Tiap Selasa malam selama 8 minggu. Materi tersedia untuk peserta.',
+    tanggalMulai: '11 Jun 2026', tanggalSelesai: '30 Jul 2026',
+    lokasi: 'Ruang Kelas ECC Bandung',
+    tipeBayar: 'NOMINAL_TETAP', nominal: 150000,
+    quotaPeserta: 30, pesertaCount: 18,
+    butuhKehadiran: true,
+    heroEmoji: '🙏',
+    tags: ['discipleship', 'prayer'],
   },
 ];
 
@@ -969,11 +1028,120 @@ const printerState = {
 };
 
 const mockRekening = [
-  { id: 'rk1', purpose: 'Persembahan Umum', bankNama: 'BCA', bankNomor: '1234567890', bankAtasNama: 'Yayasan ECC Jakarta', hasQris: true },
-  { id: 'rk2', purpose: 'Pembangunan', bankNama: 'Mandiri', bankNomor: '9876543210', bankAtasNama: 'Yayasan ECC Jakarta', hasQris: true, catatan: 'Khusus pembangunan gedung baru ECC Jakarta Timur' },
-  { id: 'rk3', purpose: 'Diakonia', bankNama: 'BRI', bankNomor: '1111222233', bankAtasNama: 'Yayasan ECC Jakarta', hasQris: false },
-  { id: 'rk4', purpose: 'Misi', bankNama: 'BCA', bankNomor: '5566778899', bankAtasNama: 'Yayasan ECC Jakarta', hasQris: true },
+  // Jakarta
+  { id: 'rk1', cabangId: 'jkt', purpose: 'Persembahan Umum', bankNama: 'BCA', bankNomor: '1234567890', bankAtasNama: 'Yayasan ECC Jakarta', hasQris: true },
+  { id: 'rk2', cabangId: 'jkt', purpose: 'Pembangunan', bankNama: 'Mandiri', bankNomor: '9876543210', bankAtasNama: 'Yayasan ECC Jakarta', hasQris: true, catatan: 'Khusus pembangunan gedung baru ECC Jakarta Timur' },
+  { id: 'rk3', cabangId: 'jkt', purpose: 'Diakonia', bankNama: 'BRI', bankNomor: '1111222233', bankAtasNama: 'Yayasan ECC Jakarta', hasQris: false },
+  { id: 'rk4', cabangId: 'jkt', purpose: 'Misi', bankNama: 'BCA', bankNomor: '5566778899', bankAtasNama: 'Yayasan ECC Jakarta', hasQris: true },
+  // Bandung
+  { id: 'rk5', cabangId: 'bdg', purpose: 'Persembahan Umum', bankNama: 'BCA', bankNomor: '7788990011', bankAtasNama: 'Yayasan ECC Bandung', hasQris: true },
+  { id: 'rk6', cabangId: 'bdg', purpose: 'Pembangunan', bankNama: 'BNI', bankNomor: '2233445566', bankAtasNama: 'Yayasan ECC Bandung', hasQris: false, catatan: 'Renovasi aula utama' },
+  { id: 'rk7', cabangId: 'bdg', purpose: 'Diakonia', bankNama: 'Mandiri', bankNomor: '6677889900', bankAtasNama: 'Yayasan ECC Bandung', hasQris: true },
+  // Surabaya
+  { id: 'rk8', cabangId: 'sby', purpose: 'Persembahan Umum', bankNama: 'BCA', bankNomor: '3344556677', bankAtasNama: 'Yayasan ECC Surabaya', hasQris: true },
 ];
+
+// =====================
+// Branch context helpers
+// =====================
+function getHomeBranch(){
+  return mockBranches.find(b => b.id === mockUser.cabang.id) || mockBranches[0];
+}
+function getViewingBranch(){
+  return mockBranches.find(b => b.id === state.viewingCabangId) || getHomeBranch();
+}
+function isViewingHome(){
+  return state.viewingCabangId === mockUser.cabang.id;
+}
+function setViewingBranch(cabangId){
+  state.viewingCabangId = cabangId;
+  state.showBranchSwitcher = false;
+  render();
+}
+function resetToHomeBranch(){
+  setViewingBranch(mockUser.cabang.id);
+  showToast(state.lang==='id'?'Kembali ke cabang home':'Back to home branch');
+}
+
+// Filter helpers: show items dari viewing cabang + global (cabangId=null untuk sinode-wide)
+function filterByViewingBranch(items){
+  return items.filter(i => !i.cabangId || i.cabangId === state.viewingCabangId);
+}
+
+// Reusable: persistent banner di top kalau viewing != home
+function viewingBanner(){
+  if (isViewingHome()) return '';
+  const v = getViewingBranch();
+  return `
+    <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 flex items-center gap-2 text-xs">
+      <i data-lucide="map-pin" class="w-3.5 h-3.5 flex-shrink-0"></i>
+      <span class="flex-1 truncate"><b>${t('branch_viewing_banner')}:</b> ${v.nama}</span>
+      <button class="bg-white/20 backdrop-blur px-2 py-1 rounded-md font-semibold" onclick="resetToHomeBranch()">
+        ${t('branch_back_home')}
+      </button>
+    </div>`;
+}
+
+// Reusable: branch switcher bottom sheet (rendered at end of any screen yang punya state.showBranchSwitcher)
+function branchSwitcherSheet(){
+  if (!state.showBranchSwitcher) return '';
+  const home = getHomeBranch();
+  const others = mockBranches.filter(b => b.id !== home.id);
+  return `
+    <div class="sheet-overlay" onclick="state.showBranchSwitcher=false; render()"></div>
+    <div class="sheet" style="max-height:80%; overflow-y:auto;">
+      <div class="drag-handle"></div>
+      <div class="flex items-start justify-between mb-2">
+        <div>
+          <h2 class="font-bold text-lg text-neutral-900">${t('branch_switcher_title')}</h2>
+          <p class="text-xs text-neutral-500 mt-0.5">${t('branch_switcher_sub')}</p>
+        </div>
+        <button onclick="state.showBranchSwitcher=false; render()" class="text-neutral-400 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Cabang Home -->
+      <p class="text-[11px] font-bold text-neutral-500 uppercase tracking-wider mt-3 mb-2">${t('branch_switcher_home')}</p>
+      <button class="w-full p-3 rounded-2xl border-2 ${state.viewingCabangId===home.id?'border-brand-500 bg-brand-50':'border-neutral-200 bg-white'} flex items-center gap-3 text-left" onclick="setViewingBranch('${home.id}')">
+        <div class="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="church" class="w-5 h-5 text-brand-600"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <p class="font-semibold text-neutral-900 truncate">${home.nama}</p>
+            <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-brand-500 text-white font-bold">HOME</span>
+          </div>
+          <p class="text-xs text-neutral-500 truncate">${home.alamat}</p>
+        </div>
+        ${state.viewingCabangId===home.id?'<i data-lucide="check-circle-2" class="w-5 h-5 text-brand-500"></i>':''}
+      </button>
+
+      <!-- Cabang Lain -->
+      <p class="text-[11px] font-bold text-neutral-500 uppercase tracking-wider mt-4 mb-2">${t('branch_switcher_other')}</p>
+      <div class="space-y-2">
+        ${others.map(b => `
+          <button class="w-full p-3 rounded-2xl border-2 ${state.viewingCabangId===b.id?'border-amber-500 bg-amber-50':'border-neutral-200 bg-white'} flex items-center gap-3 text-left" onclick="setViewingBranch('${b.id}')">
+            <div class="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="church" class="w-5 h-5 text-neutral-600"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-neutral-900 truncate">${b.nama}</p>
+              <p class="text-xs text-neutral-500 truncate">${b.alamat} · ${b.jemaatCount.toLocaleString('id-ID')} jemaat</p>
+            </div>
+            ${state.viewingCabangId===b.id?'<i data-lucide="check-circle-2" class="w-5 h-5 text-amber-500"></i>':''}
+          </button>
+        `).join('')}
+      </div>
+
+      <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl flex gap-2 text-xs text-blue-800">
+        <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
+        <span>${state.lang==='id'
+          ?'Ini hanya mengubah <b>tampilan</b> (ibadah, event, persembahan, news) ke cabang terpilih. Cabang home Anda tidak berubah. Untuk pindah cabang home permanen, gunakan Profile → Ganti Cabang Home.'
+          :'This only changes the <b>view</b> (services, events, giving, news) to the selected branch. Your home branch does not change. For a permanent home branch change, use Profile → Change Home Branch.'}</span>
+      </div>
+    </div>`;
+}
 
 // =====================
 // Renderers
@@ -1533,9 +1701,11 @@ screens['login-otp'] = () => `
 
 // ----- Home -----
 screens.home = () => {
-  const todayIbadah = mockIbadah.find(i => i.tanggal === '2026-05-24');
-  const renunganToday = mockRenungan[0];
   const isGuest = state.role === 'guest';
+  const viewing = getViewingBranch();
+  // Filter today's ibadah by viewing cabang
+  const todayIbadah = filterByViewingBranch(mockIbadah).find(i => i.tanggal === '2026-05-24');
+  const renunganToday = mockRenungan[0];
   return `
   <div class="screen active flex flex-col" style="height:100%">
     ${statusBar()}
@@ -1551,9 +1721,10 @@ screens.home = () => {
           <button class="bg-white text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full" onclick="setRole('jemaat'); go('welcome')">${t('guest_login')}</button>
         </div>
       ` : ''}
+      ${!isGuest ? viewingBanner() : ''}
       <!-- Header -->
       <div class="bg-gradient-to-br from-brand-500 to-brand-600 text-white px-5 pt-4 pb-8 rounded-b-3xl">
-        <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-3">
             ${avatar(isGuest?'Tamu':mockUser.namaLengkap, 44, 'bg-white/20 backdrop-blur', 'text-white')}
             <div>
@@ -1566,6 +1737,23 @@ screens.home = () => {
             ${!isGuest?`<span class="absolute top-1 right-1 w-2 h-2 bg-amber-300 rounded-full pulse-dot"></span>`:''}
           </button>
         </div>
+
+        ${!isGuest ? `
+        <!-- Branch context chip (tappable) -->
+        <button class="w-full flex items-center gap-2 bg-white/10 backdrop-blur rounded-xl px-3 py-2.5 mb-3 text-left ${!isViewingHome()?'ring-2 ring-amber-300':''}" onclick="state.showBranchSwitcher=true; render()">
+          <div class="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="${isViewingHome()?'church':'map-pin'}" class="w-4 h-4 text-white"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] text-white/70 uppercase tracking-wider font-bold">${t('branch_chip_label')}</p>
+            <p class="text-sm font-semibold truncate flex items-center gap-1.5">
+              ${viewing.nama}
+              ${!isViewingHome()?`<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-300 text-amber-900 font-bold">VIEW</span>`:''}
+            </p>
+          </div>
+          <i data-lucide="chevrons-up-down" class="w-4 h-4 text-white/70"></i>
+        </button>
+        ` : ''}
 
         ${!isGuest ? `
         <!-- Streak banner -->
@@ -1584,7 +1772,7 @@ screens.home = () => {
         `}
       </div>
 
-      ${!isGuest ? `
+      ${!isGuest ? (todayIbadah ? `
       <!-- Today's Service -->
       <div class="px-5 -mt-4">
         <div class="bg-white rounded-2xl card-shadow overflow-hidden">
@@ -1592,6 +1780,7 @@ screens.home = () => {
             <div class="flex items-center gap-2 mb-3">
               <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
               <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">${t('home_today')}</span>
+              ${!isViewingHome()?`<span class="text-[10px] text-amber-700 font-semibold ml-auto">${viewing.nama}</span>`:''}
             </div>
             <h3 class="font-bold text-lg text-neutral-900">${todayIbadah.nama}</h3>
             <div class="flex items-center gap-2 text-sm text-neutral-500 mt-1">
@@ -1612,7 +1801,17 @@ screens.home = () => {
           </div>
         </div>
       </div>
-      ` : ''}
+      ` : `
+      <!-- No service today at viewing branch -->
+      <div class="px-5 -mt-4">
+        <div class="bg-white rounded-2xl card-shadow p-4 text-center">
+          <i data-lucide="calendar-x" class="w-8 h-8 mx-auto text-neutral-300 mb-2"></i>
+          <p class="text-sm text-neutral-600 font-medium">${t('home_no_service')}</p>
+          <p class="text-xs text-neutral-500 mt-0.5">${viewing.nama}</p>
+          <button class="mt-3 text-xs text-brand-600 font-semibold" onclick="go('ibadah-list')">${state.lang==='id'?'Lihat jadwal minggu ini':'See this week schedule'} →</button>
+        </div>
+      </div>
+      `) : ''}
 
       <!-- Renungan -->
       <div class="px-5 mt-5">
@@ -1632,14 +1831,14 @@ screens.home = () => {
         </div>
       </div>
 
-      <!-- Events -->
+      <!-- Events (filtered by viewing branch) -->
       <div class="px-5 mt-5">
         <div class="flex items-center justify-between mb-2.5">
-          <h2 class="font-bold text-neutral-900">${t('home_events')}</h2>
+          <h2 class="font-bold text-neutral-900">${t('home_events')}${!isViewingHome()?` <span class="text-xs font-normal text-amber-600">· ${viewing.nama}</span>`:''}</h2>
           <button class="text-xs text-brand-600 font-semibold" onclick="go('event-list')">${t('home_see_all')}</button>
         </div>
         <div class="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5" style="scrollbar-width:none">
-          ${mockEvents.slice(0,2).map(e => `
+          ${filterByViewingBranch(mockEvents).slice(0,3).map(e => `
             <div class="flex-shrink-0 w-56 bg-white rounded-2xl card-shadow overflow-hidden" onclick="go('event-detail')">
               <div class="h-24 bg-gradient-to-br from-brand-300 to-brand-500 flex items-center justify-center text-5xl">${e.heroEmoji}</div>
               <div class="p-3">
@@ -1675,12 +1874,15 @@ screens.home = () => {
       </div>
     </div>
     ${bottomNav('home')}
+    ${branchSwitcherSheet()}
   </div>`;
 };
 
 // ----- Ibadah list -----
 screens['ibadah-list'] = () => {
-  const grouped = mockIbadah.reduce((acc, i) => {
+  const viewing = getViewingBranch();
+  const filtered = filterByViewingBranch(mockIbadah);
+  const grouped = filtered.reduce((acc, i) => {
     if (!acc[i.tanggal]) acc[i.tanggal] = [];
     acc[i.tanggal].push(i); return acc;
   }, {});
@@ -1688,11 +1890,24 @@ screens['ibadah-list'] = () => {
   <div class="screen active flex flex-col" style="height:100%">
     ${statusBar()}
     <div class="app-bar">
-      <h1 class="text-lg font-bold flex-1">${t('ibadah_title')}</h1>
+      <div class="flex-1">
+        <h1 class="text-lg font-bold">${t('ibadah_title')}</h1>
+        <p class="text-xs text-neutral-500 mt-0.5 flex items-center gap-1">
+          <i data-lucide="church" class="w-3 h-3"></i> ${viewing.nama}
+          ${!isViewingHome()?`<span class="text-amber-600 font-semibold ml-1">· VIEW</span>`:''}
+        </p>
+      </div>
+      <button onclick="state.showBranchSwitcher=true; render()"><i data-lucide="chevrons-up-down" class="w-5 h-5 text-brand-600"></i></button>
       <button><i data-lucide="search" class="w-5 h-5"></i></button>
-      <button><i data-lucide="calendar" class="w-5 h-5"></i></button>
     </div>
+    ${viewingBanner()}
     <div class="screen-body px-5 py-3 bg-neutral-50">
+      ${Object.keys(grouped).length === 0 ? `
+        <div class="text-center py-16">
+          <i data-lucide="calendar-x" class="w-12 h-12 mx-auto text-neutral-300 mb-3"></i>
+          <p class="text-sm text-neutral-500">${state.lang==='id'?'Belum ada jadwal ibadah di':'No service schedule at'} ${viewing.nama}</p>
+        </div>
+      ` : ''}
       ${Object.entries(grouped).map(([date, items]) => `
         <div class="mb-5">
           <div class="flex items-center gap-2 mb-2">
@@ -1717,6 +1932,7 @@ screens['ibadah-list'] = () => {
       `).join('')}
     </div>
     ${bottomNav('ibadah')}
+    ${branchSwitcherSheet()}
   </div>`;
 };
 
@@ -1981,14 +2197,24 @@ function generateQrSvg(){
 }
 
 // ----- Event list -----
-screens['event-list'] = () => `
+screens['event-list'] = () => {
+  const viewing = getViewingBranch();
+  const filtered = filterByViewingBranch(mockEvents);
+  return `
   <div class="screen active flex flex-col" style="height:100%">
     ${statusBar()}
     <div class="app-bar">
-      <h1 class="text-lg font-bold flex-1">${t('event_title')}</h1>
+      <div class="flex-1">
+        <h1 class="text-lg font-bold">${t('event_title')}</h1>
+        <p class="text-xs text-neutral-500 mt-0.5 flex items-center gap-1">
+          <i data-lucide="church" class="w-3 h-3"></i> ${viewing.nama}
+          ${!isViewingHome()?`<span class="text-amber-600 font-semibold ml-1">· VIEW</span>`:''}
+        </p>
+      </div>
+      <button onclick="state.showBranchSwitcher=true; render()"><i data-lucide="chevrons-up-down" class="w-5 h-5 text-brand-600"></i></button>
       <button><i data-lucide="search" class="w-5 h-5"></i></button>
-      <button><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></button>
     </div>
+    ${viewingBanner()}
     <div class="screen-body px-5 py-3 bg-neutral-50">
       <!-- Filter chips -->
       <div class="flex gap-2 overflow-x-auto pb-3 -mx-5 px-5" style="scrollbar-width:none">
@@ -2003,7 +2229,14 @@ screens['event-list'] = () => `
         `).join('')}
       </div>
 
-      ${mockEvents.map(e => {
+      ${filtered.length === 0 ? `
+        <div class="text-center py-16">
+          <i data-lucide="calendar-x" class="w-12 h-12 mx-auto text-neutral-300 mb-3"></i>
+          <p class="text-sm text-neutral-500">${state.lang==='id'?'Belum ada event di':'No events at'} ${viewing.nama}</p>
+        </div>
+      ` : ''}
+
+      ${filtered.map(e => {
         const quotaPercent = e.quotaPeserta ? Math.round((e.pesertaCount / e.quotaPeserta) * 100) : 0;
         const isFull = e.quotaPeserta && e.pesertaCount >= e.quotaPeserta;
         return `
@@ -2033,7 +2266,9 @@ screens['event-list'] = () => `
       }).join('')}
     </div>
     ${bottomNav('event')}
+    ${branchSwitcherSheet()}
   </div>`;
+};
 
 // ----- Event detail -----
 screens['event-detail'] = () => {
@@ -2447,26 +2682,38 @@ screens['renungan-detail'] = () => {
 };
 
 // ----- Persembahan list -----
-screens['persembahan-list'] = () => `
+screens['persembahan-list'] = () => {
+  const viewing = getViewingBranch();
+  const filtered = filterByViewingBranch(mockRekening);
+  return `
   <div class="screen active flex flex-col" style="height:100%">
     ${statusBar()}
     <div class="app-bar">
       <h1 class="text-lg font-bold flex-1">${t('persembahan_title')}</h1>
+      <button onclick="state.showBranchSwitcher=true; render()"><i data-lucide="chevrons-up-down" class="w-5 h-5 text-brand-600"></i></button>
       <button><i data-lucide="history" class="w-5 h-5"></i></button>
     </div>
+    ${viewingBanner()}
     <div class="screen-body px-5 py-4 bg-neutral-50">
       <!-- Cabang header -->
-      <div class="bg-gradient-to-br from-brand-500 to-brand-600 text-white rounded-2xl p-4 mb-4">
-        <p class="text-white/80 text-xs">${state.lang==='id'?'Cabang home Anda':'Your home branch'}</p>
+      <div class="bg-gradient-to-br ${isViewingHome()?'from-brand-500 to-brand-600':'from-amber-500 to-orange-500'} text-white rounded-2xl p-4 mb-4">
+        <p class="text-white/80 text-xs">${isViewingHome()?(state.lang==='id'?'Memberi ke cabang home':'Giving to home branch'):(state.lang==='id'?'Memberi ke':'Giving to')}</p>
         <div class="flex items-center gap-2 mt-1">
           <i data-lucide="church" class="w-5 h-5"></i>
-          <p class="font-bold text-lg">${mockUser.cabang.nama}</p>
+          <p class="font-bold text-lg">${viewing.nama}</p>
         </div>
         <p class="text-white/80 text-xs mt-2">${t('persembahan_sub')}</p>
       </div>
 
+      ${filtered.length === 0 ? `
+        <div class="text-center py-12 bg-white rounded-2xl card-shadow">
+          <i data-lucide="info" class="w-10 h-10 mx-auto text-neutral-300 mb-2"></i>
+          <p class="text-sm text-neutral-500">${state.lang==='id'?'Belum ada rekening terdaftar untuk':'No accounts registered for'} ${viewing.nama}</p>
+        </div>
+      ` : ''}
+
       <p class="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">${state.lang==='id'?'Pilih Jenis':'Choose Purpose'}</p>
-      ${mockRekening.map(r => `
+      ${filtered.map(r => `
         <div class="bg-white rounded-2xl card-shadow p-4 mb-2.5 flex items-center gap-3" onclick="selectedRekening = '${r.id}'; go('persembahan-detail')">
           <div class="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
             <i data-lucide="${r.purpose.includes('Umum')?'hand-heart':r.purpose.includes('Pembangunan')?'hammer':r.purpose.includes('Diakonia')?'heart-handshake':'globe'}" class="w-5 h-5 text-brand-600"></i>
@@ -2485,7 +2732,9 @@ screens['persembahan-list'] = () => `
       </div>
     </div>
     ${bottomNav('persembahan')}
+    ${branchSwitcherSheet()}
   </div>`;
+};
 
 // ----- Persembahan detail -----
 let selectedRekening = 'rk1';

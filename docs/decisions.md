@@ -129,6 +129,66 @@ Source data: dapatkan via API publik (mis. bible.com / e-sword) atau bundle JSON
 
 ---
 
+## ADR-012 — Branch context switcher (roaming jemaat)
+
+**Status**: Accepted (2026-05-20)
+
+Aplikasi mendukung dua konsep cabang yang **berbeda**:
+
+1. **Cabang Home** (`Jemaat.cabangId`) — keanggotaan permanen. Ganti = perlu admin approval via Branch Change Request (1-3 hari).
+2. **Cabang Viewing** (state lokal `viewingCabangId`) — konteks tampilan saat ini. Instant switch, no approval. Use case: jemaat Bandung sedang di Jakarta dan ingin ibadah/event di Jakarta tanpa kehilangan identitas Bandung-nya.
+
+### Apa yang ikut switch
+
+- Ibadah list & calendar
+- Event list
+- Persembahan rekening (cabang yang sedang di-view)
+- News cabang-specific (cabang + global)
+- Today's service card di Home
+
+### Apa yang TIDAK switch
+
+- Profile (Home tetap)
+- Family list
+- QR Card (kode jemaat global — bisa di-scan di cabang manapun)
+- Renungan (sinode-wide, tidak per-cabang)
+- Homecell membership
+- Statistik personal (streak, attended, dll — berdasarkan total kehadiran user)
+
+### UI patterns
+
+- **Branch chip di Home header**: tap → buka bottom sheet selector
+- **Bottom sheet**: "Cabang Home" section (1 cabang user) + "Cabang Lain" section (semua cabang lain aktif)
+- **Persistent banner** (orange gradient) di top kalau viewing != home: "📍 Sedang menjelajahi ECC Jakarta — Kembali ke Home"
+- **Header subtitle** di Ibadah/Event/Persembahan list: "ECC Bandung · VIEW" indicator
+- **Chevrons-up-down icon** di app bar yang affected screens (Ibadah, Event, Persembahan) untuk quick access ke switcher
+- **Persembahan header**: gradient orange (bukan brand) saat viewing != home, untuk visual cue user "giving to other branch"
+
+### Persistence
+
+Persist di `expo-secure-store` (atau localStorage di web). Reset saat logout. User di Jakarta seminggu tidak perlu re-switch tiap buka app.
+
+### Backend integration
+
+**No new endpoints needed.** Semua endpoint yang affected sudah accept `cabangId` query param:
+- `GET /admin/ibadah?cabangId=...`
+- `GET /admin/event?cabangId=...`
+- `GET /admin/cabang/:id/rekening`
+- `GET /admin/news?cabangId=...`
+
+Mobile cukup pass `state.viewingCabangId` ke semua API call yang affected.
+
+**Note**: untuk M1+ implementation, buat axios interceptor / custom hook `useViewingCabangQuery` yang otomatis append `cabangId` param ke endpoints affected.
+
+### Edge cases
+
+- **Viewing branch tidak ada di daftar (di-delete admin)**: auto-fallback ke home.
+- **Empty state** (cabang baru tanpa ibadah/event yet): tampil empty state friendly "Belum ada jadwal di [cabang]".
+- **Daftar event di cabang lain**: allowed (banyak gereja Pentecostal Indonesia memang cross-branch participation).
+- **Check-in di cabang lain**: allowed (kode jemaat global, BE handle).
+
+---
+
 ## ADR-011 — Repository di luar OneDrive
 
 **Status**: Accepted (2026-05-19)
