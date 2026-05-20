@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { logout as apiLogout } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
+import { useBranchStore } from '@/stores/branch.store';
 import { useToast } from '@/components/ui/Toast';
 
 /**
@@ -22,6 +23,7 @@ export function useLogout() {
   const queryClient = useQueryClient();
   const refreshToken = useAuthStore((s) => s.refreshToken);
   const clearAuth = useAuthStore((s) => s.logout);
+  const resetBranch = useBranchStore((s) => s.resetToHome);
   const showToast = useToast((s) => s.show);
 
   return useMutation({
@@ -39,7 +41,11 @@ export function useLogout() {
       // 2) Clear seluruh React Query cache untuk prevent stale data
       queryClient.clear();
 
-      // 3) Clear local auth state + persistent secure storage
+      // 3) Reset branch viewing context (kalau user re-login dengan akun beda,
+      //    jangan inherit viewing branch dari user lama)
+      await resetBranch();
+
+      // 4) Clear local auth state + persistent secure storage
       await clearAuth();
     },
     onSettled: () => {

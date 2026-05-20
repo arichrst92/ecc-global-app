@@ -136,6 +136,16 @@
     "event_msg": "Upcoming events, registration, and payment. Coming in M3.",
     "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."
   },
+  "branch": {
+    "active_label": "Active branch",
+    "viewing_label": "Currently viewing",
+    "back_home": "Back to Home",
+    "switcher_title": "View Another Branch",
+    "switcher_sub": "Traveling? See services & events at the branch you are visiting.",
+    "home_section": "Home Branch",
+    "other_section": "Other Branches",
+    "switcher_notice": "This only changes the view (services, events, giving) to the selected branch. Your home branch does not change."
+  },
   "qr": {
     "title": "My QR Card",
     "instruction": "Show this code when entering the church",

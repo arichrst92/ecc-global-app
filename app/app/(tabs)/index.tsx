@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -5,9 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, BookOpen, Newspaper } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { BranchChip } from '@/components/branch/BranchChip';
+import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
+import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
-import { env } from '@/config/env';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -17,6 +20,7 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   const statsQuery = useMyStats();
   const todayQuery = useTodayServices();
@@ -50,6 +54,9 @@ export default function HomeScreen() {
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />}
         contentContainerStyle={{ paddingBottom: 32 }}
       >
+        {/* Persistent viewing banner kalau != home */}
+        <ViewingBanner />
+
         {/* Header gradient */}
         <View className="bg-brand-500 pb-12 rounded-b-3xl">
           <SafeAreaView edges={['top']}>
@@ -87,6 +94,11 @@ export default function HomeScreen() {
                 </View>
               </View>
             ) : null}
+
+            {/* Branch context chip — tap untuk switch view */}
+            <View className="mx-5 mt-2">
+              <BranchChip variant="header" onPress={() => setSwitcherOpen(true)} />
+            </View>
           </SafeAreaView>
         </View>
 
@@ -221,6 +233,8 @@ export default function HomeScreen() {
           )}
         </Section>
       </ScrollView>
+
+      <BranchSwitcherSheet visible={switcherOpen} onClose={() => setSwitcherOpen(false)} />
     </View>
   );
 }

@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Church, ChevronRight } from 'lucide-react-native';
+import { Calendar, Church, ChevronRight, ChevronsUpDown } from 'lucide-react-native';
 
+import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
+import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { getIbadahCalendar } from '@/api/ibadah';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { todayIso, addDaysIso, formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { useTranslation as useI18n } from 'react-i18next';
 
@@ -14,13 +18,16 @@ const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 export default function IbadahListScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { branch, viewingCabangId, isHome, isLoading } = useViewingBranch();
+  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   const from = todayIso();
   const to = addDaysIso(DEFAULT_RANGE_DAYS);
 
   const query = useQuery({
-    queryKey: ['ibadah', 'calendar', from, to],
-    queryFn: () => getIbadahCalendar({ from, to }),
+    queryKey: ['ibadah', 'calendar', from, to, viewingCabangId ?? 'all'],
+    queryFn: () => getIbadahCalendar({ from, to, cabangId: viewingCabangId ?? undefined }),
+    enabled: !isLoading,
     staleTime: 10 * 60_000,
   });
 
@@ -30,11 +37,33 @@ export default function IbadahListScreen() {
   return (
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
-        <View className="px-5 py-4 flex-row items-center gap-3">
+        <View className="px-5 py-3 flex-row items-center gap-3">
           <Calendar size={20} color="#171717" />
-          <Text className="text-lg font-bold text-neutral-900 flex-1">{t('ibadah.title')}</Text>
+          <View className="flex-1">
+            <Text className="text-lg font-bold text-neutral-900">{t('ibadah.title')}</Text>
+            {branch ? (
+              <View className="flex-row items-center gap-1.5 mt-0.5">
+                <Text className="text-xs text-neutral-500" numberOfLines={1}>
+                  {branch.nama}
+                </Text>
+                {!isHome ? (
+                  <View className="bg-amber-100 px-1.5 py-0.5 rounded-full">
+                    <Text className="text-[9px] font-bold text-amber-700">VIEW</Text>
+                  </View>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
+          <Pressable
+            onPress={() => setSwitcherOpen(true)}
+            className="w-10 h-10 items-center justify-center"
+          >
+            <ChevronsUpDown size={18} color="#EA580C" />
+          </Pressable>
         </View>
       </SafeAreaView>
+
+      <ViewingBanner />
 
       <ScrollView
         className="flex-1"
@@ -67,6 +96,8 @@ export default function IbadahListScreen() {
           ))
         )}
       </ScrollView>
+
+      <BranchSwitcherSheet visible={switcherOpen} onClose={() => setSwitcherOpen(false)} />
     </View>
   );
 }

@@ -136,6 +136,16 @@
     "event_msg": "Event-event mendatang, pendaftaran, dan pembayaran. Akan tersedia di M3.",
     "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."
   },
+  "branch": {
+    "active_label": "Cabang aktif",
+    "viewing_label": "Sedang menjelajahi",
+    "back_home": "Kembali ke Home",
+    "switcher_title": "Lihat Cabang Lain",
+    "switcher_sub": "Sedang traveling? Lihat ibadah & event di cabang yang Anda kunjungi.",
+    "home_section": "Cabang Home",
+    "other_section": "Cabang Lain",
+    "switcher_notice": "Ini hanya mengubah tampilan ibadah, event, persembahan ke cabang terpilih. Cabang home Anda tidak berubah."
+  },
   "qr": {
     "title": "Kartu QR Saya",
     "instruction": "Tampilkan kode ini saat masuk gereja",
