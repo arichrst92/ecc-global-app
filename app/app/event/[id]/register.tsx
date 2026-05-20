@@ -59,9 +59,41 @@ export default function EventRegisterScreen() {
         router.replace(`/event/${id}/payment`);
       }
     },
-    onError: (err) => {
+    onError: async (err) => {
       if (err instanceof ApiError) {
         if (err.code === 'CONFLICT') {
+          // Heuristik: kalau pesan menyebut "sudah terdaftar"/"already registered"
+          // → user sudah punya participation di BE, local state kemungkinan hilang
+          // (logout/login, fresh install, secure-store wiped).
+          // Otherwise (quota penuh, dll) → tampil sebagai info biasa.
+          const msg = err.message.toLowerCase();
+          const isAlreadyRegistered =
+            msg.includes('sudah terdaftar') ||
+            msg.includes('already registered') ||
+            msg.includes('duplicate');
+
+          if (isAlreadyRegistered && event) {
+            // Auto-recover: tambah placeholder participation, redirect ke detail
+            // BE belum kirim participationId di error response — pakai marker
+            // 'unknown' supaya payment screen tahu perlu fetch ulang
+            await addParticipation({
+              participationId: 'unknown',
+              eventId: event.id,
+              status: 'DAFTAR',
+              registeredAt: Date.now(),
+            });
+            Alert.alert(
+              t('event.already_registered'),
+              t('event.already_registered_recovery'),
+              [
+                {
+                  text: 'OK',
+                  onPress: () => router.replace(`/event/${id}`),
+                },
+              ],
+            );
+            return;
+          }
           Alert.alert(err.message);
         } else {
           Alert.alert(t('error.generic'), err.message);

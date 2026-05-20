@@ -178,6 +178,8 @@
     "waiting_admin_verification": "Admin akan verifikasi dalam 1-24 jam",
     "see_you_at_event": "Sampai bertemu di acara!",
     "already_registered": "Sudah Terdaftar",
+    "already_registered_recovery": "Status registrasi Anda sudah ada di server, namun belum tersinkron di aplikasi ini. Lanjut ke detail event untuk melihat status pembayaran.",
+    "participation_id_unknown": "ID registrasi tidak diketahui di perangkat ini. Hubungi admin untuk konfirmasi status pembayaran atau batalkan dan daftar ulang.",
     "attended_thanks": "Terima kasih sudah hadir 🙏",
     "cancel_registration": "Batalkan Pendaftaran",
     "cancel_confirm_title": "Batalkan Pendaftaran?",

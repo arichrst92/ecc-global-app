@@ -11,6 +11,7 @@ export type ApiErrorCode =
   | 'UNAUTHORIZED'
   | 'FORBIDDEN'
   | 'NOT_FOUND'
+  | 'BAD_REQUEST'
   | 'CONFLICT'
   | 'CONSTRAINT_UNIQUE'
   | 'CONSTRAINT_RELATION'

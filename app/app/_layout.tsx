@@ -77,8 +77,10 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const jemaatId = useAuthStore((s) => s.user?.jemaatId);
   const segments = useSegments();
   const router = useRouter();
+  const rehydrateEventFlow = useEventFlowStore((s) => s.hydrate);
 
   // Auth-aware redirect logic
   useEffect(() => {
@@ -92,6 +94,12 @@ function RootLayoutNav() {
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, segments, router]);
+
+  // Re-hydrate event-flow store saat jemaatId berubah (login/logout/switch user)
+  // supaya participations untuk user yang benar di-load
+  useEffect(() => {
+    rehydrateEventFlow();
+  }, [jemaatId, rehydrateEventFlow]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

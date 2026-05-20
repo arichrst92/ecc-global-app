@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Camera, Check, Copy, Home, RefreshCw, Send } from 'lucide-react-native';
+import { AlertCircle, ArrowLeft, Camera, Check, Copy, Home, RefreshCw, Send } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -135,6 +135,9 @@ export default function EventPaymentScreen() {
 
   const nominal = Number(event.nominal);
   const isUploaded = !!uploadedUrl;
+  // Edge case: participation di-recover dari 409 conflict, participationId
+  // tidak diketahui — upload bukti tidak bisa dilakukan, user perlu hubungi admin
+  const isUnknownParticipation = participation?.participationId === 'unknown';
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -153,6 +156,16 @@ export default function EventPaymentScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
       >
+        {/* Unknown participationId warning — recovery dari 409 */}
+        {isUnknownParticipation ? (
+          <View className="bg-red-50 border border-red-200 rounded-2xl p-3 mb-4 flex-row items-start gap-3">
+            <AlertCircle size={20} color="#DC2626" />
+            <Text className="text-xs text-red-800 flex-1 leading-relaxed">
+              {t('event.participation_id_unknown')}
+            </Text>
+          </View>
+        ) : null}
+
         {/* Status pill */}
         <View className="bg-amber-50 border border-amber-100 rounded-2xl p-3 mb-4 flex-row items-center gap-3">
           <View className="w-8 h-8 rounded-full bg-amber-500 items-center justify-center">
@@ -326,6 +339,7 @@ export default function EventPaymentScreen() {
               label={t('event.submit_payment')}
               onPress={() => uploadMutation.mutate()}
               loading={uploadMutation.isPending}
+              disabled={isUnknownParticipation}
               leftIcon={<Send size={16} color="#fff" />}
               fullWidth
               size="lg"
