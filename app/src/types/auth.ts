@@ -15,16 +15,23 @@ export type VerifyOtpPayload = {
   purpose?: OtpPurpose;
 };
 
+/**
+ * Payload untuk POST /auth/register.
+ * Per BE patch 2026-05-21d: hanya 4 field WAJIB. Field lain optional —
+ * user lengkapi nanti via Profile → Edit (PATCH /admin/me) atau upload foto
+ * via POST /admin/me/foto.
+ */
 export type RegisterPayload = {
+  // Required
   noHp: string;
   namaLengkap: string;
-  tanggalLahir: string; // ISO date "YYYY-MM-DD"
   jenisKelamin: 'L' | 'P';
-  alamat: string;
   cabangId: string;
-  // Note: homecellId & fotoBase64 dihapus dari signup mobile.
-  // Homecell: admin assign manual atau jemaat tambah via Settings setelah login.
-  // Foto: upload di Settings → Edit Foto via POST /admin/me/foto multipart.
+  // Optional — kalau null/undefined, BE simpan NULL di DB
+  tanggalLahir?: string; // ISO date "YYYY-MM-DD"
+  alamat?: string;
+  homecellId?: string | null;
+  fotoBase64?: string;
 };
 
 export type AuthSuccessData = {

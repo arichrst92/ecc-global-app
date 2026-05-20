@@ -52,6 +52,17 @@
   - `app/(auth)/signup/otp.tsx`: pakai `verifyOtpEnrollment`, simpan `validForSeconds` ke store.
   - `app/(auth)/signup/data.tsx`: countdown timer banner, auto-redirect kalau expired.
 
+### Phase 2 patch (2026-05-21d)
+
+- ✅ **`tanggalLahir` & `alamat` di `/auth/register` jadi optional** — solve simplified signup form issue.
+- BE update: Zod schema + register handler, **no DB migration** (kolom sudah nullable).
+- Spec final endpoint: minimal 4 field wajib (`noHp`, `namaLengkap`, `jenisKelamin`, `cabangId`), rest optional.
+- Mobile implementation:
+  - `src/types/auth.ts`: `RegisterPayload` — 4 field required, rest optional dengan `?`.
+  - `app/(auth)/signup/data.tsx`: hapus placeholder values, mutationFn kirim minimal payload.
+  - Detail di [`backend-request-optional-signup-fields.md`](./backend-request-optional-signup-fields.md) BE response.
+- M6 todo: Profile screen handle null untuk `tanggalLahir` / `alamat` → "Belum diisi" placeholder dengan tap-to-edit.
+
 ---
 
 ## Detail implementasi penting per endpoint

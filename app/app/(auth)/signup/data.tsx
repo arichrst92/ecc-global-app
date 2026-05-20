@@ -23,12 +23,6 @@ type FieldErrors = Partial<{
   cabangId: string;
 }>;
 
-// Placeholder values untuk field yang dihapus dari signup mobile.
-// User isi nanti di Profile → Edit. BE pending request untuk make optional
-// (lihat docs/backend-request-optional-signup-fields.md).
-const PLACEHOLDER_TANGGAL_LAHIR = '2000-01-01';
-const PLACEHOLDER_ALAMAT = 'Belum diisi';
-
 export default function SignupDataScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -74,12 +68,11 @@ export default function SignupDataScreen() {
   const mutation = useMutation({
     mutationFn: async () =>
       register({
+        // Per BE patch 2026-05-21d — hanya 4 field wajib. tanggalLahir,
+        // alamat, foto user lengkapi nanti via Profile → Edit.
         noHp,
         namaLengkap,
-        // Placeholder fields — user lengkapi nanti di Profile
-        tanggalLahir: PLACEHOLDER_TANGGAL_LAHIR,
         jenisKelamin: jenisKelamin as 'L' | 'P',
-        alamat: PLACEHOLDER_ALAMAT,
         cabangId,
       }),
     onSuccess: async (data) => {
