@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ArrowLeft, ArrowRight, Bookmark, Calendar, Check, CheckCircle2, Clock, MapPin, Share2, Upload, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
+import { HeroImage } from '@/components/ui/HeroImage';
 import { useToast } from '@/components/ui/Toast';
 import { cancelMyParticipation } from '@/api/event';
 import { useEventDetail } from '@/hooks/useEvents';
@@ -158,10 +159,13 @@ export default function EventDetailScreen() {
           </View>
         ) : event ? (
           <>
-            {/* Hero block */}
-            <View className="h-72 bg-brand-500 items-center justify-center">
-              <Text style={{ fontSize: 96 }}>🎉</Text>
-            </View>
+            {/* Hero block — pakai heroImageUrl kalau ada */}
+            <HeroImage
+              url={event.heroImageUrl}
+              fallbackEmoji="🎉"
+              emojiSize={96}
+              className="h-72"
+            />
 
             <View className="bg-neutral-50 -mt-5 rounded-t-3xl pt-5 px-5 pb-5">
               <View

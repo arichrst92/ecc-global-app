@@ -3,9 +3,10 @@ import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, BookOpen, Newspaper, CalendarDays } from 'lucide-react-native';
+import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { HeroImage } from '@/components/ui/HeroImage';
 import { BranchChip } from '@/components/branch/BranchChip';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
@@ -171,12 +172,12 @@ export default function HomeScreen() {
               className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
               onPress={() => router.push('/(tabs)/event' /* TODO M4: navigate ke renungan detail */)}
             >
-              <View
-                className="h-24 bg-gradient-to-br from-amber-200 to-orange-200 items-end justify-end p-3"
-                style={{ backgroundColor: '#FED7AA' }}
-              >
-                <Text style={{ fontSize: 36 }}>📖</Text>
-              </View>
+              <HeroImage
+                url={renungan.heroImageUrl}
+                fallbackEmoji="📖"
+                emojiSize={36}
+                className="h-24"
+              />
               <View className="p-3.5">
                 <Text className="text-xs text-brand-600 font-semibold">
                   {renungan.ayatAlkitab} · {t('home.today_service').split(' ')[1] /* "Hari ini"/"today" approx */}
@@ -218,9 +219,12 @@ export default function HomeScreen() {
                     onPress={() => router.push(`/event/${e.slug || e.id}`)}
                     className="w-56 bg-white rounded-2xl overflow-hidden border border-neutral-100"
                   >
-                    <View className="h-24 bg-brand-300 items-center justify-center">
-                      <Text style={{ fontSize: 40 }}>🎉</Text>
-                    </View>
+                    <HeroImage
+                      url={e.heroImageUrl}
+                      fallbackEmoji="🎉"
+                      emojiSize={40}
+                      className="h-24"
+                    />
                     <View className="p-3">
                       <Text className="text-[10px] text-neutral-500 mb-1" numberOfLines={1}>
                         {formatDate(e.tanggalMulai, lang)}
@@ -261,17 +265,12 @@ export default function HomeScreen() {
                   className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
                   onPress={() => router.push('/(tabs)/event' /* TODO M4 */)}
                 >
-                  <View
-                    className="w-14 h-14 rounded-xl items-center justify-center"
-                    style={{ backgroundColor: '#F5F5F5' }}
-                  >
-                    {n.heroImageUrl ? (
-                      // Placeholder icon untuk MVP — proper image M4
-                      <BookOpen size={22} color="#737373" />
-                    ) : (
-                      <Newspaper size={22} color="#737373" />
-                    )}
-                  </View>
+                  <HeroImage
+                    url={n.heroImageUrl}
+                    fallbackEmoji="📰"
+                    emojiSize={22}
+                    className="w-14 h-14 rounded-xl overflow-hidden"
+                  />
                   <View className="flex-1">
                     <Text className="font-semibold text-sm text-neutral-900" numberOfLines={1}>
                       {n.judul}

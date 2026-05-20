@@ -14,6 +14,7 @@ import { CalendarDays, ChevronsUpDown, MapPin, Users } from 'lucide-react-native
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
+import { HeroImage } from '@/components/ui/HeroImage';
 import { useEventList } from '@/hooks/useEvents';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { EventListItem, TipeBayar } from '@/types/event';
@@ -185,9 +186,9 @@ function EventCard({
       onPress={onPress}
       className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
     >
-      {/* Hero block */}
-      <View className="h-32 bg-brand-300 items-center justify-center relative">
-        <Text style={{ fontSize: 64 }}>{emoji}</Text>
+      {/* Hero block — pakai heroImageUrl kalau ada, fallback ke emoji per tags */}
+      <View className="h-32 relative">
+        <HeroImage url={event.heroImageUrl} fallbackEmoji={emoji} className="h-32" />
         <View
           className={`absolute top-3 right-3 px-2.5 py-1 rounded-full ${
             isFree ? 'bg-emerald-500' : 'bg-amber-500'

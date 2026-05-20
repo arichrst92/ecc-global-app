@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
@@ -63,47 +70,58 @@ export default function SignupPhoneScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="px-4 py-2">
-        <Pressable onPress={handleBack} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={20} color="#171717" />
-        </Pressable>
-      </View>
-
-      <ScrollView className="flex-1 px-6" keyboardShouldPersistTaps="handled">
-        <Stepper current={1} total={3} />
-
-        <View className="w-16 h-16 rounded-2xl bg-emerald-50 items-center justify-center mb-5 mt-4">
-          <UserPlus size={28} color="#059669" />
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+        className="flex-1"
+      >
+        <View className="px-4 py-2">
+          <Pressable onPress={handleBack} className="w-10 h-10 items-center justify-center">
+            <ArrowLeft size={20} color="#171717" />
+          </Pressable>
         </View>
-        <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('signup.title')}</Text>
-        <Text className="text-neutral-500 text-sm mb-7">{t('signup.sub')}</Text>
 
-        <PhoneInput
-          value={phone}
-          onChangeText={(v) => {
-            setPhone(v);
-            setError(null);
-          }}
-          label={t('auth.phone_label')}
-          placeholder={t('auth.phone_placeholder')}
-          helper={!error ? t('signup.phone_helper') : undefined}
-          error={error ?? undefined}
-          autoFocus
-          editable={!mutation.isPending}
-        />
-      </ScrollView>
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <Stepper current={1} total={3} />
 
-      <View className="px-6 pb-8">
-        <Button
-          label={t('auth.send_otp')}
-          onPress={submit}
-          loading={mutation.isPending}
-          disabled={phone.length < 8}
-          fullWidth
-          size="lg"
-        />
-      </View>
+          <View className="w-16 h-16 rounded-2xl bg-emerald-50 items-center justify-center mb-5 mt-4">
+            <UserPlus size={28} color="#059669" />
+          </View>
+          <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('signup.title')}</Text>
+          <Text className="text-neutral-500 text-sm mb-7">{t('signup.sub')}</Text>
+
+          <PhoneInput
+            value={phone}
+            onChangeText={(v) => {
+              setPhone(v);
+              setError(null);
+            }}
+            label={t('auth.phone_label')}
+            placeholder={t('auth.phone_placeholder')}
+            helper={!error ? t('signup.phone_helper') : undefined}
+            error={error ?? undefined}
+            autoFocus
+            editable={!mutation.isPending}
+          />
+        </ScrollView>
+
+        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+          <Button
+            label={t('auth.send_otp')}
+            onPress={submit}
+            loading={mutation.isPending}
+            disabled={phone.length < 8}
+            fullWidth
+            size="lg"
+          />
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

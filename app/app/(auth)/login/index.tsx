@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
@@ -52,51 +59,65 @@ export default function LoginPhoneScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* App bar */}
-      <View className="px-4 py-2">
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={20} color="#171717" />
-        </Pressable>
-      </View>
-
-      <View className="flex-1 px-6">
-        <View className="w-16 h-16 rounded-2xl bg-brand-50 items-center justify-center mb-5 mt-2">
-          <MessageCircleMore size={28} color="#EA580C" />
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+        className="flex-1"
+      >
+        {/* App bar */}
+        <View className="px-4 py-2">
+          <Pressable
+            onPress={() => router.back()}
+            className="w-10 h-10 items-center justify-center"
+          >
+            <ArrowLeft size={20} color="#171717" />
+          </Pressable>
         </View>
-        <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.login_title')}</Text>
-        <Text className="text-neutral-500 text-sm mb-7">{t('auth.login_sub')}</Text>
 
-        <PhoneInput
-          value={phone}
-          onChangeText={(v) => {
-            setPhone(v);
-            setError(null);
-          }}
-          label={t('auth.phone_label')}
-          placeholder={t('auth.phone_placeholder')}
-          helper={!error ? t('auth.phone_helper') : undefined}
-          error={error ?? undefined}
-          autoFocus
-          editable={!mutation.isPending}
-        />
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="w-16 h-16 rounded-2xl bg-brand-50 items-center justify-center mb-5 mt-2">
+            <MessageCircleMore size={28} color="#EA580C" />
+          </View>
+          <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.login_title')}</Text>
+          <Text className="text-neutral-500 text-sm mb-7">{t('auth.login_sub')}</Text>
 
-        <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-          <Info size={16} color="#92400e" />
-          <Text className="text-xs text-amber-800 flex-1">{t('auth.not_registered_hint')}</Text>
+          <PhoneInput
+            value={phone}
+            onChangeText={(v) => {
+              setPhone(v);
+              setError(null);
+            }}
+            label={t('auth.phone_label')}
+            placeholder={t('auth.phone_placeholder')}
+            helper={!error ? t('auth.phone_helper') : undefined}
+            error={error ?? undefined}
+            autoFocus
+            editable={!mutation.isPending}
+          />
+
+          <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
+            <Info size={16} color="#92400e" />
+            <Text className="text-xs text-amber-800 flex-1">{t('auth.not_registered_hint')}</Text>
+          </View>
+        </ScrollView>
+
+        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+          <Button
+            label={t('auth.send_otp')}
+            onPress={submit}
+            loading={mutation.isPending}
+            disabled={phone.length < 8}
+            fullWidth
+            size="lg"
+          />
         </View>
-      </View>
-
-      <View className="px-6 pb-8">
-        <Button
-          label={t('auth.send_otp')}
-          onPress={submit}
-          loading={mutation.isPending}
-          disabled={phone.length < 8}
-          fullWidth
-          size="lg"
-        />
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

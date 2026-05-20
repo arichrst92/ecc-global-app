@@ -1,9 +1,14 @@
 import { Tabs } from 'expo-router';
 import { Home, Church, CalendarDays, HandHeart, UserRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  // Android gesture/3-button navbar + iOS home indicator butuh padding bottom
+  // supaya tab bar tidak overlap dengan system UI
+  const bottomInset = insets.bottom;
   return (
     <Tabs
       screenOptions={{
@@ -13,7 +18,8 @@ export default function TabsLayout() {
           borderTopWidth: 1,
           borderTopColor: '#E5E5E5',
           paddingTop: 6,
-          height: 64,
+          paddingBottom: bottomInset > 0 ? bottomInset : 8,
+          height: 64 + bottomInset,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
         headerShown: false,
