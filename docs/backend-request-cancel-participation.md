@@ -4,6 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-21
 **Priority**: Low-Medium (UX completion, ada workaround manual via admin)
+**Status**: ✅ **RESOLVED 2026-05-21** — lihat section "Backend Response" di akhir doc
 
 ## Problem statement
 
@@ -109,4 +110,95 @@ Workaround sementara: button "Batalkan" disabled atau redirect ke help center.
 
 ---
 
-*Saat endpoint live, paste link Swagger di sini dan close ticket.*
+# Backend Response — 2026-05-21
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Untuk**: Mobile dev (Ari Christian)
+**Status**: ✅ **DELIVERED**
+**Swagger**: `{BASE_URL}/docs#/Movement-·-Event/delete_admin_event__id__peserta_me`
+
+## Ringkasan
+
+`DELETE /admin/event/{eventId}/peserta/me` sudah live. Mengikuti spec **DELETE pattern** sesuai preference mobile. PATCH alternative tidak di-implement (DELETE sudah cukup ekspresif untuk "undo registration").
+
+## Spec final
+
+```
+DELETE /admin/event/{eventId}/peserta/me
+Authorization: Bearer <JWT>
+```
+
+Resolve current user dari JWT — mobile tidak perlu kirim `participationId` di path. Eliminasi 1 lookup di mobile (tidak perlu fetch detail dulu).
+
+## Behavior matrix
+
+| Status before | Action | Response |
+|---|---|---|
+| (no row) | reject | **404** `NOT_FOUND` — "Anda belum terdaftar di event ini." |
+| `DAFTAR` | cancel | **200** + `data` updated dengan `status: BATAL`, `cancelledAt: <now>` |
+| `MENUNGGU_VERIFIKASI` | cancel | **200** + cancelled (sama seperti DAFTAR) |
+| `BAYAR` | cancel | **200** + cancelled (refund manual via admin) |
+| `HADIR` | reject | **400** `BAD_REQUEST` — "Anda sudah hadir di event ini — tidak bisa membatalkan partisipasi." |
+| `BATAL` | no-op | **200** + `data` existing + `meta.alreadyCancelled: true` |
+
+**Idempotent**: cancel BATAL row tidak throw error, return existing. Mobile tidak perlu special-case "sudah dibatalkan".
+
+## Acceptance criteria checklist
+
+- [x] User bisa cancel status `DAFTAR`, `MENUNGGU_VERIFIKASI`, `BAYAR`
+- [x] `EventParticipation.status` → `BATAL`, `cancelledAt` di-set
+- [x] Slot kuota otomatis available (quota guard di POST `/peserta` filter `status: { not: 'BATAL' }` — sudah ada sejak awal)
+- [x] Status `HADIR` reject 400
+- [x] Audit log: `kind: event-self-cancel`, `previousStatus`, resourceLabel `Self-cancel: <namaJemaat> @ <namaEvent>`
+- [x] OpenAPI di Swagger (tag "Movement · Event")
+- [ ] Admin notification — **out of scope** (notification infra di-defer total per decision 2026-05-21)
+
+## Implementasi notes
+
+**Route ordering**: handler `/peserta/me` di-register **SEBELUM** `/peserta/:participationId` di `event.ts`. Express match in order, jadi `me` tidak di-treat sebagai UUID param. Tested manual.
+
+**Soft cancel**: row **tidak** di-hard-delete. Trade-off:
+- ✅ Audit history utuh
+- ✅ Cegah confusion kalau user re-register (existing BATAL row di-reactivate, bukan create duplicate)
+- ✅ Tidak ada race condition saat ada FK reference lain (mis. nanti payment history)
+
+**Re-register setelah cancel**: BE handle otomatis. `POST /admin/event/:id/peserta` deteksi existing row dengan `status=BATAL` dan reactivate ke `DAFTAR` (lihat patch 2026-05-21 di section 12.x mobile-api-guide). Response 201 + `meta.reactivated: true`.
+
+## Bonus catatan
+
+**Refund kalau status BAYAR**: out of scope endpoint ini. Cancel hanya update status. Refund flow manual via admin (WhatsApp dengan bukti).
+
+**Authorization**: tidak perlu cek owner explicit — JWT resolve ke `jemaatId`, lookup by `(eventId, jemaatId)`. Kalau bukan owner → 404 by design (user tidak punya row untuk event tsb).
+
+**Cancel oleh admin**: admin tetap bisa cancel partisipasi user lain via existing endpoint:
+```
+PATCH /admin/event/{eventId}/peserta/{participationId}
+{ "status": "BATAL" }
+```
+Endpoint ini sudah ada sejak Phase 1; tidak ber-impact.
+
+## File yang berubah
+
+| File | Perubahan |
+|---|---|
+| `apps/core-api/src/routes/admin/event.ts` | Tambah handler `DELETE /:id/peserta/me` sebelum route `:participationId` |
+| `apps/core-api/src/openapi.ts` | Register path baru di tag "Movement · Event" |
+| `docs/mobile-api-guide.md` | Section baru **5.6 Batalkan partisipasi sendiri (self-cancel)** + update Gap Status table section 19 |
+| `knowledge-base.md` | Section 26 patch **2026-05-21g** |
+
+## Action item untuk mobile team
+
+- [ ] Implement `cancelMyParticipation(eventId)` di `src/api/event.ts`
+- [ ] Add button "Batalkan Pendaftaran" di event detail (visible saat status DAFTAR/MENUNGGU_VERIFIKASI/BAYAR)
+- [ ] Confirm modal sebelum submit ("Yakin batalkan? Slot Anda akan kembali available")
+- [ ] Handle response:
+  - 200 + `meta.alreadyCancelled` → "Partisipasi sudah dibatalkan sebelumnya"
+  - 200 → "Partisipasi berhasil dibatalkan"
+  - 400 → "Sudah hadir, tidak bisa cancel"
+  - 404 → "Belum terdaftar"
+- [ ] Refetch event detail untuk update pesertaCount (kalau ditampilkan)
+- [ ] Update local `useEventFlowStore` — hapus participation entry dari store
+
+---
+
+*Ticket closed 2026-05-21. Live di Swagger `{BASE_URL}/docs#/Movement-·-Event/delete_admin_event__id__peserta_me`.*

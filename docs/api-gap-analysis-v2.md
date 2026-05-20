@@ -63,6 +63,18 @@
   - Detail di [`backend-request-optional-signup-fields.md`](./backend-request-optional-signup-fields.md) BE response.
 - M6 todo: Profile screen handle null untuk `tanggalLahir` / `alamat` → "Belum diisi" placeholder dengan tap-to-edit.
 
+### Phase 2 patch (2026-05-21g)
+
+- ✅ **Cancel event participation endpoint** — `DELETE /admin/event/:id/peserta/me` live.
+- Idempotent: status BATAL no-op + `meta.alreadyCancelled: true`.
+- Soft cancel (status=BATAL, row kept untuk audit). Slot kuota auto kembali.
+- Reject 400 kalau status=HADIR; 404 kalau belum daftar.
+- Re-register setelah cancel: BE auto-reactivate BATAL row dengan `meta.reactivated: true`.
+- Mobile implementation:
+  - `src/api/event.ts`: `cancelMyParticipation(eventId)` — direct fetch karena perlu akses `meta.alreadyCancelled` (api.delete wrapper strip meta).
+  - `app/event/[id].tsx`: button "Batalkan Pendaftaran" muncul di bawah ParticipationCTA untuk status cancellable (DAFTAR/MENUNGGU_VERIFIKASI/BAYAR + DAFTAR-gratis). Confirm modal dengan AlertTriangle. Submit → removeParticipation di store + refetch event detail untuk update pesertaCount.
+  - Handle 4 response paths: success/alreadyCancelled/HADIR-blocked/not-registered.
+
 ### Phase 2 patch (2026-05-21f)
 
 - ✅ **flexImageUpload helper** — BE upload endpoints sekarang lenient.

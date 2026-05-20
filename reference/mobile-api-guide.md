@@ -822,6 +822,105 @@ Content-Type: application/json
 
 Admin bisa retry dengan `force=true` untuk override (mis. jemaat bayar cash on-the-spot).
 
+## 5.6 Batalkan partisipasi sendiri (self-cancel)
+
+User batalkan registrasi event-nya sendiri tanpa hubungi admin. Endpoint resolve current user dari JWT — mobile **tidak perlu kirim `participationId`** di path.
+
+```
+DELETE /admin/event/{eventId}/peserta/me
+Authorization: Bearer <accessToken>
+```
+
+**Response 200 (cancel sukses):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "part-222-...",
+    "eventId": "evt-111-...",
+    "jemaatId": "ab12cd34-...",
+    "status": "BATAL",
+    "cancelledAt": "2026-05-21T10:00:00.000Z",
+    "registeredAt": "2026-05-20T15:30:00.000Z"
+  }
+}
+```
+
+**Response 200 (idempotent — sudah BATAL):**
+
+```json
+{
+  "success": true,
+  "data": { /* existing row */ },
+  "meta": { "alreadyCancelled": true }
+}
+```
+
+**Response 404 (belum terdaftar):**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Anda belum terdaftar di event ini."
+  }
+}
+```
+
+**Response 400 (sudah HADIR — tidak bisa cancel):**
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "BAD_REQUEST",
+    "message": "Anda sudah hadir di event ini — tidak bisa membatalkan partisipasi. Kalau ada kekeliruan, hubungi admin event."
+  }
+}
+```
+
+**Behavior matrix:**
+
+| Status before | Action | Status after | Response |
+|---|---|---|---|
+| (no row) | reject | — | 404 |
+| `DAFTAR` | cancel | `BATAL` | 200 |
+| `MENUNGGU_VERIFIKASI` | cancel | `BATAL` | 200 |
+| `BAYAR` | cancel | `BATAL` | 200 (refund manual via admin) |
+| `HADIR` | reject | `HADIR` | 400 |
+| `BATAL` | no-op | `BATAL` | 200 + `meta.alreadyCancelled: true` |
+
+**Soft cancel**: row tidak di-hard-delete. Audit log catat `kind: event-self-cancel` + previous status. Slot kuota otomatis kembali available untuk user lain (quota guard filter `status: { not: 'BATAL' }`).
+
+**Mobile UX rekomendasi:**
+
+```typescript
+async function cancelMyParticipation(eventId: string) {
+  const res = await api.delete(`/admin/event/${eventId}/peserta/me`);
+  if (res.success) {
+    if (res.meta?.alreadyCancelled) {
+      toast.info('Partisipasi sudah dibatalkan sebelumnya');
+    } else {
+      toast.success('Partisipasi berhasil dibatalkan. Slot Anda kembali available.');
+    }
+    // Hapus dari local store / refetch event detail
+    removeParticipation(eventId);
+    refetchEventDetail(eventId);
+  }
+}
+```
+
+UI flow:
+- Tombol "Batalkan Pendaftaran" muncul kalau user punya participation dengan status `DAFTAR` / `MENUNGGU_VERIFIKASI` / `BAYAR`
+- Tap → confirm modal "Yakin batalkan? Slot Anda akan kembali available"
+- Submit → DELETE endpoint → toast + refetch
+
+**Setelah cancel, user boleh re-register** lewat `POST /admin/event/:id/peserta` — backend deteksi existing row dengan status BATAL dan **reactivate** ke DAFTAR (response 201, `meta.reactivated: true`).
+
+> **Catatan refund**: kalau user cancel setelah status BAYAR, refund di-handle **manual via admin WhatsApp**. Endpoint cancel hanya update status; tidak ada flow refund otomatis (out of scope).
+
 ---
 
 # 6. Reservasi Ibadah (Mobile Scanner)
@@ -2189,6 +2288,7 @@ Re-evaluasi dari `api-gap-analysis.md` mobile team setelah Phase 1 deploy.
 | M1 Auth + Self-register | 🟡 sign-up missing | 🟢 ready | `POST /auth/register` |
 | M2 Streak hadir | 🔴 missing | 🟢 ready | `GET /admin/me/stats` |
 | M3 Batch event register | 🔴 missing | 🟢 ready | `POST /admin/event/:id/peserta/batch` |
+| M3 Self-cancel event participation | 🔴 missing (manual via admin) | 🟢 ready | `DELETE /admin/event/:id/peserta/me` |
 | M4 Bilingual content | 🟡 partial | 🟡 unchanged (mobile UI only, konten Indo) | — |
 | M5 Family management | 🔴 missing | 🟢 ready (auto-verify) | 6 endpoint `/admin/me/family/*` |
 | M6 Profile self-edit | 🟡 partial | 🟢 ready | `PATCH /admin/me`, `POST /admin/me/foto` |

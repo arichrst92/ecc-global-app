@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ECC Companion",
+    "name": "ECC Global App",
     "slug": "ecc-mobile-app",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -14,10 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "global.eccchurch.companion"
+      "bundleIdentifier": "idea.eccchurch.global"
     },
     "android": {
-      "package": "global.eccchurch.companion",
+      "package": "idea.eccchurch.global",
       "adaptiveIcon": {
         "backgroundColor": "#FFEDD5",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,7 +38,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "ECC Companion butuh akses kamera untuk scan QR jemaat dan face recognition.",
+          "cameraPermission": "ECC Global App butuh akses kamera untuk scan QR jemaat dan face recognition.",
           "recordAudioAndroid": false
         }
       ]
