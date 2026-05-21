@@ -149,13 +149,7 @@ function NewsCard({
       onPress={onPress}
       className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
     >
-      {/* Aspect 2:3 portrait — sesuai dimensi foto poster supaya tidak terpotong */}
-      <HeroImage
-        url={item.heroImageUrl}
-        fallbackEmoji="📰"
-        emojiSize={48}
-        className="w-full aspect-[2/3]"
-      />
+      <HeroImage url={item.heroImageUrl} fallbackEmoji="📰" emojiSize={48} className="h-36" />
       <View className="p-4">
         <Text className="text-xs text-neutral-500 mb-1">
           {formatDate(item.publishedAt, lang)}
@@ -186,12 +180,11 @@ function RenunganCard({
       onPress={onPress}
       className="bg-white rounded-2xl p-4 flex-row gap-3 border border-neutral-100"
     >
-      {/* Aspect 2:3 portrait — width fixed 20 (~80px), height 30 (~120px) */}
       <HeroImage
         url={item.heroImageUrl}
         fallbackEmoji="📖"
         emojiSize={28}
-        className="w-20 aspect-[2/3] rounded-xl overflow-hidden"
+        className="w-20 h-20 rounded-xl overflow-hidden"
       />
       <View className="flex-1 min-w-0">
         <Text className="text-xs text-brand-600 font-semibold" numberOfLines={1}>

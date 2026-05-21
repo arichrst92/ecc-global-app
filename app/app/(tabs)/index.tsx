@@ -199,11 +199,12 @@ export default function HomeScreen() {
               className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
               onPress={() => router.push(`/content/renungan/${renungan.slug || renungan.id}`)}
             >
+              {/* Aspect 2:3 portrait — sesuai dimensi foto poster supaya tidak terpotong */}
               <HeroImage
                 url={renungan.heroImageUrl}
                 fallbackEmoji="📖"
                 emojiSize={36}
-                className="h-24"
+                className="w-full aspect-[2/3]"
               />
               <View className="p-3.5">
                 <Text className="text-xs text-brand-600 font-semibold">
@@ -257,11 +258,12 @@ export default function HomeScreen() {
                     onPress={() => router.push(`/event/${e.slug || e.id}`)}
                     className="w-56 bg-white rounded-2xl overflow-hidden border border-neutral-100"
                   >
+                    {/* Aspect 2:3 portrait — foto poster fit tanpa terpotong */}
                     <HeroImage
                       url={e.heroImageUrl}
                       fallbackEmoji="🎉"
                       emojiSize={40}
-                      className="h-24"
+                      className="w-full aspect-[2/3]"
                     />
                     <View className="p-3">
                       <Text className="text-[10px] text-neutral-500 mb-1" numberOfLines={1}>

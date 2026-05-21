@@ -186,10 +186,9 @@ function EventCard({
       onPress={onPress}
       className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
     >
-      {/* Hero block — pakai heroImageUrl kalau ada, fallback ke emoji per tags.
-          Aspect 2:3 supaya foto poster (portrait) tidak terpotong. */}
-      <View className="w-full aspect-[2/3] relative">
-        <HeroImage url={event.heroImageUrl} fallbackEmoji={emoji} className="w-full h-full" />
+      {/* Hero block — pakai heroImageUrl kalau ada, fallback ke emoji per tags */}
+      <View className="h-32 relative">
+        <HeroImage url={event.heroImageUrl} fallbackEmoji={emoji} className="h-32" />
         <View
           className={`absolute top-3 right-3 px-2.5 py-1 rounded-full ${
             isFree ? 'bg-emerald-500' : 'bg-amber-500'
