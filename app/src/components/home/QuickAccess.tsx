@@ -115,7 +115,7 @@ export function QuickAccess() {
       iconColor: '#9333ea',
       iconBg: 'bg-purple-50',
       label: t('quickaccess.bible'),
-      onPress: () => showToast(t('quickaccess.bible_soon'), 'info'),
+      onPress: () => router.push('/bible'),
     },
   ];
 

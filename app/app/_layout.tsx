@@ -15,6 +15,7 @@ import { useBranchStore } from '@/stores/branch.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { usePrinterStore } from '@/stores/printer.store';
+import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { prefetchBranches } from '@/hooks/useBranches';
 
@@ -44,6 +45,7 @@ export default function RootLayout() {
   const hydrateEventFlow = useEventFlowStore((s) => s.hydrate);
   const hydrateNotifications = useNotificationsStore((s) => s.hydrate);
   const hydratePrinter = usePrinterStore((s) => s.hydrate);
+  const hydrateBible = useBibleStore((s) => s.hydrate);
 
   useEffect(() => {
     if (error) throw error;
@@ -57,6 +59,7 @@ export default function RootLayout() {
       hydrateEventFlow(),
       hydrateNotifications(),
       hydratePrinter(),
+      hydrateBible(),
     ]).then(() => setHydrated(true));
     // Prefetch cabang list di background — tidak block hydration
     prefetchBranches(queryClient);
@@ -67,6 +70,7 @@ export default function RootLayout() {
     hydrateEventFlow,
     hydrateNotifications,
     hydratePrinter,
+    hydrateBible,
   ]);
 
   useEffect(() => {

@@ -1,0 +1,38 @@
+import type { BibleChapter } from '@/types/bible';
+
+/** Matius 5 (TB LAI) — "Khotbah di Bukit: Ucapan Bahagia" */
+export const matius5: BibleChapter = {
+  ref: 'MAT 5',
+  bookId: 40,
+  bab: 5,
+  ayat: [
+    { nomor: 1, teks: 'Ketika Yesus melihat orang banyak itu, naiklah Ia ke atas bukit dan setelah Ia duduk, datanglah murid-murid-Nya kepada-Nya.' },
+    { nomor: 2, teks: 'Maka Yesuspun mulai berbicara dan mengajar mereka, kata-Nya:' },
+    { nomor: 3, teks: '"Berbahagialah orang yang miskin di hadapan Allah, karena merekalah yang empunya Kerajaan Sorga.' },
+    { nomor: 4, teks: 'Berbahagialah orang yang berdukacita, karena mereka akan dihibur.' },
+    { nomor: 5, teks: 'Berbahagialah orang yang lemah lembut, karena mereka akan memiliki bumi.' },
+    { nomor: 6, teks: 'Berbahagialah orang yang lapar dan haus akan kebenaran, karena mereka akan dipuaskan.' },
+    { nomor: 7, teks: 'Berbahagialah orang yang murah hatinya, karena mereka akan beroleh kemurahan.' },
+    { nomor: 8, teks: 'Berbahagialah orang yang suci hatinya, karena mereka akan melihat Allah.' },
+    { nomor: 9, teks: 'Berbahagialah orang yang membawa damai, karena mereka akan disebut anak-anak Allah.' },
+    { nomor: 10, teks: 'Berbahagialah orang yang dianiaya oleh sebab kebenaran, karena merekalah yang empunya Kerajaan Sorga.' },
+    { nomor: 11, teks: 'Berbahagialah kamu, jika karena Aku kamu dicela dan dianiaya dan kepadamu difitnahkan segala yang jahat.' },
+    { nomor: 12, teks: 'Bersukacita dan bergembiralah, karena upahmu besar di sorga, sebab demikian juga telah dianiaya nabi-nabi yang sebelum kamu."' },
+    { nomor: 13, teks: '"Kamu adalah garam dunia. Jika garam itu menjadi tawar, dengan apakah ia diasinkan? Tidak ada lagi gunanya selain dibuang dan diinjak orang.' },
+    { nomor: 14, teks: 'Kamu adalah terang dunia. Kota yang terletak di atas gunung tidak mungkin tersembunyi.' },
+    { nomor: 15, teks: 'Lagipula orang tidak menyalakan pelita lalu meletakkannya di bawah gantang, melainkan di atas kaki dian sehingga menerangi semua orang di dalam rumah itu.' },
+    { nomor: 16, teks: 'Demikianlah hendaknya terangmu bercahaya di depan orang, supaya mereka melihat perbuatanmu yang baik dan memuliakan Bapamu yang di sorga."' },
+    { nomor: 17, teks: '"Janganlah kamu menyangka, bahwa Aku datang untuk meniadakan hukum Taurat atau kitab para nabi. Aku datang bukan untuk meniadakannya, melainkan untuk menggenapinya.' },
+    { nomor: 18, teks: 'Karena Aku berkata kepadamu: Sesungguhnya selama belum lenyap langit dan bumi ini, satu iota atau satu titikpun tidak akan ditiadakan dari hukum Taurat, sebelum semuanya terjadi."' },
+    { nomor: 21, teks: 'Kamu telah mendengar yang difirmankan kepada nenek moyang kita: Jangan membunuh; siapa yang membunuh harus dihukum.' },
+    { nomor: 22, teks: 'Tetapi Aku berkata kepadamu: Setiap orang yang marah terhadap saudaranya harus dihukum; siapa yang berkata kepada saudaranya: Kafir! harus dihadapkan ke Mahkamah Agama dan siapa yang berkata: Jahil! harus diserahkan ke dalam neraka yang menyala-nyala.' },
+    { nomor: 23, teks: 'Sebab itu, jika engkau mempersembahkan persembahanmu di atas mezbah dan engkau teringat akan sesuatu yang ada dalam hati saudaramu terhadap engkau,' },
+    { nomor: 24, teks: 'tinggalkanlah persembahanmu di depan mezbah itu dan pergilah berdamai dahulu dengan saudaramu, lalu kembali untuk mempersembahkan persembahanmu itu.' },
+    { nomor: 38, teks: 'Kamu telah mendengar firman: Mata ganti mata dan gigi ganti gigi.' },
+    { nomor: 39, teks: 'Tetapi Aku berkata kepadamu: Janganlah kamu melawan orang yang berbuat jahat kepadamu, melainkan siapapun yang menampar pipi kananmu, berilah juga kepadanya pipi kirimu.' },
+    { nomor: 43, teks: 'Kamu telah mendengar firman: Kasihilah sesamamu manusia dan bencilah musuhmu.' },
+    { nomor: 44, teks: 'Tetapi Aku berkata kepadamu: Kasihilah musuhmu dan berdoalah bagi mereka yang menganiaya kamu.' },
+    { nomor: 45, teks: 'Karena dengan demikianlah kamu menjadi anak-anak Bapamu yang di sorga, yang menerbitkan matahari bagi orang yang jahat dan orang yang baik dan menurunkan hujan bagi orang yang benar dan orang yang tidak benar.' },
+    { nomor: 48, teks: 'Karena itu haruslah kamu sempurna, sama seperti Bapamu yang di sorga adalah sempurna."' },
+  ],
+};

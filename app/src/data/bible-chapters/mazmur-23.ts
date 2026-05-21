@@ -1,0 +1,16 @@
+import type { BibleChapter } from '@/types/bible';
+
+/** Mazmur 23 (TB LAI) — "Tuhan, gembalaku yang baik" */
+export const mazmur23: BibleChapter = {
+  ref: 'MZM 23',
+  bookId: 19,
+  bab: 23,
+  ayat: [
+    { nomor: 1, teks: 'Mazmur Daud. TUHAN adalah gembalaku, takkan kekurangan aku.' },
+    { nomor: 2, teks: 'Ia membaringkan aku di padang yang berumput hijau, Ia membimbing aku ke air yang tenang;' },
+    { nomor: 3, teks: 'Ia menyegarkan jiwaku. Ia menuntun aku di jalan yang benar oleh karena nama-Nya.' },
+    { nomor: 4, teks: 'Sekalipun aku berjalan dalam lembah kekelaman, aku tidak takut bahaya, sebab Engkau besertaku; gada-Mu dan tongkat-Mu, itulah yang menghibur aku.' },
+    { nomor: 5, teks: 'Engkau menyediakan hidangan bagiku, di hadapan lawanku; Engkau mengurapi kepalaku dengan minyak; pialaku penuh melimpah.' },
+    { nomor: 6, teks: 'Kebajikan dan kemurahan belaka akan mengikuti aku, seumur hidupku; dan aku akan diam dalam rumah TUHAN sepanjang masa.' },
+  ],
+};
