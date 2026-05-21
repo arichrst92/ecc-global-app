@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   Fingerprint,
+  LogOut,
   ScanFace,
   ShieldCheck,
   ShieldOff,
@@ -30,6 +31,7 @@ export default function BiometricSettingsScreen() {
   const showToast = useToast((s) => s.show);
   const biometricEnabled = useAuthStore((s) => s.biometricEnabled);
   const setBiometricEnabled = useAuthStore((s) => s.setBiometricEnabled);
+  const forgetDevice = useAuthStore((s) => s.forgetDevice);
 
   const [support, setSupport] = useState<BiometricSupport | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -170,6 +172,24 @@ export default function BiometricSettingsScreen() {
             </View>
           </View>
         ) : null}
+
+        {/* Forget device — hard logout pattern */}
+        <Pressable
+          onPress={async () => {
+            await forgetDevice();
+            showToast(t('biometric.device_forgotten'), 'info');
+            router.replace('/(auth)/welcome');
+          }}
+          className="mt-6 py-3 flex-row items-center justify-center gap-2"
+        >
+          <LogOut size={16} color="#DC2626" />
+          <Text className="text-sm font-semibold text-red-600">
+            {t('biometric.forget_device')}
+          </Text>
+        </Pressable>
+        <Text className="text-xs text-neutral-400 text-center mt-1 px-4 leading-relaxed">
+          {t('biometric.forget_device_sub')}
+        </Text>
       </ScrollView>
     </View>
   );

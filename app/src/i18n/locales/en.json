@@ -39,6 +39,9 @@
     "signin_otp_sub": "OTP code via WhatsApp",
     "signin_face": "Sign in with Face Recognition",
     "signin_face_sub": "Fast & secure, no OTP needed",
+    "quick_login_biometric": "Sign in with {{method}}",
+    "quick_login_biometric_sub": "Quick login without OTP on this device",
+    "session_expired_relogin": "Session expired. Please sign in again with OTP.",
     "signup": "Create New Account",
     "signup_sub_short": "Don't have an account yet?",
     "guest": "Continue as Guest",
@@ -576,6 +579,9 @@
     "not_available_on_device": "Device doesn't support biometric, or none is set up.",
     "not_available_title": "Not Available",
     "no_hardware": "This device has no biometric sensor.",
-    "no_enrollment": "No biometric registered in device settings. Add fingerprint or face in your device Settings first."
+    "no_enrollment": "No biometric registered in device settings. Add fingerprint or face in your device Settings first.",
+    "forget_device": "Remove from This Device",
+    "forget_device_sub": "You'll need to sign in with OTP again to use ECC App on this device.",
+    "device_forgotten": "Session removed from this device."
   }
 }

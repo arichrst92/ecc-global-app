@@ -28,10 +28,17 @@ type AuthState = {
   setTokens: (accessToken: string, refreshToken: string) => Promise<void>;
   setUser: (user: User) => Promise<void>;
   login: (accessToken: string, refreshToken: string, user: User) => Promise<void>;
+  /** Soft logout: session ended tapi refresh token + biometric flag tetap
+   *  ada, supaya biometric quick-login dari welcome screen bisa restore. */
   logout: () => Promise<void>;
+  /** Hard logout: clear semua tokens + biometric + user dari device. */
+  forgetDevice: () => Promise<void>;
   setBiometricEnabled: (enabled: boolean) => Promise<void>;
   markBiometricUnlocked: () => void;
   clearPendingEnrollment: () => void;
+  /** Cek apakah ada sesi yang bisa di-restore via biometric dari welcome
+   *  screen (refresh token tersisa + biometric enabled). */
+  hasBiometricSession: () => Promise<boolean>;
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -107,6 +114,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    // Soft logout: bersihkan accessToken supaya API call butuh refresh,
+    // tapi pertahankan refreshToken + user + biometricEnabled flag supaya
+    // biometric quick-login dari welcome screen bisa restore sesi.
+    const { biometricEnabled } = get();
+    if (biometricEnabled) {
+      // Pertahankan refresh token + biometric flag — Welcome face button
+      // akan trigger biometric → refresh token → restore session.
+      await storage.deleteItem(KEYS.accessToken);
+      set({
+        accessToken: null,
+        isAuthenticated: false,
+        biometricUnlocked: false,
+      });
+    } else {
+      // Tidak ada biometric — hapus semua karena tidak ada cara restore.
+      await Promise.all([
+        storage.deleteItem(KEYS.accessToken),
+        storage.deleteItem(KEYS.refreshToken),
+        storage.deleteItem(KEYS.user),
+      ]);
+      set({
+        accessToken: null,
+        refreshToken: null,
+        user: null,
+        isAuthenticated: false,
+        biometricUnlocked: false,
+      });
+    }
+  },
+
+  forgetDevice: async () => {
+    // Hard logout: clear semua. Setelah ini user perlu OTP login dari nol.
     await Promise.all([
       storage.deleteItem(KEYS.accessToken),
       storage.deleteItem(KEYS.refreshToken),
@@ -121,6 +160,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       biometricEnabled: false,
       biometricUnlocked: false,
     });
+  },
+
+  hasBiometricSession: async () => {
+    const [refreshToken, biometricFlag, userJson] = await Promise.all([
+      storage.getItem(KEYS.refreshToken),
+      storage.getItem(KEYS.biometricEnabled),
+      storage.getItem(KEYS.user),
+    ]);
+    return !!refreshToken && biometricFlag === '1' && !!userJson;
   },
 
   setBiometricEnabled: async (enabled) => {

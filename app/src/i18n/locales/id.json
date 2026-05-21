@@ -39,6 +39,9 @@
     "signin_otp_sub": "Kode OTP via WhatsApp",
     "signin_face": "Masuk dengan Face Recognition",
     "signin_face_sub": "Cepat & aman, tanpa OTP",
+    "quick_login_biometric": "Masuk dengan {{method}}",
+    "quick_login_biometric_sub": "Login cepat tanpa OTP di perangkat ini",
+    "session_expired_relogin": "Sesi sudah berakhir, silakan login ulang dengan OTP.",
     "signup": "Daftar Akun Baru",
     "signup_sub_short": "Belum punya akun? Daftar di sini",
     "guest": "Lanjut sebagai Tamu",
@@ -576,6 +579,9 @@
     "not_available_on_device": "Perangkat tidak mendukung atau biometric belum diaktifkan.",
     "not_available_title": "Tidak Tersedia",
     "no_hardware": "Perangkat tidak memiliki sensor biometric.",
-    "no_enrollment": "Belum ada biometric yang terdaftar di pengaturan perangkat. Daftarkan sidik jari atau wajah di Settings perangkat dulu."
+    "no_enrollment": "Belum ada biometric yang terdaftar di pengaturan perangkat. Daftarkan sidik jari atau wajah di Settings perangkat dulu.",
+    "forget_device": "Hapus dari Perangkat Ini",
+    "forget_device_sub": "Login ulang dengan OTP kalau ingin pakai ECC App di perangkat ini lagi.",
+    "device_forgotten": "Sesi dihapus dari perangkat ini."
   }
 }

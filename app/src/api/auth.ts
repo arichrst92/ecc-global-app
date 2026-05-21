@@ -98,6 +98,19 @@ export function logout(payload: LogoutPayload) {
 }
 
 /**
+ * POST /auth/refresh
+ * Tukar refreshToken jadi pair access+refresh baru. Dipakai oleh biometric
+ * quick-login dari welcome screen untuk restore session tanpa OTP.
+ */
+export function refreshSession(refreshToken: string) {
+  return api.post<{
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  }>('/auth/refresh', { refreshToken }, { skipAuth: true });
+}
+
+/**
  * GET /auth/me/access
  * Re-fetch resolved menuAccess (mis. admin baru update RBAC).
  */

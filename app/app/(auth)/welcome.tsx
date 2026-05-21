@@ -1,10 +1,22 @@
+import { useEffect, useState } from 'react';
 import { Image, Text, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { MessageCircleMore, ScanFace, UserPlus, Eye, ChevronRight } from 'lucide-react-native';
+import {
+  ChevronRight,
+  Eye,
+  Fingerprint,
+  MessageCircleMore,
+  ScanFace,
+  UserPlus,
+} from 'lucide-react-native';
 
 import { useToast } from '@/components/ui/Toast';
+import { refreshSession } from '@/api/auth';
+import { authenticate, getBiometricSupport } from '@/services/biometric';
+import { useAuthStore } from '@/stores/auth.store';
+import { ApiError } from '@/types/api';
 
 type Option = {
   label: string;
@@ -13,12 +25,92 @@ type Option = {
   iconBg: string;
   variant: 'primary' | 'secondary';
   onPress: () => void;
+  hidden?: boolean;
 };
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const showToast = useToast((s) => s.show);
+
+  const hasBiometricSession = useAuthStore((s) => s.hasBiometricSession);
+  const setTokens = useAuthStore((s) => s.setTokens);
+  const markBiometricUnlocked = useAuthStore((s) => s.markBiometricUnlocked);
+  const forgetDevice = useAuthStore((s) => s.forgetDevice);
+
+  // Detect kalau biometric quick-login feasible di device ini
+  const [canQuickLogin, setCanQuickLogin] = useState(false);
+  const [biometricLabel, setBiometricLabel] = useState('Biometric');
+  const [biometricFaceLike, setBiometricFaceLike] = useState(true);
+  const [unlocking, setUnlocking] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const [hasSession, support] = await Promise.all([
+        hasBiometricSession(),
+        getBiometricSupport(),
+      ]);
+      if (!mounted) return;
+      setCanQuickLogin(hasSession && support.isAvailable);
+      setBiometricLabel(support.label);
+      setBiometricFaceLike(support.primaryType === 'face');
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [hasBiometricSession]);
+
+  async function handleQuickLogin() {
+    if (unlocking) return;
+    setUnlocking(true);
+    try {
+      // 1. Verify biometric on device
+      const result = await authenticate(
+        t('biometric.prompt_unlock'),
+      );
+      if (!result.success) {
+        if (result.reason === 'no_enrolled' || result.reason === 'no_hardware') {
+          showToast(t('biometric.no_longer_available'), 'info');
+          await forgetDevice();
+          setCanQuickLogin(false);
+        }
+        return;
+      }
+
+      // 2. Use stored refresh token to get fresh access token
+      const { refreshToken } = useAuthStore.getState();
+      if (!refreshToken) {
+        showToast(t('auth.session_expired_relogin'), 'error');
+        await forgetDevice();
+        setCanQuickLogin(false);
+        return;
+      }
+
+      try {
+        const data = await refreshSession(refreshToken);
+        await setTokens(data.accessToken, data.refreshToken);
+        markBiometricUnlocked();
+        // isAuthenticated triggered via store update via useAuthStore login
+        // path... but setTokens doesn't flip flag. Set it explicitly.
+        useAuthStore.setState({ isAuthenticated: true });
+        // Redirect handled di root layout
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          // Refresh token sudah invalid di BE side — clear + force OTP
+          await forgetDevice();
+          setCanQuickLogin(false);
+          showToast(t('auth.session_expired_relogin'), 'error');
+        } else {
+          showToast(t('error.network'), 'error');
+        }
+      }
+    } finally {
+      setUnlocking(false);
+    }
+  }
+
+  const QuickIcon = biometricFaceLike ? ScanFace : Fingerprint;
 
   const options: Option[] = [
     {
@@ -30,12 +122,15 @@ export default function WelcomeScreen() {
       onPress: () => router.push('/(auth)/login'),
     },
     {
-      label: t('auth.signin_face'),
-      sub: t('auth.signin_face_sub'),
-      icon: <ScanFace size={20} color="#D97706" />,
+      label: unlocking
+        ? t('biometric.prompting')
+        : t('auth.quick_login_biometric', { method: biometricLabel }),
+      sub: t('auth.quick_login_biometric_sub'),
+      icon: <QuickIcon size={20} color="#D97706" />,
       iconBg: 'bg-amber-50',
       variant: 'secondary',
-      onPress: () => showToast(t('auth.face_coming_soon'), 'info'),
+      onPress: handleQuickLogin,
+      hidden: !canQuickLogin,
     },
   ];
 
@@ -74,9 +169,11 @@ export default function WelcomeScreen() {
 
         {/* Primary actions */}
         <View className="gap-2.5">
-          {options.map((o, i) => (
-            <OptionCard key={i} option={o} />
-          ))}
+          {options
+            .filter((o) => !o.hidden)
+            .map((o, i) => (
+              <OptionCard key={i} option={o} />
+            ))}
         </View>
 
         {/* Divider */}
