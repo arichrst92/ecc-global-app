@@ -97,14 +97,14 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
 
       setPhase('processing');
 
-      // Resize ke 640px (max dimension) + JPEG quality 0.7.
-      // Hasil: ~80-150KB base64 (vs ~2-5MB raw camera output).
-      // face-api.js TinyFaceDetector inputSize 512 — image 640 cukup tinggi
-      // resolution untuk akurasi tanpa wasted compute.
+      // Resize ke 480px width + JPEG quality 0.6.
+      // Hasil: ~50-80KB base64. face-api TFJS backend di WebView pakai plain JS
+      // (no WebGL accel guaranteed), jadi setiap pixel matters untuk speed.
+      // TinyFaceDetector inputSize 416 cukup untuk wajah hasil capture ini.
       const resized = await manipulateAsync(
         photo.uri,
-        [{ resize: { width: 640 } }],
-        { compress: 0.7, format: SaveFormat.JPEG, base64: true },
+        [{ resize: { width: 480 } }],
+        { compress: 0.6, format: SaveFormat.JPEG, base64: true },
       );
       if (!resized.base64) {
         setErrorReason('error');

@@ -100,6 +100,28 @@ const HTML = `<!doctype html>
     console.log('[WebView] models loaded');
   }
 
+  async function setupBackend() {
+    try {
+      const tf = faceapi.tf;
+      console.log('[WebView] available backends:', Object.keys(tf.engine().registryFactory || {}).join(','));
+      // Coba WebGL dulu — paling cepat kalau available di WebView.
+      try {
+        await tf.setBackend('webgl');
+        await tf.ready();
+        console.log('[WebView] backend: webgl OK');
+        return;
+      } catch (e) {
+        console.warn('[WebView] webgl failed, fallback cpu:', e && e.message);
+      }
+      // Fallback CPU
+      await tf.setBackend('cpu');
+      await tf.ready();
+      console.log('[WebView] backend: cpu OK');
+    } catch (e) {
+      console.warn('[WebView] backend setup error:', e && e.message);
+    }
+  }
+
   async function init() {
     if (initCalled) { return; }
     initCalled = true;
@@ -108,6 +130,7 @@ const HTML = `<!doctype html>
       return;
     }
     try {
+      await setupBackend();
       await loadModels(MODEL_URL_PRIMARY);
       modelsReady = true;
       post({ type: 'ready' });
@@ -143,35 +166,38 @@ const HTML = `<!doctype html>
       });
       console.log('[WebView] image loaded ' + img.width + 'x' + img.height);
 
-      let detections = await faceapi
-        .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.3 }))
-        .withFaceLandmarks()
-        .withFaceDescriptors();
-      console.log('[WebView] first pass detections=' + detections.length);
+      var t0 = Date.now();
+      console.log('[WebView] starting detection, backend=' + faceapi.tf.getBackend());
 
-      if (detections.length === 0) {
-        detections = await faceapi
-          .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.2 }))
+      // detectSingleFace: lebih cepat dari detectAll, return cuma 1 wajah.
+      // inputSize 320: model akan resize internal ke ini. Lebih kecil = lebih cepat.
+      // For typical face shot (wajah occupies 30-60% frame), 320 cukup akurat.
+      var det = await faceapi
+        .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.3 }))
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      console.log('[WebView] detection done in ' + (Date.now() - t0) + 'ms, found=' + (det ? 'yes' : 'no'));
+
+      // Fallback: kalau ga ketemu, retry dengan inputSize lebih besar
+      if (!det) {
+        var t1 = Date.now();
+        det = await faceapi
+          .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.2 }))
           .withFaceLandmarks()
-          .withFaceDescriptors();
-        console.log('[WebView] fallback pass detections=' + detections.length);
+          .withFaceDescriptor();
+        console.log('[WebView] fallback detection done in ' + (Date.now() - t1) + 'ms, found=' + (det ? 'yes' : 'no'));
       }
 
-      if (detections.length === 0) {
+      if (!det) {
         post({
           type: 'result',
           requestId,
           ok: false,
           reason: 'no_face',
-          message: 'imgSize=' + img.width + 'x' + img.height + ', no faces detected',
+          message: 'imgSize=' + img.width + 'x' + img.height + ', no face detected',
         });
         return;
       }
-      if (detections.length > 1) {
-        post({ type: 'result', requestId, ok: false, reason: 'multiple_faces' });
-        return;
-      }
-      const det = detections[0];
       if (det.detection.score < 0.4) {
         post({
           type: 'result',
@@ -183,7 +209,7 @@ const HTML = `<!doctype html>
         return;
       }
       const descriptor = Array.from(det.descriptor);
-      console.log('[WebView] descriptor computed, len=' + descriptor.length);
+      console.log('[WebView] descriptor computed, len=' + descriptor.length + ', score=' + det.detection.score.toFixed(3));
       post({ type: 'result', requestId, ok: true, descriptor });
     } catch (e) {
       console.error('[WebView] compute error:', e && e.message);
@@ -229,9 +255,9 @@ export function FaceDescriptorProvider({ children }: { children: React.ReactNode
             resolve({
               ok: false,
               reason: 'timeout',
-              message: 'No response from face engine within 30s',
+              message: 'No response from face engine within 60s — TFJS backend mungkin terlalu lambat di device ini',
             });
-          }, 30_000);
+          }, 60_000);
           pendingRef.current.set(requestId, { resolve, timeoutId });
 
           const dataUrl = imageBase64.startsWith('data:')
