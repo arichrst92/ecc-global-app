@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@react-native-ml-kit/face-detection": "latest",
+    "@react-native-ml-kit/face-detection": "^2.0.1",
     "@react-navigation/native": "^7.1.33",
     "@tanstack/react-query": "^5.100.11",
     "expo": "~54",

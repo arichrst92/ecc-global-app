@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ScanFace, ShieldCheck, ShieldOff, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, AlertTriangle, ScanFace, ShieldCheck, ShieldOff, Trash2 } from 'lucide-react-native';
 
 import {
   deleteFaceProfile,
@@ -15,6 +15,7 @@ import {
 import { useAuthStore } from '@/stores/auth.store';
 import { useToast } from '@/components/ui/Toast';
 import { FaceCapture } from '@/components/face/FaceCapture';
+import { isFaceDescriptorReady } from '@/services/faceDescriptor';
 import {
   FACE_CONSENT_VERSION,
   FACE_MODEL_VERSION,
@@ -39,6 +40,14 @@ export default function FaceSettingsScreen() {
   const [captureOpen, setCaptureOpen] = useState<false | 'enroll' | 'update'>(false);
   const [consentChecked, setConsentChecked] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [engineReady, setEngineReady] = useState(false);
+
+  // Poll face engine readiness — kalau false (di Expo Go) tampilkan banner
+  useEffect(() => {
+    setEngineReady(isFaceDescriptorReady());
+    const id = setInterval(() => setEngineReady(isFaceDescriptorReady()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const statusQuery = useQuery({
     queryKey: ['face-profile-status'],
@@ -110,6 +119,21 @@ export default function FaceSettingsScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
       >
+        {/* Engine not-ready warning (Expo Go atau model belum di-bundle) */}
+        {!engineReady ? (
+          <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex-row items-start gap-3 mb-4">
+            <AlertTriangle size={18} color="#D97706" />
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-amber-800 mb-1">
+                {t('face.engine_not_ready_title')}
+              </Text>
+              <Text className="text-xs text-amber-700 leading-relaxed">
+                {t('face.engine_not_ready_body')}
+              </Text>
+            </View>
+          </View>
+        ) : null}
+
         {/* Hero card */}
         <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center mb-4">
           <View
@@ -169,9 +193,9 @@ export default function FaceSettingsScreen() {
             </Pressable>
             <Pressable
               onPress={() => setCaptureOpen('enroll')}
-              disabled={!consentChecked}
+              disabled={!consentChecked || !engineReady}
               className={`py-4 rounded-2xl items-center ${
-                consentChecked ? 'bg-brand-500' : 'bg-neutral-300'
+                consentChecked && engineReady ? 'bg-brand-500' : 'bg-neutral-300'
               }`}
             >
               <Text className="text-base font-bold text-white">

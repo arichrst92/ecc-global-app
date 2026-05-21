@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -19,6 +19,7 @@ import { PhoneInput } from '@/components/ui/PhoneInput';
 import { useToast } from '@/components/ui/Toast';
 import { faceLogin, requestOtp } from '@/api/auth';
 import { FaceCapture } from '@/components/face/FaceCapture';
+import { isFaceDescriptorReady } from '@/services/faceDescriptor';
 import { useAuthStore } from '@/stores/auth.store';
 import { normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
@@ -37,6 +38,16 @@ export default function LoginPhoneScreen() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [captureOpen, setCaptureOpen] = useState(false);
+  const [faceEngineReady, setFaceEngineReady] = useState(false);
+
+  // Poll face engine readiness — di Expo Go selalu false, hide face button.
+  useEffect(() => {
+    setFaceEngineReady(isFaceDescriptorReady());
+    const id = setInterval(() => {
+      setFaceEngineReady(isFaceDescriptorReady());
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const mutation = useMutation({
     mutationFn: async (e164: string) => requestOtp({ noHp: e164, purpose: 'LOGIN' }),
@@ -186,25 +197,29 @@ export default function LoginPhoneScreen() {
             fullWidth
             size="lg"
           />
-          <Pressable
-            onPress={startFaceLogin}
-            disabled={phone.length < 8 || mutation.isPending || faceLoginMutation.isPending}
-            className={`flex-row items-center justify-center gap-2 py-3 rounded-xl border ${
-              phone.length < 8 || mutation.isPending || faceLoginMutation.isPending
-                ? 'border-neutral-200 opacity-50'
-                : 'border-brand-500'
-            }`}
-          >
-            <ScanFace size={18} color="#EA580C" />
-            <Text className="text-sm font-semibold text-brand-600">
-              {faceLoginMutation.isPending
-                ? t('common.loading')
-                : t('auth.signin_face')}
-            </Text>
-          </Pressable>
-          <Text className="text-[10px] text-neutral-400 text-center mt-1">
-            {t('auth.face_login_hint')}
-          </Text>
+          {faceEngineReady ? (
+            <>
+              <Pressable
+                onPress={startFaceLogin}
+                disabled={phone.length < 8 || mutation.isPending || faceLoginMutation.isPending}
+                className={`flex-row items-center justify-center gap-2 py-3 rounded-xl border ${
+                  phone.length < 8 || mutation.isPending || faceLoginMutation.isPending
+                    ? 'border-neutral-200 opacity-50'
+                    : 'border-brand-500'
+                }`}
+              >
+                <ScanFace size={18} color="#EA580C" />
+                <Text className="text-sm font-semibold text-brand-600">
+                  {faceLoginMutation.isPending
+                    ? t('common.loading')
+                    : t('auth.signin_face')}
+                </Text>
+              </Pressable>
+              <Text className="text-[10px] text-neutral-400 text-center mt-1">
+                {t('auth.face_login_hint')}
+              </Text>
+            </>
+          ) : null}
         </View>
       </KeyboardAvoidingView>
 

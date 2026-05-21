@@ -15,6 +15,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/Toast';
 import { faceLogin } from '@/api/auth';
 import { FaceCapture } from '@/components/face/FaceCapture';
+import { isFaceDescriptorReady } from '@/services/faceDescriptor';
 import { useAuthStore } from '@/stores/auth.store';
 import {
   FACE_MODEL_VERSION,
@@ -48,11 +49,20 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     let mounted = true;
+    // Show face login cuma kalau: ada session restoreable + ML engine ready.
+    // Di Expo Go, isFaceDescriptorReady() return false → button hidden.
     hasFaceSession().then((v) => {
-      if (mounted) setCanFaceLogin(v);
+      if (mounted) setCanFaceLogin(v && isFaceDescriptorReady());
     });
+    // Poll engine ready status (load ~200ms-1s after mount)
+    const id = setInterval(() => {
+      hasFaceSession().then((v) => {
+        if (mounted) setCanFaceLogin(v && isFaceDescriptorReady());
+      });
+    }, 1000);
     return () => {
       mounted = false;
+      clearInterval(id);
     };
   }, [hasFaceSession]);
 

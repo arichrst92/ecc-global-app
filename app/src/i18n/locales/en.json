@@ -595,6 +595,8 @@
     "error_no_phone_hint": "Phone number not available. Sign in with OTP first.",
     "low_confidence_warn": "Signed in (low confidence). Consider re-enrolling your face.",
     "engine_loading": "Loading face recognition engine... (~3 seconds)",
-    "no_face_tips": "Tips: good lighting, face straight to camera, distance ~30cm."
+    "no_face_tips": "Tips: good lighting, face straight to camera, distance ~30cm.",
+    "engine_not_ready_title": "Face Login Not Active in This Build",
+    "engine_not_ready_body": "Face Login needs a \"dev build\" (not Expo Go) + TFLite model file. Developer must run: npx expo prebuild && npx expo run:ios. Meanwhile, use OTP login."
   }
 }
