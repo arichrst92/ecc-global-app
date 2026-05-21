@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-20
 **Priority**: 🟡 **MEDIUM** — M9 PIC homecell flow butuh ini untuk feature lengkap
-**Status**: Pending
+**Status**: ✅ **RESOLVED 2026-05-21** — lihat section "Backend Response" di akhir doc.
 
 ---
 
@@ -191,3 +191,76 @@ Untuk **area detail screen** (`/area/:id`):
 ## Kontak
 
 Mobile dev — Ari Christian (`arichrst@ide.asia`)
+
+---
+
+# Backend Response — 2026-05-21
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Status**: ✅ **DELIVERED**
+
+## Ringkasan
+
+3 endpoint sesuai spec. Endpoint detail homecell sebenarnya **sudah existing** sejak sebelumnya — cuma kurang field di nested members. Saya extend select + tambah 2 endpoint baru.
+
+| Mobile request | Implementation |
+|---|---|
+| `GET /admin/homecell/:id` (detail + members) | ✅ Existing endpoint diperluas: tambah `kode` + `jenisKelamin` di nested `members[].jemaat` + tambah `area.picJemaatId` |
+| `DELETE /admin/homecell/:id/members/:jemaatId` | ✅ NEW path `DELETE /admin/homecell/:id/members/by-jemaat/:jemaatId` (path beda supaya tidak conflict dengan existing `/:memberId` hard-delete admin) — soft delete (isActive=false + tanggalKeluar). Idempotent. |
+| `GET /admin/homecell-area/:id/homecells` | ✅ NEW — filter isActive=true, shape ringkas (id, nama, alamat, hari, jam, picJemaat, memberCount) |
+
+## Spec final
+
+### Endpoint 1: `GET /admin/homecell/:id`
+
+Detail homecell + nested members. Tambahan dari spec asli:
+- `area.picJemaatId` — supaya mobile bisa check PIC area authorization
+- `members[].jemaat.kode` — untuk display QR card
+- `members[].jemaat.jenisKelamin` — untuk display icon
+
+Response shape mengikuti spec di request doc. Lihat mobile-api-guide section 12.6.
+
+### Endpoint 2: `DELETE /admin/homecell/:id/members/by-jemaat/:jemaatId`
+
+Path **berbeda** dari spec asli (`/members/:jemaatId`) — saya kasih `/by-jemaat/` segment untuk menghindari konflik dengan existing `DELETE /admin/homecell/:id/members/:memberId` (hard delete admin portal).
+
+Behavior **persis sesuai spec**: soft delete, idempotent, return updated row.
+
+```
+DELETE /admin/homecell/hc-uuid/members/by-jemaat/j-uuid
+→ 200 { data: { ...updated, isActive: false, tanggalKeluar: '...' } }
+→ 200 + meta.alreadyRemoved=true kalau sudah out
+→ 404 kalau member tidak ada di homecell tsb
+```
+
+### Endpoint 3: `GET /admin/homecell-area/:id/homecells`
+
+Persis sesuai spec. Filter `isActive=true` (kalau perlu archived, pakai `GET /admin/homecell-area/:id` full detail).
+
+## Authorization
+
+Saat ini **permissive** — semua user yang lewat `/admin/*` (JWT valid) di-allow. RBAC strict (cuma PIC homecell/area atau admin) bisa di-add nanti via menu access middleware.
+
+Mobile sementara enforce di client side: tombol "Remove member" hanya tampil kalau `picJemaatId == user.jemaatId` (atau user PIC area parent). BE akan tetap allow request — kalau abuse muncul, baru tambah strict check.
+
+## Action items mobile
+
+- [ ] Update `useHomecellDetail(id)` — fetch real members + nested jemaat info
+- [ ] Drop amber notice "List anggota lengkap akan tersedia"
+- [ ] Add `cancelMembership` mutation pakai `DELETE /by-jemaat/:jemaatId` — confirm modal "Yakin keluarkan dari homecell?"
+- [ ] Update `useAreaDetail(id)` — pakai `GET /admin/homecell-area/:id/homecells` untuk full list
+- [ ] Drop partial-list notice di area detail
+
+## File yang berubah
+
+| File | Perubahan |
+|---|---|
+| `apps/core-api/src/routes/admin/homecell.ts` | Detail handler extended select + new DELETE /by-jemaat handler |
+| `apps/core-api/src/routes/admin/homecell-area.ts` | New GET /:id/homecells handler |
+| `apps/core-api/src/openapi.ts` | Register 2 path baru |
+| `docs/mobile-api-guide.md` | Section 12.6 expanded dengan 3 endpoint detail |
+| `knowledge-base.md` | Section 26 patch **2026-05-21p** |
+
+---
+
+*Ticket closed 2026-05-21.*

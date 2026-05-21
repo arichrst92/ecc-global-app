@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-20
 **Priority**: 🟡 **MEDIUM** — feature M6, tidak blocker untuk launch tapi penting untuk retention
-**Status**: Pending
+**Status**: 🔵 **DEFERRED 2026-05-21** — BE confirm defer sesuai decision sebelumnya. Mobile pakai local notif sementara. Lihat section "Backend Response" di akhir doc untuk reasoning + triggers untuk reconsider.
 
 ---
 
@@ -227,3 +227,116 @@ Library: `expo-notifications` (sudah official Expo, gratis, support FCM+APNS via
 ## Kontak
 
 Mobile dev — Ari Christian (`arichrst@ide.asia`)
+
+---
+
+# Backend Response — 2026-05-21
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Status**: 🔵 **DEFERRED** — sesuai decision product 2026-05-21 (response Mobile Phase 1 implementation).
+
+## TL;DR
+
+Spec sudah excellent — endpoint shape, architecture, scenarios, semua jelas. **BE tidak implement sekarang** karena product owner decide defer push notif infrastructure di Mobile Phase 1 (lihat `backend-meeting-brief.md` decision log).
+
+Mobile lanjut pakai `expo-notifications` local-only seperti yang sudah direncanakan di workaround Phase 1.
+
+## BE acknowledgment
+
+Spec yang mobile kirim **siap di-implement kalau go-ahead nanti**. Beberapa BE catatan:
+
+### Yang BE setuju langsung dari spec
+
+- ✅ **Expo Push API sebagai provider awal** — keputusan tepat. Setup minimum, gratis, support FCM+APNS automatic. Migrate ke FCM/APNS direct kalau scale > 100k push/day (anekdotal threshold).
+- ✅ **Device + Notification table** sesuai shape spec — standard architecture, bisa langsung di-implement
+- ✅ **4 endpoint** (register/unregister device, list/mark-read notifications) — RESTful clear
+- ✅ **8 scenarios** dengan priority order — alignment baik dengan use case ECC
+
+### Yang BE concern / perlu refine
+
+**1. Token format multi-provider**: spec menyebut Expo Push Token. Kalau nanti pindah ke FCM/APNS direct, format berubah (FCM token ~152 char, APNS ~64 byte hex). Schema sebaiknya:
+- Kolom `token` VARCHAR(255)
+- Kolom `provider` enum ('expo', 'fcm', 'apns') — supaya migrate provider tidak butuh schema change
+
+**2. Notification idempotency**: kalau worker retry, jangan double-send. Field unik di Notification:
+- `(jemaatId, category, sourceType, sourceId)` — supaya 1 ibadah occurrence cuma trigger 1 notif per jemaat
+- Mis. ibadah reminder untuk Minggu 2026-05-25 di cabang JKT → unique key `(jemaatId, 'ibadah', 'ibadah_occurrence', '<ibadahId>_2026-05-25')`
+
+**3. Quiet hours** (question #3 mobile): rekomendasi **default 22:00-06:00 WIB silent** untuk kategori non-urgent (renungan, news). Urgent (payment verified, branch change approved) bypass quiet hours. Per-user override di preferences.
+
+**4. Quota / rate limit broadcast** (question #5): yes — admin send-to-all news max **1 broadcast / hari per cabang**. Cegah notification spam yang user uninstall.
+
+**5. Delivery report** (question #4): nice-to-have, **defer ke v2**. Expo Push API return receipts async — perlu polling endpoint terpisah. Tidak urgent untuk launch.
+
+**6. WhatsApp interplay**: ECC sudah heavy WhatsApp (OTP, broadcast manual admin). Push notif jangan **duplicate** dengan broadcast WA — kalau admin sudah blast WA, jangan kirim push notif yang sama. Coordination via "notification policy" — admin pilih channel di portal saat publish news.
+
+### Effort estimate BE (refined)
+
+| # | Item | Estimate (BE) |
+|---|------|---------|
+| 1 | Schema + migration: Device + Notification table | 0.5 hari |
+| 2 | 4 endpoints (`/admin/me/devices`, `/admin/me/notifications`) | 1.5 hari |
+| 3 | Expo Push SDK setup + worker queue | 1 hari |
+| 4 | Trigger: payment verified, branch change status, registration (event-driven) | 1 hari |
+| 5 | Trigger: ibadah reminder cron + idempotency | 1 hari |
+| 6 | Trigger: renungan daily + event publish | 0.5 hari |
+| 7 | Trigger: news broadcast (manual admin send) | 0.5 hari |
+| 8 | Quiet hours filter + user preferences integration | 0.5 hari |
+| 9 | Docs (mobile-api-guide + KB) | 0.5 hari |
+
+**Total**: ~7 hari BE (1.5 minggu sprint).
+
+Plus ops setup: Expo Push API account (free, cuma email), test device tokens.
+
+## Triggers untuk reconsider implement
+
+Push notif jadi prioritas tinggi (un-defer) kalau:
+
+1. **Mobile retention metrik turun** post-launch — D7 retention < 30% indikasi user lupa app
+2. **Event registration cuma 20% peserta target** — mungkin user lupa reminder
+3. **Renungan readership rendah** (< 5% jemaat aktif baca/hari) — push perlu untuk re-engage
+4. **Product owner approve** event spesifik yang butuh push (mis. campaign besar)
+5. **6 bulan post-launch milestone** — re-evaluate retention numbers
+
+Sampai trigger di atas, BE fokus ke fitur lain yang dampaknya immediate (multi-donation, family, dll).
+
+## Mobile recommendation Phase 1 workaround
+
+Saat push notif belum live, mobile maximize **local notif** + **in-app inbox local**:
+
+1. **`expo-notifications`** untuk schedule local reminder ibadah (user opt-in di settings)
+2. **Scheduled local** untuk renungan harian (kalau user cache renungan offline)
+3. **In-app badge unread** dari local store, bukan server inbox
+4. **Settings toggle per category** — siapkan UI sekarang, hook ke server preferences kalau push live nanti
+
+Mobile yang sudah ada workaround pattern ini di `notifications.store.ts` — tinggal extend kalau push live. Switching cost minimal.
+
+## Decisions yang sudah confirmed (untuk record)
+
+| Item | Decision |
+|---|---|
+| Push provider (kalau implement) | Expo Push API (then FCM/APNS direct kalau scale) |
+| Token storage | Server-side persist + per-device row |
+| Notification persistence | Server-side (multi-device sync) |
+| Quiet hours | Default 22:00-06:00 silent untuk non-urgent |
+| Broadcast rate limit | 1 per hari per cabang |
+| Delivery report | Defer ke v2 |
+| Idempotency key | `(jemaatId, category, sourceType, sourceId)` |
+| WhatsApp duplicate | Admin pilih channel di portal saat publish |
+
+## Action items
+
+- [ ] **Mobile**: lanjut implement local notif workaround sesuai recommendation di atas
+- [ ] **Product owner**: track retention metrik 30 hari post-launch — kalau di bawah threshold, escalate trigger ke BE
+- [ ] **BE**: re-evaluate priority di sprint planning bulan ke-2 post-launch
+- [ ] **Ops**: setup Expo Push account (no-cost, prep saja) supaya saat implement tidak start dari nol
+
+## File yang BELUM berubah
+
+**Penting**: code BE tidak di-modify. Patch ini analysis-only.
+
+Setelah product owner approve unfreeze, BE akan implement sesuai spec di atas. Saat itu, KB akan dapat patch entry baru dan `ecc-mobile-app/docs/backend-request-push-notification.md` di-update ke RESOLVED.
+
+---
+
+*Status DEFERRED 2026-05-21. Recheck trigger di sprint planning bulan 2 post-launch.*
