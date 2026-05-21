@@ -1,8 +1,6 @@
 # Backend Request — Alkitab Content (TB LAI)
 
-**Status**: 🔵 **DEFERRED 2026-05-21** — BE analysis selesai (lihat section "Backend Response" di akhir doc). Awaiting product owner + legal team decision sebelum implement.
-
-Mobile saat ini ship dengan Opsi C (sample-only, ~17 pasal bundled). BE endpoint full content masih pending sampai sumber data + lisensi clarified.
+**Status**: ✅ **DECIDED 2026-05-21** — **Opsi B (bundle JSON di mobile asset)** dengan versi **TB + NKJV**, sumber data dari yukuku/androidbible. Tidak ada BE code change. Lihat section "Decision & Implementation Plan" di akhir doc untuk detail + licensing flag.
 
 **Mobile context**:
 - Fitur Alkitab di-ship sebagai sample-only di MVP (lihat `app/src/data/bible-sample-content.ts`).
@@ -219,3 +217,191 @@ Saat product owner + legal approve direction, BE akan implement sesuai opsi. KB 
 ---
 
 *Status DEFERRED 2026-05-21. Awaiting product/legal decision sebelum implementation.*
+
+---
+
+# Decision & Implementation Plan — 2026-05-21 (Update)
+
+**Decision**: pakai **Opsi B (bundle JSON di mobile asset)**, sumber data **yukuku/androidbible**, versi **TB (Terjemahan Baru)** + **NKJV (New King James Version)**.
+
+## ⚠ Licensing flag — perlu attention dari product/legal
+
+Sebelum proceed implementation, mohon **legal team verify** karena keduanya copyrighted:
+
+### TB (Terjemahan Baru)
+- **Copyright**: Lembaga Alkitab Indonesia (LAI) © 1974
+- **Restrictive**: LAI strict untuk distribusi digital. Yukuku host TB di api.alkitab.app — kemungkinan punya **licensing arrangement spesifik dengan LAI**, tidak otomatis grant downstream right.
+- **Risk untuk ECC**: kalau bundle TB tanpa izin LAI, risiko cease & desist (low probability tapi technically infringing).
+
+### NKJV (New King James Version)
+- **Copyright**: Thomas Nelson © 1982 (Nashville, USA)
+- **Highly restrictive**: Thomas Nelson **sangat ketat** untuk free redistribution. Lisensi default mereka cuma allow penggunaan personal + quote terbatas (max 500 ayat di non-commercial publication, dengan attribution).
+- **Risk untuk ECC**: bundle NKJV full text di app gereja Indonesia tanpa lisensi eksplisit Thomas Nelson = **high risk** copyright infringement. Yukuku/Quick Bible mungkin punya arrangement private, tapi tidak transferable ke ECC.
+
+### Recommendation BE
+
+1. **Cek arrangement yukuku** — kontak yukuku (via GitHub issues atau alkitab.app email) untuk konfirmasi:
+   - Apakah TB yang mereka host punya lisensi LAI yang allow redistribute? (Sub-licensing OK?)
+   - NKJV: apakah mereka punya lisensi Thomas Nelson yang allow distribusi via aplikasi lain?
+2. **Alternative yang lebih aman**:
+   - Ganti TB → **AYT** (CC BY-SA, no licensing risk)
+   - Ganti NKJV → **WEB** (World English Bible, public domain) atau **KJV** (1611, public domain)
+   - Kedua alternative free + tersedia di yukuku ecosystem
+
+3. **Kalau tetap TB + NKJV**, sebaiknya:
+   - Dapat izin tertulis dari LAI (untuk TB) dan Thomas Nelson (untuk NKJV)
+   - Atau cari sub-license dari yukuku kalau mereka berkenan
+
+**BE tidak block implementation** — flag licensing risk untuk awareness product/legal. Proceed dengan acknowledgment risiko.
+
+---
+
+## Implementation plan (mobile-only, no BE work)
+
+Karena strategi bundle JSON di mobile asset:
+
+### 1. Sumber data — yukuku/androidbible
+
+Yukuku punya base URL `https://api.alkitab.app` dengan downloadable bible versions dalam format `.yes` (binary). Untuk convert ke JSON:
+
+**Option 1 — Pakai community JSON repos**:
+- Cari forks atau community projects yang sudah extract yukuku data ke JSON (mis. di GitHub search "alkitab json indonesia")
+- Pro: zero parsing work
+- Con: harus verify source quality + license trail
+
+**Option 2 — Convert manual dari yukuku source**:
+- Download `.yes` files dari yukuku version catalog
+- Pakai converter tools dari yukuku Drive folder (link ada di README mereka)
+- Atau implement YES2 binary parser sesuai docs/binary-formats.md di yukuku repo
+- Convert → clean JSON
+- Pro: full control quality
+- Con: 1-2 hari extra work
+
+**Option 3 — Open-bibles repo**:
+- `github.com/seven1m/open-bibles` punya banyak versi dalam JSON-friendly format
+- Cari TB + NKJV di sana
+- Pro: clean source, license metadata included
+- Con: TB/NKJV mungkin tidak ada — harus cek
+
+**Rekomendasi**: cek Option 3 dulu, fallback ke Option 1, terakhir Option 2.
+
+### 2. Format JSON yang disarankan
+
+Per kitab, satu file JSON:
+
+```json
+{
+  "version": "TB",
+  "versionFullName": "Terjemahan Baru",
+  "language": "id",
+  "copyright": "© Lembaga Alkitab Indonesia 1974",
+  "license": "all-rights-reserved (verify dengan LAI)",
+  "books": [
+    {
+      "id": "GEN",
+      "nama": "Kejadian",
+      "namaSingkat": "Kej",
+      "testament": "OT",
+      "order": 1,
+      "chapterCount": 50,
+      "chapters": [
+        {
+          "bab": 1,
+          "verses": [
+            { "nomor": 1, "teks": "Pada mulanya Allah menciptakan langit dan bumi." },
+            { "nomor": 2, "teks": "..." }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Size estimate per versi:
+- TB: ~5MB raw JSON, ~1.5MB gzipped
+- NKJV: ~5MB raw JSON, ~1.5MB gzipped
+- Total bundle: ~3MB gzipped (acceptable untuk initial app install via OTA)
+
+### 3. Mobile loader pattern (rekomendasi)
+
+```typescript
+// app/src/data/bible/index.ts
+import tbData from './tb.json';
+import nkjvData from './nkjv.json';
+
+const VERSIONS = { TB: tbData, NKJV: nkjvData } as const;
+
+export type BibleVersionCode = keyof typeof VERSIONS;
+
+export function getChapter(
+  versionCode: BibleVersionCode,
+  bookId: string,
+  bab: number,
+) {
+  const version = VERSIONS[versionCode];
+  const book = version.books.find((b) => b.id === bookId);
+  return book?.chapters.find((c) => c.bab === bab) ?? null;
+}
+
+export function searchVerse(versionCode: BibleVersionCode, query: string) {
+  // Linear search across chapters — OK untuk ~31k verse per versi
+  // Optimization: pre-build inverted index kalau search jadi lambat
+}
+```
+
+Lazy-load per versi pakai dynamic import kalau bundle size jadi concern:
+
+```typescript
+async function loadVersion(code: BibleVersionCode) {
+  if (code === 'TB') return (await import('./tb.json')).default;
+  if (code === 'NKJV') return (await import('./nkjv.json')).default;
+}
+```
+
+### 4. UI changes di mobile
+
+- Settings → "Versi Alkitab" picker → TB (default) / NKJV
+- Persist `selectedVersionCode` di store / SecureStore per jemaatId
+- Chapter reader render dari `getChapter(version, bookId, bab)`
+- Hapus placeholder "sample-only" notice
+- Bookmark store extended dengan `versionCode` (1 bookmark per versi-bookId-bab-ayat)
+
+### 5. Optional BE work yang tetap useful
+
+Walau content bundle di mobile, BE tetap bisa kasih value:
+
+- ✅ **`GET /admin/alkitab/verse-of-day`** — server-curated verse of day, return `{ versionCode, bookId, bab, ayat }`. Mobile lookup teks dari local bundle. **Effort BE: 0.5 hari**.
+- ✅ **`/admin/me/bible-bookmarks`** (CRUD) — server-side bookmark sync cross-device. Simpan **reference saja** (`versionCode + bookId + bab + ayat`), bukan teks. **Effort BE: 0.5 hari**.
+
+Kedua endpoint ini tidak butuh content TB/NKJV di BE — cuma referensi. Tidak ada licensing concern.
+
+**Recommendation**: implement kedua endpoint ini bareng mobile launch Alkitab feature. Total BE effort ~1 hari.
+
+## Action items
+
+### Legal / product (BLOCKING sebelum mobile mulai bundle)
+- [ ] **CRITICAL**: verify lisensi TB dengan LAI untuk redistribusi di mobile app gereja
+- [ ] **CRITICAL**: verify lisensi NKJV dengan Thomas Nelson untuk redistribusi
+- [ ] Decide: tetap TB+NKJV atau switch ke AYT+WEB (lebih aman)
+- [ ] Kalau tetap TB+NKJV, target dapat surat izin (email confirmation OK)
+
+### Mobile
+- [ ] Identify JSON source (preferred Option 3 → 1 → 2)
+- [ ] Convert/extract data → bundle ke `app/src/data/bible/{tb,nkjv}.json`
+- [ ] Implement `getChapter(version, bookId, bab)` loader
+- [ ] Update store: tambah `selectedVersionCode`, extend bookmarks dengan version
+- [ ] UI: version picker di settings, reader switch per version
+- [ ] Test offline-first behavior, performance loading 5MB JSON
+
+### BE (opsional, recommended)
+- [ ] Implement `GET /admin/alkitab/verse-of-day` — server-curated reference
+- [ ] Implement `/admin/me/bible-bookmarks` (CRUD) — server-side sync, reference-only
+
+## File yang BELUM berubah BE-side
+
+Code BE tidak di-modify untuk content. Endpoint helper (verse-of-day, bookmark-sync) di-implement nanti kalau product OK dengan optional BE work di atas.
+
+---
+
+*Decision logged 2026-05-21. Legal verification BLOCKING sebelum mobile bundle.*
