@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -11,21 +12,31 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, MessageCircleMore, Info } from 'lucide-react-native';
+import { ArrowLeft, Info, MessageCircleMore, ScanFace } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
 import { useToast } from '@/components/ui/Toast';
-import { requestOtp } from '@/api/auth';
+import { faceLogin, requestOtp } from '@/api/auth';
+import { FaceCapture } from '@/components/face/FaceCapture';
+import { useAuthStore } from '@/stores/auth.store';
 import { normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
+import {
+  FACE_MODEL_VERSION,
+  type FaceLoginPayload,
+  type FaceLoginResponse,
+} from '@/types/auth';
 
 export default function LoginPhoneScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const showToast = useToast((s) => s.show);
+  const login = useAuthStore((s) => s.login);
+  const setFaceEnrolledHint = useAuthStore((s) => s.setFaceEnrolledHint);
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [captureOpen, setCaptureOpen] = useState(false);
 
   const mutation = useMutation({
     mutationFn: async (e164: string) => requestOtp({ noHp: e164, purpose: 'LOGIN' }),
@@ -48,6 +59,41 @@ export default function LoginPhoneScreen() {
     },
   });
 
+  const faceLoginMutation = useMutation({
+    mutationFn: (payload: FaceLoginPayload) => faceLogin(payload),
+    onSuccess: async (data: FaceLoginResponse) => {
+      await login(data.accessToken, data.refreshToken, data.user);
+      // Persist hint supaya Welcome quick-login bisa show face button next time
+      await setFaceEnrolledHint(true);
+      setCaptureOpen(false);
+      if (data.confidence < 0.7) {
+        showToast(t('face.low_confidence_warn'), 'info');
+      } else {
+        showToast(t('auth.login_success'), 'success');
+      }
+    },
+    onError: (err) => {
+      setCaptureOpen(false);
+      if (err instanceof ApiError) {
+        const code = err.code.toLowerCase();
+        if (code === 'face_not_enrolled') {
+          showToast(t('face.error_face_not_enrolled'), 'error');
+        } else if (
+          code === 'face_no_match' ||
+          code === 'face_model_mismatch' ||
+          code === 'face_invalid_descriptor' ||
+          code === 'face_login_rate_limit'
+        ) {
+          showToast(t(`face.error_${code}`), 'error');
+        } else {
+          showToast(err.message, 'error');
+        }
+      } else {
+        showToast(t('error.network'), 'error');
+      }
+    },
+  });
+
   function submit() {
     setError(null);
     const e164 = normalizePhone(phone);
@@ -56,6 +102,30 @@ export default function LoginPhoneScreen() {
       return;
     }
     mutation.mutate(e164);
+  }
+
+  function startFaceLogin() {
+    setError(null);
+    const e164 = normalizePhone(phone);
+    if (!e164) {
+      setError(t('auth.error_invalid_phone'));
+      return;
+    }
+    setCaptureOpen(true);
+  }
+
+  function handleDescriptor(descriptor: number[]) {
+    const e164 = normalizePhone(phone);
+    if (!e164) {
+      setError(t('auth.error_invalid_phone'));
+      setCaptureOpen(false);
+      return;
+    }
+    faceLoginMutation.mutate({
+      noHp: e164,
+      descriptor,
+      modelVersion: FACE_MODEL_VERSION,
+    });
   }
 
   return (
@@ -107,17 +177,46 @@ export default function LoginPhoneScreen() {
           </View>
         </ScrollView>
 
-        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100 gap-2">
           <Button
             label={t('auth.send_otp')}
             onPress={submit}
             loading={mutation.isPending}
-            disabled={phone.length < 8}
+            disabled={phone.length < 8 || faceLoginMutation.isPending}
             fullWidth
             size="lg"
           />
+          <Pressable
+            onPress={startFaceLogin}
+            disabled={phone.length < 8 || mutation.isPending || faceLoginMutation.isPending}
+            className={`flex-row items-center justify-center gap-2 py-3 rounded-xl border ${
+              phone.length < 8 || mutation.isPending || faceLoginMutation.isPending
+                ? 'border-neutral-200 opacity-50'
+                : 'border-brand-500'
+            }`}
+          >
+            <ScanFace size={18} color="#EA580C" />
+            <Text className="text-sm font-semibold text-brand-600">
+              {faceLoginMutation.isPending
+                ? t('common.loading')
+                : t('auth.signin_face')}
+            </Text>
+          </Pressable>
+          <Text className="text-[10px] text-neutral-400 text-center mt-1">
+            {t('auth.face_login_hint')}
+          </Text>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Face capture modal */}
+      <Modal visible={captureOpen} animationType="slide" onRequestClose={() => setCaptureOpen(false)}>
+        {captureOpen ? (
+          <FaceCapture
+            onSuccess={handleDescriptor}
+            onCancel={() => setCaptureOpen(false)}
+          />
+        ) : null}
+      </Modal>
     </SafeAreaView>
   );
 }

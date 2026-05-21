@@ -72,7 +72,8 @@
     "error_invalid_phone": "Format nomor HP tidak valid. Gunakan format 0821xxx atau +62821xxx.",
     "error_not_registered": "Nomor HP belum terdaftar. Hubungi pengurus cabang atau daftar akun baru.",
     "error_rate_limited": "Terlalu banyak permintaan. Coba lagi dalam beberapa menit.",
-    "error_otp_invalid": "Kode OTP salah atau sudah kadaluarsa."
+    "error_otp_invalid": "Kode OTP salah atau sudah kadaluarsa.",
+    "face_login_hint": "Pastikan wajah sudah didaftarkan di pengaturan sebelumnya"
   },
   "signup": {
     "title": "Daftar Akun Baru",

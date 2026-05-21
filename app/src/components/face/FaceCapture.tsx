@@ -8,6 +8,10 @@ import {
   type CameraCapturedPicture,
   type CameraView as CameraViewType,
 } from 'expo-camera';
+import {
+  manipulateAsync,
+  SaveFormat,
+} from 'expo-image-manipulator';
 
 import {
   computeFaceDescriptor,
@@ -75,24 +79,45 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
     setPhase('capturing');
     setErrorDebug(undefined);
     try {
-      // skipProcessing: false → biar iOS apply EXIF rotation correction otomatis.
-      // quality 0.8 → balance file size dengan face detection accuracy.
+      // Take photo WITHOUT base64 — raw photo file pertama, lalu resize.
+      // base64 langsung dari camera bisa 2-5MB untuk HP camera modern,
+      // terlalu besar untuk injectJavaScript ke WebView (sering timeout).
       const photo: CameraCapturedPicture | undefined = await cameraRef.current.takePictureAsync({
-        base64: true,
-        quality: 0.8,
+        base64: false,
+        quality: 0.9,
         skipProcessing: false,
         exif: false,
       });
-      if (!photo?.base64) {
+      if (!photo?.uri) {
         setErrorReason('error');
-        setErrorDebug('No base64 returned from camera');
+        setErrorDebug('No uri returned from camera');
         setPhase('error');
         return;
       }
 
       setPhase('processing');
 
-      const result = await computeFaceDescriptor(photo.base64);
+      // Resize ke 640px (max dimension) + JPEG quality 0.7.
+      // Hasil: ~80-150KB base64 (vs ~2-5MB raw camera output).
+      // face-api.js TinyFaceDetector inputSize 512 — image 640 cukup tinggi
+      // resolution untuk akurasi tanpa wasted compute.
+      const resized = await manipulateAsync(
+        photo.uri,
+        [{ resize: { width: 640 } }],
+        { compress: 0.7, format: SaveFormat.JPEG, base64: true },
+      );
+      if (!resized.base64) {
+        setErrorReason('error');
+        setErrorDebug('Resize failed');
+        setPhase('error');
+        return;
+      }
+
+      if (__DEV__) {
+        console.log('[FaceCapture] base64 size:', Math.round(resized.base64.length / 1024), 'KB');
+      }
+
+      const result = await computeFaceDescriptor(resized.base64);
       if (result.ok) {
         onSuccess(result.descriptor);
       } else {

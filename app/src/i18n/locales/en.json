@@ -72,7 +72,8 @@
     "error_invalid_phone": "Invalid phone format. Use 0821xxx or +62821xxx.",
     "error_not_registered": "Phone not registered. Contact your branch admin or sign up.",
     "error_rate_limited": "Too many requests. Try again in a few minutes.",
-    "error_otp_invalid": "OTP code is invalid or expired."
+    "error_otp_invalid": "OTP code is invalid or expired.",
+    "face_login_hint": "Make sure your face is already enrolled in settings"
   },
   "signup": {
     "title": "Create New Account",

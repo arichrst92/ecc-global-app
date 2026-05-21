@@ -120,7 +120,11 @@ const HTML = `<!doctype html>
     }
   }
 
-  // Listen for messages from RN
+  // Expose direct function untuk RN injectJavaScript. Lebih reliable
+  // dibanding MessageEvent dispatch yang sering miss saat payload besar.
+  window.__faceCompute = compute;
+
+  // Tetap support MessageEvent path sebagai fallback (kalau ada usage lain)
   document.addEventListener('message', handleMessage);
   window.addEventListener('message', handleMessage);
 
@@ -159,24 +163,30 @@ export function FaceDescriptorProvider({ children }: { children: React.ReactNode
       request: (imageBase64: string): Promise<ComputeResult> => {
         return new Promise<ComputeResult>((resolve) => {
           const requestId = String(++reqIdRef.current);
+          // 30s timeout — face detection bisa lambat di model first run +
+          // sumber compute + base64 transfer. Better fail late than spurious.
           const timeoutId = setTimeout(() => {
             pendingRef.current.delete(requestId);
-            resolve({ ok: false, reason: 'timeout' });
-          }, 10_000);
+            resolve({
+              ok: false,
+              reason: 'timeout',
+              message: 'No response from face engine within 30s',
+            });
+          }, 30_000);
           pendingRef.current.set(requestId, { resolve, timeoutId });
 
           const dataUrl = imageBase64.startsWith('data:')
             ? imageBase64
             : `data:image/jpeg;base64,${imageBase64}`;
 
-          const script = `
-            (function() {
-              window.dispatchEvent(new MessageEvent('message', {
-                data: ${JSON.stringify(JSON.stringify({ type: 'compute', requestId, dataUrl }))}
-              }));
-              true;
-            })();
-          `;
+          // Direct function call via global. Pakai JSON.stringify untuk
+          // properly escape image base64 string yang besar.
+          const script =
+            'window.__faceCompute(' +
+            JSON.stringify(requestId) +
+            ', ' +
+            JSON.stringify(dataUrl) +
+            '); true;';
           webRef.current?.injectJavaScript(script);
         });
       },
