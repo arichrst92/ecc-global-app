@@ -22,6 +22,7 @@ export default function ProfileTab() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const language = usePreferencesStore((s) => s.language);
   const languageLabel = language === 'id' ? 'Bahasa Indonesia' : 'English';
+  const biometricEnabled = useAuthStore((s) => s.biometricEnabled);
 
   // Scanner mode visible kalau user authorized untuk minimal 1 event ATAU ibadah
   const scannerEventsQuery = useScannerEvents();
@@ -113,6 +114,11 @@ export default function ProfileTab() {
             label={t('profile.language')}
             sub={languageLabel}
             onPress={() => router.push('/settings/language')}
+          />
+          <MenuRow
+            label={t('biometric.settings_label')}
+            sub={biometricEnabled ? t('biometric.settings_on') : t('biometric.settings_off')}
+            onPress={() => router.push('/settings/biometric')}
           />
           <MenuRow
             label={t('profile.about')}
