@@ -203,29 +203,130 @@ async function loadMlKit(): Promise<MlKitFaceDetectionModule | null> {
  * Convert PNG base64 → Float32Array tensor untuk MobileFaceNet input.
  *
  * MobileFaceNet expects:
- * - Shape: [1, 112, 112, 3] (batch, h, w, channels) atau flat 112*112*3
- * - Channels: RGB
+ * - Shape: [1, 112, 112, 3] (batch, h, w, channels) — flat = 37,632 floats
+ * - Channels: RGB (drop alpha kalau ada)
  * - Normalization: (pixel - 127.5) / 127.5 → range -1..1
  *
- * Note: native TFLite library biasanya accept Float32Array flat.
- * PNG decoding di JS pakai library kecil — kalau perlu di-bundle, pakai
- * pngjs atau upng-js. Untuk performance lebih baik, prefer native decoder
- * via react-native-fast-tflite resize utility kalau ada.
+ * Implementation:
+ * - upng-js decode PNG → RGBA Uint8Array
+ * - convert RGBA → RGB + normalize per pixel
  *
- * TODO: implement actual PNG decoding. Saat ini placeholder — Ari perlu add
- * PNG decoder library + this function di-completer.
+ * upng-js works di RN (pure JS, no native binding). atob polyfill di RN
+ * available via global (react-native polyfill).
  */
-async function pngBase64ToTensor(_base64: string): Promise<Float32Array | null> {
-  // Placeholder: actual implementation needs PNG decoder
-  // Recommended: install `upng-js` (small, pure JS, ~10KB)
-  // Atau pakai expo-gl untuk GPU-accelerated path.
-  if (__DEV__) {
-    console.warn(
-      '[faceDescriptor] pngBase64ToTensor not yet implemented. ' +
-        'Install upng-js + implement PNG → Float32Array conversion.',
-    );
+async function pngBase64ToTensor(base64: string): Promise<Float32Array | null> {
+  try {
+    // Lazy import — upng-js bisa ga ada kalau dev belum npm install
+    const upng = (await import('upng-js')) as unknown as {
+      default?: { decode: (buf: ArrayBuffer) => UpngImage };
+      decode?: (buf: ArrayBuffer) => UpngImage;
+    };
+    const UPNG = upng.default ?? upng;
+    if (!UPNG || typeof UPNG.decode !== 'function') {
+      if (__DEV__) console.warn('[faceDescriptor] upng-js decode unavailable');
+      return null;
+    }
+
+    // base64 → Uint8Array (RN polyfills global.atob, fallback Buffer kalau ada)
+    const binary = base64ToUint8Array(base64);
+    const img = UPNG.decode(binary.buffer as ArrayBuffer);
+
+    // Verify dimension match MobileFaceNet input
+    if (img.width !== 112 || img.height !== 112) {
+      if (__DEV__) {
+        console.warn(
+          '[faceDescriptor] PNG dim mismatch: ' + img.width + 'x' + img.height + ' (expected 112x112)',
+        );
+      }
+      return null;
+    }
+
+    // upng-js return RGBA8 by default — `data` Uint8Array length width*height*4
+    // Some variants atau decoder return different format — sanity check
+    const expectedRGBA = img.width * img.height * 4;
+    if (img.data.length !== expectedRGBA) {
+      // Fallback: kalau RGB-only (length width*height*3), handle juga
+      const expectedRGB = img.width * img.height * 3;
+      if (img.data.length === expectedRGB) {
+        return rgbToNormalizedTensor(img.data);
+      }
+      if (__DEV__) {
+        console.warn(
+          '[faceDescriptor] unexpected pixel data length: ' +
+            img.data.length +
+            ' (expected ' + expectedRGBA + ' RGBA or ' + expectedRGB + ' RGB)',
+        );
+      }
+      return null;
+    }
+
+    return rgbaToNormalizedTensor(img.data);
+  } catch (e) {
+    if (__DEV__) console.warn('[faceDescriptor] PNG decode error:', e);
+    return null;
   }
-  return null;
+}
+
+type UpngImage = {
+  width: number;
+  height: number;
+  depth: number;
+  ctype: number;
+  data: Uint8Array;
+};
+
+/** Convert base64 string → Uint8Array. RN polyfill atob (kalau available)
+ *  atau fallback manual decoder. */
+function base64ToUint8Array(base64: string): Uint8Array {
+  // Strip data URL prefix kalau ada
+  const clean = base64.includes(',') ? base64.split(',')[1] : base64;
+  // React Native polyfill global.atob
+  const binStr = globalThis.atob ? globalThis.atob(clean) : decodeBase64Manual(clean);
+  const len = binStr.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) bytes[i] = binStr.charCodeAt(i);
+  return bytes;
+}
+
+// Minimal manual base64 decoder (fallback kalau atob ga ada di env)
+const B64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+function decodeBase64Manual(input: string): string {
+  let str = input.replace(/=+$/, '');
+  let output = '';
+  for (
+    let bc = 0, bs = 0, buffer: number, i = 0;
+    (buffer = str.charCodeAt(i++)) !== undefined;
+  ) {
+    buffer = B64_CHARS.indexOf(String.fromCharCode(buffer));
+    if (buffer === -1) continue;
+    bs = bc % 4 ? bs * 64 + buffer : buffer;
+    if (bc++ % 4) output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6)));
+  }
+  return output;
+}
+
+/** RGBA Uint8Array (length 4N) → Float32Array RGB normalized (length 3N). */
+function rgbaToNormalizedTensor(rgba: Uint8Array): Float32Array {
+  const pixelCount = rgba.length / 4;
+  const out = new Float32Array(pixelCount * 3);
+  for (let i = 0; i < pixelCount; i++) {
+    const srcOffset = i * 4;
+    const dstOffset = i * 3;
+    // Drop alpha at srcOffset+3, normalize each channel
+    out[dstOffset] = (rgba[srcOffset] - 127.5) / 127.5;
+    out[dstOffset + 1] = (rgba[srcOffset + 1] - 127.5) / 127.5;
+    out[dstOffset + 2] = (rgba[srcOffset + 2] - 127.5) / 127.5;
+  }
+  return out;
+}
+
+/** RGB Uint8Array → Float32Array normalized (same length). */
+function rgbToNormalizedTensor(rgb: Uint8Array): Float32Array {
+  const out = new Float32Array(rgb.length);
+  for (let i = 0; i < rgb.length; i++) {
+    out[i] = (rgb[i] - 127.5) / 127.5;
+  }
+  return out;
 }
 
 function l2Normalize(v: Float32Array): Float32Array {
