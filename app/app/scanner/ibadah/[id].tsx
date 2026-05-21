@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react-native';
 
+import { useToast } from '@/components/ui/Toast';
 import { ManualInputModal } from '@/components/scanner/ManualInputModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
@@ -13,14 +14,18 @@ import {
   useIbadahCheckinStats,
   useScannerIbadah,
 } from '@/hooks/useScanner';
+import { usePrinterStore } from '@/stores/printer.store';
+import { printerService, PrinterError } from '@/services/printer';
 import { ApiError } from '@/types/api';
-import { todayIso } from '@/utils/date';
+import { todayIso, formatDate } from '@/utils/date';
 
 export default function ScannerIbadahScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const router = useRouter();
   const { id, tanggal } = useLocalSearchParams<{ id: string; tanggal?: string }>();
   const tanggalIbadah = tanggal || todayIso();
+  const showToast = useToast((s) => s.show);
 
   const ibadahQuery = useScannerIbadah();
   const ibadahMeta = ibadahQuery.data?.find((i) => i.ibadahId === id);
@@ -28,9 +33,42 @@ export default function ScannerIbadahScreen() {
   const checkinMutation = useCheckinIbadah(id);
   const statsQuery = useIbadahCheckinStats(id, tanggalIbadah);
 
+  const isPrinterConnected = usePrinterStore((s) => s.isConnected);
+  const paperSize = usePrinterStore((s) => s.paperSize);
+  const autoPrint = usePrinterStore((s) => s.autoPrint);
+
   const [manualOpen, setManualOpen] = useState(false);
   const [result, setResult] = useState<ScanResultKind | null>(null);
   const [pendingKode, setPendingKode] = useState<string | null>(null);
+  const [printLoading, setPrintLoading] = useState(false);
+
+  async function handlePrint() {
+    if (!result || result.kind !== 'success') return;
+    setPrintLoading(true);
+    try {
+      await printerService.printLabel(
+        {
+          header: ibadahMeta?.nama
+            ? `ECC · ${ibadahMeta.nama}`
+            : 'ECC Ibadah',
+          namaLengkap: result.namaLengkap,
+          kode: pendingKode ?? '',
+          detail: formatDate(tanggalIbadah, lang),
+          status: result.walkIn ? 'WALK-IN' : 'JOIN',
+        },
+        paperSize,
+      );
+      showToast(t('printer.test_print_sent'), 'success');
+    } catch (err) {
+      if (err instanceof PrinterError) {
+        showToast(err.message, 'error');
+      } else {
+        showToast(t('error.network'), 'error');
+      }
+    } finally {
+      setPrintLoading(false);
+    }
+  }
 
   function runCheckin(kode: string, force = false) {
     setPendingKode(kode);
@@ -131,7 +169,11 @@ export default function ScannerIbadahScreen() {
         onDismiss={dismissResult}
         onForce={result?.kind === 'conflict' ? handleForce : undefined}
         onScanAgain={dismissResult}
+        onPrint={handlePrint}
+        canPrint={isPrinterConnected}
+        autoPrint={autoPrint && isPrinterConnected}
         forceLoading={checkinMutation.isPending}
+        printLoading={printLoading}
       />
     </View>
   );

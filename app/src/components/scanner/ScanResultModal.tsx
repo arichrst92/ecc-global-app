@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Info,
+  Printer,
   RotateCcw,
   ShieldAlert,
   UserCheck,
@@ -27,27 +28,44 @@ export function ScanResultModal({
   onDismiss,
   onForce,
   onScanAgain,
+  onPrint,
   forceLoading,
+  printLoading,
+  canPrint,
+  autoPrint,
 }: {
   result: ScanResultKind | null;
   onDismiss: () => void;
   onForce?: () => void;
   onScanAgain: () => void;
+  onPrint?: () => void;
   forceLoading?: boolean;
+  printLoading?: boolean;
+  /** Tampil print button kalau printer connected */
+  canPrint?: boolean;
+  /** Kalau true, auto-trigger print saat success */
+  autoPrint?: boolean;
 }) {
   const { t } = useTranslation();
   const visible = result !== null;
 
-  // Auto-dismiss success setelah 2.5s — supaya scanner mode lancar
+  // Auto-dismiss success setelah 2.5s (atau 3.5s kalau auto-print active)
   useEffect(() => {
     if (!visible || !result) return;
     if (result.kind === 'success' && !result.alreadyCheckedIn) {
-      const tm = setTimeout(() => {
-        onScanAgain();
-      }, 2500);
+      // Trigger auto-print kalau enabled + printer connected
+      if (autoPrint && canPrint && onPrint) {
+        onPrint();
+      }
+      const tm = setTimeout(
+        () => {
+          onScanAgain();
+        },
+        autoPrint ? 3500 : 2500,
+      );
       return () => clearTimeout(tm);
     }
-  }, [visible, result, onScanAgain]);
+  }, [visible, result, onScanAgain, autoPrint, canPrint, onPrint]);
 
   if (!result) return null;
 
@@ -76,9 +94,9 @@ export function ScanResultModal({
           )}
 
           {/* Action buttons */}
-          <View className="flex-row gap-2 mt-4">
+          <View className="mt-4 gap-2">
             {result.kind === 'conflict' && onForce ? (
-              <>
+              <View className="flex-row gap-2">
                 <View className="flex-1">
                   <Button
                     label={t('scanner.dismiss')}
@@ -98,15 +116,29 @@ export function ScanResultModal({
                     fullWidth
                   />
                 </View>
-              </>
+              </View>
             ) : (
-              <Button
-                label={t('scanner.scan_next')}
-                onPress={onScanAgain}
-                leftIcon={<RotateCcw size={14} color="#fff" />}
-                fullWidth
-                size="lg"
-              />
+              <>
+                {/* Print Label button — kalau success + printer connected */}
+                {result.kind === 'success' && canPrint && onPrint ? (
+                  <Button
+                    label={t('scanner.print_label')}
+                    variant="secondary"
+                    onPress={onPrint}
+                    loading={printLoading}
+                    leftIcon={<Printer size={14} color="#404040" />}
+                    fullWidth
+                    size="md"
+                  />
+                ) : null}
+                <Button
+                  label={t('scanner.scan_next')}
+                  onPress={onScanAgain}
+                  leftIcon={<RotateCcw size={14} color="#fff" />}
+                  fullWidth
+                  size="lg"
+                />
+              </>
             )}
           </View>
         </Pressable>

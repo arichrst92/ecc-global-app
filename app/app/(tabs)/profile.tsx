@@ -108,6 +108,7 @@ export default function ProfileTab() {
             icon={<Printer size={20} color="#1d4ed8" />}
             bg="bg-blue-50"
             label={t('profile.printer')}
+            onPress={() => router.push('/settings/printer')}
           />
         </View>
 

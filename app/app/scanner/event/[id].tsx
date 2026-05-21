@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react-native';
 
+import { useToast } from '@/components/ui/Toast';
 import { ManualInputModal } from '@/components/scanner/ManualInputModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
@@ -13,12 +14,17 @@ import {
   useEventCheckinStats,
   useScannerEvents,
 } from '@/hooks/useScanner';
+import { usePrinterStore } from '@/stores/printer.store';
+import { printerService, PrinterError } from '@/services/printer';
 import { ApiError } from '@/types/api';
+import { formatDate } from '@/utils/date';
 
 export default function ScannerEventScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const showToast = useToast((s) => s.show);
 
   const eventsQuery = useScannerEvents();
   const eventMeta = eventsQuery.data?.find((e) => e.eventId === id);
@@ -26,9 +32,42 @@ export default function ScannerEventScreen() {
   const checkinMutation = useCheckinEvent(id);
   const statsQuery = useEventCheckinStats(id);
 
+  const isPrinterConnected = usePrinterStore((s) => s.isConnected);
+  const paperSize = usePrinterStore((s) => s.paperSize);
+  const autoPrint = usePrinterStore((s) => s.autoPrint);
+
   const [manualOpen, setManualOpen] = useState(false);
   const [result, setResult] = useState<ScanResultKind | null>(null);
   const [pendingKode, setPendingKode] = useState<string | null>(null);
+  const [printLoading, setPrintLoading] = useState(false);
+
+  async function handlePrint() {
+    if (!result || result.kind !== 'success') return;
+    setPrintLoading(true);
+    try {
+      await printerService.printLabel(
+        {
+          header: eventMeta?.judul ? `ECC · ${eventMeta.judul}` : 'ECC Event',
+          namaLengkap: result.namaLengkap,
+          kode: pendingKode ?? '',
+          detail: eventMeta?.tanggalMulai
+            ? formatDate(eventMeta.tanggalMulai, lang)
+            : undefined,
+          status: 'HADIR',
+        },
+        paperSize,
+      );
+      showToast(t('printer.test_print_sent'), 'success');
+    } catch (err) {
+      if (err instanceof PrinterError) {
+        showToast(err.message, 'error');
+      } else {
+        showToast(t('error.network'), 'error');
+      }
+    } finally {
+      setPrintLoading(false);
+    }
+  }
 
   function runCheckin(kode: string, force = false) {
     setPendingKode(kode);
@@ -126,7 +165,11 @@ export default function ScannerEventScreen() {
         onDismiss={dismissResult}
         onForce={result?.kind === 'conflict' ? handleForce : undefined}
         onScanAgain={dismissResult}
+        onPrint={handlePrint}
+        canPrint={isPrinterConnected}
+        autoPrint={autoPrint && isPrinterConnected}
         forceLoading={checkinMutation.isPending}
+        printLoading={printLoading}
       />
     </View>
   );

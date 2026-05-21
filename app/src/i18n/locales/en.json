@@ -412,6 +412,36 @@
     "error_not_found_msg": "Code \"{{kode}}\" is not registered. Make sure this is an ECC member card.",
     "error_forbidden_title": "Not Authorized",
     "error_conflict_title": "Conflict — Confirmation Needed",
-    "error_generic_title": "Check-in Failed"
+    "error_generic_title": "Check-in Failed",
+    "print_label": "Print Label"
+  },
+  "printer": {
+    "title": "Bluetooth Printer",
+    "expo_go_notice_title": "Demo Mode (Expo Go)",
+    "expo_go_notice_msg": "Bluetooth print needs production build (EAS Build). In Expo Go, scan devices + print button are simulation only — no actual print.",
+    "status_section": "Printer Status",
+    "status_connected": "Connected",
+    "status_disconnected": "Disconnected",
+    "no_device_picked": "No printer picked yet",
+    "scan_devices": "Scan Bluetooth Printers",
+    "scanning": "Scanning...",
+    "available_devices": "Available Printers",
+    "paired": "PAIRED",
+    "permission_denied": "Bluetooth permission denied",
+    "no_devices_found": "No printers found. Make sure printer is ON and in range.",
+    "connected": "Connected to {{name}}",
+    "connect_failed": "Failed to connect to printer",
+    "disconnected": "Printer disconnected",
+    "reconnect": "Reconnect",
+    "disconnect": "Disconnect",
+    "test_print": "Test Print",
+    "test_print_sent": "Label sent to printer",
+    "print_failed": "Failed to print label",
+    "unavailable_title": "Feature Unavailable",
+    "paper_size": "Paper Size",
+    "auto_print_label": "Auto-print after scan",
+    "auto_print_sub": "Automatically print label after every successful QR scan",
+    "preview_section": "Label Preview",
+    "preview_note": "Preview estimate — final print depends on printer + paper size."
   }
 }

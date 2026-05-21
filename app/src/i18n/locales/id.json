@@ -412,6 +412,36 @@
     "error_not_found_msg": "Kode \"{{kode}}\" tidak terdaftar. Pastikan ini kartu jemaat ECC.",
     "error_forbidden_title": "Tidak Berwenang",
     "error_conflict_title": "Konflik — Konfirmasi Perlu",
-    "error_generic_title": "Gagal Check-in"
+    "error_generic_title": "Gagal Check-in",
+    "print_label": "Cetak Label"
+  },
+  "printer": {
+    "title": "Printer Bluetooth",
+    "expo_go_notice_title": "Mode Demo (Expo Go)",
+    "expo_go_notice_msg": "Print Bluetooth butuh production build (EAS Build). Di Expo Go, scan device + tombol print hanya simulasi — tidak akan benar-benar print.",
+    "status_section": "Status Printer",
+    "status_connected": "Terhubung",
+    "status_disconnected": "Terputus",
+    "no_device_picked": "Belum ada printer yang dipilih",
+    "scan_devices": "Scan Printer Bluetooth",
+    "scanning": "Mencari printer...",
+    "available_devices": "Printer Tersedia",
+    "paired": "PAIRED",
+    "permission_denied": "Izin Bluetooth ditolak",
+    "no_devices_found": "Tidak ada printer ditemukan. Pastikan printer ON dan dalam range.",
+    "connected": "Terhubung ke {{name}}",
+    "connect_failed": "Gagal connect ke printer",
+    "disconnected": "Printer terputus",
+    "reconnect": "Hubungkan Kembali",
+    "disconnect": "Putuskan",
+    "test_print": "Tes Cetak",
+    "test_print_sent": "Label dikirim ke printer",
+    "print_failed": "Gagal print label",
+    "unavailable_title": "Fitur Tidak Tersedia",
+    "paper_size": "Ukuran Kertas",
+    "auto_print_label": "Auto-print setelah scan",
+    "auto_print_sub": "Otomatis cetak label setiap kali scan QR berhasil",
+    "preview_section": "Preview Label",
+    "preview_note": "Preview perkiraan — hasil cetak final tergantung printer + ukuran kertas."
   }
 }
