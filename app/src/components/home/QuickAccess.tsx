@@ -16,8 +16,8 @@ import {
 } from 'lucide-react-native';
 
 import { useToast } from '@/components/ui/Toast';
-import { useAuthStore } from '@/stores/auth.store';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
+import { useManagedAreas, useManagedHomecells } from '@/hooks/useHomecell';
 
 type QuickAccessTile = {
   key: string;
@@ -44,7 +44,6 @@ export function QuickAccess() {
   const { t } = useTranslation();
   const router = useRouter();
   const showToast = useToast((s) => s.show);
-  const user = useAuthStore((s) => s.user);
 
   const scannerEventsQuery = useScannerEvents();
   const scannerIbadahQuery = useScannerIbadah();
@@ -52,13 +51,12 @@ export function QuickAccess() {
     (scannerEventsQuery.data?.length ?? 0) > 0 ||
     (scannerIbadahQuery.data?.length ?? 0) > 0;
 
-  // Cek PIC homecell/area via menuAccess (heuristic — bisa di-tighten kalau
-  // BE define key spesifik)
-  const menuAccess = user?.menuAccess ?? {};
-  const isPicHomecell =
-    !!menuAccess['homecell']?.canRead || !!menuAccess['pic-homecell']?.canRead;
-  const isPicArea =
-    !!menuAccess['area']?.canRead || !!menuAccess['pic-area']?.canRead;
+  // Cek PIC homecell/area dari list yang BE return — kalau ada minimal 1,
+  // user PIC di kategori itu.
+  const homecellsQuery = useManagedHomecells();
+  const areasQuery = useManagedAreas();
+  const isPicHomecell = (homecellsQuery.data?.length ?? 0) > 0;
+  const isPicArea = (areasQuery.data?.length ?? 0) > 0;
 
   const tiles: QuickAccessTile[] = [
     // Common — semua user
@@ -139,7 +137,7 @@ export function QuickAccess() {
       iconColor: '#0891b2',
       iconBg: 'bg-cyan-50',
       label: t('quickaccess.homecell'),
-      onPress: () => showToast(t('quickaccess.coming_soon'), 'info'),
+      onPress: () => router.push('/homecell'),
       badge: 'PIC',
       badgeBg: 'bg-cyan-500',
       badgeText: 'text-white',
@@ -153,7 +151,7 @@ export function QuickAccess() {
       iconColor: '#0891b2',
       iconBg: 'bg-cyan-50',
       label: t('quickaccess.area'),
-      onPress: () => showToast(t('quickaccess.coming_soon'), 'info'),
+      onPress: () => router.push('/area'),
       badge: 'PIC',
       badgeBg: 'bg-cyan-500',
       badgeText: 'text-white',
