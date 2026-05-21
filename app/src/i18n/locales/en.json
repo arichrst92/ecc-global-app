@@ -319,7 +319,10 @@
     "instruction": "Show this code when entering the church",
     "your_code": "Member code:",
     "blur_warning": "QR will be hidden in",
-    "reveal_again": "Reveal Again"
+    "reveal_again": "Reveal Again",
+    "family_member": "Family Member",
+    "swipe_hint": "Swipe to see family members",
+    "no_kode": "Member code not yet available.\nContact your branch admin."
   },
   "ibadah": {
     "title": "Service Schedule",
@@ -446,7 +449,8 @@
     "visit_soon": "Member visit tracking coming in the next update.",
     "marketplace": "Marketplace",
     "soon": "SOON",
-    "coming_soon": "Feature coming soon."
+    "coming_soon": "Feature coming soon.",
+    "calendar": "Calendar"
   },
   "homecell": {
     "title": "My Homecells",
@@ -606,5 +610,23 @@
     "no_face_tips": "Tips: good lighting, face straight to camera, distance ~30cm.",
     "engine_not_ready_title": "Face Login Not Active in This Build",
     "engine_not_ready_body": "Face Login needs a \"dev build\" (not Expo Go) + TFLite model file. Developer must run: npx expo prebuild && npx expo run:ios. Meanwhile, use OTP login."
+  },
+  "calendar": {
+    "title": "Calendar",
+    "legend_ibadah": "Service",
+    "legend_event": "Event",
+    "legend_birthday": "Birthday",
+    "label_ibadah": "Service",
+    "label_event": "Event",
+    "birthday_age": "{{age}}'s birthday",
+    "empty_day": "No agenda for this day."
+  },
+  "edit_profile": {
+    "full_name": "Full Name",
+    "email": "Email",
+    "dob": "Date of Birth",
+    "dob_helper": "Format: YYYY-MM-DD (e.g. 1990-12-31)",
+    "notice": "To change profile photo, contact your branch admin. Change home branch via separate Settings menu.",
+    "success": "Profile updated."
   }
 }

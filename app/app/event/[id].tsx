@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ArrowLeft, ArrowRight, Bookmark, Calendar, Check, CheckCircle2, Clock, HandHeart, MapPin, Share2, Upload, Users, X } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, Clock, HandHeart, MapPin, Share2, Upload, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -24,6 +24,19 @@ export default function EventDetailScreen() {
 
   const query = useEventDetail(id);
   const event = query.data;
+
+  function handleShare() {
+    if (!event) return;
+    const lines: string[] = [event.judul];
+    if (event.tanggalMulai) lines.push(event.tanggalMulai);
+    if (event.lokasi) lines.push(event.lokasi);
+    if (event.ringkasan) {
+      lines.push('');
+      lines.push(event.ringkasan);
+    }
+    Share.share({ message: lines.join('\n') });
+  }
+
   // Donations history khusus NOMINAL_BEBAS — per BE patch 2026-05-21l
   const isBebas = event?.tipeBayar === 'NOMINAL_BEBAS';
   const donationsQuery = useMyDonations(id, !!event && isBebas);
@@ -164,14 +177,13 @@ export default function EventDetailScreen() {
               >
                 <ArrowLeft size={20} color="#fff" />
               </Pressable>
-              <View className="flex-row gap-2">
-                <Pressable className="w-10 h-10 rounded-full bg-black/40 items-center justify-center">
-                  <Bookmark size={18} color="#fff" />
-                </Pressable>
-                <Pressable className="w-10 h-10 rounded-full bg-black/40 items-center justify-center">
-                  <Share2 size={18} color="#fff" />
-                </Pressable>
-              </View>
+              <Pressable
+                onPress={handleShare}
+                className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
+                accessibilityLabel={t('common.share')}
+              >
+                <Share2 size={18} color="#fff" />
+              </Pressable>
             </View>
           </SafeAreaView>
         </View>

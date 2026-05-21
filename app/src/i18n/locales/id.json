@@ -319,7 +319,10 @@
     "instruction": "Tampilkan kode ini saat masuk gereja",
     "your_code": "Kode jemaat:",
     "blur_warning": "QR akan disembunyikan dalam",
-    "reveal_again": "Tampilkan Kembali"
+    "reveal_again": "Tampilkan Kembali",
+    "family_member": "Anggota Keluarga",
+    "swipe_hint": "Geser untuk lihat anggota keluarga",
+    "no_kode": "Kode jemaat belum tersedia.\nHubungi pengurus cabang."
   },
   "ibadah": {
     "title": "Jadwal Ibadah",
@@ -446,7 +449,8 @@
     "visit_soon": "Pendataan visit jemaat segera tersedia di update berikutnya.",
     "marketplace": "Marketplace",
     "soon": "SOON",
-    "coming_soon": "Fitur ini segera tersedia."
+    "coming_soon": "Fitur ini segera tersedia.",
+    "calendar": "Kalender"
   },
   "homecell": {
     "title": "Homecell Saya",
@@ -606,5 +610,23 @@
     "no_face_tips": "Tips: pencahayaan cukup, wajah lurus ke kamera, jarak ~30cm.",
     "engine_not_ready_title": "Login Wajah Belum Aktif di Build Ini",
     "engine_not_ready_body": "Fitur Login Wajah butuh \"dev build\" (bukan Expo Go) + file model TFLite. Tim developer perlu jalankan: npx expo prebuild && npx expo run:ios. Sementara, gunakan Login OTP."
+  },
+  "calendar": {
+    "title": "Kalender",
+    "legend_ibadah": "Ibadah",
+    "legend_event": "Event",
+    "legend_birthday": "Ulang Tahun",
+    "label_ibadah": "Ibadah",
+    "label_event": "Event",
+    "birthday_age": "Ulang tahun ke-{{age}}",
+    "empty_day": "Tidak ada agenda di hari ini."
+  },
+  "edit_profile": {
+    "full_name": "Nama Lengkap",
+    "email": "Email",
+    "dob": "Tanggal Lahir",
+    "dob_helper": "Format: YYYY-MM-DD (mis. 1990-12-31)",
+    "notice": "Untuk ganti foto profil, hubungi pengurus cabang. Ganti cabang home pakai menu terpisah di Pengaturan.",
+    "success": "Profil berhasil diperbarui."
   }
 }

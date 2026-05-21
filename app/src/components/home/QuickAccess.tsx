@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
   BookOpen,
+  Calendar,
   CalendarDays,
   Church,
   HandHeart,
@@ -118,6 +119,14 @@ export function QuickAccess() {
       label: t('quickaccess.bible'),
       onPress: () => router.push('/bible'),
     },
+    {
+      key: 'calendar',
+      icon: Calendar,
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
+      label: t('quickaccess.calendar'),
+      onPress: () => router.push('/calendar' as never),
+    },
   ];
 
   // Conditional tiles berdasarkan otoritas — pakai filled brand-500 untuk
@@ -133,17 +142,16 @@ export function QuickAccess() {
     });
   }
 
+  // Homecell + Area tiles — same flat style dengan tile lain (orange-50 outline).
+  // No PIC badge — visual uniform, tetap di-conditional show sesuai authority.
   if (isPicHomecell) {
     tiles.push({
       key: 'homecell',
       icon: Users,
-      iconColor: '#fff',
-      iconBg: 'bg-brand-500',
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
       label: t('quickaccess.homecell'),
       onPress: () => router.push('/homecell'),
-      badge: 'PIC',
-      badgeBg: 'bg-brand-600',
-      badgeText: 'text-white',
     });
   }
 
@@ -151,13 +159,10 @@ export function QuickAccess() {
     tiles.push({
       key: 'area',
       icon: MapPinned,
-      iconColor: '#fff',
-      iconBg: 'bg-brand-500',
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
       label: t('quickaccess.area'),
       onPress: () => router.push('/area'),
-      badge: 'PIC',
-      badgeBg: 'bg-brand-600',
-      badgeText: 'text-white',
     });
   }
 
