@@ -3,8 +3,36 @@
 ## mobilefacenet.tflite
 
 **Target file**: `mobilefacenet.tflite` (~4-5MB)
-**Output**: 192-dim Float32 face embedding
+**Output**: 128 atau 192-dim Float32 face embedding (verify saat convert)
 **Input**: 112x112x3 RGB image, normalized to range -1..1
+
+## ⚠ Ari sudah download MobileFaceNet_TF repo (.pb file)
+
+Repo `sirius-ai/MobileFaceNet_TF` ship `.pb` (TensorFlow frozen graph),
+**bukan `.tflite` langsung**. Perlu convert via TFLiteConverter Python.
+
+Convert script: `scripts/convert-mobilefacenet-pb-to-tflite.py`
+
+Setup + run:
+```bash
+# 1. Install tensorflow (sekali setup)
+python3 -m venv ~/.venvs/mfn-convert
+source ~/.venvs/mfn-convert/bin/activate
+pip install tensorflow
+
+# 2. Convert
+python3 scripts/convert-mobilefacenet-pb-to-tflite.py \\
+  --pb /path/to/MobileFaceNet_9925_9680.pb \\
+  --out app/assets/ml/mobilefacenet.tflite
+
+# Script akan print actual output dim — verify dengan BE expectation
+# (BE v2 expect 192, tapi MobileFaceNet_TF arch.txt show 128 di Logits)
+```
+
+**IMPORTANT**: kalau dim ≠ 192:
+- Update `app/src/types/auth.ts` → `FACE_DESCRIPTOR_DIM` constant
+- Kasih tahu BE → mereka adjust schema validation (trivial change di
+  `packages/auth/src/face.ts` `isValidDescriptor()`)
 
 ### Download
 
