@@ -67,7 +67,7 @@ export default function BibleBookmarksScreen() {
                       onPress={() => router.push(`/bible/${b.bookId}/${b.bab}`)}
                       className="flex-1"
                     >
-                      <Text className="text-sm font-bold text-purple-700">
+                      <Text className="text-sm font-bold text-brand-700">
                         {label}
                       </Text>
                       {b.preview ? (

@@ -22,6 +22,10 @@ type UpdateProfilePayload = {
   tanggalLahir?: string;
   jenisKelamin?: 'L' | 'P';
   alamat?: string;
+  /** Direct branch change tanpa approval (per UX decision 2026-05-21).
+   *  BE wajib accept ini di PATCH /admin/me — kalau belum, see
+   *  docs/backend-request-direct-branch-change.md */
+  cabangId?: string;
 };
 
 /** PATCH /admin/me — edit limited fields */

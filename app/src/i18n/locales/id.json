@@ -362,7 +362,14 @@
     "history_empty": "Belum ada permohonan pindah cabang.",
     "status_pending": "MENUNGGU",
     "status_approved": "DISETUJUI",
-    "status_rejected": "DITOLAK"
+    "status_rejected": "DITOLAK",
+    "current_home": "Cabang Saat Ini",
+    "choose_new": "Pilih Cabang Baru",
+    "direct_notice": "Perubahan cabang langsung berlaku tanpa perlu menunggu persetujuan admin.",
+    "picker_title": "Pilih Cabang Baru",
+    "confirm_title": "Pindah ke cabang ini?",
+    "confirm_body": "Cabang home Anda akan berubah ke:",
+    "success": "Cabang home berhasil diubah."
   },
   "notifications": {
     "title": "Notifikasi",
@@ -385,7 +392,8 @@
     "language_content_note": "Konten ibadah, renungan, dan event tetap dalam Bahasa Indonesia.",
     "about_title": "Tentang Aplikasi",
     "about_description": "ECC Global App — aplikasi resmi jemaat ECC untuk ibadah, event, renungan, persembahan, dan komunitas.",
-    "about_contact": "Hubungi Kami"
+    "about_contact": "Hubungi Kami",
+    "about_developer": "Pengembang"
   },
   "scanner": {
     "title": "Mode Scanner",

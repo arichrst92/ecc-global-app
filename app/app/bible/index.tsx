@@ -73,7 +73,7 @@ export default function BibleHomeScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-purple-600 rounded-b-3xl">
+      <View className="bg-brand-500 rounded-b-3xl">
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -95,10 +95,10 @@ export default function BibleHomeScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
       >
         {/* Verse of day */}
-        <View className="bg-white rounded-2xl p-5 border border-purple-100 mb-4">
+        <View className="bg-white rounded-2xl p-5 border border-brand-100 mb-4">
           <View className="flex-row items-center gap-2 mb-3">
-            <Sparkles size={16} color="#9333ea" />
-            <Text className="text-xs font-bold text-purple-700 uppercase tracking-wider">
+            <Sparkles size={16} color="#EA580C" />
+            <Text className="text-xs font-bold text-brand-700 uppercase tracking-wider">
               {t('bible.verse_of_day')}
             </Text>
           </View>
@@ -112,16 +112,16 @@ export default function BibleHomeScreen() {
                 if (book) router.push(`/bible/${book.id}/${verseOfDay.bab}`);
               }}
             >
-              <Text className="text-sm font-bold text-purple-700">
+              <Text className="text-sm font-bold text-brand-700">
                 {BIBLE_BOOK_BY_ID.get(verseOfDay.bookId)?.nama} {verseOfDay.bab}:
                 {verseOfDay.ayat}
               </Text>
             </Pressable>
             <Pressable
               onPress={shareVerse}
-              className="w-9 h-9 rounded-full bg-purple-50 items-center justify-center"
+              className="w-9 h-9 rounded-full bg-brand-50 items-center justify-center"
             >
-              <Share2 size={16} color="#9333ea" />
+              <Share2 size={16} color="#EA580C" />
             </Pressable>
           </View>
         </View>
@@ -130,7 +130,7 @@ export default function BibleHomeScreen() {
         {lastRead && lastReadBook ? (
           <Pressable
             onPress={() => router.push(`/bible/${lastRead.bookId}/${lastRead.bab}`)}
-            className="bg-purple-600 rounded-2xl p-4 flex-row items-center gap-3 mb-4"
+            className="bg-brand-500 rounded-2xl p-4 flex-row items-center gap-3 mb-4"
           >
             <View className="w-12 h-12 rounded-xl bg-white/20 items-center justify-center">
               <BookOpen size={22} color="#fff" />
@@ -171,7 +171,7 @@ export default function BibleHomeScreen() {
           <Pressable
             onPress={() => setTab('OT')}
             className={`flex-1 py-2.5 items-center rounded-xl ${
-              tab === 'OT' ? 'bg-purple-600' : ''
+              tab === 'OT' ? 'bg-brand-500' : ''
             }`}
           >
             <Text
@@ -185,7 +185,7 @@ export default function BibleHomeScreen() {
           <Pressable
             onPress={() => setTab('NT')}
             className={`flex-1 py-2.5 items-center rounded-xl ${
-              tab === 'NT' ? 'bg-purple-600' : ''
+              tab === 'NT' ? 'bg-brand-500' : ''
             }`}
           >
             <Text
@@ -220,8 +220,8 @@ function BookRow({ book, onPress }: { book: BibleBook; onPress: () => void }) {
       onPress={onPress}
       className="bg-white rounded-xl px-4 py-3 flex-row items-center gap-3 border border-neutral-100"
     >
-      <View className="w-9 h-9 rounded-lg bg-purple-50 items-center justify-center">
-        <Text className="text-xs font-bold text-purple-700">{book.singkatan}</Text>
+      <View className="w-9 h-9 rounded-lg bg-brand-50 items-center justify-center">
+        <Text className="text-xs font-bold text-brand-700">{book.singkatan}</Text>
       </View>
       <View className="flex-1">
         <Text className="text-sm font-semibold text-neutral-900">{book.nama}</Text>

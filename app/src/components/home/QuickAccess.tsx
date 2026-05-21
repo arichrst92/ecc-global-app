@@ -59,8 +59,9 @@ export function QuickAccess() {
   const isPicHomecell = (homecellsQuery.data?.length ?? 0) > 0;
   const isPicArea = (areasQuery.data?.length ?? 0) > 0;
 
+  // Brand orange theme — semua tile pakai warna sama supaya visual coherent.
+  // Common — semua user
   const tiles: QuickAccessTile[] = [
-    // Common — semua user
     {
       key: 'ibadah',
       icon: Church,
@@ -72,54 +73,55 @@ export function QuickAccess() {
     {
       key: 'event',
       icon: CalendarDays,
-      iconColor: '#D97706',
-      iconBg: 'bg-amber-50',
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
       label: t('quickaccess.event'),
       onPress: () => router.push('/(tabs)/event'),
     },
     {
       key: 'persembahan',
       icon: HandHeart,
-      iconColor: '#7c3aed',
-      iconBg: 'bg-purple-50',
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
       label: t('quickaccess.persembahan'),
       onPress: () => router.push('/(tabs)/persembahan'),
     },
     {
       key: 'berita',
       icon: Newspaper,
-      iconColor: '#0891b2',
-      iconBg: 'bg-cyan-50',
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
       label: t('quickaccess.berita'),
       onPress: () => router.push('/content?tab=news'),
     },
     {
       key: 'renungan',
       icon: BookOpen,
-      iconColor: '#D97706',
-      iconBg: 'bg-amber-50',
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
       label: t('quickaccess.renungan'),
       onPress: () => router.push('/content?tab=renungan'),
     },
     {
       key: 'family',
       icon: Users,
-      iconColor: '#059669',
-      iconBg: 'bg-emerald-50',
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
       label: t('quickaccess.family'),
       onPress: () => router.push('/family'),
     },
     {
       key: 'bible',
       icon: Sparkles,
-      iconColor: '#9333ea',
-      iconBg: 'bg-purple-50',
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
       label: t('quickaccess.bible'),
       onPress: () => router.push('/bible'),
     },
   ];
 
-  // Conditional tiles berdasarkan otoritas
+  // Conditional tiles berdasarkan otoritas — pakai filled brand-500 untuk
+  // distinguish dari tile common (volunteer/PIC role visual cue)
   if (isScannerAuthorized) {
     tiles.unshift({
       key: 'scanner',
@@ -135,12 +137,12 @@ export function QuickAccess() {
     tiles.push({
       key: 'homecell',
       icon: Users,
-      iconColor: '#0891b2',
-      iconBg: 'bg-cyan-50',
+      iconColor: '#fff',
+      iconBg: 'bg-brand-500',
       label: t('quickaccess.homecell'),
       onPress: () => router.push('/homecell'),
       badge: 'PIC',
-      badgeBg: 'bg-cyan-500',
+      badgeBg: 'bg-brand-600',
       badgeText: 'text-white',
     });
   }
@@ -149,12 +151,12 @@ export function QuickAccess() {
     tiles.push({
       key: 'area',
       icon: MapPinned,
-      iconColor: '#0891b2',
-      iconBg: 'bg-cyan-50',
+      iconColor: '#fff',
+      iconBg: 'bg-brand-500',
       label: t('quickaccess.area'),
       onPress: () => router.push('/area'),
       badge: 'PIC',
-      badgeBg: 'bg-cyan-500',
+      badgeBg: 'bg-brand-600',
       badgeText: 'text-white',
     });
   }

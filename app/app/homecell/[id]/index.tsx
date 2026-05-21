@@ -117,7 +117,7 @@ export default function HomecellDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-cyan-600 rounded-b-3xl">
+      <View className="bg-brand-500 rounded-b-3xl">
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -151,8 +151,8 @@ export default function HomecellDetailScreen() {
         {/* Stat + schedule */}
         <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4">
           <View className="flex-row items-center gap-3 mb-3">
-            <View className="w-12 h-12 rounded-xl bg-cyan-100 items-center justify-center">
-              <Users size={22} color="#0891b2" />
+            <View className="w-12 h-12 rounded-xl bg-brand-100 items-center justify-center">
+              <Users size={22} color="#EA580C" />
             </View>
             <View className="flex-1">
               <Text className="text-2xl font-bold text-neutral-900">
@@ -186,7 +186,7 @@ export default function HomecellDetailScreen() {
         {canRemove ? (
           <Pressable
             onPress={() => router.push(`/homecell/${id}/add-member`)}
-            className="bg-cyan-600 rounded-2xl p-4 flex-row items-center gap-3 mb-4"
+            className="bg-brand-500 rounded-2xl p-4 flex-row items-center gap-3 mb-4"
           >
             <View className="w-12 h-12 rounded-xl bg-white/20 items-center justify-center">
               <UserPlus size={22} color="#fff" />

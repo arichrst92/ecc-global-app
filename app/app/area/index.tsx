@@ -130,7 +130,7 @@ function AreaSection({
   return (
     <View>
       {/* Area header */}
-      <View className="bg-cyan-600 rounded-2xl p-4 mb-2 flex-row items-center gap-3">
+      <View className="bg-brand-500 rounded-2xl p-4 mb-2 flex-row items-center gap-3">
         <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center">
           <MapPinned size={18} color="#fff" />
         </View>
@@ -182,8 +182,8 @@ function HomecellRow({
       onPress={onPress}
       className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
     >
-      <View className="w-10 h-10 rounded-xl bg-cyan-50 items-center justify-center">
-        <Users size={18} color="#0891b2" />
+      <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+        <Users size={18} color="#EA580C" />
       </View>
       <View className="flex-1 min-w-0">
         <Text className="font-semibold text-neutral-900" numberOfLines={1}>
@@ -197,8 +197,8 @@ function HomecellRow({
         </View>
         <View className="flex-row items-center gap-3 mt-1">
           <View className="flex-row items-center gap-1">
-            <Users size={11} color="#0891b2" />
-            <Text className="text-xs font-semibold text-cyan-700">
+            <Users size={11} color="#EA580C" />
+            <Text className="text-xs font-semibold text-brand-700">
               {homecell.memberCount} {t('homecell.members_count')}
             </Text>
           </View>

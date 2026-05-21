@@ -26,7 +26,7 @@ export default function BibleBookScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-purple-600 rounded-b-3xl">
+      <View className="bg-brand-500 rounded-b-3xl">
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -68,7 +68,7 @@ export default function BibleBookScreen() {
             >
               <Pressable
                 onPress={() => router.push(`/bible/${book.id}/${bab}`)}
-                className="aspect-square rounded-xl items-center justify-center bg-white border border-neutral-200 active:bg-purple-50"
+                className="aspect-square rounded-xl items-center justify-center bg-white border border-neutral-200 active:bg-brand-50"
               >
                 <Text className="text-base font-bold text-neutral-700">
                   {bab}

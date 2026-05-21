@@ -362,7 +362,14 @@
     "history_empty": "No branch change requests yet.",
     "status_pending": "PENDING",
     "status_approved": "APPROVED",
-    "status_rejected": "REJECTED"
+    "status_rejected": "REJECTED",
+    "current_home": "Current Branch",
+    "choose_new": "Choose New Branch",
+    "direct_notice": "Branch change takes effect immediately without admin approval.",
+    "picker_title": "Select New Branch",
+    "confirm_title": "Move to this branch?",
+    "confirm_body": "Your home branch will change to:",
+    "success": "Home branch updated."
   },
   "notifications": {
     "title": "Notifications",
@@ -385,7 +392,8 @@
     "language_content_note": "Service, devotional, and event content remains in Indonesian.",
     "about_title": "About App",
     "about_description": "ECC Global App — official app for ECC members covering services, events, devotionals, giving, and community.",
-    "about_contact": "Contact Us"
+    "about_contact": "Contact Us",
+    "about_developer": "Developer"
   },
   "scanner": {
     "title": "Scanner Mode",

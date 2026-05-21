@@ -89,19 +89,29 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
-              <Pressable
-                onPress={() => router.push('/notifications')}
-                className="bg-white/15 rounded-full p-2"
-              >
-                <Bell size={20} color="#fff" />
-                {unreadNotifs > 0 ? (
-                  <View className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 items-center justify-center border-2 border-brand-500">
-                    <Text className="text-[10px] font-bold text-white">
-                      {unreadNotifs > 99 ? '99+' : unreadNotifs}
-                    </Text>
-                  </View>
-                ) : null}
-              </Pressable>
+              <View className="flex-row items-center gap-2">
+                <Pressable
+                  onPress={() => router.push('/qr-card')}
+                  className="bg-white/15 rounded-full p-2"
+                  accessibilityLabel={t('home.show_qr')}
+                >
+                  <QrCode size={20} color="#fff" />
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/notifications')}
+                  className="bg-white/15 rounded-full p-2"
+                  accessibilityLabel={t('profile.notifications')}
+                >
+                  <Bell size={20} color="#fff" />
+                  {unreadNotifs > 0 ? (
+                    <View className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 items-center justify-center border-2 border-brand-500">
+                      <Text className="text-[10px] font-bold text-white">
+                        {unreadNotifs > 99 ? '99+' : unreadNotifs}
+                      </Text>
+                    </View>
+                  ) : null}
+                </Pressable>
+              </View>
             </View>
 
             {/* Streak banner */}
@@ -129,9 +139,13 @@ export default function HomeScreen() {
         {/* Quick Access — visible sesuai otoritas */}
         <QuickAccess />
 
-        {/* Today's Service */}
-        <View className="px-5 mt-4">
-          {todayService ? (
+        {/* Today's Service — hide section entirely kalau ga ada ibadah hari ini */}
+        {todayQuery.isPending ? (
+          <View className="px-5 mt-4">
+            <SkeletonCard height={120} />
+          </View>
+        ) : todayService ? (
+          <View className="px-5 mt-4">
             <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
               <View className="p-4">
                 <View className="flex-row items-center gap-2 mb-2">
@@ -172,15 +186,8 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
             </View>
-          ) : todayQuery.isPending ? (
-            <SkeletonCard height={120} />
-          ) : (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
-              <Church size={28} color="#A3A3A3" />
-              <Text className="text-sm text-neutral-500 mt-2">{t('home.no_service_today')}</Text>
-            </View>
-          )}
-        </View>
+          </View>
+        ) : null}
 
         {/* Renungan today */}
         <Section
@@ -215,14 +222,16 @@ export default function HomeScreen() {
           ) : null}
         </Section>
 
-        {/* Upcoming Events */}
-        <Section
-          title={t('home.upcoming_events')}
-          onSeeAll={() => router.push('/(tabs)/event')}
-        >
-          {eventsQuery.isPending ? (
+        {/* Upcoming Events — hide section entirely kalau ga ada event */}
+        {eventsQuery.isPending ? (
+          <Section title={t('home.upcoming_events')}>
             <SkeletonCard height={140} />
-          ) : (eventsQuery.data?.length ?? 0) === 0 ? null : (
+          </Section>
+        ) : (eventsQuery.data?.length ?? 0) === 0 ? null : (
+          <Section
+            title={t('home.upcoming_events')}
+            onSeeAll={() => router.push('/(tabs)/event')}
+          >
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -269,8 +278,8 @@ export default function HomeScreen() {
                 );
               })}
             </ScrollView>
-          )}
-        </Section>
+          </Section>
+        )}
 
         {/* Latest News */}
         <Section

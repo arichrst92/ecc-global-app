@@ -149,7 +149,7 @@ export default function BibleChapterScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-purple-600">
+      <View className="bg-brand-500">
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -209,11 +209,11 @@ export default function BibleChapterScreen() {
                       setSelectedVerse(isSelected ? null : verse.nomor)
                     }
                     className={`mb-3 ${
-                      isSelected ? 'bg-purple-50 -mx-2 px-2 py-2 rounded-lg' : ''
+                      isSelected ? 'bg-brand-50 -mx-2 px-2 py-2 rounded-lg' : ''
                     }`}
                   >
                     <Text className={`${fontClass} text-neutral-900 leading-relaxed`}>
-                      <Text className="text-purple-700 font-bold text-xs">
+                      <Text className="text-brand-700 font-bold text-xs">
                         {verse.nomor}{' '}
                       </Text>
                       {verse.teks}
@@ -241,10 +241,10 @@ export default function BibleChapterScreen() {
                       </Pressable>
                       <Pressable
                         onPress={() => shareVerse(verse)}
-                        className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-purple-50 rounded-lg"
+                        className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-brand-50 rounded-lg"
                       >
-                        <Share2 size={14} color="#9333ea" />
-                        <Text className="text-xs font-semibold text-purple-700">
+                        <Share2 size={14} color="#EA580C" />
+                        <Text className="text-xs font-semibold text-brand-700">
                           {t('bible.share')}
                         </Text>
                       </Pressable>
@@ -280,7 +280,7 @@ export default function BibleChapterScreen() {
           <Pressable
             onPress={goNext}
             disabled={bab === book.totalBab && book.id === 66}
-            className="flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-xl bg-purple-600"
+            className="flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-xl bg-brand-500"
           >
             <Text className="text-sm font-semibold text-white">
               {t('bible.next_chapter')}
@@ -320,7 +320,7 @@ export default function BibleChapterScreen() {
                     }}
                     className={`flex-row items-center justify-between p-3 rounded-xl border ${
                       isActive
-                        ? 'bg-purple-50 border-purple-300'
+                        ? 'bg-brand-50 border-brand-300'
                         : 'bg-white border-neutral-200'
                     }`}
                   >
@@ -332,7 +332,7 @@ export default function BibleChapterScreen() {
                         {v.copyright}
                       </Text>
                     </View>
-                    {isActive ? <Check size={18} color="#9333ea" /> : null}
+                    {isActive ? <Check size={18} color="#EA580C" /> : null}
                   </Pressable>
                 );
               })}
@@ -369,7 +369,7 @@ export default function BibleChapterScreen() {
                   }}
                   className={`flex-row items-center justify-between p-3 rounded-xl border ${
                     fontSize === size
-                      ? 'bg-purple-50 border-purple-300'
+                      ? 'bg-brand-50 border-brand-300'
                       : 'bg-white border-neutral-200'
                   }`}
                 >

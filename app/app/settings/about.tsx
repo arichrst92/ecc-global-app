@@ -82,7 +82,31 @@ export default function AboutScreen() {
           </Pressable>
         </View>
 
-        {/* Powered by IDEA */}
+        {/* Pengembang section */}
+        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-4">
+          {t('settings.about_developer')}
+        </Text>
+        <View className="bg-white rounded-2xl border border-neutral-100">
+          <Pressable
+            onPress={() => Linking.openURL('https://ide.asia')}
+            className="p-4 flex-row items-center gap-3"
+          >
+            <View className="w-10 h-10 rounded-xl bg-neutral-100 items-center justify-center">
+              <Image
+                source={require('../../assets/images/logo-idea.webp')}
+                style={{ width: 28, height: 10 }}
+                resizeMode="contain"
+              />
+            </View>
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-neutral-900">IDE Asia</Text>
+              <Text className="text-xs text-neutral-500">ide.asia</Text>
+            </View>
+            <ExternalLink size={14} color="#A3A3A3" />
+          </Pressable>
+        </View>
+
+        {/* Powered by IDEA — footer */}
         <View className="items-center mt-8 mb-2">
           <View className="flex-row items-center gap-2">
             <Text className="text-xs text-neutral-400">Powered by</Text>

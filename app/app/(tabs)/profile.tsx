@@ -3,7 +3,7 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
-import { LogOut, AlertTriangle, ChevronRight, QrCode, ScanLine } from 'lucide-react-native';
+import { LogOut, AlertTriangle, ChevronRight, Pencil, QrCode, ScanLine } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -55,7 +55,18 @@ export default function ProfileTab() {
               />
               <View className="flex-1">
                 <Text className="text-white text-lg font-bold">{user.namaLengkap}</Text>
-                <Text className="text-white/80 text-sm">{formatPhoneDisplay(user.noHp)}</Text>
+                <Text className="text-white/80 text-sm mb-2">
+                  {formatPhoneDisplay(user.noHp)}
+                </Text>
+                <Pressable
+                  onPress={() => router.push('/settings/edit-profile' as never)}
+                  className="self-start bg-white/20 rounded-full px-3 py-1.5 flex-row items-center gap-1.5"
+                >
+                  <Pencil size={12} color="#fff" />
+                  <Text className="text-white text-xs font-semibold">
+                    {t('profile.edit_profile')}
+                  </Text>
+                </Pressable>
               </View>
             </View>
           </View>
@@ -66,17 +77,6 @@ export default function ProfileTab() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
       >
-        {/* Member code card — no negative margin, sits below header dengan jarak normal */}
-        <Pressable className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100 mb-4">
-          <View className="w-14 h-14 rounded-xl bg-brand-500 items-center justify-center">
-            <QrCode size={26} color="#fff" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-xs text-neutral-500">{t('home.member_code')}</Text>
-            <Text className="text-lg font-bold tracking-widest text-neutral-900">{user.kode}</Text>
-          </View>
-          <ChevronRight size={20} color="#A3A3A3" />
-        </Pressable>
 
         {/* Quick Access dipindah ke Dashboard. Scanner Mode tetap di sini
             karena merupakan akses penting volunteer. */}
@@ -105,7 +105,6 @@ export default function ProfileTab() {
           {t('profile.settings_title')}
         </Text>
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
-          <MenuRow label={t('profile.edit_profile')} />
           <MenuRow
             label={t('profile.change_branch')}
             onPress={() => router.push('/settings/change-branch')}

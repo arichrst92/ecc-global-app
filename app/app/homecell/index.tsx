@@ -105,8 +105,8 @@ function HomecellCard({
       onPress={onPress}
       className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
     >
-      <View className="w-12 h-12 rounded-xl bg-cyan-100 items-center justify-center">
-        <Users size={20} color="#0891b2" />
+      <View className="w-12 h-12 rounded-xl bg-brand-100 items-center justify-center">
+        <Users size={20} color="#EA580C" />
       </View>
       <View className="flex-1 min-w-0">
         <Text className="font-bold text-neutral-900" numberOfLines={1}>
@@ -120,8 +120,8 @@ function HomecellCard({
         </View>
         <View className="flex-row items-center gap-3 mt-1">
           <View className="flex-row items-center gap-1">
-            <Users size={11} color="#0891b2" />
-            <Text className="text-xs font-semibold text-cyan-700">
+            <Users size={11} color="#EA580C" />
+            <Text className="text-xs font-semibold text-brand-700">
               {item.memberCount} {t('homecell.members_count')}
             </Text>
           </View>
