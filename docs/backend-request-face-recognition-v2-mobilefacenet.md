@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-21
 **Priority**: 🟠 **HIGH** — blocking M13 face recognition launch
-**Status**: 🆕 **PROPOSED** — follow-up dari `backend-request-face-recognition.md`
+**Status**: ✅ **RESOLVED 2026-05-21** — BE switch ke MobileFaceNet 192-dim cosine. 10 questions di-answer di section "Backend Response" di akhir doc.
 **Supersedes**: face-api.js choice di v1 doc, section A.1
 
 ---
@@ -244,3 +244,160 @@ Sama bagusnya dengan v1 approach:
 ---
 
 *Status PROPOSED 2026-05-21. Mobile blocked sampai BE confirm inference stack.*
+
+---
+
+# Backend Response — 2026-05-21
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Status**: ✅ **DELIVERED**
+
+## ⚡ Key insight — BE tidak butuh inference stack
+
+**Q6 di request bisa di-skip**. Server **tidak run inference** — cuma compute cosine similarity antar 2 descriptor yang sudah pre-computed di client side. Pure math, ~10 lines TypeScript:
+
+```typescript
+function cosineSimilarity(a: number[], b: number[]): number {
+  let dot = 0, magA = 0, magB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    magA += a[i] ** 2;
+    magB += b[i] ** 2;
+  }
+  return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+}
+```
+
+Pakai langsung di Node TS. **Tidak butuh** TFLite, ONNX, atau Python sidecar. Saving: ~3 hari estimated effort.
+
+## Answers untuk 10 questions
+
+**Q1 (model identity)**: OK rekomendasi mobile — pakai MobileFaceNet TFLite dari **serengil/deepface** atau **sirius-ai/MobileFaceNet_TF**. Mobile harus pilih satu + commit file `mobilefacenet.tflite` ke `app/assets/ml/`. BE side tidak ada model file — cuma store & compare descriptor.
+
+**Q2 (embedding dim)**: ✅ **192**. Schema updated.
+
+**Q3 (distance metric)**: ✅ **Cosine similarity**, threshold default 0.5 (higher = better match).
+
+**Q4 (migration existing data)**: ✅ Confirmed 0 production user enrolled (semua pilot hit timeout). Migration `20260521180000_face_v2_mobilefacenet` wipe legacy 128-dim data via UPDATE — effective no-op di production, safety untuk dev env yang mungkin punya test data.
+
+**Q5 (versioning)**: ✅ `mobilefacenet-v1` default. Stored data dengan `faceModelVersion != 'mobilefacenet-v1'` ditolak `FACE_MODEL_MISMATCH` di login — force re-enroll.
+
+**Q6 (BE inference stack)**: **None needed**. Server cuma compute cosine similarity native TS. No TFLite/ONNX/Python required. Saving 2-3 hari effort.
+
+**Q7 (storage format)**: ✅ JSON column existing cukup. 192 float ~ 2KB per row, negligible storage.
+
+**Q8 (pgvector)**: ✅ Defer untuk MVP. Linear scan dengan noHp hint cuma 1 compare per login = O(1). Switch ke pgvector kalau smart system aktif (full-corpus search) atau jemaat > 50k.
+
+**Q9 (threshold tuning)**: ✅ Default 0.5 cosine. Tune setelah pilot data 10-20 enrollment + test matching. Override via env `FACE_MATCH_THRESHOLD`.
+
+**Q10 (liveness)**: ✅ Mobile responsibility (same dengan v1 — no server liveness).
+
+## Implementation summary
+
+### Code changes
+
+| File | Change |
+|---|---|
+| `packages/auth/src/face.ts` | Rewrite — `cosineSimilarity()` baru, `matchFace()` return `{ match, similarity, threshold }`, `isValidDescriptor()` length 192. `euclideanDistance()` deprecated tapi tetap di-export untuk audit |
+| `packages/shared-types/src/schemas/auth.ts` | `faceDescriptorSchema` length 128 → 192 |
+| `apps/core-api/src/routes/auth.ts` | 5 handler updated: confidence = cosine directly, reject stored modelVersion legacy, default `mobilefacenet-v1` |
+| `packages/database/prisma/migrations/20260521180000_face_v2_mobilefacenet/migration.sql` | Wipe legacy 128-dim data |
+
+### API behavior changes
+
+| Endpoint | Before (v1) | After (v2) |
+|---|---|---|
+| Descriptor format | 128-dim float | **192-dim float** |
+| Distance metric | Euclidean | **Cosine similarity** |
+| Match criterion | `distance < threshold` | **`similarity >= threshold`** |
+| Confidence calc | `1 - distance/threshold` | **cosine similarity directly** |
+| Default modelVersion | `facenet-v1` | **`mobilefacenet-v1`** |
+| Stored legacy data | accepted | **rejected `FACE_MODEL_MISMATCH`** |
+
+Error codes tetap sama: `FACE_NOT_ENROLLED`, `FACE_NO_MATCH`, `FACE_MODEL_MISMATCH`, `FACE_INVALID_DESCRIPTOR`, `FACE_ALREADY_ENROLLED`.
+
+### Request body example
+
+```json
+POST /auth/face/enroll
+Authorization: Bearer <JWT>
+
+{
+  "descriptor": [0.123, -0.456, ... 192 numbers ...],
+  "modelVersion": "mobilefacenet-v1",
+  "metadata": {
+    "platform": "ios",
+    "deviceModel": "iPhone 15 Pro",
+    "appVersion": "0.1.0",
+    "consentVersion": "v1-2026-05-21"
+  }
+}
+```
+
+### Response example
+
+```json
+POST /auth/face/login → 200
+
+{
+  "success": true,
+  "data": {
+    "accessToken": "...",
+    "refreshToken": "...",
+    "user": { ... },
+    "confidence": 0.78
+  }
+}
+```
+
+`confidence` = cosine similarity (range 0..1 untuk normalized descriptors).
+
+## Action items mobile
+
+- [ ] Install `react-native-fast-tflite` + `@react-native-ml-kit/face-detection`
+- [ ] Bundle MobileFaceNet TFLite ke `app/assets/ml/mobilefacenet.tflite`
+- [ ] Replace WebView-based descriptor compute (delete `FaceDescriptorProvider` + `react-native-webview` dep)
+- [ ] Reimplement `faceDescriptor.ts` pakai native module
+- [ ] Switch constant `modelVersion` ke `mobilefacenet-v1`
+- [ ] Pipeline: Camera → ML Kit detect → crop → resize 112x112 → MobileFaceNet → 192-dim → POST
+- [ ] Update confidence display di UI — sekarang langsung cosine similarity (no inversion needed)
+
+## Action items BE (DONE)
+
+- [x] Switch face.ts ke cosine + 192-dim
+- [x] Update Zod schemas
+- [x] Update auth handlers (5 endpoint)
+- [x] Migration wipe legacy data
+- [x] Update mobile-api-guide section 1.4
+- [x] KB patch 2026-05-21r
+
+## User perlu run di local
+
+```bash
+pnpm install
+pnpm db:generate                                   # no-op kalau Prisma client sudah up-to-date
+pnpm --filter @ecc/database db:migrate dev          # apply migration cleanup
+pnpm dev                                            # restart server
+```
+
+## Threshold tuning recommendation
+
+Setelah mobile launch + dapat 10-20 pilot enrollment:
+
+1. Test login matching dengan same person + variasi lighting/angle → record similarity score
+2. Test false-positive: A login pakai descriptor B (saudara/mirip) → record similarity
+3. Set threshold di middle ground (mis. kalau true-positive 0.7+, false-positive 0.4-, set threshold 0.55)
+4. Override via env: `FACE_MATCH_THRESHOLD=0.55` di `.env`
+
+Atur conservative awal (0.5) untuk minimize false-accept. Adjust kalau false-reject sering.
+
+## Privacy / legal — no change
+
+- Architecture sama dengan v1: image asli tidak keluar device, cuma descriptor di-upload
+- Privacy Policy tetap perlu update dengan section "Data Biometrik" (sebelum production)
+- DPA Kominfo registration tetap perlu (UU 27/2022 Pasal 4)
+- Mobile track `consentVersion` di metadata audit
+
+---
+
+*Ticket closed 2026-05-21. Mobile siap implement native TFLite pipeline.*
