@@ -8,10 +8,6 @@ import {
   type CameraCapturedPicture,
   type CameraView as CameraViewType,
 } from 'expo-camera';
-import {
-  manipulateAsync,
-  SaveFormat,
-} from 'expo-image-manipulator';
 
 import {
   computeFaceDescriptor,
@@ -79,9 +75,9 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
     setPhase('capturing');
     setErrorDebug(undefined);
     try {
-      // Take photo WITHOUT base64 — raw photo file pertama, lalu resize.
-      // base64 langsung dari camera bisa 2-5MB untuk HP camera modern,
-      // terlalu besar untuk injectJavaScript ke WebView (sering timeout).
+      // v2 (native TFLite): camera capture URI saja — service handle
+      // ML Kit detect + crop + resize + TFLite inference. No need RN-side
+      // resize karena ML Kit detection works dengan original resolution.
       const photo: CameraCapturedPicture | undefined = await cameraRef.current.takePictureAsync({
         base64: false,
         quality: 0.9,
@@ -97,27 +93,11 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
 
       setPhase('processing');
 
-      // Resize ke 480px width + JPEG quality 0.6.
-      // Hasil: ~50-80KB base64. face-api TFJS backend di WebView pakai plain JS
-      // (no WebGL accel guaranteed), jadi setiap pixel matters untuk speed.
-      // TinyFaceDetector inputSize 416 cukup untuk wajah hasil capture ini.
-      const resized = await manipulateAsync(
-        photo.uri,
-        [{ resize: { width: 480 } }],
-        { compress: 0.6, format: SaveFormat.JPEG, base64: true },
-      );
-      if (!resized.base64) {
-        setErrorReason('error');
-        setErrorDebug('Resize failed');
-        setPhase('error');
-        return;
-      }
-
       if (__DEV__) {
-        console.log('[FaceCapture] base64 size:', Math.round(resized.base64.length / 1024), 'KB');
+        console.log('[FaceCapture] photo uri:', photo.uri);
       }
 
-      const result = await computeFaceDescriptor(resized.base64);
+      const result = await computeFaceDescriptor(photo.uri);
       if (result.ok) {
         onSuccess(result.descriptor);
       } else {

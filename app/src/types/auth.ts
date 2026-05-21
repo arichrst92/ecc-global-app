@@ -62,11 +62,12 @@ export type EnrollmentVerifyResponse = {
  * Endpoint spec: docs/backend-request-face-recognition.md section "Endpoint spec final".
  */
 
-/** Descriptor length yang BE expect. Stick di 128. */
-export const FACE_DESCRIPTOR_DIM = 128;
+/** Descriptor length yang BE expect. MobileFaceNet output 192-dim. */
+export const FACE_DESCRIPTOR_DIM = 192;
 
-/** Versi model ML yang dipakai. Sinkron dengan BE — kalau ganti library/weights, bump. */
-export const FACE_MODEL_VERSION = 'facenet-v1';
+/** Versi model ML yang dipakai. Sinkron dengan BE — kalau ganti library/weights, bump.
+ *  v2 patch 21r: switch dari facenet-v1 ke mobilefacenet-v1 (native TFLite). */
+export const FACE_MODEL_VERSION = 'mobilefacenet-v1';
 
 /** Versi consent text yang user setujui — disimpan BE di User.faceMetadata.consentVersion. */
 export const FACE_CONSENT_VERSION = 'v1-2026-05-21';
