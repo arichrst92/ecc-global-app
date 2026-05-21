@@ -592,6 +592,8 @@
     "error_face_already_enrolled": "Face already registered. Use \"Update Face\" if you want to change.",
     "error_face_login_rate_limit": "Too many attempts. Try again in 15 minutes.",
     "error_no_phone_hint": "Phone number not available. Sign in with OTP first.",
-    "low_confidence_warn": "Signed in (low confidence). Consider re-enrolling your face."
+    "low_confidence_warn": "Signed in (low confidence). Consider re-enrolling your face.",
+    "engine_loading": "Loading face recognition engine... (~3 seconds)",
+    "no_face_tips": "Tips: good lighting, face straight to camera, distance ~30cm."
   }
 }

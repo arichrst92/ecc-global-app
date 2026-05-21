@@ -13,7 +13,6 @@ import {
   computeFaceDescriptor,
   isFaceDescriptorReady,
 } from '@/services/faceDescriptor';
-import type { ComputeResult } from '@/services/faceDescriptor';
 
 type Props = {
   /** Saat capture sukses + descriptor tersedia. */
@@ -44,7 +43,9 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraViewType | null>(null);
   const [phase, setPhase] = useState<'idle' | 'capturing' | 'processing' | 'error'>('idle');
-  const [errorReason, setErrorReason] = useState<ComputeResult['ok'] extends true ? never : string | undefined>(undefined);
+  const [errorReason, setErrorReason] = useState<string | undefined>(undefined);
+  const [errorDebug, setErrorDebug] = useState<string | undefined>(undefined);
+  const [engineReady, setEngineReady] = useState(false);
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -52,39 +53,60 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
     }
   }, [permission, requestPermission]);
 
+  // Poll engine ready status (WebView loads model 1-3s after mount)
+  useEffect(() => {
+    if (engineReady) return;
+    const id = setInterval(() => {
+      if (isFaceDescriptorReady()) {
+        setEngineReady(true);
+        clearInterval(id);
+      }
+    }, 500);
+    return () => clearInterval(id);
+  }, [engineReady]);
+
   async function handleCapture() {
     if (!cameraRef.current || phase !== 'idle') return;
+    if (!engineReady) {
+      setErrorReason('engine_not_ready');
+      setPhase('error');
+      return;
+    }
     setPhase('capturing');
+    setErrorDebug(undefined);
     try {
+      // skipProcessing: false → biar iOS apply EXIF rotation correction otomatis.
+      // quality 0.8 → balance file size dengan face detection accuracy.
       const photo: CameraCapturedPicture | undefined = await cameraRef.current.takePictureAsync({
         base64: true,
-        quality: 0.7,
-        skipProcessing: true,
+        quality: 0.8,
+        skipProcessing: false,
+        exif: false,
       });
       if (!photo?.base64) {
         setErrorReason('error');
+        setErrorDebug('No base64 returned from camera');
         setPhase('error');
         return;
       }
 
       setPhase('processing');
 
-      if (!isFaceDescriptorReady()) {
-        setErrorReason('engine_not_ready');
-        setPhase('error');
-        return;
-      }
-
       const result = await computeFaceDescriptor(photo.base64);
       if (result.ok) {
         onSuccess(result.descriptor);
       } else {
         setErrorReason(result.reason);
+        setErrorDebug(result.message);
+        if (__DEV__) {
+          console.warn('[FaceCapture] compute failed:', result.reason, result.message);
+        }
         setPhase('error');
       }
     } catch (e) {
       console.warn('[FaceCapture] capture error:', e);
       setErrorReason('error');
+      setErrorDebug(e instanceof Error ? e.message : String(e));
       setPhase('error');
     }
   }
@@ -167,7 +189,8 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
       <View className="absolute bottom-0 left-0 right-0 pb-12 px-6 items-center">
         <View className="bg-black/60 rounded-2xl px-4 py-3 mb-4 max-w-sm">
           <Text className="text-white text-sm text-center leading-relaxed">
-            {phase === 'idle' && t('face.instruction_position')}
+            {!engineReady && phase === 'idle' && t('face.engine_loading')}
+            {engineReady && phase === 'idle' && t('face.instruction_position')}
             {phase === 'capturing' && t('face.instruction_hold')}
             {phase === 'processing' && t('face.instruction_processing')}
             {phase === 'error' && errorReason
@@ -176,9 +199,19 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
                 })
               : null}
           </Text>
-          {requireLiveness && phase === 'idle' ? (
+          {phase === 'error' && errorReason === 'no_face' ? (
+            <Text className="text-amber-300 text-xs text-center mt-2">
+              {t('face.no_face_tips')}
+            </Text>
+          ) : null}
+          {requireLiveness && phase === 'idle' && engineReady ? (
             <Text className="text-amber-300 text-xs text-center mt-2">
               {t('face.liveness_hint')}
+            </Text>
+          ) : null}
+          {__DEV__ && errorDebug ? (
+            <Text className="text-neutral-400 text-[10px] text-center mt-2 font-mono">
+              {errorDebug}
             </Text>
           ) : null}
         </View>
@@ -187,6 +220,7 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
           <Pressable
             onPress={() => {
               setErrorReason(undefined);
+              setErrorDebug(undefined);
               setPhase('idle');
             }}
             className="bg-brand-500 py-3 px-8 rounded-2xl"
@@ -196,9 +230,11 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
         ) : (
           <Pressable
             onPress={handleCapture}
-            disabled={phase !== 'idle'}
+            disabled={phase !== 'idle' || !engineReady}
             className={`w-20 h-20 rounded-full items-center justify-center border-4 ${
-              phase === 'idle' ? 'bg-white border-white/50' : 'bg-neutral-400 border-neutral-300'
+              phase === 'idle' && engineReady
+                ? 'bg-white border-white/50'
+                : 'bg-neutral-400 border-neutral-300'
             }`}
           >
             <View className="w-16 h-16 rounded-full bg-white" />

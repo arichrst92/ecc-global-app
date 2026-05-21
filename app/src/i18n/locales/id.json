@@ -592,6 +592,8 @@
     "error_face_already_enrolled": "Wajah sudah didaftarkan. Pakai \"Update Wajah\" kalau ingin ganti.",
     "error_face_login_rate_limit": "Terlalu banyak percobaan. Coba lagi 15 menit lagi.",
     "error_no_phone_hint": "Nomor HP tidak tersedia. Login dengan OTP dulu.",
-    "low_confidence_warn": "Login berhasil (confidence rendah). Pertimbangkan re-enroll wajah."
+    "low_confidence_warn": "Login berhasil (confidence rendah). Pertimbangkan re-enroll wajah.",
+    "engine_loading": "Memuat mesin pengenal wajah... (~3 detik)",
+    "no_face_tips": "Tips: pencahayaan cukup, wajah lurus ke kamera, jarak ~30cm."
   }
 }

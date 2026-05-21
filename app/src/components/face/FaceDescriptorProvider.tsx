@@ -61,20 +61,39 @@ const HTML = `<!doctype html>
     }
     try {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.src = dataUrl;
       await new Promise((res, rej) => {
         img.onload = res;
         img.onerror = () => rej(new Error('Image load failed'));
       });
 
-      const detections = await faceapi
-        .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 }))
+      // Detection tuning:
+      // - inputSize 512: better recall untuk wajah closeup HP camera (vs 320 yang
+      //   sering miss wajah besar). Trade-off speed (~50ms slower) ok untuk one-shot.
+      // - scoreThreshold 0.3: lower, biarkan downstream check yang strict. TinyFaceDetector
+      //   sering kasih score 0.4-0.6 untuk wajah valid di kondisi pencahayaan biasa.
+      // - Retry dengan inputSize lebih besar kalau first pass gagal.
+      let detections = await faceapi
+        .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.3 }))
         .withFaceLandmarks()
         .withFaceDescriptors();
 
+      // Fallback: kalau ga ketemu, retry dengan input size lebih besar (lebih akurat tapi slower)
       if (detections.length === 0) {
-        post({ type: 'result', requestId, ok: false, reason: 'no_face' });
+        detections = await faceapi
+          .detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.2 }))
+          .withFaceLandmarks()
+          .withFaceDescriptors();
+      }
+
+      if (detections.length === 0) {
+        post({
+          type: 'result',
+          requestId,
+          ok: false,
+          reason: 'no_face',
+          message: 'imgSize=' + img.width + 'x' + img.height + ', no faces detected',
+        });
         return;
       }
       if (detections.length > 1) {
@@ -82,8 +101,16 @@ const HTML = `<!doctype html>
         return;
       }
       const det = detections[0];
-      if (det.detection.score < 0.7) {
-        post({ type: 'result', requestId, ok: false, reason: 'low_quality' });
+      // Lower quality threshold ke 0.4 — TinyFaceDetector score range biasanya
+      // 0.3-0.9. 0.7 terlalu strict.
+      if (det.detection.score < 0.4) {
+        post({
+          type: 'result',
+          requestId,
+          ok: false,
+          reason: 'low_quality',
+          message: 'detection.score=' + det.detection.score.toFixed(3),
+        });
         return;
       }
       const descriptor = Array.from(det.descriptor);
