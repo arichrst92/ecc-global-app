@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-21
 **Priority**: 🟡 **MEDIUM** — feature M11 (was opsional, sekarang in-scope karena smart system planning)
-**Status**: 🆕 **PROPOSED** — menunggu BE evaluasi + answer technical questions
+**Status**: ✅ **RESOLVED 2026-05-21** — BE implement endpoint RESTful + answers 20 technical questions di section "Backend Response" di akhir doc.
 
 ---
 
@@ -444,3 +444,280 @@ Response" di akhir (sama pattern dengan request lain).
 ---
 
 *Status PROPOSED 2026-05-21. Menunggu BE response untuk technical questions.*
+
+---
+
+# Backend Response — 2026-05-21
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Status**: ✅ **DELIVERED**
+**Swagger**: tag `Auth · Face Recognition` punya 6 endpoint (3 legacy + 3 RESTful baru).
+
+## Ringkasan
+
+**Existing BE infrastructure** (dari Phase 1 sebelumnya):
+- 128-dim FaceNet descriptor (face-api.js compatible)
+- Euclidean distance, threshold 0.5
+- `User.faceDescriptor` Json + `faceEnrolledAt`
+- `matchFace()` + `isValidDescriptor()` di `@ecc/auth`
+
+**Patch 21q tambahan**:
+- Schema: `User.faceModelVersion` + `User.faceMetadata` (audit)
+- 3 endpoint baru: `GET /auth/me/face-profile`, `PUT /auth/me/face-profile`, `DELETE /auth/me/face-profile`
+- Update 2 endpoint existing: enroll tolak duplicate (409), login return confidence + standardized error codes
+
+## Answers untuk 20 technical questions
+
+### A. ML library + model
+
+**Q1 (library)**: BE pakai **face-api.js compatible** — 128-dim FaceNet-style descriptor. Mobile bebas pilih library yang **produce 128-dim Float32 descriptor compatible dengan face-api.js**. Rekomendasi: `@react-native-ml-kit/face-detection` (detection) + custom embedding via TF Lite MobileFaceNet (kalau perlu RN). Atau **pakai face-api.js langsung** via React Native WebView (less optimal tapi works).
+
+> ⚠ **Important**: kalau mobile pilih library yang produce embedding **berbeda dari face-api.js space**, server tidak bisa match. Kami **rekomendasi kuat**: stick dengan face-api.js style atau library yang explicitly trained dengan FaceNet weights yang sama.
+
+**Q2 (dim)**: **128** (existing, fixed).
+
+**Q3 (distance)**: **Euclidean** (existing implementation).
+
+**Q4 (threshold)**: **0.5** default (env override `FACE_MATCH_THRESHOLD`). Lebih rendah = strict. Kalau mobile feedback false-reject sering, naik ke 0.55-0.6. Kalau false-accept (mis. saudara mirip), turun ke 0.45.
+
+### B. Storage + privacy
+
+**Q5 (schema)**: **Single profile per user** (existing constraint). Re-enrollment replace via PUT. Multiple profile per jemaat (mis. dengan/tanpa kacamata) defer — kalau ada concrete request baru evaluate.
+
+**Q6 (storage format)**: **Postgres Json column** existing. pgvector defer — linear scan cukup untuk N < 50k jemaat. Switch ke pgvector kalau jemaat > 50k atau smart system go-live.
+
+**Q7 (encryption at rest)**: **Volume-level cukup MVP**. Column-level encryption (pgcrypto) di-add kalau audit Kominfo request. PDP Law tidak mandate column encryption — yang penting transit (HTTPS) + access control + audit log. Compliance verify dengan legal team.
+
+**Q8 (retention)**:
+- ✅ DELETE endpoint `/auth/me/face-profile` untuk PDP right-to-delete
+- ❌ Auto-purge kalau jemaat archive: defer. Manual via admin tool kalau perlu.
+
+### C. Liveness detection
+
+**Q9 (liveness)**: **Opsi C — no server liveness** untuk MVP. Mobile responsibility untuk client-side challenge (blink, head turn) sebelum compute descriptor.
+
+Reasoning: server-side liveness butuh kirim multiple frames (heavy bandwidth + storage), plus model anti-spoofing complex. Risk-acceptable untuk MVP karena:
+- OTP fallback tetap available untuk action sensitive
+- Face login = "convenience" only, bukan single factor untuk payment/sensitive ops
+
+Mobile recommendation:
+- Implement passive liveness check (motion vector di frames)
+- Atau active challenge (blink detect 1x sebelum capture)
+- Reject foto cetak via face-api.js detection score threshold
+
+**Q10 (twin/family false positive)**: tingkatkan threshold default ke **0.45** kalau pilot data tunjukin false-positive frequent di keluarga. Sekarang 0.5 — adjust per env. Plus **secondary check**: `/auth/face/login` butuh `noHp` hint, jadi cuma compare descriptor user dengan stored milik noHp itu — tidak global search. False-positive antar saudara harus mereka **explicit pakai noHp masing-masing** dulu, jadi safety check natural.
+
+### D. Smart system integration
+
+**Q11 (smart system endpoint)**: **defer** sampai go-live. Saat siap, design:
+```
+POST /api/v1/identify
+X-API-Key: ecc_smart_xxx
+Body: { descriptor: [128 float], cabangId?: 'uuid' }
+Response: { jemaatId, confidence } atau 404 NO_MATCH
+```
+
+Pakai **API key terpisah** (scope `read:identify`) — kiosk/IoT device pakai key dedicated, bukan user JWT. Kalau perlu volunteer scanner mode, bisa dual-auth (API key + volunteer JWT).
+
+**Q12 (bulk batch)**: defer. Saat smart system aktif:
+```
+POST /api/v1/identify-batch
+Body: { descriptors: [[128 float], ...], cabangId? }
+Response: { results: [{ descriptor_idx, jemaatId, confidence }] }
+```
+
+Max 50 descriptor per request, throttle 60/menit/API key.
+
+**Q13 (audit trail)**: defer schema. Saat smart system aktif, add table:
+```
+FaceIdentificationLog {
+  id, jemaatId (FK), source (varchar — 'lobby_cam_1', 'event_kiosk_a'),
+  confidence, identifiedAt, eventContextId? (FK Event/Ibadah optional)
+}
+```
+
+Retention 90 hari (purge cron).
+
+### E. Error handling + edge cases
+
+**Q14 (duplicate enrollment)**: BE **tidak block** enrollment kalau descriptor cocok > 0.85 dengan jemaat lain — karena ini bisa false-positive saudara kembar legit. Sebagai gantinya, **flag warning di audit log** (`metadata.duplicateRiskWith: <jemaatId>`). Admin tools nanti bisa surface flag ini.
+
+**Q15 (re-enrollment)**: ✅ Implemented — **PUT /auth/me/face-profile** eksplisit replace existing. POST tolak duplicate (force PUT untuk update).
+
+**Q16 (error code naming)**: ✅ Implemented. Codes:
+- `FACE_NOT_ENROLLED` (401) — login attempt tapi belum enroll
+- `FACE_NO_MATCH` (401) — descriptor tidak cocok
+- `FACE_MODEL_MISMATCH` (409) — modelVersion client vs stored beda
+- `FACE_INVALID_DESCRIPTOR` (422) — bukan 128-dim atau NaN
+- `FACE_ALREADY_ENROLLED` (409) — POST enroll padahal sudah ada (pakai PUT)
+- `FACE_LOGIN_RATE_LIMIT` (429) — via existing `authVerifyLimiter`
+
+### F. Performance + rate limiting
+
+**Q17 (search perf)**: **Linear scan** for now. Saat ini login flow pakai `noHp` hint → cuma 1 descriptor compare, O(1). Untuk smart system (`/identify` tanpa hint), saat aktif baru migrate ke pgvector. N < 10k cuma butuh ~50ms scan, acceptable.
+
+**Q18 (rate limit)**: ✅ Pakai existing **`authVerifyLimiter`** (10 attempt / 15 menit / IP). Per-phone limit defer.
+
+### G. PDP Law compliance
+
+**Q19 (consent flow)**: BE store `consentVersion` di `User.faceMetadata` saat enroll. Mobile harus include di body:
+```json
+"metadata": {
+  "consentVersion": "v1-2026-05-21",
+  "platform": "ios",
+  ...
+}
+```
+
+Audit log catat consent timestamp via `faceEnrolledAt`. Kalau kominfo audit, BE bisa export semua user yang enroll + consent version + timestamp.
+
+**Q20 (DPA Kominfo)**: **Out of BE scope** — legal/ops responsibility. BE provide tooling untuk export consent log (kalau diperlukan), tapi DPA filing + Kominfo registration di luar engineering. Recommend trigger compliance check **sebelum** mobile push face feature ke production.
+
+## Endpoint spec final
+
+Sesuai request mobile, dengan minor refinement:
+
+### 1. `GET /auth/me/face-profile` (NEW)
+
+```
+GET /auth/me/face-profile
+Authorization: Bearer <JWT>
+
+→ 200 { enrolled, enrolledAt, modelVersion }
+→ Untuk yang belum enroll: { enrolled: false, enrolledAt: null, modelVersion: null }
+```
+
+### 2. `POST /auth/face/enroll` (UPDATED)
+
+```
+POST /auth/face/enroll
+Body: { descriptor, modelVersion?, metadata? }
+
+→ 201 { faceEnrolledAt, modelVersion, hasFaceEnrolled }
+→ 409 FACE_ALREADY_ENROLLED (pakai PUT untuk re-enroll)
+→ 422 FACE_INVALID_DESCRIPTOR
+```
+
+### 3. `PUT /auth/me/face-profile` (NEW)
+
+```
+PUT /auth/me/face-profile
+Body: sama dengan POST enroll
+
+→ 200 { faceEnrolledAt, modelVersion, hasFaceEnrolled }
+→ 422 FACE_INVALID_DESCRIPTOR
+```
+
+### 4. `DELETE /auth/me/face-profile` (NEW)
+
+```
+DELETE /auth/me/face-profile
+
+→ 200 { hasFaceEnrolled: false }
+```
+
+Legacy `POST /auth/face/reset` masih jalan (alias).
+
+### 5. `POST /auth/face/login` (UPDATED)
+
+```
+POST /auth/face/login
+Body: { noHp, descriptor, modelVersion? }
+
+→ 200 { accessToken, refreshToken, expiresIn, user, confidence: 0.82 }
+→ 401 FACE_NOT_ENROLLED
+→ 401 FACE_NO_MATCH { details: { distance, threshold } }
+→ 409 FACE_MODEL_MISMATCH
+→ 422 FACE_INVALID_DESCRIPTOR
+→ 429 FACE_LOGIN_RATE_LIMIT
+```
+
+`confidence` = `Math.max(0, Math.min(1, 1 - distance / threshold))`. Higher = better match.
+
+## Recommendation untuk mobile flow
+
+1. **Enrollment**:
+   ```typescript
+   // Check status first
+   const status = await api.get('/auth/me/face-profile');
+   if (!status.data.enrolled) {
+     // Show consent screen → user accept
+     // Capture face + compute descriptor (face-api.js)
+     await api.post('/auth/face/enroll', {
+       descriptor,
+       modelVersion: 'facenet-v1',
+       metadata: {
+         platform: 'ios',
+         deviceModel: 'iPhone 15 Pro',
+         appVersion: '0.1.0',
+         consentVersion: 'v1-2026-05-21',
+       },
+     });
+   } else {
+     // Already enrolled — show "Update wajah" button kalau user mau replace
+     // → PUT /auth/me/face-profile
+   }
+   ```
+
+2. **Login**:
+   ```typescript
+   try {
+     const res = await api.post('/auth/face/login', { noHp, descriptor });
+     if (res.data.confidence < 0.7) {
+       toast.warn('Login berhasil, tapi confidence rendah — pertimbangkan re-enroll.');
+     }
+     // Save tokens, navigate
+   } catch (err) {
+     if (err.code === 'FACE_NO_MATCH') {
+       // After 3x fail, prompt re-enroll
+     } else if (err.code === 'FACE_MODEL_MISMATCH') {
+       // Force re-enroll dengan modelVersion baru
+     } else {
+       // Fallback OTP login
+     }
+   }
+   ```
+
+3. **PDP compliance**:
+   - Privacy policy update dengan section "Data Biometrik" — wajib sebelum production
+   - Settings → Privacy → "Hapus Data Wajah" button → `DELETE /auth/me/face-profile`
+   - Track consent version saat enroll
+
+## File yang berubah BE
+
+| File | Perubahan |
+|---|---|
+| `packages/database/prisma/schema.prisma` | User extension: `faceModelVersion`, `faceMetadata` |
+| `packages/database/prisma/migrations/20260521170000_face_metadata/migration.sql` | NEW — add 2 column |
+| `packages/shared-types/src/schemas/auth.ts` | faceLoginSchema + faceEnrollmentSchema extended |
+| `apps/core-api/src/routes/auth.ts` | 3 endpoint baru + update 3 existing + helper `resetFaceProfile` |
+| `apps/core-api/src/openapi.ts` | Tag "Auth · Face Recognition" + 6 path |
+| `docs/mobile-api-guide.md` | Section 1.4 expanded (5 subsection) |
+| `knowledge-base.md` | Section 26 patch **2026-05-21q** |
+
+## User perlu run di local
+
+```bash
+pnpm db:generate                          # Prisma client recognize faceModelVersion + faceMetadata
+pnpm --filter @ecc/database db:migrate dev  # apply migration
+```
+
+## Action items untuk mobile team
+
+- [ ] Choose face-api.js compatible library (mis. `@vladmandic/face-api` di RN via worker)
+- [ ] Implement consent screen + persist `consentVersion`
+- [ ] Replace existing biometric-unlock (M11.1-7) ke real face flow
+- [ ] Settings → Privacy → "Hapus Data Wajah" button
+- [ ] Handle error codes per spec di section "Endpoint spec final" di atas
+- [ ] Test threshold di pilot — feedback ke BE kalau perlu adjust default
+
+## Action items untuk legal/product
+
+- [ ] **CRITICAL**: Privacy Policy update dengan section "Data Biometrik" sebelum production
+- [ ] **CRITICAL**: DPA Kominfo registration (UU 27/2022 Pasal 4 untuk data biometrik)
+- [ ] DPIA (Data Protection Impact Assessment) document untuk audit trail
+- [ ] Operations training: handle complaint "saya tidak mau wajah disimpan"
+
+---
+
+*Ticket closed 2026-05-21. Smart system endpoint design defer sampai go-live.*
