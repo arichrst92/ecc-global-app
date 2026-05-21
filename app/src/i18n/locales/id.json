@@ -413,7 +413,26 @@
     "error_forbidden_title": "Tidak Berwenang",
     "error_conflict_title": "Konflik — Konfirmasi Perlu",
     "error_generic_title": "Gagal Check-in",
-    "print_label": "Cetak Label"
+    "print_label": "Cetak Label",
+    "printer_not_configured": "Printer belum di-setup",
+    "printer_setup_hint": "Tap untuk hubungkan printer Bluetooth"
+  },
+  "quickaccess": {
+    "title": "Akses Cepat",
+    "scanner": "Scanner",
+    "ibadah": "Ibadah",
+    "event": "Event",
+    "persembahan": "Beri",
+    "berita": "Berita",
+    "renungan": "Renungan",
+    "family": "Keluarga",
+    "bible": "Alkitab",
+    "bible_soon": "Fitur Alkitab segera tersedia di update berikutnya.",
+    "homecell": "Homecell",
+    "area": "Area",
+    "marketplace": "Marketplace",
+    "soon": "SOON",
+    "coming_soon": "Fitur ini segera tersedia."
   },
   "printer": {
     "title": "Printer Bluetooth",

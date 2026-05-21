@@ -17,10 +17,13 @@ import {
   Church,
   Clock,
   MapPin,
+  Printer,
   ScanLine,
+  Settings,
 } from 'lucide-react-native';
 
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
+import { usePrinterStore } from '@/stores/printer.store';
 import { formatDate, todayIso } from '@/utils/date';
 
 export default function ScannerPickerScreen() {
@@ -30,6 +33,8 @@ export default function ScannerPickerScreen() {
 
   const eventsQuery = useScannerEvents();
   const ibadahQuery = useScannerIbadah();
+  const isPrinterConnected = usePrinterStore((s) => s.isConnected);
+  const lastDevice = usePrinterStore((s) => s.lastDevice);
 
   const isRefreshing = eventsQuery.isRefetching || ibadahQuery.isRefetching;
   const isLoading = eventsQuery.isPending || ibadahQuery.isPending;
@@ -67,6 +72,17 @@ export default function ScannerPickerScreen() {
             </Text>
             <Text className="text-xs text-neutral-500">{t('scanner.subtitle')}</Text>
           </View>
+          <Pressable
+            onPress={() => router.push('/settings/printer')}
+            className="w-10 h-10 items-center justify-center relative"
+          >
+            <Printer size={20} color="#171717" />
+            <View
+              className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                isPrinterConnected ? 'bg-emerald-500' : 'bg-neutral-400'
+              }`}
+            />
+          </Pressable>
         </View>
       </SafeAreaView>
 
@@ -77,6 +93,37 @@ export default function ScannerPickerScreen() {
           <RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />
         }
       >
+        {/* Printer status card — tap untuk buka settings */}
+        <Pressable
+          onPress={() => router.push('/settings/printer')}
+          className={`rounded-2xl p-3 mb-4 flex-row items-center gap-3 border ${
+            isPrinterConnected
+              ? 'bg-emerald-50 border-emerald-200'
+              : 'bg-white border-neutral-200'
+          }`}
+        >
+          <View
+            className={`w-10 h-10 rounded-xl items-center justify-center ${
+              isPrinterConnected ? 'bg-emerald-500' : 'bg-neutral-100'
+            }`}
+          >
+            <Printer size={18} color={isPrinterConnected ? '#fff' : '#525252'} />
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-semibold text-neutral-900">
+              {isPrinterConnected
+                ? t('printer.status_connected')
+                : lastDevice
+                  ? t('printer.status_disconnected')
+                  : t('scanner.printer_not_configured')}
+            </Text>
+            <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+              {lastDevice?.name ?? t('scanner.printer_setup_hint')}
+            </Text>
+          </View>
+          <Settings size={16} color="#A3A3A3" />
+        </Pressable>
+
         {isLoading ? (
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />

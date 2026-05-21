@@ -9,6 +9,7 @@ import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarD
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { BranchChip } from '@/components/branch/BranchChip';
+import { QuickAccess } from '@/components/home/QuickAccess';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
@@ -124,6 +125,9 @@ export default function HomeScreen() {
             </View>
           </SafeAreaView>
         </View>
+
+        {/* Quick Access — visible sesuai otoritas */}
+        <QuickAccess />
 
         {/* Today's Service */}
         <View className="px-5 mt-4">

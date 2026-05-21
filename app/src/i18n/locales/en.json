@@ -413,7 +413,26 @@
     "error_forbidden_title": "Not Authorized",
     "error_conflict_title": "Conflict — Confirmation Needed",
     "error_generic_title": "Check-in Failed",
-    "print_label": "Print Label"
+    "print_label": "Print Label",
+    "printer_not_configured": "Printer not yet set up",
+    "printer_setup_hint": "Tap to connect Bluetooth printer"
+  },
+  "quickaccess": {
+    "title": "Quick Access",
+    "scanner": "Scanner",
+    "ibadah": "Services",
+    "event": "Events",
+    "persembahan": "Giving",
+    "berita": "News",
+    "renungan": "Devotional",
+    "family": "Family",
+    "bible": "Bible",
+    "bible_soon": "Bible feature coming in the next update.",
+    "homecell": "Homecell",
+    "area": "Area",
+    "marketplace": "Marketplace",
+    "soon": "SOON",
+    "coming_soon": "Feature coming soon."
   },
   "printer": {
     "title": "Bluetooth Printer",

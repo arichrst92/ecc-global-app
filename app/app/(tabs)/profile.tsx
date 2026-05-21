@@ -3,13 +3,12 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
-import { LogOut, AlertTriangle, ChevronRight, BookOpen, Bell, QrCode, Printer, ScanLine, Users } from 'lucide-react-native';
+import { LogOut, AlertTriangle, ChevronRight, QrCode, ScanLine } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/auth.store';
-import { useNotificationsStore } from '@/stores/notifications.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
@@ -21,9 +20,6 @@ export default function ProfileTab() {
   const router = useRouter();
   const logoutMutation = useLogout();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const unreadNotifs = useNotificationsStore((s) =>
-    s.items.filter((n) => !n.read).length,
-  );
   const language = usePreferencesStore((s) => s.language);
   const languageLabel = language === 'id' ? 'Bahasa Indonesia' : 'English';
 
@@ -81,36 +77,8 @@ export default function ProfileTab() {
           <ChevronRight size={20} color="#A3A3A3" />
         </Pressable>
 
-        {/* Quick access tiles */}
-        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-          {t('profile.quick_access')}
-        </Text>
-        <View className="flex-row gap-2 mb-4">
-          <QuickTile
-            icon={<Users size={20} color="#059669" />}
-            bg="bg-emerald-50"
-            label={t('profile.family')}
-            onPress={() => router.push('/family')}
-          />
-          <QuickTile
-            icon={<BookOpen size={20} color="#D97706" />}
-            bg="bg-amber-50"
-            label={t('profile.bible')}
-          />
-          <QuickTile
-            icon={<Bell size={20} color="#EA580C" />}
-            bg="bg-brand-50"
-            label={t('profile.notifications')}
-            badge={unreadNotifs > 0 ? unreadNotifs : undefined}
-            onPress={() => router.push('/notifications')}
-          />
-          <QuickTile
-            icon={<Printer size={20} color="#1d4ed8" />}
-            bg="bg-blue-50"
-            label={t('profile.printer')}
-            onPress={() => router.push('/settings/printer')}
-          />
-        </View>
+        {/* Quick Access dipindah ke Dashboard. Scanner Mode tetap di sini
+            karena merupakan akses penting volunteer. */}
 
         {/* Scanner Mode — only show kalau user authorized */}
         {isScannerAuthorized ? (
@@ -137,10 +105,6 @@ export default function ProfileTab() {
         </Text>
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <MenuRow label={t('profile.edit_profile')} />
-          <MenuRow
-            label={t('profile.family')}
-            onPress={() => router.push('/family')}
-          />
           <MenuRow
             label={t('profile.change_branch')}
             onPress={() => router.push('/settings/change-branch')}
@@ -222,41 +186,6 @@ export default function ProfileTab() {
         </Pressable>
       </Modal>
     </View>
-  );
-}
-
-function QuickTile({
-  icon,
-  bg,
-  label,
-  onPress,
-  badge,
-}: {
-  icon: React.ReactNode;
-  bg: string;
-  label: string;
-  onPress?: () => void;
-  badge?: number;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      className="flex-1 bg-white rounded-2xl p-3 items-center gap-1.5 border border-neutral-100"
-    >
-      <View className={`w-10 h-10 rounded-xl ${bg} items-center justify-center`}>
-        {icon}
-        {badge !== undefined && badge > 0 ? (
-          <View className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 items-center justify-center border-2 border-white">
-            <Text className="text-[10px] font-bold text-white">
-              {badge > 99 ? '99+' : badge}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-      <Text className="text-[11px] font-semibold text-neutral-700 text-center" numberOfLines={1}>
-        {label}
-      </Text>
-    </Pressable>
   );
 }
 

@@ -1,0 +1,233 @@
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import {
+  BookOpen,
+  CalendarDays,
+  Church,
+  HandHeart,
+  MapPinned,
+  Newspaper,
+  ScanLine,
+  ShoppingBag,
+  Sparkles,
+  Users,
+  type LucideIcon,
+} from 'lucide-react-native';
+
+import { useToast } from '@/components/ui/Toast';
+import { useAuthStore } from '@/stores/auth.store';
+import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
+
+type QuickAccessTile = {
+  key: string;
+  icon: LucideIcon;
+  iconColor: string;
+  iconBg: string;
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+  badge?: string; // mis. "BARU", "SOON"
+  badgeBg?: string;
+  badgeText?: string;
+};
+
+/**
+ * Quick Access grid di dashboard.
+ * Tiles tampil sesuai otoritas user:
+ * - Selalu: Alkitab, Keluarga, Ibadah, Event, Berita, Persembahan, Marketplace (soon)
+ * - Kalau authorized scanner: Scanner
+ * - Kalau PIC homecell: Homecell
+ * - Kalau PIC area: Area
+ */
+export function QuickAccess() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const showToast = useToast((s) => s.show);
+  const user = useAuthStore((s) => s.user);
+
+  const scannerEventsQuery = useScannerEvents();
+  const scannerIbadahQuery = useScannerIbadah();
+  const isScannerAuthorized =
+    (scannerEventsQuery.data?.length ?? 0) > 0 ||
+    (scannerIbadahQuery.data?.length ?? 0) > 0;
+
+  // Cek PIC homecell/area via menuAccess (heuristic — bisa di-tighten kalau
+  // BE define key spesifik)
+  const menuAccess = user?.menuAccess ?? {};
+  const isPicHomecell =
+    !!menuAccess['homecell']?.canRead || !!menuAccess['pic-homecell']?.canRead;
+  const isPicArea =
+    !!menuAccess['area']?.canRead || !!menuAccess['pic-area']?.canRead;
+
+  const tiles: QuickAccessTile[] = [
+    // Common — semua user
+    {
+      key: 'ibadah',
+      icon: Church,
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
+      label: t('quickaccess.ibadah'),
+      onPress: () => router.push('/(tabs)/ibadah'),
+    },
+    {
+      key: 'event',
+      icon: CalendarDays,
+      iconColor: '#D97706',
+      iconBg: 'bg-amber-50',
+      label: t('quickaccess.event'),
+      onPress: () => router.push('/(tabs)/event'),
+    },
+    {
+      key: 'persembahan',
+      icon: HandHeart,
+      iconColor: '#7c3aed',
+      iconBg: 'bg-purple-50',
+      label: t('quickaccess.persembahan'),
+      onPress: () => router.push('/(tabs)/persembahan'),
+    },
+    {
+      key: 'berita',
+      icon: Newspaper,
+      iconColor: '#0891b2',
+      iconBg: 'bg-cyan-50',
+      label: t('quickaccess.berita'),
+      onPress: () => router.push('/content?tab=news'),
+    },
+    {
+      key: 'renungan',
+      icon: BookOpen,
+      iconColor: '#D97706',
+      iconBg: 'bg-amber-50',
+      label: t('quickaccess.renungan'),
+      onPress: () => router.push('/content?tab=renungan'),
+    },
+    {
+      key: 'family',
+      icon: Users,
+      iconColor: '#059669',
+      iconBg: 'bg-emerald-50',
+      label: t('quickaccess.family'),
+      onPress: () => router.push('/family'),
+    },
+    {
+      key: 'bible',
+      icon: Sparkles,
+      iconColor: '#9333ea',
+      iconBg: 'bg-purple-50',
+      label: t('quickaccess.bible'),
+      onPress: () => showToast(t('quickaccess.bible_soon'), 'info'),
+    },
+  ];
+
+  // Conditional tiles berdasarkan otoritas
+  if (isScannerAuthorized) {
+    tiles.unshift({
+      key: 'scanner',
+      icon: ScanLine,
+      iconColor: '#fff',
+      iconBg: 'bg-brand-500',
+      label: t('quickaccess.scanner'),
+      onPress: () => router.push('/scanner'),
+    });
+  }
+
+  if (isPicHomecell) {
+    tiles.push({
+      key: 'homecell',
+      icon: Users,
+      iconColor: '#0891b2',
+      iconBg: 'bg-cyan-50',
+      label: t('quickaccess.homecell'),
+      onPress: () => showToast(t('quickaccess.coming_soon'), 'info'),
+      badge: 'PIC',
+      badgeBg: 'bg-cyan-500',
+      badgeText: 'text-white',
+    });
+  }
+
+  if (isPicArea) {
+    tiles.push({
+      key: 'area',
+      icon: MapPinned,
+      iconColor: '#0891b2',
+      iconBg: 'bg-cyan-50',
+      label: t('quickaccess.area'),
+      onPress: () => showToast(t('quickaccess.coming_soon'), 'info'),
+      badge: 'PIC',
+      badgeBg: 'bg-cyan-500',
+      badgeText: 'text-white',
+    });
+  }
+
+  // Marketplace (coming soon) — selalu di belakang
+  tiles.push({
+    key: 'marketplace',
+    icon: ShoppingBag,
+    iconColor: '#737373',
+    iconBg: 'bg-neutral-100',
+    label: t('quickaccess.marketplace'),
+    onPress: () => showToast(t('quickaccess.coming_soon'), 'info'),
+    disabled: true,
+    badge: t('quickaccess.soon'),
+    badgeBg: 'bg-neutral-300',
+    badgeText: 'text-neutral-700',
+  });
+
+  return (
+    <View className="px-5 mt-4">
+      <View className="flex-row items-baseline justify-between mb-3">
+        <Text className="text-base font-bold text-neutral-900">
+          {t('quickaccess.title')}
+        </Text>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 10, paddingRight: 5 }}
+      >
+        {tiles.map((tile) => (
+          <Tile key={tile.key} tile={tile} />
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+function Tile({ tile }: { tile: QuickAccessTile }) {
+  const Icon = tile.icon;
+  return (
+    <Pressable
+      onPress={tile.onPress}
+      className="items-center"
+      style={{ width: 72 }}
+    >
+      <View
+        className={`w-14 h-14 rounded-2xl ${tile.iconBg} items-center justify-center relative ${
+          tile.disabled ? 'opacity-60' : ''
+        }`}
+      >
+        <Icon size={22} color={tile.iconColor} />
+        {tile.badge ? (
+          <View
+            className={`absolute -top-1 -right-1 px-1 py-0.5 rounded-full ${
+              tile.badgeBg ?? 'bg-red-500'
+            }`}
+          >
+            <Text
+              className={`text-[8px] font-bold ${tile.badgeText ?? 'text-white'}`}
+            >
+              {tile.badge}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+      <Text
+        className="text-[10px] font-semibold text-neutral-700 text-center mt-1.5"
+        numberOfLines={2}
+      >
+        {tile.label}
+      </Text>
+    </Pressable>
+  );
+}
