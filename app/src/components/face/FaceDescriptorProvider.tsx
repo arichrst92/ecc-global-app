@@ -72,7 +72,34 @@ export function FaceDescriptorProvider({ children }: { children: React.ReactNode
         const model = await tflite.loadTensorflowModel(modelAsset);
         if (cancelled) return;
         setModel(model);
-        if (__DEV__) console.log('[FaceDescriptor] MobileFaceNet loaded');
+        if (__DEV__) {
+          // Log tensor shapes untuk verify dim sesuai expectation BE (192).
+          // fast-tflite expose model.inputs + model.outputs sebagai
+          // [{ shape: [number], dataType: 'float32', name: string }].
+          try {
+            const m = model as unknown as {
+              inputs?: Array<{ shape: number[]; dataType?: string; name?: string }>;
+              outputs?: Array<{ shape: number[]; dataType?: string; name?: string }>;
+            };
+            console.log('[FaceDescriptor] MobileFaceNet loaded');
+            console.log('[FaceDescriptor] inputs:', JSON.stringify(m.inputs));
+            console.log('[FaceDescriptor] outputs:', JSON.stringify(m.outputs));
+            const outDim = m.outputs?.[0]?.shape?.[m.outputs[0].shape.length - 1];
+            if (outDim) {
+              console.log('[FaceDescriptor] OUTPUT DIM = ' + outDim);
+              if (outDim !== 192) {
+                console.warn(
+                  '[FaceDescriptor] ⚠ dim mismatch: model=' +
+                    outDim +
+                    ', FACE_DESCRIPTOR_DIM=192. Update src/types/auth.ts ' +
+                    'FACE_DESCRIPTOR_DIM constant + ask BE to adjust schema.',
+                );
+              }
+            }
+          } catch (e) {
+            console.warn('[FaceDescriptor] tensor introspection failed:', e);
+          }
+        }
       } catch (e) {
         if (__DEV__) {
           console.warn('[FaceDescriptor] model load failed:', e);

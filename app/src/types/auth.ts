@@ -62,8 +62,12 @@ export type EnrollmentVerifyResponse = {
  * Endpoint spec: docs/backend-request-face-recognition.md section "Endpoint spec final".
  */
 
-/** Descriptor length yang BE expect. MobileFaceNet output 192-dim. */
-export const FACE_DESCRIPTOR_DIM = 192;
+/** Descriptor length yang BE expect.
+ *  v2 patch 21r awal: 192-dim asumsi MobileFaceNet typical.
+ *  Setelah convert sirius-ai/MobileFaceNet_TF .pb → .tflite ternyata
+ *  output 128-dim (per arch.txt Logits:[None, 128]). BE perlu update
+ *  schema validation length === 128 (was 192). */
+export const FACE_DESCRIPTOR_DIM = 128;
 
 /** Versi model ML yang dipakai. Sinkron dengan BE — kalau ganti library/weights, bump.
  *  v2 patch 21r: switch dari facenet-v1 ke mobilefacenet-v1 (native TFLite). */
