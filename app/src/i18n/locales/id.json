@@ -430,6 +430,8 @@
     "bible_soon": "Fitur Alkitab segera tersedia di update berikutnya.",
     "homecell": "Homecell",
     "area": "Area",
+    "visit": "Visit",
+    "visit_soon": "Pendataan visit jemaat segera tersedia di update berikutnya.",
     "marketplace": "Marketplace",
     "soon": "SOON",
     "coming_soon": "Fitur ini segera tersedia."
@@ -458,16 +460,12 @@
   },
   "area": {
     "title": "Area Homecell",
-    "subtitle": "Area yang Anda PIC",
+    "subtitle": "Area + homecell yang Anda PIC",
     "homecells_count": "homecell",
     "empty_title": "Belum jadi PIC area",
     "empty_msg": "Anda belum ditunjuk sebagai PIC area. Hubungi admin cabang.",
-    "detail_title": "Detail Area",
-    "detail_not_found": "Area tidak ditemukan.",
-    "pic_badge": "PIC AREA",
-    "total_homecells": "Total Homecell",
-    "homecells_section": "Daftar Homecell",
-    "no_managed_in_area": "Tidak ada homecell di area ini yang juga Anda PIC-kan langsung. Untuk lihat detail per homecell, Anda harus jadi PIC homecell itu juga.",
+    "pic_label": "PIC",
+    "no_managed_in_area": "Tidak ada homecell di area ini yang juga Anda PIC-kan langsung. Tap dari list Homecell untuk lihat detail per homecell.",
     "partial_list_notice": "Menampilkan {{visible}} dari {{total}} homecell di area ini — hanya homecell yang Anda PIC langsung. List lengkap perlu endpoint BE baru."
   },
   "printer": {

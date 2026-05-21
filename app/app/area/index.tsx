@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -9,16 +10,63 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, MapPinned, Users } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  ChevronRight,
+  Clock,
+  Info,
+  MapPinned,
+  UserCog,
+  Users,
+} from 'lucide-react-native';
 
-import { useManagedAreas } from '@/hooks/useHomecell';
-import type { PicArea } from '@/types/homecell';
+import { useAuthStore } from '@/stores/auth.store';
+import { useManagedAreas, useManagedHomecells } from '@/hooks/useHomecell';
+import type { PicArea, PicHomecell } from '@/types/homecell';
 
+/**
+ * Area list — flatten + grouped by area.
+ *
+ * Pakai data dari /admin/me/homecell-area-managed (PIC area) + /admin/me/
+ * homecell-managed (PIC homecell user). Untuk setiap area yang user PIC,
+ * tampil sebagai section header, lalu list homecell di area itu yang user
+ * juga PIC homecell-nya (subset).
+ *
+ * Tap homecell row → /homecell/[id] (detail homecell).
+ *
+ * PIC name per homecell saat ini = current user (karena BE return hanya
+ * homecells yang user PIC-nya). Saat BE expose /admin/homecell-area/:id/
+ * homecells, list jadi lengkap dengan PIC info per homecell.
+ */
 export default function AreaListScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const query = useManagedAreas();
-  const areas = query.data ?? [];
+  const user = useAuthStore((s) => s.user);
+
+  const areasQuery = useManagedAreas();
+  const homecellsQuery = useManagedHomecells();
+
+  const isRefreshing = areasQuery.isRefetching || homecellsQuery.isRefetching;
+  const isLoading = areasQuery.isPending || homecellsQuery.isPending;
+
+  const areas = areasQuery.data ?? [];
+  const homecells = homecellsQuery.data ?? [];
+
+  // Group homecells by areaId
+  const homecellsByArea = useMemo(() => {
+    const map = new Map<string, PicHomecell[]>();
+    for (const h of homecells) {
+      const list = map.get(h.area.id) ?? [];
+      list.push(h);
+      map.set(h.area.id, list);
+    }
+    return map;
+  }, [homecells]);
+
+  function refresh() {
+    areasQuery.refetch();
+    homecellsQuery.refetch();
+  }
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -43,22 +91,18 @@ export default function AreaListScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
-            onRefresh={() => query.refetch()}
-            tintColor="#F97316"
-          />
+          <RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />
         }
       >
-        {query.isPending ? (
+        {isLoading ? (
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />
           </View>
-        ) : query.isError ? (
+        ) : areasQuery.isError ? (
           <View className="items-center py-16 px-8">
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
             <Pressable
-              onPress={() => query.refetch()}
+              onPress={refresh}
               className="px-4 py-2 bg-brand-500 rounded-lg"
             >
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
@@ -77,14 +121,21 @@ export default function AreaListScreen() {
             </Text>
           </View>
         ) : (
-          <View className="gap-2">
-            {areas.map((a) => (
-              <AreaCard
-                key={a.id}
-                item={a}
-                onPress={() => router.push(`/area/${a.id}`)}
-              />
-            ))}
+          <View className="gap-5">
+            {areas.map((area) => {
+              const inArea = homecellsByArea.get(area.id) ?? [];
+              const partial = inArea.length < area.homecellCount;
+              return (
+                <AreaSection
+                  key={area.id}
+                  area={area}
+                  homecells={inArea}
+                  partial={partial}
+                  picName={user?.namaLengkap ?? '—'}
+                  onHomecellPress={(hid) => router.push(`/homecell/${hid}`)}
+                />
+              );
+            })}
           </View>
         )}
       </ScrollView>
@@ -92,28 +143,114 @@ export default function AreaListScreen() {
   );
 }
 
-function AreaCard({ item, onPress }: { item: PicArea; onPress: () => void }) {
+function AreaSection({
+  area,
+  homecells,
+  partial,
+  picName,
+  onHomecellPress,
+}: {
+  area: PicArea;
+  homecells: PicHomecell[];
+  partial: boolean;
+  picName: string;
+  onHomecellPress: (id: string) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <View>
+      {/* Area header */}
+      <View className="bg-cyan-600 rounded-2xl p-4 mb-2 flex-row items-center gap-3">
+        <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center">
+          <MapPinned size={18} color="#fff" />
+        </View>
+        <View className="flex-1">
+          <Text className="text-white font-bold text-base">{area.nama}</Text>
+          <Text className="text-white/80 text-xs mt-0.5">
+            {area.cabang.nama} · {area.homecellCount} {t('area.homecells_count')}
+          </Text>
+        </View>
+      </View>
+
+      {/* Homecells in area */}
+      {homecells.length === 0 ? (
+        <View className="bg-white rounded-2xl p-4 border border-dashed border-neutral-300 items-center">
+          <Text className="text-xs text-neutral-500 text-center">
+            {t('area.no_managed_in_area')}
+          </Text>
+        </View>
+      ) : (
+        <View className="gap-2">
+          {homecells.map((h) => (
+            <HomecellRow
+              key={h.id}
+              homecell={h}
+              picName={picName}
+              onPress={() => onHomecellPress(h.id)}
+            />
+          ))}
+        </View>
+      )}
+
+      {partial ? (
+        <View className="mt-2 bg-amber-50 border border-amber-100 rounded-xl p-2.5 flex-row gap-2">
+          <Info size={12} color="#92400e" style={{ marginTop: 2 }} />
+          <Text className="text-[11px] text-amber-800 flex-1 leading-relaxed">
+            {t('area.partial_list_notice', {
+              visible: homecells.length,
+              total: area.homecellCount,
+            })}
+          </Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function HomecellRow({
+  homecell,
+  picName,
+  onPress,
+}: {
+  homecell: PicHomecell;
+  picName: string;
+  onPress: () => void;
+}) {
   const { t } = useTranslation();
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
+      className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
     >
-      <View className="w-12 h-12 rounded-xl bg-cyan-100 items-center justify-center">
-        <MapPinned size={20} color="#0891b2" />
+      <View className="w-10 h-10 rounded-xl bg-cyan-50 items-center justify-center">
+        <Users size={18} color="#0891b2" />
       </View>
       <View className="flex-1 min-w-0">
-        <Text className="font-bold text-neutral-900" numberOfLines={1}>
-          {item.nama}
+        <Text className="font-semibold text-neutral-900" numberOfLines={1}>
+          {homecell.nama}
         </Text>
-        <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-          {item.cabang.nama}
-        </Text>
-        <View className="flex-row items-center gap-1 mt-1">
-          <Users size={11} color="#0891b2" />
-          <Text className="text-xs font-semibold text-cyan-700">
-            {item.homecellCount} {t('area.homecells_count')}
+        <View className="flex-row items-center gap-1 mt-0.5">
+          <UserCog size={11} color="#737373" />
+          <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
+            {t('area.pic_label')}: {picName}
           </Text>
+        </View>
+        <View className="flex-row items-center gap-3 mt-1">
+          <View className="flex-row items-center gap-1">
+            <Users size={11} color="#0891b2" />
+            <Text className="text-xs font-semibold text-cyan-700">
+              {homecell.memberCount} {t('homecell.members_count')}
+            </Text>
+          </View>
+          {homecell.hari ? (
+            <View className="flex-row items-center gap-1">
+              <Clock size={11} color="#A3A3A3" />
+              <Text className="text-xs text-neutral-500">
+                {homecell.hari}
+                {homecell.jam ? ` · ${homecell.jam}` : ''}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
       <ChevronRight size={16} color="#A3A3A3" />

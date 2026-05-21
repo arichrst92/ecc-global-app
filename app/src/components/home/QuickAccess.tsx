@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Church,
   HandHeart,
+  Handshake,
   MapPinned,
   Newspaper,
   ScanLine,
@@ -157,6 +158,20 @@ export function QuickAccess() {
       badgeText: 'text-white',
     });
   }
+
+  // Visit (coming soon) — pendataan jemaat yang bertemu jemaat lain
+  tiles.push({
+    key: 'visit',
+    icon: Handshake,
+    iconColor: '#737373',
+    iconBg: 'bg-neutral-100',
+    label: t('quickaccess.visit'),
+    onPress: () => showToast(t('quickaccess.visit_soon'), 'info'),
+    disabled: true,
+    badge: t('quickaccess.soon'),
+    badgeBg: 'bg-neutral-300',
+    badgeText: 'text-neutral-700',
+  });
 
   // Marketplace (coming soon) — selalu di belakang
   tiles.push({

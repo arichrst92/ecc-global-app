@@ -430,6 +430,8 @@
     "bible_soon": "Bible feature coming in the next update.",
     "homecell": "Homecell",
     "area": "Area",
+    "visit": "Visit",
+    "visit_soon": "Member visit tracking coming in the next update.",
     "marketplace": "Marketplace",
     "soon": "SOON",
     "coming_soon": "Feature coming soon."
@@ -458,16 +460,12 @@
   },
   "area": {
     "title": "Homecell Areas",
-    "subtitle": "Areas where you are PIC",
+    "subtitle": "Areas + homecells you PIC",
     "homecells_count": "homecells",
     "empty_title": "Not an area PIC yet",
     "empty_msg": "You haven't been assigned as area PIC. Contact branch admin.",
-    "detail_title": "Area Detail",
-    "detail_not_found": "Area not found.",
-    "pic_badge": "AREA PIC",
-    "total_homecells": "Total Homecells",
-    "homecells_section": "Homecells List",
-    "no_managed_in_area": "No homecells in this area that you also directly PIC. To see per-homecell detail, you must also be the homecell PIC.",
+    "pic_label": "PIC",
+    "no_managed_in_area": "No homecells in this area that you also directly PIC. Tap from Homecell list for per-homecell detail.",
     "partial_list_notice": "Showing {{visible}} of {{total}} homecells in this area — only those you directly PIC. Full list needs a new BE endpoint."
   },
   "printer": {
