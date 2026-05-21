@@ -6,7 +6,10 @@ const KEYS = {
   accessToken: 'ecc.accessToken',
   refreshToken: 'ecc.refreshToken',
   user: 'ecc.user',
-  biometricEnabled: 'ecc.biometricEnabled',
+  /** Hint flag bahwa user pernah enroll face di server. Cache lokal supaya
+   *  Welcome screen bisa decide tampilkan "Login Wajah" button tanpa hit
+   *  /auth/me/face-profile dulu. Source of truth tetap di BE. */
+  faceEnrolledHint: 'ecc.faceEnrolledHint',
 };
 
 type AuthState = {
@@ -16,29 +19,23 @@ type AuthState = {
   isAuthenticated: boolean;
   isHydrating: boolean;
 
-  /** User sudah aktifkan biometric unlock. Persisted di SecureStore. */
-  biometricEnabled: boolean;
-  /** Untuk session ini, biometric gate sudah lewat (atau tidak required) */
-  biometricUnlocked: boolean;
-  /** True saat baru selesai OTP login, dipakai untuk show enrollment prompt
-   *  sekali di tabs layout. Di-clear setelah user decide. */
-  pendingBiometricEnrollment: boolean;
+  /** Cached hint: user pernah enroll face. Untuk show Welcome face button
+   *  tanpa network call dulu. Diset/clear via setFaceEnrolledHint. */
+  faceEnrolledHint: boolean;
 
   hydrate: () => Promise<void>;
   setTokens: (accessToken: string, refreshToken: string) => Promise<void>;
   setUser: (user: User) => Promise<void>;
   login: (accessToken: string, refreshToken: string, user: User) => Promise<void>;
-  /** Soft logout: session ended tapi refresh token + biometric flag tetap
-   *  ada, supaya biometric quick-login dari welcome screen bisa restore. */
+  /** Soft logout: bersihkan accessToken tapi pertahankan refreshToken + user
+   *  + faceEnrolledHint, supaya Welcome face login bisa restore sesi. */
   logout: () => Promise<void>;
-  /** Hard logout: clear semua tokens + biometric + user dari device. */
+  /** Hard logout: clear semua tokens + face hint + user dari device. */
   forgetDevice: () => Promise<void>;
-  setBiometricEnabled: (enabled: boolean) => Promise<void>;
-  markBiometricUnlocked: () => void;
-  clearPendingEnrollment: () => void;
-  /** Cek apakah ada sesi yang bisa di-restore via biometric dari welcome
-   *  screen (refresh token tersisa + biometric enabled). */
-  hasBiometricSession: () => Promise<boolean>;
+  setFaceEnrolledHint: (enrolled: boolean) => Promise<void>;
+  /** Check kalau ada sesi yang bisa di-restore via face login dari welcome
+   *  screen (refresh token + user data tersisa, face enrolled). */
+  hasFaceSession: () => Promise<boolean>;
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -47,31 +44,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isHydrating: true,
-  biometricEnabled: false,
-  biometricUnlocked: false,
-  pendingBiometricEnrollment: false,
+  faceEnrolledHint: false,
 
   hydrate: async () => {
     try {
-      const [accessToken, refreshToken, userJson, biometricFlag] = await Promise.all([
+      const [accessToken, refreshToken, userJson, faceFlag] = await Promise.all([
         storage.getItem(KEYS.accessToken),
         storage.getItem(KEYS.refreshToken),
         storage.getItem(KEYS.user),
-        storage.getItem(KEYS.biometricEnabled),
+        storage.getItem(KEYS.faceEnrolledHint),
       ]);
       const user = userJson ? (JSON.parse(userJson) as User) : null;
-      const biometricEnabled = biometricFlag === '1';
-      const isAuthenticated = !!accessToken && !!user;
       set({
         accessToken,
         refreshToken,
         user,
-        isAuthenticated,
-        biometricEnabled,
-        // Kalau biometric disabled, sesi langsung dianggap unlocked.
-        // Kalau enabled tapi belum authenticated, juga unlocked (login flow).
-        // Cuma kalau (isAuthenticated && biometricEnabled) yang perlu gate.
-        biometricUnlocked: !(isAuthenticated && biometricEnabled),
+        isAuthenticated: !!accessToken && !!user,
+        faceEnrolledHint: faceFlag === '1',
         isHydrating: false,
       });
     } catch {
@@ -98,37 +87,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       storage.setItem(KEYS.refreshToken, refreshToken),
       storage.setItem(KEYS.user, JSON.stringify(user)),
     ]);
-    // Saat baru login fresh, session selalu dianggap unlocked.
-    // Biometric prompt baru muncul saat app re-open setelah ini.
-    // pendingBiometricEnrollment akan trigger one-time enrollment modal
-    // di tabs layout kalau user belum opt-in.
-    const isFreshOptIn = !get().biometricEnabled;
     set({
       accessToken,
       refreshToken,
       user,
       isAuthenticated: true,
-      biometricUnlocked: true,
-      pendingBiometricEnrollment: isFreshOptIn,
     });
   },
 
   logout: async () => {
-    // Soft logout: bersihkan accessToken supaya API call butuh refresh,
-    // tapi pertahankan refreshToken + user + biometricEnabled flag supaya
-    // biometric quick-login dari welcome screen bisa restore sesi.
-    const { biometricEnabled } = get();
-    if (biometricEnabled) {
-      // Pertahankan refresh token + biometric flag — Welcome face button
-      // akan trigger biometric → refresh token → restore session.
+    // Soft logout: bersihkan accessToken tapi pertahankan refreshToken +
+    // user + faceEnrolledHint kalau ada — supaya Welcome face login bisa
+    // restore sesi tanpa OTP.
+    const { faceEnrolledHint } = get();
+    if (faceEnrolledHint) {
       await storage.deleteItem(KEYS.accessToken);
       set({
         accessToken: null,
         isAuthenticated: false,
-        biometricUnlocked: false,
       });
     } else {
-      // Tidak ada biometric — hapus semua karena tidak ada cara restore.
+      // Tidak ada face enrolled — tidak ada cara restore tanpa OTP.
       await Promise.all([
         storage.deleteItem(KEYS.accessToken),
         storage.deleteItem(KEYS.refreshToken),
@@ -139,7 +118,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         refreshToken: null,
         user: null,
         isAuthenticated: false,
-        biometricUnlocked: false,
       });
     }
   },
@@ -150,41 +128,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       storage.deleteItem(KEYS.accessToken),
       storage.deleteItem(KEYS.refreshToken),
       storage.deleteItem(KEYS.user),
-      storage.deleteItem(KEYS.biometricEnabled),
+      storage.deleteItem(KEYS.faceEnrolledHint),
     ]);
     set({
       accessToken: null,
       refreshToken: null,
       user: null,
       isAuthenticated: false,
-      biometricEnabled: false,
-      biometricUnlocked: false,
+      faceEnrolledHint: false,
     });
   },
 
-  hasBiometricSession: async () => {
-    const [refreshToken, biometricFlag, userJson] = await Promise.all([
+  hasFaceSession: async () => {
+    const [refreshToken, faceFlag, userJson] = await Promise.all([
       storage.getItem(KEYS.refreshToken),
-      storage.getItem(KEYS.biometricEnabled),
+      storage.getItem(KEYS.faceEnrolledHint),
       storage.getItem(KEYS.user),
     ]);
-    return !!refreshToken && biometricFlag === '1' && !!userJson;
+    return !!refreshToken && faceFlag === '1' && !!userJson;
   },
 
-  setBiometricEnabled: async (enabled) => {
-    if (enabled) {
-      await storage.setItem(KEYS.biometricEnabled, '1');
+  setFaceEnrolledHint: async (enrolled) => {
+    if (enrolled) {
+      await storage.setItem(KEYS.faceEnrolledHint, '1');
     } else {
-      await storage.deleteItem(KEYS.biometricEnabled);
+      await storage.deleteItem(KEYS.faceEnrolledHint);
     }
-    set({ biometricEnabled: enabled });
-  },
-
-  markBiometricUnlocked: () => {
-    set({ biometricUnlocked: true });
-  },
-
-  clearPendingEnrollment: () => {
-    set({ pendingBiometricEnrollment: false });
+    set({ faceEnrolledHint: enrolled });
   },
 }));

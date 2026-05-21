@@ -57,9 +57,56 @@ export type EnrollmentVerifyResponse = {
   validForSeconds: number; // default 900 (15 menit)
 };
 
+/**
+ * Face recognition (M13) — BE patch 21q.
+ * Endpoint spec: docs/backend-request-face-recognition.md section "Endpoint spec final".
+ */
+
+/** Descriptor length yang BE expect. Stick di 128. */
+export const FACE_DESCRIPTOR_DIM = 128;
+
+/** Versi model ML yang dipakai. Sinkron dengan BE — kalau ganti library/weights, bump. */
+export const FACE_MODEL_VERSION = 'facenet-v1';
+
+/** Versi consent text yang user setujui — disimpan BE di User.faceMetadata.consentVersion. */
+export const FACE_CONSENT_VERSION = 'v1-2026-05-21';
+
+export type FaceEnrollMetadata = {
+  consentVersion: string;
+  platform: 'ios' | 'android' | 'web';
+  deviceModel?: string;
+  appVersion?: string;
+};
+
+export type FaceEnrollPayload = {
+  descriptor: number[]; // 128 float, on-device computed
+  modelVersion?: string; // default FACE_MODEL_VERSION
+  metadata: FaceEnrollMetadata;
+};
+
 export type FaceLoginPayload = {
   noHp: string;
   descriptor: number[]; // 128-dim Float32 array
+  modelVersion?: string;
+};
+
+/** Response GET /auth/me/face-profile */
+export type FaceProfileStatus = {
+  enrolled: boolean;
+  enrolledAt: string | null;
+  modelVersion: string | null;
+};
+
+/** Response POST/PUT /auth/face/enroll[me/face-profile] */
+export type FaceEnrollResponse = {
+  faceEnrolledAt: string;
+  modelVersion: string;
+  hasFaceEnrolled: true;
+};
+
+/** Response POST /auth/face/login. Sama dengan AuthSuccessData + confidence. */
+export type FaceLoginResponse = AuthSuccessData & {
+  confidence: number; // 0..1, higher = better match
 };
 
 export type LogoutPayload = {

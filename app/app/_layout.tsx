@@ -17,7 +17,7 @@ import { useNotificationsStore } from '@/stores/notifications.store';
 import { usePrinterStore } from '@/stores/printer.store';
 import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
-import { BiometricGate } from '@/components/auth/BiometricGate';
+import { FaceDescriptorProvider } from '@/components/face/FaceDescriptorProvider';
 import { prefetchBranches } from '@/hooks/useBranches';
 
 export { ErrorBoundary } from 'expo-router';
@@ -87,12 +87,14 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        {/* Default StatusBar — 'auto' adapt ke system color scheme (light mode = dark icons).
-            Individual screens dengan orange header pakai <StatusBar style="light" />
-            untuk override (icons putih supaya visible di atas orange). */}
-        <StatusBar style="dark" translucent backgroundColor="transparent" />
-        <RootLayoutNav />
-        <ToastContainer />
+        <FaceDescriptorProvider>
+          {/* Default StatusBar — 'auto' adapt ke system color scheme (light mode = dark icons).
+              Individual screens dengan orange header pakai <StatusBar style="light" />
+              untuk override (icons putih supaya visible di atas orange). */}
+          <StatusBar style="dark" translucent backgroundColor="transparent" />
+          <RootLayoutNav />
+          <ToastContainer />
+        </FaceDescriptorProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
@@ -100,8 +102,6 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const biometricEnabled = useAuthStore((s) => s.biometricEnabled);
-  const biometricUnlocked = useAuthStore((s) => s.biometricUnlocked);
   const jemaatId = useAuthStore((s) => s.user?.jemaatId);
   const segments = useSegments();
   const router = useRouter();
@@ -127,15 +127,6 @@ function RootLayoutNav() {
     rehydrateEventFlow();
     rehydrateNotifications();
   }, [jemaatId, rehydrateEventFlow, rehydrateNotifications]);
-
-  // Biometric gate: tampil sebelum app content kalau user sudah opt-in
-  // dan session belum di-unlock. Logout / fresh login akan reset state.
-  const needsBiometricGate =
-    isAuthenticated && biometricEnabled && !biometricUnlocked;
-
-  if (needsBiometricGate) {
-    return <BiometricGate />;
-  }
 
   return (
     <ThemeProvider value={DefaultTheme}>

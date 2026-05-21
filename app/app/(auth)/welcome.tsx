@@ -1,21 +1,26 @@
 import { useEffect, useState } from 'react';
-import { Image, Text, View, Pressable } from 'react-native';
+import { Image, Modal, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import {
   ChevronRight,
   Eye,
-  Fingerprint,
   MessageCircleMore,
   ScanFace,
   UserPlus,
 } from 'lucide-react-native';
+import { useMutation } from '@tanstack/react-query';
 
 import { useToast } from '@/components/ui/Toast';
-import { refreshSession } from '@/api/auth';
-import { authenticate, getBiometricSupport } from '@/services/biometric';
+import { faceLogin } from '@/api/auth';
+import { FaceCapture } from '@/components/face/FaceCapture';
 import { useAuthStore } from '@/stores/auth.store';
+import {
+  FACE_MODEL_VERSION,
+  type FaceLoginPayload,
+  type FaceLoginResponse,
+} from '@/types/auth';
 import { ApiError } from '@/types/api';
 
 type Option = {
@@ -33,84 +38,67 @@ export default function WelcomeScreen() {
   const router = useRouter();
   const showToast = useToast((s) => s.show);
 
-  const hasBiometricSession = useAuthStore((s) => s.hasBiometricSession);
-  const setTokens = useAuthStore((s) => s.setTokens);
-  const markBiometricUnlocked = useAuthStore((s) => s.markBiometricUnlocked);
+  const hasFaceSession = useAuthStore((s) => s.hasFaceSession);
+  const login = useAuthStore((s) => s.login);
   const forgetDevice = useAuthStore((s) => s.forgetDevice);
+  const user = useAuthStore((s) => s.user);
 
-  // Detect kalau biometric quick-login feasible di device ini
-  const [canQuickLogin, setCanQuickLogin] = useState(false);
-  const [biometricLabel, setBiometricLabel] = useState('Biometric');
-  const [biometricFaceLike, setBiometricFaceLike] = useState(true);
-  const [unlocking, setUnlocking] = useState(false);
+  const [canFaceLogin, setCanFaceLogin] = useState(false);
+  const [captureOpen, setCaptureOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      const [hasSession, support] = await Promise.all([
-        hasBiometricSession(),
-        getBiometricSupport(),
-      ]);
-      if (!mounted) return;
-      setCanQuickLogin(hasSession && support.isAvailable);
-      setBiometricLabel(support.label);
-      setBiometricFaceLike(support.primaryType === 'face');
-    })();
+    hasFaceSession().then((v) => {
+      if (mounted) setCanFaceLogin(v);
+    });
     return () => {
       mounted = false;
     };
-  }, [hasBiometricSession]);
+  }, [hasFaceSession]);
 
-  async function handleQuickLogin() {
-    if (unlocking) return;
-    setUnlocking(true);
-    try {
-      // 1. Verify biometric on device
-      const result = await authenticate(
-        t('biometric.prompt_unlock'),
-      );
-      if (!result.success) {
-        if (result.reason === 'no_enrolled' || result.reason === 'no_hardware') {
-          showToast(t('biometric.no_longer_available'), 'info');
-          await forgetDevice();
-          setCanQuickLogin(false);
-        }
-        return;
+  const loginMutation = useMutation({
+    mutationFn: (payload: FaceLoginPayload) => faceLogin(payload),
+    onSuccess: async (data: FaceLoginResponse) => {
+      await login(data.accessToken, data.refreshToken, data.user);
+      setCaptureOpen(false);
+      if (data.confidence < 0.7) {
+        showToast(t('face.low_confidence_warn'), 'info');
+      } else {
+        showToast(t('auth.login_success'), 'success');
       }
-
-      // 2. Use stored refresh token to get fresh access token
-      const { refreshToken } = useAuthStore.getState();
-      if (!refreshToken) {
-        showToast(t('auth.session_expired_relogin'), 'error');
-        await forgetDevice();
-        setCanQuickLogin(false);
-        return;
-      }
-
-      try {
-        const data = await refreshSession(refreshToken);
-        await setTokens(data.accessToken, data.refreshToken);
-        markBiometricUnlocked();
-        // isAuthenticated triggered via store update via useAuthStore login
-        // path... but setTokens doesn't flip flag. Set it explicitly.
-        useAuthStore.setState({ isAuthenticated: true });
-        // Redirect handled di root layout
-      } catch (err) {
-        if (err instanceof ApiError && err.status === 401) {
-          // Refresh token sudah invalid di BE side — clear + force OTP
-          await forgetDevice();
-          setCanQuickLogin(false);
-          showToast(t('auth.session_expired_relogin'), 'error');
+      // Redirect handled by root layout via isAuthenticated change
+    },
+    onError: (err) => {
+      setCaptureOpen(false);
+      if (err instanceof ApiError) {
+        const code = err.code.toLowerCase();
+        if (code === 'face_not_enrolled' || code === 'face_no_match' || code === 'face_model_mismatch') {
+          showToast(t(`face.error_${code}`), 'error');
         } else {
-          showToast(t('error.network'), 'error');
+          showToast(err.message, 'error');
         }
+        // After fatal, allow user re-try OTP
+        if (code === 'face_not_enrolled') {
+          forgetDevice().then(() => setCanFaceLogin(false));
+        }
+      } else {
+        showToast(t('error.network'), 'error');
       }
-    } finally {
-      setUnlocking(false);
-    }
-  }
+    },
+  });
 
-  const QuickIcon = biometricFaceLike ? ScanFace : Fingerprint;
+  function handleDescriptor(descriptor: number[]) {
+    if (!user?.noHp) {
+      showToast(t('face.error_no_phone_hint'), 'error');
+      setCaptureOpen(false);
+      return;
+    }
+    loginMutation.mutate({
+      noHp: user.noHp,
+      descriptor,
+      modelVersion: FACE_MODEL_VERSION,
+    });
+  }
 
   const options: Option[] = [
     {
@@ -122,15 +110,13 @@ export default function WelcomeScreen() {
       onPress: () => router.push('/(auth)/login'),
     },
     {
-      label: unlocking
-        ? t('biometric.prompting')
-        : t('auth.quick_login_biometric', { method: biometricLabel }),
-      sub: t('auth.quick_login_biometric_sub'),
-      icon: <QuickIcon size={20} color="#D97706" />,
+      label: t('auth.signin_face'),
+      sub: t('auth.signin_face_sub'),
+      icon: <ScanFace size={20} color="#D97706" />,
       iconBg: 'bg-amber-50',
       variant: 'secondary',
-      onPress: handleQuickLogin,
-      hidden: !canQuickLogin,
+      onPress: () => setCaptureOpen(true),
+      hidden: !canFaceLogin,
     },
   ];
 
@@ -190,7 +176,7 @@ export default function WelcomeScreen() {
           ))}
         </View>
 
-        {/* Powered by IDEA — di bawah tombol Guest */}
+        {/* Powered by IDEA */}
         <View className="items-center mt-6">
           <View className="flex-row items-center gap-2">
             <Text className="text-xs text-neutral-400">Powered by</Text>
@@ -209,6 +195,16 @@ export default function WelcomeScreen() {
           {t('auth.tos_notice')}
         </Text>
       </View>
+
+      {/* Face capture modal */}
+      <Modal visible={captureOpen} animationType="slide" onRequestClose={() => setCaptureOpen(false)}>
+        {captureOpen ? (
+          <FaceCapture
+            onSuccess={handleDescriptor}
+            onCancel={() => setCaptureOpen(false)}
+          />
+        ) : null}
+      </Modal>
     </SafeAreaView>
   );
 }
