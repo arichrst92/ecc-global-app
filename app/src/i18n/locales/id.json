@@ -335,5 +335,50 @@
     "too_many_requests": "Terlalu banyak permintaan, coba beberapa saat lagi.",
     "unauthorized": "Sesi telah berakhir. Silakan masuk ulang.",
     "generic": "Terjadi kesalahan. Coba lagi nanti."
+  },
+  "branch_change": {
+    "title": "Ganti Cabang Home",
+    "current_branch": "Cabang Anda Saat Ini",
+    "target_branch": "Cabang Tujuan",
+    "pick_target": "Pilih cabang tujuan",
+    "reason_label": "Alasan Pindah",
+    "reason_placeholder": "Mis. Pindah domisili ke Bandung mulai Juni 2026 karena pekerjaan baru.",
+    "reason_helper": "Minimal 10 karakter. Akan dibaca admin saat review.",
+    "reason_too_short": "Alasan terlalu pendek (minimal 10 karakter).",
+    "process_notice": "Permintaan akan di-review admin cabang tujuan. Anda akan dapat notifikasi ketika sudah di-approve atau ditolak.",
+    "submit_btn": "Kirim Permohonan",
+    "submit_success": "Permohonan terkirim. Tunggu konfirmasi admin.",
+    "pending_title": "Anda punya permohonan PENDING",
+    "pending_msg": "Tunggu admin review permohonan sebelumnya sebelum kirim baru.",
+    "pending_exists_title": "Permohonan sudah ada",
+    "pending_exists_msg": "Anda hanya bisa punya 1 permohonan PENDING. Tunggu di-review atau hubungi admin.",
+    "history_title": "Riwayat Permohonan",
+    "history_empty": "Belum ada permohonan pindah cabang.",
+    "status_pending": "MENUNGGU",
+    "status_approved": "DISETUJUI",
+    "status_rejected": "DITOLAK"
+  },
+  "notifications": {
+    "title": "Notifikasi",
+    "mark_all_read": "Tandai semua",
+    "section_today": "Hari Ini",
+    "section_yesterday": "Kemarin",
+    "section_earlier": "Lebih Lama",
+    "empty_title": "Belum ada notifikasi",
+    "empty_msg": "Notifikasi ibadah, event, dan info penting akan muncul di sini.",
+    "push_coming_soon": "Push notification masih dalam pengembangan. Untuk sekarang notifikasi muncul lokal di app.",
+    "now": "baru saja",
+    "minutes_ago": "{{count}}m lalu",
+    "hours_ago": "{{count}}j lalu",
+    "days_ago": "{{count}}h lalu"
+  },
+  "settings": {
+    "language_title": "Bahasa",
+    "language_app_title": "Bahasa Aplikasi",
+    "language_app_sub": "Mengubah bahasa antarmuka aplikasi.",
+    "language_content_note": "Konten ibadah, renungan, dan event tetap dalam Bahasa Indonesia.",
+    "about_title": "Tentang Aplikasi",
+    "about_description": "ECC Global App — aplikasi resmi jemaat ECC untuk ibadah, event, renungan, persembahan, dan komunitas.",
+    "about_contact": "Hubungi Kami"
   }
 }

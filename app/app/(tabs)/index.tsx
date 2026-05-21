@@ -9,6 +9,7 @@ import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarD
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { BranchChip } from '@/components/branch/BranchChip';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
@@ -31,6 +32,9 @@ export default function HomeScreen() {
   const renunganQuery = useLatestRenungan();
   const newsQuery = useLatestNews();
   const eventsQuery = useHomeEvents();
+  const unreadNotifs = useNotificationsStore((s) =>
+    s.items.filter((n) => !n.read).length,
+  );
   const lang = i18n.language;
 
   const isRefreshing =
@@ -84,8 +88,18 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
-              <Pressable className="bg-white/15 rounded-full p-2">
+              <Pressable
+                onPress={() => router.push('/notifications')}
+                className="bg-white/15 rounded-full p-2"
+              >
                 <Bell size={20} color="#fff" />
+                {unreadNotifs > 0 ? (
+                  <View className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 items-center justify-center border-2 border-brand-500">
+                    <Text className="text-[10px] font-bold text-white">
+                      {unreadNotifs > 99 ? '99+' : unreadNotifs}
+                    </Text>
+                  </View>
+                ) : null}
               </Pressable>
             </View>
 

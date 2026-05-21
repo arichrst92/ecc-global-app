@@ -335,5 +335,50 @@
     "too_many_requests": "Too many requests, please wait a moment.",
     "unauthorized": "Session expired. Please sign in again.",
     "generic": "Something went wrong. Please try again."
+  },
+  "branch_change": {
+    "title": "Change Home Branch",
+    "current_branch": "Your Current Branch",
+    "target_branch": "Target Branch",
+    "pick_target": "Pick target branch",
+    "reason_label": "Reason",
+    "reason_placeholder": "e.g. Moving to Bandung starting June 2026 for a new job.",
+    "reason_helper": "At least 10 characters. Will be read by admin during review.",
+    "reason_too_short": "Reason too short (minimum 10 characters).",
+    "process_notice": "Request will be reviewed by the target branch admin. You'll be notified when approved or rejected.",
+    "submit_btn": "Submit Request",
+    "submit_success": "Request submitted. Waiting admin confirmation.",
+    "pending_title": "You have a PENDING request",
+    "pending_msg": "Wait for admin to review the previous request before submitting a new one.",
+    "pending_exists_title": "Request already exists",
+    "pending_exists_msg": "You can only have 1 PENDING request. Wait for review or contact admin.",
+    "history_title": "Request History",
+    "history_empty": "No branch change requests yet.",
+    "status_pending": "PENDING",
+    "status_approved": "APPROVED",
+    "status_rejected": "REJECTED"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_all_read": "Mark all read",
+    "section_today": "Today",
+    "section_yesterday": "Yesterday",
+    "section_earlier": "Earlier",
+    "empty_title": "No notifications yet",
+    "empty_msg": "Service reminders, events, and important updates will appear here.",
+    "push_coming_soon": "Push notifications are still in development. For now notifications appear locally in app.",
+    "now": "just now",
+    "minutes_ago": "{{count}}m ago",
+    "hours_ago": "{{count}}h ago",
+    "days_ago": "{{count}}d ago"
+  },
+  "settings": {
+    "language_title": "Language",
+    "language_app_title": "App Language",
+    "language_app_sub": "Changes the app interface language.",
+    "language_content_note": "Service, devotional, and event content remains in Indonesian.",
+    "about_title": "About App",
+    "about_description": "ECC Global App — official app for ECC members covering services, events, devotionals, giving, and community.",
+    "about_contact": "Contact Us"
   }
 }

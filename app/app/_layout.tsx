@@ -13,6 +13,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useBranchStore } from '@/stores/branch.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { prefetchBranches } from '@/hooks/useBranches';
 
@@ -40,6 +41,7 @@ export default function RootLayout() {
   const hydratePrefs = usePreferencesStore((s) => s.hydrate);
   const hydrateBranch = useBranchStore((s) => s.hydrate);
   const hydrateEventFlow = useEventFlowStore((s) => s.hydrate);
+  const hydrateNotifications = useNotificationsStore((s) => s.hydrate);
 
   useEffect(() => {
     if (error) throw error;
@@ -51,10 +53,11 @@ export default function RootLayout() {
       hydratePrefs(),
       hydrateBranch(),
       hydrateEventFlow(),
+      hydrateNotifications(),
     ]).then(() => setHydrated(true));
     // Prefetch cabang list di background — tidak block hydration
     prefetchBranches(queryClient);
-  }, [hydrateAuth, hydratePrefs, hydrateBranch, hydrateEventFlow]);
+  }, [hydrateAuth, hydratePrefs, hydrateBranch, hydrateEventFlow, hydrateNotifications]);
 
   useEffect(() => {
     if (loaded && hydrated) {
@@ -100,11 +103,13 @@ function RootLayoutNav() {
     }
   }, [isAuthenticated, segments, router]);
 
-  // Re-hydrate event-flow store saat jemaatId berubah (login/logout/switch user)
-  // supaya participations untuk user yang benar di-load
+  // Re-hydrate event-flow + notifications stores saat jemaatId berubah
+  // (login/logout/switch user) supaya data milik user yang benar di-load
+  const rehydrateNotifications = useNotificationsStore((s) => s.hydrate);
   useEffect(() => {
     rehydrateEventFlow();
-  }, [jemaatId, rehydrateEventFlow]);
+    rehydrateNotifications();
+  }, [jemaatId, rehydrateEventFlow, rehydrateNotifications]);
 
   return (
     <ThemeProvider value={DefaultTheme}>

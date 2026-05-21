@@ -9,6 +9,8 @@ import { useRouter } from 'expo-router';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/auth.store';
+import { useNotificationsStore } from '@/stores/notifications.store';
+import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
 import { formatPhoneDisplay } from '@/utils/phone';
 
@@ -18,6 +20,11 @@ export default function ProfileTab() {
   const router = useRouter();
   const logoutMutation = useLogout();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const unreadNotifs = useNotificationsStore((s) =>
+    s.items.filter((n) => !n.read).length,
+  );
+  const language = usePreferencesStore((s) => s.language);
+  const languageLabel = language === 'id' ? 'Bahasa Indonesia' : 'English';
 
   function confirmLogout() {
     setConfirmOpen(false);
@@ -86,6 +93,8 @@ export default function ProfileTab() {
             icon={<Bell size={20} color="#EA580C" />}
             bg="bg-brand-50"
             label={t('profile.notifications')}
+            badge={unreadNotifs > 0 ? unreadNotifs : undefined}
+            onPress={() => router.push('/notifications')}
           />
           <QuickTile
             icon={<Printer size={20} color="#1d4ed8" />}
@@ -100,10 +109,25 @@ export default function ProfileTab() {
         </Text>
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <MenuRow label={t('profile.edit_profile')} />
-          <MenuRow label={t('profile.family')} onPress={() => router.push('/family')} />
-          <MenuRow label={t('profile.change_branch')} />
-          <MenuRow label={t('profile.language')} sub="Bahasa Indonesia" />
-          <MenuRow label={t('profile.about')} sub="v0.1.0" isLast />
+          <MenuRow
+            label={t('profile.family')}
+            onPress={() => router.push('/family')}
+          />
+          <MenuRow
+            label={t('profile.change_branch')}
+            onPress={() => router.push('/settings/change-branch')}
+          />
+          <MenuRow
+            label={t('profile.language')}
+            sub={languageLabel}
+            onPress={() => router.push('/settings/language')}
+          />
+          <MenuRow
+            label={t('profile.about')}
+            sub="v0.1.0"
+            onPress={() => router.push('/settings/about')}
+            isLast
+          />
         </View>
 
         <View className="mt-6">
@@ -178,18 +202,29 @@ function QuickTile({
   bg,
   label,
   onPress,
+  badge,
 }: {
   icon: React.ReactNode;
   bg: string;
   label: string;
   onPress?: () => void;
+  badge?: number;
 }) {
   return (
     <Pressable
       onPress={onPress}
       className="flex-1 bg-white rounded-2xl p-3 items-center gap-1.5 border border-neutral-100"
     >
-      <View className={`w-10 h-10 rounded-xl ${bg} items-center justify-center`}>{icon}</View>
+      <View className={`w-10 h-10 rounded-xl ${bg} items-center justify-center`}>
+        {icon}
+        {badge !== undefined && badge > 0 ? (
+          <View className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 items-center justify-center border-2 border-white">
+            <Text className="text-[10px] font-bold text-white">
+              {badge > 99 ? '99+' : badge}
+            </Text>
+          </View>
+        ) : null}
+      </View>
       <Text className="text-[11px] font-semibold text-neutral-700 text-center" numberOfLines={1}>
         {label}
       </Text>
