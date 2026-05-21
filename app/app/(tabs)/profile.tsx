@@ -3,6 +3,7 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { LogOut, AlertTriangle, ChevronRight, Pencil, QrCode, ScanLine } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -12,6 +13,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
+import { getMyProfile } from '@/api/me';
 import { formatPhoneDisplay } from '@/utils/phone';
 
 export default function ProfileTab() {
@@ -99,6 +101,9 @@ export default function ProfileTab() {
             <ChevronRight size={18} color="#fff" />
           </Pressable>
         ) : null}
+
+        {/* Role / peran current user */}
+        <RoleCard />
 
         {/* Settings menu */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
@@ -213,5 +218,47 @@ function MenuRow({
       </View>
       <ChevronRight size={16} color="#A3A3A3" />
     </Pressable>
+  );
+}
+
+/**
+ * RoleCard — tampil daftar peran current user di gereja (jemaatRoles dari
+ * /admin/me). Termasuk role + subRole + status. Misal:
+ * "Volunteer · Worship Team · Aktif"
+ */
+function RoleCard() {
+  const { t } = useTranslation();
+  const meQuery = useQuery({
+    queryKey: ['me', 'profile-tab'],
+    queryFn: getMyProfile,
+    staleTime: 5 * 60_000,
+  });
+  const roles = meQuery.data?.jemaatRoles ?? [];
+
+  if (roles.length === 0) {
+    return null; // Hide kalau user belum punya role apapun
+  }
+
+  return (
+    <View className="mb-4">
+      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+        {t('profile.role_section')}
+      </Text>
+      <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-2">
+        {roles.map((r, idx) => {
+          const parts = [r.role?.nama, r.subRole?.nama, r.subRoleStatus?.nama].filter(
+            Boolean,
+          );
+          return (
+            <View key={idx} className="flex-row items-center gap-2">
+              <View className="w-2 h-2 rounded-full bg-brand-500" />
+              <Text className="text-sm text-neutral-700 flex-1">
+                {parts.join(' · ') || '—'}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
   );
 }

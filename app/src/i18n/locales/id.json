@@ -139,7 +139,8 @@
     "language": "Bahasa",
     "about": "Tentang Aplikasi",
     "scanner_mode": "Mode Scanner",
-    "scanner_mode_sub": "Scan QR jemaat untuk check-in ibadah / event"
+    "scanner_mode_sub": "Scan QR jemaat untuk check-in ibadah / event",
+    "role_section": "Peran Anda Saat Ini"
   },
   "family": {
     "title": "Keluarga Saya",
@@ -203,7 +204,10 @@
     "unlink_confirm_title": "Hapus dari keluarga?",
     "unlink_confirm_msg": "Hubungan keluarga dengan {{name}} akan dihapus. Akun mereka tidak ikut terhapus.",
     "confirm_unlink": "Ya, Hapus",
-    "unlinked": "Hubungan keluarga berhasil dihapus."
+    "unlinked": "Hubungan keluarga berhasil dihapus.",
+    "edit_dependent_btn": "Edit Profil Anggota",
+    "edit_dependent_sub": "Ubah nama, tanggal lahir, alamat anggota dependent ini",
+    "edit_dependent_soon": "Fitur edit profil dependent menunggu endpoint backend siap. Untuk sekarang hubungi pengurus cabang."
   },
   "placeholder": {
     "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."
@@ -624,8 +628,14 @@
   "edit_profile": {
     "full_name": "Nama Lengkap",
     "email": "Email",
+    "phone": "Nomor HP",
+    "phone_readonly": "Tidak bisa diubah",
     "dob": "Tanggal Lahir",
+    "dob_placeholder": "Pilih tanggal lahir",
     "dob_helper": "Format: YYYY-MM-DD (mis. 1990-12-31)",
+    "tap_to_change_foto": "Tap foto untuk ganti",
+    "foto_uploaded": "Foto profil berhasil diperbarui.",
+    "foto_permission": "Izin galeri ditolak. Aktifkan di Pengaturan untuk pilih foto.",
     "notice": "Untuk ganti foto profil, hubungi pengurus cabang. Ganti cabang home pakai menu terpisah di Pengaturan.",
     "success": "Profil berhasil diperbarui."
   }

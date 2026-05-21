@@ -3,7 +3,7 @@ import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ArrowLeft, MapPin, Phone, Trash2 } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, MapPin, Pencil, Phone, Trash2 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -193,6 +193,27 @@ export default function FamilyDetailScreen() {
             </View>
           ) : null}
         </View>
+
+        {/* Edit Profile button — hanya untuk dependent (anak balita / lansia tanpa HP).
+            Member non-dependent yang punya akun sendiri harus edit profil mereka sendiri. */}
+        {jemaat.isDependent ? (
+          <Pressable
+            onPress={() => showToast(t('family.edit_dependent_soon'), 'info')}
+            className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-4"
+          >
+            <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+              <Pencil size={18} color="#EA580C" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-neutral-900">
+                {t('family.edit_dependent_btn')}
+              </Text>
+              <Text className="text-xs text-neutral-500 mt-0.5">
+                {t('family.edit_dependent_sub')}
+              </Text>
+            </View>
+          </Pressable>
+        ) : null}
 
         {/* Unlink */}
         <Pressable

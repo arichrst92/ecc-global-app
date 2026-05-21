@@ -139,7 +139,8 @@
     "language": "Language",
     "about": "About App",
     "scanner_mode": "Scanner Mode",
-    "scanner_mode_sub": "Scan member QR to check in for services / events"
+    "scanner_mode_sub": "Scan member QR to check in for services / events",
+    "role_section": "Your Current Role"
   },
   "family": {
     "title": "My Family",
@@ -203,7 +204,10 @@
     "unlink_confirm_title": "Remove from family?",
     "unlink_confirm_msg": "Family relation with {{name}} will be removed. Their account is not deleted.",
     "confirm_unlink": "Yes, Remove",
-    "unlinked": "Family relation removed."
+    "unlinked": "Family relation removed.",
+    "edit_dependent_btn": "Edit Member Profile",
+    "edit_dependent_sub": "Change name, date of birth, address of this dependent member",
+    "edit_dependent_soon": "Dependent profile editing is awaiting backend endpoint. For now please contact your branch admin."
   },
   "placeholder": {
     "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."
@@ -624,8 +628,14 @@
   "edit_profile": {
     "full_name": "Full Name",
     "email": "Email",
+    "phone": "Phone Number",
+    "phone_readonly": "Can't be edited",
     "dob": "Date of Birth",
+    "dob_placeholder": "Pick date of birth",
     "dob_helper": "Format: YYYY-MM-DD (e.g. 1990-12-31)",
+    "tap_to_change_foto": "Tap photo to change",
+    "foto_uploaded": "Profile photo updated.",
+    "foto_permission": "Gallery permission denied. Enable in Settings to pick a photo.",
     "notice": "To change profile photo, contact your branch admin. Change home branch via separate Settings menu.",
     "success": "Profile updated."
   }
