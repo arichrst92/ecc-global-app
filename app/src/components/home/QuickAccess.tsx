@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -194,15 +194,15 @@ export function QuickAccess() {
           {t('quickaccess.title')}
         </Text>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 10, paddingRight: 5 }}
-      >
+      {/* Grid 4 kolom, wrap ke row baru kalau tiles > 4.
+          Pakai flexBasis "25%" - gap supaya tiles auto-fit responsive. */}
+      <View className="flex-row flex-wrap" style={{ marginHorizontal: -4, rowGap: 12 }}>
         {tiles.map((tile) => (
-          <Tile key={tile.key} tile={tile} />
+          <View key={tile.key} style={{ width: '25%', paddingHorizontal: 4 }}>
+            <Tile tile={tile} />
+          </View>
         ))}
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -210,11 +210,7 @@ export function QuickAccess() {
 function Tile({ tile }: { tile: QuickAccessTile }) {
   const Icon = tile.icon;
   return (
-    <Pressable
-      onPress={tile.onPress}
-      className="items-center"
-      style={{ width: 72 }}
-    >
+    <Pressable onPress={tile.onPress} className="items-center">
       <View
         className={`w-14 h-14 rounded-2xl ${tile.iconBg} items-center justify-center relative ${
           tile.disabled ? 'opacity-60' : ''
