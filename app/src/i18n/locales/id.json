@@ -485,7 +485,17 @@
     "remove_confirm_msg": "{{name}} akan dikeluarkan dari homecell ini. Akun jemaat tidak terhapus.",
     "confirm_remove": "Ya, Keluarkan",
     "member_removed": "{{name}} berhasil dikeluarkan.",
-    "member_already_removed": "Anggota sudah keluar sebelumnya."
+    "member_already_removed": "Anggota sudah keluar sebelumnya.",
+    "member_whatsapp": "Chat WhatsApp"
+  },
+  "jemaat": {
+    "detail_title": "Profil Jemaat",
+    "unknown_name": "Jemaat",
+    "branch_label": "Cabang",
+    "whatsapp_btn": "Chat via WhatsApp",
+    "whatsapp_sub": "Buka chat WhatsApp ke nomor jemaat ini",
+    "not_in_cache": "Detail jemaat ini belum tersedia di aplikasi. Hubungi pengurus cabang untuk info lengkap.",
+    "be_pending_notice": "Detail lengkap (peran, ministry, anggota keluarga) akan ditambahkan setelah endpoint backend siap."
   },
   "area": {
     "title": "Area Homecell",

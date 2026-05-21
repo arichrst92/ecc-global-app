@@ -485,7 +485,17 @@
     "remove_confirm_msg": "{{name}} will be removed from this homecell. Their account is not deleted.",
     "confirm_remove": "Yes, Remove",
     "member_removed": "{{name}} removed successfully.",
-    "member_already_removed": "Member already removed previously."
+    "member_already_removed": "Member already removed previously.",
+    "member_whatsapp": "WhatsApp chat"
+  },
+  "jemaat": {
+    "detail_title": "Member Profile",
+    "unknown_name": "Member",
+    "branch_label": "Branch",
+    "whatsapp_btn": "Chat on WhatsApp",
+    "whatsapp_sub": "Open WhatsApp chat with this member",
+    "not_in_cache": "This member's details aren't loaded in the app. Contact your branch admin for more info.",
+    "be_pending_notice": "Full details (role, ministry, family) will be added once the backend endpoint is ready."
   },
   "area": {
     "title": "Homecell Areas",

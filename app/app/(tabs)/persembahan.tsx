@@ -20,7 +20,6 @@ import {
   HandHeart,
   HeartHandshake,
   Home as HomeIcon,
-  Info,
   QrCode,
   Sparkles,
   X,
@@ -97,14 +96,6 @@ export default function PersembahanTab() {
           />
         }
       >
-        {/* Notice */}
-        <View className="bg-amber-50 border border-amber-100 rounded-2xl p-3 mb-4 flex-row gap-2">
-          <Info size={16} color="#92400e" style={{ marginTop: 2 }} />
-          <Text className="text-xs text-amber-800 flex-1 leading-relaxed">
-            {t('persembahan.notice')}
-          </Text>
-        </View>
-
         {query.isPending || branchLoading ? (
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />

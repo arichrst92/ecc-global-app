@@ -46,16 +46,29 @@ export default function CalendarScreen() {
     const map = new Map<number, DayItem[]>();
 
     (eventsQuery.data ?? []).forEach((e) => {
-      const d = new Date(e.tanggalMulai);
-      if (d.getFullYear() === year && d.getMonth() === month) {
-        const day = d.getDate();
-        if (!map.has(day)) map.set(day, []);
-        map.get(day)!.push({
-          type: 'event',
-          id: e.id,
-          title: e.judul,
-          date: e.tanggalMulai,
-        });
+      // Event multi-day: spread di semua tanggal dari tanggalMulai s/d tanggalSelesai.
+      // Untuk single-day event, tanggalSelesai === tanggalMulai, jadi loop jalan 1x.
+      const start = new Date(e.tanggalMulai);
+      start.setHours(0, 0, 0, 0);
+      const endRaw = e.tanggalSelesai ? new Date(e.tanggalSelesai) : new Date(e.tanggalMulai);
+      endRaw.setHours(0, 0, 0, 0);
+      // Safety: clamp ke max 60 hari supaya kalau BE salah set jangan freeze
+      const MAX_DAYS = 60;
+      let dayCount = 0;
+      const cursor = new Date(start);
+      while (cursor <= endRaw && dayCount < MAX_DAYS) {
+        if (cursor.getFullYear() === year && cursor.getMonth() === month) {
+          const day = cursor.getDate();
+          if (!map.has(day)) map.set(day, []);
+          map.get(day)!.push({
+            type: 'event',
+            id: e.id,
+            title: e.judul,
+            date: e.tanggalMulai,
+          });
+        }
+        cursor.setDate(cursor.getDate() + 1);
+        dayCount += 1;
       }
     });
 

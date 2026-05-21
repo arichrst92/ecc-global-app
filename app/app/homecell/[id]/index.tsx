@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -15,6 +16,7 @@ import {
   ArrowLeft,
   Clock,
   MapPin,
+  MessageCircle,
   Trash2,
   UserPlus,
   Users,
@@ -29,7 +31,6 @@ import {
   useRemoveHomecellMember,
 } from '@/hooks/useHomecell';
 import { ApiError } from '@/types/api';
-import { formatPhoneDisplay } from '@/utils/phone';
 import type { HomecellMember } from '@/types/homecell';
 
 export default function HomecellDetailScreen() {
@@ -219,6 +220,7 @@ export default function HomecellDetailScreen() {
                 member={m}
                 canRemove={canRemove}
                 onRemove={() => setConfirmRemove(m)}
+                onPress={() => router.push(`/jemaat/${m.jemaat.id ?? m.jemaatId}` as never)}
               />
             ))}
           </View>
@@ -232,7 +234,12 @@ export default function HomecellDetailScreen() {
             </Text>
             <View className="gap-2">
               {inactiveMembers.map((m) => (
-                <MemberRow key={m.id} member={m} canRemove={false} />
+                <MemberRow
+                  key={m.id}
+                  member={m}
+                  canRemove={false}
+                  onPress={() => router.push(`/jemaat/${m.jemaat.id ?? m.jemaatId}` as never)}
+                />
               ))}
             </View>
           </>
@@ -296,15 +303,27 @@ function MemberRow({
   member,
   canRemove,
   onRemove,
+  onPress,
 }: {
   member: HomecellMember;
   canRemove: boolean;
   onRemove?: () => void;
+  onPress?: () => void;
 }) {
   const { t } = useTranslation();
   const isInactive = !member.isActive;
+
+  function openWhatsApp() {
+    if (!member.jemaat.noHp) return;
+    // E.164 (+62...) → strip "+" untuk wa.me
+    const num = member.jemaat.noHp.replace(/^\+/, '');
+    const url = `https://wa.me/${num}`;
+    Linking.openURL(url).catch(() => {});
+  }
+
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       className={`bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 ${
         isInactive ? 'opacity-60' : ''
       }`}
@@ -323,16 +342,6 @@ function MemberRow({
         >
           {member.jemaat.namaLengkap}
         </Text>
-        <View className="flex-row items-center gap-2 mt-0.5">
-          <Text className="text-[10px] text-neutral-500 font-mono">
-            {member.jemaat.kode}
-          </Text>
-          {member.jemaat.noHp ? (
-            <Text className="text-[10px] text-neutral-500" numberOfLines={1}>
-              · {formatPhoneDisplay(member.jemaat.noHp)}
-            </Text>
-          ) : null}
-        </View>
         {isInactive ? (
           <Text className="text-[10px] text-red-600 mt-0.5 font-semibold">
             {t('homecell.member_inactive')}
@@ -342,14 +351,30 @@ function MemberRow({
           </Text>
         ) : null}
       </View>
+      {/* WhatsApp button — only kalau active + ada noHp */}
+      {member.isActive && member.jemaat.noHp ? (
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            openWhatsApp();
+          }}
+          className="w-9 h-9 rounded-full bg-green-50 items-center justify-center"
+          accessibilityLabel={t('homecell.member_whatsapp')}
+        >
+          <MessageCircle size={14} color="#16A34A" />
+        </Pressable>
+      ) : null}
       {canRemove && member.isActive ? (
         <Pressable
-          onPress={onRemove}
+          onPress={(e) => {
+            e.stopPropagation();
+            onRemove?.();
+          }}
           className="w-9 h-9 rounded-full bg-red-50 items-center justify-center"
         >
           <Trash2 size={14} color="#DC2626" />
         </Pressable>
       ) : null}
-    </View>
+    </Pressable>
   );
 }

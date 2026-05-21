@@ -238,6 +238,17 @@ export default function EventDetailScreen() {
                       : null
                   }
                 />
+                {/* Jam mulai - selesai — hanya tampil kalau event punya jam (bukan 00:00).
+                    Banyak event butuh detail sampai jam (mis. seminar 09:00-12:00 WIB). */}
+                {(() => {
+                  const range = formatTimeRange(event.tanggalMulai, event.tanggalSelesai);
+                  return range ? (
+                    <MetaRow
+                      icon={<Clock size={20} color="#EA580C" />}
+                      primary={range}
+                    />
+                  ) : null;
+                })()}
                 <MetaRow
                   icon={<MapPin size={20} color="#EA580C" />}
                   primary={event.lokasi}
@@ -651,4 +662,39 @@ function MetaRow({
       </View>
     </View>
   );
+}
+
+/**
+ * Extract HH:mm time portion (WIB) dari tanggalMulai & tanggalSelesai.
+ * Return null kalau kedua jam = 00:00 (artinya event date-only, tidak ada
+ * detail jam).
+ * Contoh output: "19:00 - 21:30 WIB"
+ */
+function formatTimeRange(
+  startIso: string,
+  endIso: string | null | undefined,
+): string | null {
+  const start = new Date(startIso);
+  const end = endIso ? new Date(endIso) : start;
+
+  // Cek kalau date-only event (jam mulai 00:00 dan jam selesai 00:00)
+  const startH = start.getHours();
+  const startM = start.getMinutes();
+  const endH = end.getHours();
+  const endM = end.getMinutes();
+  if (startH === 0 && startM === 0 && endH === 0 && endM === 0) {
+    return null;
+  }
+
+  function fmt(d: Date): string {
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
+  // Single time (kalau jam selesai = jam mulai)
+  if (start.getTime() === end.getTime()) {
+    return `${fmt(start)} WIB`;
+  }
+  return `${fmt(start)} - ${fmt(end)} WIB`;
 }
