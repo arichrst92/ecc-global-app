@@ -537,6 +537,8 @@
     "books_count": "{{count}} kitab",
     "chapters_count": "{{count}} pasal",
     "sample_available_title": "Pasal Pilihan Tersedia",
-    "sample_available_msg": "Pasal-pasal populer berikut sudah tersedia untuk dibaca sekarang."
+    "sample_available_msg": "Pasal-pasal populer berikut sudah tersedia untuk dibaca sekarang.",
+    "choose_version": "Pilih Versi Alkitab",
+    "chapter_not_found": "Pasal tidak ditemukan."
   }
 }

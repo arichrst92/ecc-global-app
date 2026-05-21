@@ -1,16 +1,32 @@
 /**
  * Tipe data untuk fitur Alkitab.
  *
- * Bundle content TB LAI di asset (lihat src/data/bible-books.ts + bible-
- * sample-content.ts). Saat ini ship dengan metadata 66 kitab lengkap +
- * curated sample chapters (Mazmur 23, Yohanes 3, dll). Chapter yang belum
- * ada content-nya akan tampil sebagai placeholder dengan notice.
+ * Bundle 2 versi di mobile asset (Opsi B per BE doc):
+ * - BIMK (Bahasa Indonesia Masa Kini) — © LAI 1985, sourced via yukuku/
+ *   alkitab.app catalog. Default Indonesian.
+ * - KJV (King James Version 1769) — public domain, sourced via aruljohn/
+ *   Bible-kjv GitHub.
  *
- * Backend endpoint untuk full content akan dirancang nanti — lihat
- * docs/backend-request-bible-content.md.
+ * Loader: src/data/bible/index.ts → getChapter(version, bookId, bab).
+ * Each version ~5MB JSON, total bundle ~10MB.
  */
 
 export type Testament = 'OT' | 'NT';
+
+/** Versi Alkitab yang di-bundle di app. */
+export type BibleVersionCode = 'BIMK' | 'KJV';
+
+export type BibleVersionMeta = {
+  code: BibleVersionCode;
+  /** Nama pendek untuk UI: "BIMK", "KJV" */
+  shortName: string;
+  /** Nama lengkap: "Bahasa Indonesia Masa Kini" */
+  fullName: string;
+  /** Bahasa kode: "id" atau "en" */
+  language: 'id' | 'en';
+  /** Copyright/source notice */
+  copyright: string;
+};
 
 export type BibleBook = {
   /** Indeks 1-66 (Kejadian = 1, Wahyu = 66) */
@@ -56,6 +72,9 @@ export type BibleBookmark = {
   createdAt: string;
   /** Teks ayat untuk preview (kalau bookmark per-ayat) */
   preview?: string;
+  /** Versi Alkitab saat bookmark dibuat. Optional untuk backward-compat
+   * dengan bookmark lama dari era sample-only. */
+  versionCode?: BibleVersionCode;
 };
 
 /** Verse of the day — di-rotate dari curated list berdasar tanggal */

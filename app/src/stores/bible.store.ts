@@ -2,15 +2,19 @@ import { create } from 'zustand';
 
 import { storage } from '@/utils/storage';
 import { useAuthStore } from '@/stores/auth.store';
-import type { BibleBookmark, BibleFontSize } from '@/types/bible';
+import type {
+  BibleBookmark,
+  BibleFontSize,
+  BibleVersionCode,
+} from '@/types/bible';
 
 /**
  * Bible local store.
  *
  * - Bookmarks per-jemaatId supaya tidak cross-leak antar user di shared
  *   device. Format key: ecc.bible.v1
- * - Font size preference global (bukan per-user) — kayaknya overkill scope
- *   per-user untuk preference visual saja.
+ * - Font size + selected version preference global (cross-user). Versi
+ *   pilihan tidak sensitif, jadi share di seluruh device OK.
  * - Last-read ref per-jemaatId untuk "continue reading" di home.
  *
  * Saat BE punya /alkitab/bookmarks endpoint, store ini bisa di-sync
@@ -23,12 +27,14 @@ type StoredShape = {
   bookmarksByJemaatId: Record<string, BibleBookmark[]>;
   lastReadByJemaatId: Record<string, { ref: string; bookId: number; bab: number } | null>;
   fontSize: BibleFontSize;
+  selectedVersionCode: BibleVersionCode;
 };
 
 type State = {
   bookmarks: BibleBookmark[];
   lastRead: { ref: string; bookId: number; bab: number } | null;
   fontSize: BibleFontSize;
+  selectedVersionCode: BibleVersionCode;
   isHydrated: boolean;
 
   hydrate: () => Promise<void>;
@@ -37,6 +43,7 @@ type State = {
   isBookmarked: (ref: string, ayat: number | null) => boolean;
   setLastRead: (ref: string, bookId: number, bab: number) => Promise<void>;
   setFontSize: (size: BibleFontSize) => Promise<void>;
+  setSelectedVersion: (code: BibleVersionCode) => Promise<void>;
 };
 
 async function readStore(): Promise<StoredShape> {
@@ -50,6 +57,7 @@ async function readStore(): Promise<StoredShape> {
     bookmarksByJemaatId: {},
     lastReadByJemaatId: {},
     fontSize: 'md',
+    selectedVersionCode: 'BIMK',
   };
 }
 
@@ -69,6 +77,7 @@ export const useBibleStore = create<State>((set, get) => ({
   bookmarks: [],
   lastRead: null,
   fontSize: 'md',
+  selectedVersionCode: 'BIMK',
   isHydrated: false,
 
   hydrate: async () => {
@@ -80,6 +89,7 @@ export const useBibleStore = create<State>((set, get) => ({
       bookmarks: [...bookmarks].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
       lastRead,
       fontSize: shape.fontSize ?? 'md',
+      selectedVersionCode: shape.selectedVersionCode ?? 'BIMK',
       isHydrated: true,
     });
   },
@@ -131,5 +141,11 @@ export const useBibleStore = create<State>((set, get) => ({
     set({ fontSize: size });
     const shape = await readStore();
     await persistShape({ ...shape, fontSize: size });
+  },
+
+  setSelectedVersion: async (code) => {
+    set({ selectedVersionCode: code });
+    const shape = await readStore();
+    await persistShape({ ...shape, selectedVersionCode: code });
   },
 }));

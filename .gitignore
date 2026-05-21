@@ -75,3 +75,7 @@ __snapshots__/
 # Misc
 *.tsbuildinfo
 .cache/
+
+# Python bytecode cache (from Bible converter scripts)
+scripts/__pycache__/
+*.pyc

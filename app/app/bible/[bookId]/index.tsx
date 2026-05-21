@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react-native';
 
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
-import { hasSampleChapter } from '@/data/bible-sample-content';
 
-/** Book detail — grid pasal 1..totalBab dengan indikator sample-available */
+/** Book detail — grid pasal 1..totalBab. Semua pasal sekarang available
+ * (bundle BIMK + KJV full). */
 export default function BibleBookScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -61,45 +61,21 @@ export default function BibleBookScreen() {
         </Text>
 
         <View className="flex-row flex-wrap" style={{ marginHorizontal: -4 }}>
-          {chapters.map((bab) => {
-            const ref = `${book.singkatan.toUpperCase()} ${bab}`;
-            const available = hasSampleChapter(ref);
-            return (
-              <View key={bab} style={{ width: '20%', paddingHorizontal: 4, marginBottom: 8 }}>
-                <Pressable
-                  onPress={() => router.push(`/bible/${book.id}/${bab}`)}
-                  className={`aspect-square rounded-xl items-center justify-center border ${
-                    available
-                      ? 'bg-purple-600 border-purple-700'
-                      : 'bg-white border-neutral-200'
-                  }`}
-                >
-                  <Text
-                    className={`text-base font-bold ${
-                      available ? 'text-white' : 'text-neutral-700'
-                    }`}
-                  >
-                    {bab}
-                  </Text>
-                  {available ? (
-                    <Text className="text-[8px] text-white/80 font-bold mt-0.5">★</Text>
-                  ) : null}
-                </Pressable>
-              </View>
-            );
-          })}
-        </View>
-
-        {/* Legend */}
-        <View className="mt-4 bg-white rounded-xl p-3 border border-neutral-100">
-          <View className="flex-row items-center gap-2">
-            <View className="w-5 h-5 rounded-md bg-purple-600 items-center justify-center">
-              <Text className="text-[8px] text-white font-bold">★</Text>
+          {chapters.map((bab) => (
+            <View
+              key={bab}
+              style={{ width: '20%', paddingHorizontal: 4, marginBottom: 8 }}
+            >
+              <Pressable
+                onPress={() => router.push(`/bible/${book.id}/${bab}`)}
+                className="aspect-square rounded-xl items-center justify-center bg-white border border-neutral-200 active:bg-purple-50"
+              >
+                <Text className="text-base font-bold text-neutral-700">
+                  {bab}
+                </Text>
+              </Pressable>
             </View>
-            <Text className="text-xs text-neutral-700 flex-1">
-              {t('bible.sample_available_msg')}
-            </Text>
-          </View>
+          ))}
         </View>
       </ScrollView>
     </View>

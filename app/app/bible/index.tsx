@@ -25,29 +25,47 @@ import {
   OT_BOOKS,
 } from '@/data/bible-books';
 import { getVerseOfDay } from '@/data/bible-verses-of-day';
-import { hasSampleChapter } from '@/data/bible-sample-content';
+import { BIBLE_VERSION_BY_CODE, getVerse } from '@/data/bible';
 import type { BibleBook, Testament } from '@/types/bible';
 
 /**
  * Bible home — verse of day + continue reading + browse OT/NT + bookmarks.
  *
- * Content saat ini di-bundle sebagai sample chapters (~17 pasal populer).
- * Pasal yang tidak ada di sample akan tampil placeholder + notice.
+ * Bundle full content: BIMK (Indonesian) + KJV (English). Verse of day teks
+ * fall back ke curated text di bible-verses-of-day.ts kalau bundled version
+ * tidak punya ayat-nya.
  */
 export default function BibleHomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const lastRead = useBibleStore((s) => s.lastRead);
   const bookmarks = useBibleStore((s) => s.bookmarks);
+  const selectedVersionCode = useBibleStore((s) => s.selectedVersionCode);
+  const versionMeta = BIBLE_VERSION_BY_CODE.get(selectedVersionCode);
 
-  const verseOfDay = useMemo(() => getVerseOfDay(), []);
+  // Pakai teks dari bundled version kalau available; fall back ke curated text
+  const verseOfDayBase = useMemo(() => getVerseOfDay(), []);
+  const verseOfDay = useMemo(() => {
+    const fromBundle = getVerse(
+      selectedVersionCode,
+      verseOfDayBase.bookId,
+      verseOfDayBase.bab,
+      verseOfDayBase.ayat,
+    );
+    return {
+      ...verseOfDayBase,
+      teks: fromBundle?.teks ?? verseOfDayBase.teks,
+    };
+  }, [selectedVersionCode, verseOfDayBase]);
+
   const [tab, setTab] = useState<Testament>('NT');
 
   function shareVerse() {
     const book = BIBLE_BOOK_BY_ID.get(verseOfDay.bookId);
     if (!book) return;
+    const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
     Share.share({
-      message: `"${verseOfDay.teks}"\n\n— ${book.nama} ${verseOfDay.bab}:${verseOfDay.ayat} (TB LAI)`,
+      message: `"${verseOfDay.teks}"\n\n— ${book.nama} ${verseOfDay.bab}:${verseOfDay.ayat} (${versionLabel})`,
     });
   }
 
@@ -197,14 +215,6 @@ export default function BibleHomeScreen() {
 
 function BookRow({ book, onPress }: { book: BibleBook; onPress: () => void }) {
   const { t } = useTranslation();
-  // Cek apakah ada sample chapter di kitab ini
-  const hasSample = useMemo(() => {
-    for (let bab = 1; bab <= book.totalBab; bab++) {
-      if (hasSampleChapter(`${book.singkatan.toUpperCase()} ${bab}`)) return true;
-    }
-    return false;
-  }, [book]);
-
   return (
     <Pressable
       onPress={onPress}
@@ -219,11 +229,6 @@ function BookRow({ book, onPress }: { book: BibleBook; onPress: () => void }) {
           {t('bible.chapters_count', { count: book.totalBab })}
         </Text>
       </View>
-      {hasSample ? (
-        <View className="px-2 py-0.5 rounded-full bg-emerald-50">
-          <Text className="text-[9px] font-bold text-emerald-700">★</Text>
-        </View>
-      ) : null}
       <ChevronRight size={14} color="#A3A3A3" />
     </Pressable>
   );
