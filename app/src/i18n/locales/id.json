@@ -456,7 +456,16 @@
     "kode_not_found_title": "Kode Tidak Ditemukan",
     "kode_not_found_msg": "Kode \"{{kode}}\" tidak terdaftar.",
     "already_member_title": "Sudah Jadi Anggota",
-    "member_list_pending": "List anggota lengkap akan tersedia setelah BE expose endpoint detail homecell. Untuk sekarang Anda bisa tambah anggota via scan QR."
+    "area_pic_badge": "PIC AREA",
+    "members_section": "Anggota Aktif ({{count}})",
+    "members_empty": "Belum ada anggota. Tambah via scan QR.",
+    "inactive_section": "Sudah Keluar ({{count}})",
+    "member_inactive": "Sudah keluar",
+    "remove_confirm_title": "Keluarkan dari homecell?",
+    "remove_confirm_msg": "{{name}} akan dikeluarkan dari homecell ini. Akun jemaat tidak terhapus.",
+    "confirm_remove": "Ya, Keluarkan",
+    "member_removed": "{{name}} berhasil dikeluarkan.",
+    "member_already_removed": "Anggota sudah keluar sebelumnya."
   },
   "area": {
     "title": "Area Homecell",
@@ -465,7 +474,9 @@
     "empty_title": "Belum jadi PIC area",
     "empty_msg": "Anda belum ditunjuk sebagai PIC area. Hubungi admin cabang.",
     "pic_label": "PIC",
+    "pic_unassigned": "Belum ditunjuk",
     "no_managed_in_area": "Tidak ada homecell di area ini yang juga Anda PIC-kan langsung. Tap dari list Homecell untuk lihat detail per homecell.",
+    "no_homecells_in_area": "Belum ada homecell aktif di area ini.",
     "partial_list_notice": "Menampilkan {{visible}} dari {{total}} homecell di area ini — hanya homecell yang Anda PIC langsung. List lengkap perlu endpoint BE baru."
   },
   "printer": {

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -14,15 +13,13 @@ import {
   ArrowLeft,
   ChevronRight,
   Clock,
-  Info,
   MapPinned,
   UserCog,
   Users,
 } from 'lucide-react-native';
 
-import { useAuthStore } from '@/stores/auth.store';
-import { useManagedAreas, useManagedHomecells } from '@/hooks/useHomecell';
-import type { PicArea, PicHomecell } from '@/types/homecell';
+import { useAreaHomecells, useManagedAreas } from '@/hooks/useHomecell';
+import type { AreaHomecellRow, PicArea } from '@/types/homecell';
 
 /**
  * Area list — flatten + grouped by area.
@@ -41,31 +38,14 @@ import type { PicArea, PicHomecell } from '@/types/homecell';
 export default function AreaListScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
 
   const areasQuery = useManagedAreas();
-  const homecellsQuery = useManagedHomecells();
-
-  const isRefreshing = areasQuery.isRefetching || homecellsQuery.isRefetching;
-  const isLoading = areasQuery.isPending || homecellsQuery.isPending;
-
+  const isRefreshing = areasQuery.isRefetching;
+  const isLoading = areasQuery.isPending;
   const areas = areasQuery.data ?? [];
-  const homecells = homecellsQuery.data ?? [];
-
-  // Group homecells by areaId
-  const homecellsByArea = useMemo(() => {
-    const map = new Map<string, PicHomecell[]>();
-    for (const h of homecells) {
-      const list = map.get(h.area.id) ?? [];
-      list.push(h);
-      map.set(h.area.id, list);
-    }
-    return map;
-  }, [homecells]);
 
   function refresh() {
     areasQuery.refetch();
-    homecellsQuery.refetch();
   }
 
   return (
@@ -122,20 +102,13 @@ export default function AreaListScreen() {
           </View>
         ) : (
           <View className="gap-5">
-            {areas.map((area) => {
-              const inArea = homecellsByArea.get(area.id) ?? [];
-              const partial = inArea.length < area.homecellCount;
-              return (
-                <AreaSection
-                  key={area.id}
-                  area={area}
-                  homecells={inArea}
-                  partial={partial}
-                  picName={user?.namaLengkap ?? '—'}
-                  onHomecellPress={(hid) => router.push(`/homecell/${hid}`)}
-                />
-              );
-            })}
+            {areas.map((area) => (
+              <AreaSection
+                key={area.id}
+                area={area}
+                onHomecellPress={(hid) => router.push(`/homecell/${hid}`)}
+              />
+            ))}
           </View>
         )}
       </ScrollView>
@@ -145,18 +118,15 @@ export default function AreaListScreen() {
 
 function AreaSection({
   area,
-  homecells,
-  partial,
-  picName,
   onHomecellPress,
 }: {
   area: PicArea;
-  homecells: PicHomecell[];
-  partial: boolean;
-  picName: string;
   onHomecellPress: (id: string) => void;
 }) {
   const { t } = useTranslation();
+  const query = useAreaHomecells(area.id);
+  const homecells = query.data ?? [];
+
   return (
     <View>
       {/* Area header */}
@@ -173,10 +143,14 @@ function AreaSection({
       </View>
 
       {/* Homecells in area */}
-      {homecells.length === 0 ? (
+      {query.isPending ? (
+        <View className="bg-white rounded-2xl p-6 items-center">
+          <ActivityIndicator color="#F97316" />
+        </View>
+      ) : homecells.length === 0 ? (
         <View className="bg-white rounded-2xl p-4 border border-dashed border-neutral-300 items-center">
           <Text className="text-xs text-neutral-500 text-center">
-            {t('area.no_managed_in_area')}
+            {t('area.no_homecells_in_area')}
           </Text>
         </View>
       ) : (
@@ -185,38 +159,24 @@ function AreaSection({
             <HomecellRow
               key={h.id}
               homecell={h}
-              picName={picName}
               onPress={() => onHomecellPress(h.id)}
             />
           ))}
         </View>
       )}
-
-      {partial ? (
-        <View className="mt-2 bg-amber-50 border border-amber-100 rounded-xl p-2.5 flex-row gap-2">
-          <Info size={12} color="#92400e" style={{ marginTop: 2 }} />
-          <Text className="text-[11px] text-amber-800 flex-1 leading-relaxed">
-            {t('area.partial_list_notice', {
-              visible: homecells.length,
-              total: area.homecellCount,
-            })}
-          </Text>
-        </View>
-      ) : null}
     </View>
   );
 }
 
 function HomecellRow({
   homecell,
-  picName,
   onPress,
 }: {
-  homecell: PicHomecell;
-  picName: string;
+  homecell: AreaHomecellRow;
   onPress: () => void;
 }) {
   const { t } = useTranslation();
+  const picName = homecell.picJemaat?.namaLengkap ?? t('area.pic_unassigned');
   return (
     <Pressable
       onPress={onPress}

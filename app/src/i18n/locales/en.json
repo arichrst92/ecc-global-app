@@ -456,7 +456,16 @@
     "kode_not_found_title": "Code Not Found",
     "kode_not_found_msg": "Code \"{{kode}}\" is not registered.",
     "already_member_title": "Already a Member",
-    "member_list_pending": "Full member list will be available after BE exposes homecell detail endpoint. For now you can add members via QR scan."
+    "area_pic_badge": "AREA PIC",
+    "members_section": "Active Members ({{count}})",
+    "members_empty": "No members yet. Add via QR scan.",
+    "inactive_section": "Left ({{count}})",
+    "member_inactive": "Has left",
+    "remove_confirm_title": "Remove from homecell?",
+    "remove_confirm_msg": "{{name}} will be removed from this homecell. Their account is not deleted.",
+    "confirm_remove": "Yes, Remove",
+    "member_removed": "{{name}} removed successfully.",
+    "member_already_removed": "Member already removed previously."
   },
   "area": {
     "title": "Homecell Areas",
@@ -465,7 +474,9 @@
     "empty_title": "Not an area PIC yet",
     "empty_msg": "You haven't been assigned as area PIC. Contact branch admin.",
     "pic_label": "PIC",
+    "pic_unassigned": "Not assigned",
     "no_managed_in_area": "No homecells in this area that you also directly PIC. Tap from Homecell list for per-homecell detail.",
+    "no_homecells_in_area": "No active homecells in this area yet.",
     "partial_list_notice": "Showing {{visible}} of {{total}} homecells in this area — only those you directly PIC. Full list needs a new BE endpoint."
   },
   "printer": {
