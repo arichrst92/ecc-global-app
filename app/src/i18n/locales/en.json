@@ -133,7 +133,9 @@
     "edit_profile": "Edit Profile",
     "change_branch": "Change Home Branch",
     "language": "Language",
-    "about": "About App"
+    "about": "About App",
+    "scanner_mode": "Scanner Mode",
+    "scanner_mode_sub": "Scan member QR to check in for services / events"
   },
   "family": {
     "title": "My Family",
@@ -380,5 +382,36 @@
     "about_title": "About App",
     "about_description": "ECC Global App — official app for ECC members covering services, events, devotionals, giving, and community.",
     "about_contact": "Contact Us"
+  },
+  "scanner": {
+    "title": "Scanner Mode",
+    "subtitle": "Pick a service / event to start scanning",
+    "section_ibadah": "Active Services",
+    "section_event": "Upcoming Events",
+    "empty_title": "No scanner access yet",
+    "empty_msg": "You are not assigned as authorized scanner for any service or event. Contact branch admin.",
+    "scan_hint": "Point camera at member QR card",
+    "paused_hint": "Scanner paused — finish the previous one first",
+    "manual_input": "Manual Input",
+    "manual_title": "Enter Code Manually",
+    "manual_hint": "Type 8-character member QR code (uppercase letters or digits).",
+    "manual_format": "Format: 8 characters (A-Z, 0-9), e.g. ABC23XYZ",
+    "manual_invalid": "Invalid code format (must be 8 chars A-Z or 0-9).",
+    "manual_submit": "Check-in",
+    "camera_permission_title": "Camera Permission Required",
+    "camera_permission_msg": "Scanner needs camera access to scan member QR.",
+    "allow_camera": "Allow Access",
+    "scan_next": "Scan Next",
+    "dismiss": "Dismiss",
+    "force_checkin": "Force Check-in",
+    "force_hint": "Tap 'Force Check-in' to override this warning (e.g. cash on-the-spot payment).",
+    "badge_checkin": "CHECKED-IN",
+    "badge_already": "ALREADY HERE",
+    "badge_walkin": "WALK-IN",
+    "error_not_found_title": "Code Not Found",
+    "error_not_found_msg": "Code \"{{kode}}\" is not registered. Make sure this is an ECC member card.",
+    "error_forbidden_title": "Not Authorized",
+    "error_conflict_title": "Conflict — Confirmation Needed",
+    "error_generic_title": "Check-in Failed"
   }
 }

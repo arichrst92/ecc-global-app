@@ -3,7 +3,7 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
-import { LogOut, AlertTriangle, ChevronRight, BookOpen, Bell, QrCode, Printer, Users } from 'lucide-react-native';
+import { LogOut, AlertTriangle, ChevronRight, BookOpen, Bell, QrCode, Printer, ScanLine, Users } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
+import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { formatPhoneDisplay } from '@/utils/phone';
 
 export default function ProfileTab() {
@@ -25,6 +26,13 @@ export default function ProfileTab() {
   );
   const language = usePreferencesStore((s) => s.language);
   const languageLabel = language === 'id' ? 'Bahasa Indonesia' : 'English';
+
+  // Scanner mode visible kalau user authorized untuk minimal 1 event ATAU ibadah
+  const scannerEventsQuery = useScannerEvents();
+  const scannerIbadahQuery = useScannerIbadah();
+  const isScannerAuthorized =
+    (scannerEventsQuery.data?.length ?? 0) > 0 ||
+    (scannerIbadahQuery.data?.length ?? 0) > 0;
 
   function confirmLogout() {
     setConfirmOpen(false);
@@ -102,6 +110,25 @@ export default function ProfileTab() {
             label={t('profile.printer')}
           />
         </View>
+
+        {/* Scanner Mode — only show kalau user authorized */}
+        {isScannerAuthorized ? (
+          <Pressable
+            onPress={() => router.push('/scanner')}
+            className="bg-brand-500 rounded-2xl p-4 flex-row items-center gap-3 mb-4"
+          >
+            <View className="w-12 h-12 rounded-xl bg-white/20 items-center justify-center">
+              <ScanLine size={22} color="#fff" />
+            </View>
+            <View className="flex-1">
+              <Text className="font-bold text-white">{t('profile.scanner_mode')}</Text>
+              <Text className="text-xs text-white/80 mt-0.5">
+                {t('profile.scanner_mode_sub')}
+              </Text>
+            </View>
+            <ChevronRight size={18} color="#fff" />
+          </Pressable>
+        ) : null}
 
         {/* Settings menu */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">

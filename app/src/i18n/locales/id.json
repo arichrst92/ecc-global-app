@@ -133,7 +133,9 @@
     "edit_profile": "Edit Profil",
     "change_branch": "Ganti Cabang Home",
     "language": "Bahasa",
-    "about": "Tentang Aplikasi"
+    "about": "Tentang Aplikasi",
+    "scanner_mode": "Mode Scanner",
+    "scanner_mode_sub": "Scan QR jemaat untuk check-in ibadah / event"
   },
   "family": {
     "title": "Keluarga Saya",
@@ -380,5 +382,36 @@
     "about_title": "Tentang Aplikasi",
     "about_description": "ECC Global App — aplikasi resmi jemaat ECC untuk ibadah, event, renungan, persembahan, dan komunitas.",
     "about_contact": "Hubungi Kami"
+  },
+  "scanner": {
+    "title": "Mode Scanner",
+    "subtitle": "Pilih ibadah / event untuk mulai scan",
+    "section_ibadah": "Ibadah Aktif",
+    "section_event": "Event Mendatang",
+    "empty_title": "Belum ada akses scanner",
+    "empty_msg": "Anda belum di-assign sebagai authorized scanner untuk ibadah atau event apa pun. Hubungi admin cabang.",
+    "scan_hint": "Arahkan kamera ke kartu QR jemaat",
+    "paused_hint": "Scanner di-pause — selesaikan dulu yang sebelumnya",
+    "manual_input": "Input Manual",
+    "manual_title": "Input Kode Manual",
+    "manual_hint": "Ketik 8 karakter kode QR jemaat (huruf kapital atau angka).",
+    "manual_format": "Format: 8 karakter (A-Z, 0-9), mis. ABC23XYZ",
+    "manual_invalid": "Format kode tidak valid (harus 8 karakter A-Z atau 0-9).",
+    "manual_submit": "Check-in",
+    "camera_permission_title": "Izin Kamera Dibutuhkan",
+    "camera_permission_msg": "Scanner butuh akses kamera untuk scan QR jemaat.",
+    "allow_camera": "Izinkan Akses",
+    "scan_next": "Scan Berikutnya",
+    "dismiss": "Tutup",
+    "force_checkin": "Tetap Check-in",
+    "force_hint": "Tap 'Tetap Check-in' untuk override warning ini (mis. bayar cash on-the-spot).",
+    "badge_checkin": "CHECK-IN",
+    "badge_already": "SUDAH HADIR",
+    "badge_walkin": "WALK-IN",
+    "error_not_found_title": "Kode Tidak Ditemukan",
+    "error_not_found_msg": "Kode \"{{kode}}\" tidak terdaftar. Pastikan ini kartu jemaat ECC.",
+    "error_forbidden_title": "Tidak Berwenang",
+    "error_conflict_title": "Konflik — Konfirmasi Perlu",
+    "error_generic_title": "Gagal Check-in"
   }
 }
