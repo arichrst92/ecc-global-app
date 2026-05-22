@@ -19,10 +19,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Search, Store, X } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  ChevronRight,
+  MapPin,
+  Search,
+  Store,
+  Wifi,
+  WifiOff,
+  X,
+} from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
-import { HeroImage } from '@/components/ui/HeroImage';
 import { useLocalMarket } from '@/hooks/useLocalBusiness';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { env } from '@/config/env';
@@ -121,10 +129,13 @@ export default function LocalMarketScreen() {
       ) : (
         <FlatList
           data={items}
-          numColumns={2}
           keyExtractor={(item) => item.id}
-          columnWrapperStyle={{ gap: 12, paddingHorizontal: 20 }}
-          contentContainerStyle={{ paddingVertical: 16, paddingBottom: 32, gap: 12 }}
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingVertical: 16,
+            paddingBottom: 32,
+            gap: 10,
+          }}
           refreshControl={
             <RefreshControl
               refreshing={query.isRefetching}
@@ -146,7 +157,7 @@ export default function LocalMarketScreen() {
             ) : null
           }
           renderItem={({ item }) => (
-            <BusinessCard
+            <BusinessRow
               business={item}
               onPress={() => router.push(`/market/${item.id}` as never)}
             />
@@ -180,7 +191,13 @@ function FilterChip({
   );
 }
 
-function BusinessCard({
+/**
+ * Single-row business card — logo prominent (kiri 64x64 rounded-2xl),
+ * nama bold + tipe pill inline, industri sub, lokasi + online badge,
+ * owner attribution di bottom. Tidak pakai hero image (per user feedback —
+ * lebih clean dan profesional fokus ke identity logo).
+ */
+function BusinessRow({
   business,
   onPress,
 }: {
@@ -198,56 +215,90 @@ function BusinessCard({
   return (
     <Pressable
       onPress={onPress}
-      className="flex-1 bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+      className="bg-white rounded-2xl border border-neutral-100 p-3 flex-row gap-3"
     >
-      <View className="relative">
-        <HeroImage
-          url={business.heroImageUrl}
-          fallbackEmoji="🏪"
-          emojiSize={36}
-          className="w-full aspect-square"
-        />
-        {/* Logo overlay (kalau ada) */}
+      {/* Logo block — 64x64 square. Fallback ke Store icon kalau no logo */}
+      <View className="w-16 h-16 rounded-2xl bg-brand-50 items-center justify-center overflow-hidden">
         {business.logoUrl ? (
-          <View className="absolute bottom-2 left-2 w-10 h-10 rounded-xl bg-white items-center justify-center overflow-hidden border-2 border-white">
-            <Image
-              source={{
-                uri: business.logoUrl.startsWith('http')
-                  ? business.logoUrl
-                  : `${env.apiBaseUrl}${business.logoUrl}`,
-              }}
-              style={{ width: '100%', height: '100%' }}
-              resizeMode="cover"
-            />
+          <Image
+            source={{
+              uri: business.logoUrl.startsWith('http')
+                ? business.logoUrl
+                : `${env.apiBaseUrl}${business.logoUrl}`,
+            }}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="cover"
+          />
+        ) : (
+          <Store size={28} color="#EA580C" />
+        )}
+      </View>
+
+      {/* Right column */}
+      <View className="flex-1 min-w-0 justify-between py-0.5">
+        {/* Top: nama + tipe pill */}
+        <View>
+          <View className="flex-row items-center gap-2">
+            <Text className="text-sm font-bold text-neutral-900 flex-1" numberOfLines={1}>
+              {business.nama}
+            </Text>
+            <View className={`px-1.5 py-0.5 rounded ${tipeBg}`}>
+              <Text className={`text-[9px] font-bold ${tipeText}`}>
+                {business.tipeBisnis}
+              </Text>
+            </View>
+          </View>
+          {business.industri ? (
+            <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+              {business.industri}
+            </Text>
+          ) : null}
+        </View>
+
+        {/* Middle: lokasi (kalau ada) */}
+        {business.lokasi ? (
+          <View className="flex-row items-center gap-1 mt-1">
+            <MapPin size={11} color="#A3A3A3" />
+            <Text className="text-[11px] text-neutral-500 flex-1" numberOfLines={1}>
+              {business.lokasi}
+            </Text>
           </View>
         ) : null}
-        <View
-          className={`absolute top-2 right-2 px-2 py-0.5 rounded-full ${tipeBg}`}
-        >
-          <Text className={`text-[9px] font-bold ${tipeText}`}>
-            {business.tipeBisnis}
-          </Text>
-        </View>
-      </View>
-      <View className="p-3">
-        <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-          {business.nama}
-        </Text>
-        {business.industri ? (
-          <Text className="text-[11px] text-neutral-500 mt-0.5" numberOfLines={1}>
-            {business.industri}
-          </Text>
-        ) : null}
-        <View className="flex-row items-center gap-1.5 mt-2 pt-2 border-t border-neutral-100">
+
+        {/* Bottom: owner attribution + online/offline pill */}
+        <View className="flex-row items-center gap-2 mt-1.5">
           <Avatar
             name={business.owner.namaLengkap}
             fotoUrl={business.owner.fotoUrl ?? undefined}
-            size={16}
+            size={14}
           />
           <Text className="text-[10px] text-neutral-500 flex-1" numberOfLines={1}>
             {business.owner.namaLengkap}
           </Text>
+          <View
+            className={`flex-row items-center gap-1 px-1.5 py-0.5 rounded-full ${
+              business.isOnline ? 'bg-emerald-50' : 'bg-neutral-100'
+            }`}
+          >
+            {business.isOnline ? (
+              <Wifi size={9} color="#059669" />
+            ) : (
+              <WifiOff size={9} color="#737373" />
+            )}
+            <Text
+              className={`text-[9px] font-semibold ${
+                business.isOnline ? 'text-emerald-700' : 'text-neutral-600'
+              }`}
+            >
+              {business.isOnline ? 'Online' : 'Offline'}
+            </Text>
+          </View>
         </View>
+      </View>
+
+      {/* Right chevron — di align center vertical */}
+      <View className="justify-center">
+        <ChevronRight size={16} color="#A3A3A3" />
       </View>
     </Pressable>
   );
