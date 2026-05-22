@@ -11,12 +11,11 @@ import type { MinistryListItem, MinistryDetail } from '@/types/ministry';
 
 /**
  * GET /admin/ministry — list semua ministry (pelayanan) yang aktif.
- * Response: { data: MinistryListItem[] }
+ * BE wraps response in `{ success, data }`; api client already unwraps,
+ * sehingga return type langsung array.
  */
 export function listMinistries() {
-  return api
-    .get<{ data: MinistryListItem[] }>('/admin/ministry')
-    .then((r) => r.data);
+  return api.get<MinistryListItem[]>('/admin/ministry');
 }
 
 /**
