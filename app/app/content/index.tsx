@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, BookOpen, ChevronRight, Newspaper } from 'lucide-react-native';
+import { ArrowLeft, BookOpen, Newspaper } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useNewsList, useRenunganList } from '@/hooks/useContent';
@@ -179,31 +179,24 @@ function RenunganCard({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-4 flex-row gap-3 border border-neutral-100"
+      className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
     >
-      {/* Fit-to-width: thumbnail w-20 (~80px) dengan height proporsional sesuai aspect natural */}
-      <HeroImage
-        url={item.heroImageUrl}
-        fallbackEmoji="📖"
-        emojiSize={28}
-        fitToWidth
-        className="w-20 rounded-xl overflow-hidden"
-      />
-      <View className="flex-1 min-w-0">
-        <Text className="text-xs text-brand-600 font-semibold" numberOfLines={1}>
+      {/* Vertical layout (sama dengan NewsCard) — fit-to-width image di atas, text di bawah */}
+      <HeroImage url={item.heroImageUrl} fallbackEmoji="📖" emojiSize={48} fitToWidth />
+      <View className="p-4">
+        <Text className="text-xs text-brand-600 font-semibold mb-1" numberOfLines={1}>
           {item.ayatAlkitab}
         </Text>
-        <Text className="text-xs text-neutral-500 mt-0.5">
+        <Text className="text-xs text-neutral-500 mb-1">
           {formatDate(item.tanggal, lang)}
         </Text>
-        <Text className="font-bold text-neutral-900 mt-1" numberOfLines={1}>
+        <Text className="font-bold text-neutral-900 mb-1.5" numberOfLines={2}>
           {item.judul}
         </Text>
-        <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={2}>
+        <Text className="text-sm text-neutral-500" numberOfLines={2}>
           {item.ringkasan}
         </Text>
       </View>
-      <ChevronRight size={16} color="#A3A3A3" style={{ alignSelf: 'center' }} />
     </Pressable>
   );
 }

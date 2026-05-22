@@ -4,7 +4,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { LogOut, AlertTriangle, ChevronRight, Pencil, QrCode, ScanLine } from 'lucide-react-native';
+import {
+  AlertTriangle,
+  ChevronRight,
+  Globe,
+  HandHeart,
+  Info,
+  LogOut,
+  MapPin,
+  Pencil,
+  QrCode,
+  ScanFace,
+  ScanLine,
+} from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -105,26 +117,37 @@ export default function ProfileTab() {
         {/* Role / peran current user */}
         <RoleCard />
 
-        {/* Settings menu */}
+        {/* Ministry / pelayanan current user */}
+        <MinistryCard />
+
+        {/* Settings menu — dengan icons per row supaya lebih menarik secara visual */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
           {t('profile.settings_title')}
         </Text>
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <MenuRow
+            icon={<MapPin size={18} color="#EA580C" />}
+            iconBg="bg-brand-50"
             label={t('profile.change_branch')}
             onPress={() => router.push('/settings/change-branch')}
           />
           <MenuRow
+            icon={<Globe size={18} color="#0891B2" />}
+            iconBg="bg-cyan-50"
             label={t('profile.language')}
             sub={languageLabel}
             onPress={() => router.push('/settings/language')}
           />
           <MenuRow
+            icon={<ScanFace size={18} color="#7C3AED" />}
+            iconBg="bg-violet-50"
             label={t('face.settings_label')}
             sub={faceEnrolledHint ? t('face.settings_on') : t('face.settings_off')}
             onPress={() => router.push('/settings/face' as never)}
           />
           <MenuRow
+            icon={<Info size={18} color="#0F766E" />}
+            iconBg="bg-teal-50"
             label={t('profile.about')}
             sub="v0.1.0"
             onPress={() => router.push('/settings/about')}
@@ -204,20 +227,93 @@ function MenuRow({
   sub,
   isLast,
   onPress,
+  icon,
+  iconBg,
 }: {
   label: string;
   sub?: string;
   isLast?: boolean;
   onPress?: () => void;
+  icon?: React.ReactNode;
+  /** Tailwind class untuk background icon (mis. "bg-brand-50") */
+  iconBg?: string;
 }) {
   return (
     <Pressable onPress={onPress} className="p-4 flex-row items-center gap-3">
+      {icon ? (
+        <View
+          className={`w-9 h-9 rounded-xl items-center justify-center ${iconBg ?? 'bg-neutral-100'}`}
+        >
+          {icon}
+        </View>
+      ) : null}
       <View className="flex-1">
         <Text className="text-sm font-medium text-neutral-900">{label}</Text>
         {sub ? <Text className="text-xs text-neutral-500 mt-0.5">{sub}</Text> : null}
       </View>
       <ChevronRight size={16} color="#A3A3A3" />
     </Pressable>
+  );
+}
+
+/**
+ * MinistryCard — tampil daftar ministry / pelayanan current user.
+ *
+ * BE field `ministries` di /admin/me belum ada (pending request:
+ * docs/backend-request-ministry-endpoints.md). Untuk sementara:
+ * - Kalau BE sudah kirim field `ministries` dengan data → render list
+ * - Kalau undefined / empty → tampil placeholder "Belum terlibat ministry"
+ *   plus link ke halaman /ministry untuk explore
+ */
+function MinistryCard() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const meQuery = useQuery({
+    queryKey: ['me', 'profile-tab'],
+    queryFn: getMyProfile,
+    staleTime: 5 * 60_000,
+  });
+  const ministries = meQuery.data?.ministries ?? [];
+
+  return (
+    <View className="mb-4">
+      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+        {t('profile.ministry_section')}
+      </Text>
+      {ministries.length === 0 ? (
+        <Pressable
+          onPress={() => router.push('/ministry' as never)}
+          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+        >
+          <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+            <HandHeart size={18} color="#EA580C" />
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-medium text-neutral-700">
+              {t('profile.ministry_empty')}
+            </Text>
+            <Text className="text-xs text-neutral-500 mt-0.5">
+              {t('profile.ministry_explore_sub')}
+            </Text>
+          </View>
+          <ChevronRight size={16} color="#A3A3A3" />
+        </Pressable>
+      ) : (
+        <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-2">
+          {ministries.map((m) => {
+            const parts = [m.nama, m.posisi].filter(Boolean);
+            return (
+              <View key={m.id} className="flex-row items-center gap-2">
+                <View className="w-2 h-2 rounded-full bg-brand-500" />
+                <Text className="text-sm text-neutral-700 flex-1">
+                  {parts.join(' · ') || '—'}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+    </View>
   );
 }
 

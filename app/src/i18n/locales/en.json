@@ -140,7 +140,10 @@
     "about": "About App",
     "scanner_mode": "Scanner Mode",
     "scanner_mode_sub": "Scan member QR to check in for services / events",
-    "role_section": "Your Current Role"
+    "role_section": "Your Current Role",
+    "ministry_section": "Your Ministry",
+    "ministry_empty": "Not in any ministry yet",
+    "ministry_explore_sub": "See the list of ministries in church"
   },
   "family": {
     "title": "My Family",
@@ -454,7 +457,16 @@
     "marketplace": "Marketplace",
     "soon": "SOON",
     "coming_soon": "Feature coming soon.",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "ministry": "Ministry"
+  },
+  "ministry": {
+    "title": "Ministry",
+    "my_section": "My Ministries",
+    "all_section": "All Ministries",
+    "coming_soon_title": "Ministry directory coming soon",
+    "coming_soon_msg": "The full list of ministries in church will appear here once the backend is ready.",
+    "be_pending_notice": "The Ministry feature is in development. To join a ministry, contact your branch admin or ministry leader."
   },
   "homecell": {
     "title": "My Homecells",

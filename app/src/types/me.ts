@@ -24,6 +24,18 @@ export type MeProfile = {
     subRole?: { nama: string } | null;
     subRoleStatus?: { nama: string } | null;
   }>;
+  /**
+   * Ministry / pelayanan yang user-nya terlibat aktif.
+   * Pending BE field — lihat docs/backend-request-ministry-endpoints.md.
+   * Sementara akan undefined sampai BE add field ini ke /admin/me response.
+   */
+  ministries?: Array<{
+    id: string;
+    nama: string;
+    posisi?: string | null;
+    /** Cabang tempat ministry berada — bisa lain dari user.cabang */
+    cabang?: { id: string; nama: string } | null;
+  }>;
   homecellMembership?: Array<{
     homecell: {
       id: string;

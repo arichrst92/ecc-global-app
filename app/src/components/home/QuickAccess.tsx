@@ -8,6 +8,7 @@ import {
   Church,
   HandHeart,
   Handshake,
+  HeartHandshake,
   MapPinned,
   Newspaper,
   ScanLine,
@@ -126,6 +127,14 @@ export function QuickAccess() {
       iconBg: 'bg-brand-50',
       label: t('quickaccess.calendar'),
       onPress: () => router.push('/calendar' as never),
+    },
+    {
+      key: 'ministry',
+      icon: HeartHandshake,
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
+      label: t('quickaccess.ministry'),
+      onPress: () => router.push('/ministry' as never),
     },
   ];
 

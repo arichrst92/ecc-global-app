@@ -140,7 +140,10 @@
     "about": "Tentang Aplikasi",
     "scanner_mode": "Mode Scanner",
     "scanner_mode_sub": "Scan QR jemaat untuk check-in ibadah / event",
-    "role_section": "Peran Anda Saat Ini"
+    "role_section": "Peran Anda Saat Ini",
+    "ministry_section": "Pelayanan Anda",
+    "ministry_empty": "Belum terlibat ministry",
+    "ministry_explore_sub": "Lihat daftar ministry yang ada di gereja"
   },
   "family": {
     "title": "Keluarga Saya",
@@ -454,7 +457,16 @@
     "marketplace": "Marketplace",
     "soon": "SOON",
     "coming_soon": "Fitur ini segera tersedia.",
-    "calendar": "Kalender"
+    "calendar": "Kalender",
+    "ministry": "Ministry"
+  },
+  "ministry": {
+    "title": "Ministry / Pelayanan",
+    "my_section": "Pelayanan Saya",
+    "all_section": "Semua Ministry",
+    "coming_soon_title": "Daftar ministry segera tersedia",
+    "coming_soon_msg": "Daftar lengkap ministry di gereja akan tampil di sini setelah backend siap.",
+    "be_pending_notice": "Fitur Ministry sedang dipersiapkan tim developer. Untuk gabung pelayanan, hubungi pengurus cabang atau leader ministry."
   },
   "homecell": {
     "title": "Homecell Saya",
