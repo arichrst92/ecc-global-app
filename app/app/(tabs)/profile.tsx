@@ -336,7 +336,9 @@ function RoleCard() {
       <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
         {roles.map((r, idx) => {
           const roleName = r.role?.nama ?? '—';
-          const subParts = [r.subRole?.nama, r.subRoleStatus?.nama].filter(Boolean);
+          // Sub-role di tampil sebagai sub-info; sub-role STATUS hanya tampil
+          // sebagai badge di kanan (tidak duplicate di teks)
+          const subName = r.subRole?.nama;
           return (
             <View
               key={idx}
@@ -351,9 +353,9 @@ function RoleCard() {
                 <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
                   {roleName}
                 </Text>
-                {subParts.length > 0 ? (
+                {subName ? (
                   <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-                    {subParts.join(' · ')}
+                    {subName}
                   </Text>
                 ) : null}
               </View>
