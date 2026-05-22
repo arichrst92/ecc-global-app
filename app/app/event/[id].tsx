@@ -238,10 +238,10 @@ export default function EventDetailScreen() {
                       : null
                   }
                 />
-                {/* Jam mulai - selesai — hanya tampil kalau event punya jam (bukan 00:00).
-                    Banyak event butuh detail sampai jam (mis. seminar 09:00-12:00 WIB). */}
+                {/* Jam mulai - selesai — prefer BE jamMulai/jamSelesai (BE patch 2026-05-22a),
+                    fallback ke parse dari ISO untuk event lama */}
                 {(() => {
-                  const range = formatTimeRange(event.tanggalMulai, event.tanggalSelesai);
+                  const range = formatTimeRange(event);
                   return range ? (
                     <MetaRow
                       icon={<Clock size={20} color="#EA580C" />}
@@ -665,19 +665,33 @@ function MetaRow({
 }
 
 /**
- * Extract HH:mm time portion (WIB) dari tanggalMulai & tanggalSelesai.
- * Return null kalau kedua jam = 00:00 (artinya event date-only, tidak ada
- * detail jam).
- * Contoh output: "19:00 - 21:30 WIB"
+ * Format event time range. Per BE patch 2026-05-22a — pakai dedicated fields
+ * `jamMulai` / `jamSelesai` (format "HH:mm" string, timezone-safe WIB).
+ *
+ * Priority:
+ * 1. Kalau BE fill `jamMulai` → pakai itu (preferred — eksplisit + timezone safe)
+ * 2. Fallback: extract dari `tanggalMulai` ISO (untuk event lama yang belum punya
+ *    jam fields populated). Kalau jam = 00:00 → date-only event, return null.
+ *
+ * Contoh output: "09:00 - 12:00 WIB", "Mulai 19:00 WIB", atau null.
  */
-function formatTimeRange(
-  startIso: string,
-  endIso: string | null | undefined,
-): string | null {
-  const start = new Date(startIso);
-  const end = endIso ? new Date(endIso) : start;
+function formatTimeRange(event: {
+  tanggalMulai: string;
+  tanggalSelesai?: string | null;
+  jamMulai?: string | null;
+  jamSelesai?: string | null;
+}): string | null {
+  // Path 1: BE jam fields (preferred)
+  if (event.jamMulai) {
+    if (event.jamSelesai && event.jamSelesai !== event.jamMulai) {
+      return `${event.jamMulai} - ${event.jamSelesai} WIB`;
+    }
+    return `${event.jamMulai} WIB`;
+  }
 
-  // Cek kalau date-only event (jam mulai 00:00 dan jam selesai 00:00)
+  // Path 2: legacy fallback — parse jam dari ISO
+  const start = new Date(event.tanggalMulai);
+  const end = event.tanggalSelesai ? new Date(event.tanggalSelesai) : start;
   const startH = start.getHours();
   const startM = start.getMinutes();
   const endH = end.getHours();
@@ -692,7 +706,6 @@ function formatTimeRange(
     return `${hh}:${mm}`;
   }
 
-  // Single time (kalau jam selesai = jam mulai)
   if (start.getTime() === end.getTime()) {
     return `${fmt(start)} WIB`;
   }

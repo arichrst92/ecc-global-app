@@ -54,3 +54,56 @@ export function updateFamilyRole(jemaatId: string, role: FamilyRole) {
 export function unlinkFamily(jemaatId: string) {
   return api.delete<{ success: true }>(`/admin/me/family/${jemaatId}`);
 }
+
+/**
+ * PATCH /admin/me/family/:jemaatId/profile — edit profile dependent member.
+ * Per BE patch 2026-05-22a. Path `/profile` suffix supaya tidak collision
+ * dengan PATCH /admin/me/family/:jemaatId (yang update role).
+ *
+ * Auth: current user harus primaryGuardian dari jemaatId. Target harus
+ * dependent (no noHp). Disallowed fields: noHp, email, cabangId, kode, isActive.
+ *
+ * Errors:
+ * - 401 "Hanya primary guardian yang boleh edit profile dependent ini."
+ * - 400 "Target punya nomor HP sendiri — bukan dependent."
+ * - 404 jemaat tidak ditemukan
+ */
+export type UpdateDependentProfilePayload = {
+  namaLengkap?: string;
+  tanggalLahir?: string | null;
+  jenisKelamin?: 'L' | 'P' | null;
+  alamat?: string | null;
+};
+
+export function updateDependentProfile(
+  jemaatId: string,
+  payload: UpdateDependentProfilePayload,
+) {
+  return api.patch<{
+    id: string;
+    namaLengkap: string;
+    tanggalLahir: string | null;
+    jenisKelamin: 'L' | 'P' | null;
+    alamat: string | null;
+    fotoUrl: string | null;
+  }>(`/admin/me/family/${jemaatId}/profile`, payload);
+}
+
+/**
+ * POST /admin/me/family/:jemaatId/foto — upload foto profile dependent member.
+ * Per BE patch 2026-05-22a. Multipart form-data, field name `foto`.
+ *
+ * Auth: current user primaryGuardian + target is dependent.
+ */
+export function uploadDependentFoto(
+  jemaatId: string,
+  file: { uri: string; name: string; type: string },
+) {
+  const formData = new FormData();
+  // @ts-expect-error RN FormData accepts file objects
+  formData.append('foto', file);
+  return api.upload<{ id: string; fotoUrl: string }>(
+    `/admin/me/family/${jemaatId}/foto`,
+    formData,
+  );
+}

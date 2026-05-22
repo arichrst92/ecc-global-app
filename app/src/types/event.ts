@@ -22,6 +22,13 @@ export type EventListItem = {
   videoUrl?: string | null;
   tanggalMulai: string; // ISO datetime
   tanggalSelesai: string;
+  /**
+   * Jam mulai event format "HH:mm" (24-hour, WIB). Nullable untuk event
+   * date-only (mis. festival 3 hari tanpa jam tertentu). Per BE patch
+   * 2026-05-22a — separate dari tanggalMulai supaya timezone-safe.
+   */
+  jamMulai?: string | null;
+  jamSelesai?: string | null;
   lokasi: string;
   tipeBayar: TipeBayar;
   nominal: string; // Decimal string untuk presisi

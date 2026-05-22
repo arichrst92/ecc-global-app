@@ -26,15 +26,19 @@ export type MeProfile = {
   }>;
   /**
    * Ministry / pelayanan yang user-nya terlibat aktif.
-   * Pending BE field — lihat docs/backend-request-ministry-endpoints.md.
-   * Sementara akan undefined sampai BE add field ini ke /admin/me response.
+   * Per BE patch 2026-05-22a — flatten dari JemaatPelayanan aktif.
+   * Selalu di-return (empty array kalau user tidak terlibat ministry).
    */
   ministries?: Array<{
+    /** JemaatPelayanan id (membership row id) */
     id: string;
+    /** Pelayanan master id — pakai ini untuk navigate ke /ministry/:id */
+    pelayananId: string;
     nama: string;
+    deskripsi?: string | null;
     posisi?: string | null;
-    /** Cabang tempat ministry berada — bisa lain dari user.cabang */
-    cabang?: { id: string; nama: string } | null;
+    posisiLevel?: number | null;
+    tanggalMulai?: string | null;
   }>;
   homecellMembership?: Array<{
     homecell: {

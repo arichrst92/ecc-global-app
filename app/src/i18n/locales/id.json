@@ -464,9 +464,21 @@
     "title": "Ministry / Pelayanan",
     "my_section": "Pelayanan Saya",
     "all_section": "Semua Ministry",
-    "coming_soon_title": "Daftar ministry segera tersedia",
-    "coming_soon_msg": "Daftar lengkap ministry di gereja akan tampil di sini setelah backend siap.",
-    "be_pending_notice": "Fitur Ministry sedang dipersiapkan tim developer. Untuk gabung pelayanan, hubungi pengurus cabang atau leader ministry."
+    "empty_all_title": "Belum ada ministry",
+    "empty_all_msg": "Belum ada ministry / pelayanan yang aktif. Hubungi pengurus cabang untuk info lebih lanjut.",
+    "member_label": "anggota",
+    "detail_not_found": "Ministry tidak ditemukan.",
+    "about_section": "Tentang Ministry Ini",
+    "members_section": "Anggota ({{count}})",
+    "members_empty": "Belum ada anggota terdaftar.",
+    "youre_member": "ANGGOTA",
+    "my_role_label": "Posisi Anda",
+    "since_label": "sejak",
+    "leader_badge": "LEADER",
+    "contact_leader_title": "Hubungi Leader untuk Gabung",
+    "contact_leader_sub": "Chat WhatsApp ke leader untuk diskusi join ministry ini",
+    "no_leader_contact": "Leader ministry ini belum bisa dihubungi via WA.",
+    "join_via_wa_notice": "Untuk gabung ministry, hubungi leader via WhatsApp. Penambahan member dilakukan oleh admin / leader."
   },
   "homecell": {
     "title": "Homecell Saya",
@@ -504,10 +516,20 @@
     "detail_title": "Profil Jemaat",
     "unknown_name": "Jemaat",
     "branch_label": "Cabang",
+    "birthday_label": "Ulang Tahun",
+    "homecell_label": "Homecell",
+    "address_label": "Alamat",
+    "phone_masked_label": "Nomor HP",
+    "phone_masked_hint": "Nomor lengkap hanya untuk anggota keluarga / homecell / cabang yang sama",
     "whatsapp_btn": "Chat via WhatsApp",
     "whatsapp_sub": "Buka chat WhatsApp ke nomor jemaat ini",
-    "not_in_cache": "Detail jemaat ini belum tersedia di aplikasi. Hubungi pengurus cabang untuk info lengkap.",
-    "be_pending_notice": "Detail lengkap (peran, ministry, anggota keluarga) akan ditambahkan setelah endpoint backend siap."
+    "roles_section": "Peran di Gereja",
+    "ministries_section": "Ministry / Pelayanan",
+    "family_section": "Anggota Keluarga",
+    "public_only_notice": "Beberapa informasi (nomor HP, alamat, anggota keluarga) hanya bisa dilihat oleh anggota keluarga atau yang segereja di cabang / homecell yang sama.",
+    "not_found": "Jemaat tidak ditemukan.",
+    "offline_fallback_notice": "Detail lengkap tidak bisa di-load saat ini. Menampilkan info dari cache lokal.",
+    "not_in_cache": "Detail jemaat ini belum tersedia di aplikasi. Hubungi pengurus cabang untuk info lengkap."
   },
   "area": {
     "title": "Area Homecell",
@@ -648,6 +670,7 @@
     "empty_day": "Tidak ada agenda di hari ini."
   },
   "edit_profile": {
+    "title_dependent": "Edit Profil — {{name}}",
     "full_name": "Nama Lengkap",
     "email": "Email",
     "phone": "Nomor HP",

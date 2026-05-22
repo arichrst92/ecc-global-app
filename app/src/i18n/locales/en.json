@@ -464,9 +464,21 @@
     "title": "Ministry",
     "my_section": "My Ministries",
     "all_section": "All Ministries",
-    "coming_soon_title": "Ministry directory coming soon",
-    "coming_soon_msg": "The full list of ministries in church will appear here once the backend is ready.",
-    "be_pending_notice": "The Ministry feature is in development. To join a ministry, contact your branch admin or ministry leader."
+    "empty_all_title": "No ministries yet",
+    "empty_all_msg": "No active ministries at the moment. Contact your branch admin for more info.",
+    "member_label": "members",
+    "detail_not_found": "Ministry not found.",
+    "about_section": "About This Ministry",
+    "members_section": "Members ({{count}})",
+    "members_empty": "No members yet.",
+    "youre_member": "MEMBER",
+    "my_role_label": "Your Role",
+    "since_label": "since",
+    "leader_badge": "LEADER",
+    "contact_leader_title": "Contact Leader to Join",
+    "contact_leader_sub": "WhatsApp the leader to discuss joining this ministry",
+    "no_leader_contact": "Leader contact not available.",
+    "join_via_wa_notice": "To join a ministry, contact the leader via WhatsApp. Member assignment is done by admin / leader."
   },
   "homecell": {
     "title": "My Homecells",
@@ -504,10 +516,20 @@
     "detail_title": "Member Profile",
     "unknown_name": "Member",
     "branch_label": "Branch",
+    "birthday_label": "Birthday",
+    "homecell_label": "Homecell",
+    "address_label": "Address",
+    "phone_masked_label": "Phone Number",
+    "phone_masked_hint": "Full number visible only to family / same-homecell / same-branch members",
     "whatsapp_btn": "Chat on WhatsApp",
     "whatsapp_sub": "Open WhatsApp chat with this member",
-    "not_in_cache": "This member's details aren't loaded in the app. Contact your branch admin for more info.",
-    "be_pending_notice": "Full details (role, ministry, family) will be added once the backend endpoint is ready."
+    "roles_section": "Church Roles",
+    "ministries_section": "Ministry / Pelayanan",
+    "family_section": "Family Members",
+    "public_only_notice": "Some details (phone, address, family) are only visible to family members or those in the same branch/homecell.",
+    "not_found": "Member not found.",
+    "offline_fallback_notice": "Couldn't load full details right now. Showing info from local cache.",
+    "not_in_cache": "This member's details aren't loaded in the app. Contact your branch admin for more info."
   },
   "area": {
     "title": "Homecell Areas",
@@ -648,6 +670,7 @@
     "empty_day": "No agenda for this day."
   },
   "edit_profile": {
+    "title_dependent": "Edit Profile — {{name}}",
     "full_name": "Full Name",
     "email": "Email",
     "phone": "Phone Number",

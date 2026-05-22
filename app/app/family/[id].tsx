@@ -195,10 +195,13 @@ export default function FamilyDetailScreen() {
         </View>
 
         {/* Edit Profile button — hanya untuk dependent (anak balita / lansia tanpa HP).
-            Member non-dependent yang punya akun sendiri harus edit profil mereka sendiri. */}
+            Member non-dependent yang punya akun sendiri harus edit profil mereka sendiri.
+            Per BE patch 2026-05-22a — endpoint dependent edit sudah ready. */}
         {jemaat.isDependent ? (
           <Pressable
-            onPress={() => showToast(t('family.edit_dependent_soon'), 'info')}
+            onPress={() =>
+              router.push(`/settings/edit-profile?dependent=${jemaat.id}` as never)
+            }
             className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-4"
           >
             <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">

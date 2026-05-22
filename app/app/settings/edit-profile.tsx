@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Calendar as CalendarIcon, Camera, Pencil } from 'lucide-react-native';
@@ -21,19 +21,31 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { getMyProfile, updateMyProfile, uploadMyFoto } from '@/api/me';
+import {
+  updateDependentProfile,
+  uploadDependentFoto,
+} from '@/api/family';
+import { useMyFamily } from '@/hooks/useFamily';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { env } from '@/config/env';
 import { formatPhoneDisplay } from '@/utils/phone';
 
 /**
- * Edit Profile — form lengkap untuk update /admin/me.
- * Fields: foto (upload), nama, email, gender, date of birth (date picker),
- * alamat. NoHp readonly (hanya bisa diganti via OTP flow).
+ * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
+ *
+ * Mode "self" (default) → PATCH /admin/me + POST /admin/me/foto
+ * Mode "dependent" (?dependent=<jemaatId>) → PATCH /admin/me/family/:id/profile
+ *   + POST /admin/me/family/:id/foto. Per BE patch 2026-05-22a.
+ *
+ * Dalam dependent mode, hide phone + email fields (dependent tidak punya kedua-nya).
  */
 export default function EditProfileScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const params = useLocalSearchParams<{ dependent?: string }>();
+  const dependentId = params.dependent;
+  const isDependent = !!dependentId;
   const showToast = useToast((s) => s.show);
   const qc = useQueryClient();
   const setUser = useAuthStore((s) => s.setUser);
@@ -42,7 +54,43 @@ export default function EditProfileScreen() {
   const meQuery = useQuery({
     queryKey: ['me', 'edit'],
     queryFn: getMyProfile,
+    enabled: !isDependent,
   });
+
+  const familyQuery = useMyFamily();
+
+  // Resolve source data — self vs dependent
+  const sourceJemaat = useMemo(() => {
+    if (isDependent) {
+      const match = (familyQuery.data ?? []).find(
+        (r) => r.jemaat.id === dependentId,
+      );
+      return match
+        ? {
+            id: match.jemaat.id,
+            namaLengkap: match.jemaat.namaLengkap,
+            email: null as string | null,
+            alamat: null as string | null,
+            tanggalLahir: match.jemaat.tanggalLahir ?? null,
+            jenisKelamin: match.jemaat.jenisKelamin ?? null,
+            fotoUrl: match.jemaat.fotoUrl ?? null,
+            noHp: null as string | null,
+          }
+        : null;
+    }
+    return meQuery.data
+      ? {
+          id: meQuery.data.id,
+          namaLengkap: meQuery.data.namaLengkap,
+          email: meQuery.data.email ?? null,
+          alamat: meQuery.data.alamat ?? null,
+          tanggalLahir: meQuery.data.tanggalLahir ?? null,
+          jenisKelamin: meQuery.data.jenisKelamin ?? null,
+          fotoUrl: meQuery.data.fotoUrl ?? null,
+          noHp: meQuery.data.noHp ?? null,
+        }
+      : null;
+  }, [isDependent, dependentId, familyQuery.data, meQuery.data]);
 
   const [namaLengkap, setNamaLengkap] = useState('');
   const [email, setEmail] = useState('');
@@ -52,31 +100,44 @@ export default function EditProfileScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
-    if (meQuery.data) {
-      setNamaLengkap(meQuery.data.namaLengkap ?? '');
-      setEmail(meQuery.data.email ?? '');
-      setAlamat(meQuery.data.alamat ?? '');
-      setDob(meQuery.data.tanggalLahir ? new Date(meQuery.data.tanggalLahir) : null);
-      setJenisKelamin((meQuery.data.jenisKelamin as 'L' | 'P' | null) ?? '');
+    if (sourceJemaat) {
+      setNamaLengkap(sourceJemaat.namaLengkap ?? '');
+      setEmail(sourceJemaat.email ?? '');
+      setAlamat(sourceJemaat.alamat ?? '');
+      setDob(sourceJemaat.tanggalLahir ? new Date(sourceJemaat.tanggalLahir) : null);
+      setJenisKelamin((sourceJemaat.jenisKelamin as 'L' | 'P' | null) ?? '');
     }
-  }, [meQuery.data]);
+  }, [sourceJemaat]);
 
-  const fotoUrl = meQuery.data?.fotoUrl ?? user?.fotoUrl ?? null;
+  const fotoUrl = sourceJemaat?.fotoUrl ?? (isDependent ? null : user?.fotoUrl) ?? null;
 
-  const updateMutation = useMutation({
-    mutationFn: () =>
-      updateMyProfile({
+  const updateMutation = useMutation<{ namaLengkap: string }>({
+    mutationFn: async () => {
+      const tanggalLahir = dob ? dob.toISOString().slice(0, 10) : undefined;
+      if (isDependent) {
+        const r = await updateDependentProfile(dependentId!, {
+          namaLengkap: namaLengkap.trim() || undefined,
+          alamat: alamat.trim() || undefined,
+          tanggalLahir,
+          jenisKelamin: jenisKelamin || undefined,
+        });
+        return { namaLengkap: r.namaLengkap };
+      }
+      const r = await updateMyProfile({
         namaLengkap: namaLengkap.trim() || undefined,
         email: email.trim() || undefined,
         alamat: alamat.trim() || undefined,
-        tanggalLahir: dob ? dob.toISOString().slice(0, 10) : undefined,
+        tanggalLahir,
         jenisKelamin: jenisKelamin || undefined,
-      }),
+      });
+      return { namaLengkap: r.namaLengkap };
+    },
     onSuccess: async (profile) => {
-      if (user) {
+      if (!isDependent && user) {
         await setUser({ ...user, namaLengkap: profile.namaLengkap });
       }
       await qc.invalidateQueries({ queryKey: ['me'] });
+      await qc.invalidateQueries({ queryKey: ['family'] });
       showToast(t('edit_profile.success'), 'success');
       router.back();
     },
@@ -91,11 +152,18 @@ export default function EditProfileScreen() {
       const filename = asset.uri.split('/').pop() ?? 'foto.jpg';
       const ext = filename.split('.').pop()?.toLowerCase() ?? 'jpg';
       const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
-      return uploadMyFoto({ uri: asset.uri, name: filename, type: mime });
+      const fileObj = { uri: asset.uri, name: filename, type: mime };
+      if (isDependent) {
+        return uploadDependentFoto(dependentId!, fileObj);
+      }
+      return uploadMyFoto(fileObj);
     },
     onSuccess: async (data) => {
-      if (user) await setUser({ ...user, fotoUrl: data.fotoUrl });
+      if (!isDependent && user) {
+        await setUser({ ...user, fotoUrl: data.fotoUrl });
+      }
       await qc.invalidateQueries({ queryKey: ['me'] });
+      await qc.invalidateQueries({ queryKey: ['family'] });
       showToast(t('edit_profile.foto_uploaded'), 'success');
     },
     onError: (err) => {
@@ -132,7 +200,11 @@ export default function EditProfileScreen() {
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">
-            {t('profile.edit_profile')}
+            {isDependent
+              ? t('edit_profile.title_dependent', {
+                  name: sourceJemaat?.namaLengkap ?? '—',
+                })
+              : t('profile.edit_profile')}
           </Text>
         </View>
       </SafeAreaView>
@@ -187,25 +259,33 @@ export default function EditProfileScreen() {
             />
           </Field>
 
-          <Field label={t('edit_profile.phone')}>
-            <View className="bg-neutral-100 rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between">
-              <Text className="text-base text-neutral-900">
-                {meQuery.data?.noHp ? formatPhoneDisplay(meQuery.data.noHp) : '—'}
-              </Text>
-              <Text className="text-xs text-neutral-500">{t('edit_profile.phone_readonly')}</Text>
-            </View>
-          </Field>
+          {/* Phone + Email — hide untuk dependent (dependent tidak punya HP/email,
+              dan endpoint dependent edit tidak accept fields ini) */}
+          {!isDependent ? (
+            <>
+              <Field label={t('edit_profile.phone')}>
+                <View className="bg-neutral-100 rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between">
+                  <Text className="text-base text-neutral-900">
+                    {sourceJemaat?.noHp ? formatPhoneDisplay(sourceJemaat.noHp) : '—'}
+                  </Text>
+                  <Text className="text-xs text-neutral-500">
+                    {t('edit_profile.phone_readonly')}
+                  </Text>
+                </View>
+              </Field>
 
-          <Field label={t('edit_profile.email')}>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="nama@email.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
-            />
-          </Field>
+              <Field label={t('edit_profile.email')}>
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="nama@email.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                />
+              </Field>
+            </>
+          ) : null}
 
           <Field label={t('signup.gender')}>
             <View className="flex-row gap-2">
