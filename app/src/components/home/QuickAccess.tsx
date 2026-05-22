@@ -175,18 +175,14 @@ export function QuickAccess() {
     });
   }
 
-  // Visit (coming soon) — pendataan jemaat yang bertemu jemaat lain
+  // Visit — pendataan jemaat yang bertemu jemaat lain (M14, BE patch 22b)
   tiles.push({
     key: 'visit',
     icon: Handshake,
-    iconColor: '#737373',
-    iconBg: 'bg-neutral-100',
+    iconColor: '#EA580C',
+    iconBg: 'bg-brand-50',
     label: t('quickaccess.visit'),
-    onPress: () => showToast(t('quickaccess.visit_soon'), 'info'),
-    disabled: true,
-    badge: t('quickaccess.soon'),
-    badgeBg: 'bg-neutral-300',
-    badgeText: 'text-neutral-700',
+    onPress: () => router.push('/visit' as never),
   });
 
   // Marketplace (coming soon) — selalu di belakang
