@@ -199,10 +199,24 @@ export default function WelcomeScreen() {
         </View>
       </View>
 
-      {/* Footer */}
+      {/* Footer — T&C + Privacy clickable links per compliance */}
       <View className="px-6 pb-4">
         <Text className="text-xs text-neutral-400 text-center leading-relaxed">
-          {t('auth.tos_notice')}
+          {t('auth.tos_prefix')}{' '}
+          <Text
+            className="text-brand-500 font-semibold underline"
+            onPress={() => router.push('/legal/terms' as never)}
+          >
+            {t('auth.tos_link')}
+          </Text>
+          {' '}{t('auth.tos_and')}{' '}
+          <Text
+            className="text-brand-500 font-semibold underline"
+            onPress={() => router.push('/legal/privacy' as never)}
+          >
+            {t('auth.privacy_link')}
+          </Text>
+          {t('auth.tos_suffix')}
         </Text>
       </View>
 

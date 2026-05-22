@@ -2,7 +2,7 @@ import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ExternalLink, Globe, Mail } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, ExternalLink, FileText, Globe, Mail, Shield } from 'lucide-react-native';
 import * as Linking from 'expo-linking';
 
 import Constants from 'expo-constants';
@@ -79,6 +79,37 @@ export default function AboutScreen() {
               <Text className="text-xs text-neutral-500">eccchurch.global</Text>
             </View>
             <ExternalLink size={14} color="#A3A3A3" />
+          </Pressable>
+        </View>
+
+        {/* Legal section — T&C + Privacy */}
+        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-4">
+          {t('legal.terms_title')}
+        </Text>
+        <View className="bg-white rounded-2xl border border-neutral-100 mb-3">
+          <Pressable
+            onPress={() => router.push('/legal/terms' as never)}
+            className="p-4 flex-row items-center gap-3 border-b border-neutral-100"
+          >
+            <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+              <FileText size={18} color="#EA580C" />
+            </View>
+            <Text className="text-sm font-medium text-neutral-900 flex-1">
+              {t('legal.terms_title')}
+            </Text>
+            <ChevronRight size={14} color="#A3A3A3" />
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/legal/privacy' as never)}
+            className="p-4 flex-row items-center gap-3"
+          >
+            <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center">
+              <Shield size={18} color="#2563EB" />
+            </View>
+            <Text className="text-sm font-medium text-neutral-900 flex-1">
+              {t('legal.privacy_title')}
+            </Text>
+            <ChevronRight size={14} color="#A3A3A3" />
           </Pressable>
         </View>
 

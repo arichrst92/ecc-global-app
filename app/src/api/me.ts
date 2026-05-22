@@ -3,6 +3,9 @@
  * Per mobile-api-guide section 12.2 + 12.3.
  */
 
+import { env } from '@/config/env';
+import { useAuthStore } from '@/stores/auth.store';
+import { ApiError, type ApiErrorBody } from '@/types/api';
 import { api } from './client';
 import type { MeStats, MeProfile } from '@/types/me';
 
@@ -39,4 +42,50 @@ export function uploadMyFoto(file: { uri: string; name: string; type: string }) 
   // @ts-expect-error RN FormData accepts file objects
   formData.append('foto', file);
   return api.upload<{ id: string; fotoUrl: string }>('/admin/me/foto', formData);
+}
+
+/**
+ * DELETE /admin/me — soft delete account (set isActive=false).
+ * Per docs/backend-request-delete-account.md.
+ *
+ * BE verify confirmText match exact lalu revoke semua refresh tokens user.
+ * Pakai raw fetch karena api.delete tidak support body argument (DELETE
+ * with body is non-standard but BE accepts JSON body untuk validate
+ * confirmText sebagai safety guard).
+ */
+export type DeleteAccountPayload = {
+  /** Wajib match exact text (default "HAPUS AKUN SAYA") */
+  confirmText: string;
+  /** Optional reason untuk audit (max 500 chars) */
+  reason?: string;
+};
+
+export async function deleteMyAccount(payload: DeleteAccountPayload): Promise<{
+  jemaatId: string;
+  deactivatedAt: string;
+  message: string;
+}> {
+  const { accessToken } = useAuthStore.getState();
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
+  const res = await fetch(`${env.apiBaseUrl}/admin/me`, {
+    method: 'DELETE',
+    headers,
+    body: JSON.stringify(payload),
+  });
+  const json = (await res.json().catch(() => null)) as
+    | {
+        success: true;
+        data: { jemaatId: string; deactivatedAt: string; message: string };
+      }
+    | ApiErrorBody
+    | null;
+  if (!json) {
+    throw new ApiError({ code: 'INTERNAL_ERROR', message: 'Invalid response' }, res.status);
+  }
+  if (!json.success) {
+    throw new ApiError(json.error, res.status);
+  }
+  return json.data;
 }

@@ -9,6 +9,7 @@ import {
   Award,
   Building2,
   ChevronRight,
+  Download,
   Globe,
   HeartHandshake,
   Info,
@@ -18,6 +19,7 @@ import {
   ScanLine,
   Sparkles,
   Store,
+  Trash2,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -158,6 +160,13 @@ export default function ProfileTab() {
             onPress={() => router.push('/settings/face' as never)}
           />
           <MenuRow
+            icon={<Download size={18} color="#16A34A" />}
+            iconBg="bg-emerald-50"
+            label={t('profile.check_update')}
+            sub={t('profile.check_update_sub')}
+            onPress={() => router.push('/settings/check-update' as never)}
+          />
+          <MenuRow
             icon={<Info size={18} color="#0F766E" />}
             iconBg="bg-teal-50"
             label={t('profile.about')}
@@ -175,6 +184,21 @@ export default function ProfileTab() {
             loading={logoutMutation.isPending}
             leftIcon={<LogOut size={16} color="#fff" />}
             fullWidth
+          />
+        </View>
+
+        {/* Danger zone — hapus akun di paling bawah supaya tidak ke-tap accidental */}
+        <Text className="text-xs font-bold text-red-500 uppercase tracking-wider mt-8 mb-2">
+          {t('profile.danger_zone')}
+        </Text>
+        <View className="bg-white rounded-2xl border border-red-100 mb-4">
+          <MenuRow
+            icon={<Trash2 size={18} color="#DC2626" />}
+            iconBg="bg-red-50"
+            label={t('profile.delete_account')}
+            sub={t('profile.delete_account_sub')}
+            onPress={() => router.push('/settings/delete-account' as never)}
+            isLast
           />
         </View>
 
