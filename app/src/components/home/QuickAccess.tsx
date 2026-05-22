@@ -12,13 +12,12 @@ import {
   MapPinned,
   Newspaper,
   ScanLine,
-  ShoppingBag,
   Sparkles,
+  Store,
   Users,
   type LucideIcon,
 } from 'lucide-react-native';
 
-import { useToast } from '@/components/ui/Toast';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { useManagedAreas, useManagedHomecells } from '@/hooks/useHomecell';
 
@@ -46,7 +45,6 @@ type QuickAccessTile = {
 export function QuickAccess() {
   const { t } = useTranslation();
   const router = useRouter();
-  const showToast = useToast((s) => s.show);
 
   const scannerEventsQuery = useScannerEvents();
   const scannerIbadahQuery = useScannerIbadah();
@@ -185,18 +183,14 @@ export function QuickAccess() {
     onPress: () => router.push('/visit' as never),
   });
 
-  // Marketplace (coming soon) — selalu di belakang
+  // Local Market — direktori UMKM jemaat (M15, BE patch 22b rev a)
   tiles.push({
-    key: 'marketplace',
-    icon: ShoppingBag,
-    iconColor: '#737373',
-    iconBg: 'bg-neutral-100',
-    label: t('quickaccess.marketplace'),
-    onPress: () => showToast(t('quickaccess.coming_soon'), 'info'),
-    disabled: true,
-    badge: t('quickaccess.soon'),
-    badgeBg: 'bg-neutral-300',
-    badgeText: 'text-neutral-700',
+    key: 'market',
+    icon: Store,
+    iconColor: '#EA580C',
+    iconBg: 'bg-brand-50',
+    label: t('quickaccess.market'),
+    onPress: () => router.push('/market' as never),
   });
 
   return (

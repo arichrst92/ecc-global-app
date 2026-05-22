@@ -17,6 +17,7 @@ import {
   ScanFace,
   ScanLine,
   Sparkles,
+  Store,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -124,6 +125,18 @@ export default function ProfileTab() {
 
         {/* Ministry / pelayanan current user */}
         <MinistryCard />
+
+        {/* Bisnis saya — Local Market owner entry */}
+        <View className="bg-white rounded-2xl border border-neutral-100 mb-4">
+          <MenuRow
+            icon={<Store size={18} color="#EA580C" />}
+            iconBg="bg-brand-50"
+            label={t('profile.my_business')}
+            sub={t('profile.my_business_sub')}
+            onPress={() => router.push('/profile/businesses' as never)}
+            isLast
+          />
+        </View>
 
         {/* Settings menu — change_branch dipindah ke BranchCard di atas */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
