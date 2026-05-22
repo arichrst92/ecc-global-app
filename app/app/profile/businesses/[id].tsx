@@ -115,7 +115,7 @@ export default function OwnerBusinessDetailScreen() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       // Logo: square crop; Hero: 16:9 wide crop
       allowsEditing: true,
       aspect: target === 'logo' ? [1, 1] : [16, 9],
@@ -143,11 +143,34 @@ export default function OwnerBusinessDetailScreen() {
     });
   }
 
+  /**
+   * Auto-prepend https:// kalau user input URL tanpa scheme.
+   * Mis. "warungbudi.id" → "https://warungbudi.id".
+   * Return empty string kalau input cuma whitespace → akan dijadikan undefined.
+   */
+  function normalizeUrl(raw: string): string {
+    const trimmed = raw.trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  }
+
   function handleSave() {
     if (nama.trim().length < 2) {
       showToast(t('my_business.nama_required'), 'error');
       return;
     }
+    // Normalize URLs + filter empty social links sebelum send.
+    // BE Zod validation reject URL tanpa scheme atau empty string di array.
+    const normWebsite = normalizeUrl(websiteUrl);
+    const normWhatsapp = normalizeUrl(whatsappUrl);
+    const cleanedSocials = socialLinks
+      .map((s) => ({
+        platform: s.platform.trim(),
+        url: normalizeUrl(s.url),
+      }))
+      .filter((s) => s.platform && s.url);
+
     updateMutation.mutate(
       {
         nama: nama.trim(),
@@ -156,9 +179,9 @@ export default function OwnerBusinessDetailScreen() {
         tipeBisnis,
         isOnline,
         lokasi: lokasi.trim() || undefined,
-        websiteUrl: websiteUrl.trim() || undefined,
-        whatsappUrl: whatsappUrl.trim() || undefined,
-        socialLinks,
+        websiteUrl: normWebsite || undefined,
+        whatsappUrl: normWhatsapp || undefined,
+        socialLinks: cleanedSocials,
         isActive,
       },
       {
@@ -166,8 +189,17 @@ export default function OwnerBusinessDetailScreen() {
           showToast(t('my_business.saved'), 'success');
         },
         onError: (err) => {
-          const msg = err instanceof ApiError ? err.message : t('error.network');
-          showToast(msg, 'error');
+          if (err instanceof ApiError) {
+            // Surface field-level details kalau ada (mis. URL format invalid)
+            const fieldErrors = err.details?.fieldErrors ?? {};
+            const firstField = Object.entries(fieldErrors)[0];
+            const detailMsg = firstField
+              ? `${firstField[0]}: ${(firstField[1] as string[])[0]}`
+              : err.message;
+            showToast(detailMsg, 'error');
+          } else {
+            showToast(t('error.network'), 'error');
+          }
         },
       },
     );
@@ -175,12 +207,14 @@ export default function OwnerBusinessDetailScreen() {
 
   function handleAddSocial() {
     const platform = newPlatform.trim();
-    const url = newUrl.trim();
-    if (!platform || !url) return;
+    const rawUrl = newUrl.trim();
+    if (!platform || !rawUrl) return;
     if (socialLinks.length >= 10) {
       showToast(t('my_business.social_max'), 'error');
       return;
     }
+    // Auto-normalize URL — user boleh ketik "instagram.com/x" tanpa https://
+    const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
     setSocialLinks([...socialLinks, { platform, url }]);
     setNewPlatform('');
     setNewUrl('');
