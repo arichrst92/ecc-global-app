@@ -8,7 +8,7 @@ import { ArrowLeft, CalendarDays, Cake, Church, ChevronLeft, ChevronRight } from
 import { useEventList } from '@/hooks/useEvents';
 import { useIbadahList } from '@/hooks/useIbadahList';
 import { useMyFamily } from '@/hooks/useFamily';
-import { formatDate } from '@/utils/date';
+import { formatDate, parseLocalDate } from '@/utils/date';
 
 /**
  * Calendar screen — unified view dari Event + Ibadah + Birthday family
@@ -48,10 +48,12 @@ export default function CalendarScreen() {
     (eventsQuery.data ?? []).forEach((e) => {
       // Event multi-day: spread di semua tanggal dari tanggalMulai s/d tanggalSelesai.
       // Untuk single-day event, tanggalSelesai === tanggalMulai, jadi loop jalan 1x.
-      const start = new Date(e.tanggalMulai);
-      start.setHours(0, 0, 0, 0);
-      const endRaw = e.tanggalSelesai ? new Date(e.tanggalSelesai) : new Date(e.tanggalMulai);
-      endRaw.setHours(0, 0, 0, 0);
+      // parseLocalDate: extract YYYY-MM-DD lalu construct di local TZ supaya
+      // tanggal tidak shift karena UTC conversion.
+      const start = parseLocalDate(e.tanggalMulai);
+      const endRaw = e.tanggalSelesai
+        ? parseLocalDate(e.tanggalSelesai)
+        : parseLocalDate(e.tanggalMulai);
       // Safety: clamp ke max 60 hari supaya kalau BE salah set jangan freeze
       const MAX_DAYS = 60;
       let dayCount = 0;
@@ -73,7 +75,7 @@ export default function CalendarScreen() {
     });
 
     (ibadahQuery.data ?? []).forEach((s) => {
-      const d = new Date(s.tanggalMulai);
+      const d = parseLocalDate(s.tanggalMulai);
       if (d.getFullYear() === year && d.getMonth() === month) {
         const day = d.getDate();
         if (!map.has(day)) map.set(day, []);

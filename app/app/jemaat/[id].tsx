@@ -165,6 +165,28 @@ export default function JemaatViewScreen() {
           beQuery.isPending ? (
             <View className="items-center py-12">
               <ActivityIndicator color="#F97316" />
+              <Text className="text-xs text-neutral-500 mt-2">
+                {t('common.loading')}
+              </Text>
+            </View>
+          ) : beQuery.isError ? (
+            <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center">
+              <Text className="text-sm text-neutral-700 text-center leading-relaxed mb-3">
+                {t('jemaat.load_failed')}
+              </Text>
+              {beQuery.error instanceof Error ? (
+                <Text className="text-[10px] text-neutral-400 text-center mb-3">
+                  {beQuery.error.message}
+                </Text>
+              ) : null}
+              <Pressable
+                onPress={() => beQuery.refetch()}
+                className="px-4 py-2 bg-brand-500 rounded-lg"
+              >
+                <Text className="text-white font-semibold text-sm">
+                  {t('common.retry')}
+                </Text>
+              </Pressable>
             </View>
           ) : (
             <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center">

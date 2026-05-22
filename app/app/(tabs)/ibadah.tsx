@@ -91,7 +91,9 @@ export default function IbadahListScreen() {
               key={date}
               date={date}
               items={grouped[date]}
-              onTapItem={(ibadahId) => router.push(`/ibadah/${ibadahId}`)}
+              onTapItem={(ibadahId) =>
+                router.push(`/ibadah/${ibadahId}?tanggal=${date}` as never)
+              }
             />
           ))
         )}

@@ -337,6 +337,7 @@
     "empty_title": "Belum ada jadwal",
     "empty_msg": "Belum ada ibadah dalam 30 hari ke depan. Cek kembali nanti.",
     "time": "Waktu",
+    "date_label": "Tanggal Ibadah",
     "schedule": "Jadwal",
     "location": "Lokasi",
     "online_service": "Ibadah online tersedia",
@@ -475,6 +476,7 @@
     "my_role_label": "Posisi Anda",
     "since_label": "sejak",
     "leader_badge": "LEADER",
+    "posisi_unassigned": "Tanpa Posisi",
     "contact_leader_title": "Hubungi Leader untuk Gabung",
     "contact_leader_sub": "Chat WhatsApp ke leader untuk diskusi join ministry ini",
     "no_leader_contact": "Leader ministry ini belum bisa dihubungi via WA.",
@@ -528,6 +530,7 @@
     "family_section": "Anggota Keluarga",
     "public_only_notice": "Beberapa informasi (nomor HP, alamat, anggota keluarga) hanya bisa dilihat oleh anggota keluarga atau yang segereja di cabang / homecell yang sama.",
     "not_found": "Jemaat tidak ditemukan.",
+    "load_failed": "Gagal memuat detail jemaat. Pastikan koneksi internet OK atau coba lagi.",
     "offline_fallback_notice": "Detail lengkap tidak bisa di-load saat ini. Menampilkan info dari cache lokal.",
     "not_in_cache": "Detail jemaat ini belum tersedia di aplikasi. Hubungi pengurus cabang untuk info lengkap."
   },

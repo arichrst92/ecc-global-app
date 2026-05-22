@@ -8,11 +8,13 @@ import { ArrowLeft, Calendar, Clock, MapPin, QrCode, Users } from 'lucide-react-
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { getIbadahDetail } from '@/api/ibadah';
+import { formatDateWithDay } from '@/utils/date';
 
 export default function IbadahDetailScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, tanggal } = useLocalSearchParams<{ id: string; tanggal?: string }>();
+  const lang = i18n.language;
 
   const query = useQuery({
     queryKey: ['ibadah', 'detail', id],
@@ -73,6 +75,23 @@ export default function IbadahDetailScreen() {
           </View>
         ) : ibadah ? (
           <>
+            {/* Specific date — tampil prominent kalau navigate dari list dengan
+                tanggal occurrence di URL param. Lebih informatif dari hari
+                generic dari ibadah master schedule. */}
+            {tanggal ? (
+              <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3">
+                <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+                  <Calendar size={18} color="#EA580C" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-xs text-neutral-500">{t('ibadah.date_label')}</Text>
+                  <Text className="font-semibold text-neutral-900">
+                    {formatDateWithDay(tanggal, lang)}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+
             {/* Info grid */}
             <View className="flex-row gap-3 mb-3">
               <InfoCard

@@ -397,6 +397,8 @@ function DatePickerModal({
     display: 'spinner' | 'default';
     maximumDate?: Date;
     minimumDate?: Date;
+    textColor?: string;
+    themeVariant?: 'light' | 'dark';
     onChange: (event: unknown, date?: Date) => void;
   }> | null>(null);
 
@@ -415,6 +417,8 @@ function DatePickerModal({
             display: 'spinner' | 'default';
             maximumDate?: Date;
             minimumDate?: Date;
+            textColor?: string;
+            themeVariant?: 'light' | 'dark';
             onChange: (event: unknown, date?: Date) => void;
           }>;
         };
@@ -468,6 +472,8 @@ function DatePickerModal({
             display="spinner"
             maximumDate={new Date()}
             minimumDate={new Date(1900, 0, 1)}
+            textColor="#171717"
+            themeVariant="light"
             onChange={(_e, d) => {
               if (d) onChange(d);
             }}

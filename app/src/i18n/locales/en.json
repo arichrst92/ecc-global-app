@@ -337,6 +337,7 @@
     "empty_title": "No upcoming services",
     "empty_msg": "No services in the next 30 days. Check back later.",
     "time": "Time",
+    "date_label": "Service Date",
     "schedule": "Schedule",
     "location": "Location",
     "online_service": "Online service available",
@@ -475,6 +476,7 @@
     "my_role_label": "Your Role",
     "since_label": "since",
     "leader_badge": "LEADER",
+    "posisi_unassigned": "Unassigned",
     "contact_leader_title": "Contact Leader to Join",
     "contact_leader_sub": "WhatsApp the leader to discuss joining this ministry",
     "no_leader_contact": "Leader contact not available.",
@@ -528,6 +530,7 @@
     "family_section": "Family Members",
     "public_only_notice": "Some details (phone, address, family) are only visible to family members or those in the same branch/homecell.",
     "not_found": "Member not found.",
+    "load_failed": "Couldn't load member details. Check your connection and try again.",
     "offline_fallback_notice": "Couldn't load full details right now. Showing info from local cache.",
     "not_in_cache": "This member's details aren't loaded in the app. Contact your branch admin for more info."
   },

@@ -29,6 +29,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useMinistryDetail } from '@/hooks/useMinistry';
+import type { MinistryMember } from '@/types/ministry';
 
 export default function MinistryDetailScreen() {
   const { t } = useTranslation();
@@ -39,16 +40,40 @@ export default function MinistryDetailScreen() {
   const query = useMinistryDetail(id);
   const ministry = query.data;
 
-  // Sort members: leader first, then by sinceDate ASC (paling lama dulu)
-  const sortedMembers = useMemo(() => {
+  // Group members by posisi (role pelayanan). Order group by level DESC
+  // (leader/senior dulu), members dalam group by sinceDate ASC.
+  type GroupedRow = {
+    posisi: string;
+    posisiLevel: number;
+    members: MinistryMember[];
+  };
+  const groupedMembers = useMemo<GroupedRow[]>(() => {
     if (!ministry) return [];
-    return [...ministry.members].sort((a, b) => {
-      const aLevel = a.posisi === ministry.leader?.role.nama ? -1 : 0;
-      const bLevel = b.posisi === ministry.leader?.role.nama ? -1 : 0;
-      if (aLevel !== bLevel) return aLevel - bLevel;
-      return a.sinceDate.localeCompare(b.sinceDate);
-    });
-  }, [ministry]);
+    const groups = new Map<string, { posisiLevel: number; members: MinistryMember[] }>();
+    for (const m of ministry.members) {
+      const key = m.posisi ?? t('ministry.posisi_unassigned');
+      if (!groups.has(key)) {
+        groups.set(key, { posisiLevel: m.posisiLevel ?? 0, members: [] });
+      }
+      groups.get(key)!.members.push(m);
+    }
+    // Sort dalam tiap group: by sinceDate ASC
+    for (const g of groups.values()) {
+      g.members.sort((a, b) => a.sinceDate.localeCompare(b.sinceDate));
+    }
+    // Sort groups: posisiLevel DESC (senior dulu), tie-break alfabetik
+    return Array.from(groups.entries())
+      .map(([posisi, g]) => ({ posisi, posisiLevel: g.posisiLevel, members: g.members }))
+      .sort((a, b) => {
+        if (a.posisiLevel !== b.posisiLevel) return b.posisiLevel - a.posisiLevel;
+        return a.posisi.localeCompare(b.posisi);
+      });
+  }, [ministry, t]);
+
+  function openWhatsApp(noHp: string) {
+    const num = noHp.replace(/^\+/, '');
+    Linking.openURL(`https://wa.me/${num}`).catch(() => {});
+  }
 
   function handleContactLeader() {
     const noHp = ministry?.leader?.jemaat.noHp;
@@ -56,8 +81,7 @@ export default function MinistryDetailScreen() {
       showToast(t('ministry.no_leader_contact'), 'info');
       return;
     }
-    const num = noHp.replace(/^\+/, '');
-    Linking.openURL(`https://wa.me/${num}`).catch(() => {});
+    openWhatsApp(noHp);
   }
 
   if (query.isPending) {
@@ -188,55 +212,89 @@ export default function MinistryDetailScreen() {
           ) : null
         )}
 
-        {/* Members list */}
+        {/* Members list — grouped by posisi (role pelayanan) */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-          {t('ministry.members_section', { count: sortedMembers.length })}
+          {t('ministry.members_section', { count: ministry.memberCount })}
         </Text>
-        {sortedMembers.length === 0 ? (
+        {groupedMembers.length === 0 ? (
           <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center">
             <Text className="text-sm text-neutral-500 text-center">
               {t('ministry.members_empty')}
             </Text>
           </View>
         ) : (
-          <View className="bg-white rounded-2xl border border-neutral-100">
-            {sortedMembers.map((m, idx) => {
-              const isLeader = ministry.leader?.jemaat.id === m.jemaat.id;
-              return (
-                <Pressable
-                  key={m.id}
-                  onPress={() => router.push(`/jemaat/${m.jemaat.id}` as never)}
-                  className={`p-3 flex-row items-center gap-3 ${
-                    idx > 0 ? 'border-t border-neutral-100' : ''
-                  }`}
-                >
-                  <Avatar
-                    name={m.jemaat.namaLengkap}
-                    fotoUrl={m.jemaat.fotoUrl ?? undefined}
-                    size={40}
-                  />
-                  <View className="flex-1 min-w-0">
-                    <View className="flex-row items-center gap-2">
-                      <Text className="text-sm font-semibold text-neutral-900 flex-1" numberOfLines={1}>
-                        {m.jemaat.namaLengkap}
-                      </Text>
-                      {isLeader ? (
-                        <View className="bg-brand-100 px-1.5 py-0.5 rounded">
-                          <Text className="text-[9px] font-bold text-brand-700">
-                            {t('ministry.leader_badge')}
-                          </Text>
-                        </View>
-                      ) : null}
-                    </View>
-                    {m.posisi ? (
-                      <Text className="text-xs text-neutral-500 mt-0.5">
-                        {m.posisi}
-                      </Text>
-                    ) : null}
+          <View className="gap-3">
+            {groupedMembers.map((group) => (
+              <View key={group.posisi}>
+                {/* Group header */}
+                <View className="flex-row items-center gap-2 mb-1.5">
+                  <Text className="text-[11px] font-bold text-brand-600 uppercase tracking-wider">
+                    {group.posisi}
+                  </Text>
+                  <View className="bg-brand-50 px-1.5 py-0.5 rounded">
+                    <Text className="text-[10px] font-semibold text-brand-700">
+                      {group.members.length}
+                    </Text>
                   </View>
-                </Pressable>
-              );
-            })}
+                  <View className="flex-1 h-px bg-neutral-200" />
+                </View>
+                <View className="bg-white rounded-2xl border border-neutral-100">
+                  {group.members.map((m, idx) => {
+                    const isLeader = ministry.leader?.jemaat.id === m.jemaat.id;
+                    return (
+                      <Pressable
+                        key={m.id}
+                        onPress={() => router.push(`/jemaat/${m.jemaat.id}` as never)}
+                        className={`p-3 flex-row items-center gap-3 ${
+                          idx > 0 ? 'border-t border-neutral-100' : ''
+                        }`}
+                      >
+                        <Avatar
+                          name={m.jemaat.namaLengkap}
+                          fotoUrl={m.jemaat.fotoUrl ?? undefined}
+                          size={40}
+                        />
+                        <View className="flex-1 min-w-0">
+                          <View className="flex-row items-center gap-2">
+                            <Text
+                              className="text-sm font-semibold text-neutral-900 flex-1"
+                              numberOfLines={1}
+                            >
+                              {m.jemaat.namaLengkap}
+                            </Text>
+                            {isLeader ? (
+                              <View className="bg-brand-100 px-1.5 py-0.5 rounded">
+                                <Text className="text-[9px] font-bold text-brand-700">
+                                  {t('ministry.leader_badge')}
+                                </Text>
+                              </View>
+                            ) : null}
+                          </View>
+                          {m.jemaat.cabang ? (
+                            <Text className="text-xs text-neutral-500 mt-0.5">
+                              {m.jemaat.cabang.nama}
+                            </Text>
+                          ) : null}
+                        </View>
+                        {/* WhatsApp button — kalau ada noHp dari BE */}
+                        {m.jemaat.noHp ? (
+                          <Pressable
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              openWhatsApp(m.jemaat.noHp!);
+                            }}
+                            className="w-9 h-9 rounded-full bg-green-50 items-center justify-center"
+                            accessibilityLabel={t('homecell.member_whatsapp')}
+                          >
+                            <MessageCircle size={14} color="#16A34A" />
+                          </Pressable>
+                        ) : null}
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
           </View>
         )}
 

@@ -37,9 +37,14 @@ export type MinistryMember = {
     id: string;
     namaLengkap: string;
     fotoUrl?: string | null;
+    /** Optional — BE mungkin sertakan untuk close-relation, untuk WA action.
+     * Kalau null, WA button di-hide. */
+    noHp?: string | null;
     cabang?: { id: string; nama: string } | null;
   };
   posisi: string | null;
+  /** Integer level dari PelayananRole — lebih tinggi = lebih senior */
+  posisiLevel?: number | null;
   sinceDate: string; // ISO
 };
 
