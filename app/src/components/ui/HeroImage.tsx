@@ -79,15 +79,13 @@ export function HeroImage({
   }, [resolvedUrl, fitToWidth]);
 
   if (resolvedUrl) {
-    // Fit-to-width: container ambil aspectRatio sesuai image natural,
-    // image render full size (width 100% + auto height via aspectRatio).
+    // Fit-to-width: container ambil aspectRatio sesuai image natural.
+    // Width-nya bisa di-set via className (mis. w-20 untuk thumbnail kecil)
+    // atau default ke parent full width. Height auto via aspectRatio.
     if (fitToWidth) {
       const aspect = naturalAspect ?? fallbackAspect;
       return (
-        <View
-          className={className}
-          style={[style, { width: '100%', aspectRatio: aspect }]}
-        >
+        <View className={className} style={[style, { aspectRatio: aspect }]}>
           <Image
             source={{ uri: resolvedUrl }}
             style={{ width: '100%', height: '100%' }}
@@ -114,10 +112,7 @@ export function HeroImage({
   return (
     <View
       className={`${className ?? ''} items-center justify-center bg-brand-300`}
-      style={[
-        style,
-        fitToWidth ? { width: '100%', aspectRatio: fallbackAspect } : null,
-      ]}
+      style={[style, fitToWidth ? { aspectRatio: fallbackAspect } : null]}
     >
       <Text style={{ fontSize: emojiSize }}>{fallbackEmoji}</Text>
     </View>
