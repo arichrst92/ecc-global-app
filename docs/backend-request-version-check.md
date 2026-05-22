@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-22
 **Priority**: 🟡 **MEDIUM** — UX feature, user retention + bug-fix rollout safety
-**Status**: 🆕 **PROPOSED**
+**Status**: ✅ **RESOLVED** (BE patch 2026-05-22b) — lihat section "Backend Response" di akhir doc.
 
 ## TL;DR
 
@@ -111,3 +111,115 @@ Mobile-side estimasi: **2-3 jam** setelah BE ready.
   - MINOR: new feature, backward-compatible
   - MAJOR: breaking change or major redesign
 - `minSupportedVersion` di-bump cuma kalau ada breaking API change yang mobile lama tidak bisa handle (mis. new auth flow)
+
+---
+
+## ✅ Backend Response — 2026-05-22 (patch 2026-05-22b)
+
+### Public endpoint (no auth — pre-login accessible)
+
+```http
+GET /public/app-version?platform=ios|android&currentVersion=1.0.0
+```
+
+- `platform` wajib, lowercase `ios` atau `android`.
+- `currentVersion` opsional, semver `MAJOR.MINOR.PATCH`. Kalau kosong, server return latest tanpa compute `updateAvailable`/`forceUpdate`.
+
+**Response 200 (ada published row):**
+```json
+{
+  "success": true,
+  "data": {
+    "platform": "IOS",
+    "latestVersion": "1.2.0",
+    "minSupportedVersion": "1.0.0",
+    "updateAvailable": true,
+    "forceUpdate": false,
+    "releaseNotes": "- Fix QR scanner crash\n- ...",
+    "downloadUrl": "https://apps.apple.com/...",
+    "publishedAt": "2026-05-22T10:00:00Z"
+  }
+}
+```
+
+**Response 200 (belum ada published row di platform tsb):**
+```json
+{
+  "success": true,
+  "data": {
+    "platform": "IOS",
+    "latestVersion": null,
+    "minSupportedVersion": null,
+    "updateAvailable": false,
+    "forceUpdate": false,
+    "releaseNotes": null,
+    "downloadUrl": null,
+    "publishedAt": null
+  }
+}
+```
+
+Mobile aman handle null — fallback ke "tidak ada update", jangan tampil prompt.
+
+### Semver comparison
+
+Manual parsing (tidak ada dependency baru). Pattern `MAJOR.MINOR.PATCH` saja
+(no pre-release tag/build metadata). Validated di Zod input dan compare di
+helper `compareSemver(a, b)`.
+
+- `updateAvailable` = `currentVersion < latestVersion`
+- `forceUpdate` = `currentVersion < minSupportedVersion`
+
+### Admin endpoints (JWT + RBAC menuKey `app-version`)
+
+```http
+GET    /admin/app-version              → list semua row (semua platform)
+GET    /admin/app-version/:id          → detail row
+POST   /admin/app-version              → create new (auto-unpublish row lama saat isPublished=true)
+PATCH  /admin/app-version/:id          → update
+DELETE /admin/app-version/:id          → hard delete (history)
+```
+
+POST/PATCH body:
+```json
+{
+  "platform": "IOS",
+  "latestVersion": "1.2.0",
+  "minSupportedVersion": "1.0.0",
+  "releaseNotes": "- ...",
+  "downloadUrl": "https://apps.apple.com/...",
+  "isPublished": true
+}
+```
+
+**Storage approach** (decision dari klarifikasi action items): full history
+disimpan. Setiap publish create row baru atau update existing. Hanya **1 row
+aktif per platform** yang `isPublished=true` — auto-unpublish lainnya saat
+publish baru. Old versions di-keep untuk audit + rollback (admin toggle
+isPublished=true di row lama → row aktif jadi unpublished).
+
+### Schema migration
+
+`20260522150000_app_version`:
+- Table `app_version` (platform enum, latestVersion, minSupportedVersion, releaseNotes, downloadUrl, isPublished, publishedAt, publishedByUserId, timestamps)
+- Index `(platform, isPublished)` untuk lookup cepat
+- RBAC backfill Fulltimer untuk menuKey `app-version`.
+
+### Portal admin
+
+- Sidebar **App Settings → App Versions** (`/dashboard/app-version`)
+- Tabs iOS / Android dengan icon
+- Tampil published row di atas (badge hijau), history/draft di bawah
+- Create modal default version `1.0.0` + downloadUrl preset per platform
+- Edit inline (collapse-expand) dengan publish toggle yang aware: saat di-check, alert bahwa versi lain di platform yg sama akan auto-unpublish
+
+### Action items mobile (handoff)
+
+- [ ] `src/api/appVersion.ts` — `checkAppVersion(platform, currentVersion)`
+- [ ] `src/hooks/useVersionCheck.ts` — auto di app launch + manual button
+- [ ] `src/components/VersionUpdateModal.tsx` — render release notes + Update button + force-variant non-dismissable
+- [ ] Profile settings: "Cek Update Aplikasi" → manual trigger
+- [ ] `expo-application`:
+  - `Application.nativeApplicationVersion` → currentVersion string
+  - `Platform.OS` → 'ios' | 'android'
+- [ ] Handle null latestVersion (admin belum publish) → diam saja

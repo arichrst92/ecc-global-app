@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-22
 **Priority**: 🔴 **HIGH** — App Store + Play Store compliance requirement (Apple guideline 5.1.1(v))
-**Status**: 🆕 **PROPOSED**
+**Status**: ✅ **RESOLVED** (BE patch 2026-05-22b) — lihat section "Backend Response" di akhir doc.
 
 ## TL;DR
 
@@ -122,3 +122,76 @@ Mobile-side estimasi: **2-3 jam** setelah BE ready.
 - Apple App Store Review Guidelines 5.1.1(v): "Apps that support account creation must also offer account deletion within the app"
 - Google Play User Data policy: similar requirement
 - GDPR Article 17 (Right to Erasure): walaupun pakai soft-delete, secara legal valid karena user akses di-revoke + data only kept untuk legitimate church record. Boleh hard-delete kalau user request explicitly dengan email ke admin (out-of-band process).
+
+---
+
+## ✅ Backend Response — 2026-05-22 (patch 2026-05-22b)
+
+### Endpoint implemented
+
+```http
+DELETE /admin/me
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "confirmText": "HAPUS AKUN SAYA",       // wajib match literal
+  "reason": "Pindah cabang lain"          // optional, 0-500 chars
+}
+```
+
+**Success 200:**
+```json
+{
+  "success": true,
+  "data": {
+    "jemaatId": "...",
+    "deactivatedAt": "2026-05-22T10:00:00Z",
+    "message": "Akun berhasil dinonaktifkan. Anda akan ter-logout dari semua device. Hubungi admin cabang untuk reaktivasi.",
+    "revokedSessions": 3
+  }
+}
+```
+
+**Errors:**
+- `400` — confirmText tidak match (Zod validation message)
+- `409` — akun sudah dinonaktifkan sebelumnya
+- `404` — jemaat tidak ditemukan (anomali)
+
+### Side effects yang BE handle
+
+1. **Set `jemaat.isActive=false`** + `deactivatedAt=now()` + `deactivationReason=<reason>`
+2. **Revoke all `RefreshToken`** untuk user → force logout dari semua device
+3. **Audit log** `kind: 'self-deactivate'` + revokedSessions count
+4. **Login gate** (issueAuthResponse): jemaat dengan isActive=false → 403 "Akun sudah dinonaktifkan"
+5. **Refresh gate** (POST /auth/refresh): kalau di-detect jemaat inactive saat rotate, revoke semua token lagi + 401
+
+### Schema migration
+
+`20260522130000_self_deactivation`:
+```sql
+ALTER TABLE jemaat ADD COLUMN deactivated_at TIMESTAMP(3);
+ALTER TABLE jemaat ADD COLUMN deactivation_reason TEXT;
+```
+
+### Apa yang TIDAK di-cascade (preserved data)
+
+Sesuai requirement di doc original — data historical tetap (kehadiran, event,
+visit, family, donation). LocalBusiness owned: tidak di-hide khusus, tapi
+LocalBusiness query filter `WHERE owner.isActive=true` (sudah ada di
+endpoint browse — verify saat audit). Homecell PIC: TIDAK di-transfer
+otomatis — admin perlu reassign manual via portal.
+
+### Reactivation flow
+
+Hanya via portal admin: Jemaat list → toggle `isActive=true` → user bisa
+login lagi dengan OTP existing. Mobile-side cuma show error message.
+
+### Action items mobile (handoff)
+
+- [ ] `src/api/me.ts` — `deleteMyAccount({ confirmText, reason })`
+- [ ] `app/settings/delete-account.tsx` — type-to-confirm + reason textarea
+- [ ] Profile screen entry (destructive red row)
+- [ ] Success → clear auth store + redirect ke welcome
+
+Tidak ada WA notification (defer notif infra — sama dengan keputusan lain).

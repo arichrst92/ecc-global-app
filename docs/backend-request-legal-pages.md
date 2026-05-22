@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-22
 **Priority**: 🟡 **MEDIUM** — Compliance + UX, blocking apps store submission (App Store + Play Store require Privacy Policy URL)
-**Status**: 🆕 **PROPOSED**
+**Status**: ✅ **RESOLVED** (BE patch 2026-05-22b) — lihat section "Backend Response" di akhir doc.
 
 ## TL;DR
 
@@ -118,3 +118,91 @@ Mobile-side estimasi: **2-3 jam** setelah BE ready (incl npm install + markdown 
 - **App Store + Play Store wajib**: Privacy Policy URL — di-list di submission form. URL bisa pakai public web hosting (mis. https://ecc.id/privacy) yang fetch sama BE source — OR pakai backend route `https://api.ecc.id/legal/privacy` (BE serve HTML versi) — kedua-nya valid.
 - **Versioning** — `version` field bump tiap kali content update, mobile bisa cache + check version untuk avoid unnecessary refetch.
 - **Multi-language** — id wajib (Indonesian church), en optional (kalau ada user non-ID). Mobile fallback ke id kalau en tidak tersedia.
+
+---
+
+## ✅ Backend Response — 2026-05-22 (patch 2026-05-22b)
+
+### Public endpoint (no auth — accessible pre-login)
+
+```http
+GET /public/legal/:key?lang=id|en
+```
+
+- `:key` = `TERMS` | `PRIVACY` (case-sensitive enum)
+- `lang` query opsional, default `id`. Kalau lang yang diminta tidak ada, **auto-fallback ke `id`**.
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "data": {
+    "key": "TERMS",
+    "language": "id",
+    "title": "Syarat & Ketentuan ECC",
+    "content": "# ...markdown...",
+    "version": "2026-05-22",
+    "publishedAt": "2026-05-22T10:00:00Z",
+    "updatedAt": "2026-05-22T10:00:00Z"
+  }
+}
+```
+
+Mobile cache by `version` field. Untuk cek update, hit endpoint ringan
+secara periodik (mis. saat app launch) → kalau `version` berubah, re-fetch
+content + invalidate cache.
+
+### Admin endpoints (JWT + RBAC menuKey `legal`)
+
+```http
+GET    /admin/legal                       → list semua dokumen
+GET    /admin/legal/:key/:lang            → detail single doc
+PUT    /admin/legal/:key/:lang            → upsert (publish/update)
+DELETE /admin/legal/:key/:lang            → delete translasi (id tidak boleh dihapus)
+```
+
+PUT body:
+```json
+{
+  "title": "Syarat & Ketentuan ECC",
+  "content": "# Markdown content...",
+  "version": "2026-05-22",
+  "isPublished": true
+}
+```
+
+### Schema migration
+
+`20260522140000_legal_document`:
+- Table `legal_document` (key enum, language varchar, title, content text, version, isPublished, publishedAt, publishedByUserId, timestamps)
+- Unique `(key, language)`
+- **Seed initial placeholder** — TERMS + PRIVACY untuk `id` dengan dummy content yang harus di-replace oleh legal team via portal.
+- RBAC backfill Fulltimer untuk menuKey `legal`.
+
+### Portal admin
+
+- Sidebar **App Settings → Legal Docs** (`/dashboard/legal`)
+- Tabs TERMS / PRIVACY × sub-tabs Bahasa Indonesia / English
+- Edit raw markdown textarea (tidak ada preview, sesuai keputusan minimal-deps)
+- Auto-fill version dengan ISO date hari ini untuk save baru
+- DELETE button hanya muncul untuk versi English (id wajib selalu ada)
+
+### Action items mobile (handoff)
+
+- [ ] `src/api/legal.ts` — `getLegalDocument(key, lang)` calling `/public/legal/:key`
+- [ ] `src/hooks/useLegal.ts` — React Query wrapper dengan stale time 1 jam
+- [ ] `app/legal/terms.tsx` + `app/legal/privacy.tsx` — markdown viewer
+- [ ] `npm install react-native-markdown-display` (~50KB)
+- [ ] Login screen: link "Syarat & Ketentuan" + "Kebijakan Privasi" di bottom
+- [ ] Profile About: section Legal dengan 2 link
+- [ ] Optional: prompt re-acceptance kalau `version` lebih baru dari yg di-cache
+
+### Catatan privacy URL untuk store submission
+
+Backend serve raw markdown via API. Untuk store submission yang minta
+**URL publik HTML**, tim ops bisa:
+1. Wrap `/public/legal/privacy` dengan halaman web sederhana yang fetch +
+   render markdown (di domain `ecc.id/privacy`), atau
+2. Hosting static HTML terpisah dengan content yang sama dengan backend.
+
+Backend tidak serve HTML — itu di luar scope mobile-api.
