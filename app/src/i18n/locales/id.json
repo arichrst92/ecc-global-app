@@ -148,7 +148,7 @@
     "ministry_empty": "Belum terlibat ministry",
     "ministry_explore_sub": "Lihat daftar ministry yang ada di gereja",
     "my_business": "Bisnis Saya",
-    "my_business_sub": "Kelola UMKM Anda di Local Market"
+    "my_business_sub": "Kelola disini untuk ditampilkan di local market"
   },
   "family": {
     "title": "Keluarga Saya",
@@ -473,6 +473,15 @@
     "filter_all": "Semua",
     "filter_online": "Online",
     "filter_offline": "Offline",
+    "filter_title": "Filter Bisnis",
+    "filter_reset": "Reset",
+    "filter_apply": "Terapkan Filter",
+    "filter_cabang": "Cabang",
+    "filter_cabang_all": "Semua Cabang",
+    "filter_tipe": "Tipe Bisnis",
+    "filter_industri": "Industri",
+    "filter_industri_custom_hint": "Atau ketik industri spesifik:",
+    "filter_industri_custom_placeholder": "Mis. Kuliner, Fashion, IT...",
     "empty_title": "Belum ada bisnis",
     "empty_msg": "Belum ada bisnis yang terdaftar di cabang ini. Coba ubah filter atau cabang lain.",
     "reset_filter": "Reset Filter",

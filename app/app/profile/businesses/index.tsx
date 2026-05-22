@@ -3,16 +3,14 @@
  * Accessible dari Profile menu. Shows semua bisnis user (incl nonaktif),
  * dengan "+" button untuk create baru.
  */
-import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, Plus, Store } from 'lucide-react-native';
+import { ArrowLeft, Plus, Store } from 'lucide-react-native';
 
-import { HeroImage } from '@/components/ui/HeroImage';
+import { BusinessRow } from '@/components/market/BusinessRow';
 import { useMyBusinesses } from '@/hooks/useLocalBusiness';
-import { env } from '@/config/env';
-import type { LocalBusiness } from '@/types/localBusiness';
 
 export default function MyBusinessesScreen() {
   const { t } = useTranslation();
@@ -74,11 +72,12 @@ export default function MyBusinessesScreen() {
         ) : (query.data?.length ?? 0) === 0 ? (
           <EmptyState onAdd={() => router.push('/profile/businesses/new' as never)} />
         ) : (
-          <View className="gap-3">
+          <View className="gap-2.5">
             {(query.data ?? []).map((biz) => (
               <BusinessRow
                 key={biz.id}
                 business={biz}
+                variant="owner"
                 onPress={() =>
                   router.push(`/profile/businesses/${biz.id}` as never)
                 }
@@ -88,62 +87,6 @@ export default function MyBusinessesScreen() {
         )}
       </ScrollView>
     </View>
-  );
-}
-
-function BusinessRow({
-  business,
-  onPress,
-}: {
-  business: LocalBusiness;
-  onPress: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <Pressable
-      onPress={onPress}
-      className={`bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 ${
-        !business.isActive ? 'opacity-70' : ''
-      }`}
-    >
-      {business.logoUrl ? (
-        <Image
-          source={{
-            uri: business.logoUrl.startsWith('http')
-              ? business.logoUrl
-              : `${env.apiBaseUrl}${business.logoUrl}`,
-          }}
-          className="w-14 h-14 rounded-xl"
-          resizeMode="cover"
-        />
-      ) : (
-        <HeroImage
-          url={business.heroImageUrl}
-          fallbackEmoji="🏪"
-          emojiSize={24}
-          className="w-14 h-14 rounded-xl overflow-hidden"
-        />
-      )}
-      <View className="flex-1 min-w-0">
-        <View className="flex-row items-center gap-2">
-          <Text className="text-sm font-bold text-neutral-900 flex-1" numberOfLines={1}>
-            {business.nama}
-          </Text>
-          {!business.isActive ? (
-            <View className="bg-neutral-200 px-1.5 py-0.5 rounded">
-              <Text className="text-[9px] font-bold text-neutral-600">
-                {t('my_business.inactive_badge')}
-              </Text>
-            </View>
-          ) : null}
-        </View>
-        <Text className="text-xs text-neutral-500 mt-0.5">
-          {business.tipeBisnis}
-          {business.industri ? ` · ${business.industri}` : ''}
-        </Text>
-      </View>
-      <ChevronRight size={16} color="#A3A3A3" />
-    </Pressable>
   );
 }
 

@@ -148,7 +148,7 @@
     "ministry_empty": "Not in any ministry yet",
     "ministry_explore_sub": "See the list of ministries in church",
     "my_business": "My Businesses",
-    "my_business_sub": "Manage your UMKM in Local Market"
+    "my_business_sub": "Manage here to publish to Local Market"
   },
   "family": {
     "title": "My Family",
@@ -473,6 +473,15 @@
     "filter_all": "All",
     "filter_online": "Online",
     "filter_offline": "Offline",
+    "filter_title": "Filter Businesses",
+    "filter_reset": "Reset",
+    "filter_apply": "Apply Filter",
+    "filter_cabang": "Branch",
+    "filter_cabang_all": "All Branches",
+    "filter_tipe": "Business Type",
+    "filter_industri": "Industry",
+    "filter_industri_custom_hint": "Or type specific industry:",
+    "filter_industri_custom_placeholder": "e.g. F&B, Fashion, IT...",
     "empty_title": "No businesses yet",
     "empty_msg": "No businesses registered in this branch yet. Try different filter or branch.",
     "reset_filter": "Reset Filter",

@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
+  Award,
   Cake,
   Calendar,
   HeartHandshake,
@@ -308,23 +309,44 @@ function FullProfile({
         </View>
       ) : null}
 
-      {/* Roles */}
+      {/* Roles — pakai layout sama dengan profile.tsx RoleCard: Award icon
+          amber, role nama bold, subRole sebagai subtitle, status badge di kanan */}
       {profile.roles.length > 0 ? (
         <>
           <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-3 mb-2">
             {t('jemaat.roles_section')}
           </Text>
-          <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-2 mb-3">
+          <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden mb-3">
             {profile.roles.map((r, idx) => {
-              const parts = [r.role?.nama, r.subRole?.nama, r.subRoleStatus?.nama].filter(
-                Boolean,
-              );
+              const roleName = r.role?.nama ?? '—';
+              const subName = r.subRole?.nama;
               return (
-                <View key={idx} className="flex-row items-center gap-2">
-                  <View className="w-2 h-2 rounded-full bg-brand-500" />
-                  <Text className="text-sm text-neutral-700 flex-1">
-                    {parts.join(' · ') || '—'}
-                  </Text>
+                <View
+                  key={idx}
+                  className={`flex-row items-center gap-3 p-4 ${
+                    idx > 0 ? 'border-t border-neutral-100' : ''
+                  }`}
+                >
+                  <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
+                    <Award size={18} color="#D97706" />
+                  </View>
+                  <View className="flex-1 min-w-0">
+                    <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                      {roleName}
+                    </Text>
+                    {subName ? (
+                      <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                        {subName}
+                      </Text>
+                    ) : null}
+                  </View>
+                  {r.subRoleStatus?.nama ? (
+                    <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
+                      <Text className="text-[10px] font-bold text-emerald-700">
+                        {r.subRoleStatus.nama.toUpperCase()}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
               );
             })}
