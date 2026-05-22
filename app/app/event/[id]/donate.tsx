@@ -28,6 +28,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useEventDetail } from '@/hooks/useEvents';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { createDonation, uploadDonationBukti } from '@/api/event';
 import { env } from '@/config/env';
 import { ApiError } from '@/types/api';
@@ -48,6 +49,7 @@ export default function EventDonateScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const queryClient = useQueryClient();
   const showToast = useToast((s) => s.show);
+  const addNotification = useNotificationsStore((s) => s.add);
 
   const eventQuery = useEventDetail(id);
   const event = eventQuery.data;
@@ -104,6 +106,15 @@ export default function EventDonateScreen() {
       setUploadedUrl(url);
       await queryClient.invalidateQueries({ queryKey: ['event', 'my-donations', id] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
+      // Local notification — donasi tercatat, bukti terupload
+      if (event) {
+        addNotification({
+          category: 'payment',
+          title: t('notif.event_donation_title'),
+          body: t('notif.event_donation_body', { judul: event.judul }),
+          deepLink: `/event/${event.id}`,
+        });
+      }
       showToast(t('event.uploaded_waiting'), 'success');
     },
     onError: (err) => {

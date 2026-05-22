@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/Toast';
 import { cancelMyParticipation } from '@/api/event';
 import { useEventDetail, useMyDonations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
 import type { EventDonation } from '@/types/event';
@@ -100,6 +101,7 @@ export default function EventDetailScreen() {
       : localParticipation;
 
   const showToast = useToast((s) => s.show);
+  const addNotification = useNotificationsStore((s) => s.add);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -116,6 +118,16 @@ export default function EventDetailScreen() {
         result.alreadyCancelled ? t('event.already_cancelled') : t('event.cancel_success'),
         'success',
       );
+      // Local notification — pendaftaran dibatalkan (skip kalau alreadyCancelled
+      // dari sisi BE, supaya tidak spam notif yang sama)
+      if (event && !result.alreadyCancelled) {
+        addNotification({
+          category: 'event',
+          title: t('notif.event_cancel_title'),
+          body: t('notif.event_cancel_body', { judul: event.judul }),
+          deepLink: `/event/${event.id}`,
+        });
+      }
       // Invalidate event queries supaya myParticipation di detail re-fetch
       // dan tombol kembali jadi "Daftar Sekarang"
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });

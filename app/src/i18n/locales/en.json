@@ -407,7 +407,16 @@
     "family_link_title": "Family member added",
     "family_link_body": "{{name}} has been added to your family.",
     "visit_created_title": "Visit recorded",
-    "visit_created_body": "Visit with {{name}} ({{judul}}) was recorded."
+    "visit_created_body": "Visit with {{name}} ({{judul}}) was recorded.",
+    "event_register_free_title": "Event registration successful",
+    "event_register_paid_title": "Registered for event",
+    "event_register_body": "You're registered for \"{{judul}}\". Check details for more info.",
+    "event_cancel_title": "Event registration cancelled",
+    "event_cancel_body": "Your registration for \"{{judul}}\" was cancelled. The slot is now available again.",
+    "event_payment_title": "Payment proof uploaded",
+    "event_payment_body": "Payment for \"{{judul}}\" awaiting admin verification (1-24 hours).",
+    "event_donation_title": "Donation recorded",
+    "event_donation_body": "Your donation for \"{{judul}}\" uploaded. Awaiting admin verification."
   },
   "notifications": {
     "title": "Notifications",

@@ -407,7 +407,16 @@
     "family_link_title": "Anggota keluarga ditambahkan",
     "family_link_body": "{{name}} berhasil ditambahkan ke keluarga Anda.",
     "visit_created_title": "Visit dicatat",
-    "visit_created_body": "Visit dengan {{name}} ({{judul}}) berhasil dicatat."
+    "visit_created_body": "Visit dengan {{name}} ({{judul}}) berhasil dicatat.",
+    "event_register_free_title": "Pendaftaran event berhasil",
+    "event_register_paid_title": "Berhasil daftar event",
+    "event_register_body": "Anda terdaftar di \"{{judul}}\". Cek detail untuk info lebih lanjut.",
+    "event_cancel_title": "Pendaftaran event dibatalkan",
+    "event_cancel_body": "Pendaftaran Anda di \"{{judul}}\" sudah dibatalkan. Slot kembali tersedia.",
+    "event_payment_title": "Bukti pembayaran terupload",
+    "event_payment_body": "Pembayaran untuk \"{{judul}}\" menunggu verifikasi admin (1-24 jam).",
+    "event_donation_title": "Donasi tercatat",
+    "event_donation_body": "Donasi Anda untuk \"{{judul}}\" terupload. Menunggu verifikasi admin."
   },
   "notifications": {
     "title": "Notifikasi",

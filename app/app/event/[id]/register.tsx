@@ -12,6 +12,7 @@ import { TextField } from '@/components/ui/TextField';
 import { useEventDetail } from '@/hooks/useEvents';
 import { useAuthStore } from '@/stores/auth.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { registerPeserta } from '@/api/event';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { formatDate } from '@/utils/date';
@@ -26,6 +27,7 @@ export default function EventRegisterScreen() {
   const catatan = useEventFlowStore((s) => s.catatan);
   const setCatatan = useEventFlowStore((s) => s.setCatatan);
   const addParticipation = useEventFlowStore((s) => s.addParticipation);
+  const addNotification = useNotificationsStore((s) => s.add);
   const queryClient = useQueryClient();
 
   const eventQuery = useEventDetail(id);
@@ -86,6 +88,19 @@ export default function EventRegisterScreen() {
       // Invalidate event queries supaya myParticipation field di detail ke-update
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
+
+      // Local notification — pendaftaran event berhasil
+      if (event) {
+        addNotification({
+          category: 'event',
+          title:
+            event.tipeBayar === 'GRATIS'
+              ? t('notif.event_register_free_title')
+              : t('notif.event_register_paid_title'),
+          body: t('notif.event_register_body', { judul: event.judul }),
+          deepLink: `/event/${event.id}`,
+        });
+      }
 
       if (event?.tipeBayar === 'GRATIS') {
         // Skip payment screen — daftar selesai

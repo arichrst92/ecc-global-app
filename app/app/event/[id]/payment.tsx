@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useEventDetail } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { uploadBukti } from '@/api/event';
 import { env } from '@/config/env';
 import { ApiError } from '@/types/api';
@@ -40,6 +41,7 @@ export default function EventPaymentScreen() {
   );
   const updateStatus = useEventFlowStore((s) => s.updateParticipationStatus);
   const resetFlow = useEventFlowStore((s) => s.resetFlow);
+  const addNotification = useNotificationsStore((s) => s.add);
 
   // State untuk image preview (sebelum submit)
   const [pickedImage, setPickedImage] = useState<PickedImage | null>(null);
@@ -66,6 +68,15 @@ export default function EventPaymentScreen() {
       // Invalidate event queries supaya myParticipation.status di detail ke-update
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
+      // Local notification — bukti pembayaran terupload, menunggu verifikasi admin
+      if (event) {
+        addNotification({
+          category: 'payment',
+          title: t('notif.event_payment_title'),
+          body: t('notif.event_payment_body', { judul: event.judul }),
+          deepLink: `/event/${event.id}`,
+        });
+      }
       showToast(t('event.uploaded_waiting'), 'success');
     },
     onError: (err) => {
