@@ -116,6 +116,14 @@ export default function HomecellDetailScreen() {
     .filter((m) => !m.isActive)
     .sort((a, b) => b.tanggalBergabung.localeCompare(a.tanggalBergabung));
 
+  // PIC homecell — cari di list members yang jemaat.id match picJemaatId.
+  // Kalau PIC bukan member homecell (rare case), pakai sebagai fallback id only.
+  const picMember = homecell.picJemaatId
+    ? homecell.members.find(
+        (m) => (m.jemaat.id ?? m.jemaatId) === homecell.picJemaatId,
+      )
+    : null;
+
   return (
     <View className="flex-1 bg-neutral-50">
       <View className="bg-brand-500 rounded-b-3xl">
@@ -182,6 +190,55 @@ export default function HomecellDetailScreen() {
             </View>
           ) : null}
         </View>
+
+        {/* PIC profile card — tampil profil PIC homecell ini */}
+        {picMember ? (
+          <View className="mb-4">
+            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+              {t('homecell.pic_section')}
+            </Text>
+            <Pressable
+              onPress={() =>
+                router.push(
+                  `/jemaat/${picMember.jemaat.id ?? picMember.jemaatId}` as never,
+                )
+              }
+              className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+            >
+              <View className="relative">
+                <Avatar
+                  name={picMember.jemaat.namaLengkap}
+                  fotoUrl={picMember.jemaat.fotoUrl ?? undefined}
+                  size={48}
+                />
+                <View className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-brand-500 items-center justify-center border-2 border-white">
+                  <Text className="text-[8px] font-bold text-white">PIC</Text>
+                </View>
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                  {picMember.jemaat.namaLengkap}
+                </Text>
+                <Text className="text-xs text-neutral-500 mt-0.5">
+                  {t('homecell.pic_role_label')}
+                </Text>
+              </View>
+              {picMember.jemaat.noHp ? (
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    const num = picMember.jemaat.noHp!.replace(/^\+/, '');
+                    Linking.openURL(`https://wa.me/${num}`).catch(() => {});
+                  }}
+                  className="w-10 h-10 rounded-full bg-green-50 items-center justify-center"
+                  accessibilityLabel={t('homecell.member_whatsapp')}
+                >
+                  <MessageCircle size={16} color="#16A34A" />
+                </Pressable>
+              ) : null}
+            </Pressable>
+          </View>
+        ) : null}
 
         {/* Add member action */}
         {canRemove ? (

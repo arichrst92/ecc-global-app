@@ -141,6 +141,9 @@
     "scanner_mode": "Mode Scanner",
     "scanner_mode_sub": "Scan QR jemaat untuk check-in ibadah / event",
     "role_section": "Peran Anda Saat Ini",
+    "branch_section": "Cabang Home",
+    "branch_home_label": "Cabang Anda saat ini",
+    "branch_change_cta": "Ganti",
     "ministry_section": "Pelayanan Anda",
     "ministry_empty": "Belum terlibat ministry",
     "ministry_explore_sub": "Lihat daftar ministry yang ada di gereja"
@@ -512,7 +515,9 @@
     "confirm_remove": "Ya, Keluarkan",
     "member_removed": "{{name}} berhasil dikeluarkan.",
     "member_already_removed": "Anggota sudah keluar sebelumnya.",
-    "member_whatsapp": "Chat WhatsApp"
+    "member_whatsapp": "Chat WhatsApp",
+    "pic_section": "Penanggung Jawab",
+    "pic_role_label": "PIC Homecell"
   },
   "jemaat": {
     "detail_title": "Profil Jemaat",

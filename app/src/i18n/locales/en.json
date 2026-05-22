@@ -141,6 +141,9 @@
     "scanner_mode": "Scanner Mode",
     "scanner_mode_sub": "Scan member QR to check in for services / events",
     "role_section": "Your Current Role",
+    "branch_section": "Home Branch",
+    "branch_home_label": "Your current branch",
+    "branch_change_cta": "Change",
     "ministry_section": "Your Ministry",
     "ministry_empty": "Not in any ministry yet",
     "ministry_explore_sub": "See the list of ministries in church"
@@ -512,7 +515,9 @@
     "confirm_remove": "Yes, Remove",
     "member_removed": "{{name}} removed successfully.",
     "member_already_removed": "Member already removed previously.",
-    "member_whatsapp": "WhatsApp chat"
+    "member_whatsapp": "WhatsApp chat",
+    "pic_section": "In Charge",
+    "pic_role_label": "Homecell PIC"
   },
   "jemaat": {
     "detail_title": "Member Profile",

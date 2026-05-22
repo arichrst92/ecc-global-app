@@ -6,16 +6,17 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
   AlertTriangle,
+  Award,
+  Building2,
   ChevronRight,
   Globe,
-  HandHeart,
+  HeartHandshake,
   Info,
   LogOut,
-  MapPin,
   Pencil,
-  QrCode,
   ScanFace,
   ScanLine,
+  Sparkles,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -114,23 +115,21 @@ export default function ProfileTab() {
           </Pressable>
         ) : null}
 
+        {/* Cabang Home — section sendiri, dipisah dari pengaturan supaya
+            data cabang aktif lebih prominent */}
+        <BranchCard onPress={() => router.push('/settings/change-branch')} />
+
         {/* Role / peran current user */}
         <RoleCard />
 
         {/* Ministry / pelayanan current user */}
         <MinistryCard />
 
-        {/* Settings menu — dengan icons per row supaya lebih menarik secara visual */}
+        {/* Settings menu — change_branch dipindah ke BranchCard di atas */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
           {t('profile.settings_title')}
         </Text>
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
-          <MenuRow
-            icon={<MapPin size={18} color="#EA580C" />}
-            iconBg="bg-brand-50"
-            label={t('profile.change_branch')}
-            onPress={() => router.push('/settings/change-branch')}
-          />
           <MenuRow
             icon={<Globe size={18} color="#0891B2" />}
             iconBg="bg-cyan-50"
@@ -257,13 +256,129 @@ function MenuRow({
 }
 
 /**
- * MinistryCard — tampil daftar ministry / pelayanan current user.
+ * BranchCard — tampil cabang home current user, tap → /settings/change-branch.
+ * Section sendiri (bukan di dalam Pengaturan) supaya data cabang aktif
+ * lebih prominent.
+ */
+function BranchCard({ onPress }: { onPress: () => void }) {
+  const { t } = useTranslation();
+  const meQuery = useQuery({
+    queryKey: ['me', 'profile-tab'],
+    queryFn: getMyProfile,
+    staleTime: 5 * 60_000,
+  });
+  const cabang = meQuery.data?.cabang;
+
+  return (
+    <View className="mb-4">
+      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+        {t('profile.branch_section')}
+      </Text>
+      <Pressable
+        onPress={onPress}
+        className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+      >
+        <View className="flex-row items-center gap-3 p-4">
+          <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center">
+            <Building2 size={22} color="#EA580C" />
+          </View>
+          <View className="flex-1 min-w-0">
+            <Text className="text-xs text-neutral-500 mb-0.5">
+              {t('profile.branch_home_label')}
+            </Text>
+            <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+              {cabang?.nama ?? '—'}
+            </Text>
+            {cabang?.kode ? (
+              <Text className="text-[10px] text-neutral-400 mt-0.5 font-mono tracking-wider">
+                {cabang.kode}
+              </Text>
+            ) : null}
+          </View>
+          <View className="flex-row items-center gap-1">
+            <Text className="text-xs text-brand-600 font-semibold">
+              {t('profile.branch_change_cta')}
+            </Text>
+            <ChevronRight size={14} color="#EA580C" />
+          </View>
+        </View>
+      </Pressable>
+    </View>
+  );
+}
+
+/**
+ * RoleCard — tampil daftar peran current user di gereja (jemaatRoles dari
+ * /admin/me). Termasuk role + subRole + status. Misal:
+ * "Volunteer · Worship Team · Aktif"
  *
- * BE field `ministries` di /admin/me belum ada (pending request:
- * docs/backend-request-ministry-endpoints.md). Untuk sementara:
- * - Kalau BE sudah kirim field `ministries` dengan data → render list
- * - Kalau undefined / empty → tampil placeholder "Belum terlibat ministry"
- *   plus link ke halaman /ministry untuk explore
+ * Visual: tiap role di-render sebagai mini-card dengan icon Award, nama role
+ * bold, subRole + status di subtitle. Layout list dengan separator.
+ */
+function RoleCard() {
+  const { t } = useTranslation();
+  const meQuery = useQuery({
+    queryKey: ['me', 'profile-tab'],
+    queryFn: getMyProfile,
+    staleTime: 5 * 60_000,
+  });
+  const roles = meQuery.data?.jemaatRoles ?? [];
+
+  if (roles.length === 0) {
+    return null; // Hide kalau user belum punya role apapun
+  }
+
+  return (
+    <View className="mb-4">
+      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+        {t('profile.role_section')}
+      </Text>
+      <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+        {roles.map((r, idx) => {
+          const roleName = r.role?.nama ?? '—';
+          const subParts = [r.subRole?.nama, r.subRoleStatus?.nama].filter(Boolean);
+          return (
+            <View
+              key={idx}
+              className={`flex-row items-center gap-3 p-4 ${
+                idx > 0 ? 'border-t border-neutral-100' : ''
+              }`}
+            >
+              <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
+                <Award size={18} color="#D97706" />
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                  {roleName}
+                </Text>
+                {subParts.length > 0 ? (
+                  <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                    {subParts.join(' · ')}
+                  </Text>
+                ) : null}
+              </View>
+              {r.subRoleStatus?.nama ? (
+                <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
+                  <Text className="text-[10px] font-bold text-emerald-700">
+                    {r.subRoleStatus.nama.toUpperCase()}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+/**
+ * MinistryCard — tampil daftar ministry / pelayanan current user.
+ * Per BE patch 2026-05-22a — `me.ministries` field active.
+ *
+ * Visual: tiap ministry sebagai mini-card row, icon HeartHandshake brand,
+ * nama bold + posisi sebagai subtitle. Tap row → navigate ke detail
+ * ministry. Empty state CTA → /ministry explore page.
  */
 function MinistryCard() {
   const { t } = useTranslation();
@@ -285,11 +400,11 @@ function MinistryCard() {
           onPress={() => router.push('/ministry' as never)}
           className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
         >
-          <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-            <HandHeart size={18} color="#EA580C" />
+          <View className="w-10 h-10 rounded-xl bg-rose-50 items-center justify-center">
+            <Sparkles size={18} color="#E11D48" />
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-medium text-neutral-700">
+            <Text className="text-sm font-semibold text-neutral-700">
               {t('profile.ministry_empty')}
             </Text>
             <Text className="text-xs text-neutral-500 mt-0.5">
@@ -299,62 +414,33 @@ function MinistryCard() {
           <ChevronRight size={16} color="#A3A3A3" />
         </Pressable>
       ) : (
-        <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-2">
-          {ministries.map((m) => {
-            const parts = [m.nama, m.posisi].filter(Boolean);
-            return (
-              <View key={m.id} className="flex-row items-center gap-2">
-                <View className="w-2 h-2 rounded-full bg-brand-500" />
-                <Text className="text-sm text-neutral-700 flex-1">
-                  {parts.join(' · ') || '—'}
-                </Text>
+        <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+          {ministries.map((m, idx) => (
+            <Pressable
+              key={m.id}
+              onPress={() => router.push(`/ministry/${m.pelayananId}` as never)}
+              className={`flex-row items-center gap-3 p-4 ${
+                idx > 0 ? 'border-t border-neutral-100' : ''
+              }`}
+            >
+              <View className="w-10 h-10 rounded-xl bg-rose-50 items-center justify-center">
+                <HeartHandshake size={18} color="#E11D48" />
               </View>
-            );
-          })}
+              <View className="flex-1 min-w-0">
+                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                  {m.nama}
+                </Text>
+                {m.posisi ? (
+                  <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                    {m.posisi}
+                  </Text>
+                ) : null}
+              </View>
+              <ChevronRight size={14} color="#A3A3A3" />
+            </Pressable>
+          ))}
         </View>
       )}
-    </View>
-  );
-}
-
-/**
- * RoleCard — tampil daftar peran current user di gereja (jemaatRoles dari
- * /admin/me). Termasuk role + subRole + status. Misal:
- * "Volunteer · Worship Team · Aktif"
- */
-function RoleCard() {
-  const { t } = useTranslation();
-  const meQuery = useQuery({
-    queryKey: ['me', 'profile-tab'],
-    queryFn: getMyProfile,
-    staleTime: 5 * 60_000,
-  });
-  const roles = meQuery.data?.jemaatRoles ?? [];
-
-  if (roles.length === 0) {
-    return null; // Hide kalau user belum punya role apapun
-  }
-
-  return (
-    <View className="mb-4">
-      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-        {t('profile.role_section')}
-      </Text>
-      <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-2">
-        {roles.map((r, idx) => {
-          const parts = [r.role?.nama, r.subRole?.nama, r.subRoleStatus?.nama].filter(
-            Boolean,
-          );
-          return (
-            <View key={idx} className="flex-row items-center gap-2">
-              <View className="w-2 h-2 rounded-full bg-brand-500" />
-              <Text className="text-sm text-neutral-700 flex-1">
-                {parts.join(' · ') || '—'}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
     </View>
   );
 }

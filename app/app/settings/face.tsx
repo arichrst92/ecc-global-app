@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, AlertTriangle, ScanFace, ShieldCheck, ShieldOff, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, ScanFace, ShieldCheck, ShieldOff, Trash2 } from 'lucide-react-native';
 
 import {
   deleteFaceProfile,
@@ -119,20 +119,9 @@ export default function FaceSettingsScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
       >
-        {/* Engine not-ready warning (Expo Go atau model belum di-bundle) */}
-        {!engineReady ? (
-          <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex-row items-start gap-3 mb-4">
-            <AlertTriangle size={18} color="#D97706" />
-            <View className="flex-1">
-              <Text className="text-sm font-semibold text-amber-800 mb-1">
-                {t('face.engine_not_ready_title')}
-              </Text>
-              <Text className="text-xs text-amber-700 leading-relaxed">
-                {t('face.engine_not_ready_body')}
-              </Text>
-            </View>
-          </View>
-        ) : null}
+        {/* Engine not-ready warning di-hide per user request iter 7 —
+            di production build wajar engine ready dalam beberapa detik.
+            Di Expo Go, fungsi tetap di-blokir tapi tidak perlu pesan teknis. */}
 
         {/* Hero card */}
         <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center mb-4">

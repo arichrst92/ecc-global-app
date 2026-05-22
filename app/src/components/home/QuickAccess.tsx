@@ -205,13 +205,9 @@ export function QuickAccess() {
 
   return (
     <View className="px-5 mt-4">
-      <View className="flex-row items-baseline justify-between mb-3">
-        <Text className="text-base font-bold text-neutral-900">
-          {t('quickaccess.title')}
-        </Text>
-      </View>
       {/* Grid 4 kolom, wrap ke row baru kalau tiles > 4.
-          Pakai flexBasis "25%" - gap supaya tiles auto-fit responsive. */}
+          Pakai flexBasis "25%" - gap supaya tiles auto-fit responsive.
+          Title "Akses Cepat" sengaja di-hide — grid sudah self-evident. */}
       <View className="flex-row flex-wrap" style={{ marginHorizontal: -4, rowGap: 12 }}>
         {tiles.map((tile) => (
           <View key={tile.key} style={{ width: '25%', paddingHorizontal: 4 }}>
