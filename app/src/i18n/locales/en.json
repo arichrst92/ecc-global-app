@@ -149,6 +149,10 @@
     "branch_section": "Home Branch",
     "branch_home_label": "Your current branch",
     "branch_change_cta": "Change",
+    "family_section": "My Family",
+    "family_count": "{{count}} family members",
+    "family_empty": "No family members yet",
+    "family_empty_sub": "Add members to register together for events",
     "ministry_section": "Your Ministry",
     "ministry_empty": "Not in any ministry yet",
     "ministry_explore_sub": "See the list of ministries in church",
@@ -396,6 +400,14 @@
     "confirm_title": "Move to this branch?",
     "confirm_body": "Your home branch will change to:",
     "success": "Home branch updated."
+  },
+  "notif": {
+    "branch_change_title": "Home branch updated",
+    "branch_change_body": "Your home branch is now: {{branch}}",
+    "family_link_title": "Family member added",
+    "family_link_body": "{{name}} has been added to your family.",
+    "visit_created_title": "Visit recorded",
+    "visit_created_body": "Visit with {{name}} ({{judul}}) was recorded."
   },
   "notifications": {
     "title": "Notifications",
@@ -879,6 +891,7 @@
   },
   "edit_profile": {
     "title_dependent": "Edit Profile — {{name}}",
+    "dependent_phone_pending": "Adding a phone number / email for a family member (e.g. a child who now has their own phone) is awaiting a backend update. For now, contact your branch admin to update.",
     "full_name": "Full Name",
     "email": "Email",
     "phone": "Phone Number",

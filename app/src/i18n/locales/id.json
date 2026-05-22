@@ -149,6 +149,10 @@
     "branch_section": "Cabang Home",
     "branch_home_label": "Cabang Anda saat ini",
     "branch_change_cta": "Ganti",
+    "family_section": "Keluarga Saya",
+    "family_count": "{{count}} anggota keluarga",
+    "family_empty": "Belum ada anggota keluarga",
+    "family_empty_sub": "Tambahkan anggota untuk daftar event bareng",
     "ministry_section": "Pelayanan Anda",
     "ministry_empty": "Belum terlibat ministry",
     "ministry_explore_sub": "Lihat daftar ministry yang ada di gereja",
@@ -396,6 +400,14 @@
     "confirm_title": "Pindah ke cabang ini?",
     "confirm_body": "Cabang home Anda akan berubah ke:",
     "success": "Cabang home berhasil diubah."
+  },
+  "notif": {
+    "branch_change_title": "Cabang home diperbarui",
+    "branch_change_body": "Cabang home Anda sekarang: {{branch}}",
+    "family_link_title": "Anggota keluarga ditambahkan",
+    "family_link_body": "{{name}} berhasil ditambahkan ke keluarga Anda.",
+    "visit_created_title": "Visit dicatat",
+    "visit_created_body": "Visit dengan {{name}} ({{judul}}) berhasil dicatat."
   },
   "notifications": {
     "title": "Notifikasi",
@@ -879,6 +891,7 @@
   },
   "edit_profile": {
     "title_dependent": "Edit Profil — {{name}}",
+    "dependent_phone_pending": "Untuk add Nomor HP / email anggota keluarga (mis. anak yang sudah punya HP sendiri), fitur ini sedang menunggu update backend. Sementara hubungi admin cabang untuk update.",
     "full_name": "Nama Lengkap",
     "email": "Email",
     "phone": "Nomor HP",

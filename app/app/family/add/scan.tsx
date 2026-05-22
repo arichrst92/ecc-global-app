@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { RolePicker } from '@/components/family/RolePicker';
 import { useToast } from '@/components/ui/Toast';
 import { useLinkByKode } from '@/hooks/useFamily';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 import type { FamilyRole } from '@/types/family';
 
@@ -33,16 +34,22 @@ export default function FamilyScanScreen() {
     setScannedKode(kode);
   }
 
+  const addNotification = useNotificationsStore((s) => s.add);
+
   function handleSubmit() {
     if (!scannedKode || !role) return;
     linkMutation.mutate(
       { kode: scannedKode, role },
       {
         onSuccess: (data) => {
-          showToast(
-            t('family.link_success', { name: data.target?.namaLengkap ?? '' }),
-            'success',
-          );
+          const name = data.target?.namaLengkap ?? '';
+          showToast(t('family.link_success', { name }), 'success');
+          addNotification({
+            category: 'family',
+            title: t('notif.family_link_title'),
+            body: t('notif.family_link_body', { name }),
+            deepLink: data.target?.id ? `/family/${data.target.id}` : '/family',
+          });
           router.replace('/family');
         },
         onError: (err) => {

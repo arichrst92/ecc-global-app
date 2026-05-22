@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useBranches } from '@/hooks/useBranches';
 import { useHomeBranch } from '@/hooks/useViewingBranch';
 import { updateMyProfile } from '@/api/me';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 import type { Cabang } from '@/types/cabang';
 
@@ -44,6 +45,8 @@ export default function ChangeBranchScreen() {
     [allBranches, homeBranchRef?.id],
   );
 
+  const addNotification = useNotificationsStore((s) => s.add);
+
   const mutation = useMutation({
     mutationFn: async (cabangId: string) => updateMyProfile({ cabangId }),
     onSuccess: async () => {
@@ -53,6 +56,15 @@ export default function ChangeBranchScreen() {
       await qc.invalidateQueries({ queryKey: ['me'] });
       await qc.invalidateQueries({ queryKey: ['ibadah'] });
       await qc.invalidateQueries({ queryKey: ['events'] });
+      // Local notification: branch change diary trail
+      if (selected) {
+        await addNotification({
+          category: 'branch_change',
+          title: t('notif.branch_change_title'),
+          body: t('notif.branch_change_body', { branch: selected.nama }),
+          deepLink: '/(tabs)/profile',
+        });
+      }
       showToast(t('branch_change.success'), 'success');
       setConfirmOpen(false);
       router.back();

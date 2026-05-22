@@ -259,8 +259,10 @@ export default function EditProfileScreen() {
             />
           </Field>
 
-          {/* Phone + Email — hide untuk dependent (dependent tidak punya HP/email,
-              dan endpoint dependent edit tidak accept fields ini) */}
+          {/* Self mode: phone readonly + email editable.
+              Dependent mode: phone+email hidden sampai BE extend endpoint
+              support (lihat docs/backend-request-dependent-edit-fuller.md).
+              Sementara guardian bisa request phone update via admin cabang. */}
           {!isDependent ? (
             <>
               <Field label={t('edit_profile.phone')}>
@@ -285,7 +287,13 @@ export default function EditProfileScreen() {
                 />
               </Field>
             </>
-          ) : null}
+          ) : (
+            <View className="bg-amber-50 rounded-xl p-3 border border-amber-100 mb-4">
+              <Text className="text-xs text-amber-800 leading-relaxed">
+                {t('edit_profile.dependent_phone_pending')}
+              </Text>
+            </View>
+          )}
 
           <Field label={t('signup.gender')}>
             <View className="flex-row gap-2">

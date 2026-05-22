@@ -20,10 +20,13 @@ import {
   Sparkles,
   Store,
   Trash2,
+  Users,
+  UserPlus,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { useMyFamily } from '@/hooks/useFamily';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
@@ -121,6 +124,9 @@ export default function ProfileTab() {
         {/* Cabang Home — section sendiri, dipisah dari pengaturan supaya
             data cabang aktif lebih prominent */}
         <BranchCard onPress={() => router.push('/settings/change-branch')} />
+
+        {/* Keluarga — quick preview + link ke /family */}
+        <FamilyCard onPress={() => router.push('/family' as never)} />
 
         {/* Role / peran current user */}
         <RoleCard />
@@ -338,6 +344,79 @@ function BranchCard({ onPress }: { onPress: () => void }) {
             </Text>
             <ChevronRight size={14} color="#EA580C" />
           </View>
+        </View>
+      </Pressable>
+    </View>
+  );
+}
+
+/**
+ * FamilyCard — preview anggota keluarga di profile screen.
+ * Tampil count + 3 avatar preview + "Lihat semua" CTA.
+ * Tap card → navigate ke /family. Empty state → CTA tambah anggota pertama.
+ */
+function FamilyCard({ onPress }: { onPress: () => void }) {
+  const { t } = useTranslation();
+  const familyQuery = useMyFamily();
+  const family = familyQuery.data ?? [];
+  const previewCount = Math.min(family.length, 3);
+  const previewItems = family.slice(0, previewCount);
+  const extraCount = Math.max(0, family.length - previewCount);
+
+  return (
+    <View className="mb-4">
+      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+        {t('profile.family_section')}
+      </Text>
+      <Pressable
+        onPress={onPress}
+        className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+      >
+        <View className="flex-row items-center gap-3 p-4">
+          <View className="w-12 h-12 rounded-2xl bg-pink-50 items-center justify-center">
+            {family.length > 0 ? (
+              <Users size={22} color="#DB2777" />
+            ) : (
+              <UserPlus size={22} color="#DB2777" />
+            )}
+          </View>
+          <View className="flex-1 min-w-0">
+            {family.length > 0 ? (
+              <>
+                <Text className="text-sm font-bold text-neutral-900">
+                  {t('profile.family_count', { count: family.length })}
+                </Text>
+                <View className="flex-row items-center gap-1.5 mt-1.5">
+                  {previewItems.map((rel, idx) => (
+                    <Avatar
+                      key={rel.jemaat.id}
+                      name={rel.jemaat.namaLengkap}
+                      fotoUrl={rel.jemaat.fotoUrl ?? undefined}
+                      size={22}
+                      className={idx > 0 ? '-ml-2' : ''}
+                    />
+                  ))}
+                  {extraCount > 0 ? (
+                    <View className="-ml-2 w-[22px] h-[22px] rounded-full bg-pink-100 items-center justify-center border border-white">
+                      <Text className="text-[9px] font-bold text-pink-700">
+                        +{extraCount}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              </>
+            ) : (
+              <>
+                <Text className="text-sm font-semibold text-neutral-700">
+                  {t('profile.family_empty')}
+                </Text>
+                <Text className="text-xs text-neutral-500 mt-0.5">
+                  {t('profile.family_empty_sub')}
+                </Text>
+              </>
+            )}
+          </View>
+          <ChevronRight size={14} color="#A3A3A3" />
         </View>
       </Pressable>
     </View>

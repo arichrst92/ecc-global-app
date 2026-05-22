@@ -32,6 +32,7 @@ import { ArrowLeft, Handshake, MapPin, QrCode } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useCreateVisit } from '@/hooks/useVisit';
+import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 
 export default function VisitScanScreen() {
@@ -44,6 +45,7 @@ export default function VisitScanScreen() {
   const [lokasi, setLokasi] = useState('');
 
   const createMutation = useCreateVisit();
+  const addNotification = useNotificationsStore((s) => s.add);
 
   function handleScan({ data }: { data: string }) {
     if (scannedKode || createMutation.isPending) return;
@@ -75,6 +77,15 @@ export default function VisitScanScreen() {
             t('visit.created_success', { name: visit.lawan.namaLengkap }),
             'success',
           );
+          addNotification({
+            category: 'system',
+            title: t('notif.visit_created_title'),
+            body: t('notif.visit_created_body', {
+              name: visit.lawan.namaLengkap,
+              judul: visit.judul,
+            }),
+            deepLink: `/visit/${visit.id}`,
+          });
           router.replace(`/visit/${visit.id}` as never);
         },
         onError: (err) => {
