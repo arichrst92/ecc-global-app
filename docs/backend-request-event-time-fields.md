@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-22
 **Priority**: 🟡 **MEDIUM** — UX polish, blocking event detail completeness
-**Status**: 🆕 **PROPOSED**
+**Status**: ✅ **RESOLVED** (BE patch 2026-05-22a)
 
 ## TL;DR
 
@@ -114,3 +114,99 @@ Mobile-side estimasi: **1 jam** setelah BE ready.
 
 - BE request lain (parallel): [GET /admin/jemaat/:id](./backend-request-jemaat-public-profile.md)
 - Mobile commit iter 4: event detail show time range (tapi belum testable until BE confirm)
+
+---
+
+## ✅ Backend Response — 2026-05-22 (patch 2026-05-22a)
+
+**Pilihan**: Option B (separate `jamMulai`/`jamSelesai` fields) — sesuai preference mobile untuk konsistensi dengan `Ibadah`. Lebih eksplisit + timezone-safe + bisa null kalau date-only event.
+
+### Audit existing state
+
+- Schema `Event.tanggalMulai` ✅ bertipe `DateTime` (bukan `@db.Date`), bisa store jam
+- Admin portal form ❌ cuma `type="date"` input → jam selalu T00:00:00 saat create event
+- → Effectively existing data tidak punya jam meski schema support
+
+### Implementasi
+
+1. **Migration** `20260522010000_event_jam_fields`:
+   ```sql
+   ALTER TABLE "event" ADD COLUMN "jam_mulai" VARCHAR(5), ADD COLUMN "jam_selesai" VARCHAR(5);
+   ```
+   Existing events biarkan NULL. Admin bisa edit per event untuk add jam.
+
+2. **`schema.prisma Event`** — tambah `jamMulai`/`jamSelesai` `String?` `@db.VarChar(5)`.
+
+3. **`shared-types/event.ts`** — `createEventSchema` & `updateEventSchema` accept optional `jamMulai`/`jamSelesai` regex `HH:mm` 24-hour:
+   ```typescript
+   jamMulai: emptyToUndefined(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/))
+   ```
+
+4. **`routes/admin/event.ts`** — POST/PATCH propagate `jamMulai`/`jamSelesai` (default null kalau tidak diisi).
+
+5. **`portal/event-form-modal.tsx`** — 2 input `type="time"` di Section "Waktu & Lokasi" (di bawah Tanggal Mulai/Selesai). Optional, helper text jelas: "Kosongkan kalau acara seharian / festival tanpa jadwal jam spesifik".
+
+### Response shape — `GET /admin/event/:idOrSlug`
+
+```json
+{
+  "tanggalMulai": "2026-08-15T00:00:00.000Z",
+  "tanggalSelesai": "2026-08-17T00:00:00.000Z",
+  "jamMulai": "09:00",
+  "jamSelesai": "12:00",
+  ...
+}
+```
+
+`jamMulai`/`jamSelesai` ada di **list endpoint juga** (no select limitation di routes).
+
+### Mobile-side rekomendasi
+
+- Update `src/types/event.ts` — add `jamMulai?: string | null`, `jamSelesai?: string | null`
+- Update `app/event/[id].tsx` `formatTimeRange`:
+  ```typescript
+  function formatTimeRange(event: Event): string | null {
+    if (event.jamMulai && event.jamSelesai) return `${event.jamMulai} - ${event.jamSelesai} WIB`;
+    if (event.jamMulai) return `Mulai ${event.jamMulai} WIB`;
+    // Fallback parse ISO (backward compat untuk existing events tanpa jam fields populated)
+    return null;
+  }
+  ```
+- Display row "Jam" cuma kalau function return non-null
+
+### Backward compat
+
+Existing events (jam = NULL):
+- Mobile fallback ke parse ISO `tanggalMulai` (helper existing). Kalau ISO jam = T00:00:00 → hide row jam.
+- Admin bisa update existing events satu-satu kalau perlu add jam.
+
+### Effort actual
+
+15 menit (sesuai estimate Option 2 BE side) — migration + schema + 2 endpoint handler + form input. Mobile side ~30 min update types + helper.
+
+### Git
+
+```bash
+cd /Users/idea/Projects/ecc-core-platform
+git add packages/database/prisma/migrations/20260522010000_event_jam_fields/ \
+        packages/database/prisma/schema.prisma \
+        packages/shared-types/src/schemas/event.ts \
+        apps/core-api/src/routes/admin/event.ts \
+        apps/portal/src/components/event/event-form-modal.tsx \
+        docs/mobile-api-guide.md \
+        knowledge-base.md
+git commit -m "feat(event): add jamMulai/jamSelesai fields (Option B per mobile)
+
+Mobile request backend-request-event-time-fields.md — separate jam
+fields untuk konsistensi dengan Ibadah model. Backward compat: existing
+events (jam = NULL) → mobile fallback parse ISO dari tanggalMulai.
+
+- Migration 20260522010000_event_jam_fields (ADD COLUMN VARCHAR(5))
+- schema.prisma Event.jamMulai/jamSelesai String?
+- shared-types createEventSchema/updateEventSchema accept jam regex HH:mm
+- routes/admin/event.ts propagate jam in POST/PATCH
+- portal event-form-modal time inputs di Section Waktu
+
+Refs: ecc-mobile-app/docs/backend-request-event-time-fields.md"
+git push
+```

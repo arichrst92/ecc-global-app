@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-22
 **Priority**: 🟡 **MEDIUM** — UX feature, currently rendered as placeholder
-**Status**: 🆕 **PROPOSED**
+**Status**: ✅ **RESOLVED Phase 1 (items 1+2)** (BE patch 2026-05-22a). Items 3+4 (detail with full members + join with approval) — item 3 sudah ready, item 4 deferred.
 
 ## TL;DR
 
@@ -161,3 +161,160 @@ Mobile-side estimasi Phase 1: **2-3 jam**. Phase 2: **3-4 jam**.
 
 - BE request lain (parallel): [GET /admin/jemaat/:id public profile](./backend-request-jemaat-public-profile.md) — punya field `ministries` juga
 - Mobile commit iter 5: Quick Access Ministry tile + Profile MinistryCard + /ministry placeholder page
+
+---
+
+## ✅ Backend Response — 2026-05-22 (patch 2026-05-22a)
+
+### Data model klarifikasi: tidak perlu table baru
+
+Schema **sudah ada** — Pelayanan/PelayananRole/JemaatPelayanan junction model existing sejak section 7 schema (line 518+ di `schema.prisma`):
+
+| Mobile naming | BE schema |
+|---|---|
+| Ministry | `Pelayanan` (master, global — bukan cabang-specific!) |
+| MinistryRole | `PelayananRole` (per-pelayanan, level integer untuk hierarchy) |
+| MinistryMembership | `JemaatPelayanan` (junction dengan role + tanggalMulai/Selesai + isActive) |
+
+Note penting: **Pelayanan adalah global**, bukan cabang-specific. Multimedia ada di semua cabang, members dari semua cabang. `?cabangId` filter mobile minta tidak applicable di MVP — kalau perlu filter "ministry yang membernya banyak di cabang X", logika-nya di-derive dari `JemaatPelayanan.jemaat.cabangId` (group by). Skip untuk patch ini.
+
+### Implementasi Item 1: Extend /admin/me
+
+`GET /admin/me` sekarang return field `ministries` (flatten dari `jemaatPelayanan` aktif):
+
+```json
+{
+  "ministries": [
+    {
+      "id": "<jemaat-pelayanan-id>",
+      "pelayananId": "<pelayanan-id>",
+      "nama": "Tim Multimedia",
+      "deskripsi": "Sound, Camera, Streaming...",
+      "posisi": "Sound",
+      "posisiLevel": 0,
+      "tanggalMulai": "2026-01-15"
+    }
+  ]
+}
+```
+
+Selalu di-return (empty array kalau user tidak terlibat ministry).
+
+### Implementasi Item 2: GET /admin/ministry list
+
+Route baru `apps/core-api/src/routes/admin/ministry.ts`:
+
+```typescript
+GET /admin/ministry
+Authorization: Bearer <JWT>
+
+→ 200 { data: Array<{
+  id, nama, deskripsi,
+  memberCount: number,
+  isOpen: boolean,           // saat ini = isActive flag
+  leader: { jemaat, role } | null,  // member dengan level tertinggi
+  roles: Array<{ id, nama, level }>  // preview semua role yang ada
+}> }
+```
+
+**Leader derivation**: Pelayanan tidak punya `leaderId` di schema. "Leader" = `JemaatPelayanan` active dengan `PelayananRole.level` tertinggi. Kalau ada multiple ties → ambil yang earliest `tanggalMulai` (paling lama menjabat).
+
+**isOpen**: untuk MVP set ke `isActive` (proxy). Kalau ke depan ada concept "ministry sedang recruit / closed for new members", tambah flag di schema.
+
+### Item 3 BONUS: GET /admin/ministry/:id detail (juga ready!)
+
+Sambil bikin, sekalian kasih detail endpoint:
+
+```typescript
+GET /admin/ministry/:id
+→ 200 {
+  id, nama, deskripsi, isOpen, memberCount,
+  roles, leader,
+  members: [{ id, jemaat: {...with cabang...}, posisi, sinceDate }],
+  myMembership: { id, posisi, sinceDate } | null  // populated kalau user adalah member
+}
+```
+
+Mobile bisa langsung pakai untuk Phase 2 detail page.
+
+### Item 4: POST /admin/ministry/:id/join — DEFERRED
+
+Skip untuk patch ini karena scope creep + butuh design decision:
+- Approval flow (PENDING vs ACTIVE) — leader approval atau auto?
+- Notification ke leader — sebelum push infra ready, sulit
+- Form motivasi — UX/UI lebih dulu
+
+Sebagai workaround sementara: mobile UI tampil tombol "Hubungi Leader via WA" yang langsung buka chat WA ke leader.noHp (dari endpoint detail). Member assignment manual via admin portal `/admin/pelayanan/assign` (sudah ada).
+
+### Path endpoint final
+
+| Mobile use case | Endpoint |
+|---|---|
+| Profile screen "Pelayanan Saya" | `GET /admin/me` (field `ministries`) |
+| /ministry list page | `GET /admin/ministry` |
+| /ministry/:id detail page | `GET /admin/ministry/:id` |
+| Join request | manual (admin portal) atau WA leader |
+
+### Wired di admin router
+
+`apps/core-api/src/routes/admin/index.ts` baris ~30:
+```typescript
+adminRouter.use('/ministry', ministryRouter);
+```
+
+### Combined Git (semua 5 patch hari ini)
+
+```bash
+cd /Users/idea/Projects/ecc-core-platform
+git add packages/database/prisma/migrations/20260522010000_event_jam_fields/ \
+        packages/database/prisma/schema.prisma \
+        packages/shared-types/src/schemas/event.ts \
+        packages/shared-types/src/schemas/auth.ts \
+        apps/core-api/src/routes/admin/me.ts \
+        apps/core-api/src/routes/admin/event.ts \
+        apps/core-api/src/routes/admin/ministry.ts \
+        apps/core-api/src/routes/admin/jemaat-public.ts \
+        apps/core-api/src/routes/admin/index.ts \
+        apps/portal/src/components/event/event-form-modal.tsx \
+        docs/mobile-api-guide.md \
+        knowledge-base.md
+git commit -m "feat: mobile batch 2026-05-22 — 5 requests
+
+1. Event jamMulai/jamSelesai (separate fields, Option B per mobile)
+2. Direct branch change via PATCH /admin/me { cabangId }
+3. Ministry endpoints (GET /admin/ministry list + detail + me.ministries)
+4. Jemaat public profile (GET /admin/jemaat-public/:id, tiered visibility)
+5. Profile edit completeness:
+   - kode self-heal di GET /admin/me handler
+   - PATCH /admin/me/family/:id/profile (dependent edit)
+   - POST /admin/me/family/:id/foto (dependent foto upload)
+
+Schema additions:
+- event.jam_mulai, event.jam_selesai (VARCHAR(5) nullable)
+- shared-types: editDependentJemaatSchema, selfEditJemaatSchema.cabangId
+
+New routes:
+- /admin/ministry (read-only, mobile-friendly shape from Pelayanan)
+- /admin/jemaat-public/:id (tiered visibility: public + close-relation)
+- /admin/me/family/:id/profile (PATCH dependent)
+- /admin/me/family/:id/foto (POST dependent foto)
+
+KB patch 2026-05-22a + mobile-api-guide sections 12.2 (extended), 13.8
+(dependent), 16 (Ministry), 17 (Jemaat Public Profile).
+
+Mobile docs RESOLVED:
+- backend-request-event-time-fields.md
+- backend-request-direct-branch-change.md
+- backend-request-ministry-endpoints.md (items 1-3, item 4 deferred)
+- backend-request-jemaat-public-profile.md
+- backend-request-profile-edit-completeness.md
+
+User perlu jalankan: pnpm db:migrate dev && pnpm db:generate && pnpm dev"
+git push
+```
+
+### User actions BE side
+
+1. `pnpm db:migrate dev` (apply migration 20260522010000)
+2. `pnpm db:generate` (regen Prisma client untuk new fields)
+3. `pnpm dev` restart core-api + portal

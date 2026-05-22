@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-22
 **Priority**: 🟡 **MEDIUM** — UX feature, currently blocked dengan client-side cache lookup
-**Status**: 🆕 **PROPOSED**
+**Status**: ✅ **RESOLVED** (BE patch 2026-05-22a). Path baru: `/admin/jemaat-public/:id` (bukan `/admin/jemaat/:id` — yang itu admin CRUD existing).
 
 ## TL;DR
 
@@ -132,3 +132,102 @@ Total: **3-4 jam BE work** kalau permissive policy. **+1-2 jam** kalau ada rule 
 - Fallback ke cache lookup tetap jalan untuk offline mode
 
 Mobile-side estimasi: **2-3 jam** setelah BE ready.
+
+---
+
+## ✅ Backend Response — 2026-05-22 (patch 2026-05-22a)
+
+### ⚠️ Path endpoint berbeda dari yang di-spec
+
+Endpoint baru di **`/admin/jemaat-public/:id`**, bukan `/admin/jemaat/:id`. Alasan: `/admin/jemaat/:id` sudah existing sebagai admin CRUD endpoint yang return full Jemaat data tanpa privacy filter — di-pakai admin portal untuk edit jemaat. Mengubah endpoint itu ke tiered visibility berisiko break portal.
+
+Mobile update API client:
+```typescript
+// src/api/jemaat.ts
+export const getJemaatProfile = (id: string) =>
+  apiClient.get(`/admin/jemaat-public/${id}`);
+```
+
+### Privacy policy — implemented hybrid tiered (Opsi (d) ala mobile rekomendasi)
+
+| Tier | Fields visible |
+|---|---|
+| **Public** (semua authenticated user) | id, kode, namaLengkap, fotoUrl, jenisKelamin, isActive, cabang, roles, ministries, homecell (id+nama), noHpMasked, ulangTahunBulanTgl |
+| **Close Relation** (additional) | noHp (full), tanggalLahir (full ISO), alamat, family[] |
+
+**Close Relation** = salah satu:
+1. **Same cabang** dengan requester (`requester.cabangId === target.cabangId`)
+2. **Family link** (FamilyRelation verified antara requester ↔ target)
+3. **Homecell co-member** (active HomecellMember row di homecell yang sama)
+
+Resolve order: cek same-cabang dulu (cheap), lalu family (1 query), lalu homecell co-member (1 query). Performance: 1 main query + 1 requester lookup + max 2 conditional checks.
+
+### Response shape
+
+```json
+{
+  "success": true,
+  "data": {
+    "id", "kode", "namaLengkap", "fotoUrl", "jenisKelamin", "isActive",
+    "cabang": { "id", "nama" },
+    "roles": [...],
+    "ministries": [
+      { "id", "pelayananId", "nama", "posisi", "posisiLevel" }
+    ],
+    "homecell": { "id", "nama" } | null,
+    "noHpMasked": "+628****8446",
+    "ulangTahunBulanTgl": "05-15",
+    "noHp": string | null,           // null kalau bukan close relation
+    "tanggalLahir": ISO | null,
+    "alamat": string | null,
+    "family": [
+      { "role": "SPOUSE", "jemaat": { "id", "namaLengkap", "fotoUrl" } }
+    ] | null,
+    "visibility": {
+      "isCloseRelation": boolean,
+      "reason": "same-cabang" | "family" | "homecell-co-member" | "public-only"
+    }
+  }
+}
+```
+
+### Privacy helpers selalu emit (UI hints)
+
+- **`noHpMasked`**: format `+628****8446` — selalu tersedia. Mobile bisa tampil sebagai badge ringan. Kalau `noHp` full juga tersedia (close relation), tap → buka WA.
+- **`ulangTahunBulanTgl`**: format `MM-DD` (mis. `05-15`) — selalu tersedia, no tahun. Mobile pakai untuk "🎂 Ulang tahun bulan ini" badge tanpa expose umur.
+
+### Error codes
+
+- 404 jemaat tidak ditemukan
+- 401 not authenticated (no JWT)
+
+### Files
+
+- New: `apps/core-api/src/routes/admin/jemaat-public.ts`
+- Wired: `apps/core-api/src/routes/admin/index.ts` (sebelum `/jemaat` supaya tidak collision)
+- Doc: `docs/mobile-api-guide.md` section 17 baru
+
+### Mobile-side plan
+
+```typescript
+// src/types/jemaat.ts
+export type JemaatPublicProfile = {
+  id, kode, namaLengkap, fotoUrl, jenisKelamin, isActive,
+  cabang, roles, ministries, homecell,
+  noHpMasked, ulangTahunBulanTgl,
+  // Nullable kalau bukan close relation
+  noHp: string | null,
+  tanggalLahir: string | null,
+  alamat: string | null,
+  family: Array<{ role; jemaat }> | null,
+  visibility: { isCloseRelation: boolean; reason: string };
+};
+
+// Component logic
+{profile.noHp && <WhatsAppButton href={`https://wa.me/${profile.noHp.replace(/\D/g,'')}`} />}
+{!profile.noHp && <Text>{profile.noHpMasked}</Text>}
+```
+
+### Git
+
+Lihat combined push command di `backend-request-ministry-endpoints.md` Backend Response (semua 5 patch hari ini di-bundle).
