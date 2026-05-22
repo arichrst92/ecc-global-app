@@ -3,12 +3,14 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, CalendarDays, Cake, Church, ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { useEventList } from '@/hooks/useEvents';
-import { useIbadahList } from '@/hooks/useIbadahList';
 import { useMyFamily } from '@/hooks/useFamily';
-import { formatDate, parseLocalDate } from '@/utils/date';
+import { getIbadahCalendar } from '@/api/ibadah';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
+import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
 
 /**
  * Calendar screen — unified view dari Event + Ibadah + Birthday family
@@ -38,8 +40,24 @@ export default function CalendarScreen() {
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
 
   const eventsQuery = useEventList();
-  const ibadahQuery = useIbadahList();
   const familyQuery = useMyFamily();
+  const { viewingCabangId } = useViewingBranch();
+
+  // Ibadah pakai endpoint /admin/ibadah/calendar untuk dapat semua OCCURRENCE
+  // dalam bulan yang aktif. Endpoint ini sudah expand recurring (WEEKLY/BIWEEKLY/
+  // MONTHLY) jadi tanggal-tanggal aktual. Lebih akurat daripada loop dari
+  // `tanggalMulai` master schedule (yang cuma tanggal start, bukan hari recur).
+  const monthStart = useMemo(() => toIsoDate(new Date(year, month, 1)), [year, month]);
+  const monthEnd = useMemo(() => toIsoDate(new Date(year, month + 1, 0)), [year, month]);
+  const ibadahQuery = useQuery({
+    queryKey: ['ibadah', 'calendar', monthStart, monthEnd, viewingCabangId ?? 'all'],
+    queryFn: () => getIbadahCalendar({
+      from: monthStart,
+      to: monthEnd,
+      cabangId: viewingCabangId ?? undefined,
+    }),
+    staleTime: 10 * 60_000,
+  });
 
   // Index items by day (1-31) — filter client-side ke month yang aktif
   const itemsByDay = useMemo(() => {
@@ -74,17 +92,19 @@ export default function CalendarScreen() {
       }
     });
 
-    (ibadahQuery.data ?? []).forEach((s) => {
-      const d = parseLocalDate(s.tanggalMulai);
+    // Ibadah: occurrence sudah expanded BE (recurring sudah jadi instances).
+    // Setiap occurrence punya `tanggal` (YYYY-MM-DD), `ibadahId`, `nama`, `jamMulai`.
+    (ibadahQuery.data ?? []).forEach((o) => {
+      const d = parseLocalDate(o.tanggal);
       if (d.getFullYear() === year && d.getMonth() === month) {
         const day = d.getDate();
         if (!map.has(day)) map.set(day, []);
         map.get(day)!.push({
           type: 'ibadah',
-          id: s.id,
-          title: s.nama,
-          date: s.tanggalMulai,
-          time: s.jamMulai,
+          id: o.ibadahId,
+          title: o.nama,
+          date: o.tanggal,
+          time: o.jamMulai,
         });
       }
     });
@@ -337,7 +357,7 @@ function ItemRow({
   if (item.type === 'ibadah') {
     return (
       <Pressable
-        onPress={() => router.push(`/ibadah/${item.id}`)}
+        onPress={() => router.push(`/ibadah/${item.id}?tanggal=${item.date}` as never)}
         className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
       >
         <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
