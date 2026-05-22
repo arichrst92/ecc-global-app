@@ -10,14 +10,16 @@
  * Saat BE ready, hapus fallback notice + wire ke real endpoint.
  */
 import { useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
-import { ArrowLeft, CheckCircle2, Download, ExternalLink, RefreshCw } from 'lucide-react-native';
+import { ArrowLeft, AlertTriangle, CheckCircle2, Download, ExternalLink, RefreshCw } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
+import { checkAppVersion } from '@/api/appVersion';
+import { ApiError } from '@/types/api';
 
 type CheckResult =
   | { status: 'idle' }
@@ -44,10 +46,33 @@ export default function CheckUpdateScreen() {
 
   async function handleCheck() {
     setResult({ status: 'checking' });
-    // TODO: wire to BE endpoint /admin/app-version saat ready. Untuk sekarang
-    // simulate dengan timeout + placeholder.
-    await new Promise((r) => setTimeout(r, 600));
-    setResult({ status: 'not-implemented' });
+    try {
+      // Per BE patch 22b — GET /public/app-version
+      const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+      const info = await checkAppVersion({ platform, currentVersion });
+
+      if (!info.latestVersion) {
+        // Admin belum publish row di platform ini — no update available
+        setResult({ status: 'up-to-date', current: currentVersion });
+        return;
+      }
+
+      if (info.updateAvailable) {
+        setResult({
+          status: 'available',
+          current: currentVersion,
+          latest: info.latestVersion,
+          releaseNotes: info.releaseNotes ?? undefined,
+          downloadUrl: info.downloadUrl ?? undefined,
+          force: info.forceUpdate,
+        });
+      } else {
+        setResult({ status: 'up-to-date', current: currentVersion });
+      }
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : t('check_update.error_generic');
+      setResult({ status: 'error', message: msg });
+    }
   }
 
   return (
@@ -109,13 +134,34 @@ export default function CheckUpdateScreen() {
             </View>
           </View>
         ) : result.status === 'available' ? (
-          <View className="bg-brand-50 border border-brand-200 rounded-2xl p-4 mb-4">
+          <View
+            className={`rounded-2xl p-4 mb-4 border ${
+              result.force
+                ? 'bg-red-50 border-red-200'
+                : 'bg-brand-50 border-brand-200'
+            }`}
+          >
             <View className="flex-row items-center gap-2 mb-2">
-              <Download size={18} color="#EA580C" />
-              <Text className="text-sm font-bold text-brand-700 flex-1">
-                {t('check_update.available_title', { version: result.latest })}
+              {result.force ? (
+                <AlertTriangle size={18} color="#DC2626" />
+              ) : (
+                <Download size={18} color="#EA580C" />
+              )}
+              <Text
+                className={`text-sm font-bold flex-1 ${
+                  result.force ? 'text-red-700' : 'text-brand-700'
+                }`}
+              >
+                {result.force
+                  ? t('check_update.force_title', { version: result.latest })
+                  : t('check_update.available_title', { version: result.latest })}
               </Text>
             </View>
+            {result.force ? (
+              <Text className="text-xs text-red-700/80 leading-relaxed mb-2">
+                {t('check_update.force_msg')}
+              </Text>
+            ) : null}
             {result.releaseNotes ? (
               <Text className="text-xs text-neutral-700 leading-relaxed mb-3">
                 {result.releaseNotes}
@@ -125,7 +171,10 @@ export default function CheckUpdateScreen() {
               onPress={() =>
                 result.downloadUrl ? Linking.openURL(result.downloadUrl) : undefined
               }
-              className="bg-brand-500 rounded-full py-2.5 flex-row items-center justify-center gap-2"
+              disabled={!result.downloadUrl}
+              className={`rounded-full py-2.5 flex-row items-center justify-center gap-2 ${
+                result.force ? 'bg-red-500' : 'bg-brand-500'
+              } ${!result.downloadUrl ? 'opacity-50' : ''}`}
             >
               <ExternalLink size={14} color="#fff" />
               <Text className="text-sm font-bold text-white">
@@ -133,16 +182,7 @@ export default function CheckUpdateScreen() {
               </Text>
             </Pressable>
           </View>
-        ) : result.status === 'not-implemented' ? (
-          <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4">
-            <Text className="text-sm font-bold text-amber-800 mb-1">
-              {t('check_update.not_ready_title')}
-            </Text>
-            <Text className="text-xs text-amber-700 leading-relaxed">
-              {t('check_update.not_ready_msg')}
-            </Text>
-          </View>
-        ) : (
+        ) : result.status === 'not-implemented' ? null : (
           <View className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
             <Text className="text-sm font-bold text-red-700 mb-1">
               {t('check_update.error_title')}

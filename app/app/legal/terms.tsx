@@ -1,19 +1,23 @@
 /**
- * Terms & Conditions page — content dari BE /admin/legal/terms.
- * Per docs/backend-request-legal-pages.md.
+ * Terms & Conditions page — fetch dari BE /public/legal/TERMS.
+ * Per BE patch 22b. Auto-detect language dari i18n.
  *
- * MVP placeholder content sampai BE endpoint ready + legal team supply
- * final wording. Saat BE ready, switch ke real fetch + markdown render.
+ * Fallback ke local placeholder kalau BE error / offline.
  */
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, FileText } from 'lucide-react-native';
 
+import { MarkdownView } from '@/components/ui/MarkdownView';
+import { useLegalDocument } from '@/hooks/useLegal';
+
 export default function TermsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const query = useLegalDocument('TERMS');
+  const doc = query.data;
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -26,7 +30,7 @@ export default function TermsScreen() {
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
-            {t('legal.terms_title')}
+            {doc?.title ?? t('legal.terms_title')}
           </Text>
         </View>
       </SafeAreaView>
@@ -40,95 +44,48 @@ export default function TermsScreen() {
             <FileText size={28} color="#EA580C" />
           </View>
           <Text className="text-lg font-bold text-neutral-900 text-center">
-            {t('legal.terms_title')}
+            {doc?.title ?? t('legal.terms_title')}
           </Text>
           <Text className="text-xs text-neutral-500 text-center mt-1">
             ECC Global App
           </Text>
         </View>
 
-        <View className="bg-amber-50 border border-amber-100 rounded-2xl p-3 mb-4">
-          <Text className="text-xs text-amber-800 leading-relaxed">
-            {t('legal.placeholder_notice')}
-          </Text>
-        </View>
-
-        {/* Placeholder content — replace dengan markdown render dari BE saat ready */}
-        <Section title="1. Penerimaan Syarat">
-          <Para>
-            Dengan menggunakan aplikasi ECC Global App, Anda menyetujui untuk
-            terikat oleh syarat dan ketentuan ini. Jika tidak setuju, mohon
-            tidak menggunakan aplikasi ini.
-          </Para>
-        </Section>
-
-        <Section title="2. Akun dan Kerahasiaan">
-          <Para>
-            Anda bertanggung jawab atas kerahasiaan akun dan kode jemaat Anda.
-            Segala aktivitas yang dilakukan dengan akun Anda menjadi tanggung
-            jawab Anda. Hubungi pengurus cabang segera jika akun Anda
-            disalahgunakan.
-          </Para>
-        </Section>
-
-        <Section title="3. Penggunaan Aplikasi">
-          <Para>
-            Aplikasi ini disediakan untuk memfasilitasi kegiatan jemaat ECC —
-            ibadah, event, persembahan, dan komunitas. Tidak diperkenankan
-            menggunakan aplikasi untuk tujuan komersial di luar fitur Local
-            Market, spam, atau aktivitas yang melanggar hukum.
-          </Para>
-        </Section>
-
-        <Section title="4. Data dan Privasi">
-          <Para>
-            Data pribadi Anda dikelola sesuai dengan Kebijakan Privasi yang
-            terpisah. Mohon baca Kebijakan Privasi untuk detail lengkap.
-          </Para>
-        </Section>
-
-        <Section title="5. Perubahan Syarat">
-          <Para>
-            ECC berhak mengubah syarat dan ketentuan ini sewaktu-waktu.
-            Perubahan akan diberitahukan melalui aplikasi. Penggunaan
-            berkelanjutan dianggap sebagai penerimaan syarat yang diperbarui.
-          </Para>
-        </Section>
-
-        <Section title="6. Penonaktifan Akun">
-          <Para>
-            Anda dapat menonaktifkan akun melalui menu Profil → Hapus Akun.
-            Akses login akan dicabut, namun data historis (kehadiran, event,
-            donasi) tetap disimpan untuk catatan gereja.
-          </Para>
-        </Section>
-
-        <Section title="7. Kontak">
-          <Para>
-            Pertanyaan terkait syarat dan ketentuan dapat disampaikan ke
-            pengurus cabang masing-masing atau melalui kontak resmi ECC.
-          </Para>
-        </Section>
-
-        <Text className="text-xs text-neutral-400 text-center mt-6">
-          {t('legal.last_updated', { date: '2026-05-22' })}
-        </Text>
+        {query.isPending ? (
+          <View className="items-center py-8">
+            <ActivityIndicator color="#F97316" />
+            <Text className="text-xs text-neutral-500 mt-2">
+              {t('common.loading')}
+            </Text>
+          </View>
+        ) : query.isError ? (
+          <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <Text className="text-sm font-bold text-amber-700 mb-1">
+              {t('legal.fetch_error_title')}
+            </Text>
+            <Text className="text-xs text-amber-700 leading-relaxed mb-3">
+              {t('legal.fetch_error_msg')}
+            </Text>
+            <Pressable
+              onPress={() => query.refetch()}
+              className="bg-brand-500 rounded-full px-4 py-2 self-start"
+            >
+              <Text className="text-xs font-bold text-white">
+                {t('common.retry')}
+              </Text>
+            </Pressable>
+          </View>
+        ) : doc ? (
+          <>
+            <View className="bg-white rounded-2xl p-4 border border-neutral-100">
+              <MarkdownView content={doc.content} />
+            </View>
+            <Text className="text-xs text-neutral-400 text-center mt-4">
+              {t('legal.last_updated', { date: doc.version })}
+            </Text>
+          </>
+        ) : null}
       </ScrollView>
     </View>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <View className="mb-5">
-      <Text className="text-sm font-bold text-neutral-900 mb-2">{title}</Text>
-      {children}
-    </View>
-  );
-}
-
-function Para({ children }: { children: React.ReactNode }) {
-  return (
-    <Text className="text-sm text-neutral-700 leading-relaxed">{children}</Text>
   );
 }

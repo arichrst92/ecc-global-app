@@ -60,11 +60,15 @@ export type DeleteAccountPayload = {
   reason?: string;
 };
 
-export async function deleteMyAccount(payload: DeleteAccountPayload): Promise<{
+export type DeleteAccountResponse = {
   jemaatId: string;
   deactivatedAt: string;
   message: string;
-}> {
+  /** Jumlah session yang di-revoke (force-logout dari semua device). Per BE patch 22b. */
+  revokedSessions: number;
+};
+
+export async function deleteMyAccount(payload: DeleteAccountPayload): Promise<DeleteAccountResponse> {
   const { accessToken } = useAuthStore.getState();
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
@@ -75,10 +79,7 @@ export async function deleteMyAccount(payload: DeleteAccountPayload): Promise<{
     body: JSON.stringify(payload),
   });
   const json = (await res.json().catch(() => null)) as
-    | {
-        success: true;
-        data: { jemaatId: string; deactivatedAt: string; message: string };
-      }
+    | { success: true; data: DeleteAccountResponse }
     | ApiErrorBody
     | null;
   if (!json) {

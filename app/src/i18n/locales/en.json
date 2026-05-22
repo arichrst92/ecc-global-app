@@ -837,10 +837,13 @@
     "up_to_date_title": "Your app is up to date",
     "up_to_date_msg": "No updates available right now.",
     "available_title": "Update available: v{{version}}",
+    "force_title": "Required Update: v{{version}}",
+    "force_msg": "Your version is no longer supported. Please update now to continue using the app.",
     "update_btn": "Update Now",
     "not_ready_title": "Update check not yet active",
     "not_ready_msg": "Backend isn't ready for the update check feature yet. For now, please update manually via App Store / Play Store.",
     "error_title": "Failed to check for updates",
+    "error_generic": "Couldn't connect to server. Please try again later.",
     "check_btn": "Check Now",
     "auto_check_hint": "The app will auto-check for updates on launch once the backend is ready."
   },
@@ -870,7 +873,9 @@
     "terms_title": "Terms & Conditions",
     "privacy_title": "Privacy Policy",
     "placeholder_notice": "This is MVP placeholder content. The final version will load from the backend once the legal team finalizes the wording.",
-    "last_updated": "Last updated: {{date}}"
+    "fetch_error_title": "Couldn't load document",
+    "fetch_error_msg": "Check your internet connection or try again later.",
+    "last_updated": "Version: {{date}}"
   },
   "edit_profile": {
     "title_dependent": "Edit Profile — {{name}}",

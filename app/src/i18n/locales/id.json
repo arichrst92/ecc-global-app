@@ -837,10 +837,13 @@
     "up_to_date_title": "Aplikasi Anda sudah terbaru",
     "up_to_date_msg": "Tidak ada update tersedia saat ini.",
     "available_title": "Update tersedia: v{{version}}",
+    "force_title": "Update Wajib: v{{version}}",
+    "force_msg": "Versi yang Anda gunakan sudah tidak didukung. Update sekarang untuk melanjutkan menggunakan aplikasi.",
     "update_btn": "Update Sekarang",
     "not_ready_title": "Fitur cek update belum aktif",
     "not_ready_msg": "Backend belum siap untuk fitur cek update. Untuk sekarang update dilakukan via App Store / Play Store secara manual.",
     "error_title": "Gagal cek update",
+    "error_generic": "Tidak bisa connect ke server. Coba lagi nanti.",
     "check_btn": "Cek Update Sekarang",
     "auto_check_hint": "Aplikasi akan otomatis cek update setiap kali dibuka kalau backend sudah ready."
   },
@@ -870,7 +873,9 @@
     "terms_title": "Syarat & Ketentuan",
     "privacy_title": "Kebijakan Privasi",
     "placeholder_notice": "Konten ini placeholder MVP. Versi final akan di-load dari backend setelah tim legal selesai menyiapkan teks.",
-    "last_updated": "Terakhir diperbarui: {{date}}"
+    "fetch_error_title": "Tidak bisa muat dokumen",
+    "fetch_error_msg": "Periksa koneksi internet Anda atau coba lagi nanti.",
+    "last_updated": "Versi: {{date}}"
   },
   "edit_profile": {
     "title_dependent": "Edit Profil — {{name}}",
