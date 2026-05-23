@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-22
 **Priority**: 🟡 **MEDIUM** — UX clarity, data udah ada tapi belum muncul
-**Status**: 🆕 **PROPOSED**
+**Status**: ✅ **RESOLVED** (BE patch 2026-05-23a) — lihat section "Backend Response" di akhir doc.
 
 ## TL;DR
 
@@ -166,3 +166,114 @@ muncul tanpa code change.
 
 Optional enhancement (future): tap nama petugas → /jemaat/[id] view-only
 profile.
+
+---
+
+## ✅ Backend Response — 2026-05-23 (patch 2026-05-23a)
+
+### Endpoint extended
+
+`GET /admin/ibadah/:id` sekarang **include `petugas` array** + support optional `?tanggal=YYYY-MM-DD` untuk per-occurrence override.
+
+### Response shape
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "...",
+    "nama": "Ibadah Minggu Pagi",
+    "tipeJadwal": "WEEKLY",
+    "hari": "MINGGU",
+    "tanggalMulai": "2026-01-01T00:00:00.000Z",
+    "jamMulai": "08:00",
+    "jamSelesai": "10:00",
+    "lokasi": "Aula Utama",
+    "isOnline": false,
+    "deskripsi": "...",
+    "cabang": { "id": "...", "nama": "ECC Jakarta", ... },
+    "kategoriIbadah": { "id": "...", "nama": "Umum", ... },
+    "petugas": [
+      {
+        "id": "petugas-row-uuid",
+        "pelayananNama": "Multimedia",
+        "role": "Camera Operator",
+        "jemaat": {
+          "id": "jemaat-uuid",
+          "namaLengkap": "Jason Tan",
+          "fotoUrl": "/uploads/profiles/jemaat/jason.webp?v=..."
+        }
+      },
+      {
+        "id": "...",
+        "pelayananNama": "Worship",
+        "role": "Worship Leader",
+        "jemaat": { ... }
+      }
+    ]
+  }
+}
+```
+
+### Resolution logic per-occurrence
+
+Petugas di-store di table `ibadah_pelayanan_petugas` dengan field `tanggal_ibadah`:
+- `NULL` = default tiap minggu (master schedule)
+- berisi tanggal = override khusus tanggal itu (snapshot semantics)
+
+Saat caller hit endpoint:
+
+| Query param | Behavior |
+|---|---|
+| `GET /admin/ibadah/:id` (no `?tanggal=`) | Return default petugas (tanggalIbadah=NULL) saja. Ini = master schedule. |
+| `GET /admin/ibadah/:id?tanggal=2026-05-24` | Kalau ada override untuk tanggal itu → return override **REPLACE** default (bukan merge). Kalau tidak ada override → fallback ke default. |
+
+Snapshot semantics berarti: kalau admin set 3 default petugas + 2 override untuk tanggal X, request dengan `?tanggal=X` return cuma **2 override** (tidak include 3 default). Ini sengaja — admin override = "untuk tanggal ini petugas-nya khusus", bukan "tambahan dari default".
+
+### Filtering & sorting
+
+- **Filter `jemaat.isActive=true`** — petugas yg sudah self-deactivate / nonaktif tidak appear (consistent dgn cascade isActive di patch 2026-05-22b).
+- **Sort**: `pelayananNama` ASC, lalu `role` ASC, lalu `jemaat.namaLengkap` ASC. Untuk display friendly (Multimedia dulu, Worship belakangan, dalam grup alphabetical role + nama).
+
+### Field reference
+
+```typescript
+type IbadahPetugas = {
+  id: string;                  // petugas row id (untuk reference, edit, dst)
+  pelayananNama: string;        // "Multimedia", "Worship", "Usher"
+  role: string;                 // dari pelayanan_role.nama, mis. "Camera Operator", "Worship Leader"
+  jemaat: {
+    id: string;
+    namaLengkap: string;
+    fotoUrl: string | null;     // sudah include version suffix ?v= untuk cache invalidation
+  };
+};
+```
+
+### Reservasi ibadah — confirmed
+
+Sesuai catatan di doc, **ibadah memang walk-in only**:
+- Tidak ada flow registrasi pre-event
+- Tidak ada quota / bayar
+- Jemaat datang → admin scan QR → row Reservasi (status JOIN) tercipta
+- Reservasi tabel cuma untuk tracking kehadiran historical, bukan pre-registration
+
+Mobile correct kalau `IbadahListItem` tidak punya `quotaPeserta` / `tipeBayar` / `pesertaCount` — itu field spesifik event.
+
+### Action items mobile (sudah ready)
+
+Tidak ada perubahan mobile yang dibutuhkan. UI + type sudah ready di iter 11. Setelah BE deploy, petugas section langsung muncul tanpa code change.
+
+**Optional enhancement** (sudah disebut di doc original): tap nama petugas → `/jemaat/[id]` view-only profile.
+
+**Test case yg patut dicoba**:
+
+1. Ibadah dengan petugas default saja → call `GET /admin/ibadah/:id` (no tanggal) → return petugas default
+2. Ibadah dengan default + override tanggal X → call `?tanggal=X` → return override saja (replace, bukan merge)
+3. Ibadah dengan default + override tanggal X → call `?tanggal=Y` (Y ≠ X) → return default
+4. Petugas dengan `jemaat.isActive=false` → tidak appear di response
+5. Mobile route `/ibadah/[id]?tanggal=<date>` → pass tanggal ke API → tampil petugas spesifik occurrence
+
+### Portal admin — calendar UX update (bonus)
+
+Portal admin calendar view sebelumnya butuh klik tanggal sel dulu untuk lihat opsi. Sekarang **klik chip ibadah langsung popup** dengan 3-4 action buttons: Lihat Detail, Petugas Khusus, Lihat Reservasi, Tiadakan Ibadah. Tiadakan trigger nested confirm modal dengan prompt "Apakah Anda yakin akan meniadakan ibadah ini?" → Ya/Tidak. Tidak ada impact ke mobile.
