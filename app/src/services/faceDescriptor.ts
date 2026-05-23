@@ -166,6 +166,21 @@ export async function computeFaceDescriptor(imageUri: string): Promise<ComputeRe
   }
 }
 
+/** Detected face with optional classification + euler angle data (when ML Kit
+ *  detect dipanggil dengan classificationMode/landmarkMode = 'all'). */
+export type DetectedFace = {
+  frame: { left: number; top: number; width: number; height: number };
+  /** Probability mata kiri terbuka (0..1). undefined kalau classificationMode='none'. */
+  leftEyeOpenProbability?: number;
+  rightEyeOpenProbability?: number;
+  smilingProbability?: number;
+  /** Head rotation angles (degrees). undefined kalau landmarkMode='none' di ML Kit Android,
+   *  tapi typically returned regardless di iOS. */
+  headEulerAngleX?: number; // pitch (look up/down)
+  headEulerAngleY?: number; // yaw (look left/right)
+  headEulerAngleZ?: number; // roll (tilt head sideways)
+};
+
 /** Lazy-load ML Kit module — tidak available di Expo Go. */
 type MlKitFaceDetectionModule = {
   detect: (
@@ -177,7 +192,7 @@ type MlKitFaceDetectionModule = {
       contourMode?: 'none' | 'all';
       minFaceSize?: number;
     },
-  ) => Promise<Array<{ frame: { left: number; top: number; width: number; height: number } }>>;
+  ) => Promise<DetectedFace[]>;
 };
 
 let cachedMlKit: MlKitFaceDetectionModule | null | undefined = undefined;
@@ -196,6 +211,45 @@ async function loadMlKit(): Promise<MlKitFaceDetectionModule | null> {
     if (__DEV__) console.warn('[faceDescriptor] ML Kit load failed:', e);
     cachedMlKit = null;
     return null;
+  }
+}
+
+/**
+ * Detect face dengan full classification + euler angles. Dipakai oleh
+ * LivenessChallenge untuk verify eye-open probability + head pose.
+ *
+ * Returns single face (largest) atau null kalau tidak ada / multiple faces.
+ */
+export async function detectFaceWithLiveness(
+  imageUri: string,
+): Promise<{ ok: true; face: DetectedFace } | { ok: false; reason: 'no_face' | 'multiple_faces' | 'error'; message?: string }> {
+  if (Platform.OS === 'web') {
+    return { ok: false, reason: 'error', message: 'Web tidak support ML Kit' };
+  }
+  try {
+    const FaceDetection = await loadMlKit();
+    if (!FaceDetection) {
+      return { ok: false, reason: 'error', message: 'ML Kit unavailable' };
+    }
+    // Mode 'all' supaya dapat eyeOpenProbability + euler angles.
+    // performanceMode 'fast' karena kita butuh latency rendah untuk
+    // sequence multi-frame liveness (3-4 captures back-to-back).
+    const faces = await FaceDetection.detect(imageUri, {
+      performanceMode: 'fast',
+      landmarkMode: 'all',
+      classificationMode: 'all',
+      contourMode: 'none',
+      minFaceSize: 0.2,
+    });
+    if (!faces || faces.length === 0) return { ok: false, reason: 'no_face' };
+    if (faces.length > 1) return { ok: false, reason: 'multiple_faces' };
+    return { ok: true, face: faces[0] };
+  } catch (e) {
+    return {
+      ok: false,
+      reason: 'error',
+      message: e instanceof Error ? e.message : String(e),
+    };
   }
 }
 

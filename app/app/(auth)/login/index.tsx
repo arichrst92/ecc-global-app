@@ -249,6 +249,7 @@ export default function LoginPhoneScreen() {
           <FaceCapture
             onSuccess={handleDescriptor}
             onCancel={() => setCaptureOpen(false)}
+            requireLiveness
           />
         ) : null}
       </Modal>

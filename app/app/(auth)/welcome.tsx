@@ -248,6 +248,7 @@ export default function WelcomeScreen() {
           <FaceCapture
             onSuccess={handleDescriptor}
             onCancel={() => setCaptureOpen(false)}
+            requireLiveness
           />
         ) : null}
       </Modal>

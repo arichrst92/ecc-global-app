@@ -268,6 +268,7 @@ export default function FaceSettingsScreen() {
           <FaceCapture
             onSuccess={handleDescriptor}
             onCancel={() => setCaptureOpen(false)}
+            requireLiveness
           />
         ) : null}
       </Modal>

@@ -13,6 +13,7 @@ import {
   computeFaceDescriptor,
   isFaceDescriptorReady,
 } from '@/services/faceDescriptor';
+import { LivenessChallenge } from './LivenessChallenge';
 
 type Props = {
   /** Saat capture sukses + descriptor tersedia. */
@@ -46,6 +47,9 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
   const [errorReason, setErrorReason] = useState<string | undefined>(undefined);
   const [errorDebug, setErrorDebug] = useState<string | undefined>(undefined);
   const [engineReady, setEngineReady] = useState(false);
+  // Liveness gate: kalau requireLiveness=true, harus passed dulu sebelum
+  // descriptor capture screen muncul. Default true setelah V1 grace selesai.
+  const [livenessPassed, setLivenessPassed] = useState(!requireLiveness);
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -121,6 +125,17 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
       <View className="flex-1 bg-black items-center justify-center">
         <Text className="text-white text-sm">{t('common.loading')}</Text>
       </View>
+    );
+  }
+
+  // Render liveness gate dulu kalau required & belum passed.
+  // Setelah passed, lanjut ke camera capture screen untuk ambil descriptor.
+  if (requireLiveness && !livenessPassed) {
+    return (
+      <LivenessChallenge
+        onSuccess={() => setLivenessPassed(true)}
+        onCancel={onCancel}
+      />
     );
   }
 
