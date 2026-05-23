@@ -21,7 +21,10 @@ export default function SignupSuccessScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-b from-brand-50 to-emerald-50">
+    <SafeAreaView
+      className="flex-1 bg-gradient-to-b from-brand-50 to-emerald-50"
+      edges={['top', 'bottom']}
+    >
       <View className="flex-1 items-center justify-center px-8">
         {/* Success check icon */}
         <View className="relative">

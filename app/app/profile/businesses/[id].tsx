@@ -656,15 +656,17 @@ export default function OwnerBusinessDetailScreen() {
           </View>
         </ScrollView>
 
-        <View className="px-5 pt-3 pb-3 bg-white border-t border-neutral-100">
-          <Button
-            label={t('common.save')}
-            onPress={handleSave}
-            loading={updateMutation.isPending}
-            fullWidth
-            size="lg"
-          />
-        </View>
+        <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
+          <View className="px-5 pt-3 pb-3">
+            <Button
+              label={t('common.save')}
+              onPress={handleSave}
+              loading={updateMutation.isPending}
+              fullWidth
+              size="lg"
+            />
+          </View>
+        </SafeAreaView>
       </KeyboardAvoidingView>
 
       {/* Add social link modal */}

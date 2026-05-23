@@ -185,8 +185,9 @@ export default function DeleteAccountScreen() {
           />
         </ScrollView>
 
-        {/* Submit btn — sticky */}
-        <View className="px-5 pt-3 pb-3 bg-white border-t border-neutral-100">
+        {/* Submit btn — sticky, dengan bottom safe area */}
+        <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
+          <View className="px-5 pt-3 pb-3">
           <Button
             label={t('delete_account.submit_btn')}
             variant="danger"
@@ -210,7 +211,8 @@ export default function DeleteAccountScreen() {
             fullWidth
             size="lg"
           />
-        </View>
+          </View>
+        </SafeAreaView>
       </KeyboardAvoidingView>
     </View>
   );

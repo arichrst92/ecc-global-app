@@ -350,16 +350,18 @@ export default function EditProfileScreen() {
           </Field>
         </ScrollView>
 
-        {/* Save button */}
-        <View className="px-5 pt-3 pb-3 bg-white border-t border-neutral-100">
-          <Button
-            label={t('common.save')}
-            onPress={() => updateMutation.mutate()}
-            loading={updateMutation.isPending}
-            fullWidth
-            size="lg"
-          />
-        </View>
+        {/* Save button — SafeAreaView bottom supaya tidak overlap home indicator */}
+        <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
+          <View className="px-5 pt-3 pb-3">
+            <Button
+              label={t('common.save')}
+              onPress={() => updateMutation.mutate()}
+              loading={updateMutation.isPending}
+              fullWidth
+              size="lg"
+            />
+          </View>
+        </SafeAreaView>
       </KeyboardAvoidingView>
 
       {/* Date picker modal — lazy import @react-native-community/datetimepicker */}
