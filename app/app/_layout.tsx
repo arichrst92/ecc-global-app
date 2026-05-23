@@ -123,21 +123,6 @@ export default function RootLayout() {
     }
   }, [loaded, hydrated]);
 
-  // Sync auth user → Sentry context. Subscribe ke store supaya update saat
-  // login/logout/refresh tanpa perlu wire di setiap login site.
-  const authUser = useAuthStore((s) => s.user);
-  useEffect(() => {
-    setReportingUser(authUser ? { noHp: authUser.noHp } : null);
-  }, [authUser]);
-
-  // Sync /public/app-config telemetrySamplingRate → service module state.
-  // Service-layer code tidak hook-able; pakai mutable module state yang
-  // di-update setiap appConfig query refresh.
-  const { data: appConfig } = useAppConfig();
-  useEffect(() => {
-    setTelemetrySamplingRate(appConfig.telemetrySamplingRate);
-  }, [appConfig.telemetrySamplingRate]);
-
   if (!loaded || !hydrated) {
     return null;
   }
@@ -149,6 +134,10 @@ export default function RootLayout() {
         persistOptions={{ persister: queryPersister, ...persistOptions }}
       >
         <FaceDescriptorProvider>
+          {/* AppEffects: hooks yang butuh QueryClient context (mis. useAppConfig)
+              harus di-render INSIDE PersistQueryClientProvider — jangan di RootLayout
+              karena provider belum mounted saat hook ke-call. */}
+          <AppEffects />
           {/* Default StatusBar — 'auto' adapt ke system color scheme (light mode = dark icons).
               Individual screens dengan orange header pakai <StatusBar style="light" />
               untuk override (icons putih supaya visible di atas orange). */}
@@ -163,6 +152,31 @@ export default function RootLayout() {
       </PersistQueryClientProvider>
     </SafeAreaProvider>
   );
+}
+
+/**
+ * AppEffects — pure side-effect component, no render. Tempat untuk hooks yang
+ * butuh QueryClient context (mis. useAppConfig). Tidak bisa di RootLayout
+ * karena PersistQueryClientProvider mount di JSX return RootLayout itu
+ * sendiri — hook akan crash "No QueryClient set".
+ */
+function AppEffects() {
+  // Sync auth user → error reporting context. Subscribe ke store supaya
+  // update saat login/logout/refresh tanpa wire di setiap login site.
+  const authUser = useAuthStore((s) => s.user);
+  useEffect(() => {
+    setReportingUser(authUser ? { noHp: authUser.noHp } : null);
+  }, [authUser]);
+
+  // Sync /public/app-config telemetrySamplingRate → service module state.
+  // Service-layer code tidak hook-able; pakai mutable module state yang
+  // di-update setiap appConfig query refresh.
+  const { data: appConfig } = useAppConfig();
+  useEffect(() => {
+    setTelemetrySamplingRate(appConfig.telemetrySamplingRate);
+  }, [appConfig.telemetrySamplingRate]);
+
+  return null;
 }
 
 /**
