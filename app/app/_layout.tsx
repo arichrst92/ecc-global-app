@@ -21,20 +21,40 @@ import { FaceDescriptorProvider } from '@/components/face/FaceDescriptorProvider
 import { MaintenanceModal } from '@/components/MaintenanceModal';
 import { prefetchBranches } from '@/hooks/useBranches';
 import { useMaintenanceMode } from '@/hooks/useMaintenanceMode';
+import {
+  initErrorReporting,
+  setReportingUser,
+} from '@/services/errorReporting';
+import {
+  retryBackoffDelay,
+  shouldRetryMutation,
+  shouldRetryQuery,
+} from '@/lib/retryPolicy';
 
 export { ErrorBoundary } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
 
+// Smart retry policy: 4xx no retry (client bug), 5xx + network with exponential
+// backoff + jitter. Lihat src/lib/retryPolicy.ts untuk classification rules.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60_000,
-      retry: 1,
+      retry: shouldRetryQuery,
+      retryDelay: retryBackoffDelay,
       refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: shouldRetryMutation,
+      retryDelay: retryBackoffDelay,
     },
   },
 });
+
+// Initialize Sentry (no-op kalau EXPO_PUBLIC_SENTRY_DSN tidak set).
+// Async tapi kita fire-and-forget — tidak block app boot.
+void initErrorReporting();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -81,6 +101,13 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded, hydrated]);
+
+  // Sync auth user → Sentry context. Subscribe ke store supaya update saat
+  // login/logout/refresh tanpa perlu wire di setiap login site.
+  const authUser = useAuthStore((s) => s.user);
+  useEffect(() => {
+    setReportingUser(authUser ? { noHp: authUser.noHp } : null);
+  }, [authUser]);
 
   if (!loaded || !hydrated) {
     return null;

@@ -101,6 +101,46 @@ Scanner, Homecell, Area **bukan** di bottom nav — accessed via context (detail
 - Build profile: set `EXPO_PUBLIC_API_BASE_URL` via `eas.json` env block per profile
 - Lihat `reference/mobile-api-guide.md` untuk integrasi lengkap, `docs/production-launch-brief-2026-05-23.md` untuk detail launch
 
+## Error Reporting (Sentry)
+
+Optional — diaktifkan dengan set `EXPO_PUBLIC_SENTRY_DSN` di build env. Tanpa
+DSN, code di `src/services/errorReporting.ts` no-op (zero runtime cost).
+
+Setup pertama kali:
+
+```bash
+# 1. Install Sentry SDK
+npx expo install @sentry/react-native
+
+# 2. Daftar Sentry account → buat project "React Native" → copy DSN
+
+# 3. Set DSN via EAS secret (jangan commit ke repo)
+eas secret:create --scope project --name EXPO_PUBLIC_SENTRY_DSN_PRODUCTION --value "https://..."
+eas secret:create --scope project --name EXPO_PUBLIC_SENTRY_DSN_PREVIEW --value "https://..."
+# eas.json sudah refer ke secret ini per profile (preview + production)
+```
+
+Setelah install, errors di-capture otomatis. Manual report via:
+
+```typescript
+import { reportError, addBreadcrumb } from '@/services/errorReporting';
+
+addBreadcrumb('User tapped face login', 'auth');
+try { ... } catch (e) { reportError(e, { context: 'face_login_flow' }); }
+```
+
+Auth user di-sync ke Sentry context otomatis via `setReportingUser` di root layout
+— errors akan tag dengan `noHp` untuk filter per user di dashboard.
+
+## Network Resilience
+
+`QueryClient` defaults pakai smart retry policy (`src/lib/retryPolicy.ts`):
+- 4xx errors: no retry (client bug)
+- 5xx / 408 / 429 / network errors: retry up to 3x (query) / 2x (mutation)
+- Exponential backoff dengan ±20% jitter: 1s → 2s → 4s (capped 8s)
+
+Override per query: `useQuery({ retry: false, ... })`.
+
 ## i18n
 
 Bahasa Indonesia default, English untuk expat. Setup dari awal — jangan retrofit.

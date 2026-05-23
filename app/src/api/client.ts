@@ -84,12 +84,31 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
 async function parseResponse<T>(res: Response): Promise<T> {
   const json = (await res.json().catch(() => null)) as ApiResponse<T> | null;
   if (!json) {
-    throw new ApiError(
+    // Server returned non-JSON (HTML 502/504 dari nginx, etc). Report to Sentry
+    // — biasa indicate gateway misconfig atau upstream crash.
+    const err = new ApiError(
       { code: 'INTERNAL_ERROR', message: 'Invalid response' },
       res.status,
     );
+    // Lazy import supaya cycle-safe (errorReporting → no api dependency).
+    void import('@/services/errorReporting').then(({ reportError }) =>
+      reportError(err, { status: res.status, url: res.url }),
+    );
+    throw err;
   }
   if (!json.success) {
+    // 5xx errors auto-reported (server-side issue worth investigating).
+    // 4xx errors NOT reported — those are user/client bug, akan flood Sentry
+    // (mis. setiap user yang mis-enter OTP akan fire UNAUTHORIZED).
+    if (res.status >= 500) {
+      void import('@/services/errorReporting').then(({ reportError }) =>
+        reportError(new Error((json as ApiErrorBody).error.message), {
+          code: (json as ApiErrorBody).error.code,
+          status: res.status,
+          url: res.url,
+        }),
+      );
+    }
     throw new ApiError((json as ApiErrorBody).error, res.status);
   }
   return json.data;
