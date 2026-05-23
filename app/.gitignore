@@ -30,8 +30,12 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
+# local env files — all .env* gitignored kecuali template.
+# Production secrets di-injection via EAS build profile env block (eas.json),
+# bukan committed .env file.
+.env
+.env.*
+!.env.example
 
 # typescript
 *.tsbuildinfo

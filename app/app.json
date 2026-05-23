@@ -49,7 +49,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiBaseUrl": "https://core-api.eccchurch.global",
+      "apiBaseUrl": "https://api.eccchurch.global",
       "apiPortDev": 4100
     }
   }

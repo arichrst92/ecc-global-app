@@ -95,10 +95,11 @@ Scanner, Homecell, Area **bukan** di bottom nav — accessed via context (detail
 
 ## Backend API
 
-- Production: `https://core-api.eccchurch.global`
+- Production: `https://api.eccchurch.global` (live per BE handoff 2026-05-23)
 - Swagger UI: `{BASE_URL}/docs`
 - Auth: OTP WhatsApp (JWT) untuk user, X-API-Key untuk scanner stateless
-- Lihat `reference/mobile-api-guide.md` untuk integrasi lengkap
+- Build profile: set `EXPO_PUBLIC_API_BASE_URL` via `eas.json` env block per profile
+- Lihat `reference/mobile-api-guide.md` untuk integrasi lengkap, `docs/production-launch-brief-2026-05-23.md` untuk detail launch
 
 ## i18n
 

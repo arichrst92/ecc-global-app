@@ -8,7 +8,7 @@
 | Environment | URL |
 |---|---|
 | Development | `http://localhost:4100` |
-| Production | `https://core-api.eccchurch.global` |
+| Production | `https://api.eccchurch.global` (live per BE handoff 2026-05-23) |
 
 ## Tier Endpoint
 
@@ -2256,11 +2256,13 @@ Header `RateLimit-*` (draft-7) ada di response sukses untuk monitor sisa quota. 
 
 | Variable | Development | Production |
 |---|---|---|
-| `BASE_URL` | `http://localhost:4100` | `https://core-api.eccchurch.global` |
+| `BASE_URL` | `http://localhost:4100` | `https://api.eccchurch.global` |
 | `WEB_URL` (portal) | `http://localhost:3100` | `https://portal.eccchurch.global` |
 | Swagger spec UI | `{BASE_URL}/docs` | `{BASE_URL}/docs` |
 
-Untuk staging atau preview, biasanya `https://staging-core-api.eccchurch.global`. Konfirmasi dengan DevOps.
+Untuk staging atau preview, biasanya `https://staging-api.eccchurch.global`. Konfirmasi dengan DevOps.
+
+Set di mobile via `EXPO_PUBLIC_API_BASE_URL` env var (highest priority) di `eas.json` build profile, atau `extra.apiBaseUrl` di `app.json` (fallback).
 
 ---
 
