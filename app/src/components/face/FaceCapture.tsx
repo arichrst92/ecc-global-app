@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Camera, X } from 'lucide-react-native';
+import { Camera, Settings as SettingsIcon, X } from 'lucide-react-native';
 import {
   CameraView,
   useCameraPermissions,
@@ -14,14 +14,20 @@ import {
   isFaceDescriptorReady,
 } from '@/services/faceDescriptor';
 import { LivenessChallenge } from './LivenessChallenge';
+import { NonceCountdownBadge } from './NonceCountdownBadge';
 
 type Props = {
   /** Saat capture sukses + descriptor tersedia. */
   onSuccess: (descriptor: number[]) => void;
   /** Saat user close screen tanpa capture. */
   onCancel: () => void;
-  /** Optional active liveness — minta user blink/turn head sebelum capture. */
+  /** Optional active liveness — minta user blink sebelum capture. */
   requireLiveness?: boolean;
+  /** ISO expiry timestamp dari liveness nonce. Null = V1 grace mode tanpa nonce. */
+  nonceExpiresAt?: string | null;
+  /** Dipanggil saat nonce expired atau saat retry — caller harus request nonce
+   *  baru via /auth/face/liveness-nonce dan update nonceExpiresAt. */
+  onRefreshNonce?: () => Promise<void>;
 };
 
 /**
@@ -39,7 +45,13 @@ type Props = {
  * turn sebelum capture. Implementasi sederhana: hitung sampai 3 + visual cue.
  * Full liveness ML detection di-defer ke iteration berikutnya.
  */
-export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Props) {
+export function FaceCapture({
+  onSuccess,
+  onCancel,
+  requireLiveness = false,
+  nonceExpiresAt = null,
+  onRefreshNonce,
+}: Props) {
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraViewType | null>(null);
@@ -47,9 +59,20 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
   const [errorReason, setErrorReason] = useState<string | undefined>(undefined);
   const [errorDebug, setErrorDebug] = useState<string | undefined>(undefined);
   const [engineReady, setEngineReady] = useState(false);
+  const [refreshingNonce, setRefreshingNonce] = useState(false);
   // Liveness gate: kalau requireLiveness=true, harus passed dulu sebelum
   // descriptor capture screen muncul. Default true setelah V1 grace selesai.
   const [livenessPassed, setLivenessPassed] = useState(!requireLiveness);
+
+  async function handleNonceExpired() {
+    if (!onRefreshNonce || refreshingNonce) return;
+    setRefreshingNonce(true);
+    try {
+      await onRefreshNonce();
+    } finally {
+      setRefreshingNonce(false);
+    }
+  }
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -135,11 +158,16 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
       <LivenessChallenge
         onSuccess={() => setLivenessPassed(true)}
         onCancel={onCancel}
+        nonceExpiresAt={nonceExpiresAt}
+        onRefreshNonce={onRefreshNonce}
       />
     );
   }
 
   if (!permission.granted) {
+    // Kalau iOS user pernah deny + tap "Don't Ask Again", canAskAgain=false.
+    // requestPermission() jadi no-op — user wajib buka Settings manual.
+    const cantAskAgain = !permission.canAskAgain;
     return (
       <View className="flex-1 bg-black items-center justify-center px-6">
         <View className="w-20 h-20 rounded-2xl bg-neutral-800 items-center justify-center mb-4">
@@ -149,16 +177,30 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
           {t('face.camera_permission_title')}
         </Text>
         <Text className="text-neutral-400 text-sm text-center mb-6 leading-relaxed">
-          {t('face.camera_permission_body')}
+          {cantAskAgain
+            ? t('face.camera_permission_blocked_body')
+            : t('face.camera_permission_body')}
         </Text>
-        <Pressable
-          onPress={requestPermission}
-          className="bg-brand-500 py-3 px-6 rounded-xl"
-        >
-          <Text className="text-white font-semibold">
-            {t('face.camera_permission_grant')}
-          </Text>
-        </Pressable>
+        {cantAskAgain ? (
+          <Pressable
+            onPress={() => Linking.openSettings()}
+            className="bg-brand-500 py-3 px-6 rounded-xl flex-row items-center gap-2"
+          >
+            <SettingsIcon size={18} color="#fff" />
+            <Text className="text-white font-semibold">
+              {t('face.camera_permission_open_settings')}
+            </Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            onPress={requestPermission}
+            className="bg-brand-500 py-3 px-6 rounded-xl"
+          >
+            <Text className="text-white font-semibold">
+              {t('face.camera_permission_grant')}
+            </Text>
+          </Pressable>
+        )}
         <Pressable onPress={onCancel} className="py-3 mt-3">
           <Text className="text-neutral-400 font-semibold">{t('common.cancel')}</Text>
         </Pressable>
@@ -185,6 +227,13 @@ export function FaceCapture({ onSuccess, onCancel, requireLiveness = false }: Pr
           <X size={20} color="#fff" />
         </Pressable>
       </View>
+
+      {/* Nonce countdown badge (top-center, di atas close button overlay) */}
+      <NonceCountdownBadge
+        nonceExpiresAt={nonceExpiresAt}
+        onExpired={handleNonceExpired}
+        refreshing={refreshingNonce}
+      />
 
       {/* Center oval guide overlay */}
       <View className="absolute inset-0 items-center justify-center pointer-events-none">

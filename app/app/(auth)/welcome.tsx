@@ -81,6 +81,7 @@ export default function WelcomeScreen() {
     onError: (err) => {
       setCaptureOpen(false);
       setLivenessNonce(null);
+      setLivenessNonceExpiresAt(null);
       if (err instanceof ApiError) {
         const code = err.code.toLowerCase();
         if (code === 'face_not_enrolled' || code === 'face_no_match' || code === 'face_model_mismatch') {
@@ -100,21 +101,30 @@ export default function WelcomeScreen() {
     },
   });
 
-  // Liveness nonce per BE handoff — request sebelum show capture UI
+  // Liveness nonce per BE handoff — request sebelum show capture UI.
+  // expiresAt dipakai untuk show countdown badge di FaceCapture/LivenessChallenge.
   const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
+  const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
+
+  async function fetchNonce(): Promise<void> {
+    if (!user?.noHp) return;
+    // V1 grace: kalau request gagal, tetap proceed (BE log warn).
+    try {
+      const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'LOGIN' });
+      setLivenessNonce(res.nonce);
+      setLivenessNonceExpiresAt(res.expiresAt);
+    } catch {
+      setLivenessNonce(null);
+      setLivenessNonceExpiresAt(null);
+    }
+  }
 
   async function openFaceCapture() {
     if (!user?.noHp) {
       showToast(t('face.error_no_phone_hint'), 'error');
       return;
     }
-    // V1 grace: kalau request gagal, tetap proceed (BE log warn).
-    try {
-      const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'LOGIN' });
-      setLivenessNonce(res.nonce);
-    } catch {
-      setLivenessNonce(null);
-    }
+    await fetchNonce();
     setCaptureOpen(true);
   }
 
@@ -249,6 +259,8 @@ export default function WelcomeScreen() {
             onSuccess={handleDescriptor}
             onCancel={() => setCaptureOpen(false)}
             requireLiveness
+            nonceExpiresAt={livenessNonceExpiresAt}
+            onRefreshNonce={fetchNonce}
           />
         ) : null}
       </Modal>

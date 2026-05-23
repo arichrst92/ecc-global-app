@@ -859,7 +859,12 @@
     "error_liveness_eyes_not_open": "Mata harus terbuka saat baseline. Coba lagi.",
     "error_liveness_no_blink": "Kedipan mata tidak terdeteksi. Pastikan kedua mata tertutup penuh saat diminta.",
     "error_liveness_eyes_not_reopened": "Mata harus terbuka setelah kedip. Coba lagi.",
-    "error_liveness_error": "Terjadi kesalahan teknis. Coba lagi."
+    "error_liveness_error": "Terjadi kesalahan teknis. Coba lagi.",
+    "nonce_remaining": "Berlaku {{time}}",
+    "nonce_expired": "Sesi kadaluarsa",
+    "nonce_refreshing": "Memperbarui...",
+    "camera_permission_blocked_body": "Izin kamera diblokir. Buka Pengaturan untuk mengaktifkannya secara manual.",
+    "camera_permission_open_settings": "Buka Pengaturan"
   },
   "calendar": {
     "title": "Kalender",

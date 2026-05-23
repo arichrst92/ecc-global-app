@@ -859,7 +859,12 @@
     "error_liveness_eyes_not_open": "Eyes must be open during baseline. Try again.",
     "error_liveness_no_blink": "Blink not detected. Make sure both eyes fully close when prompted.",
     "error_liveness_eyes_not_reopened": "Eyes must open again after blink. Try again.",
-    "error_liveness_error": "Technical error. Try again."
+    "error_liveness_error": "Technical error. Try again.",
+    "nonce_remaining": "Valid {{time}}",
+    "nonce_expired": "Session expired",
+    "nonce_refreshing": "Refreshing...",
+    "camera_permission_blocked_body": "Camera permission blocked. Open Settings to enable it manually.",
+    "camera_permission_open_settings": "Open Settings"
   },
   "calendar": {
     "title": "Calendar",

@@ -87,6 +87,7 @@ export default function LoginPhoneScreen() {
       setCaptureOpen(false);
       // Reset nonce supaya retry langsung request fresh one
       setLivenessNonce(null);
+      setLivenessNonceExpiresAt(null);
       if (err instanceof ApiError) {
         const code = err.code.toLowerCase();
         if (code === 'face_not_enrolled') {
@@ -123,7 +124,25 @@ export default function LoginPhoneScreen() {
   // Liveness nonce per BE handoff 2026-05-22 — request sebelum show liveness UI.
   // V1 grace: kalau request gagal, tetap proceed (BE log warn). V2 cutover
   // 2026-06-01 akan strict — need fresh nonce.
+  // expiresAt dipakai untuk countdown badge di FaceCapture/LivenessChallenge.
   const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
+  const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
+
+  /** Request fresh nonce. Dipanggil saat open + saat countdown expire/retry. */
+  async function fetchNonce(e164?: string): Promise<void> {
+    const phoneNumber = e164 ?? normalizePhone(phone);
+    if (!phoneNumber) return;
+    try {
+      const res = await requestLivenessNonce({ noHp: phoneNumber, purpose: 'LOGIN' });
+      setLivenessNonce(res.nonce);
+      setLivenessNonceExpiresAt(res.expiresAt);
+    } catch {
+      // V1 grace — proceed tanpa nonce. BE log warn. Setelah V2 cutover ini
+      // akan jadi hard fail; saat itu replace dengan setError + return.
+      setLivenessNonce(null);
+      setLivenessNonceExpiresAt(null);
+    }
+  }
 
   async function startFaceLogin() {
     setError(null);
@@ -132,15 +151,7 @@ export default function LoginPhoneScreen() {
       setError(t('auth.error_invalid_phone'));
       return;
     }
-    // Request liveness nonce (TTL 3 menit, one-shot)
-    try {
-      const res = await requestLivenessNonce({ noHp: e164, purpose: 'LOGIN' });
-      setLivenessNonce(res.nonce);
-    } catch {
-      // V1 grace — proceed tanpa nonce. BE log warn. Setelah V2 cutover ini
-      // akan jadi hard fail; saat itu replace dengan setError + return.
-      setLivenessNonce(null);
-    }
+    await fetchNonce(e164);
     setCaptureOpen(true);
   }
 
@@ -250,6 +261,8 @@ export default function LoginPhoneScreen() {
             onSuccess={handleDescriptor}
             onCancel={() => setCaptureOpen(false)}
             requireLiveness
+            nonceExpiresAt={livenessNonceExpiresAt}
+            onRefreshNonce={() => fetchNonce()}
           />
         ) : null}
       </Modal>

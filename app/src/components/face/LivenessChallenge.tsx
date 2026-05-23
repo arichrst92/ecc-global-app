@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, X } from 'lucide-react-native';
+import { Eye, EyeOff, Settings as SettingsIcon, X } from 'lucide-react-native';
 import {
   CameraView,
   useCameraPermissions,
@@ -10,6 +10,7 @@ import {
 } from 'expo-camera';
 
 import { detectFaceWithLiveness } from '@/services/faceDescriptor';
+import { NonceCountdownBadge } from './NonceCountdownBadge';
 
 /**
  * Liveness Challenge — passive-active anti-spoofing gate.
@@ -50,6 +51,11 @@ type Props = {
    *  ke descriptor capture (ideally dari camera ref yang sama). */
   onSuccess: () => void;
   onCancel: () => void;
+  /** ISO expiry liveness nonce — kalau ada, render countdown badge top-center. */
+  nonceExpiresAt?: string | null;
+  /** Callback untuk request nonce baru. Dipanggil saat countdown expire +
+   *  saat user tap Try Again (supaya retry pakai fresh nonce). */
+  onRefreshNonce?: () => Promise<void>;
 };
 
 // Thresholds — tuning notes:
@@ -63,7 +69,12 @@ const MIN_BLINK_DELTA = 0.3;
 const BLINK_CUE_MS = 1500;
 const REOPEN_CUE_MS = 1000;
 
-export function LivenessChallenge({ onSuccess, onCancel }: Props) {
+export function LivenessChallenge({
+  onSuccess,
+  onCancel,
+  nonceExpiresAt = null,
+  onRefreshNonce,
+}: Props) {
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraViewType | null>(null);
@@ -72,6 +83,17 @@ export function LivenessChallenge({ onSuccess, onCancel }: Props) {
   const [errorReason, setErrorReason] = useState<string | undefined>(undefined);
   const [errorDebug, setErrorDebug] = useState<string | undefined>(undefined);
   const [baselineEyeProb, setBaselineEyeProb] = useState<number | null>(null);
+  const [refreshingNonce, setRefreshingNonce] = useState(false);
+
+  async function handleNonceExpired() {
+    if (!onRefreshNonce || refreshingNonce) return;
+    setRefreshingNonce(true);
+    try {
+      await onRefreshNonce();
+    } finally {
+      setRefreshingNonce(false);
+    }
+  }
 
   useEffect(() => {
     if (permission && !permission.granted && permission.canAskAgain) {
@@ -200,20 +222,35 @@ export function LivenessChallenge({ onSuccess, onCancel }: Props) {
   }
 
   if (!permission.granted) {
+    const cantAskAgain = !permission.canAskAgain;
     return (
       <View className="flex-1 bg-black items-center justify-center px-6">
         <Text className="text-white text-lg font-bold mb-2 text-center">
           {t('face.camera_permission_title')}
         </Text>
         <Text className="text-neutral-400 text-sm text-center mb-6 leading-relaxed">
-          {t('face.camera_permission_body')}
+          {cantAskAgain
+            ? t('face.camera_permission_blocked_body')
+            : t('face.camera_permission_body')}
         </Text>
-        <Pressable
-          onPress={requestPermission}
-          className="bg-brand-500 py-3 px-6 rounded-xl"
-        >
-          <Text className="text-white font-semibold">{t('face.camera_permission_grant')}</Text>
-        </Pressable>
+        {cantAskAgain ? (
+          <Pressable
+            onPress={() => Linking.openSettings()}
+            className="bg-brand-500 py-3 px-6 rounded-xl flex-row items-center gap-2"
+          >
+            <SettingsIcon size={18} color="#fff" />
+            <Text className="text-white font-semibold">
+              {t('face.camera_permission_open_settings')}
+            </Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            onPress={requestPermission}
+            className="bg-brand-500 py-3 px-6 rounded-xl"
+          >
+            <Text className="text-white font-semibold">{t('face.camera_permission_grant')}</Text>
+          </Pressable>
+        )}
         <Pressable onPress={onCancel} className="py-3 mt-3">
           <Text className="text-neutral-400 font-semibold">{t('common.cancel')}</Text>
         </Pressable>
@@ -240,6 +277,13 @@ export function LivenessChallenge({ onSuccess, onCancel }: Props) {
           <X size={20} color="#fff" />
         </Pressable>
       </View>
+
+      {/* Nonce countdown badge top-center */}
+      <NonceCountdownBadge
+        nonceExpiresAt={nonceExpiresAt}
+        onExpired={handleNonceExpired}
+        refreshing={refreshingNonce}
+      />
 
       {/* Center oval */}
       <View className="absolute inset-0 items-center justify-center pointer-events-none">
@@ -322,13 +366,24 @@ export function LivenessChallenge({ onSuccess, onCancel }: Props) {
               <Text className="text-white font-semibold">{t('common.cancel')}</Text>
             </Pressable>
             <Pressable
-              onPress={() => {
+              onPress={async () => {
                 reset();
+                // Refresh nonce sebelum retry — nonce mungkin sudah consumed atau
+                // mendekati expire. Tunggu refresh selesai supaya challenge run
+                // dengan nonce fresh.
+                if (onRefreshNonce) {
+                  await handleNonceExpired();
+                }
                 runChallenge();
               }}
-              className="bg-brand-500 py-3 px-6 rounded-2xl"
+              disabled={refreshingNonce}
+              className={`py-3 px-6 rounded-2xl ${
+                refreshingNonce ? 'bg-neutral-500' : 'bg-brand-500'
+              }`}
             >
-              <Text className="text-white font-bold">{t('face.try_again')}</Text>
+              <Text className="text-white font-bold">
+                {refreshingNonce ? t('face.nonce_refreshing') : t('face.try_again')}
+              </Text>
             </Pressable>
           </View>
         )}

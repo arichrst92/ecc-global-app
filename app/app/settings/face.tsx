@@ -45,7 +45,23 @@ export default function FaceSettingsScreen() {
   const [engineReady, setEngineReady] = useState(false);
   // Liveness nonce per BE handoff 2026-05-22 — request sebelum capture UI.
   // V1 grace: kalau gagal proceed tanpa nonce. V2 cutover 2026-06-01 strict.
+  // expiresAt dipakai untuk countdown badge + auto-refresh on expiry.
   const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
+  const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
+
+  /** Request fresh nonce. Dipanggil saat openEnrollCapture + dari FaceCapture
+   *  saat countdown expire atau retry. */
+  async function fetchNonce(): Promise<void> {
+    if (!user?.noHp) return;
+    try {
+      const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'ENROLL' });
+      setLivenessNonce(res.nonce);
+      setLivenessNonceExpiresAt(res.expiresAt);
+    } catch {
+      setLivenessNonce(null);
+      setLivenessNonceExpiresAt(null);
+    }
+  }
 
   // Poll face engine readiness — kalau false (di Expo Go) tampilkan banner
   useEffect(() => {
@@ -72,6 +88,7 @@ export default function FaceSettingsScreen() {
     onError: (err) => {
       // Reset nonce supaya retry pakai fresh one
       setLivenessNonce(null);
+      setLivenessNonceExpiresAt(null);
       if (err instanceof ApiError) {
         const code = err.code.toLowerCase();
         if (code.startsWith('liveness_nonce_')) {
@@ -117,12 +134,7 @@ export default function FaceSettingsScreen() {
       showToast(t('face.error_no_phone_hint'), 'error');
       return;
     }
-    try {
-      const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'ENROLL' });
-      setLivenessNonce(res.nonce);
-    } catch {
-      setLivenessNonce(null);
-    }
+    await fetchNonce();
     setCaptureOpen(mode);
   }
 
@@ -269,6 +281,8 @@ export default function FaceSettingsScreen() {
             onSuccess={handleDescriptor}
             onCancel={() => setCaptureOpen(false)}
             requireLiveness
+            nonceExpiresAt={livenessNonceExpiresAt}
+            onRefreshNonce={fetchNonce}
           />
         ) : null}
       </Modal>
