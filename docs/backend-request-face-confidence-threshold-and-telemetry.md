@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-23
 **Priority**: 🟡 **MEDIUM** — pre-public-release coordination, blocker untuk pilot rollout judgment
-**Status**: 📝 **PROPOSED** — menunggu BE response
+**Status**: ✅ **RESOLVED** (2026-05-23) — endpoint + config + portal dashboard deployed
 
 ## TL;DR
 
@@ -222,6 +222,98 @@ Pilot rollout tentative 2026-06-08 (3 minggu dari sekarang setelah V2 nonce cuto
 
 ---
 
-## 7. Backend Response
+## 7. Backend Response (2026-05-23)
 
-*(diisi oleh BE setelah review)*
+### 7.1 Jawaban Confidence Threshold
+
+**Q1 — Current ACCEPT_THRESHOLD?**
+- File: `packages/auth/src/face.ts:32` — `FACE_MATCH_THRESHOLD = Number(process.env.FACE_MATCH_THRESHOLD ?? 0.5)`
+- Production .env: **`0.5`** (default value, tidak di-override)
+- Tidak ada dynamic threshold per role. Threshold sama untuk semua user.
+- Hardcoded di env var, bukan di DB. Update threshold = redeploy + restart core-api.
+
+**Q2 — Format `confidence` di response?**
+- `apps/core-api/src/routes/auth.ts:402-404`:
+  ```typescript
+  // Confidence = cosine similarity itself (already in 0..1 range untuk
+  // normalized face descriptors). Clamp untuk safety.
+  const confidence = Math.max(0, Math.min(1, result.similarity));
+  ```
+- Value = **raw cosine similarity**, clamped ke [0, 1]. **Bukan normalized** dari range accepted.
+- Karena rejected sudah filtered di server (similarity < 0.5 → 401), value yang sampai mobile = `[0.5..1.0]`.
+
+**Q3 — Recommended `low_confidence_warn` threshold?**
+- Mobile-side intuition 0.7 **reasonable** — itu 40% dari accepted range (0.5..1.0):
+  - `displayPct = (0.7 - 0.5) / (1.0 - 0.5) = 0.40`
+- Warning ini akan trigger untuk ~25-40% successful logins (estimated based pada distribution cosine similarity face matching umumnya). Cukup aware tapi tidak spammy.
+- Untuk tune-able tanpa app update, sekarang exposed via `/public/app-config.lowConfidenceWarnThreshold` (default 0.7).
+
+**Q4 — Expose threshold via config endpoint?**
+- **YES** — sudah deployed. Mobile fetch via `GET /public/app-config`:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "faceMatchThreshold": 0.5,
+      "lowConfidenceWarnThreshold": 0.7,
+      "telemetrySamplingRate": 1.0,
+      "errorReportingEnabled": true
+    }
+  }
+  ```
+- Cache 1 jam recommended (mobile-side). Admin update via portal **Developer Tools → Diagnostics → App Config** tab.
+
+### 7.2 Telemetry Endpoint — DEPLOYED
+
+**Endpoint:** `POST /auth/face/telemetry` (no auth, fire-and-forget, rate-limit 500/menit/IP).
+
+**Payload sesuai spec request — semua field opsional kecuali sessionId, event, outcome, timestamp.** Lihat `packages/shared-types/src/schemas/diagnostics.ts` `faceTelemetryEventInputSchema` untuk Zod schema lengkap.
+
+**Event types accepted:**
+- `face_login_attempt`, `face_login_server_response`
+- `face_enroll_attempt`, `face_enroll_complete`, `face_enroll_fail`
+- `face_liveness_pass`, `face_liveness_fail`
+- `face_descriptor_compute`, `face_nonce_request`
+
+Field `flow: 'login' | 'enroll'` opsional untuk disambiguate shared events.
+
+**Response (success):** `200 OK` dengan `{ "success": true, "data": { "received": true } }`.
+
+**Privacy:**
+- `noHp` di table `face_telemetry_event.no_hp` — propagate ke `DELETE /admin/me` (right-to-delete).
+- Tidak ada descriptor / biometric data stored — cuma outcome + confidence + duration + device meta.
+
+**Retention:** 90 hari (`FACE_TELEMETRY_RETENTION_DAYS` env, default 90). Daily auto-purge cron.
+
+**Sampling:** Mobile decide client-side. Backend tidak filter — kalau sampai BE, akan di-insert. Mobile baca `telemetrySamplingRate` dari `/public/app-config`, sample client-side sebelum push.
+
+### 7.3 Portal Dashboard — DEPLOYED
+
+**Menu:** Portal → **Developer Tools → Diagnostics** (RBAC menuKey `diagnostics`, Fulltimer dapat full access by default).
+
+**3 tabs:**
+1. **Face Telemetry** — funnel event × outcome, top failure reasons, latency p50/p95 (livenessTotal, descriptorCompute, serverRoundtrip), confidence distribution (avg + p50 + p95). Filter: platform (iOS/Android/all), flow (login/enroll/all).
+2. **Error Events** — aggregate by fingerprint, search by message, filter platform. Click row → detail modal (recent 50 events, breadcrumbs expandable, stack trace).
+3. **App Config** — edit tune-able fields (face thresholds + sampling rate + error reporting kill switch).
+
+Endpoint admin:
+- `GET /admin/diagnostics/face-telemetry?platform=&flow=&from=&to=`
+- `GET /admin/diagnostics/error-events?search=&platform=&page=&limit=`
+- `GET /admin/diagnostics/error-events/:fingerprint`
+- `GET /admin/diagnostics/app-config`
+- `PATCH /admin/diagnostics/app-config`
+
+### 7.4 Action Items Mobile (untuk pilot)
+
+1. Implement fetch `/public/app-config` saat splash, cache 1 jam (key `ecc.app-config`).
+2. Update `low_confidence_warn` threshold dari hardcoded 0.7 → ambil dari `appConfig.lowConfidenceWarnThreshold`.
+3. Implement telemetry push:
+   - Generate sessionId UUID per face login/enroll attempt
+   - Push event di lifecycle hooks (attempt, liveness pass/fail, descriptor compute, nonce request, server response)
+   - Sampling: `Math.random() < appConfig.telemetrySamplingRate`
+   - Fire-and-forget: tidak retry, tidak block UX flow kalau gagal
+4. Test di pilot env sebelum public release — verify event muncul di portal Diagnostics → Face Telemetry.
+
+### 7.5 Timeline
+
+Deployed 2026-05-23. Ready untuk pilot rollout 2026-06-08. Tidak ada dependency lain untuk mobile-side implementation.

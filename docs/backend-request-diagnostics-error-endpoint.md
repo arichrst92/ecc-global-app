@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-23
 **Priority**: 🟡 **MEDIUM** — production observability, replace third-party (Sentry/GlitchTip)
-**Status**: 📝 **PROPOSED** — menunggu BE response
+**Status**: ✅ **RESOLVED** (2026-05-23) — endpoint + schema + portal dashboard deployed
 
 ## TL;DR
 
@@ -241,6 +241,93 @@ endpoint live, lalu auto-recover.
 
 ---
 
-## 10. Backend Response
+## 10. Backend Response (2026-05-23)
 
-*(diisi oleh BE setelah review)*
+### 10.1 Endpoint — DEPLOYED
+
+`POST /diagnostics/error` (no auth, fire-and-forget, rate-limit 100/menit/IP, body cap default 2MB Express).
+
+**Payload accepted** sesuai section 1 request (semua field kecuali `release`, `device.platform`, `timestamp`, `message` opsional). Schema di `packages/shared-types/src/schemas/diagnostics.ts` (`diagnosticsErrorInputSchema`).
+
+**Response:** `200 OK` dengan `{ "success": true, "data": { "received": true } }`. Kalau invalid payload, return 200 + `{ dropped: true }` (silent drop — mobile tidak retry).
+
+**Kill switch:** kalau admin set `app_config.errorReportingEnabled = false` (via portal), endpoint drop event dengan response `{ received: true, disabled: true }` tanpa write ke DB. Berguna saat incident (infinite loop di mobile yang generate jutaan event/menit).
+
+### 10.2 Schema — DEPLOYED
+
+Table `diagnostics_error_event` dengan **generated column `fingerprint`** (Postgres native):
+
+```sql
+fingerprint VARCHAR(32) GENERATED ALWAYS AS (
+  md5(COALESCE(error_name, '') || ':' || COALESCE(message, ''))
+) STORED
+```
+
+Sentry-style grouping — sama `error_name` + sama `message` → fingerprint sama → aggregate as 1 issue.
+
+Indexes:
+- `(fingerprint, release)` — aggregate query
+- `timestamp DESC` — time-range filter
+- `user_no_hp WHERE NOT NULL` — partial index untuk debug specific complaint
+- `(release, platform)` — segment breakdown
+- `received_at` — retention purge
+
+### 10.3 Retention + Right-to-delete — DEPLOYED
+
+- **Retention 30 hari** (`DIAGNOSTICS_ERROR_RETENTION_DAYS` env, default 30). Daily auto-purge via `cleanupOldDiagnosticsErrors()` cron.
+- **Right-to-delete**: `DELETE /admin/me` handler propagate ke `diagnostics_error_event` DELETE WHERE `user_no_hp = jemaat.noHp`. Hanya event yang ada `userNoHp` (anonymous events tetap retained).
+
+### 10.4 Portal Dashboard — DEPLOYED
+
+**Menu:** Portal → **Developer Tools → Diagnostics → Error Events tab**.
+
+Features:
+- Aggregate list — grouped by fingerprint, top errors by total count
+- Filter: search di message, platform (iOS/Android), date range (default last 7 days)
+- Click row → detail modal: recent 50 events + breadcrumbs expandable + stack trace expandable
+- User count per group (de-duplicated `user_no_hp`)
+- Platforms + releases affected summary
+
+Endpoints:
+- `GET /admin/diagnostics/error-events?search=&platform=&page=&limit=` — aggregate
+- `GET /admin/diagnostics/error-events/:fingerprint` — detail
+
+### 10.5 Action Items Mobile
+
+1. Sudah implement client-side di commit M20 → M20.1 (`src/services/errorReporting.ts`) — tinggal endpoint live.
+2. Verify push event saat trigger error → muncul di portal Diagnostics → Error Events.
+3. Cek breadcrumbs limit: backend accept max 50 (sesuai zod schema). Kalau mobile capture >50, trim ke last 20 sesuai request spec.
+4. Verify kill switch behavior: `errorReportingEnabled = false` di portal → mobile tetap push (jangan check client-side, BE handle drop).
+
+### 10.6 Privacy compliance
+
+- `noHp` PII di table — propagate ke right-to-delete ✓
+- Tidak ada descriptor / sensitive biometric
+- Breadcrumbs JSONB — kontrol disiplin di mobile (no PII di breadcrumb data)
+- Retention 30 hari ≤ recommended ~90 hari di request, lebih tight karena volume bisa spike
+
+### 10.7 Timeline
+
+Deployed 2026-05-23. Ready untuk pilot rollout 2026-06-08. Events drop silently sampai mobile push live → auto-recover begitu endpoint reachable.
+
+---
+
+## 11. Mobile Acknowledgment (2026-05-23)
+
+Confirmed BE deploy complete. Mobile side verification:
+
+- **Payload shape match** ✓ — `src/services/errorReporting.ts` send `{type, release, device:{platform, osVersion, appVersion, release}, user:{noHp}, breadcrumbs, timestamp, message, stack?, name, context?}` per spec section 1.
+- **Breadcrumb cap 20** ✓ — `BREADCRUMB_BUFFER_SIZE = 20` di errorReporting.ts, well under BE zod limit 50. Ring buffer trim via `.slice(-20)`.
+- **No client-side kill switch check** ✓ — mobile push unconditionally, BE handle drop via `app_config.errorReportingEnabled` (per BE 10.1). Tidak ada flag client-side.
+- **`__DEV__` skip** ✓ — dev errors tidak pollute pilot dashboard.
+- **Silent fail on 404 / network error / timeout** ✓ — fire-and-forget pattern, never throws back to caller.
+
+Pending pilot verification (manual oleh Ari saat dev build di physical device):
+
+1. Trigger sample error via `reportError(new Error('test pilot'))` → confirm muncul di portal Developer Tools → Diagnostics → Error Events
+2. Verify aggregate grouping by fingerprint (run sama error 3x → 1 row dengan count=3)
+3. Verify right-to-delete: trigger error sebagai user A → DELETE /admin/me → confirm event terhapus
+4. Verify kill switch: admin set `errorReportingEnabled=false` → mobile tetap push → BE drop silently, no DB row
+5. Verify retention: tidak bisa di-test instant (30 hari), tapi confirm cron task exists di BE
+
+No mobile code change required.
