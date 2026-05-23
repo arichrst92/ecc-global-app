@@ -29,7 +29,7 @@ import { useMyFamily } from '@/hooks/useFamily';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { env } from '@/config/env';
-import { formatPhoneDisplay } from '@/utils/phone';
+import { formatPhoneDisplay, normalizePhone } from '@/utils/phone';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -95,6 +95,7 @@ export default function EditProfileScreen() {
   const [namaLengkap, setNamaLengkap] = useState('');
   const [email, setEmail] = useState('');
   const [alamat, setAlamat] = useState('');
+  const [noHpInput, setNoHpInput] = useState(''); // dependent mode only — user input raw, normalize on submit
   const [dob, setDob] = useState<Date | null>(null);
   const [jenisKelamin, setJenisKelamin] = useState<'L' | 'P' | ''>('');
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -104,6 +105,7 @@ export default function EditProfileScreen() {
       setNamaLengkap(sourceJemaat.namaLengkap ?? '');
       setEmail(sourceJemaat.email ?? '');
       setAlamat(sourceJemaat.alamat ?? '');
+      setNoHpInput(sourceJemaat.noHp ?? '');
       setDob(sourceJemaat.tanggalLahir ? new Date(sourceJemaat.tanggalLahir) : null);
       setJenisKelamin((sourceJemaat.jenisKelamin as 'L' | 'P' | null) ?? '');
     }
@@ -111,17 +113,38 @@ export default function EditProfileScreen() {
 
   const fotoUrl = sourceJemaat?.fotoUrl ?? (isDependent ? null : user?.fotoUrl) ?? null;
 
-  const updateMutation = useMutation<{ namaLengkap: string }>({
+  const updateMutation = useMutation<{ namaLengkap: string; noHpAdded?: boolean }>({
     mutationFn: async () => {
       const tanggalLahir = dob ? dob.toISOString().slice(0, 10) : undefined;
       if (isDependent) {
+        // Normalize phone: kalau user kosongin → null (clear), kalau diisi →
+        // normalize ke E.164 atau throw kalau format invalid.
+        const noHpTrim = noHpInput.trim();
+        let noHpPayload: string | null | undefined;
+        if (noHpTrim === '') {
+          noHpPayload = sourceJemaat?.noHp ? null : undefined; // clear vs skip
+        } else {
+          const normalized = normalizePhone(noHpTrim);
+          if (!normalized) {
+            throw new ApiError(
+              { code: 'VALIDATION_ERROR', message: t('auth.error_invalid_phone') },
+              400,
+            );
+          }
+          noHpPayload = normalized;
+        }
+        const wasNoHpEmpty = !sourceJemaat?.noHp;
+        const noHpAdded = wasNoHpEmpty && typeof noHpPayload === 'string';
+
         const r = await updateDependentProfile(dependentId!, {
           namaLengkap: namaLengkap.trim() || undefined,
           alamat: alamat.trim() || undefined,
           tanggalLahir,
           jenisKelamin: jenisKelamin || undefined,
+          noHp: noHpPayload,
+          email: email.trim() ? email.trim() : (sourceJemaat?.email ? null : undefined),
         });
-        return { namaLengkap: r.namaLengkap };
+        return { namaLengkap: r.namaLengkap, noHpAdded };
       }
       const r = await updateMyProfile({
         namaLengkap: namaLengkap.trim() || undefined,
@@ -138,12 +161,21 @@ export default function EditProfileScreen() {
       }
       await qc.invalidateQueries({ queryKey: ['me'] });
       await qc.invalidateQueries({ queryKey: ['family'] });
-      showToast(t('edit_profile.success'), 'success');
+      // Special toast kalau dependent baru di-promote (first noHp set) —
+      // mereka sekarang bisa login mandiri dengan OTP
+      const successKey =
+        profile.noHpAdded ? 'edit_profile.dependent_promoted' : 'edit_profile.success';
+      showToast(t(successKey, { name: profile.namaLengkap }), 'success');
       router.back();
     },
     onError: (err) => {
-      const msg = err instanceof ApiError ? err.message : t('error.network');
-      showToast(msg, 'error');
+      if (err instanceof ApiError) {
+        // 409 CONFLICT — uniqueness check failed (noHp/email duplicate).
+        // BE message sudah mention nama jemaat lain — surface directly.
+        showToast(err.message, 'error');
+      } else {
+        showToast(t('error.network'), 'error');
+      }
     },
   });
 
@@ -259,10 +291,11 @@ export default function EditProfileScreen() {
             />
           </Field>
 
-          {/* Self mode: phone readonly + email editable.
-              Dependent mode: phone+email hidden sampai BE extend endpoint
-              support (lihat docs/backend-request-dependent-edit-fuller.md).
-              Sementara guardian bisa request phone update via admin cabang. */}
+          {/* Phone + Email — pattern berbeda per mode.
+              Self: phone readonly (harus ganti via OTP flow), email editable.
+              Dependent (BE patch 22c): phone + email editable. Kalau noHp
+              di-tambahkan pertama kali, jemaat auto-promoted jadi full member
+              (bisa login mandiri). */}
           {!isDependent ? (
             <>
               <Field label={t('edit_profile.phone')}>
@@ -288,11 +321,34 @@ export default function EditProfileScreen() {
               </Field>
             </>
           ) : (
-            <View className="bg-amber-50 rounded-xl p-3 border border-amber-100 mb-4">
-              <Text className="text-xs text-amber-800 leading-relaxed">
-                {t('edit_profile.dependent_phone_pending')}
-              </Text>
-            </View>
+            <>
+              <Field label={t('edit_profile.phone')}>
+                <TextInput
+                  value={noHpInput}
+                  onChangeText={setNoHpInput}
+                  placeholder="0821xxx atau +62821xxx"
+                  keyboardType="phone-pad"
+                  autoCapitalize="none"
+                  className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                />
+                <Text className="text-[10px] text-neutral-500 mt-1 leading-relaxed">
+                  {sourceJemaat?.noHp
+                    ? t('edit_profile.dependent_phone_helper_existing')
+                    : t('edit_profile.dependent_phone_helper_empty')}
+                </Text>
+              </Field>
+
+              <Field label={t('edit_profile.email')}>
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="nama@email.com (opsional)"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                />
+              </Field>
+            </>
           )}
 
           <Field label={t('signup.gender')}>

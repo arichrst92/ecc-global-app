@@ -57,22 +57,34 @@ export function unlinkFamily(jemaatId: string) {
 
 /**
  * PATCH /admin/me/family/:jemaatId/profile — edit profile dependent member.
- * Per BE patch 2026-05-22a. Path `/profile` suffix supaya tidak collision
- * dengan PATCH /admin/me/family/:jemaatId (yang update role).
+ * Per BE patch 2026-05-22a (initial) + 2026-05-22c (noHp + email extension).
  *
- * Auth: current user harus primaryGuardian dari jemaatId. Target harus
- * dependent (no noHp). Disallowed fields: noHp, email, cabangId, kode, isActive.
+ * Auth: current user harus primaryGuardian dari jemaatId. Disallowed fields:
+ * cabangId, kode, isActive.
+ *
+ * Field semantics:
+ * - undefined → skip, tidak ubah
+ * - null atau '' → clear field ke null
+ * - string non-empty → update + uniqueness check (noHp, email)
+ *
+ * Saat noHp first-time di-set (dari null → value), BE auto-flip `isDependent`
+ * flag (kalau noHp != null jemaat jadi full member). Audit log entry:
+ * `dependent-promoted` (first noHp set) atau `dependent-edit-mobile` (regular).
  *
  * Errors:
+ * - 400 validation (Zod regex noHp E.164, email format)
  * - 401 "Hanya primary guardian yang boleh edit profile dependent ini."
- * - 400 "Target punya nomor HP sendiri — bukan dependent."
  * - 404 jemaat tidak ditemukan
+ * - 409 "Nomor HP / email sudah terdaftar di akun jemaat lain"
  */
 export type UpdateDependentProfilePayload = {
   namaLengkap?: string;
   tanggalLahir?: string | null;
   jenisKelamin?: 'L' | 'P' | null;
   alamat?: string | null;
+  /** E.164 format '+62...'. Per BE patch 22c. */
+  noHp?: string | null;
+  email?: string | null;
 };
 
 export function updateDependentProfile(
@@ -86,6 +98,8 @@ export function updateDependentProfile(
     jenisKelamin: 'L' | 'P' | null;
     alamat: string | null;
     fotoUrl: string | null;
+    noHp: string | null;
+    email: string | null;
   }>(`/admin/me/family/${jemaatId}/profile`, payload);
 }
 

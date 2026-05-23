@@ -900,7 +900,9 @@
   },
   "edit_profile": {
     "title_dependent": "Edit Profil — {{name}}",
-    "dependent_phone_pending": "Untuk add Nomor HP / email anggota keluarga (mis. anak yang sudah punya HP sendiri), fitur ini sedang menunggu update backend. Sementara hubungi admin cabang untuk update.",
+    "dependent_phone_helper_empty": "Optional — isi kalau anak / anggota dependent sudah punya HP sendiri. Setelah ditambahkan, mereka bisa login mandiri pakai OTP.",
+    "dependent_phone_helper_existing": "Nomor HP saat ini. Ganti kalau nomor HP berubah, atau kosongkan untuk hapus.",
+    "dependent_promoted": "Profil diperbarui. {{name}} sekarang bisa login mandiri pakai OTP ke nomor HP-nya.",
     "full_name": "Nama Lengkap",
     "email": "Email",
     "phone": "Nomor HP",

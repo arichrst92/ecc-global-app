@@ -900,7 +900,9 @@
   },
   "edit_profile": {
     "title_dependent": "Edit Profile — {{name}}",
-    "dependent_phone_pending": "Adding a phone number / email for a family member (e.g. a child who now has their own phone) is awaiting a backend update. For now, contact your branch admin to update.",
+    "dependent_phone_helper_empty": "Optional — fill in if the child / dependent now has their own phone. Once added, they can log in independently via OTP.",
+    "dependent_phone_helper_existing": "Current phone number. Change if it has been updated, or clear to remove.",
+    "dependent_promoted": "Profile updated. {{name}} can now log in independently via OTP to their phone.",
     "full_name": "Full Name",
     "email": "Email",
     "phone": "Phone Number",
