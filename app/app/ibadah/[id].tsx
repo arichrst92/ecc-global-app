@@ -16,9 +16,11 @@ export default function IbadahDetailScreen() {
   const { id, tanggal } = useLocalSearchParams<{ id: string; tanggal?: string }>();
   const lang = i18n.language;
 
+  // queryKey include tanggal supaya cache-aware per-occurrence (mis. petugas
+  // berbeda Minggu 17 Mei vs Minggu 24 Mei → 2 cache entries terpisah)
   const query = useQuery({
-    queryKey: ['ibadah', 'detail', id],
-    queryFn: () => getIbadahDetail(id),
+    queryKey: ['ibadah', 'detail', id, tanggal ?? null],
+    queryFn: () => getIbadahDetail(id, tanggal),
     enabled: !!id,
     staleTime: 5 * 60_000,
   });
@@ -126,7 +128,7 @@ export default function IbadahDetailScreen() {
               </View>
             </View>
 
-            {/* Petugas */}
+            {/* Petugas — per BE patch 23a tap nama → /jemaat/[id] view-only profile */}
             {ibadah.petugas && ibadah.petugas.length > 0 ? (
               <View className="bg-white rounded-2xl p-4 border border-neutral-100">
                 <View className="flex-row items-center gap-2 mb-3">
@@ -135,7 +137,11 @@ export default function IbadahDetailScreen() {
                 </View>
                 <View className="gap-2.5">
                   {ibadah.petugas.map((p) => (
-                    <View key={p.id} className="flex-row items-center gap-3">
+                    <Pressable
+                      key={p.id}
+                      onPress={() => router.push(`/jemaat/${p.jemaat.id}` as never)}
+                      className="flex-row items-center gap-3"
+                    >
                       <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl} size={32} />
                       <View className="flex-1">
                         <Text className="text-xs text-neutral-500">
@@ -143,7 +149,7 @@ export default function IbadahDetailScreen() {
                         </Text>
                         <Text className="text-sm font-medium text-neutral-900">{p.jemaat.namaLengkap}</Text>
                       </View>
-                    </View>
+                    </Pressable>
                   ))}
                 </View>
               </View>

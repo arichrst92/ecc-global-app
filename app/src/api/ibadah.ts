@@ -42,7 +42,14 @@ export function listIbadah(opts: ListOptions = {}) {
   return api.get<IbadahListItem[]>(`/admin/ibadah${query ? `?${query}` : ''}`);
 }
 
-/** GET /admin/ibadah/:id */
-export function getIbadahDetail(id: string) {
-  return api.get<IbadahDetail>(`/admin/ibadah/${id}`);
+/**
+ * GET /admin/ibadah/:id
+ * Per BE patch 2026-05-23a: optional `?tanggal=YYYY-MM-DD` untuk per-occurrence
+ * petugas override. Tanpa tanggal → return petugas default master schedule.
+ * Dengan tanggal → kalau ada override untuk tanggal itu, replace (bukan merge)
+ * default; kalau tidak ada → fallback ke default.
+ */
+export function getIbadahDetail(id: string, tanggal?: string) {
+  const query = tanggal ? `?tanggal=${tanggal}` : '';
+  return api.get<IbadahDetail>(`/admin/ibadah/${id}${query}`);
 }
