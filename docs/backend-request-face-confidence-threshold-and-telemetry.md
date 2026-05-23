@@ -112,17 +112,23 @@ Content-Type: application/json
 
 ### 2.3 Event types
 
-| Event | Trigger di mobile |
-|---|---|
-| `face_login_attempt` | User tap face login button (welcome / login screen) |
-| `face_login_liveness_pass` | LivenessChallenge.onSuccess() |
-| `face_login_liveness_fail` | LivenessChallenge fail dengan reason |
-| `face_login_descriptor_compute` | computeFaceDescriptor() return ok=true (success) atau ok=false (failure) |
-| `face_login_server_response` | faceLogin mutation onSuccess atau onError |
-| `face_enroll_attempt` | User tap "Aktifkan Login Wajah" di settings |
-| `face_enroll_complete` | enrollFace mutation success |
-| `face_enroll_fail` | enrollFace mutation error |
-| `face_nonce_request` | requestLivenessNonce success / fail |
+**Note (revised 2026-05-23)**: event names di-neutralisasi — shared events
+(`liveness`, `descriptor`, `nonce`) di-share antara login + enroll flow,
+dengan `flow: 'login' | 'enroll'` field di payload untuk disambiguate.
+Sebelumnya prefix `face_login_*` vs `face_enroll_*` di event name, sekarang
+prefix neutral + flow field.
+
+| Event | Flow field? | Trigger di mobile |
+|---|---|---|
+| `face_login_attempt` | always 'login' | User tap face login button (welcome / login screen) |
+| `face_login_server_response` | always 'login' | faceLogin mutation onSuccess atau onError |
+| `face_enroll_attempt` | always 'enroll' | User tap "Aktifkan Login Wajah" di settings |
+| `face_enroll_complete` | always 'enroll' | enrollFace mutation success |
+| `face_enroll_fail` | always 'enroll' | enrollFace mutation error |
+| `face_liveness_pass` | required login/enroll | LivenessChallenge.onSuccess() |
+| `face_liveness_fail` | required login/enroll | LivenessChallenge fail dengan reason |
+| `face_descriptor_compute` | required login/enroll | computeFaceDescriptor() return ok=true atau ok=false |
+| `face_nonce_request` | required login/enroll | requestLivenessNonce success / fail |
 
 ### 2.4 Sampling
 

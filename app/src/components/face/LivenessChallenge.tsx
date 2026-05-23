@@ -10,6 +10,8 @@ import {
 } from 'expo-camera';
 
 import { detectFaceWithLiveness } from '@/services/faceDescriptor';
+import { trackFaceEvent } from '@/services/telemetry';
+import type { FaceTelemetryFlow } from '@/types/telemetry';
 import { NonceCountdownBadge } from './NonceCountdownBadge';
 
 /**
@@ -58,6 +60,12 @@ type Props = {
    *  kalau berhasil, false kalau gagal — caller (FaceCapture parent) sudah
    *  show error toast. Pada V2 strict, false akan trigger cancel. */
   onRefreshNonce?: () => Promise<boolean>;
+  /** Telemetry session ID — correlate semua events dalam flow. */
+  telemetrySessionId?: string;
+  /** Flow context: login | enroll. */
+  telemetryFlow?: FaceTelemetryFlow;
+  /** Optional noHp untuk attach ke telemetry events. */
+  telemetryNoHp?: string;
 };
 
 // Thresholds — tuning notes:
@@ -76,6 +84,9 @@ export function LivenessChallenge({
   onCancel,
   nonceExpiresAt = null,
   onRefreshNonce,
+  telemetrySessionId,
+  telemetryFlow,
+  telemetryNoHp,
 }: Props) {
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
@@ -86,6 +97,9 @@ export function LivenessChallenge({
   const [errorDebug, setErrorDebug] = useState<string | undefined>(undefined);
   const [baselineEyeProb, setBaselineEyeProb] = useState<number | null>(null);
   const [refreshingNonce, setRefreshingNonce] = useState(false);
+  // Track total liveness duration untuk telemetry (set di runChallenge start,
+  // read di success/fail handlers).
+  const challengeStartedAt = useRef<number>(0);
 
   async function handleNonceExpired(): Promise<boolean> {
     if (!onRefreshNonce || refreshingNonce) return false;
@@ -140,6 +154,9 @@ export function LivenessChallenge({
   async function runChallenge() {
     setErrorReason(undefined);
     setErrorDebug(undefined);
+
+    // Track total duration dari Start tap sampai success / fail.
+    challengeStartedAt.current = Date.now();
 
     // === Step 1: Baseline (eyes open) ===
     setPhase('baseline');
@@ -200,6 +217,14 @@ export function LivenessChallenge({
 
     // === All passed ===
     setPhase('success');
+    trackFaceEvent({
+      sessionId: telemetrySessionId ?? '',
+      noHp: telemetryNoHp,
+      event: 'face_liveness_pass',
+      outcome: 'success',
+      flow: telemetryFlow,
+      durationMs: { livenessTotal: Date.now() - challengeStartedAt.current },
+    });
     // Small delay supaya user lihat "berhasil" check sebelum lanjut descriptor.
     await delay(400);
     onSuccess();
@@ -210,6 +235,15 @@ export function LivenessChallenge({
     setErrorDebug(debug);
     setPhase('failed');
     if (__DEV__) console.warn('[Liveness] failed:', reason, debug);
+    trackFaceEvent({
+      sessionId: telemetrySessionId ?? '',
+      noHp: telemetryNoHp,
+      event: 'face_liveness_fail',
+      outcome: 'failure',
+      flow: telemetryFlow,
+      failureReason: reason.toUpperCase(),
+      durationMs: { livenessTotal: Date.now() - challengeStartedAt.current },
+    });
   }
 
   function reset() {

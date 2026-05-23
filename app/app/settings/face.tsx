@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -17,6 +17,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useToast } from '@/components/ui/Toast';
 import { FaceCapture } from '@/components/face/FaceCapture';
 import { isFaceDescriptorReady } from '@/services/faceDescriptor';
+import { newTelemetrySessionId, trackFaceEvent } from '@/services/telemetry';
 import {
   FACE_CONSENT_VERSION,
   FACE_MODEL_VERSION,
@@ -48,21 +49,41 @@ export default function FaceSettingsScreen() {
   // expiresAt dipakai untuk countdown badge + auto-refresh on expiry.
   const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
   const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
+  // Telemetry session — mint baru tiap open flow (correlate events).
+  const [telemetrySessionId, setTelemetrySessionId] = useState<string>('');
 
   /** Request fresh nonce. Return true on success, false on failure.
    *  V2 strict (post 2026-06-01): nonce REQUIRED — openEnrollCapture return
    *  early kalau ini false. Toast error sudah di-show di sini. */
-  async function fetchNonce(): Promise<boolean> {
+  async function fetchNonce(sessionId: string): Promise<boolean> {
     if (!user?.noHp) return false;
+    const startedAt = Date.now();
     try {
       const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'ENROLL' });
       setLivenessNonce(res.nonce);
       setLivenessNonceExpiresAt(res.expiresAt);
+      trackFaceEvent({
+        sessionId,
+        noHp: user.noHp,
+        event: 'face_nonce_request',
+        outcome: 'success',
+        flow: 'enroll',
+        durationMs: { nonceRoundtrip: Date.now() - startedAt },
+      });
       return true;
-    } catch {
+    } catch (err) {
       setLivenessNonce(null);
       setLivenessNonceExpiresAt(null);
       showToast(t('face.error_nonce_request_failed'), 'error');
+      trackFaceEvent({
+        sessionId,
+        noHp: user.noHp,
+        event: 'face_nonce_request',
+        outcome: 'failure',
+        flow: 'enroll',
+        failureReason: err instanceof ApiError ? err.code : 'NETWORK_ERROR',
+        durationMs: { nonceRoundtrip: Date.now() - startedAt },
+      });
       return false;
     }
   }
@@ -79,15 +100,27 @@ export default function FaceSettingsScreen() {
     queryFn: getFaceProfile,
   });
 
+  const enrollServerStartedAt = useRef<number>(0);
+
   const enrollMutation = useMutation({
-    mutationFn: (payload: FaceEnrollPayload) =>
-      captureOpen === 'update' ? updateFaceProfile(payload) : enrollFace(payload),
+    mutationFn: (payload: FaceEnrollPayload) => {
+      enrollServerStartedAt.current = Date.now();
+      return captureOpen === 'update' ? updateFaceProfile(payload) : enrollFace(payload);
+    },
     onSuccess: async () => {
       showToast(t('face.enroll_success'), 'success');
       await setFaceEnrolledHint(true);
       await qc.invalidateQueries({ queryKey: ['face-profile-status'] });
       setCaptureOpen(false);
       setConsentChecked(false);
+      trackFaceEvent({
+        sessionId: telemetrySessionId,
+        noHp: user?.noHp,
+        event: 'face_enroll_complete',
+        outcome: 'success',
+        flow: 'enroll',
+        durationMs: { serverRoundtrip: Date.now() - enrollServerStartedAt.current },
+      });
     },
     onError: (err) => {
       // Reset nonce supaya retry pakai fresh one
@@ -104,6 +137,15 @@ export default function FaceSettingsScreen() {
       } else {
         showToast(t('error.network'), 'error');
       }
+      trackFaceEvent({
+        sessionId: telemetrySessionId,
+        noHp: user?.noHp,
+        event: 'face_enroll_fail',
+        outcome: 'failure',
+        flow: 'enroll',
+        failureReason: err instanceof ApiError ? err.code : 'NETWORK_ERROR',
+        durationMs: { serverRoundtrip: Date.now() - enrollServerStartedAt.current },
+      });
     },
   });
 
@@ -138,7 +180,17 @@ export default function FaceSettingsScreen() {
       showToast(t('face.error_no_phone_hint'), 'error');
       return;
     }
-    const ok = await fetchNonce();
+    // Mint sessionId baru untuk correlate events downstream.
+    const sid = newTelemetrySessionId();
+    setTelemetrySessionId(sid);
+    trackFaceEvent({
+      sessionId: sid,
+      noHp: user.noHp,
+      event: 'face_enroll_attempt',
+      outcome: 'success',
+      flow: 'enroll',
+    });
+    const ok = await fetchNonce(sid);
     if (!ok) return;
     setCaptureOpen(mode);
   }
@@ -287,7 +339,10 @@ export default function FaceSettingsScreen() {
             onCancel={() => setCaptureOpen(false)}
             requireLiveness
             nonceExpiresAt={livenessNonceExpiresAt}
-            onRefreshNonce={fetchNonce}
+            onRefreshNonce={() => fetchNonce(telemetrySessionId)}
+            telemetrySessionId={telemetrySessionId}
+            telemetryFlow="enroll"
+            telemetryNoHp={user?.noHp}
           />
         ) : null}
       </Modal>

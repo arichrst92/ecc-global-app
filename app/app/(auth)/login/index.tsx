@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -20,6 +20,7 @@ import { useToast } from '@/components/ui/Toast';
 import { faceLogin, requestLivenessNonce, requestOtp } from '@/api/auth';
 import { FaceCapture } from '@/components/face/FaceCapture';
 import { isFaceDescriptorReady } from '@/services/faceDescriptor';
+import { newTelemetrySessionId, trackFaceEvent } from '@/services/telemetry';
 import { useAuthStore } from '@/stores/auth.store';
 import { normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
@@ -70,8 +71,14 @@ export default function LoginPhoneScreen() {
     },
   });
 
+  // Track /face/login roundtrip duration untuk telemetry.
+  const serverRequestStartedAt = useRef<number>(0);
+
   const faceLoginMutation = useMutation({
-    mutationFn: (payload: FaceLoginPayload) => faceLogin(payload),
+    mutationFn: (payload: FaceLoginPayload) => {
+      serverRequestStartedAt.current = Date.now();
+      return faceLogin(payload);
+    },
     onSuccess: async (data: FaceLoginResponse) => {
       await login(data.accessToken, data.refreshToken, data.user);
       // Persist hint supaya Welcome quick-login bisa show face button next time
@@ -82,12 +89,30 @@ export default function LoginPhoneScreen() {
       } else {
         showToast(t('auth.login_success'), 'success');
       }
+      trackFaceEvent({
+        sessionId: telemetrySessionId,
+        noHp: normalizePhone(phone) ?? undefined,
+        event: 'face_login_server_response',
+        outcome: 'success',
+        flow: 'login',
+        confidence: data.confidence,
+        durationMs: { serverRoundtrip: Date.now() - serverRequestStartedAt.current },
+      });
     },
     onError: (err) => {
       setCaptureOpen(false);
       // Reset nonce supaya retry langsung request fresh one
       setLivenessNonce(null);
       setLivenessNonceExpiresAt(null);
+      trackFaceEvent({
+        sessionId: telemetrySessionId,
+        noHp: normalizePhone(phone) ?? undefined,
+        event: 'face_login_server_response',
+        outcome: 'failure',
+        flow: 'login',
+        failureReason: err instanceof ApiError ? err.code : 'NETWORK_ERROR',
+        durationMs: { serverRoundtrip: Date.now() - serverRequestStartedAt.current },
+      });
       if (err instanceof ApiError) {
         const code = err.code.toLowerCase();
         if (code === 'face_not_enrolled') {
@@ -127,22 +152,42 @@ export default function LoginPhoneScreen() {
   // expiresAt dipakai untuk countdown badge di FaceCapture/LivenessChallenge.
   const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
   const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
+  // Telemetry session — mint baru tiap open flow (correlate events).
+  const [telemetrySessionId, setTelemetrySessionId] = useState<string>('');
 
   /** Request fresh nonce. Return true on success, false on failure.
    *  V2 strict (post 2026-06-01): nonce REQUIRED — startFaceLogin return early
    *  kalau ini false. Toast error sudah di-show di sini. */
-  async function fetchNonce(e164?: string): Promise<boolean> {
+  async function fetchNonce(sessionId: string, e164?: string): Promise<boolean> {
     const phoneNumber = e164 ?? normalizePhone(phone);
     if (!phoneNumber) return false;
+    const startedAt = Date.now();
     try {
       const res = await requestLivenessNonce({ noHp: phoneNumber, purpose: 'LOGIN' });
       setLivenessNonce(res.nonce);
       setLivenessNonceExpiresAt(res.expiresAt);
+      trackFaceEvent({
+        sessionId,
+        noHp: phoneNumber,
+        event: 'face_nonce_request',
+        outcome: 'success',
+        flow: 'login',
+        durationMs: { nonceRoundtrip: Date.now() - startedAt },
+      });
       return true;
-    } catch {
+    } catch (err) {
       setLivenessNonce(null);
       setLivenessNonceExpiresAt(null);
       showToast(t('face.error_nonce_request_failed'), 'error');
+      trackFaceEvent({
+        sessionId,
+        noHp: phoneNumber,
+        event: 'face_nonce_request',
+        outcome: 'failure',
+        flow: 'login',
+        failureReason: err instanceof ApiError ? err.code : 'NETWORK_ERROR',
+        durationMs: { nonceRoundtrip: Date.now() - startedAt },
+      });
       return false;
     }
   }
@@ -154,7 +199,17 @@ export default function LoginPhoneScreen() {
       setError(t('auth.error_invalid_phone'));
       return;
     }
-    const ok = await fetchNonce(e164);
+    // Mint sessionId baru untuk correlate events downstream.
+    const sid = newTelemetrySessionId();
+    setTelemetrySessionId(sid);
+    trackFaceEvent({
+      sessionId: sid,
+      noHp: e164,
+      event: 'face_login_attempt',
+      outcome: 'success',
+      flow: 'login',
+    });
+    const ok = await fetchNonce(sid, e164);
     if (!ok) return; // V2 strict: jangan buka capture tanpa nonce
     setCaptureOpen(true);
   }
@@ -266,7 +321,10 @@ export default function LoginPhoneScreen() {
             onCancel={() => setCaptureOpen(false)}
             requireLiveness
             nonceExpiresAt={livenessNonceExpiresAt}
-            onRefreshNonce={() => fetchNonce()}
+            onRefreshNonce={() => fetchNonce(telemetrySessionId)}
+            telemetrySessionId={telemetrySessionId}
+            telemetryFlow="login"
+            telemetryNoHp={normalizePhone(phone) ?? undefined}
           />
         ) : null}
       </Modal>

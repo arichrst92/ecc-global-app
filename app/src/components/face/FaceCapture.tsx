@@ -13,6 +13,8 @@ import {
   computeFaceDescriptor,
   isFaceDescriptorReady,
 } from '@/services/faceDescriptor';
+import { trackFaceEvent } from '@/services/telemetry';
+import type { FaceTelemetryFlow } from '@/types/telemetry';
 import { LivenessChallenge } from './LivenessChallenge';
 import { NonceCountdownBadge } from './NonceCountdownBadge';
 
@@ -30,6 +32,14 @@ type Props = {
    *  kalau berhasil dapat nonce baru, false kalau gagal. Pada V2 strict, false
    *  akan trigger onCancel() — tidak boleh proceed tanpa nonce. */
   onRefreshNonce?: () => Promise<boolean>;
+  /** Telemetry session ID — correlate semua events dalam flow. Empty string
+   *  kalau caller belum mint (telemetry akan skip). */
+  telemetrySessionId?: string;
+  /** Flow context untuk telemetry events: login | enroll. */
+  telemetryFlow?: FaceTelemetryFlow;
+  /** Optional noHp untuk attach ke telemetry events (mobile-side; BE side
+   *  pakai untuk correlate dengan user kalau available). */
+  telemetryNoHp?: string;
 };
 
 /**
@@ -53,6 +63,9 @@ export function FaceCapture({
   requireLiveness = false,
   nonceExpiresAt = null,
   onRefreshNonce,
+  telemetrySessionId,
+  telemetryFlow,
+  telemetryNoHp,
 }: Props) {
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
@@ -131,8 +144,18 @@ export function FaceCapture({
         console.log('[FaceCapture] photo uri:', photo.uri);
       }
 
+      const computeStartedAt = Date.now();
       const result = await computeFaceDescriptor(photo.uri);
+      const computeDuration = Date.now() - computeStartedAt;
       if (result.ok) {
+        trackFaceEvent({
+          sessionId: telemetrySessionId ?? '',
+          noHp: telemetryNoHp,
+          event: 'face_descriptor_compute',
+          outcome: 'success',
+          flow: telemetryFlow,
+          durationMs: { descriptorCompute: computeDuration },
+        });
         onSuccess(result.descriptor);
       } else {
         setErrorReason(result.reason);
@@ -140,6 +163,15 @@ export function FaceCapture({
         if (__DEV__) {
           console.warn('[FaceCapture] compute failed:', result.reason, result.message);
         }
+        trackFaceEvent({
+          sessionId: telemetrySessionId ?? '',
+          noHp: telemetryNoHp,
+          event: 'face_descriptor_compute',
+          outcome: 'failure',
+          flow: telemetryFlow,
+          failureReason: result.reason.toUpperCase(),
+          durationMs: { descriptorCompute: computeDuration },
+        });
         setPhase('error');
       }
     } catch (e) {
@@ -167,6 +199,9 @@ export function FaceCapture({
         onCancel={onCancel}
         nonceExpiresAt={nonceExpiresAt}
         onRefreshNonce={onRefreshNonce}
+        telemetrySessionId={telemetrySessionId}
+        telemetryFlow={telemetryFlow}
+        telemetryNoHp={telemetryNoHp}
       />
     );
   }
