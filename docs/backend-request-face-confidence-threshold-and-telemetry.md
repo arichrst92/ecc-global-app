@@ -1,0 +1,221 @@
+# Backend Request: Face Login Confidence Threshold + Telemetry Endpoint
+
+**Untuk**: Tim Backend ECC (Claude session)
+**Dari**: Mobile dev (Ari Christian)
+**Tanggal**: 2026-05-23
+**Priority**: 🟡 **MEDIUM** — pre-public-release coordination, blocker untuk pilot rollout judgment
+**Status**: 📝 **PROPOSED** — menunggu BE response
+
+## TL;DR
+
+Mobile sudah selesai wire face login end-to-end (MobileFaceNet 128-dim + ML Kit blink liveness + HMAC nonce). Sebelum public release, ada 2 unknown yang perlu BE answer:
+
+1. **Confidence threshold alignment** — mobile hardcoded `confidence < 0.7 → show low_confidence_warn toast` di `app/(auth)/welcome.tsx` dan `app/(auth)/login/index.tsx`. Tidak tahu apakah 0.7 ini consistent dengan threshold yang server pakai untuk accept/reject match. Kalau server pakai threshold lebih tinggi (mis. 0.85), maka di range 0.7-0.85 server reject FACE_NO_MATCH padahal mobile akan tampilkan "success but low confidence" — UI tidak pernah trigger karena fail dulu di server. Kalau server pakai threshold lebih rendah (0.55), maka user dengan cosine 0.6 akan login sukses tanpa warning padahal harusnya warning.
+
+2. **Telemetry endpoint** — pilot rollout 10-20 jemaat butuh metric: berapa % face login attempt sukses, berapa % gagal di liveness, berapa % gagal di FACE_NO_MATCH, latency p50/p95. Tanpa data ini, sulit decide kapan ready public release atau apakah perlu tune threshold/UX. Mobile butuh endpoint untuk push event, atau BE expose dashboard untuk read internal log.
+
+---
+
+## 1. Confidence Threshold
+
+### 1.1 Current mobile state
+
+`app/(auth)/login/index.tsx` line 80-82:
+```typescript
+onSuccess: async (data: FaceLoginResponse) => {
+  await login(data.accessToken, data.refreshToken, data.user);
+  if (data.confidence < 0.7) {
+    showToast(t('face.low_confidence_warn'), 'info');
+  } else {
+    showToast(t('auth.login_success'), 'success');
+  }
+}
+```
+
+Toast text (id.json):
+```
+"low_confidence_warn": "Login berhasil (confidence rendah). Pertimbangkan re-enroll wajah."
+```
+
+Value 0.7 picked dari mobile-side intuition saja — bukan dari BE coordination. Mobile pilot tidak tahu apakah ini consistent dengan server decision boundary.
+
+### 1.2 Pertanyaan ke BE
+
+**Q1**: Apa cosine similarity threshold yang `POST /auth/face/login` pakai untuk decide accept (return 200) vs reject (return 401 FACE_NO_MATCH)?
+
+Asumsi mobile: server compute `cosine = dot(storedDescriptor, submittedDescriptor)` (karena keduanya L2-normalized di mobile), lalu accept kalau `cosine >= ACCEPT_THRESHOLD`. Mohon konfirmasi:
+- Value `ACCEPT_THRESHOLD` di production
+- Apakah ada dynamic threshold (mis. tighter untuk admin role, looser untuk jemaat biasa)?
+- Apakah hardcoded di env var, di DB config table, atau di code?
+
+**Q2**: `confidence` field di `FaceLoginResponse` itu nilainya cosine similarity raw, atau dinormalisasi 0..1 dari range cosine `[ACCEPT_THRESHOLD..1.0]`?
+
+Mobile pakai assumption naive `confidence = cosine ∈ [-1..1]`, tapi karena rejected sudah filtered di server, value yang sampai ke mobile pasti ≥ ACCEPT_THRESHOLD. Kalau confidence = cosine raw + ACCEPT_THRESHOLD = 0.6, maka range yang mobile lihat = [0.6..1.0]. Threshold 0.7 di mobile sebenarnya = (0.7 - 0.6) / (1.0 - 0.6) = 0.25 dari range, alias bottom quarter dari accepted range. Apakah ini reasonable, atau perlu adjust?
+
+**Q3**: BE recommend value mobile-side untuk `low_confidence_warn` threshold? Kalau mobile-side warning ini ada efek nyata (mis. user re-enroll → improve precision di future logins), maka penting set value benar. Kalau BE prefer warning yang mostly silent (only warn untuk top 5% worst matches), threshold harus lebih dekat ke ACCEPT_THRESHOLD.
+
+**Q4**: Apakah BE planning expose threshold via `/public/app-config` atau similar config endpoint? Supaya mobile tidak perlu hardcode + bisa BE tune tanpa app update. Lebih ideal kalau ya.
+
+### 1.3 Decision matrix
+
+Setelah BE answer, mobile akan:
+- **Kalau BE return cosine raw**: mobile compute `displayPct = (confidence - ACCEPT_THRESHOLD) / (1 - ACCEPT_THRESHOLD)` untuk normalize ke 0-100% range untuk UI.
+- **Kalau BE return normalized**: mobile pakai langsung.
+- **Kalau BE expose threshold via config endpoint**: mobile fetch on splash + cache, tidak hardcode.
+
+---
+
+## 2. Telemetry Endpoint
+
+### 2.1 Use case
+
+Pilot rollout butuh visibility:
+- Funnel: open face screen → liveness pass → descriptor compute → server accept
+- Failure breakdown by reason (liveness no_blink, FACE_NO_MATCH, FACE_NOT_ENROLLED, LIVENESS_NONCE_EXPIRED, network timeout)
+- Latency p50/p95 per step (liveness frames, descriptor compute, server roundtrip)
+- Device segment (iOS/Android, model, OS version)
+- Threshold tuning data: distribusi `confidence` di successful logins vs near-rejected
+
+Tanpa data ini, judgment "ready public release?" jadi feeling-based. Ari mau decision data-backed.
+
+### 2.2 Propose: `POST /auth/face/telemetry`
+
+```http
+POST /auth/face/telemetry
+Content-Type: application/json
+(no auth — sampling, anonymous)
+
+{
+  "sessionId": "uuid-from-mobile",     // group events dalam 1 flow
+  "noHp": "+6281234567890",            // optional, kalau available
+  "event": "face_login_attempt",       // event type, lihat below
+  "outcome": "success" | "failure",
+  "failureReason": "liveness_no_blink" | "face_no_match" | "...",
+  "confidence": 0.83,                   // hanya kalau outcome=success
+  "durationMs": {
+    "livenessTotal": 2840,
+    "descriptorCompute": 920,
+    "serverRoundtrip": 410
+  },
+  "device": {
+    "platform": "ios" | "android",
+    "model": "iPhone 14 Pro",
+    "osVersion": "17.4",
+    "appVersion": "0.1.0",
+    "modelVersion": "mobilefacenet-v1"
+  },
+  "timestamp": "2026-05-23T10:30:00Z"
+}
+```
+
+**Response 200**: `{ "success": true }` (fire-and-forget, mobile tidak perlu retry).
+
+### 2.3 Event types
+
+| Event | Trigger di mobile |
+|---|---|
+| `face_login_attempt` | User tap face login button (welcome / login screen) |
+| `face_login_liveness_pass` | LivenessChallenge.onSuccess() |
+| `face_login_liveness_fail` | LivenessChallenge fail dengan reason |
+| `face_login_descriptor_compute` | computeFaceDescriptor() return ok=true (success) atau ok=false (failure) |
+| `face_login_server_response` | faceLogin mutation onSuccess atau onError |
+| `face_enroll_attempt` | User tap "Aktifkan Login Wajah" di settings |
+| `face_enroll_complete` | enrollFace mutation success |
+| `face_enroll_fail` | enrollFace mutation error |
+| `face_nonce_request` | requestLivenessNonce success / fail |
+
+### 2.4 Sampling
+
+Mobile akan sample 100% selama pilot (10-20 user, low volume). Setelah public release, sampling reduce ke 10-20% untuk control bandwidth + BE storage. Mau BE setting sampling rate via `/public/app-config` supaya tune-able tanpa app update.
+
+### 2.5 Privacy considerations
+
+- **Tidak kirim descriptor** (biometric data) — hanya outcome + confidence number.
+- **`noHp` optional** — pilot mau correlate dengan user identity untuk debug. Setelah pilot, mungkin drop atau hash. Mau BE direction PDP Law compliance: noHp di telemetry table termasuk PII di scope right-to-delete?
+- **Retention**: usul 90 hari untuk pilot insight, lalu purge auto.
+
+### 2.6 Alternative — BE-side log instead
+
+Kalau bikin endpoint baru terlalu heavy untuk pilot, BE bisa:
+- Log structured JSON di `POST /auth/face/login` handler dengan field outcome/confidence/duration
+- Mobile pass headers tambahan untuk context: `X-App-Version`, `X-Device-Platform`, `X-Liveness-Duration-Ms`
+- BE aggregate via Loki / log search → expose dashboard internal di portal
+
+Approach mana lebih realistic? Mobile-side mau implement based on BE preference.
+
+### 2.7 Backwards compat
+
+Endpoint baru — no impact ke existing flow. Mobile akan implement guarded:
+- Kalau `POST /auth/face/telemetry` return 404 (BE belum implement) → mobile silent drop, tidak retry, tidak block flow.
+- Kalau timeout > 2s → drop, tidak block (telemetry non-critical).
+
+---
+
+## 3. Schema impact
+
+### Confidence threshold question
+- Tidak ada migration kalau hanya disclose existing value.
+- Kalau BE setuju expose via config endpoint → schema baru `app_config` table atau extend existing.
+
+### Telemetry endpoint
+- Table baru `face_telemetry_event`:
+  ```
+  id              uuid PK
+  sessionId       uuid (indexed for funnel queries)
+  noHp            varchar nullable
+  event           varchar
+  outcome         varchar
+  failureReason   varchar nullable
+  confidence      float nullable
+  durationMs      jsonb
+  device          jsonb
+  timestamp       timestamptz (indexed)
+  createdAt       timestamptz default now()
+  ```
+- Retention policy: cron auto-purge `WHERE timestamp < now() - interval '90 days'` daily.
+- Index pada `(event, timestamp)` untuk dashboard query.
+
+---
+
+## 4. Action items BE
+
+### Confidence threshold
+- [ ] Konfirmasi current production `ACCEPT_THRESHOLD` di handler `/auth/face/login`
+- [ ] Konfirmasi format `confidence` di response (raw cosine atau normalized)
+- [ ] Recommend mobile-side `low_confidence_warn` threshold value
+- [ ] (Optional) Expose threshold via `/public/app-config` endpoint untuk hot-tune
+
+### Telemetry
+- [ ] Pilih approach: dedicated endpoint vs structured log + header pattern
+- [ ] Kalau dedicated endpoint: confirm schema + create migration + handler
+- [ ] Set retention policy (usul 90 hari)
+- [ ] (Optional) Expose pilot dashboard di portal Admin → Diagnostics → Face Login
+
+### Timeline preference
+
+Pilot rollout tentative 2026-06-08 (3 minggu dari sekarang setelah V2 nonce cutover 06-01 stable). Confidence threshold answer + telemetry decision ideal sebelum pilot start supaya data tracking aktif dari attempt #1.
+
+---
+
+## 5. Test cases yang patut di-coba
+
+1. **Threshold edge case**: enroll dengan low-quality reference (poor lighting), login dengan high-quality. Confidence yang muncul di response, mobile UI handling reasonable?
+2. **Telemetry endpoint**: bombard dengan 100 req/min dari single client, BE rate limit handling
+3. **Privacy**: query DB face_telemetry_event filter by noHp = '+62xxx', confirm DELETE user via right-to-delete propagate ke telemetry table juga
+4. **Sampling rate change**: BE update `/public/app-config` `telemetrySamplingRate: 0.1`, mobile next call respect new rate
+
+---
+
+## 6. Related docs
+
+- `docs/backend-request-face-recognition.md` — original face endpoint spec (resolved)
+- `docs/backend-request-face-recognition-v2-mobilefacenet.md` — descriptor model decision (resolved)
+- `docs/backend-request-face-recognition-v2-mobilefacenet-dim-correction.md` — 192→128 dim fix (resolved)
+- `docs/backend-request-liveness-nonce.md` — server-side gate (resolved)
+- `docs/production-launch-brief-2026-05-23.md` — domain switch context
+
+---
+
+## 7. Backend Response
+
+*(diisi oleh BE setelah review)*
