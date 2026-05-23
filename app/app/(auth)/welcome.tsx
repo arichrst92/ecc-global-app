@@ -106,16 +106,21 @@ export default function WelcomeScreen() {
   const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
   const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
 
-  async function fetchNonce(): Promise<void> {
-    if (!user?.noHp) return;
-    // V1 grace: kalau request gagal, tetap proceed (BE log warn).
+  /** Request fresh liveness nonce. Return true on success, false on failure.
+   *  V2 strict (post 2026-06-01): nonce REQUIRED — caller harus return early
+   *  kalau ini return false (jangan buka face capture tanpa nonce). */
+  async function fetchNonce(): Promise<boolean> {
+    if (!user?.noHp) return false;
     try {
       const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'LOGIN' });
       setLivenessNonce(res.nonce);
       setLivenessNonceExpiresAt(res.expiresAt);
+      return true;
     } catch {
       setLivenessNonce(null);
       setLivenessNonceExpiresAt(null);
+      showToast(t('face.error_nonce_request_failed'), 'error');
+      return false;
     }
   }
 
@@ -124,7 +129,8 @@ export default function WelcomeScreen() {
       showToast(t('face.error_no_phone_hint'), 'error');
       return;
     }
-    await fetchNonce();
+    const ok = await fetchNonce();
+    if (!ok) return; // V2 strict: tidak boleh buka capture tanpa nonce
     setCaptureOpen(true);
   }
 

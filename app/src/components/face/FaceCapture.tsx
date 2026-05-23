@@ -26,8 +26,10 @@ type Props = {
   /** ISO expiry timestamp dari liveness nonce. Null = V1 grace mode tanpa nonce. */
   nonceExpiresAt?: string | null;
   /** Dipanggil saat nonce expired atau saat retry — caller harus request nonce
-   *  baru via /auth/face/liveness-nonce dan update nonceExpiresAt. */
-  onRefreshNonce?: () => Promise<void>;
+   *  baru via /auth/face/liveness-nonce dan update nonceExpiresAt. Return true
+   *  kalau berhasil dapat nonce baru, false kalau gagal. Pada V2 strict, false
+   *  akan trigger onCancel() — tidak boleh proceed tanpa nonce. */
+  onRefreshNonce?: () => Promise<boolean>;
 };
 
 /**
@@ -68,7 +70,12 @@ export function FaceCapture({
     if (!onRefreshNonce || refreshingNonce) return;
     setRefreshingNonce(true);
     try {
-      await onRefreshNonce();
+      const ok = await onRefreshNonce();
+      // V2 strict: kalau refresh gagal, tidak boleh proceed — caller sudah
+      // show error toast via fetchNonce. Auto-cancel modal.
+      if (!ok) {
+        onCancel();
+      }
     } finally {
       setRefreshingNonce(false);
     }

@@ -863,6 +863,7 @@
     "nonce_remaining": "Valid {{time}}",
     "nonce_expired": "Session expired",
     "nonce_refreshing": "Refreshing...",
+    "error_nonce_request_failed": "Cannot start face verification. Check your internet connection and try again.",
     "camera_permission_blocked_body": "Camera permission blocked. Open Settings to enable it manually.",
     "camera_permission_open_settings": "Open Settings"
   },

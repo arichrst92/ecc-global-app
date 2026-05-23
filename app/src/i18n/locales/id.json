@@ -863,6 +863,7 @@
     "nonce_remaining": "Berlaku {{time}}",
     "nonce_expired": "Sesi kadaluarsa",
     "nonce_refreshing": "Memperbarui...",
+    "error_nonce_request_failed": "Tidak bisa mulai verifikasi wajah. Periksa koneksi internet dan coba lagi.",
     "camera_permission_blocked_body": "Izin kamera diblokir. Buka Pengaturan untuk mengaktifkannya secara manual.",
     "camera_permission_open_settings": "Buka Pengaturan"
   },

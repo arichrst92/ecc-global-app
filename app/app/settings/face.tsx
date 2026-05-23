@@ -49,17 +49,21 @@ export default function FaceSettingsScreen() {
   const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
   const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
 
-  /** Request fresh nonce. Dipanggil saat openEnrollCapture + dari FaceCapture
-   *  saat countdown expire atau retry. */
-  async function fetchNonce(): Promise<void> {
-    if (!user?.noHp) return;
+  /** Request fresh nonce. Return true on success, false on failure.
+   *  V2 strict (post 2026-06-01): nonce REQUIRED — openEnrollCapture return
+   *  early kalau ini false. Toast error sudah di-show di sini. */
+  async function fetchNonce(): Promise<boolean> {
+    if (!user?.noHp) return false;
     try {
       const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'ENROLL' });
       setLivenessNonce(res.nonce);
       setLivenessNonceExpiresAt(res.expiresAt);
+      return true;
     } catch {
       setLivenessNonce(null);
       setLivenessNonceExpiresAt(null);
+      showToast(t('face.error_nonce_request_failed'), 'error');
+      return false;
     }
   }
 
@@ -128,13 +132,14 @@ export default function FaceSettingsScreen() {
   }
 
   // Open capture wrapper — request liveness nonce (purpose=ENROLL) sebelum show UI.
-  // V1 grace: kalau gagal proceed tanpa nonce (BE log warn).
+  // V2 strict: kalau fetchNonce gagal, jangan lanjut (error toast sudah show).
   async function openEnrollCapture(mode: 'enroll' | 'update') {
     if (!user?.noHp) {
       showToast(t('face.error_no_phone_hint'), 'error');
       return;
     }
-    await fetchNonce();
+    const ok = await fetchNonce();
+    if (!ok) return;
     setCaptureOpen(mode);
   }
 

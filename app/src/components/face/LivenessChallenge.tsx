@@ -54,8 +54,10 @@ type Props = {
   /** ISO expiry liveness nonce — kalau ada, render countdown badge top-center. */
   nonceExpiresAt?: string | null;
   /** Callback untuk request nonce baru. Dipanggil saat countdown expire +
-   *  saat user tap Try Again (supaya retry pakai fresh nonce). */
-  onRefreshNonce?: () => Promise<void>;
+   *  saat user tap Try Again (supaya retry pakai fresh nonce). Return true
+   *  kalau berhasil, false kalau gagal — caller (FaceCapture parent) sudah
+   *  show error toast. Pada V2 strict, false akan trigger cancel. */
+  onRefreshNonce?: () => Promise<boolean>;
 };
 
 // Thresholds — tuning notes:
@@ -85,11 +87,16 @@ export function LivenessChallenge({
   const [baselineEyeProb, setBaselineEyeProb] = useState<number | null>(null);
   const [refreshingNonce, setRefreshingNonce] = useState(false);
 
-  async function handleNonceExpired() {
-    if (!onRefreshNonce || refreshingNonce) return;
+  async function handleNonceExpired(): Promise<boolean> {
+    if (!onRefreshNonce || refreshingNonce) return false;
     setRefreshingNonce(true);
     try {
-      await onRefreshNonce();
+      const ok = await onRefreshNonce();
+      // V2 strict: kalau refresh gagal, tidak boleh proceed.
+      if (!ok) {
+        onCancel();
+      }
+      return ok;
     } finally {
       setRefreshingNonce(false);
     }
@@ -370,9 +377,11 @@ export function LivenessChallenge({
                 reset();
                 // Refresh nonce sebelum retry — nonce mungkin sudah consumed atau
                 // mendekati expire. Tunggu refresh selesai supaya challenge run
-                // dengan nonce fresh.
+                // dengan nonce fresh. V2 strict: kalau refresh gagal,
+                // handleNonceExpired akan auto-call onCancel — jangan lanjut.
                 if (onRefreshNonce) {
-                  await handleNonceExpired();
+                  const ok = await handleNonceExpired();
+                  if (!ok) return;
                 }
                 runChallenge();
               }}

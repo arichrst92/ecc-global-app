@@ -128,19 +128,22 @@ export default function LoginPhoneScreen() {
   const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
   const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
 
-  /** Request fresh nonce. Dipanggil saat open + saat countdown expire/retry. */
-  async function fetchNonce(e164?: string): Promise<void> {
+  /** Request fresh nonce. Return true on success, false on failure.
+   *  V2 strict (post 2026-06-01): nonce REQUIRED — startFaceLogin return early
+   *  kalau ini false. Toast error sudah di-show di sini. */
+  async function fetchNonce(e164?: string): Promise<boolean> {
     const phoneNumber = e164 ?? normalizePhone(phone);
-    if (!phoneNumber) return;
+    if (!phoneNumber) return false;
     try {
       const res = await requestLivenessNonce({ noHp: phoneNumber, purpose: 'LOGIN' });
       setLivenessNonce(res.nonce);
       setLivenessNonceExpiresAt(res.expiresAt);
+      return true;
     } catch {
-      // V1 grace — proceed tanpa nonce. BE log warn. Setelah V2 cutover ini
-      // akan jadi hard fail; saat itu replace dengan setError + return.
       setLivenessNonce(null);
       setLivenessNonceExpiresAt(null);
+      showToast(t('face.error_nonce_request_failed'), 'error');
+      return false;
     }
   }
 
@@ -151,7 +154,8 @@ export default function LoginPhoneScreen() {
       setError(t('auth.error_invalid_phone'));
       return;
     }
-    await fetchNonce(e164);
+    const ok = await fetchNonce(e164);
+    if (!ok) return; // V2 strict: jangan buka capture tanpa nonce
     setCaptureOpen(true);
   }
 
