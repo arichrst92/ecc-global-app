@@ -20,7 +20,10 @@ export function useAppConfig(): { data: AppConfig; isLoading: boolean } {
     queryFn: getAppConfig,
     staleTime: ONE_HOUR_MS,
     refetchOnWindowFocus: true,
-    retry: 1,
+    // retry 0 — kalau gagal, fallback ke APP_CONFIG_DEFAULTS langsung.
+    // Retry tidak menambah value (defaults sudah safe) tapi spam network +
+    // error logs. Next refetch (window focus / 1h stale) akan coba lagi.
+    retry: false,
   });
   return {
     data: query.data ?? APP_CONFIG_DEFAULTS,
