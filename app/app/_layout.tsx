@@ -1,6 +1,7 @@
 import '../global.css';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -32,6 +33,7 @@ import {
   shouldRetryMutation,
   shouldRetryQuery,
 } from '@/lib/retryPolicy';
+import { createQueryPersister, persistOptions } from '@/lib/queryPersistence';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -39,10 +41,15 @@ SplashScreen.preventAutoHideAsync();
 
 // Smart retry policy: 4xx no retry (client bug), 5xx + network with exponential
 // backoff + jitter. Lihat src/lib/retryPolicy.ts untuk classification rules.
+//
+// gcTime 25 jam — perlu lebih lama dari maxAge persist (24 jam) supaya React
+// Query tidak garbage-collect query yang sedang di-persist. Otherwise pas
+// restore, query yang baru di-write akan langsung di-evict.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60_000,
+      gcTime: 25 * 60 * 60 * 1000,
       retry: shouldRetryQuery,
       retryDelay: retryBackoffDelay,
       refetchOnWindowFocus: false,
@@ -53,6 +60,10 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Persister singleton — survive cache to AsyncStorage. Lihat
+// src/lib/queryPersistence.ts untuk exclusion logic + maxAge config.
+const queryPersister = createQueryPersister();
 
 // Initialize Sentry (no-op kalau EXPO_PUBLIC_SENTRY_DSN tidak set).
 // Async tapi kita fire-and-forget — tidak block app boot.
@@ -122,7 +133,10 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister: queryPersister, ...persistOptions }}
+      >
         <FaceDescriptorProvider>
           {/* Default StatusBar — 'auto' adapt ke system color scheme (light mode = dark icons).
               Individual screens dengan orange header pakai <StatusBar style="light" />
@@ -135,7 +149,7 @@ export default function RootLayout() {
           </MaintenanceGate>
           <ToastContainer />
         </FaceDescriptorProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </SafeAreaProvider>
   );
 }

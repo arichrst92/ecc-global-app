@@ -140,6 +140,28 @@ untuk debugging context.
 
 Override per query: `useQuery({ retry: false, ... })`.
 
+## Offline-First Persistence
+
+React Query cache survive app restart via AsyncStorage persister
+(`src/lib/queryPersistence.ts`). Read-only data (news, renungan, events,
+jemaat, ibadah, ministry) langsung load dari cache + refetch in background
+— prevent loading spinner spam saat flaky network.
+
+- maxAge **24 jam** — cache > 24h drop, force fresh fetch
+- buster **app version** — schema change otomatis purge old cache
+- gcTime **25 jam** — sedikit > maxAge, supaya restored queries tidak
+  langsung di-evict
+
+Excluded dari persist (always fetch fresh): `maintenance-mode`, `app-version`,
+`face-profile-status`, `liveness-nonce-*`, `me-access`.
+
+Install (kalau belum):
+```bash
+cd ~/Projects/ecc-mobile-app/app
+npx expo install @react-native-async-storage/async-storage
+npm install @tanstack/react-query-persist-client @tanstack/query-async-storage-persister
+```
+
 ## i18n
 
 Bahasa Indonesia default, English untuk expat. Setup dari awal — jangan retrofit.
