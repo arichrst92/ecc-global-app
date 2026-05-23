@@ -24,7 +24,11 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -61,7 +65,18 @@
     },
     "extra": {
       "apiBaseUrl": "https://api.eccchurch.global",
-      "apiPortDev": 4100
+      "apiPortDev": 4100,
+      "router": {},
+      "eas": {
+        "projectId": "936cd3ec-baf0-4b3a-9635-64d7b2167af6"
+      }
+    },
+    "owner": "arichrst92",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/936cd3ec-baf0-4b3a-9635-64d7b2167af6"
     }
   }
 }
