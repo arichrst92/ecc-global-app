@@ -178,14 +178,9 @@ export default function NotificationsScreen() {
           </>
         )}
 
-        {/* Push notif coming soon notice */}
-        {items.length > 0 ? (
-          <View className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl">
-            <Text className="text-xs text-blue-800 leading-relaxed">
-              {t('notifications.push_coming_soon')}
-            </Text>
-          </View>
-        ) : null}
+        {/* Push notif coming-soon notice di-hide per user feedback —
+            sudah ada local triggers untuk event flows, family link, branch
+            change, dll. User tidak perlu disclaimer "in development". */}
       </ScrollView>
     </View>
   );
