@@ -17,6 +17,7 @@ import { faceLogin, requestLivenessNonce } from '@/api/auth';
 import { FaceCapture } from '@/components/face/FaceCapture';
 import { isFaceDescriptorReady } from '@/services/faceDescriptor';
 import { newTelemetrySessionId, trackFaceEvent } from '@/services/telemetry';
+import { useAppConfig } from '@/hooks/useAppConfig';
 import { useAuthStore } from '@/stores/auth.store';
 import {
   FACE_MODEL_VERSION,
@@ -44,6 +45,7 @@ export default function WelcomeScreen() {
   const login = useAuthStore((s) => s.login);
   const forgetDevice = useAuthStore((s) => s.forgetDevice);
   const user = useAuthStore((s) => s.user);
+  const { data: appConfig } = useAppConfig();
 
   const [canFaceLogin, setCanFaceLogin] = useState(false);
   const [captureOpen, setCaptureOpen] = useState(false);
@@ -79,7 +81,9 @@ export default function WelcomeScreen() {
     onSuccess: async (data: FaceLoginResponse) => {
       await login(data.accessToken, data.refreshToken, data.user);
       setCaptureOpen(false);
-      if (data.confidence < 0.7) {
+      // BE-configurable threshold (per /public/app-config). Default 0.7,
+      // admin bisa tune via portal Developer Tools → App Config.
+      if (data.confidence < appConfig.lowConfidenceWarnThreshold) {
         showToast(t('face.low_confidence_warn'), 'info');
       } else {
         showToast(t('auth.login_success'), 'success');

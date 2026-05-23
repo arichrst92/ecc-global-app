@@ -317,3 +317,41 @@ Endpoint admin:
 ### 7.5 Timeline
 
 Deployed 2026-05-23. Ready untuk pilot rollout 2026-06-08. Tidak ada dependency lain untuk mobile-side implementation.
+
+---
+
+## 8. Mobile Acknowledgment (2026-05-23)
+
+Confirmed BE deploy complete. Mobile-side implementation (commit M19.3):
+
+### 8.1 /public/app-config wired
+
+- `src/types/appConfig.ts` — typed `AppConfig` + `APP_CONFIG_DEFAULTS` fallback (faceMatchThreshold 0.5, lowConfidenceWarnThreshold 0.7, telemetrySamplingRate 1.0, errorReportingEnabled true)
+- `src/api/appConfig.ts` — `getAppConfig()` GET wrapper
+- `src/hooks/useAppConfig.ts` — `useAppConfig()` hook + `getAppConfigSync(qc)` sync accessor + `prefetchAppConfig(qc)` helper
+- Cache 1 jam (sesuai BE recommendation). Pre-warmed di splash via `prefetchAppConfig`.
+- Excluded dari React Query persist (always fresh — config tune-able server-side).
+
+### 8.2 Hardcoded confidence threshold → dynamic
+
+- `app/(auth)/welcome.tsx` + `app/(auth)/login/index.tsx` — `data.confidence < 0.7` → `data.confidence < appConfig.lowConfidenceWarnThreshold`.
+- Admin tune via portal Developer Tools → App Config; mobile pick up di next refetch (~1h cache).
+
+### 8.3 Telemetry sampling
+
+- `src/services/telemetry.ts` — module-level `currentSamplingRate` + `setTelemetrySamplingRate(rate)` setter.
+- Root layout `_layout.tsx` `useEffect` subscribe ke `appConfig.telemetrySamplingRate` → call setter setiap refresh.
+- `trackFaceEvent` panggil `shouldSample()` sebelum fetch — drop event sebelum network kalau `Math.random() >= rate`.
+- Fast path: rate=1.0 (pilot default) skip Math.random call.
+
+### 8.4 Verification pending
+
+Manual oleh Ari saat dev build di physical device:
+
+1. Trigger face login → confirm event muncul di portal Developer Tools → Diagnostics → Face Telemetry tab
+2. Verify confidence distribution & latency p50/p95 di dashboard
+3. Verify sampling: admin set `telemetrySamplingRate = 0.1` di portal → 90% events di-drop sebelum push
+4. Verify low_confidence threshold tune: admin set ke 0.85 → toast warning trigger lebih sering
+5. Verify right-to-delete: trigger telemetry event sebagai user A → DELETE /admin/me → confirm event terhapus dari face_telemetry_event table
+
+No mobile code change required after this (M19.3) commit.

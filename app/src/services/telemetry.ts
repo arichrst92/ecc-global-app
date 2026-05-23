@@ -23,6 +23,7 @@ import Constants from 'expo-constants';
 
 import { env } from '@/config/env';
 import { FACE_MODEL_VERSION } from '@/types/auth';
+import { APP_CONFIG_DEFAULTS, type AppConfig } from '@/types/appConfig';
 import type {
   FaceTelemetryDevice,
   FaceTelemetryPayload,
@@ -30,6 +31,27 @@ import type {
 
 const TELEMETRY_PATH = '/auth/face/telemetry';
 const TELEMETRY_TIMEOUT_MS = 2000;
+
+// Sampling rate cache — di-set oleh root layout dari useAppConfig data.
+// Default = 1.0 (sample 100%) sampai app-config terload pertama kali.
+// Service-layer code tidak hook-able, jadi pakai module-level mutable state
+// disinkronisasi dari React layer.
+let currentSamplingRate: number = APP_CONFIG_DEFAULTS.telemetrySamplingRate;
+
+/** Di-call oleh root layout setiap appConfig refetch — update sampling rate
+ *  yang dipakai trackFaceEvent. */
+export function setTelemetrySamplingRate(rate: number): void {
+  // Clamp 0..1 untuk safety
+  currentSamplingRate = Math.max(0, Math.min(1, rate));
+}
+
+/** Apakah event harus di-sampled (kirim) — random decision per call. */
+function shouldSample(): boolean {
+  // Fast path: rate 1.0 (default) selalu sample, skip Math.random
+  if (currentSamplingRate >= 1) return true;
+  if (currentSamplingRate <= 0) return false;
+  return Math.random() < currentSamplingRate;
+}
 
 /** Generate random session ID. Tidak perlu RFC4122 strict — cuma untuk
  *  correlate events dalam window pendek (one flow ~30s-2min). */
@@ -62,6 +84,16 @@ function getDeviceMeta(): FaceTelemetryDevice {
  *   });
  */
 export function trackFaceEvent(payload: FaceTelemetryPayload): void {
+  // Client-side sampling per BE recommendation (rate dari /public/app-config).
+  // Drop event sebelum network call kalau tidak ke-sampled.
+  if (!shouldSample()) {
+    if (__DEV__) {
+      // eslint-disable-next-line no-console
+      console.log('[telemetry] sampled-out:', payload.event, currentSamplingRate);
+    }
+    return;
+  }
+
   try {
     const body: FaceTelemetryPayload = {
       ...payload,

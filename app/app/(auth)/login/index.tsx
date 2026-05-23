@@ -21,6 +21,7 @@ import { faceLogin, requestLivenessNonce, requestOtp } from '@/api/auth';
 import { FaceCapture } from '@/components/face/FaceCapture';
 import { isFaceDescriptorReady } from '@/services/faceDescriptor';
 import { newTelemetrySessionId, trackFaceEvent } from '@/services/telemetry';
+import { useAppConfig } from '@/hooks/useAppConfig';
 import { useAuthStore } from '@/stores/auth.store';
 import { normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
@@ -36,6 +37,7 @@ export default function LoginPhoneScreen() {
   const showToast = useToast((s) => s.show);
   const login = useAuthStore((s) => s.login);
   const setFaceEnrolledHint = useAuthStore((s) => s.setFaceEnrolledHint);
+  const { data: appConfig } = useAppConfig();
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [captureOpen, setCaptureOpen] = useState(false);
@@ -84,7 +86,8 @@ export default function LoginPhoneScreen() {
       // Persist hint supaya Welcome quick-login bisa show face button next time
       await setFaceEnrolledHint(true);
       setCaptureOpen(false);
-      if (data.confidence < 0.7) {
+      // BE-configurable threshold (per /public/app-config).
+      if (data.confidence < appConfig.lowConfidenceWarnThreshold) {
         showToast(t('face.low_confidence_warn'), 'info');
       } else {
         showToast(t('auth.login_success'), 'success');

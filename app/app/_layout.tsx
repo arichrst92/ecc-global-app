@@ -24,6 +24,8 @@ import { MaintenanceModal } from '@/components/MaintenanceModal';
 import { prefetchBranches } from '@/hooks/useBranches';
 import { prefetchMaintenance, useMaintenanceMode } from '@/hooks/useMaintenanceMode';
 import { prefetchAppVersion, useAppVersion } from '@/hooks/useAppVersion';
+import { prefetchAppConfig, useAppConfig } from '@/hooks/useAppConfig';
+import { setTelemetrySamplingRate } from '@/services/telemetry';
 import {
   initErrorReporting,
   setReportingUser,
@@ -104,6 +106,7 @@ export default function RootLayout() {
     prefetchBranches(queryClient);
     prefetchMaintenance(queryClient);
     prefetchAppVersion(queryClient);
+    prefetchAppConfig(queryClient);
   }, [
     hydrateAuth,
     hydratePrefs,
@@ -126,6 +129,14 @@ export default function RootLayout() {
   useEffect(() => {
     setReportingUser(authUser ? { noHp: authUser.noHp } : null);
   }, [authUser]);
+
+  // Sync /public/app-config telemetrySamplingRate → service module state.
+  // Service-layer code tidak hook-able; pakai mutable module state yang
+  // di-update setiap appConfig query refresh.
+  const { data: appConfig } = useAppConfig();
+  useEffect(() => {
+    setTelemetrySamplingRate(appConfig.telemetrySamplingRate);
+  }, [appConfig.telemetrySamplingRate]);
 
   if (!loaded || !hydrated) {
     return null;

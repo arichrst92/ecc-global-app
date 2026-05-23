@@ -32,6 +32,7 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 jam
 const EXCLUDED_KEY_PREFIXES = new Set<string>([
   'maintenance-mode',
   'app-version',
+  'app-config',
   'face-profile-status',
   'face-profile',
   'liveness-nonce',
