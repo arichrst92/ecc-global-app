@@ -15,7 +15,9 @@ import type {
   FaceLoginPayload,
   FaceLoginResponse,
   FaceProfileStatus,
+  LivenessNonceResponse,
   LogoutPayload,
+  RequestLivenessNoncePayload,
 } from '@/types/auth';
 
 /**
@@ -82,6 +84,24 @@ export function verifyOtp(payload: VerifyOtpPayload) {
  */
 export function register(payload: RegisterPayload) {
   return api.post<AuthSuccessData>('/auth/register', payload, { skipAuth: true });
+}
+
+/**
+ * POST /auth/face/liveness-nonce
+ * Per BE handoff liveness-nonce V1 (2026-05-22):
+ * - Request opaque HMAC nonce sebelum show liveness UI
+ * - TTL 3 menit, one-shot consume
+ * - Submit nonce di body /face/login atau /face/enroll
+ * - V1 grace: nonce OPTIONAL; V2 cutover 2026-06-01 → required
+ *
+ * Tidak perlu auth (mirror /face/login behavior). Bind ke noHp + purpose.
+ */
+export function requestLivenessNonce(payload: RequestLivenessNoncePayload) {
+  return api.post<LivenessNonceResponse>(
+    '/auth/face/liveness-nonce',
+    payload,
+    { skipAuth: true },
+  );
 }
 
 /**

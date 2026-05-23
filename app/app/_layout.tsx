@@ -18,7 +18,9 @@ import { usePrinterStore } from '@/stores/printer.store';
 import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { FaceDescriptorProvider } from '@/components/face/FaceDescriptorProvider';
+import { MaintenanceModal } from '@/components/MaintenanceModal';
 import { prefetchBranches } from '@/hooks/useBranches';
+import { useMaintenanceMode } from '@/hooks/useMaintenanceMode';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -92,12 +94,31 @@ export default function RootLayout() {
               Individual screens dengan orange header pakai <StatusBar style="light" />
               untuk override (icons putih supaya visible di atas orange). */}
           <StatusBar style="dark" translucent backgroundColor="transparent" />
-          <RootLayoutNav />
+          <MaintenanceGate>
+            <RootLayoutNav />
+          </MaintenanceGate>
           <ToastContainer />
         </FaceDescriptorProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
+}
+
+/**
+ * MaintenanceGate — wrapper yang poll /public/maintenance.
+ * Kalau isEnabled=true → full-screen blocking modal (no dismiss).
+ * Kalau false/error/loading → render children normal app.
+ *
+ * Sengaja tidak blocking saat loading/error supaya app tidak stuck — kalau
+ * gateway down, user lihat normal app UI (yang akan tampil network error
+ * di per-query level). Hanya BLOCK kalau BE explicitly say maintenance ON.
+ */
+function MaintenanceGate({ children }: { children: React.ReactNode }) {
+  const { data, refetch } = useMaintenanceMode();
+  if (data?.isEnabled) {
+    return <MaintenanceModal data={data} onRetry={refetch} />;
+  }
+  return <>{children}</>;
 }
 
 function RootLayoutNav() {

@@ -87,13 +87,49 @@ export type FaceEnrollPayload = {
   descriptor: number[]; // 128 float, on-device computed
   modelVersion?: string; // default FACE_MODEL_VERSION
   metadata: FaceEnrollMetadata;
+  /** Per BE patch liveness-nonce V1 (soft): kalau ada → di-verify. Optional
+   * sampai V2 cutover 2026-06-01 yang akan enforce required. */
+  livenessNonce?: string;
 };
 
 export type FaceLoginPayload = {
   noHp: string;
   descriptor: number[]; // 128-dim Float32 array
   modelVersion?: string;
+  /** Per BE patch liveness-nonce V1: kalau ada → di-verify. */
+  livenessNonce?: string;
 };
+
+/**
+ * Liveness nonce per BE handoff 2026-05-22 (V1 soft, V2 required 2026-06-01).
+ * Issue nonce sebelum liveness UI, submit balik di /face/login atau /face/enroll
+ * untuk anti-replay protection (descriptor stolen → tidak bisa pakai tanpa
+ * fresh nonce).
+ */
+export type LivenessNoncePurpose = 'LOGIN' | 'ENROLL';
+
+export type RequestLivenessNoncePayload = {
+  noHp: string;
+  purpose: LivenessNoncePurpose;
+};
+
+export type LivenessNonceResponse = {
+  /** Opaque JWT-style HMAC token. Mobile tidak perlu parse — simpan dan kirim balik. */
+  nonce: string;
+  expiresAt: string; // ISO
+  ttlSeconds: number; // default 180 (3 menit)
+};
+
+/**
+ * Error codes spesifik nonce — BE return 401 dengan code ini di /face/* response
+ * kalau nonce invalid (V1 grace: hanya kalau nonce di-submit; absent = warn log).
+ */
+export type LivenessNonceErrorCode =
+  | 'LIVENESS_NONCE_INVALID'
+  | 'LIVENESS_NONCE_EXPIRED'
+  | 'LIVENESS_NONCE_PURPOSE_MISMATCH'
+  | 'LIVENESS_NONCE_BIND_MISMATCH'
+  | 'LIVENESS_NONCE_REUSED';
 
 /** Response GET /auth/me/face-profile */
 export type FaceProfileStatus = {

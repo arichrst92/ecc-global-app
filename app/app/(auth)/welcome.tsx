@@ -13,7 +13,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 
 import { useToast } from '@/components/ui/Toast';
-import { faceLogin } from '@/api/auth';
+import { faceLogin, requestLivenessNonce } from '@/api/auth';
 import { FaceCapture } from '@/components/face/FaceCapture';
 import { isFaceDescriptorReady } from '@/services/faceDescriptor';
 import { useAuthStore } from '@/stores/auth.store';
@@ -80,9 +80,12 @@ export default function WelcomeScreen() {
     },
     onError: (err) => {
       setCaptureOpen(false);
+      setLivenessNonce(null);
       if (err instanceof ApiError) {
         const code = err.code.toLowerCase();
         if (code === 'face_not_enrolled' || code === 'face_no_match' || code === 'face_model_mismatch') {
+          showToast(t(`face.error_${code}`), 'error');
+        } else if (code.startsWith('liveness_nonce_')) {
           showToast(t(`face.error_${code}`), 'error');
         } else {
           showToast(err.message, 'error');
@@ -97,6 +100,24 @@ export default function WelcomeScreen() {
     },
   });
 
+  // Liveness nonce per BE handoff — request sebelum show capture UI
+  const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
+
+  async function openFaceCapture() {
+    if (!user?.noHp) {
+      showToast(t('face.error_no_phone_hint'), 'error');
+      return;
+    }
+    // V1 grace: kalau request gagal, tetap proceed (BE log warn).
+    try {
+      const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'LOGIN' });
+      setLivenessNonce(res.nonce);
+    } catch {
+      setLivenessNonce(null);
+    }
+    setCaptureOpen(true);
+  }
+
   function handleDescriptor(descriptor: number[]) {
     if (!user?.noHp) {
       showToast(t('face.error_no_phone_hint'), 'error');
@@ -107,6 +128,7 @@ export default function WelcomeScreen() {
       noHp: user.noHp,
       descriptor,
       modelVersion: FACE_MODEL_VERSION,
+      livenessNonce: livenessNonce ?? undefined,
     });
   }
 
@@ -125,7 +147,7 @@ export default function WelcomeScreen() {
       icon: <ScanFace size={20} color="#D97706" />,
       iconBg: 'bg-amber-50',
       variant: 'secondary',
-      onPress: () => setCaptureOpen(true),
+      onPress: openFaceCapture,
       hidden: !canFaceLogin,
     },
   ];

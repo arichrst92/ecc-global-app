@@ -833,6 +833,11 @@
     "error_face_invalid_descriptor": "Face data invalid. Try again.",
     "error_face_already_enrolled": "Face already registered. Use \"Update Face\" if you want to change.",
     "error_face_login_rate_limit": "Too many attempts. Try again in 15 minutes.",
+    "error_liveness_nonce_invalid": "Invalid liveness token. Please try again.",
+    "error_liveness_nonce_expired": "Liveness token expired. Please try again.",
+    "error_liveness_nonce_purpose_mismatch": "Liveness token mismatch. Please try again.",
+    "error_liveness_nonce_bind_mismatch": "Liveness token doesn't match this phone number. Try again.",
+    "error_liveness_nonce_reused": "Liveness token already used. Please try again.",
     "error_no_phone_hint": "Phone number not available. Sign in with OTP first.",
     "low_confidence_warn": "Signed in (low confidence). Consider re-enrolling your face.",
     "engine_loading": "Loading face recognition engine... (~3 seconds)",
@@ -897,6 +902,14 @@
     "fetch_error_title": "Couldn't load document",
     "fetch_error_msg": "Check your internet connection or try again later.",
     "last_updated": "Version: {{date}}"
+  },
+  "maintenance": {
+    "title": "Under Maintenance",
+    "default_message": "The system is currently under maintenance. Please try again shortly.",
+    "countdown_label": "Done In",
+    "no_estimate": "Please wait...",
+    "retry_btn": "Try Again",
+    "auto_recover_hint": "The app will automatically resume normal operation once maintenance is complete."
   },
   "edit_profile": {
     "title_dependent": "Edit Profile — {{name}}",

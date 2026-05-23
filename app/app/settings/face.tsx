@@ -10,6 +10,7 @@ import {
   deleteFaceProfile,
   enrollFace,
   getFaceProfile,
+  requestLivenessNonce,
   updateFaceProfile,
 } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
@@ -36,11 +37,15 @@ export default function FaceSettingsScreen() {
   const showToast = useToast((s) => s.show);
   const qc = useQueryClient();
   const setFaceEnrolledHint = useAuthStore((s) => s.setFaceEnrolledHint);
+  const user = useAuthStore((s) => s.user);
 
   const [captureOpen, setCaptureOpen] = useState<false | 'enroll' | 'update'>(false);
   const [consentChecked, setConsentChecked] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [engineReady, setEngineReady] = useState(false);
+  // Liveness nonce per BE handoff 2026-05-22 — request sebelum capture UI.
+  // V1 grace: kalau gagal proceed tanpa nonce. V2 cutover 2026-06-01 strict.
+  const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
 
   // Poll face engine readiness — kalau false (di Expo Go) tampilkan banner
   useEffect(() => {
@@ -65,8 +70,16 @@ export default function FaceSettingsScreen() {
       setConsentChecked(false);
     },
     onError: (err) => {
+      // Reset nonce supaya retry pakai fresh one
+      setLivenessNonce(null);
       if (err instanceof ApiError) {
-        showToast(t(`face.error_${err.code.toLowerCase()}`, { defaultValue: err.message }), 'error');
+        const code = err.code.toLowerCase();
+        if (code.startsWith('liveness_nonce_')) {
+          // Per BE handoff liveness-nonce: EXPIRED/REUSED/INVALID/BIND_MISMATCH/PURPOSE_MISMATCH
+          showToast(t(`face.error_${code}`, { defaultValue: err.message }), 'error');
+        } else {
+          showToast(t(`face.error_${code}`, { defaultValue: err.message }), 'error');
+        }
       } else {
         showToast(t('error.network'), 'error');
       }
@@ -92,8 +105,25 @@ export default function FaceSettingsScreen() {
         consentVersion: FACE_CONSENT_VERSION,
         platform: (Platform.OS === 'ios' || Platform.OS === 'android' ? Platform.OS : 'web'),
       },
+      livenessNonce: livenessNonce ?? undefined,
     };
     enrollMutation.mutate(payload);
+  }
+
+  // Open capture wrapper — request liveness nonce (purpose=ENROLL) sebelum show UI.
+  // V1 grace: kalau gagal proceed tanpa nonce (BE log warn).
+  async function openEnrollCapture(mode: 'enroll' | 'update') {
+    if (!user?.noHp) {
+      showToast(t('face.error_no_phone_hint'), 'error');
+      return;
+    }
+    try {
+      const res = await requestLivenessNonce({ noHp: user.noHp, purpose: 'ENROLL' });
+      setLivenessNonce(res.nonce);
+    } catch {
+      setLivenessNonce(null);
+    }
+    setCaptureOpen(mode);
   }
 
   const status = statusQuery.data;
@@ -181,7 +211,7 @@ export default function FaceSettingsScreen() {
               </Text>
             </Pressable>
             <Pressable
-              onPress={() => setCaptureOpen('enroll')}
+              onPress={() => openEnrollCapture('enroll')}
               disabled={!consentChecked || !engineReady}
               className={`py-4 rounded-2xl items-center ${
                 consentChecked && engineReady ? 'bg-brand-500' : 'bg-neutral-300'
@@ -195,7 +225,7 @@ export default function FaceSettingsScreen() {
         ) : (
           <View className="gap-2">
             <Pressable
-              onPress={() => setCaptureOpen('update')}
+              onPress={() => openEnrollCapture('update')}
               className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center"
             >
               <View className="flex-1">

@@ -17,7 +17,7 @@ import { ArrowLeft, Info, MessageCircleMore, ScanFace } from 'lucide-react-nativ
 import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
 import { useToast } from '@/components/ui/Toast';
-import { faceLogin, requestOtp } from '@/api/auth';
+import { faceLogin, requestLivenessNonce, requestOtp } from '@/api/auth';
 import { FaceCapture } from '@/components/face/FaceCapture';
 import { isFaceDescriptorReady } from '@/services/faceDescriptor';
 import { useAuthStore } from '@/stores/auth.store';
@@ -85,6 +85,8 @@ export default function LoginPhoneScreen() {
     },
     onError: (err) => {
       setCaptureOpen(false);
+      // Reset nonce supaya retry langsung request fresh one
+      setLivenessNonce(null);
       if (err instanceof ApiError) {
         const code = err.code.toLowerCase();
         if (code === 'face_not_enrolled') {
@@ -95,6 +97,9 @@ export default function LoginPhoneScreen() {
           code === 'face_invalid_descriptor' ||
           code === 'face_login_rate_limit'
         ) {
+          showToast(t(`face.error_${code}`), 'error');
+        } else if (code.startsWith('liveness_nonce_')) {
+          // Per BE handoff liveness-nonce: error codes EXPIRED/REUSED/INVALID/etc
           showToast(t(`face.error_${code}`), 'error');
         } else {
           showToast(err.message, 'error');
@@ -115,12 +120,26 @@ export default function LoginPhoneScreen() {
     mutation.mutate(e164);
   }
 
-  function startFaceLogin() {
+  // Liveness nonce per BE handoff 2026-05-22 — request sebelum show liveness UI.
+  // V1 grace: kalau request gagal, tetap proceed (BE log warn). V2 cutover
+  // 2026-06-01 akan strict — need fresh nonce.
+  const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
+
+  async function startFaceLogin() {
     setError(null);
     const e164 = normalizePhone(phone);
     if (!e164) {
       setError(t('auth.error_invalid_phone'));
       return;
+    }
+    // Request liveness nonce (TTL 3 menit, one-shot)
+    try {
+      const res = await requestLivenessNonce({ noHp: e164, purpose: 'LOGIN' });
+      setLivenessNonce(res.nonce);
+    } catch {
+      // V1 grace — proceed tanpa nonce. BE log warn. Setelah V2 cutover ini
+      // akan jadi hard fail; saat itu replace dengan setError + return.
+      setLivenessNonce(null);
     }
     setCaptureOpen(true);
   }
@@ -136,6 +155,7 @@ export default function LoginPhoneScreen() {
       noHp: e164,
       descriptor,
       modelVersion: FACE_MODEL_VERSION,
+      livenessNonce: livenessNonce ?? undefined,
     });
   }
 
