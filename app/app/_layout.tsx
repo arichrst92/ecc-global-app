@@ -18,9 +18,11 @@ import { usePrinterStore } from '@/stores/printer.store';
 import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { FaceDescriptorProvider } from '@/components/face/FaceDescriptorProvider';
+import { ForceUpdateModal } from '@/components/ForceUpdateModal';
 import { MaintenanceModal } from '@/components/MaintenanceModal';
 import { prefetchBranches } from '@/hooks/useBranches';
-import { useMaintenanceMode } from '@/hooks/useMaintenanceMode';
+import { prefetchMaintenance, useMaintenanceMode } from '@/hooks/useMaintenanceMode';
+import { prefetchAppVersion, useAppVersion } from '@/hooks/useAppVersion';
 import {
   initErrorReporting,
   setReportingUser,
@@ -84,8 +86,13 @@ export default function RootLayout() {
       hydratePrinter(),
       hydrateBible(),
     ]).then(() => setHydrated(true));
-    // Prefetch cabang list di background — tidak block hydration
+    // Splash pre-warm — parallel dengan hydration. Gate decisions
+    // (maintenance, force-update) ready by time splash hides supaya tidak
+    // ada flash app → modal pops jarring UX. All silent fail kalau gateway
+    // down — hook setelah mount akan retry sendiri.
     prefetchBranches(queryClient);
+    prefetchMaintenance(queryClient);
+    prefetchAppVersion(queryClient);
   }, [
     hydrateAuth,
     hydratePrefs,
@@ -122,7 +129,9 @@ export default function RootLayout() {
               untuk override (icons putih supaya visible di atas orange). */}
           <StatusBar style="dark" translucent backgroundColor="transparent" />
           <MaintenanceGate>
-            <RootLayoutNav />
+            <ForceUpdateGate>
+              <RootLayoutNav />
+            </ForceUpdateGate>
           </MaintenanceGate>
           <ToastContainer />
         </FaceDescriptorProvider>
@@ -144,6 +153,27 @@ function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const { data, refetch } = useMaintenanceMode();
   if (data?.isEnabled) {
     return <MaintenanceModal data={data} onRetry={refetch} />;
+  }
+  return <>{children}</>;
+}
+
+/**
+ * ForceUpdateGate — block app kalau current version < minSupportedVersion.
+ * BE return `forceUpdate: true` di `/public/app-version` kalau admin set
+ * minVersion lebih tinggi dari current build.
+ *
+ * Tidak blocking saat loading/error (sama prinsip dengan MaintenanceGate) —
+ * supaya app tidak stuck kalau network issue. Hanya BLOCK kalau BE explicit
+ * forceUpdate=true.
+ *
+ * Data sudah pre-warmed di splash via prefetchAppVersion — kalau jaringan
+ * sehat, decision instant available saat splash hide. Kalau jaringan flaky,
+ * hook akan retry sendiri.
+ */
+function ForceUpdateGate({ children }: { children: React.ReactNode }) {
+  const { data } = useAppVersion();
+  if (data?.forceUpdate) {
+    return <ForceUpdateModal data={data} />;
   }
   return <>{children}</>;
 }

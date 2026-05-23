@@ -101,26 +101,22 @@ Scanner, Homecell, Area **bukan** di bottom nav — accessed via context (detail
 - Build profile: set `EXPO_PUBLIC_API_BASE_URL` via `eas.json` env block per profile
 - Lihat `reference/mobile-api-guide.md` untuk integrasi lengkap, `docs/production-launch-brief-2026-05-23.md` untuk detail launch
 
-## Error Reporting (Sentry)
+## Error Reporting (Custom BE Endpoint)
 
-Optional — diaktifkan dengan set `EXPO_PUBLIC_SENTRY_DSN` di build env. Tanpa
-DSN, code di `src/services/errorReporting.ts` no-op (zero runtime cost).
+Tidak pakai Sentry/GlitchTip — events push langsung ke BE via fire-and-forget
+`POST /diagnostics/error`. Tidak ada subscription cost, BE handles
+aggregation/dashboard. Architecture aligned dengan telemetry (sama-sama push
+ke BE).
 
-Setup pertama kali:
+Setup:
+- Mobile: zero — sudah wired di `src/services/errorReporting.ts`.
+- BE: implement endpoint per spec di `docs/backend-request-diagnostics-error-endpoint.md`.
+  Selama BE belum implement, mobile push akan return 404 dan di-drop silently
+  (zero impact ke user flow).
 
-```bash
-# 1. Install Sentry SDK
-npx expo install @sentry/react-native
+Skip di `__DEV__` mode — supaya pilot dashboard tidak polluted dengan dev errors.
 
-# 2. Daftar Sentry account → buat project "React Native" → copy DSN
-
-# 3. Set DSN via EAS secret (jangan commit ke repo)
-eas secret:create --scope project --name EXPO_PUBLIC_SENTRY_DSN_PRODUCTION --value "https://..."
-eas secret:create --scope project --name EXPO_PUBLIC_SENTRY_DSN_PREVIEW --value "https://..."
-# eas.json sudah refer ke secret ini per profile (preview + production)
-```
-
-Setelah install, errors di-capture otomatis. Manual report via:
+Manual report:
 
 ```typescript
 import { reportError, addBreadcrumb } from '@/services/errorReporting';
@@ -129,8 +125,11 @@ addBreadcrumb('User tapped face login', 'auth');
 try { ... } catch (e) { reportError(e, { context: 'face_login_flow' }); }
 ```
 
-Auth user di-sync ke Sentry context otomatis via `setReportingUser` di root layout
-— errors akan tag dengan `noHp` untuk filter per user di dashboard.
+Auth user di-sync ke reporter context otomatis via `setReportingUser` di root
+layout — events akan tag dengan `noHp` untuk filter per user di BE dashboard.
+
+Errors carry breadcrumb buffer (last 20 events) + device meta + release version
+untuk debugging context.
 
 ## Network Resilience
 

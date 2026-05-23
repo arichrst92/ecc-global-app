@@ -933,6 +933,13 @@
     "retry_btn": "Coba Lagi",
     "auto_recover_hint": "Aplikasi akan otomatis kembali normal saat maintenance selesai."
   },
+  "update": {
+    "force_title": "Pembaruan Diperlukan",
+    "force_body": "Versi aplikasi Anda tidak didukung lagi. Silakan perbarui ke versi terbaru ({{latest}}) untuk melanjutkan.",
+    "release_notes": "Apa yang baru",
+    "cta_update": "Perbarui Sekarang",
+    "no_download_url": "Silakan buka App Store / Play Store untuk perbarui aplikasi."
+  },
   "edit_profile": {
     "title_dependent": "Edit Profil — {{name}}",
     "dependent_phone_helper_empty": "Optional — isi kalau anak / anggota dependent sudah punya HP sendiri. Setelah ditambahkan, mereka bisa login mandiri pakai OTP.",

@@ -933,6 +933,13 @@
     "retry_btn": "Try Again",
     "auto_recover_hint": "The app will automatically resume normal operation once maintenance is complete."
   },
+  "update": {
+    "force_title": "Update Required",
+    "force_body": "Your app version is no longer supported. Please update to the latest version ({{latest}}) to continue.",
+    "release_notes": "What's new",
+    "cta_update": "Update Now",
+    "no_download_url": "Please open App Store / Play Store to update the app."
+  },
   "edit_profile": {
     "title_dependent": "Edit Profile — {{name}}",
     "dependent_phone_helper_empty": "Optional — fill in if the child / dependent now has their own phone. Once added, they can log in independently via OTP.",
