@@ -322,9 +322,21 @@ export default function CalendarScreen() {
               </View>
             ) : (
               <View className="gap-2">
-                {selectedItems.map((item, i) => (
-                  <ItemRow key={`${item.type}-${i}`} item={item} router={router} t={t} lang={lang} />
-                ))}
+                {selectedItems.map((item, i) => {
+                  // Stable composite key — include item ID + index supaya
+                  // multiple ibadah pada day+time sama (mis. cabang yang
+                  // sama jalankan 2 ibadah simultaneous di ruang berbeda)
+                  // tidak collapse ke 1 render karena key collision.
+                  const stableKey =
+                    item.type === 'birthday'
+                      ? `birthday-${item.jemaatId}-${i}`
+                      : item.type === 'ibadah'
+                        ? `ibadah-${item.id}-${item.time ?? ''}-${i}`
+                        : `event-${item.id}-${i}`;
+                  return (
+                    <ItemRow key={stableKey} item={item} router={router} t={t} lang={lang} />
+                  );
+                })}
               </View>
             )}
           </View>

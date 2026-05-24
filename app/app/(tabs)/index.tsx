@@ -68,30 +68,13 @@ function HomeScreenAuthenticated() {
     eventsQuery.refetch();
   }
 
-  const todayService = todayQuery.data?.[0] ?? null;
-
-  // Supplemental ibadah detail fetch — BE /admin/ibadah/calendar TIDAK return
-  // linkOnline/linkStream field. Detail endpoint DOES return linkStream (per
-  // device log 2026-05-24). Fetch detail saat ibadahId tersedia supaya stream
-  // button bisa muncul di dashboard. Cost: 1 extra API call per dashboard mount.
-  // Lihat docs/backend-followup-ibadah-linkonline-missing-in-response.md.
-  const todayDetailQuery = useQuery({
-    queryKey: ['ibadah', 'detail', 'v2', todayService?.ibadahId ?? '', todayService?.tanggal ?? null],
-    queryFn: () => getIbadahDetail(todayService!.ibadahId, todayService!.tanggal),
-    enabled: !!todayService?.ibadahId,
-    staleTime: 10 * 60_000,
-  });
+  const todayServices = todayQuery.data ?? [];
 
   if (!user) return null;
 
   const streak = statsQuery.data?.streakWeeks ?? 0;
   const renungan = renunganQuery.data;
   const news = newsQuery.data ?? [];
-
-  // Stream link: try detail object first (BE return linkStream di detail),
-  // fallback ke calendar occurrence (kalau BE eventually add ke calendar select)
-  const todayStreamLink =
-    getStreamLink(todayDetailQuery.data) ?? getStreamLink(todayService);
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -172,82 +155,23 @@ function HomeScreenAuthenticated() {
         {/* Quick Access — visible sesuai otoritas */}
         <QuickAccess />
 
-        {/* Today's Service — hide section entirely kalau ga ada ibadah hari ini */}
+        {/* Today's Services — render SEMUA occurrence hari ini (bukan cuma
+            yang pertama). Beberapa cabang punya 2-3 ibadah per hari (mis.
+            ibadah pagi, siang, sore). Stacked vertically. */}
         {todayQuery.isPending ? (
           <View className="px-5 mt-4">
             <SkeletonCard height={120} />
           </View>
-        ) : todayService ? (
-          <View className="px-5 mt-4">
-            <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
-              <View className="p-4">
-                <View className="flex-row items-start justify-between gap-2 mb-2">
-                  <View className="flex-row items-center gap-2 flex-1">
-                    <View className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <Text className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
-                      {t('home.today_service')}
-                    </Text>
-                  </View>
-                  {/* Kategori badge top-right */}
-                  {todayService.kategoriIbadah ? (
-                    <View className="bg-brand-50 border border-brand-100 rounded-full px-2.5 py-0.5">
-                      <Text className="text-[10px] font-semibold text-brand-700 uppercase tracking-wider">
-                        {todayService.kategoriIbadah.nama}
-                      </Text>
-                    </View>
-                  ) : null}
-                </View>
-                <Text className="text-lg font-bold text-neutral-900">{todayService.nama}</Text>
-                <View className="flex-row items-center gap-2 mt-1.5">
-                  <Clock size={14} color="#737373" />
-                  <Text className="text-sm text-neutral-500">
-                    {formatTime(todayService.jamMulai)} - {formatTime(todayService.jamSelesai)}
-                  </Text>
-                </View>
-                <View className="flex-row items-center gap-2 mt-1">
-                  <MapPin size={14} color="#737373" />
-                  <Text className="text-sm text-neutral-500 flex-1" numberOfLines={1}>
-                    {todayService.lokasi}
-                  </Text>
-                </View>
-
-                {/* Stream button — show kalau link tersedia di calendar
-                    occurrence ATAU supplemental detail fetch. BE
-                    calendar endpoint tidak return field; detail return
-                    `linkStream`. Helper accept both linkOnline+linkStream. */}
-                {todayStreamLink ? (
-                  <Pressable
-                    onPress={() => Linking.openURL(todayStreamLink).catch(() => {})}
-                    className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
-                  >
-                    <Video size={16} color="#fff" />
-                    <Text className="text-white font-semibold text-sm">
-                      {t('ibadah.access_online')}
-                    </Text>
-                  </Pressable>
-                ) : null}
-              </View>
-              <View className="flex-row border-t border-neutral-100">
-                <Pressable
-                  className="flex-1 py-3 flex-row items-center justify-center gap-2"
-                  onPress={() => router.push(`/ibadah/${todayService.ibadahId}`)}
-                >
-                  <Church size={16} color="#525252" />
-                  <Text className="text-sm font-medium text-neutral-700">{t('home.detail')}</Text>
-                </Pressable>
-                <View className="w-px bg-neutral-100" />
-                {/* Show QR untuk attendance (always available). Kalau ibadah
-                    online + ada link, additional row "Akses Online" akan
-                    muncul di bawah (rendered separately). */}
-                <Pressable
-                  className="flex-1 py-3 flex-row items-center justify-center gap-2"
-                  onPress={() => router.push('/qr-card')}
-                >
-                  <QrCode size={16} color="#EA580C" />
-                  <Text className="text-sm font-semibold text-brand-600">{t('home.show_qr')}</Text>
-                </Pressable>
-              </View>
-            </View>
+        ) : todayServices.length > 0 ? (
+          <View className="px-5 mt-4 gap-3">
+            {todayServices.map((svc) => (
+              <TodayServiceCard
+                key={`${svc.ibadahId}-${svc.tanggal}-${svc.jamMulai}`}
+                service={svc}
+                router={router}
+                t={t}
+              />
+            ))}
           </View>
         ) : null}
 
@@ -423,5 +347,102 @@ function SkeletonCard({ height }: { height: number }) {
       className="bg-neutral-100 rounded-2xl"
       style={{ height }}
     />
+  );
+}
+
+/**
+ * Card untuk satu ibadah occurrence di "Ibadah Hari Ini". Each card own
+ * its supplemental detail fetch — calendar endpoint tidak return
+ * linkStream/linkOnline, detail endpoint DOES. Cost: N extra API calls
+ * untuk N ibadah hari ini (typically 1-3 — affordable).
+ */
+function TodayServiceCard({
+  service,
+  router,
+  t,
+}: {
+  service: {
+    ibadahId: string;
+    tanggal: string;
+    nama: string;
+    jamMulai: string;
+    jamSelesai: string;
+    lokasi: string;
+    isOnline: boolean;
+    kategoriIbadah?: { nama: string } | null;
+  };
+  router: ReturnType<typeof useRouter>;
+  t: (key: string, options?: Record<string, unknown>) => string;
+}) {
+  const detailQuery = useQuery({
+    queryKey: ['ibadah', 'detail', 'v2', service.ibadahId, service.tanggal],
+    queryFn: () => getIbadahDetail(service.ibadahId, service.tanggal),
+    enabled: !!service.ibadahId,
+    staleTime: 10 * 60_000,
+  });
+  const streamLink = getStreamLink(detailQuery.data) ?? getStreamLink(service);
+
+  return (
+    <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
+      <View className="p-4">
+        <View className="flex-row items-start justify-between gap-2 mb-2">
+          <View className="flex-row items-center gap-2 flex-1">
+            <View className="w-2 h-2 rounded-full bg-emerald-500" />
+            <Text className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
+              {t('home.today_service')}
+            </Text>
+          </View>
+          {service.kategoriIbadah ? (
+            <View className="bg-brand-50 border border-brand-100 rounded-full px-2.5 py-0.5">
+              <Text className="text-[10px] font-semibold text-brand-700 uppercase tracking-wider">
+                {service.kategoriIbadah.nama}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+        <Text className="text-lg font-bold text-neutral-900">{service.nama}</Text>
+        <View className="flex-row items-center gap-2 mt-1.5">
+          <Clock size={14} color="#737373" />
+          <Text className="text-sm text-neutral-500">
+            {service.jamMulai} - {service.jamSelesai}
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-2 mt-1">
+          <MapPin size={14} color="#737373" />
+          <Text className="text-sm text-neutral-500 flex-1" numberOfLines={1}>
+            {service.lokasi}
+          </Text>
+        </View>
+
+        {streamLink ? (
+          <Pressable
+            onPress={() => Linking.openURL(streamLink).catch(() => {})}
+            className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
+          >
+            <Video size={16} color="#fff" />
+            <Text className="text-white font-semibold text-sm">
+              {t('ibadah.access_online')}
+            </Text>
+          </Pressable>
+        ) : null}
+      </View>
+      <View className="flex-row border-t border-neutral-100">
+        <Pressable
+          className="flex-1 py-3 flex-row items-center justify-center gap-2"
+          onPress={() => router.push(`/ibadah/${service.ibadahId}?tanggal=${service.tanggal}` as never)}
+        >
+          <Church size={16} color="#525252" />
+          <Text className="text-sm font-medium text-neutral-700">{t('home.detail')}</Text>
+        </Pressable>
+        <View className="w-px bg-neutral-100" />
+        <Pressable
+          className="flex-1 py-3 flex-row items-center justify-center gap-2"
+          onPress={() => router.push('/qr-card')}
+        >
+          <QrCode size={16} color="#EA580C" />
+          <Text className="text-sm font-semibold text-brand-600">{t('home.show_qr')}</Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
