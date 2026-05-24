@@ -112,7 +112,7 @@ export function GuestEventView() {
           {items.map((ev) => (
             <Pressable
               key={ev.id}
-              onPress={() => router.push(`/event/${ev.slug}` as never)}
+              onPress={promptSignup}
               className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
             >
               <SafeImage

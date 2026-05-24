@@ -31,7 +31,10 @@ function getDays(lang: string): readonly string[] {
  * - "2026-05-22T17:00:00.000Z" → Date local May 22 00:00 (ignore time + TZ)
  * - "2026-05-22T09:30:00+07:00" → Date local May 22 00:00
  */
-export function parseLocalDate(iso: string): Date {
+export function parseLocalDate(iso: string | null | undefined): Date {
+  // Defensive: kalau BE return null/undefined → invalid date (NaN), caller
+  // handle via formatDate empty string return.
+  if (!iso || typeof iso !== 'string') return new Date(NaN);
   const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return new Date(iso); // fallback ke standard parsing
   const [, y, mm, d] = m;
@@ -39,17 +42,19 @@ export function parseLocalDate(iso: string): Date {
 }
 
 /** Format "19 Mei 2026" — pakai parseLocalDate biar TZ-safe. */
-export function formatDate(iso: string, lang: string = 'id'): string {
+export function formatDate(iso: string | null | undefined, lang: string = 'id'): string {
+  if (!iso) return '';
   const d = parseLocalDate(iso);
-  if (isNaN(d.getTime())) return iso;
+  if (isNaN(d.getTime())) return typeof iso === 'string' ? iso : '';
   const months = getMonths(lang);
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 /** Format "Minggu, 19 Mei 2026" — pakai parseLocalDate biar TZ-safe. */
-export function formatDateWithDay(iso: string, lang: string = 'id'): string {
+export function formatDateWithDay(iso: string | null | undefined, lang: string = 'id'): string {
+  if (!iso) return '';
   const d = parseLocalDate(iso);
-  if (isNaN(d.getTime())) return iso;
+  if (isNaN(d.getTime())) return typeof iso === 'string' ? iso : '';
   const days = getDays(lang);
   return `${days[d.getDay()]}, ${formatDate(iso, lang)}`;
 }

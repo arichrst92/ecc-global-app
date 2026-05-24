@@ -189,6 +189,19 @@ function HomeScreenAuthenticated() {
                     {todayService.lokasi}
                   </Text>
                 </View>
+
+                {/* Akses Online button — only show kalau ibadah punya link */}
+                {todayService.isOnline && todayService.linkOnline ? (
+                  <Pressable
+                    onPress={() => Linking.openURL(todayService.linkOnline!).catch(() => {})}
+                    className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
+                  >
+                    <Video size={16} color="#fff" />
+                    <Text className="text-white font-semibold text-sm">
+                      {t('ibadah.access_online')}
+                    </Text>
+                  </Pressable>
+                ) : null}
               </View>
               <View className="flex-row border-t border-neutral-100">
                 <Pressable
@@ -199,40 +212,16 @@ function HomeScreenAuthenticated() {
                   <Text className="text-sm font-medium text-neutral-700">{t('home.detail')}</Text>
                 </Pressable>
                 <View className="w-px bg-neutral-100" />
-                {/* Online button: show ALWAYS kalau isOnline. Kalau ibadah
-                    bukan online → fallback ke Tampilkan QR (untuk attendance
-                    offline). Kalau isOnline tapi belum ada link → tombol
-                    disabled supaya user tetap aware. */}
-                {todayService.isOnline ? (
-                  <Pressable
-                    className="flex-1 py-3 flex-row items-center justify-center gap-2"
-                    onPress={() => {
-                      if (todayService.linkOnline) {
-                        Linking.openURL(todayService.linkOnline).catch(() => {});
-                      }
-                    }}
-                    disabled={!todayService.linkOnline}
-                  >
-                    <Video size={16} color={todayService.linkOnline ? '#059669' : '#A3A3A3'} />
-                    <Text
-                      className={`text-sm font-semibold ${
-                        todayService.linkOnline ? 'text-emerald-600' : 'text-neutral-400'
-                      }`}
-                    >
-                      {todayService.linkOnline
-                        ? t('ibadah.access_online')
-                        : t('ibadah.online_link_pending')}
-                    </Text>
-                  </Pressable>
-                ) : (
-                  <Pressable
-                    className="flex-1 py-3 flex-row items-center justify-center gap-2"
-                    onPress={() => router.push('/qr-card')}
-                  >
-                    <QrCode size={16} color="#EA580C" />
-                    <Text className="text-sm font-semibold text-brand-600">{t('home.show_qr')}</Text>
-                  </Pressable>
-                )}
+                {/* Show QR untuk attendance (always available). Kalau ibadah
+                    online + ada link, additional row "Akses Online" akan
+                    muncul di bawah (rendered separately). */}
+                <Pressable
+                  className="flex-1 py-3 flex-row items-center justify-center gap-2"
+                  onPress={() => router.push('/qr-card')}
+                >
+                  <QrCode size={16} color="#EA580C" />
+                  <Text className="text-sm font-semibold text-brand-600">{t('home.show_qr')}</Text>
+                </Pressable>
               </View>
             </View>
           </View>
