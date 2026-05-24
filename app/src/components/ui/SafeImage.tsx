@@ -9,23 +9,39 @@ import {
 } from 'react-native';
 import { ImageOff } from 'lucide-react-native';
 
+import { env } from '@/config/env';
+
 /**
  * Image wrapper dengan graceful fallback kalau:
  * - source URL null / undefined / empty string
  * - load gagal (network error, 404, BE strip URL untuk guest)
  *
- * Render placeholder neutral box dengan icon ImageOff. Aligned dengan
- * existing pattern di app — banyak BE field nullable (heroImageUrl,
- * qrisImageUrl, fotoUrl) yang sebelumnya cause "image kosong tanpa hint".
+ * Auto-prepend base API URL kalau path relative (starts with "/") — BE
+ * kadang return absolute URL, kadang relative path. Defensive untuk both.
+ *
+ * Render placeholder neutral box dengan icon ImageOff kalau gagal.
  */
 type Props = Omit<ImageProps, 'source'> & {
-  /** URI string, atau null/undefined → fallback placeholder */
+  /** URI string, atau null/undefined → fallback placeholder. Bisa absolute
+   *  (https://...) atau relative (/uploads/...). */
   uri?: string | null;
   /** Container style — apply ke wrapper. style prop apply ke Image. */
   containerStyle?: StyleProp<ViewStyle>;
   /** Bg color placeholder, default neutral-100 */
   placeholderBg?: string;
 };
+
+/** Normalize URI: relative path → absolute dengan base URL. */
+function normalizeUri(uri: string): string {
+  const trimmed = uri.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  // Relative path — prepend base URL
+  const base = env.apiBaseUrl.replace(/\/$/, '');
+  const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return `${base}${path}`;
+}
 
 export function SafeImage({ uri, containerStyle, placeholderBg = '#F5F5F5', style, ...rest }: Props) {
   const [failed, setFailed] = useState(false);
@@ -47,12 +63,20 @@ export function SafeImage({ uri, containerStyle, placeholderBg = '#F5F5F5', styl
     );
   }
 
+  const fullUri = normalizeUri(uri!);
+
   return (
     <Image
       {...rest}
-      source={{ uri: uri! } as ImageSourcePropType}
+      source={{ uri: fullUri } as ImageSourcePropType}
       style={style}
-      onError={() => setFailed(true)}
+      onError={(e) => {
+        if (__DEV__) {
+          // eslint-disable-next-line no-console
+          console.warn('[SafeImage] load failed:', fullUri, e.nativeEvent);
+        }
+        setFailed(true);
+      }}
     />
   );
 }

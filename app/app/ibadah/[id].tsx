@@ -136,21 +136,33 @@ export default function IbadahDetailScreen() {
                 </View>
               </View>
 
-              {/* Akses Online button — kalau isOnline + linkOnline ada */}
-              {ibadah.isOnline && ibadah.linkOnline ? (
-                <Pressable
-                  onPress={() =>
-                    Linking.openURL(ibadah.linkOnline!).catch(() => {
-                      // Silent — user might not have suitable app
-                    })
-                  }
-                  className="mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
-                >
-                  <Video size={18} color="#fff" />
-                  <Text className="text-white font-semibold text-sm">
-                    {t('ibadah.access_online')}
-                  </Text>
-                </Pressable>
+              {/* Akses Online button — show ALWAYS kalau isOnline. Kalau
+                  linkOnline belum tersedia dari BE, tombol jadi disabled
+                  dengan hint visible — supaya user tetap aware ada online
+                  option meskipun belum di-publish. */}
+              {ibadah.isOnline ? (
+                ibadah.linkOnline ? (
+                  <Pressable
+                    onPress={() =>
+                      Linking.openURL(ibadah.linkOnline!).catch(() => {
+                        // Silent — user might not have suitable app
+                      })
+                    }
+                    className="mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
+                  >
+                    <Video size={18} color="#fff" />
+                    <Text className="text-white font-semibold text-sm">
+                      {t('ibadah.access_online')}
+                    </Text>
+                  </Pressable>
+                ) : (
+                  <View className="mt-3 bg-neutral-100 rounded-xl py-3 flex-row items-center justify-center gap-2">
+                    <Video size={18} color="#737373" />
+                    <Text className="text-neutral-500 font-medium text-sm">
+                      {t('ibadah.online_link_pending')}
+                    </Text>
+                  </View>
+                )
               ) : null}
             </View>
 

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, Clock, HandHeart, MapPin, Share2, Upload, Users, X } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, Clock, HandHeart, MapPin, PlayCircle, Share2, Upload, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -304,6 +304,19 @@ export default function EventDetailScreen() {
                   {event.deskripsi}
                 </Text>
               </View>
+
+              {/* Video teaser button — kalau BE provide videoUrl */}
+              {event.videoUrl && event.videoUrl.trim().length > 0 ? (
+                <Pressable
+                  onPress={() => Linking.openURL(event.videoUrl!).catch(() => {})}
+                  className="mt-4 bg-red-500 rounded-2xl py-3 flex-row items-center justify-center gap-2"
+                >
+                  <PlayCircle size={20} color="#fff" />
+                  <Text className="text-white font-semibold text-base">
+                    {t('event.watch_teaser')}
+                  </Text>
+                </Pressable>
+              ) : null}
 
               {/* Tags */}
               {event.tags && event.tags.length > 0 ? (

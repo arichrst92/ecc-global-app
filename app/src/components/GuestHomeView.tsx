@@ -82,7 +82,7 @@ export function GuestHomeView() {
         {/* Renungan Hari Ini */}
         {latestRenungan ? (
           <Pressable
-            onPress={() => router.push(`/renungan/${latestRenungan.slug}` as never)}
+            onPress={() => router.push(`/content/renungan/${latestRenungan.slug}` as never)}
             className="bg-white rounded-2xl p-4 border border-neutral-100 mt-3"
           >
             <View className="flex-row items-center gap-2 mb-2">
@@ -118,7 +118,7 @@ export function GuestHomeView() {
                 {t('home.latest_news')}
               </Text>
               <Pressable
-                onPress={() => router.push('/news' as never)}
+                onPress={() => router.push('/content/news' as never)}
                 className="flex-row items-center gap-0.5"
               >
                 <Text className="text-xs text-brand-600 font-semibold">{t('home.see_all')}</Text>
@@ -129,7 +129,7 @@ export function GuestHomeView() {
               {latestNews.map((n) => (
                 <Pressable
                   key={n.id}
-                  onPress={() => router.push(`/news/${n.slug}` as never)}
+                  onPress={() => router.push(`/content/news/${n.slug}` as never)}
                   className="bg-white rounded-2xl border border-neutral-100 overflow-hidden flex-row"
                 >
                   <SafeImage
@@ -176,8 +176,9 @@ export function GuestHomeView() {
             </View>
             <View className="gap-2">
               {upcomingEvents.map((ev) => (
-                <View
+                <Pressable
                   key={ev.id}
+                  onPress={() => router.push(`/event/${ev.slug}` as never)}
                   className="bg-white rounded-2xl border border-neutral-100 overflow-hidden flex-row"
                 >
                   <SafeImage
@@ -199,7 +200,7 @@ export function GuestHomeView() {
                       </Text>
                     </View>
                   </View>
-                </View>
+                </Pressable>
               ))}
             </View>
           </>

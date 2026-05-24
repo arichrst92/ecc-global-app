@@ -199,18 +199,29 @@ function HomeScreenAuthenticated() {
                   <Text className="text-sm font-medium text-neutral-700">{t('home.detail')}</Text>
                 </Pressable>
                 <View className="w-px bg-neutral-100" />
-                {/* Kalau ibadah online + ada linkOnline → tombol Akses Online,
-                    kalau tidak → fallback ke Tampilkan QR (untuk attendance) */}
-                {todayService.isOnline && todayService.linkOnline ? (
+                {/* Online button: show ALWAYS kalau isOnline. Kalau ibadah
+                    bukan online → fallback ke Tampilkan QR (untuk attendance
+                    offline). Kalau isOnline tapi belum ada link → tombol
+                    disabled supaya user tetap aware. */}
+                {todayService.isOnline ? (
                   <Pressable
                     className="flex-1 py-3 flex-row items-center justify-center gap-2"
-                    onPress={() =>
-                      Linking.openURL(todayService.linkOnline!).catch(() => {})
-                    }
+                    onPress={() => {
+                      if (todayService.linkOnline) {
+                        Linking.openURL(todayService.linkOnline).catch(() => {});
+                      }
+                    }}
+                    disabled={!todayService.linkOnline}
                   >
-                    <Video size={16} color="#059669" />
-                    <Text className="text-sm font-semibold text-emerald-600">
-                      {t('ibadah.access_online')}
+                    <Video size={16} color={todayService.linkOnline ? '#059669' : '#A3A3A3'} />
+                    <Text
+                      className={`text-sm font-semibold ${
+                        todayService.linkOnline ? 'text-emerald-600' : 'text-neutral-400'
+                      }`}
+                    >
+                      {todayService.linkOnline
+                        ? t('ibadah.access_online')
+                        : t('ibadah.online_link_pending')}
                     </Text>
                   </Pressable>
                 ) : (

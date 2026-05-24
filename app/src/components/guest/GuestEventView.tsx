@@ -110,8 +110,9 @@ export function GuestEventView() {
 
         <View className="gap-3">
           {items.map((ev) => (
-            <View
+            <Pressable
               key={ev.id}
+              onPress={() => router.push(`/event/${ev.slug}` as never)}
               className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
             >
               <SafeImage
@@ -162,7 +163,7 @@ export function GuestEventView() {
                   </Text>
                 </Pressable>
               </View>
-            </View>
+            </Pressable>
           ))}
         </View>
       </ScrollView>
