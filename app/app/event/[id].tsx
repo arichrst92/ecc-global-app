@@ -13,6 +13,7 @@ import { cancelMyParticipation } from '@/api/event';
 import { useEventDetail, useMyDonations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
+import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
 import type { EventDonation } from '@/types/event';
@@ -22,6 +23,7 @@ export default function EventDetailScreen() {
   const lang = i18n.language;
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const isGuest = useAuthStore((s) => s.isGuest);
 
   const query = useEventDetail(id);
   const event = query.data;
@@ -38,9 +40,10 @@ export default function EventDetailScreen() {
     Share.share({ message: lines.join('\n') });
   }
 
-  // Donations history khusus NOMINAL_BEBAS — per BE patch 2026-05-21l
+  // Donations history khusus NOMINAL_BEBAS — per BE patch 2026-05-21l.
+  // Disabled untuk guest mode — endpoint require auth + guest tidak punya donations.
   const isBebas = event?.tipeBayar === 'NOMINAL_BEBAS';
-  const donationsQuery = useMyDonations(id, !!event && isBebas);
+  const donationsQuery = useMyDonations(id, !!event && isBebas && !isGuest);
 
   const addParticipation = useEventFlowStore((s) => s.addParticipation);
   const removeParticipation = useEventFlowStore((s) => s.removeParticipation);
@@ -345,8 +348,10 @@ export default function EventDetailScreen() {
         ) : null}
       </ScrollView>
 
-      {/* Sticky bottom CTA — conditional based on participation status */}
-      {event ? (
+      {/* Sticky bottom CTA — conditional based on participation status.
+          Hidden untuk guest mode — event read-only, hanya teaser video
+          tetap interactive di scrollable content. */}
+      {event && !isGuest ? (
         <View className="bg-white border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
             {isBebas ? (

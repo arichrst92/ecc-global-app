@@ -51,9 +51,6 @@ export function GuestHomeView() {
               resizeMode="contain"
             />
             <Text className="text-white text-xl font-bold mt-3">Els App</Text>
-            <Text className="text-white/80 text-xs mt-1 text-center px-6">
-              {t('guest.home_tagline')}
-            </Text>
           </View>
         </SafeAreaView>
       </View>
