@@ -149,7 +149,9 @@ export function GuestIbadahView() {
                           <Text className="text-[11px] text-neutral-500">{it.lokasi}</Text>
                         </View>
                       ) : null}
-                      {it.isOnline ? (
+                      {/* Hide "Online" indicator kalau link tidak tersedia
+                          — supaya tidak misleading. */}
+                      {it.isOnline && getStreamLink(it) ? (
                         <View className="flex-row items-center gap-1 mt-1">
                           <Video size={11} color="#2563EB" />
                           <Text className="text-[11px] text-blue-700">{t('common.online')}</Text>
@@ -157,8 +159,7 @@ export function GuestIbadahView() {
                       ) : null}
                     </View>
                   </View>
-                  {/* Stream button — show kalau link tersedia (regardless
-                      of isOnline flag, defensive). */}
+                  {/* Stream button — show kalau link tersedia. */}
                   {(() => {
                     const streamLink = getStreamLink(it);
                     if (!streamLink) return null;

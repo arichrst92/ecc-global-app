@@ -125,44 +125,47 @@ export default function IbadahDetailScreen() {
             </View>
 
             {/* Location */}
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3">
-              <View className="flex-row items-center gap-3">
-                <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-                  <MapPin size={18} color="#EA580C" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-xs text-neutral-500">{t('ibadah.location')}</Text>
-                  <Text className="font-semibold text-neutral-900">{ibadah.lokasi}</Text>
-                  {ibadah.isOnline ? (
-                    <Text className="text-xs text-emerald-600 mt-0.5">{t('ibadah.online_service')}</Text>
+            {(() => {
+              const streamLink = getStreamLink(ibadah);
+              return (
+                <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3">
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+                      <MapPin size={18} color="#EA580C" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-xs text-neutral-500">{t('ibadah.location')}</Text>
+                      <Text className="font-semibold text-neutral-900">{ibadah.lokasi}</Text>
+                      {/* Hide "Ibadah Online" indicator kalau link tidak
+                          tersedia — supaya tidak misleading saat admin set
+                          flag tapi belum masukkan URL. */}
+                      {ibadah.isOnline && streamLink ? (
+                        <Text className="text-xs text-emerald-600 mt-0.5">{t('ibadah.online_service')}</Text>
+                      ) : null}
+                    </View>
+                  </View>
+
+                  {/* Stream button — show kalau ada link. Helper accept
+                      both `linkOnline` + `linkStream` (BE rename belum
+                      fully efektif per device log 2026-05-24). */}
+                  {streamLink ? (
+                    <Pressable
+                      onPress={() =>
+                        Linking.openURL(streamLink).catch(() => {
+                          // Silent — user might not have suitable app
+                        })
+                      }
+                      className="mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
+                    >
+                      <Video size={18} color="#fff" />
+                      <Text className="text-white font-semibold text-sm">
+                        {t('ibadah.access_online')}
+                      </Text>
+                    </Pressable>
                   ) : null}
                 </View>
-              </View>
-
-              {/* Stream button — show kalau ada link. Helper accept
-                  both `linkOnline` + `linkStream` (BE rename belum
-                  fully efektif untuk endpoint detail per device log
-                  2026-05-24). */}
-              {(() => {
-                const streamLink = getStreamLink(ibadah);
-                if (!streamLink) return null;
-                return (
-                  <Pressable
-                    onPress={() =>
-                      Linking.openURL(streamLink).catch(() => {
-                        // Silent — user might not have suitable app
-                      })
-                    }
-                    className="mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
-                  >
-                    <Video size={18} color="#fff" />
-                    <Text className="text-white font-semibold text-sm">
-                      {t('ibadah.access_online')}
-                    </Text>
-                  </Pressable>
-                );
-              })()}
-            </View>
+              );
+            })()}
 
             {/* Deskripsi — kalau BE provide */}
             {ibadah.deskripsi && ibadah.deskripsi.trim().length > 0 ? (
