@@ -23,7 +23,7 @@
     "android": {
       "package": "idea.eccchurch.global",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/ecc-icon.png",
+        "foregroundImage": "./assets/images/ecc-icon-adaptive.png",
         "backgroundColor": "#F97316"
       },
       "predictiveBackGestureEnabled": false,

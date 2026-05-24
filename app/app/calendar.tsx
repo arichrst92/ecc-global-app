@@ -26,7 +26,7 @@ import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
 
 type DayItem =
   | { type: 'event'; id: string; title: string; date: string }
-  | { type: 'ibadah'; id: string; title: string; date: string; time?: string }
+  | { type: 'ibadah'; id: string; title: string; date: string; time?: string; kategori?: string }
   | { type: 'birthday'; jemaatId: string; nama: string; age: number };
 
 export default function CalendarScreen() {
@@ -105,6 +105,7 @@ export default function CalendarScreen() {
           title: o.nama,
           date: o.tanggal,
           time: o.jamMulai,
+          kategori: o.kategoriIbadah?.nama,
         });
       }
     });
@@ -376,10 +377,22 @@ function ItemRow({
           <Church size={18} color="#D97706" />
         </View>
         <View className="flex-1">
-          <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text className="text-xs text-neutral-500">
+          <View className="flex-row items-start gap-2">
+            <Text
+              className="text-sm font-semibold text-neutral-900 flex-1"
+              numberOfLines={1}
+            >
+              {item.title}
+            </Text>
+            {item.kategori ? (
+              <View className="bg-brand-50 border border-brand-100 rounded-full px-2 py-0.5">
+                <Text className="text-[10px] font-semibold text-brand-700 uppercase tracking-wider">
+                  {item.kategori}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+          <Text className="text-xs text-neutral-500 mt-0.5">
             {t('calendar.label_ibadah')}
             {item.time ? ` · ${item.time}` : ''}
           </Text>
