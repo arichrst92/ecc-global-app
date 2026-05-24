@@ -4,29 +4,27 @@
     "slug": "ecc-mobile-app",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/ecc-icon.png",
     "scheme": "ecc",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/ecc-icon-circle.png",
       "resizeMode": "contain",
       "backgroundColor": "#F97316"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "idea.eccchurch.global"
+      "bundleIdentifier": "idea.eccchurch.global",
+      "icon": "./assets/images/ecc-icon.png"
     },
     "android": {
       "package": "idea.eccchurch.global",
       "adaptiveIcon": {
-        "backgroundColor": "#FFEDD5",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/ecc-icon.png",
+        "backgroundColor": "#F97316"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.CAMERA",
         "android.permission.CAMERA"
       ]
     },
