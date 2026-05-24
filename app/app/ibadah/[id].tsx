@@ -1,9 +1,18 @@
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Calendar, Clock, MapPin, QrCode, Users } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  FileText,
+  MapPin,
+  QrCode,
+  Users,
+  Video,
+} from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
@@ -126,7 +135,39 @@ export default function IbadahDetailScreen() {
                   ) : null}
                 </View>
               </View>
+
+              {/* Akses Online button — kalau isOnline + linkOnline ada */}
+              {ibadah.isOnline && ibadah.linkOnline ? (
+                <Pressable
+                  onPress={() =>
+                    Linking.openURL(ibadah.linkOnline!).catch(() => {
+                      // Silent — user might not have suitable app
+                    })
+                  }
+                  className="mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
+                >
+                  <Video size={18} color="#fff" />
+                  <Text className="text-white font-semibold text-sm">
+                    {t('ibadah.access_online')}
+                  </Text>
+                </Pressable>
+              ) : null}
             </View>
+
+            {/* Deskripsi — kalau BE provide */}
+            {ibadah.deskripsi && ibadah.deskripsi.trim().length > 0 ? (
+              <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3">
+                <View className="flex-row items-center gap-2 mb-2">
+                  <FileText size={16} color="#525252" />
+                  <Text className="text-sm font-semibold text-neutral-700">
+                    {t('ibadah.description')}
+                  </Text>
+                </View>
+                <Text className="text-sm text-neutral-700 leading-relaxed">
+                  {ibadah.deskripsi}
+                </Text>
+              </View>
+            ) : null}
 
             {/* Petugas — per BE patch 23a tap nama → /jemaat/[id] view-only profile */}
             {ibadah.petugas && ibadah.petugas.length > 0 ? (

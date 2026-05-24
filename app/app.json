@@ -15,7 +15,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "idea.eccchurch.global",
-      "icon": "./assets/images/ecc-icon.png"
+      "icon": "./assets/images/ecc-icon.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "idea.eccchurch.global",

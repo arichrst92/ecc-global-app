@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays } from 'lucide-react-native';
+import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -199,13 +199,29 @@ function HomeScreenAuthenticated() {
                   <Text className="text-sm font-medium text-neutral-700">{t('home.detail')}</Text>
                 </Pressable>
                 <View className="w-px bg-neutral-100" />
-                <Pressable
-                  className="flex-1 py-3 flex-row items-center justify-center gap-2"
-                  onPress={() => router.push('/qr-card')}
-                >
-                  <QrCode size={16} color="#EA580C" />
-                  <Text className="text-sm font-semibold text-brand-600">{t('home.show_qr')}</Text>
-                </Pressable>
+                {/* Kalau ibadah online + ada linkOnline → tombol Akses Online,
+                    kalau tidak → fallback ke Tampilkan QR (untuk attendance) */}
+                {todayService.isOnline && todayService.linkOnline ? (
+                  <Pressable
+                    className="flex-1 py-3 flex-row items-center justify-center gap-2"
+                    onPress={() =>
+                      Linking.openURL(todayService.linkOnline!).catch(() => {})
+                    }
+                  >
+                    <Video size={16} color="#059669" />
+                    <Text className="text-sm font-semibold text-emerald-600">
+                      {t('ibadah.access_online')}
+                    </Text>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    className="flex-1 py-3 flex-row items-center justify-center gap-2"
+                    onPress={() => router.push('/qr-card')}
+                  >
+                    <QrCode size={16} color="#EA580C" />
+                    <Text className="text-sm font-semibold text-brand-600">{t('home.show_qr')}</Text>
+                  </Pressable>
+                )}
               </View>
             </View>
           </View>

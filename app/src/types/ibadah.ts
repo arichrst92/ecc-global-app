@@ -23,6 +23,11 @@ export type IbadahListItem = {
   jamSelesai: string;
   lokasi: string;
   isOnline: boolean;
+  /** URL akses ibadah online (Zoom / YouTube Live / Google Meet, dll).
+   *  Kalau isOnline=true + linkOnline ada → tampil tombol "Akses Online"
+   *  di mobile (detail + dashboard card). Null kalau ibadah offline only
+   *  atau BE belum sediakan link. */
+  linkOnline?: string | null;
   isActive: boolean;
   cabang: CabangRef;
   kategoriIbadah?: KategoriIbadah | null;
@@ -40,6 +45,8 @@ export type IbadahOccurrence = {
   tipeJadwal: TipeJadwal;
   lokasi: string;
   isOnline: boolean;
+  /** URL akses online — sama semantic dengan IbadahListItem.linkOnline. */
+  linkOnline?: string | null;
   cabang: CabangRef;
   kategoriIbadah?: KategoriIbadah | null;
 };

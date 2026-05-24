@@ -409,6 +409,8 @@
     "schedule": "Schedule",
     "location": "Location",
     "online_service": "Online service available",
+    "access_online": "Access Online",
+    "description": "Description",
     "team": "Ministry Team",
     "team_tba": "Team to be announced",
     "every_day": "Every {{day}}",

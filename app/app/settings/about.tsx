@@ -113,24 +113,6 @@ export default function AboutScreen() {
           </Pressable>
         </View>
 
-        {/* Sinode / parent organization */}
-        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-4">
-          {t('settings.about_synod')}
-        </Text>
-        <View className="bg-white rounded-2xl border border-neutral-100 p-4 items-center">
-          <Image
-            source={require('../../assets/images/ecc-logo.png')}
-            style={{ width: 120, height: 160 }}
-            resizeMode="contain"
-          />
-          <Text className="text-sm font-semibold text-neutral-900 mt-3 text-center">
-            {t('settings.about_synod_name')}
-          </Text>
-          <Text className="text-xs text-neutral-500 mt-1 text-center leading-relaxed">
-            {t('settings.about_synod_tagline')}
-          </Text>
-        </View>
-
         {/* Pengembang section */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-4">
           {t('settings.about_developer')}

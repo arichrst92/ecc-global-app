@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -24,6 +23,7 @@ import {
 
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { Picker } from '@/components/ui/Picker';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { useToast } from '@/components/ui/Toast';
 import { useBranches } from '@/hooks/useBranches';
 import { usePublicRekening } from '@/hooks/usePublicGuest';
@@ -164,8 +164,8 @@ export function GuestPersembahanView() {
 
               {r.qrisImageUrl ? (
                 <View className="mt-3 items-center">
-                  <Image
-                    source={{ uri: r.qrisImageUrl }}
+                  <SafeImage
+                    uri={r.qrisImageUrl}
                     style={{ width: 160, height: 160 }}
                     resizeMode="contain"
                   />

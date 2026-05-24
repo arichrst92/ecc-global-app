@@ -409,6 +409,8 @@
     "schedule": "Jadwal",
     "location": "Lokasi",
     "online_service": "Ibadah online tersedia",
+    "access_online": "Akses Online",
+    "description": "Deskripsi",
     "team": "Petugas Pelayanan",
     "team_tba": "Petugas akan diumumkan",
     "every_day": "Setiap {{day}}",

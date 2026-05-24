@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -16,6 +15,7 @@ import { CalendarDays, MapPin, Tag } from 'lucide-react-native';
 
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { Picker } from '@/components/ui/Picker';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { useBranches } from '@/hooks/useBranches';
 import { usePublicEvents } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
@@ -114,13 +114,11 @@ export function GuestEventView() {
               key={ev.id}
               className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
             >
-              {ev.heroImageUrl ? (
-                <Image
-                  source={{ uri: ev.heroImageUrl }}
-                  style={{ width: '100%', aspectRatio: 16 / 9 }}
-                  resizeMode="cover"
-                />
-              ) : null}
+              <SafeImage
+                uri={ev.heroImageUrl}
+                style={{ width: '100%', aspectRatio: 16 / 9 }}
+                resizeMode="cover"
+              />
               <View className="p-4">
                 <Text className="text-base font-bold text-neutral-900" numberOfLines={2}>
                   {ev.judul}

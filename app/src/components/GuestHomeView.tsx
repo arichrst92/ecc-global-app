@@ -3,9 +3,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { BookOpen, Globe, Heart, MapPin } from 'lucide-react-native';
+import { BookOpen, CalendarDays, ChevronRight, Globe, Heart, MapPin } from 'lucide-react-native';
 
 import { GuestModeBanner } from '@/components/GuestModeBanner';
+import { SafeImage } from '@/components/ui/SafeImage';
+import { usePublicEvents } from '@/hooks/usePublicGuest';
+import { formatDate } from '@/utils/date';
 
 /**
  * Home tab UI khusus guest mode — simplified, static content saja.
@@ -21,8 +24,13 @@ import { GuestModeBanner } from '@/components/GuestModeBanner';
  * - Link ke website public
  */
 export function GuestHomeView() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
+  // Show 3 latest upcoming events sebagai content preview di home.
+  // /public/news + /public/renungan endpoints belum di-rilis BE (per
+  // backend-request-public-content-news-renungan.md).
+  const eventsQuery = usePublicEvents(null);
+  const upcomingEvents = (eventsQuery.data?.data ?? []).slice(0, 3);
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -65,6 +73,54 @@ export function GuestHomeView() {
             {t('guest.about_body')}
           </Text>
         </View>
+
+        {/* Upcoming events preview */}
+        {upcomingEvents.length > 0 ? (
+          <>
+            <View className="flex-row items-center justify-between mt-5 mb-2">
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                {t('home.upcoming_events')}
+              </Text>
+              <Pressable
+                onPress={() => router.push('/(tabs)/event' as never)}
+                className="flex-row items-center gap-0.5"
+              >
+                <Text className="text-xs text-brand-600 font-semibold">
+                  {t('home.see_all')}
+                </Text>
+                <ChevronRight size={12} color="#EA580C" />
+              </Pressable>
+            </View>
+            <View className="gap-2">
+              {upcomingEvents.map((ev) => (
+                <View
+                  key={ev.id}
+                  className="bg-white rounded-2xl border border-neutral-100 overflow-hidden flex-row"
+                >
+                  <SafeImage
+                    uri={ev.heroImageUrl}
+                    style={{ width: 96, height: 96 }}
+                    resizeMode="cover"
+                  />
+                  <View className="flex-1 p-3 justify-center">
+                    <Text
+                      className="text-sm font-semibold text-neutral-900"
+                      numberOfLines={2}
+                    >
+                      {ev.judul}
+                    </Text>
+                    <View className="flex-row items-center gap-1 mt-1">
+                      <CalendarDays size={11} color="#737373" />
+                      <Text className="text-[11px] text-neutral-500">
+                        {formatDate(ev.tanggalMulai, i18n.language)}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </>
+        ) : null}
 
         {/* Links */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-5 mb-2">
