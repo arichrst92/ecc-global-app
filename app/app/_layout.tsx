@@ -224,12 +224,16 @@ function RootLayoutNav() {
   const router = useRouter();
   const rehydrateEventFlow = useEventFlowStore((s) => s.hydrate);
 
-  // Auth-aware redirect logic
+  // Auth-aware redirect logic.
+  // Public routes yang allowed tanpa auth (T&C, Privacy linked dari welcome
+  // screen) di-whitelist di sini supaya tidak kena redirect loop ke welcome.
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
+    const inPublicLegal = segments[0] === 'legal';
+    const publicAllowed = inAuthGroup || inPublicLegal;
 
-    if (!isAuthenticated && !inAuthGroup) {
-      // Not authed, not on auth screen → redirect ke welcome
+    if (!isAuthenticated && !publicAllowed) {
+      // Not authed, not on auth/legal screen → redirect ke welcome
       router.replace('/(auth)/welcome');
     } else if (isAuthenticated && inAuthGroup) {
       // Authed but on auth screen → redirect ke tabs
