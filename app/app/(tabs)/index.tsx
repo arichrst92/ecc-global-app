@@ -160,11 +160,21 @@ function HomeScreenAuthenticated() {
           <View className="px-5 mt-4">
             <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
               <View className="p-4">
-                <View className="flex-row items-center gap-2 mb-2">
-                  <View className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <Text className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
-                    {t('home.today_service')}
-                  </Text>
+                <View className="flex-row items-start justify-between gap-2 mb-2">
+                  <View className="flex-row items-center gap-2 flex-1">
+                    <View className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <Text className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
+                      {t('home.today_service')}
+                    </Text>
+                  </View>
+                  {/* Kategori badge top-right */}
+                  {todayService.kategoriIbadah ? (
+                    <View className="bg-brand-50 border border-brand-100 rounded-full px-2.5 py-0.5">
+                      <Text className="text-[10px] font-semibold text-brand-700 uppercase tracking-wider">
+                        {todayService.kategoriIbadah.nama}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
                 <Text className="text-lg font-bold text-neutral-900">{todayService.nama}</Text>
                 <View className="flex-row items-center gap-2 mt-1.5">
