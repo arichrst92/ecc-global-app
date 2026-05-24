@@ -44,6 +44,7 @@ export default function WelcomeScreen() {
   const hasFaceSession = useAuthStore((s) => s.hasFaceSession);
   const login = useAuthStore((s) => s.login);
   const forgetDevice = useAuthStore((s) => s.forgetDevice);
+  const enterGuestMode = useAuthStore((s) => s.enterGuestMode);
   const user = useAuthStore((s) => s.user);
   const { data: appConfig } = useAppConfig();
 
@@ -243,7 +244,11 @@ export default function WelcomeScreen() {
       icon: <Eye size={20} color="#525252" />,
       iconBg: 'bg-neutral-100',
       variant: 'secondary',
-      onPress: () => showToast(t('auth.guest_coming_soon'), 'info'),
+      onPress: async () => {
+        await enterGuestMode();
+        // Root layout RootLayoutNav akan auto-redirect ke (tabs)
+        // karena isAuthenticated=true setelah enterGuestMode().
+      },
     },
   ];
 

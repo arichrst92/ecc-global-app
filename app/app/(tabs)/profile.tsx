@@ -28,6 +28,7 @@ import { useRouter } from 'expo-router';
 import { Avatar } from '@/components/ui/Avatar';
 import { useMyFamily } from '@/hooks/useFamily';
 import { Button } from '@/components/ui/Button';
+import { GuestProfileView } from '@/components/GuestProfileView';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
@@ -36,6 +37,16 @@ import { getMyProfile } from '@/api/me';
 import { formatPhoneDisplay } from '@/utils/phone';
 
 export default function ProfileTab() {
+  // Guard di luar — supaya rules-of-hooks tidak violated. Guest path tidak
+  // pakai protected hooks (family, scanner, getMyProfile).
+  const isGuest = useAuthStore((s) => s.isGuest);
+  if (isGuest) {
+    return <GuestProfileView />;
+  }
+  return <ProfileTabAuthenticated />;
+}
+
+function ProfileTabAuthenticated() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const router = useRouter();

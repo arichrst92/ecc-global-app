@@ -9,6 +9,7 @@ import { Bell, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarD
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { BranchChip } from '@/components/branch/BranchChip';
+import { GuestHomeView } from '@/components/GuestHomeView';
 import { QuickAccess } from '@/components/home/QuickAccess';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
@@ -23,6 +24,17 @@ function formatTime(hhmm: string): string {
 }
 
 export default function HomeScreen() {
+  // Guard di luar — supaya rules-of-hooks tidak violated. Dengan branching di
+  // top level component, each branch render component berbeda dengan hook set
+  // yang konsisten internally.
+  const isGuest = useAuthStore((s) => s.isGuest);
+  if (isGuest) {
+    return <GuestHomeView />;
+  }
+  return <HomeScreenAuthenticated />;
+}
+
+function HomeScreenAuthenticated() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);

@@ -67,18 +67,23 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
     body: body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
   });
 
-  // Handle 401 — try refresh once
+  // Handle 401 — try refresh once. Skip kalau guest mode (no token to
+  // refresh, jangan trigger logout). Caller hook biasanya gate dengan
+  // `enabled: !isGuest` jadi sebenarnya tidak akan sampai sini, tapi defensive.
   if (res.status === 401 && !skipAuth) {
-    const newToken = await tryRefresh();
-    if (newToken) {
-      reqHeaders['Authorization'] = `Bearer ${newToken}`;
-      const retry = await fetch(`${env.apiBaseUrl}${path}`, {
-        ...rest,
-        headers: reqHeaders,
-        body:
-          body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
-      });
-      return parseResponse<T>(retry, suppressErrorReport);
+    const isGuest = useAuthStore.getState().isGuest;
+    if (!isGuest) {
+      const newToken = await tryRefresh();
+      if (newToken) {
+        reqHeaders['Authorization'] = `Bearer ${newToken}`;
+        const retry = await fetch(`${env.apiBaseUrl}${path}`, {
+          ...rest,
+          headers: reqHeaders,
+          body:
+            body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
+        });
+        return parseResponse<T>(retry, suppressErrorReport);
+      }
     }
   }
 

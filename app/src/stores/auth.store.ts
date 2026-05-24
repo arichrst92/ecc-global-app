@@ -10,6 +10,10 @@ const KEYS = {
    *  Welcome screen bisa decide tampilkan "Login Wajah" button tanpa hit
    *  /auth/me/face-profile dulu. Source of truth tetap di BE. */
   faceEnrolledHint: 'ecc.faceEnrolledHint',
+  /** Flag mode tamu (browse-only). Persist supaya kalau user close app di
+   *  guest mode, re-open tetap di guest (tidak harus klik "lihat sebagai
+   *  tamu" lagi). */
+  guestMode: 'ecc.guestMode',
 };
 
 type AuthState = {
@@ -22,6 +26,11 @@ type AuthState = {
   /** Cached hint: user pernah enroll face. Untuk show Welcome face button
    *  tanpa network call dulu. Diset/clear via setFaceEnrolledHint. */
   faceEnrolledHint: boolean;
+
+  /** Mode tamu — user akses app tanpa signup. isAuthenticated juga true
+   *  supaya navigate ke tabs OK. Interaction yang butuh auth (RSVP, giving,
+   *  attendance) detect isGuest dan show prompt signup. */
+  isGuest: boolean;
 
   hydrate: () => Promise<void>;
   setTokens: (accessToken: string, refreshToken: string) => Promise<void>;
@@ -36,6 +45,11 @@ type AuthState = {
   /** Check kalau ada sesi yang bisa di-restore via face login dari welcome
    *  screen (refresh token + user data tersisa, face enrolled). */
   hasFaceSession: () => Promise<boolean>;
+  /** Masuk ke mode tamu — tanpa JWT, tanpa user data. Bisa browse public
+   *  content (news, renungan, info gereja) tapi tidak bisa interact. */
+  enterGuestMode: () => Promise<void>;
+  /** Keluar dari mode tamu — kembali ke welcome screen. */
+  exitGuestMode: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -45,22 +59,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   isHydrating: true,
   faceEnrolledHint: false,
+  isGuest: false,
 
   hydrate: async () => {
     try {
-      const [accessToken, refreshToken, userJson, faceFlag] = await Promise.all([
+      const [accessToken, refreshToken, userJson, faceFlag, guestFlag] = await Promise.all([
         storage.getItem(KEYS.accessToken),
         storage.getItem(KEYS.refreshToken),
         storage.getItem(KEYS.user),
         storage.getItem(KEYS.faceEnrolledHint),
+        storage.getItem(KEYS.guestMode),
       ]);
       const user = userJson ? (JSON.parse(userJson) as User) : null;
+      const isGuest = guestFlag === '1';
       set({
         accessToken,
         refreshToken,
         user,
-        isAuthenticated: !!accessToken && !!user,
+        // Authenticated kalau ada token+user ATAU dalam guest mode.
+        // Guest mode tidak punya token tapi tetap dianggap "authenticated"
+        // untuk routing — bisa browse tabs.
+        isAuthenticated: (!!accessToken && !!user) || isGuest,
         faceEnrolledHint: faceFlag === '1',
+        isGuest,
         isHydrating: false,
       });
     } catch {
@@ -86,12 +107,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       storage.setItem(KEYS.accessToken, accessToken),
       storage.setItem(KEYS.refreshToken, refreshToken),
       storage.setItem(KEYS.user, JSON.stringify(user)),
+      // Login normal → exit guest mode kalau sebelumnya guest
+      storage.deleteItem(KEYS.guestMode),
     ]);
     set({
       accessToken,
       refreshToken,
       user,
       isAuthenticated: true,
+      isGuest: false,
     });
   },
 
@@ -155,5 +179,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await storage.deleteItem(KEYS.faceEnrolledHint);
     }
     set({ faceEnrolledHint: enrolled });
+  },
+
+  enterGuestMode: async () => {
+    await storage.setItem(KEYS.guestMode, '1');
+    set({
+      isGuest: true,
+      isAuthenticated: true, // bypass auth gate, navigate ke tabs
+      // Clear any stale credentials supaya API calls jangan attach Bearer token guest.
+      accessToken: null,
+      user: null,
+    });
+  },
+
+  exitGuestMode: async () => {
+    await storage.deleteItem(KEYS.guestMode);
+    set({
+      isGuest: false,
+      isAuthenticated: false,
+    });
   },
 }));
