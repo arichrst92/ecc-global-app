@@ -220,7 +220,7 @@ function ProfileTabAuthenticated() {
         </View>
 
         <Text className="text-xs text-neutral-400 text-center mt-4">
-          ECC Global App v0.1.0
+          Els App v0.1.0
         </Text>
       </ScrollView>
 

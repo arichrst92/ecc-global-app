@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ECC Global App",
+    "name": "Els App",
     "slug": "ecc-mobile-app",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -40,7 +40,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "ECC Global App butuh akses kamera untuk scan QR jemaat dan face recognition.",
+          "cameraPermission": "Els App butuh akses kamera untuk scan QR jemaat dan face recognition.",
           "recordAudioAndroid": false
         }
       ],

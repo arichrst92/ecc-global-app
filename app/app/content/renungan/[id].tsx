@@ -43,7 +43,7 @@ export default function RenunganDetailScreen() {
     try {
       await Share.share({
         title: item.judul,
-        message: `📖 ${item.ayatAlkitab}\n\n*${item.judul}*\n\n${item.ringkasan}\n\n— ECC Global App`,
+        message: `📖 ${item.ayatAlkitab}\n\n*${item.judul}*\n\n${item.ringkasan}\n\n— Els App`,
       });
     } catch {
       // user cancel — ignore

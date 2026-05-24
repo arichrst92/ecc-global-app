@@ -262,7 +262,7 @@ export default function WelcomeScreen() {
             style={{ width: 96, height: 96 }}
             resizeMode="contain"
           />
-          <Text className="text-2xl font-bold text-neutral-900 mt-4">ECC Global App</Text>
+          <Text className="text-2xl font-bold text-neutral-900 mt-4">Els App</Text>
           <Text className="text-neutral-500 text-sm mt-1">{t('auth.welcome_sub')}</Text>
         </View>
 

@@ -105,7 +105,7 @@ export default function CheckUpdateScreen() {
           </Text>
           <Text className="text-2xl font-bold text-neutral-900">v{currentVersion}</Text>
           <Text className="text-xs text-neutral-400 mt-1">
-            ECC Global App
+            Els App
           </Text>
         </View>
 

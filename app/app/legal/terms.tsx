@@ -47,7 +47,7 @@ export default function TermsScreen() {
             {doc?.title ?? t('legal.terms_title')}
           </Text>
           <Text className="text-xs text-neutral-500 text-center mt-1">
-            ECC Global App
+            Els App
           </Text>
         </View>
 

@@ -63,7 +63,7 @@ export function GuestProfileView() {
             resizeMode="contain"
           />
           <Text className="text-lg font-bold text-neutral-900 mt-3 text-center">
-            ECC Global App
+            Els App
           </Text>
           <Text className="text-sm text-neutral-500 mt-1 text-center leading-relaxed">
             {t('guest.profile_body')}

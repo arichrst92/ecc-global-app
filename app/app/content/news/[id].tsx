@@ -22,7 +22,7 @@ export default function NewsDetailScreen() {
     try {
       await Share.share({
         title: item.judul,
-        message: `${item.judul}\n\n${item.ringkasan}\n\n— ECC Global App`,
+        message: `${item.judul}\n\n${item.ringkasan}\n\n— Els App`,
       });
     } catch {
       // user cancel — ignore

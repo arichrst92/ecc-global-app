@@ -39,7 +39,7 @@ export default function AboutScreen() {
             resizeMode="contain"
           />
           <Text className="text-2xl font-bold text-neutral-900 mt-4">
-            ECC Global App
+            Els App
           </Text>
           <Text className="text-sm text-neutral-500 mt-1">v{version}</Text>
         </View>
