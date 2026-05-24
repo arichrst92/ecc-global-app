@@ -29,7 +29,9 @@ export type EventListItem = {
    */
   jamMulai?: string | null;
   jamSelesai?: string | null;
-  lokasi: string;
+  /** Lokasi event. Bisa empty string atau null (event online-only / draft
+   *  belum di-set). Mobile harus handle defensive — render fallback label. */
+  lokasi: string | null;
   tipeBayar: TipeBayar;
   nominal: string; // Decimal string untuk presisi
   quotaPeserta: number | null;

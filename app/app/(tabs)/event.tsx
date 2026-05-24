@@ -228,12 +228,14 @@ function EventCard({
           {event.ringkasan}
         </Text>
 
-        <View className="flex-row items-center gap-1 mt-2">
-          <MapPin size={12} color="#A3A3A3" />
-          <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
-            {event.lokasi}
-          </Text>
-        </View>
+        {event.lokasi && event.lokasi.trim().length > 0 ? (
+          <View className="flex-row items-center gap-1 mt-2">
+            <MapPin size={12} color="#A3A3A3" />
+            <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
+              {event.lokasi}
+            </Text>
+          </View>
+        ) : null}
 
         {/* Quota progress */}
         {event.quotaPeserta ? (

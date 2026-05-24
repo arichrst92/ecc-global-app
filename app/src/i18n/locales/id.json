@@ -304,6 +304,7 @@
   "event": {
     "title": "Event & Movement",
     "synod_level": "Tingkat Sinode",
+    "location_tba": "Lokasi akan diumumkan",
     "filter_all": "Semua",
     "free": "Gratis",
     "paid": "Berbayar",

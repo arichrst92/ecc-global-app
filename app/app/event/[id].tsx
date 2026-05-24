@@ -263,7 +263,11 @@ export default function EventDetailScreen() {
                 })()}
                 <MetaRow
                   icon={<MapPin size={20} color="#EA580C" />}
-                  primary={event.lokasi}
+                  primary={
+                    event.lokasi && event.lokasi.trim().length > 0
+                      ? event.lokasi
+                      : t('event.location_tba')
+                  }
                 />
                 {event.quotaPeserta != null ? (
                   <View className="flex-row items-center gap-3">

@@ -304,6 +304,7 @@
   "event": {
     "title": "Events & Movements",
     "synod_level": "Synod-level",
+    "location_tba": "Location TBA",
     "filter_all": "All",
     "free": "Free",
     "paid": "Paid",

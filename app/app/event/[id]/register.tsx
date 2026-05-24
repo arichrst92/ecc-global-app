@@ -206,7 +206,10 @@ export default function EventRegisterScreen() {
                 {event.judul}
               </Text>
               <Text className="text-xs text-neutral-500 mt-0.5">
-                {formatDate(event.tanggalMulai, lang)} · {event.lokasi}
+                {formatDate(event.tanggalMulai, lang)}
+                {event.lokasi && event.lokasi.trim().length > 0
+                  ? ` · ${event.lokasi}`
+                  : ''}
               </Text>
               {isFree ? (
                 <Text className="text-sm font-bold text-emerald-600 mt-1">
