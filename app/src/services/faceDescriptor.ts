@@ -272,12 +272,11 @@ async function pngBase64ToTensor(base64: string): Promise<Float32Array | null> {
   try {
     // Lazy import — upng-js bisa ga ada kalau dev belum npm install
     const upng = (await import('upng-js')) as unknown as {
-      default?: { decode: (buf: ArrayBuffer) => UpngImage };
-      decode?: (buf: ArrayBuffer) => UpngImage;
-    };
-    const UPNG = upng.default ?? upng;
-    if (!UPNG || typeof UPNG.decode !== 'function') {
-      if (__DEV__) console.warn('[faceDescriptor] upng-js decode unavailable');
+      default?: UpngModule;
+    } & UpngModule;
+    const UPNG: UpngModule = (upng.default ?? upng) as UpngModule;
+    if (!UPNG || typeof UPNG.decode !== 'function' || typeof UPNG.toRGBA8 !== 'function') {
+      if (__DEV__) console.warn('[faceDescriptor] upng-js decode/toRGBA8 unavailable');
       return null;
     }
 
@@ -295,31 +294,39 @@ async function pngBase64ToTensor(base64: string): Promise<Float32Array | null> {
       return null;
     }
 
-    // upng-js return RGBA8 by default — `data` Uint8Array length width*height*4
-    // Some variants atau decoder return different format — sanity check
+    // UPNG.decode() return raw IDAT chunk data — NOT decoded pixels.
+    // Must call UPNG.toRGBA8(img) untuk actually decode PNG → RGBA8 buffer.
+    // Returns ArrayBuffer[] (1 frame untuk static PNG, multi-frame untuk APNG).
+    // First frame index 0; convert ke Uint8Array length width*height*4.
+    const frames = UPNG.toRGBA8(img);
+    if (!frames || frames.length === 0) {
+      if (__DEV__) console.warn('[faceDescriptor] UPNG.toRGBA8 returned no frames');
+      return null;
+    }
+    const rgba = new Uint8Array(frames[0]);
     const expectedRGBA = img.width * img.height * 4;
-    if (img.data.length !== expectedRGBA) {
-      // Fallback: kalau RGB-only (length width*height*3), handle juga
-      const expectedRGB = img.width * img.height * 3;
-      if (img.data.length === expectedRGB) {
-        return rgbToNormalizedTensor(img.data);
-      }
+    if (rgba.length !== expectedRGBA) {
       if (__DEV__) {
         console.warn(
-          '[faceDescriptor] unexpected pixel data length: ' +
-            img.data.length +
-            ' (expected ' + expectedRGBA + ' RGBA or ' + expectedRGB + ' RGB)',
+          '[faceDescriptor] unexpected RGBA length: ' +
+            rgba.length +
+            ' (expected ' + expectedRGBA + ')',
         );
       }
       return null;
     }
 
-    return rgbaToNormalizedTensor(img.data);
+    return rgbaToNormalizedTensor(rgba);
   } catch (e) {
     if (__DEV__) console.warn('[faceDescriptor] PNG decode error:', e);
     return null;
   }
 }
+
+type UpngModule = {
+  decode: (buf: ArrayBuffer) => UpngImage;
+  toRGBA8: (img: UpngImage) => ArrayBuffer[];
+};
 
 type UpngImage = {
   width: number;
@@ -370,15 +377,6 @@ function rgbaToNormalizedTensor(rgba: Uint8Array): Float32Array {
     out[dstOffset] = (rgba[srcOffset] - 127.5) / 127.5;
     out[dstOffset + 1] = (rgba[srcOffset + 1] - 127.5) / 127.5;
     out[dstOffset + 2] = (rgba[srcOffset + 2] - 127.5) / 127.5;
-  }
-  return out;
-}
-
-/** RGB Uint8Array → Float32Array normalized (same length). */
-function rgbToNormalizedTensor(rgb: Uint8Array): Float32Array {
-  const out = new Float32Array(rgb.length);
-  for (let i = 0; i < rgb.length; i++) {
-    out[i] = (rgb[i] - 127.5) / 127.5;
   }
   return out;
 }
