@@ -102,7 +102,25 @@
     "about_body": "ECC (Eternal Church Center) adalah gereja yang berkomitmen menjangkau jiwa, membangun karakter, dan mengutus pekerja Tuhan. Daftar akun untuk mengakses ibadah, persembahan, event, dan komunitas.",
     "links_title": "Eksplorasi",
     "find_branch": "Cari Cabang Terdekat",
-    "find_branch_sub": "Temukan cabang ECC di kota Anda"
+    "find_branch_sub": "Temukan cabang ECC di kota Anda",
+    "explore_title": "Bisa Anda Akses Sekarang",
+    "nav_bible": "Alkitab",
+    "nav_bible_sub": "Baca Alkitab offline lengkap",
+    "nav_branch": "Cari Cabang",
+    "nav_branch_sub": "Daftar cabang ECC di seluruh kota",
+    "placeholder_title": "Pendaftaran Diperlukan",
+    "ibadah_description": "Lihat jadwal ibadah, check-in dengan QR, dan ikuti perjalanan iman Anda hanya tersedia setelah daftar akun.",
+    "ibadah_readonly_hint": "Setelah daftar, Anda bisa cek jadwal ibadah cabang, check-in kehadiran via QR, dan lihat riwayat ibadah.",
+    "event_description": "Lihat acara mendatang, daftar peserta, dan kelola partisipasi event hanya tersedia setelah daftar akun.",
+    "event_readonly_hint": "Setelah daftar, Anda bisa browse event di cabang Anda, daftar peserta, dan dapat reminder.",
+    "persembahan_description": "Lihat info rekening cabang, persembahan online, dan riwayat giving hanya tersedia setelah daftar akun.",
+    "persembahan_readonly_hint": "Setelah daftar, Anda bisa transfer persembahan via rekening cabang, dapat e-bukti, dan lihat riwayat giving Anda."
+  },
+  "branch_list": {
+    "title": "Cari Cabang",
+    "subtitle": "Daftar cabang ECC yang aktif di seluruh Indonesia.",
+    "error": "Gagal memuat daftar cabang.",
+    "empty": "Belum ada cabang aktif."
   },
   "signup": {
     "title": "Daftar Akun Baru",

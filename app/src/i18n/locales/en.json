@@ -102,7 +102,25 @@
     "about_body": "ECC (Eternal Church Center) is a church committed to reaching souls, building character, and sending workers for God's kingdom. Sign up to access services, giving, events, and community.",
     "links_title": "Explore",
     "find_branch": "Find Nearest Branch",
-    "find_branch_sub": "Discover ECC branches in your city"
+    "find_branch_sub": "Discover ECC branches in your city",
+    "explore_title": "Available Right Now",
+    "nav_bible": "Bible",
+    "nav_bible_sub": "Read the full Bible offline",
+    "nav_branch": "Find Branch",
+    "nav_branch_sub": "List of ECC branches across cities",
+    "placeholder_title": "Sign Up Required",
+    "ibadah_description": "Viewing worship schedules, QR check-in, and tracking your faith journey are only available after signing up.",
+    "ibadah_readonly_hint": "After signing up, you can check service schedules, attendance check-in via QR, and view worship history.",
+    "event_description": "Viewing upcoming events, RSVP, and managing event participation are only available after signing up.",
+    "event_readonly_hint": "After signing up, you can browse events at your branch, RSVP, and get reminders.",
+    "persembahan_description": "Viewing branch bank account info, online giving, and donation history are only available after signing up.",
+    "persembahan_readonly_hint": "After signing up, you can transfer offerings to your branch account, get e-receipts, and view your giving history."
+  },
+  "branch_list": {
+    "title": "Find Branch",
+    "subtitle": "Active ECC branches across Indonesia.",
+    "error": "Failed to load branches.",
+    "empty": "No active branches yet."
   },
   "signup": {
     "title": "Create New Account",

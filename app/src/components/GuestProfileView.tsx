@@ -4,10 +4,13 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
+  BookOpen,
+  ChevronRight,
   Eye,
   HandHeart,
   Calendar,
   Church,
+  MapPin,
   MessageCircleMore,
   UserPlus,
 } from 'lucide-react-native';
@@ -70,6 +73,25 @@ export function GuestProfileView() {
           </Text>
         </View>
 
+        {/* Yang bisa diakses guest tanpa daftar */}
+        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-6 mb-2">
+          {t('guest.explore_title')}
+        </Text>
+        <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
+          <NavRow
+            icon={<BookOpen size={20} color="#2563EB" />}
+            label={t('guest.nav_bible')}
+            sub={t('guest.nav_bible_sub')}
+            onPress={() => router.push('/bible' as never)}
+          />
+          <NavRow
+            icon={<MapPin size={20} color="#059669" />}
+            label={t('guest.nav_branch')}
+            sub={t('guest.nav_branch_sub')}
+            onPress={() => router.push('/branch-list' as never)}
+          />
+        </View>
+
         {/* Value prop — features yang user dapat setelah daftar */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-6 mb-2">
           {t('guest.unlock_title')}
@@ -111,5 +133,30 @@ function Feature({ icon, label }: { icon: React.ReactNode; label: string }) {
       </View>
       <Text className="text-sm text-neutral-800 flex-1">{label}</Text>
     </View>
+  );
+}
+
+function NavRow({
+  icon,
+  label,
+  sub,
+  onPress,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  sub: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable onPress={onPress} className="p-4 flex-row items-center gap-3">
+      <View className="w-10 h-10 rounded-xl bg-neutral-50 items-center justify-center">
+        {icon}
+      </View>
+      <View className="flex-1">
+        <Text className="text-sm font-semibold text-neutral-900">{label}</Text>
+        <Text className="text-xs text-neutral-500 mt-0.5">{sub}</Text>
+      </View>
+      <ChevronRight size={14} color="#A3A3A3" />
+    </Pressable>
   );
 }

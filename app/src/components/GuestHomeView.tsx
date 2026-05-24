@@ -1,8 +1,9 @@
 import { Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Globe, Heart, MapPin } from 'lucide-react-native';
+import { BookOpen, Globe, Heart, MapPin } from 'lucide-react-native';
 
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 
@@ -21,6 +22,7 @@ import { GuestModeBanner } from '@/components/GuestModeBanner';
  */
 export function GuestHomeView() {
   const { t } = useTranslation();
+  const router = useRouter();
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -70,19 +72,21 @@ export function GuestHomeView() {
         </Text>
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <Pressable
-            onPress={() => Linking.openURL('https://eccchurch.global')}
+            onPress={() => router.push('/bible' as never)}
             className="p-4 flex-row items-center gap-3"
           >
             <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center">
-              <Globe size={18} color="#2563EB" />
+              <BookOpen size={18} color="#2563EB" />
             </View>
             <View className="flex-1">
-              <Text className="text-sm font-medium text-neutral-900">Website</Text>
-              <Text className="text-xs text-neutral-500">eccchurch.global</Text>
+              <Text className="text-sm font-medium text-neutral-900">
+                {t('guest.nav_bible')}
+              </Text>
+              <Text className="text-xs text-neutral-500">{t('guest.nav_bible_sub')}</Text>
             </View>
           </Pressable>
           <Pressable
-            onPress={() => Linking.openURL('https://eccchurch.global/locations')}
+            onPress={() => router.push('/branch-list' as never)}
             className="p-4 flex-row items-center gap-3"
           >
             <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
@@ -90,11 +94,23 @@ export function GuestHomeView() {
             </View>
             <View className="flex-1">
               <Text className="text-sm font-medium text-neutral-900">
-                {t('guest.find_branch')}
+                {t('guest.nav_branch')}
               </Text>
               <Text className="text-xs text-neutral-500">
-                {t('guest.find_branch_sub')}
+                {t('guest.nav_branch_sub')}
               </Text>
+            </View>
+          </Pressable>
+          <Pressable
+            onPress={() => Linking.openURL('https://eccchurch.global')}
+            className="p-4 flex-row items-center gap-3"
+          >
+            <View className="w-10 h-10 rounded-xl bg-neutral-50 items-center justify-center">
+              <Globe size={18} color="#737373" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-sm font-medium text-neutral-900">Website</Text>
+              <Text className="text-xs text-neutral-500">eccchurch.global</Text>
             </View>
           </Pressable>
         </View>

@@ -14,7 +14,9 @@ import { CalendarDays, ChevronsUpDown, MapPin, Users } from 'lucide-react-native
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
+import { GuestPlaceholderView } from '@/components/GuestPlaceholderView';
 import { HeroImage } from '@/components/ui/HeroImage';
+import { useAuthStore } from '@/stores/auth.store';
 import { useEventList } from '@/hooks/useEvents';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { EventListItem, TipeBayar } from '@/types/event';
@@ -43,6 +45,23 @@ function heroEmoji(_e: EventListItem): string {
 }
 
 export default function EventListScreen() {
+  // Guard di luar — rules-of-hooks safe.
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const { t } = useTranslation();
+  if (isGuest) {
+    return (
+      <GuestPlaceholderView
+        icon={<CalendarDays size={48} color="#EA580C" />}
+        title={t('nav.event')}
+        description={t('guest.event_description')}
+        readOnlyHint={t('guest.event_readonly_hint')}
+      />
+    );
+  }
+  return <EventListAuthenticated />;
+}
+
+function EventListAuthenticated() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const router = useRouter();
