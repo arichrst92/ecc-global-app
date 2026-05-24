@@ -5,8 +5,11 @@ import { getLocales } from 'expo-localization';
 import id from './locales/id.json';
 import en from './locales/en.json';
 
-const deviceLanguage = getLocales()[0]?.languageCode ?? 'id';
-const initialLang = deviceLanguage === 'en' ? 'en' : 'id';
+// Default language: English. Device 'id' locale → switch ke 'id', otherwise
+// default 'en' (termasuk untuk locale non-id seperti zh, es, dll).
+// Saved user preference override ini di preferences.store.hydrate().
+const deviceLanguage = getLocales()[0]?.languageCode ?? 'en';
+const initialLang = deviceLanguage === 'id' ? 'id' : 'en';
 
 i18n
   .use(initReactI18next)
@@ -16,7 +19,7 @@ i18n
       en: { translation: en },
     },
     lng: initialLang,
-    fallbackLng: 'id',
+    fallbackLng: 'en',
     interpolation: { escapeValue: false },
     react: { useSuspense: false },
   });
@@ -30,5 +33,5 @@ export function setLanguage(lang: SupportedLang) {
 }
 
 export function getCurrentLanguage(): SupportedLang {
-  return (i18n.language as SupportedLang) || 'id';
+  return (i18n.language as SupportedLang) || 'en';
 }

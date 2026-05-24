@@ -83,46 +83,6 @@ export default function MinistryDetailScreen() {
     });
   }
 
-  /** Cari contact untuk join. Priority:
-   *  1. leader.jemaat.noHp (kalau BE include — saat ini sering null karena privacy default)
-   *  2. Senior member di members[] yang punya noHp (highest posisiLevel)
-   *  3. Member apa pun yang punya noHp
-   *  Kalau semua null → BE belum expose contact, show toast. */
-  function findContact():
-    | { noHp: string; name: string }
-    | null {
-    if (!ministry) return null;
-
-    // Priority 1: leader.jemaat.noHp explicit
-    if (ministry.leader?.jemaat.noHp) {
-      return {
-        noHp: ministry.leader.jemaat.noHp,
-        name: ministry.leader.jemaat.namaLengkap,
-      };
-    }
-
-    // Priority 2 & 3: scan members array sorted by posisiLevel DESC
-    const sorted = [...ministry.members].sort(
-      (a, b) => (b.posisiLevel ?? 0) - (a.posisiLevel ?? 0),
-    );
-    for (const m of sorted) {
-      if (m.jemaat.noHp) {
-        return { noHp: m.jemaat.noHp, name: m.jemaat.namaLengkap };
-      }
-    }
-    return null;
-  }
-
-  function handleContactLeader() {
-    if (!ministry) return;
-    const contact = findContact();
-    if (!contact) {
-      showToast(t('ministry.no_leader_contact'), 'info');
-      return;
-    }
-    openWhatsApp(contact.noHp, ministry.nama, contact.name);
-  }
-
   if (query.isPending) {
     return (
       <View className="flex-1 bg-neutral-50 items-center justify-center">
@@ -229,27 +189,7 @@ export default function MinistryDetailScreen() {
               </Text>
             </View>
           </View>
-        ) : (
-          /* Not member — show "Contact Leader" CTA (Phase 1 — join flow deferred) */
-          ministry.leader ? (
-            <Pressable
-              onPress={handleContactLeader}
-              className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4 flex-row items-center gap-3"
-            >
-              <View className="w-10 h-10 rounded-xl bg-green-50 items-center justify-center">
-                <MessageCircle size={20} color="#16A34A" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-neutral-900">
-                  {t('ministry.contact_leader_title')}
-                </Text>
-                <Text className="text-xs text-neutral-500 mt-0.5">
-                  {t('ministry.contact_leader_sub')}
-                </Text>
-              </View>
-            </Pressable>
-          ) : null
-        )}
+        ) : null}
 
         {/* Members list — grouped by posisi (role pelayanan) */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">

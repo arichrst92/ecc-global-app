@@ -16,7 +16,7 @@ type Prefs = {
 };
 
 const DEFAULTS: Prefs = {
-  language: 'id',
+  language: 'en',
   darkMode: false,
   notif: { ibadah: true, renungan: true, event: true, payment: true },
 };
