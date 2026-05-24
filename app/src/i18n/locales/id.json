@@ -160,18 +160,7 @@
     "q_jenis_jemaat_sub": "Bantu kami kenal Anda lebih baik.",
     "jemaat_tetap": "Ya, saya jemaat tetap",
     "new_comer": "Saya ingin mencoba dulu",
-    "error_jenis_jemaat_required": "Pilih salah satu",
-    "q_fulltimer_title": "Apakah Anda staf fulltimer di sini?",
-    "q_fulltimer_sub": "Khusus untuk pekerja gereja yang sudah ditahbiskan/ditugaskan.",
-    "fulltimer_yes": "Ya, saya pengerja",
-    "fulltimer_no": "Bukan",
-    "error_fulltimer_required": "Pilih salah satu",
-    "q_fulltimer_subrole_title": "Bagian Pelayanan",
-    "q_fulltimer_subrole_sub": "Pilih bidang pelayanan Anda sebagai fulltimer.",
-    "fulltimer_sub_role_placeholder": "Pilih bagian pelayanan",
-    "fulltimer_sub_role_loading": "Memuat pilihan...",
-    "fulltimer_sub_role_unavailable": "Pilihan belum tersedia. Setelah daftar, hubungi admin cabang untuk assign bagian pelayanan Anda.",
-    "error_fulltimer_sub_role_required": "Pilih bagian pelayanan"
+    "error_jenis_jemaat_required": "Pilih salah satu"
   },
   "home": {
     "greeting": "Halo,",

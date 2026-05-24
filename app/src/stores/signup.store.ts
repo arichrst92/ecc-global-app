@@ -13,9 +13,10 @@ import type { JenisJemaat } from '@/types/auth';
  * - homecell: admin assign manual atau via Settings setelah login.
  * - foto: upload di Settings → Edit Foto via POST /admin/me/foto multipart.
  *
- * Per request 2026-05-23 (M23): tambah role questions
- * - jenisJemaat (Jemaat Tetap vs New Comer)
- * - isFulltimer + fulltimerSubRoleId (opsional)
+ * Per request 2026-05-23 (M23): tambah role question jenisJemaat
+ * (Jemaat Tetap vs New Comer).
+ * Per request 2026-05-24 (M23.2): hapus isFulltimer question — fulltimer
+ * di-assign manual di portal admin oleh staff cabang.
  */
 type SignupState = {
   noHp: string;
@@ -27,10 +28,6 @@ type SignupState = {
   cabangId: string;
   /** Pilih sub-role Jemaat. '' = belum dipilih (form validation will catch). */
   jenisJemaat: JenisJemaat | '';
-  /** null = belum dijawab, true/false = sudah dijawab. */
-  isFulltimer: boolean | null;
-  /** ID sub-role dari /public/roles/fulltimer-sub-roles. Wajib kalau isFulltimer=true. */
-  fulltimerSubRoleId: string;
 
   setNoHp: (v: string) => void;
   setOtpVerified: (validForSeconds: number) => void;
@@ -46,8 +43,6 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
   jenisKelamin: '',
   cabangId: '',
   jenisJemaat: '',
-  isFulltimer: null,
-  fulltimerSubRoleId: '',
 };
 
 export const useSignupStore = create<SignupState>((set) => ({

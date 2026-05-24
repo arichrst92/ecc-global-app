@@ -160,18 +160,7 @@
     "q_jenis_jemaat_sub": "Help us know you better.",
     "jemaat_tetap": "Yes, I'm a regular member",
     "new_comer": "I'm just trying it out",
-    "error_jenis_jemaat_required": "Please choose one",
-    "q_fulltimer_title": "Are you a fulltimer staff here?",
-    "q_fulltimer_sub": "Only for ordained or commissioned church workers.",
-    "fulltimer_yes": "Yes, I'm staff",
-    "fulltimer_no": "No",
-    "error_fulltimer_required": "Please choose one",
-    "q_fulltimer_subrole_title": "Ministry Area",
-    "q_fulltimer_subrole_sub": "Select your ministry area as a fulltimer.",
-    "fulltimer_sub_role_placeholder": "Select ministry area",
-    "fulltimer_sub_role_loading": "Loading options...",
-    "fulltimer_sub_role_unavailable": "Options not yet available. After signup, contact your branch admin to assign your ministry area.",
-    "error_fulltimer_sub_role_required": "Please select ministry area"
+    "error_jenis_jemaat_required": "Please choose one"
   },
   "home": {
     "greeting": "Hi,",

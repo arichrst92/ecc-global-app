@@ -32,8 +32,9 @@ export type JenisJemaat = 'JEMAAT_TETAP' | 'NEW_COMER';
  * user lengkapi nanti via Profile → Edit (PATCH /admin/me) atau upload foto
  * via POST /admin/me/foto.
  *
- * Per BE request 2026-05-23: add jenisJemaat + fulltimerSubRoleId untuk
- * signup-time role assignment.
+ * Per BE request 2026-05-23 (revised 2026-05-24): add jenisJemaat untuk
+ * signup-time sub-role mapping. Fulltimer assignment di-handle admin manual
+ * via portal (mobile tidak ask).
  */
 export type RegisterPayload = {
   // Required
@@ -46,11 +47,10 @@ export type RegisterPayload = {
   alamat?: string;
   homecellId?: string | null;
   fotoBase64?: string;
-  /** Pilih sub-role pada role Jemaat. Default JEMAAT_TETAP kalau tidak set. */
+  /** Pilih sub-role pada role Jemaat. Default JEMAAT_TETAP kalau tidak set.
+   *  - JEMAAT_TETAP → role Jemaat + sub-role Tetap
+   *  - NEW_COMER → role Jemaat + sub-role New Comer */
   jenisJemaat?: JenisJemaat;
-  /** Kalau set, BE assign role "Fulltimer" dengan sub-role ini ke jemaat baru.
-   *  ID didapat dari GET /public/roles/fulltimer-sub-roles. */
-  fulltimerSubRoleId?: string;
 };
 
 export type AuthSuccessData = {
