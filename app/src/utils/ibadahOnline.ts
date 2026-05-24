@@ -1,27 +1,37 @@
 /**
- * Resolve URL akses online untuk ibadah.
+ * Resolve URL akses online untuk ibadah — multi-field fallback.
  *
- * BE confirmed 2026-05-24: Prisma field renamed `linkStream` → `linkOnline`,
- * exposed di 4 endpoint (admin list, admin calendar, admin detail,
- * public calendar). Single source of truth = `linkOnline`.
+ * BE rename `linkStream` → `linkOnline` claim (2026-05-24) ternyata tidak
+ * fully effective di production:
+ * - `/admin/ibadah/:id` masih return `linkStream` (rename belum efektif untuk
+ *   findUnique default spread)
+ * - `/admin/ibadah/calendar` tidak return field sama sekali (select clause
+ *   missing)
+ * - `/admin/ibadah` (list) status unknown
  *
- * Helper retained sebagai type-safe accessor dengan null/empty-string
- * normalization (BE bisa return null atau string kosong; UI gate butuh
- * boolean truthy check yang konsisten).
+ * Workaround mobile: accept BOTH field names. Selama BE return salah satu,
+ * mobile resolve. See docs/backend-followup-ibadah-linkonline-missing-in-response.md.
+ *
+ * Helper retained sebagai single source of truth — kalau BE eventually
+ * standardize ke `linkOnline`, fallback array bisa di-trim.
  */
 
-/** Return trimmed linkOnline string kalau non-empty, else null. */
+const CANDIDATE_FIELDS = ['linkOnline', 'linkStream'] as const;
+
+/** Return first non-empty string URL from candidate fields, else null. */
 export function getOnlineLink(obj: unknown): string | null {
   if (!obj || typeof obj !== 'object') return null;
   const rec = obj as Record<string, unknown>;
-  const value = rec.linkOnline;
-  if (typeof value === 'string' && value.trim().length > 0) {
-    return value.trim();
+  for (const key of CANDIDATE_FIELDS) {
+    const value = rec[key];
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim();
+    }
   }
   return null;
 }
 
-/** True kalau objek punya isOnline truthy + linkOnline terisi. */
+/** True kalau objek punya isOnline truthy + link terisi. */
 export function hasOnlineAccess(obj: unknown): boolean {
   if (!obj || typeof obj !== 'object') return false;
   const rec = obj as Record<string, unknown>;
@@ -30,7 +40,7 @@ export function hasOnlineAccess(obj: unknown): boolean {
 }
 
 /**
- * Relaxed check: kalau linkOnline ada apapun status isOnline, return URL.
+ * Relaxed check: kalau link ada apapun status isOnline, return URL.
  * Reasoning: kalau admin set URL streaming, button stream harus visible
  * — `isOnline` flag jadi informational saja. Mencegah edge case dimana
  * admin lupa toggle `isOnline=true` tapi sudah masukkan link.

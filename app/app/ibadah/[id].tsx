@@ -139,19 +139,12 @@ export default function IbadahDetailScreen() {
                 </View>
               </View>
 
-              {/* Stream button — show kalau ibadah ada linkOnline,
-                  regardless of isOnline flag (defensive). BE confirmed
-                  2026-05-24: field `linkOnline` (renamed dari linkStream). */}
+              {/* Stream button — show kalau ada link. Helper accept
+                  both `linkOnline` + `linkStream` (BE rename belum
+                  fully efektif untuk endpoint detail per device log
+                  2026-05-24). */}
               {(() => {
                 const streamLink = getStreamLink(ibadah);
-                if (__DEV__) {
-                  // eslint-disable-next-line no-console
-                  console.log('[ibadah/detail] FULL:', {
-                    allKeys: Object.keys(ibadah),
-                    raw: ibadah,
-                    resolved: streamLink,
-                  });
-                }
                 if (!streamLink) return null;
                 return (
                   <Pressable

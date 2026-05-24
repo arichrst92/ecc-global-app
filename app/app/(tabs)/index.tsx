@@ -17,6 +17,8 @@ import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
+import { useQuery } from '@tanstack/react-query';
+import { getIbadahDetail } from '@/api/ibadah';
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 
@@ -66,12 +68,30 @@ function HomeScreenAuthenticated() {
     eventsQuery.refetch();
   }
 
+  const todayService = todayQuery.data?.[0] ?? null;
+
+  // Supplemental ibadah detail fetch — BE /admin/ibadah/calendar TIDAK return
+  // linkOnline/linkStream field. Detail endpoint DOES return linkStream (per
+  // device log 2026-05-24). Fetch detail saat ibadahId tersedia supaya stream
+  // button bisa muncul di dashboard. Cost: 1 extra API call per dashboard mount.
+  // Lihat docs/backend-followup-ibadah-linkonline-missing-in-response.md.
+  const todayDetailQuery = useQuery({
+    queryKey: ['ibadah', 'detail', 'v2', todayService?.ibadahId ?? '', todayService?.tanggal ?? null],
+    queryFn: () => getIbadahDetail(todayService!.ibadahId, todayService!.tanggal),
+    enabled: !!todayService?.ibadahId,
+    staleTime: 10 * 60_000,
+  });
+
   if (!user) return null;
 
-  const todayService = todayQuery.data?.[0] ?? null;
   const streak = statsQuery.data?.streakWeeks ?? 0;
   const renungan = renunganQuery.data;
   const news = newsQuery.data ?? [];
+
+  // Stream link: try detail object first (BE return linkStream di detail),
+  // fallback ke calendar occurrence (kalau BE eventually add ke calendar select)
+  const todayStreamLink =
+    getStreamLink(todayDetailQuery.data) ?? getStreamLink(todayService);
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -191,33 +211,21 @@ function HomeScreenAuthenticated() {
                   </Text>
                 </View>
 
-                {/* Stream button — show kalau ibadah punya linkOnline,
-                    regardless of isOnline flag (defensive: admin bisa
-                    set link tanpa toggle isOnline). BE confirmed
-                    2026-05-24: field `linkOnline`. */}
-                {(() => {
-                  const streamLink = getStreamLink(todayService);
-                  if (__DEV__) {
-                    // eslint-disable-next-line no-console
-                    console.log('[dashboard] todayService FULL:', {
-                      allKeys: Object.keys(todayService),
-                      raw: todayService,
-                      resolved: streamLink,
-                    });
-                  }
-                  if (!streamLink) return null;
-                  return (
-                    <Pressable
-                      onPress={() => Linking.openURL(streamLink).catch(() => {})}
-                      className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
-                    >
-                      <Video size={16} color="#fff" />
-                      <Text className="text-white font-semibold text-sm">
-                        {t('ibadah.access_online')}
-                      </Text>
-                    </Pressable>
-                  );
-                })()}
+                {/* Stream button — show kalau link tersedia di calendar
+                    occurrence ATAU supplemental detail fetch. BE
+                    calendar endpoint tidak return field; detail return
+                    `linkStream`. Helper accept both linkOnline+linkStream. */}
+                {todayStreamLink ? (
+                  <Pressable
+                    onPress={() => Linking.openURL(todayStreamLink).catch(() => {})}
+                    className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
+                  >
+                    <Video size={16} color="#fff" />
+                    <Text className="text-white font-semibold text-sm">
+                      {t('ibadah.access_online')}
+                    </Text>
+                  </Pressable>
+                ) : null}
               </View>
               <View className="flex-row border-t border-neutral-100">
                 <Pressable
