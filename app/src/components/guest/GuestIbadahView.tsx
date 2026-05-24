@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -12,6 +12,7 @@ import { useBranches } from '@/hooks/useBranches';
 import { usePublicIbadah } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
+import { getOnlineLink } from '@/utils/ibadahOnline';
 
 /**
  * Ibadah list untuk guest — read-only, no check-in button.
@@ -156,6 +157,22 @@ export function GuestIbadahView() {
                       ) : null}
                     </View>
                   </View>
+                  {/* Akses Online button — kalau ibadah online + link tersedia */}
+                  {(() => {
+                    const onlineLink = getOnlineLink(it);
+                    if (!it.isOnline || !onlineLink) return null;
+                    return (
+                      <Pressable
+                        onPress={() => Linking.openURL(onlineLink).catch(() => {})}
+                        className="mt-3 bg-emerald-500 rounded-xl py-2 flex-row items-center justify-center gap-2"
+                      >
+                        <Video size={14} color="#fff" />
+                        <Text className="text-white text-xs font-semibold">
+                          {t('ibadah.access_online')}
+                        </Text>
+                      </Pressable>
+                    );
+                  })()}
                   {/* Read-only — CTA daftar untuk check-in */}
                   <Pressable
                     onPress={promptSignup}

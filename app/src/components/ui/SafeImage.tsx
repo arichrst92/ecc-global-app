@@ -70,10 +70,20 @@ export function SafeImage({ uri, containerStyle, placeholderBg = '#F5F5F5', styl
       {...rest}
       source={{ uri: fullUri } as ImageSourcePropType}
       style={style}
+      onLoad={() => {
+        if (__DEV__) {
+          // eslint-disable-next-line no-console
+          console.log('[SafeImage] loaded:', fullUri);
+        }
+      }}
       onError={(e) => {
         if (__DEV__) {
           // eslint-disable-next-line no-console
-          console.warn('[SafeImage] load failed:', fullUri, e.nativeEvent);
+          console.warn('[SafeImage] load FAILED:', {
+            originalUri: uri,
+            resolvedUri: fullUri,
+            error: e.nativeEvent,
+          });
         }
         setFailed(true);
       }}

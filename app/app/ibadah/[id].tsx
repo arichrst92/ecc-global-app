@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { getIbadahDetail } from '@/api/ibadah';
 import { formatDateWithDay } from '@/utils/date';
+import { getOnlineLink } from '@/utils/ibadahOnline';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -137,23 +138,28 @@ export default function IbadahDetailScreen() {
               </View>
 
               {/* Akses Online button — only show kalau ibadah ada link.
-                  Per user feedback: jangan tampil button placeholder kalau
-                  link tidak ada. Default behavior cleaner. */}
-              {ibadah.isOnline && ibadah.linkOnline ? (
-                <Pressable
-                  onPress={() =>
-                    Linking.openURL(ibadah.linkOnline!).catch(() => {
-                      // Silent — user might not have suitable app
-                    })
-                  }
-                  className="mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
-                >
-                  <Video size={18} color="#fff" />
-                  <Text className="text-white font-semibold text-sm">
-                    {t('ibadah.access_online')}
-                  </Text>
-                </Pressable>
-              ) : null}
+                  Defensive multi-field fallback via getOnlineLink — BE
+                  belum konfirmasi nama field persis (linkOnline vs
+                  urlOnline vs streamUrl). */}
+              {(() => {
+                const onlineLink = getOnlineLink(ibadah);
+                if (!ibadah.isOnline || !onlineLink) return null;
+                return (
+                  <Pressable
+                    onPress={() =>
+                      Linking.openURL(onlineLink).catch(() => {
+                        // Silent — user might not have suitable app
+                      })
+                    }
+                    className="mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
+                  >
+                    <Video size={18} color="#fff" />
+                    <Text className="text-white font-semibold text-sm">
+                      {t('ibadah.access_online')}
+                    </Text>
+                  </Pressable>
+                );
+              })()}
             </View>
 
             {/* Deskripsi — kalau BE provide */}

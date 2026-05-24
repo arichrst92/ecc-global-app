@@ -90,7 +90,17 @@ export function HeroImage({
             source={{ uri: resolvedUrl }}
             style={{ width: '100%', height: '100%' }}
             resizeMode="cover"
-            onError={() => setFailed(true)}
+            onError={(e) => {
+              if (__DEV__) {
+                // eslint-disable-next-line no-console
+                console.warn('[HeroImage] load FAILED:', {
+                  originalUrl: url,
+                  resolvedUrl,
+                  error: e.nativeEvent,
+                });
+              }
+              setFailed(true);
+            }}
           />
         </View>
       );

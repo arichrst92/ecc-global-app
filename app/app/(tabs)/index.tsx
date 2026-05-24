@@ -18,6 +18,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
 import { formatDate } from '@/utils/date';
+import { getOnlineLink } from '@/utils/ibadahOnline';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -190,18 +191,24 @@ function HomeScreenAuthenticated() {
                   </Text>
                 </View>
 
-                {/* Akses Online button — only show kalau ibadah punya link */}
-                {todayService.isOnline && todayService.linkOnline ? (
-                  <Pressable
-                    onPress={() => Linking.openURL(todayService.linkOnline!).catch(() => {})}
-                    className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
-                  >
-                    <Video size={16} color="#fff" />
-                    <Text className="text-white font-semibold text-sm">
-                      {t('ibadah.access_online')}
-                    </Text>
-                  </Pressable>
-                ) : null}
+                {/* Akses Online button — only show kalau ibadah punya link.
+                    Defensive multi-field fallback via getOnlineLink — BE
+                    belum konfirmasi nama field persis. */}
+                {(() => {
+                  const onlineLink = getOnlineLink(todayService);
+                  if (!todayService.isOnline || !onlineLink) return null;
+                  return (
+                    <Pressable
+                      onPress={() => Linking.openURL(onlineLink).catch(() => {})}
+                      className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
+                    >
+                      <Video size={16} color="#fff" />
+                      <Text className="text-white font-semibold text-sm">
+                        {t('ibadah.access_online')}
+                      </Text>
+                    </Pressable>
+                  );
+                })()}
               </View>
               <View className="flex-row border-t border-neutral-100">
                 <Pressable
