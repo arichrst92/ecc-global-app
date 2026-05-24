@@ -46,6 +46,8 @@ export default function WelcomeScreen() {
   const forgetDevice = useAuthStore((s) => s.forgetDevice);
   const enterGuestMode = useAuthStore((s) => s.enterGuestMode);
   const user = useAuthStore((s) => s.user);
+  const justSignedOut = useAuthStore((s) => s.justSignedOut);
+  const acknowledgeSignOut = useAuthStore((s) => s.acknowledgeSignOut);
   const { data: appConfig } = useAppConfig();
 
   const [canFaceLogin, setCanFaceLogin] = useState(false);
@@ -182,7 +184,16 @@ export default function WelcomeScreen() {
   // Auto-launch face capture sekali per mount setelah canFaceLogin ready —
   // user tidak perlu manual tap "Sign in with Face". Respect dismiss: kalau
   // user cancel modal, jangan re-trigger (autoLaunchAttempted gate).
+  // Skip kalau user baru saja sign-out (justSignedOut flag) — explicit
+  // intent untuk keluar, jangan auto-relaunch face capture. Acknowledge
+  // flag supaya sekali skip cukup; navigation kembali ke welcome dalam
+  // session yang sama (mis. cancel modal) tetap respect autoLaunchAttempted.
   useEffect(() => {
+    if (justSignedOut) {
+      autoLaunchAttempted.current = true;
+      acknowledgeSignOut();
+      return;
+    }
     if (!canFaceLogin) return;
     if (autoLaunchAttempted.current) return;
     if (captureOpen) return;
@@ -190,7 +201,7 @@ export default function WelcomeScreen() {
     autoLaunchAttempted.current = true;
     void openFaceCapture();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canFaceLogin, user?.noHp]);
+  }, [canFaceLogin, user?.noHp, justSignedOut]);
 
   async function openFaceCapture() {
     if (!user?.noHp) {

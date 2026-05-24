@@ -32,6 +32,11 @@ type AuthState = {
    *  attendance) detect isGuest dan show prompt signup. */
   isGuest: boolean;
 
+  /** In-memory flag: user baru saja sign-out. Welcome screen check ini
+   *  supaya tidak auto-launch face capture (user explicit minta keluar,
+   *  re-launch immediately = bad UX). NOT persisted — reset di cold start. */
+  justSignedOut: boolean;
+
   hydrate: () => Promise<void>;
   setTokens: (accessToken: string, refreshToken: string) => Promise<void>;
   setUser: (user: User) => Promise<void>;
@@ -50,6 +55,9 @@ type AuthState = {
   enterGuestMode: () => Promise<void>;
   /** Keluar dari mode tamu — kembali ke welcome screen. */
   exitGuestMode: () => Promise<void>;
+  /** Clear justSignedOut flag — dipanggil oleh Welcome screen setelah
+   *  acknowledge (skip auto-face-launch satu kali). */
+  acknowledgeSignOut: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -60,6 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isHydrating: true,
   faceEnrolledHint: false,
   isGuest: false,
+  justSignedOut: false,
 
   hydrate: async () => {
     try {
@@ -123,12 +132,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // Soft logout: bersihkan accessToken tapi pertahankan refreshToken +
     // user + faceEnrolledHint kalau ada — supaya Welcome face login bisa
     // restore sesi tanpa OTP.
+    // Set justSignedOut=true supaya Welcome screen skip auto-launch face
+    // capture sekali (user explicit minta keluar — auto-relaunch=bad UX).
     const { faceEnrolledHint } = get();
     if (faceEnrolledHint) {
       await storage.deleteItem(KEYS.accessToken);
       set({
         accessToken: null,
         isAuthenticated: false,
+        justSignedOut: true,
       });
     } else {
       // Tidak ada face enrolled — tidak ada cara restore tanpa OTP.
@@ -142,6 +154,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         refreshToken: null,
         user: null,
         isAuthenticated: false,
+        justSignedOut: true,
       });
     }
   },
@@ -160,7 +173,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       user: null,
       isAuthenticated: false,
       faceEnrolledHint: false,
+      justSignedOut: true,
     });
+  },
+
+  acknowledgeSignOut: () => {
+    set({ justSignedOut: false });
   },
 
   hasFaceSession: async () => {
