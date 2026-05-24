@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-23 (revised 2026-05-24)
 **Priority**: 🟡 **MEDIUM** — UX improvement, pilot rollout boleh tanpa ini (admin manual assign), tapi ideal sebelum public release.
-**Status**: 📝 **PROPOSED** — menunggu BE response
+**Status**: ✅ **RESOLVED** (2026-05-24) — jenisJemaat field + sub-role seed deployed
 
 ## TL;DR
 
@@ -178,6 +178,71 @@ ON CONFLICT DO NOTHING;
 
 ---
 
-## 8. Backend Response
+## 8. Backend Response (2026-05-24)
 
-*(diisi oleh BE setelah review)*
+### Implementation — DEPLOYED
+
+**Zod schema** (`packages/shared-types/src/schemas/auth.ts`):
+```typescript
+export const jenisJemaatSchema = z.enum(['JEMAAT_TETAP', 'NEW_COMER']);
+
+export const registerJemaatSchema = z.object({
+  ...existing fields...,
+  jenisJemaat: jenisJemaatSchema.optional().default('JEMAAT_TETAP'),
+});
+```
+
+Backwards-compat OK — kalau mobile lama tidak kirim field, zod apply default `JEMAAT_TETAP`.
+
+**Handler** (`apps/core-api/src/routes/auth.ts` POST /auth/register):
+```typescript
+const targetSubRoleName = input.jenisJemaat === 'NEW_COMER' ? 'New Comer' : 'Jemaat Tetap';
+const defaultRole = await prisma.role.findFirst({
+  where: { nama: 'Jemaat', isActive: true },
+  include: {
+    subRoles: {
+      where: { nama: { equals: targetSubRoleName, mode: 'insensitive' }, isActive: true },
+    },
+  },
+});
+// ...assign defaultRole.subRoles[0] saat create jemaat
+```
+
+Case-insensitive match supaya defensive jika seed pakai casing berbeda.
+
+**Migration `20260524040000_guest_public_endpoints`**:
+- Seed sub_role "New Comer" (idempotent — skip kalau sudah ada)
+- Seed sub_role "Jemaat Tetap" (defensive — kalau seed awal tidak include)
+- Sub-roles under role "Jemaat", `isActive=true`
+
+### Fulltimer assignment — Confirmed manual admin
+
+Sesuai revisi 2026-05-24: tidak ada `fulltimerSubRoleId` di payload register. Admin assign Fulltimer role manual via portal Admin → Jemaat → Edit → Roles.
+
+Portal sudah ada UI assignment role di **Dashboard → Jemaat → [pilih jemaat] → tab Roles** (existing). Admin bisa add role Fulltimer + sub-role yang sesuai (Worship, Tech, Pastor, dll) ke jemaat manapun.
+
+User `isFulltimer` auto-true setelah assignment di next `/auth/me/access` fetch (atau setelah re-login).
+
+### Backwards compatibility
+
+- Mobile lama (tanpa field jenisJemaat) → default JEMAAT_TETAP, sub-role "Jemaat Tetap"
+- Mobile baru (kirim 'NEW_COMER') → sub-role "New Comer"
+- Mobile baru (kirim 'JEMAAT_TETAP') → sub-role "Jemaat Tetap"
+- Invalid value → 400 BAD_REQUEST (zod validation reject)
+
+### Test cases — verified
+
+1. Happy JEMAAT_TETAP: `register({ jenisJemaat: 'JEMAAT_TETAP', ... })` → jemaat dapat role Jemaat:Jemaat Tetap ✓
+2. NEW_COMER: `register({ jenisJemaat: 'NEW_COMER', ... })` → jemaat dapat role Jemaat:New Comer ✓
+3. Backwards-compat: `register({ ...no jenisJemaat })` → default JEMAAT_TETAP, sub-role Jemaat Tetap ✓
+4. Invalid: `register({ jenisJemaat: 'INVALID', ... })` → 400 zod error ✓
+
+### Mobile action
+
+Update mobile signup screen sesuai section 2 di request ini:
+- SegmentedControl: Jemaat Tetap | New Comer
+- Submit dengan field `jenisJemaat` di payload register
+
+### Timeline
+
+Deployed 2026-05-24 (same batch dengan public guest endpoints).
