@@ -28,3 +28,13 @@ export function hasOnlineAccess(obj: unknown): boolean {
   if (!rec.isOnline) return false;
   return getOnlineLink(obj) !== null;
 }
+
+/**
+ * Relaxed check: kalau linkOnline ada apapun status isOnline, return URL.
+ * Reasoning: kalau admin set URL streaming, button stream harus visible
+ * — `isOnline` flag jadi informational saja. Mencegah edge case dimana
+ * admin lupa toggle `isOnline=true` tapi sudah masukkan link.
+ */
+export function getStreamLink(obj: unknown): string | null {
+  return getOnlineLink(obj);
+}

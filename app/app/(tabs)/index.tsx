@@ -18,7 +18,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
 import { formatDate } from '@/utils/date';
-import { getOnlineLink } from '@/utils/ibadahOnline';
+import { getStreamLink } from '@/utils/ibadahOnline';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -191,15 +191,24 @@ function HomeScreenAuthenticated() {
                   </Text>
                 </View>
 
-                {/* Akses Online button — only show kalau ibadah punya link.
-                    BE confirmed 2026-05-24: field `linkOnline`. Helper
-                    getOnlineLink normalize null/empty-string. */}
+                {/* Stream button — show kalau ibadah punya linkOnline,
+                    regardless of isOnline flag (defensive: admin bisa
+                    set link tanpa toggle isOnline). BE confirmed
+                    2026-05-24: field `linkOnline`. */}
                 {(() => {
-                  const onlineLink = getOnlineLink(todayService);
-                  if (!todayService.isOnline || !onlineLink) return null;
+                  const streamLink = getStreamLink(todayService);
+                  if (__DEV__) {
+                    // eslint-disable-next-line no-console
+                    console.log('[dashboard] todayService stream check:', {
+                      isOnline: todayService.isOnline,
+                      linkOnline: (todayService as { linkOnline?: unknown }).linkOnline,
+                      resolved: streamLink,
+                    });
+                  }
+                  if (!streamLink) return null;
                   return (
                     <Pressable
-                      onPress={() => Linking.openURL(onlineLink).catch(() => {})}
+                      onPress={() => Linking.openURL(streamLink).catch(() => {})}
                       className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
                     >
                       <Video size={16} color="#fff" />

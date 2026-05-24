@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { getIbadahDetail } from '@/api/ibadah';
 import { formatDateWithDay } from '@/utils/date';
-import { getOnlineLink } from '@/utils/ibadahOnline';
+import { getStreamLink } from '@/utils/ibadahOnline';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -137,16 +137,24 @@ export default function IbadahDetailScreen() {
                 </View>
               </View>
 
-              {/* Akses Online button — only show kalau ibadah ada link.
-                  BE confirmed 2026-05-24: field `linkOnline` (renamed
-                  dari linkStream). */}
+              {/* Stream button — show kalau ibadah ada linkOnline,
+                  regardless of isOnline flag (defensive). BE confirmed
+                  2026-05-24: field `linkOnline` (renamed dari linkStream). */}
               {(() => {
-                const onlineLink = getOnlineLink(ibadah);
-                if (!ibadah.isOnline || !onlineLink) return null;
+                const streamLink = getStreamLink(ibadah);
+                if (__DEV__) {
+                  // eslint-disable-next-line no-console
+                  console.log('[ibadah/detail] stream check:', {
+                    isOnline: ibadah.isOnline,
+                    linkOnline: (ibadah as { linkOnline?: unknown }).linkOnline,
+                    resolved: streamLink,
+                  });
+                }
+                if (!streamLink) return null;
                 return (
                   <Pressable
                     onPress={() =>
-                      Linking.openURL(onlineLink).catch(() => {
+                      Linking.openURL(streamLink).catch(() => {
                         // Silent — user might not have suitable app
                       })
                     }

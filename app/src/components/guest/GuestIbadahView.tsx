@@ -12,7 +12,7 @@ import { useBranches } from '@/hooks/useBranches';
 import { usePublicIbadah } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
-import { getOnlineLink } from '@/utils/ibadahOnline';
+import { getStreamLink } from '@/utils/ibadahOnline';
 
 /**
  * Ibadah list untuk guest — read-only, no check-in button.
@@ -157,13 +157,14 @@ export function GuestIbadahView() {
                       ) : null}
                     </View>
                   </View>
-                  {/* Akses Online button — kalau ibadah online + link tersedia */}
+                  {/* Stream button — show kalau link tersedia (regardless
+                      of isOnline flag, defensive). */}
                   {(() => {
-                    const onlineLink = getOnlineLink(it);
-                    if (!it.isOnline || !onlineLink) return null;
+                    const streamLink = getStreamLink(it);
+                    if (!streamLink) return null;
                     return (
                       <Pressable
-                        onPress={() => Linking.openURL(onlineLink).catch(() => {})}
+                        onPress={() => Linking.openURL(streamLink).catch(() => {})}
                         className="mt-3 bg-emerald-500 rounded-xl py-2 flex-row items-center justify-center gap-2"
                       >
                         <Video size={14} color="#fff" />
