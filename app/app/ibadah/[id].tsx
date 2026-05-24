@@ -146,9 +146,9 @@ export default function IbadahDetailScreen() {
                 const streamLink = getStreamLink(ibadah);
                 if (__DEV__) {
                   // eslint-disable-next-line no-console
-                  console.log('[ibadah/detail] stream check:', {
-                    isOnline: ibadah.isOnline,
-                    linkOnline: (ibadah as { linkOnline?: unknown }).linkOnline,
+                  console.log('[ibadah/detail] FULL:', {
+                    allKeys: Object.keys(ibadah),
+                    raw: ibadah,
                     resolved: streamLink,
                   });
                 }

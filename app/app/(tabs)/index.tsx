@@ -199,9 +199,9 @@ function HomeScreenAuthenticated() {
                   const streamLink = getStreamLink(todayService);
                   if (__DEV__) {
                     // eslint-disable-next-line no-console
-                    console.log('[dashboard] todayService stream check:', {
-                      isOnline: todayService.isOnline,
-                      linkOnline: (todayService as { linkOnline?: unknown }).linkOnline,
+                    console.log('[dashboard] todayService FULL:', {
+                      allKeys: Object.keys(todayService),
+                      raw: todayService,
                       resolved: streamLink,
                     });
                   }

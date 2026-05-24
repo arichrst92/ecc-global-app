@@ -1,9 +1,22 @@
 # BE Follow-up — `linkOnline` field MASIH MISSING di /admin/ibadah/calendar response
 
 **Owner:** Mobile (Ari)
-**Status:** Pending BE verify deploy
-**Date:** 2026-05-24 (follow-up post-deploy)
-**Related:** `backend-request-ibadah-online-link-and-image-urls.md` (BE marked RESOLVED 2026-05-24)
+**Status:** 🔴 **CONFIRMED BROKEN** — BE deploy belum efektif. Mobile cache bypass sudah dicoba, masih `undefined`.
+**Date:** 2026-05-24 (follow-up #2 post-cache-bypass)
+**Related:** `backend-request-ibadah-online-link-and-image-urls.md` (BE marked RESOLVED 2026-05-24 — claim premature)
+
+## Update setelah mobile cache bypass
+
+Mobile sudah bump React Query key ke `v2` untuk paksa fresh fetch. Hasil:
+
+```
+[dashboard] todayService stream check: {"isOnline": true, "linkOnline": undefined, "resolved": null}
+[ibadah/detail] stream check: {"isOnline": true, "linkOnline": undefined, "resolved": null}
+```
+
+**Cache bukan masalahnya.** Field genuinely tidak ada di response payload yang BE return ke mobile production.
+
+Mobile sekarang log FULL response keys + raw object di console — bukti akan auto-surfaced di Metro log saat user buka dashboard/detail.
 
 ## Bukti dari device
 
