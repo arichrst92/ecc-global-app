@@ -16,10 +16,24 @@ export type VerifyOtpPayload = {
 };
 
 /**
+ * Tipe jemaat untuk auto-assignment subRole pada role "Jemaat":
+ * - JEMAAT_TETAP: anggota resmi yang sudah commit di gereja ini
+ * - NEW_COMER: jemaat baru yang sedang mencoba / belum commit
+ *
+ * Default fallback BE (kalau field tidak ada di payload): JEMAAT_TETAP
+ * (mempertahankan behavior pra-2026-05-23). Per BE request doc
+ * docs/backend-request-signup-role-assignment.md.
+ */
+export type JenisJemaat = 'JEMAAT_TETAP' | 'NEW_COMER';
+
+/**
  * Payload untuk POST /auth/register.
  * Per BE patch 2026-05-21d: hanya 4 field WAJIB. Field lain optional —
  * user lengkapi nanti via Profile → Edit (PATCH /admin/me) atau upload foto
  * via POST /admin/me/foto.
+ *
+ * Per BE request 2026-05-23: add jenisJemaat + fulltimerSubRoleId untuk
+ * signup-time role assignment.
  */
 export type RegisterPayload = {
   // Required
@@ -32,6 +46,11 @@ export type RegisterPayload = {
   alamat?: string;
   homecellId?: string | null;
   fotoBase64?: string;
+  /** Pilih sub-role pada role Jemaat. Default JEMAAT_TETAP kalau tidak set. */
+  jenisJemaat?: JenisJemaat;
+  /** Kalau set, BE assign role "Fulltimer" dengan sub-role ini ke jemaat baru.
+   *  ID didapat dari GET /public/roles/fulltimer-sub-roles. */
+  fulltimerSubRoleId?: string;
 };
 
 export type AuthSuccessData = {

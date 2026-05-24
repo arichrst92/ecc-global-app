@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import type { JenisJemaat } from '@/types/auth';
+
 /**
  * Ephemeral state untuk sign-up wizard (3 step).
  * TIDAK persist (Zustand in-memory only) — reset saat user keluar atau selesai.
@@ -10,6 +12,10 @@ import { create } from 'zustand';
  *   Mobile kirim placeholder values ke BE (pending request untuk make optional).
  * - homecell: admin assign manual atau via Settings setelah login.
  * - foto: upload di Settings → Edit Foto via POST /admin/me/foto multipart.
+ *
+ * Per request 2026-05-23 (M23): tambah role questions
+ * - jenisJemaat (Jemaat Tetap vs New Comer)
+ * - isFulltimer + fulltimerSubRoleId (opsional)
  */
 type SignupState = {
   noHp: string;
@@ -19,6 +25,12 @@ type SignupState = {
   namaLengkap: string;
   jenisKelamin: 'L' | 'P' | '';
   cabangId: string;
+  /** Pilih sub-role Jemaat. '' = belum dipilih (form validation will catch). */
+  jenisJemaat: JenisJemaat | '';
+  /** null = belum dijawab, true/false = sudah dijawab. */
+  isFulltimer: boolean | null;
+  /** ID sub-role dari /public/roles/fulltimer-sub-roles. Wajib kalau isFulltimer=true. */
+  fulltimerSubRoleId: string;
 
   setNoHp: (v: string) => void;
   setOtpVerified: (validForSeconds: number) => void;
@@ -33,6 +45,9 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
   namaLengkap: '',
   jenisKelamin: '',
   cabangId: '',
+  jenisJemaat: '',
+  isFulltimer: null,
+  fulltimerSubRoleId: '',
 };
 
 export const useSignupStore = create<SignupState>((set) => ({

@@ -15,12 +15,17 @@ import { register } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
 import { useSignupStore } from '@/stores/signup.store';
 import { useBranches } from '@/hooks/useBranches';
+import { useFulltimerSubRoles } from '@/hooks/useFulltimerSubRoles';
 import { ApiError } from '@/types/api';
+import type { JenisJemaat } from '@/types/auth';
 
 type FieldErrors = Partial<{
   namaLengkap: string;
   jenisKelamin: string;
   cabangId: string;
+  jenisJemaat: string;
+  isFulltimer: string;
+  fulltimerSubRoleId: string;
 }>;
 
 export default function SignupDataScreen() {
@@ -33,9 +38,15 @@ export default function SignupDataScreen() {
   const namaLengkap = useSignupStore((s) => s.namaLengkap);
   const jenisKelamin = useSignupStore((s) => s.jenisKelamin);
   const cabangId = useSignupStore((s) => s.cabangId);
+  const jenisJemaat = useSignupStore((s) => s.jenisJemaat);
+  const isFulltimer = useSignupStore((s) => s.isFulltimer);
+  const fulltimerSubRoleId = useSignupStore((s) => s.fulltimerSubRoleId);
   const otpVerifiedExpiresAt = useSignupStore((s) => s.otpVerifiedExpiresAt);
   const setField = useSignupStore((s) => s.setField);
   const reset = useSignupStore((s) => s.reset);
+
+  // Lazy fetch sub-roles hanya kalau user jawab isFulltimer=true
+  const subRolesQuery = useFulltimerSubRoles(isFulltimer === true);
 
   const [errors, setErrors] = useState<FieldErrors>({});
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
@@ -74,6 +85,12 @@ export default function SignupDataScreen() {
         namaLengkap,
         jenisKelamin: jenisKelamin as 'L' | 'P',
         cabangId,
+        // Per BE request 2026-05-23 (M23): signup-time role assignment.
+        // Kalau BE belum support, field ini di-ignore (backwards-compat).
+        jenisJemaat: jenisJemaat as JenisJemaat,
+        ...(isFulltimer && fulltimerSubRoleId
+          ? { fulltimerSubRoleId }
+          : {}),
       }),
     onSuccess: async (data) => {
       await login(data.accessToken, data.refreshToken, data.user);
@@ -87,6 +104,8 @@ export default function SignupDataScreen() {
             namaLengkap: fe.namaLengkap?.[0],
             jenisKelamin: fe.jenisKelamin?.[0],
             cabangId: fe.cabangId?.[0],
+            jenisJemaat: fe.jenisJemaat?.[0],
+            fulltimerSubRoleId: fe.fulltimerSubRoleId?.[0],
           });
         } else if (err.code === 'UNAUTHORIZED') {
           Alert.alert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [
@@ -108,6 +127,14 @@ export default function SignupDataScreen() {
     if (!namaLengkap || namaLengkap.length < 2) next.namaLengkap = t('signup.error_name_required');
     if (!jenisKelamin) next.jenisKelamin = t('signup.error_gender_required');
     if (!cabangId) next.cabangId = t('signup.error_branch_required');
+    if (!jenisJemaat) next.jenisJemaat = t('signup.error_jenis_jemaat_required');
+    if (isFulltimer === null) next.isFulltimer = t('signup.error_fulltimer_required');
+    // Sub-role wajib hanya kalau user pilih isFulltimer=true.
+    // Kalau BE endpoint belum live (subRolesQuery error), kita silent skip
+    // validation supaya user tetap bisa signup (admin akan assign sub-role manual).
+    if (isFulltimer === true && subRolesQuery.data && !fulltimerSubRoleId) {
+      next.fulltimerSubRoleId = t('signup.error_fulltimer_sub_role_required');
+    }
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -133,6 +160,12 @@ export default function SignupDataScreen() {
     value: b.id,
     label: b.nama,
     sub: b.alamat,
+  }));
+
+  const subRoleOptions = (subRolesQuery.data ?? []).map((r) => ({
+    value: r.id,
+    label: r.nama,
+    sub: r.deskripsi,
   }));
 
   return (
@@ -229,6 +262,95 @@ export default function SignupDataScreen() {
             </Text>
           ) : null}
         </View>
+
+        {/* Q1: Jenis Jemaat (Tetap vs New Comer) */}
+        <View className="bg-white rounded-2xl p-4 mt-3 gap-2 border border-neutral-100">
+          <Text className="text-sm font-semibold text-neutral-900">
+            {t('signup.q_jenis_jemaat_title')}
+          </Text>
+          <Text className="text-xs text-neutral-500 mb-1">
+            {t('signup.q_jenis_jemaat_sub')}
+          </Text>
+          <SegmentedControl<JenisJemaat>
+            value={jenisJemaat as JenisJemaat | ''}
+            options={[
+              { value: 'JEMAAT_TETAP', label: t('signup.jemaat_tetap') },
+              { value: 'NEW_COMER', label: t('signup.new_comer') },
+            ]}
+            onChange={(v) => {
+              setField('jenisJemaat', v);
+              setErrors((e) => ({ ...e, jenisJemaat: undefined }));
+            }}
+          />
+          {errors.jenisJemaat ? (
+            <Text className="text-xs text-red-600">{errors.jenisJemaat}</Text>
+          ) : null}
+        </View>
+
+        {/* Q2: Fulltimer atau bukan */}
+        <View className="bg-white rounded-2xl p-4 mt-3 gap-2 border border-neutral-100">
+          <Text className="text-sm font-semibold text-neutral-900">
+            {t('signup.q_fulltimer_title')}
+          </Text>
+          <Text className="text-xs text-neutral-500 mb-1">
+            {t('signup.q_fulltimer_sub')}
+          </Text>
+          <SegmentedControl<'true' | 'false'>
+            value={isFulltimer === null ? '' : isFulltimer ? 'true' : 'false'}
+            options={[
+              { value: 'true', label: t('signup.fulltimer_yes') },
+              { value: 'false', label: t('signup.fulltimer_no') },
+            ]}
+            onChange={(v) => {
+              const next = v === 'true';
+              setField('isFulltimer', next);
+              // Reset sub-role kalau user beralih ke "Bukan"
+              if (!next) {
+                setField('fulltimerSubRoleId', '');
+              }
+              setErrors((e) => ({ ...e, isFulltimer: undefined, fulltimerSubRoleId: undefined }));
+            }}
+          />
+          {errors.isFulltimer ? (
+            <Text className="text-xs text-red-600">{errors.isFulltimer}</Text>
+          ) : null}
+        </View>
+
+        {/* Q3 (conditional): pilih sub-role kalau isFulltimer=true */}
+        {isFulltimer === true ? (
+          <View className="bg-white rounded-2xl p-4 mt-3 gap-2 border border-neutral-100">
+            <Text className="text-sm font-semibold text-neutral-900">
+              {t('signup.q_fulltimer_subrole_title')}
+            </Text>
+            <Text className="text-xs text-neutral-500 mb-1">
+              {t('signup.q_fulltimer_subrole_sub')}
+            </Text>
+            {subRolesQuery.isError || (subRolesQuery.isSuccess && subRoleOptions.length === 0) ? (
+              <View className="p-3 bg-amber-50 border border-amber-100 rounded-xl">
+                <Text className="text-xs text-amber-800">
+                  {t('signup.fulltimer_sub_role_unavailable')}
+                </Text>
+              </View>
+            ) : (
+              <Picker
+                label=""
+                placeholder={
+                  subRolesQuery.isPending
+                    ? t('signup.fulltimer_sub_role_loading')
+                    : t('signup.fulltimer_sub_role_placeholder')
+                }
+                value={fulltimerSubRoleId}
+                options={subRoleOptions}
+                onChange={(v) => {
+                  setField('fulltimerSubRoleId', v);
+                  setErrors((e) => ({ ...e, fulltimerSubRoleId: undefined }));
+                }}
+                error={errors.fulltimerSubRoleId}
+                modalTitle={t('signup.q_fulltimer_subrole_title')}
+              />
+            )}
+          </View>
+        ) : null}
 
         <View className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl flex-row gap-2">
           <Info size={16} color="#1d4ed8" />
