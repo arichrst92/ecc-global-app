@@ -40,6 +40,10 @@ type Props = {
   /** Optional noHp untuk attach ke telemetry events (mobile-side; BE side
    *  pakai untuk correlate dengan user kalau available). */
   telemetryNoHp?: string;
+  /** Auto-trigger capture begitu engine ready + liveness passed. User tidak
+   *  perlu tap tombol Capture. Default false (manual capture). Pakai untuk
+   *  quick-login flow dari Welcome screen — UX zero-tap. */
+  autoCapture?: boolean;
 };
 
 /**
@@ -66,6 +70,7 @@ export function FaceCapture({
   telemetrySessionId,
   telemetryFlow,
   telemetryNoHp,
+  autoCapture = false,
 }: Props) {
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
@@ -111,6 +116,26 @@ export function FaceCapture({
     }, 500);
     return () => clearInterval(id);
   }, [engineReady]);
+
+  // Auto-capture: trigger handleCapture sekali begitu semua prerequisites
+  // terpenuhi — engine ready + liveness passed (atau tidak required) + phase
+  // idle (belum capturing/processing/error). Delay 600ms supaya user sempat
+  // lihat preview kamera + composing wajah. Track autoFired supaya tidak
+  // re-trigger setelah error/retry — user harus tap manual untuk retry.
+  const autoFired = useRef(false);
+  useEffect(() => {
+    if (!autoCapture) return;
+    if (autoFired.current) return;
+    if (!engineReady) return;
+    if (!livenessPassed) return;
+    if (phase !== 'idle') return;
+    autoFired.current = true;
+    const id = setTimeout(() => {
+      void handleCapture();
+    }, 600);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoCapture, engineReady, livenessPassed, phase]);
 
   async function handleCapture() {
     if (!cameraRef.current || phase !== 'idle') return;

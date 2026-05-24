@@ -50,6 +50,10 @@ export default function WelcomeScreen() {
 
   const [canFaceLogin, setCanFaceLogin] = useState(false);
   const [captureOpen, setCaptureOpen] = useState(false);
+  // Track sekali per mount: kalau user sudah dismiss face modal (cancel),
+  // jangan auto-relaunch — respect user intent. State direset hanya kalau
+  // user balik dari layar lain (component unmount + re-mount).
+  const autoLaunchAttempted = useRef(false);
 
   useEffect(() => {
     let mounted = true;
@@ -174,6 +178,19 @@ export default function WelcomeScreen() {
       return false;
     }
   }
+
+  // Auto-launch face capture sekali per mount setelah canFaceLogin ready —
+  // user tidak perlu manual tap "Sign in with Face". Respect dismiss: kalau
+  // user cancel modal, jangan re-trigger (autoLaunchAttempted gate).
+  useEffect(() => {
+    if (!canFaceLogin) return;
+    if (autoLaunchAttempted.current) return;
+    if (captureOpen) return;
+    if (!user?.noHp) return;
+    autoLaunchAttempted.current = true;
+    void openFaceCapture();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canFaceLogin, user?.noHp]);
 
   async function openFaceCapture() {
     if (!user?.noHp) {
@@ -330,6 +347,7 @@ export default function WelcomeScreen() {
             onSuccess={handleDescriptor}
             onCancel={() => setCaptureOpen(false)}
             requireLiveness
+            autoCapture
             nonceExpiresAt={livenessNonceExpiresAt}
             onRefreshNonce={() => fetchNonce(telemetrySessionId)}
             telemetrySessionId={telemetrySessionId}
