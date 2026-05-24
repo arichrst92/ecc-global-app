@@ -706,7 +706,8 @@
     "posisi_unassigned": "Unassigned",
     "contact_leader_title": "Contact Leader to Join",
     "contact_leader_sub": "WhatsApp the leader to discuss joining this ministry",
-    "no_leader_contact": "Leader contact not available.",
+    "no_leader_contact": "Leader contact not available. Please contact your branch admin for info about this ministry.",
+    "wa_message": "Hi {{name}}, I'm interested in joining the *{{ministry}}* ministry. Could you please share more details? Thanks.",
     "join_via_wa_notice": "To join a ministry, contact the leader via WhatsApp. Member assignment is done by admin / leader."
   },
   "homecell": {

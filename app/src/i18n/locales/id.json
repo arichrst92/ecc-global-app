@@ -706,7 +706,8 @@
     "posisi_unassigned": "Tanpa Posisi",
     "contact_leader_title": "Hubungi Leader untuk Gabung",
     "contact_leader_sub": "Chat WhatsApp ke leader untuk diskusi join ministry ini",
-    "no_leader_contact": "Leader ministry ini belum bisa dihubungi via WA.",
+    "no_leader_contact": "Kontak leader belum tersedia. Hubungi admin cabang untuk info ministry ini.",
+    "wa_message": "Halo {{name}}, saya tertarik untuk bergabung di ministry *{{ministry}}*. Mohon info lebih lanjut. Terima kasih.",
     "join_via_wa_notice": "Untuk gabung ministry, hubungi leader via WhatsApp. Penambahan member dilakukan oleh admin / leader."
   },
   "homecell": {

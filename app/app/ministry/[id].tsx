@@ -70,18 +70,57 @@ export default function MinistryDetailScreen() {
       });
   }, [ministry, t]);
 
-  function openWhatsApp(noHp: string) {
-    const num = noHp.replace(/^\+/, '');
-    Linking.openURL(`https://wa.me/${num}`).catch(() => {});
+  function openWhatsApp(noHp: string, ministryName: string, contactName: string) {
+    const num = noHp.replace(/^\+/, '').replace(/\D/g, '');
+    // Pre-filled message biar leader paham konteks
+    const msg = t('ministry.wa_message', {
+      ministry: ministryName,
+      name: contactName,
+    });
+    const url = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+    Linking.openURL(url).catch(() => {
+      showToast(t('error.generic'), 'error');
+    });
+  }
+
+  /** Cari contact untuk join. Priority:
+   *  1. leader.jemaat.noHp (kalau BE include — saat ini sering null karena privacy default)
+   *  2. Senior member di members[] yang punya noHp (highest posisiLevel)
+   *  3. Member apa pun yang punya noHp
+   *  Kalau semua null → BE belum expose contact, show toast. */
+  function findContact():
+    | { noHp: string; name: string }
+    | null {
+    if (!ministry) return null;
+
+    // Priority 1: leader.jemaat.noHp explicit
+    if (ministry.leader?.jemaat.noHp) {
+      return {
+        noHp: ministry.leader.jemaat.noHp,
+        name: ministry.leader.jemaat.namaLengkap,
+      };
+    }
+
+    // Priority 2 & 3: scan members array sorted by posisiLevel DESC
+    const sorted = [...ministry.members].sort(
+      (a, b) => (b.posisiLevel ?? 0) - (a.posisiLevel ?? 0),
+    );
+    for (const m of sorted) {
+      if (m.jemaat.noHp) {
+        return { noHp: m.jemaat.noHp, name: m.jemaat.namaLengkap };
+      }
+    }
+    return null;
   }
 
   function handleContactLeader() {
-    const noHp = ministry?.leader?.jemaat.noHp;
-    if (!noHp) {
+    if (!ministry) return;
+    const contact = findContact();
+    if (!contact) {
       showToast(t('ministry.no_leader_contact'), 'info');
       return;
     }
-    openWhatsApp(noHp);
+    openWhatsApp(contact.noHp, ministry.nama, contact.name);
   }
 
   if (query.isPending) {
@@ -281,7 +320,7 @@ export default function MinistryDetailScreen() {
                           <Pressable
                             onPress={(e) => {
                               e.stopPropagation();
-                              openWhatsApp(m.jemaat.noHp!);
+                              openWhatsApp(m.jemaat.noHp!, ministry.nama, m.jemaat.namaLengkap);
                             }}
                             className="w-9 h-9 rounded-full bg-green-50 items-center justify-center"
                             accessibilityLabel={t('homecell.member_whatsapp')}
