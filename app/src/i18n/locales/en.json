@@ -883,6 +883,7 @@
     "error_low_quality": "Quality too low. Try in better light.",
     "error_timeout": "Timed out. Try again.",
     "error_engine_not_ready": "Face engine not ready. Wait a few seconds.",
+    "error_model_not_loaded": "Face model not loaded. Restart the app and try again.",
     "error_generic": "Something went wrong. Please try again.",
     "error_face_not_enrolled": "Face not registered on server. Sign in with OTP first.",
     "error_face_no_match": "Face doesn't match. Try again or sign in with OTP.",

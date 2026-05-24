@@ -883,6 +883,7 @@
     "error_low_quality": "Kualitas terlalu rendah. Coba di tempat lebih terang.",
     "error_timeout": "Time out. Coba lagi.",
     "error_engine_not_ready": "Mesin pengenal wajah belum siap. Tunggu beberapa detik.",
+    "error_model_not_loaded": "Model wajah belum termuat. Restart aplikasi dan coba lagi.",
     "error_generic": "Terjadi kesalahan. Coba lagi.",
     "error_face_not_enrolled": "Wajah belum didaftarkan di server. Login dengan OTP dulu.",
     "error_face_no_match": "Wajah tidak cocok. Coba lagi atau login dengan OTP.",

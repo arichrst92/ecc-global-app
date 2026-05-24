@@ -320,8 +320,13 @@ export function FaceCapture({
               {t('face.liveness_hint')}
             </Text>
           ) : null}
-          {__DEV__ && errorDebug ? (
-            <Text className="text-neutral-400 text-[10px] text-center mt-2 font-mono">
+          {/* Surface errorDebug to user untuk diagnosis support — bukan dev-only.
+              Saat reason generic 'error' atau 'model_not_loaded', errorDebug
+              berisi detail penting (mis. "ML Kit module unavailable",
+              "tensor conversion failed") yang bantu user/support tahu
+              root cause vs reset-loop terus. */}
+          {phase === 'error' && errorDebug ? (
+            <Text className="text-neutral-300 text-[11px] text-center mt-2 font-mono">
               {errorDebug}
             </Text>
           ) : null}
