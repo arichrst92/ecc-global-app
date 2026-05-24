@@ -6,9 +6,11 @@ import {
   getMyParticipation,
   listMyDonations,
 } from '@/api/event';
+import { publicEventDetail } from '@/api/publicGuest';
+import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ApiError } from '@/types/api';
-import type { EventParticipation, EventListItem } from '@/types/event';
+import type { EventDetail, EventParticipation, EventListItem } from '@/types/event';
 
 /**
  * Event list dengan visibility scope inklusif:
@@ -43,12 +45,18 @@ export function useEventList() {
   });
 }
 
-/** Event detail by ID or slug — response includes `myParticipation` field
- * per BE patch 2026-05-21i. */
+/** Event detail by ID or slug. Guest mode pakai /public/event/:slug
+ *  (no auth, no peserta info, no myParticipation), authenticated pakai
+ *  /admin/event/:slug (full data + myParticipation field per BE patch
+ *  2026-05-21i). */
 export function useEventDetail(idOrSlug: string | undefined) {
-  return useQuery({
-    queryKey: ['event', 'detail', idOrSlug],
-    queryFn: () => getEventDetail(idOrSlug!),
+  const isGuest = useAuthStore((s) => s.isGuest);
+  return useQuery<EventDetail>({
+    queryKey: ['event', 'detail', isGuest ? 'guest' : 'auth', idOrSlug],
+    queryFn: () =>
+      isGuest
+        ? (publicEventDetail(idOrSlug!) as unknown as Promise<EventDetail>)
+        : getEventDetail(idOrSlug!),
     enabled: !!idOrSlug,
     staleTime: 5 * 60_000,
   });

@@ -51,6 +51,19 @@ export type PublicEventResponse = {
   meta: { page: number; limit: number; total: number };
 };
 
+/** Detail event public — superset of list item + deskripsi/videoUrl/payment info.
+ *  Per BE handoff 2026-05-24 /public/event/:slug. */
+export type PublicEventDetail = PublicEventItem & {
+  deskripsi: string; // markdown
+  videoUrl: string | null;
+  qrisImageUrl: string | null;
+  bankNama: string | null;
+  bankNomor: string | null;
+  bankAtasNama: string | null;
+  tags: string[];
+  viewCount: number;
+};
+
 export type PublicLocalBusiness = {
   id: string;
   nama: string;

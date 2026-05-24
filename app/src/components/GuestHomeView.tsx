@@ -16,7 +16,6 @@ import {
 
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { SafeImage } from '@/components/ui/SafeImage';
-import { useAuthStore } from '@/stores/auth.store';
 import { usePublicEvents, usePublicNews, usePublicRenungan } from '@/hooks/usePublicGuest';
 import { formatDate } from '@/utils/date';
 
@@ -31,20 +30,12 @@ import { formatDate } from '@/utils/date';
 export function GuestHomeView() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const exitGuestMode = useAuthStore((s) => s.exitGuestMode);
   const eventsQuery = usePublicEvents(null);
   const newsQuery = usePublicNews({ limit: 3 });
   const renunganQuery = usePublicRenungan({ limit: 1 });
   const upcomingEvents = (eventsQuery.data?.data ?? []).slice(0, 3);
   const latestNews = newsQuery.data?.data ?? [];
   const latestRenungan = renunganQuery.data?.data[0];
-
-  /** Event detail belum di-rilis public di BE. Tap card → exit guest +
-   *  welcome (per BE doc: /public/event/:slug pending). */
-  async function handleEventTap() {
-    await exitGuestMode();
-    router.replace('/(auth)/welcome');
-  }
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -187,7 +178,7 @@ export function GuestHomeView() {
               {upcomingEvents.map((ev) => (
                 <Pressable
                   key={ev.id}
-                  onPress={handleEventTap}
+                  onPress={() => router.push(`/event/${ev.slug}` as never)}
                   className="bg-white rounded-2xl border border-neutral-100 overflow-hidden flex-row"
                 >
                   <SafeImage

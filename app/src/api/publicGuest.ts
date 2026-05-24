@@ -10,6 +10,7 @@ import { env } from '@/config/env';
 import { ApiError, type ApiErrorBody } from '@/types/api';
 import { api } from './client';
 import type {
+  PublicEventDetail,
   PublicEventResponse,
   PublicIbadahResponse,
   PublicLocalMarketResponse,
@@ -67,6 +68,11 @@ export function publicEventList(opts: EventOpts = {}): Promise<PublicEventRespon
   if (opts.page) params.set('page', String(opts.page));
   const q = params.toString();
   return rawPublicFetch<PublicEventResponse>(`/public/event${q ? `?${q}` : ''}`);
+}
+
+/** Path accept UUID atau slug — BE auto-detect via regex. */
+export function publicEventDetail(idOrSlug: string): Promise<PublicEventDetail> {
+  return api.get<PublicEventDetail>(`/public/event/${idOrSlug}`, { skipAuth: true });
 }
 
 type LocalMarketOpts = {
