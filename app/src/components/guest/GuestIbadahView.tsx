@@ -140,7 +140,7 @@ export function GuestIbadahView() {
                         {it.jamSelesai ? ` – ${it.jamSelesai}` : ''}
                       </Text>
                       <Text className="text-xs text-neutral-500 mt-0.5">
-                        {it.cabang.nama}
+                        {it.cabang?.nama ?? t('event.synod_level')}
                       </Text>
                       {it.lokasi ? (
                         <View className="flex-row items-center gap-1 mt-1">

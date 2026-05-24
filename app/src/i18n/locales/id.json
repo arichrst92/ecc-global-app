@@ -303,6 +303,7 @@
   },
   "event": {
     "title": "Event & Movement",
+    "synod_level": "Tingkat Sinode",
     "filter_all": "Semua",
     "free": "Gratis",
     "paid": "Berbayar",

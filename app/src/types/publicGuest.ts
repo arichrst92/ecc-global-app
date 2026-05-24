@@ -17,7 +17,8 @@ export type PublicIbadahItem = {
   jam: string; // "08:00"
   jamSelesai: string | null;
   judul: string;
-  cabang: { id: string; nama: string };
+  /** Nullable — ibadah bisa multi-cabang atau synod-level (no specific cabang). */
+  cabang: { id: string; nama: string } | null;
   kategori: { id: string; nama: string } | null;
   lokasi: string | null;
   isOnline: boolean;
@@ -41,7 +42,8 @@ export type PublicEventItem = {
   lokasi: string | null;
   tipeBayar: TipeBayar;
   nominal: string | null;
-  cabang: { id: string; nama: string };
+  /** Nullable — event bisa synod-level (multi-cabang). */
+  cabang: { id: string; nama: string } | null;
 };
 
 export type PublicEventResponse = {

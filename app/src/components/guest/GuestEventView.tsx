@@ -148,7 +148,13 @@ export function GuestEventView() {
                     <Text className="text-xs text-neutral-700">{priceLabel(ev, t, lang)}</Text>
                   </View>
                 </View>
-                <Text className="text-[11px] text-neutral-500 mt-2">{ev.cabang.nama}</Text>
+                {ev.cabang ? (
+                  <Text className="text-[11px] text-neutral-500 mt-2">{ev.cabang.nama}</Text>
+                ) : (
+                  <Text className="text-[11px] text-neutral-500 mt-2 italic">
+                    {t('event.synod_level')}
+                  </Text>
+                )}
                 <Pressable
                   onPress={promptSignup}
                   className="mt-3 bg-neutral-100 rounded-xl py-2 items-center"
