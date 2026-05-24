@@ -138,9 +138,8 @@ export default function IbadahDetailScreen() {
               </View>
 
               {/* Akses Online button — only show kalau ibadah ada link.
-                  Defensive multi-field fallback via getOnlineLink — BE
-                  belum konfirmasi nama field persis (linkOnline vs
-                  urlOnline vs streamUrl). */}
+                  BE confirmed 2026-05-24: field `linkOnline` (renamed
+                  dari linkStream). */}
               {(() => {
                 const onlineLink = getOnlineLink(ibadah);
                 if (!ibadah.isOnline || !onlineLink) return null;

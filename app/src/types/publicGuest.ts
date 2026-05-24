@@ -22,9 +22,9 @@ export type PublicIbadahItem = {
   kategori: { id: string; nama: string } | null;
   lokasi: string | null;
   isOnline: boolean;
-  /** URL akses online (Zoom/YouTube Live/Meet). Mirror semantic dengan
-   *  IbadahListItem.linkOnline. BE field name belum konfirmasi — pakai
-   *  getOnlineLink() helper untuk multi-field fallback. */
+  /** URL akses online (Zoom/YouTube Live/Meet). Per BE confirmation
+   *  2026-05-24: field `linkOnline` di-include di /public/ibadah/calendar
+   *  (rename dari `linkStream` di DB via Prisma @map). */
   linkOnline?: string | null;
 };
 

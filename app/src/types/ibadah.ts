@@ -26,7 +26,9 @@ export type IbadahListItem = {
   /** URL akses ibadah online (Zoom / YouTube Live / Google Meet, dll).
    *  Kalau isOnline=true + linkOnline ada → tampil tombol "Akses Online"
    *  di mobile (detail + dashboard card). Null kalau ibadah offline only
-   *  atau BE belum sediakan link. */
+   *  atau BE belum sediakan link. Per BE 2026-05-24: field di-rename
+   *  dari `linkStream` → `linkOnline`, exposed di list + calendar +
+   *  detail + public/calendar. */
   linkOnline?: string | null;
   isActive: boolean;
   cabang: CabangRef;

@@ -192,8 +192,8 @@ function HomeScreenAuthenticated() {
                 </View>
 
                 {/* Akses Online button — only show kalau ibadah punya link.
-                    Defensive multi-field fallback via getOnlineLink — BE
-                    belum konfirmasi nama field persis. */}
+                    BE confirmed 2026-05-24: field `linkOnline`. Helper
+                    getOnlineLink normalize null/empty-string. */}
                 {(() => {
                   const onlineLink = getOnlineLink(todayService);
                   if (!todayService.isOnline || !onlineLink) return null;
