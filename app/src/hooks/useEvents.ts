@@ -13,16 +13,36 @@ import { ApiError } from '@/types/api';
 import type { EventDetail, EventParticipation, EventListItem } from '@/types/event';
 
 /**
- * Event list dengan visibility scope inklusif:
+ * Cek apakah event sudah expired (event date < hari ini).
+ * Pakai tanggalSelesai kalau ada (multi-day event), fallback ke tanggalMulai.
+ * Threshold = start of today di local TZ — event yang berakhir hari ini
+ * tetap tampil sampai habis hari.
+ */
+function isEventExpired(e: Pick<EventListItem, 'tanggalMulai' | 'tanggalSelesai'>): boolean {
+  const endIso = e.tanggalSelesai ?? e.tanggalMulai;
+  if (!endIso) return false; // defensive — kalau no date, jangan filter out
+  const endTs = new Date(endIso).getTime();
+  if (isNaN(endTs)) return false;
+  // Start of today di local TZ — event berakhir hari ini (24:00) masih
+  // dianggap belum expired. Comparison: end < startOfToday → expired.
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  return endTs < startOfToday.getTime();
+}
+
+/**
+ * Event list dengan visibility scope inklusif + filter expired:
  * - **Global events** (sinode=null, cabang=null) → tampil untuk semua user
  * - **Sinode events** (sinode set, cabang=null) → tampil untuk semua cabang di sinode itu
  * - **Cabang events** (cabang set) → tampil hanya untuk user yang viewing cabang itu
+ * - **Expired events** (tanggalSelesai < hari ini) → DROP. User cuma tertarik
+ *   event yang masih akan datang / berlangsung hari ini.
  *
  * Implementation: fetch SEMUA event published, filter client-side. Lebih hemat
  * daripada 2x roundtrip (global + cabang) karena event count per sinode tipikal kecil.
  *
- * Future: kalau scale grow, request BE add `includeGlobal=true` query param
- * supaya filtering jadi BE-side. Untuk sekarang client-filter cukup.
+ * Future: kalau scale grow, request BE add `includeGlobal=true` + `from=` query
+ * param supaya filtering jadi BE-side. Untuk sekarang client-filter cukup.
  */
 export function useEventList() {
   const { viewingCabangId, branch, isLoading } = useViewingBranch();
@@ -34,8 +54,10 @@ export function useEventList() {
     enabled: !isLoading,
     staleTime: 5 * 60_000,
     select: (data): EventListItem[] => {
-      if (!cabangId) return data; // belum login / branch belum resolved → show all
-      return data.filter((e) => {
+      // Drop expired SELALU (terlepas dari cabang scope)
+      const upcoming = data.filter((e) => !isEventExpired(e));
+      if (!cabangId) return upcoming; // belum login / branch belum resolved → show all upcoming
+      return upcoming.filter((e) => {
         // Global event → tampil
         if (!e.cabang) return true;
         // Cabang-specific → tampil hanya kalau match viewing cabang
