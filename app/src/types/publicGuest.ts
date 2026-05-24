@@ -91,3 +91,47 @@ export type PublicRekeningResponse = {
   cabang: { id: string; nama: string; kode: string };
   rekening: PublicRekening[];
 };
+
+// ============ News + Renungan (BE handoff 2026-05-24) ============
+
+export type PublicNewsItem = {
+  id: string;
+  slug: string;
+  judul: string;
+  ringkasan: string | null;
+  heroImageUrl: string | null;
+  tanggal: string; // ISO datetime
+  tags: string[];
+  cabang: { id: string; nama: string } | null;
+  author: { namaLengkap: string } | null;
+};
+
+export type PublicNewsResponse = {
+  data: PublicNewsItem[];
+  meta: { page: number; limit: number; total: number };
+};
+
+export type PublicNewsDetail = PublicNewsItem & {
+  konten: string; // markdown body
+  viewCount: number;
+};
+
+export type PublicRenunganItem = {
+  id: string;
+  slug: string;
+  judul: string;
+  ringkasan: string | null;
+  ayatAlkitab: string | null;
+  tanggal: string;
+  author: { namaLengkap: string } | null;
+};
+
+export type PublicRenunganResponse = {
+  data: PublicRenunganItem[];
+  meta: { page: number; limit: number; total: number };
+};
+
+export type PublicRenunganDetail = PublicRenunganItem & {
+  konten: string; // markdown body
+  viewCount: number;
+};

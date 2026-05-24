@@ -34,8 +34,8 @@ export default function AboutScreen() {
       >
         <View className="items-center mb-6">
           <Image
-            source={require('../../assets/images/logo-ecc.webp')}
-            style={{ width: 80, height: 80 }}
+            source={require('../../assets/images/ecc-icon-circle.png')}
+            style={{ width: 96, height: 96 }}
             resizeMode="contain"
           />
           <Text className="text-2xl font-bold text-neutral-900 mt-4">

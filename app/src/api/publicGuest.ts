@@ -13,7 +13,11 @@ import type {
   PublicEventResponse,
   PublicIbadahResponse,
   PublicLocalMarketResponse,
+  PublicNewsDetail,
+  PublicNewsResponse,
   PublicRekeningResponse,
+  PublicRenunganDetail,
+  PublicRenunganResponse,
 } from '@/types/publicGuest';
 
 type IbadahOpts = {
@@ -91,4 +95,45 @@ export function publicCabangRekening(cabangId: string): Promise<PublicRekeningRe
   return api.get<PublicRekeningResponse>(`/public/cabang/${cabangId}/rekening`, {
     skipAuth: true,
   });
+}
+
+// ============ News + Renungan (BE handoff 2026-05-24) ============
+
+type NewsOpts = {
+  cabangId?: string;
+  limit?: number;
+  page?: number;
+};
+
+export function publicNewsList(opts: NewsOpts = {}): Promise<PublicNewsResponse> {
+  const params = new URLSearchParams();
+  if (opts.cabangId) params.set('cabangId', opts.cabangId);
+  if (opts.limit) params.set('limit', String(opts.limit));
+  if (opts.page) params.set('page', String(opts.page));
+  const q = params.toString();
+  return rawPublicFetch<PublicNewsResponse>(`/public/news${q ? `?${q}` : ''}`);
+}
+
+/** Path accept UUID atau slug — BE auto-detect via regex. */
+export function publicNewsDetail(idOrSlug: string): Promise<PublicNewsDetail> {
+  return api.get<PublicNewsDetail>(`/public/news/${idOrSlug}`, { skipAuth: true });
+}
+
+type RenunganOpts = {
+  limit?: number;
+  page?: number;
+};
+
+export function publicRenunganList(
+  opts: RenunganOpts = {},
+): Promise<PublicRenunganResponse> {
+  const params = new URLSearchParams();
+  if (opts.limit) params.set('limit', String(opts.limit));
+  if (opts.page) params.set('page', String(opts.page));
+  const q = params.toString();
+  return rawPublicFetch<PublicRenunganResponse>(`/public/renungan${q ? `?${q}` : ''}`);
+}
+
+export function publicRenunganDetail(idOrSlug: string): Promise<PublicRenunganDetail> {
+  return api.get<PublicRenunganDetail>(`/public/renungan/${idOrSlug}`, { skipAuth: true });
 }
