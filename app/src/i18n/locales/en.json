@@ -456,6 +456,9 @@
     "about_title": "About App",
     "about_description": "ECC Global App — official app for ECC members covering services, events, devotionals, giving, and community.",
     "about_contact": "Contact Us",
+    "about_synod": "Part of the Synod",
+    "about_synod_name": "ECC Synod",
+    "about_synod_tagline": "Eternal Church Center — a church reaching, building, and sending.",
     "about_developer": "Developer"
   },
   "scanner": {
