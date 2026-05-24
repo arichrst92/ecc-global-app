@@ -8,7 +8,7 @@ import { Calendar, Church, ChevronRight, ChevronsUpDown } from 'lucide-react-nat
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
-import { GuestPlaceholderView } from '@/components/GuestPlaceholderView';
+import { GuestIbadahView } from '@/components/guest/GuestIbadahView';
 import { getIbadahCalendar } from '@/api/ibadah';
 import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
@@ -18,18 +18,11 @@ import { useTranslation as useI18n } from 'react-i18next';
 const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 
 export default function IbadahListScreen() {
-  // Guard di luar — rules-of-hooks safe (lihat (tabs)/index.tsx).
+  // Guard di luar — rules-of-hooks safe. Guest pakai /public/ibadah/calendar
+  // endpoint (read-only, no check-in button).
   const isGuest = useAuthStore((s) => s.isGuest);
-  const { t } = useTranslation();
   if (isGuest) {
-    return (
-      <GuestPlaceholderView
-        icon={<Church size={48} color="#EA580C" />}
-        title={t('nav.ibadah')}
-        description={t('guest.ibadah_description')}
-        readOnlyHint={t('guest.ibadah_readonly_hint')}
-      />
-    );
+    return <GuestIbadahView />;
   }
   return <IbadahListAuthenticated />;
 }

@@ -12,6 +12,8 @@
     "copied": "Copied!",
     "delete": "Delete",
     "confirm": "Confirm",
+    "today": "Today",
+    "online": "Online",
     "account_name": "Account Name",
     "account_number": "Account Number"
   },
@@ -109,12 +111,9 @@
     "nav_branch": "Find Branch",
     "nav_branch_sub": "List of ECC branches across cities",
     "placeholder_title": "Sign Up Required",
-    "ibadah_description": "Viewing worship schedules, QR check-in, and tracking your faith journey are only available after signing up.",
-    "ibadah_readonly_hint": "After signing up, you can check service schedules, attendance check-in via QR, and view worship history.",
-    "event_description": "Viewing upcoming events, RSVP, and managing event participation are only available after signing up.",
-    "event_readonly_hint": "After signing up, you can browse events at your branch, RSVP, and get reminders.",
-    "persembahan_description": "Viewing branch bank account info, online giving, and donation history are only available after signing up.",
-    "persembahan_readonly_hint": "After signing up, you can transfer offerings to your branch account, get e-receipts, and view your giving history."
+    "cta_signup_to_checkin": "Sign up to check in →",
+    "cta_signup_to_rsvp": "Sign up to RSVP →",
+    "cta_signup_to_giving_history": "Sign up for e-receipts & giving history →"
   },
   "branch_list": {
     "title": "Find Branch",

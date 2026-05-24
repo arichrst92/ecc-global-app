@@ -27,7 +27,7 @@ import {
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
-import { GuestPlaceholderView } from '@/components/GuestPlaceholderView';
+import { GuestPersembahanView } from '@/components/guest/GuestPersembahanView';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/auth.store';
 import { useRekening } from '@/hooks/useRekening';
@@ -48,20 +48,11 @@ function purposeIcon(purpose: string): React.ReactNode {
 }
 
 export default function PersembahanTab() {
-  // Guard di luar — rules-of-hooks safe. Rekening API butuh auth
-  // (/admin/cabang/:id/rekening), tidak available untuk guest sampai BE
-  // rilis /public/cabang/:id/rekening.
+  // Guard di luar — rules-of-hooks safe. Guest pakai /public/cabang/:id/rekening
+  // (no upload bukti, no riwayat — CTA daftar prominent).
   const isGuest = useAuthStore((s) => s.isGuest);
-  const { t } = useTranslation();
   if (isGuest) {
-    return (
-      <GuestPlaceholderView
-        icon={<HandHeart size={48} color="#EA580C" />}
-        title={t('nav.persembahan')}
-        description={t('guest.persembahan_description')}
-        readOnlyHint={t('guest.persembahan_readonly_hint')}
-      />
-    );
+    return <GuestPersembahanView />;
   }
   return <PersembahanTabAuthenticated />;
 }
