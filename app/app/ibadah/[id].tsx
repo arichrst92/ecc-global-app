@@ -27,9 +27,11 @@ export default function IbadahDetailScreen() {
   const lang = i18n.language;
 
   // queryKey include tanggal supaya cache-aware per-occurrence (mis. petugas
-  // berbeda Minggu 17 Mei vs Minggu 24 Mei → 2 cache entries terpisah)
+  // berbeda Minggu 17 Mei vs Minggu 24 Mei → 2 cache entries terpisah).
+  // Bump 'v2' 2026-05-24 — invalidate AsyncStorage cache lama dari sebelum
+  // BE rename linkStream → linkOnline + add ke response.
   const query = useQuery({
-    queryKey: ['ibadah', 'detail', id, tanggal ?? null],
+    queryKey: ['ibadah', 'detail', 'v2', id, tanggal ?? null],
     queryFn: () => getIbadahDetail(id, tanggal),
     enabled: !!id,
     staleTime: 5 * 60_000,

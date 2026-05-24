@@ -20,12 +20,17 @@ export function useMyStats() {
 /**
  * Ibadah hari ini, di-filter by viewing cabang.
  * Kalau viewing != home, hasilnya adalah ibadah cabang yang sedang di-view.
+ *
+ * Query key version 'v2' (bump 2026-05-24 saat BE add `linkOnline` field
+ * ke /admin/ibadah/calendar) — force invalidate AsyncStorage cache lama
+ * yang sebelum BE deploy. Tanpa bump, persister kembali cache stale
+ * tanpa field linkOnline.
  */
 export function useTodayServices() {
   const { viewingCabangId, isLoading } = useViewingBranch();
   const today = todayIso();
   return useQuery<IbadahOccurrence[]>({
-    queryKey: ['ibadah', 'calendar', today, today, viewingCabangId ?? 'all'],
+    queryKey: ['ibadah', 'calendar', 'v2', today, today, viewingCabangId ?? 'all'],
     queryFn: () => getIbadahCalendar({ from: today, to: today, cabangId: viewingCabangId ?? undefined }),
     enabled: !isLoading, // wait until viewing branch resolved
     staleTime: 10 * 60_000,
@@ -33,13 +38,13 @@ export function useTodayServices() {
   });
 }
 
-/** Ibadah 1 minggu ke depan, filtered by viewing cabang */
+/** Ibadah 1 minggu ke depan, filtered by viewing cabang. Key v2 — see comment di useTodayServices. */
 export function useWeekServices() {
   const { viewingCabangId, isLoading } = useViewingBranch();
   const from = todayIso();
   const to = addDaysIso(7);
   return useQuery<IbadahOccurrence[]>({
-    queryKey: ['ibadah', 'calendar', from, to, viewingCabangId ?? 'all'],
+    queryKey: ['ibadah', 'calendar', 'v2', from, to, viewingCabangId ?? 'all'],
     queryFn: () => getIbadahCalendar({ from, to, cabangId: viewingCabangId ?? undefined }),
     enabled: !isLoading,
     staleTime: 10 * 60_000,

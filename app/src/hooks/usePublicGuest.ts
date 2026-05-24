@@ -23,7 +23,8 @@ const DEFAULT_IBADAH_RANGE_DAYS = 30;
 
 export function usePublicIbadah(cabangId: string | null | undefined) {
   return useQuery({
-    queryKey: ['public-ibadah', cabangId ?? 'all'],
+    // v2 — invalidate cache lama dari sebelum BE add linkOnline ke response (2026-05-24)
+    queryKey: ['public-ibadah', 'v2', cabangId ?? 'all'],
     queryFn: () =>
       publicIbadahCalendar({
         cabangId: cabangId ?? undefined,
