@@ -79,3 +79,6 @@ __snapshots__/
 # Python bytecode cache (from Bible converter scripts)
 scripts/__pycache__/
 *.pyc
+
+# Play Store deployment assets — not for git (large binaries, generate-able)
+playstore-assets/
