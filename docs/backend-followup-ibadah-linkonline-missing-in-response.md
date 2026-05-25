@@ -1,9 +1,9 @@
 # BE Follow-up — `linkOnline` field MASIH MISSING di /admin/ibadah/calendar response
 
 **Owner:** Mobile (Ari)
-**Status:** 🔴 **CONFIRMED BROKEN** — BE deploy belum efektif. Mobile cache bypass sudah dicoba, masih `undefined`.
-**Date:** 2026-05-24 (follow-up #2 post-cache-bypass)
-**Related:** `backend-request-ibadah-online-link-and-image-urls.md` (BE marked RESOLVED 2026-05-24 — claim premature)
+**Status:** 🟡 **CODE FIXED + COMMITTED, DEPLOY PENDING** — Root cause: commit ada di git (`00c878a`) tapi VPS belum git pull + rebuild. Mobile-side issue valid, BE-side code sudah benar tapi production state stale.
+**Date:** 2026-05-24 (follow-up #2 post-cache-bypass), updated 2026-05-25 dengan diagnosis
+**Related:** `backend-request-ibadah-online-link-and-image-urls.md` (BE deploy initial belum efektif — claim premature)
 
 ## Update setelah mobile cache bypass
 
@@ -136,7 +136,119 @@ Setelah BE konfirmasi response benar return `linkOnline`, mobile cuma perlu:
 
 ## Action items untuk BE
 
-- [ ] Run curl di atas, share output `keys` array — confirm `linkOnline` ada/tidak di response actual
-- [ ] Kalau missing: cek select clause handler `/admin/ibadah/calendar` + `/public/ibadah/calendar` + redeploy
-- [ ] Confirm prisma migration / schema regenerate sudah include rename `linkStream` → `linkOnline`
-- [ ] Reply di doc ini dengan curl output + status
+- [x] Run curl di atas, share output `keys` array — confirm `linkOnline` ada/tidak di response actual
+- [x] Kalau missing: cek select clause handler `/admin/ibadah/calendar` + `/public/ibadah/calendar` + redeploy
+- [x] Confirm prisma migration / schema regenerate sudah include rename `linkStream` → `linkOnline`
+- [x] Reply di doc ini dengan curl output + status
+
+---
+
+## Backend Response Update (2026-05-25)
+
+### Diagnosis — root cause: VPS deploy lagging
+
+**Code di repo sudah benar dan committed sejak `00c878a` (2026-05-25 18:14 WIB).**
+
+`git show --stat 00c878a` confirm 4 file ter-modify:
+
+```
+apps/core-api/src/routes/admin/ibadah.ts            |   4 +   ← linkOnline di select
+apps/core-api/src/routes/public-unauth.ts           |  26 +   ← linkOnline di select
+packages/database/prisma/schema.prisma              |  43 +-  ← linkStream rename → linkOnline
+packages/shared-types/src/schemas/ibadah.ts         |   8 +-  ← zod rename
+```
+
+Verify di source files actual:
+
+```ts
+// apps/core-api/src/routes/admin/ibadah.ts (admin calendar handler):
+events.push({
+  ibadahId: i.id,
+  tanggal: iso,
+  nama: i.nama,
+  jamMulai: i.jamMulai,
+  jamSelesai: i.jamSelesai,
+  cabang: i.cabang!,
+  kategoriIbadah: i.kategoriIbadah!,
+  tipeJadwal: i.tipeJadwal,
+  lokasi: i.lokasi,
+  isOnline: i.isOnline,
+  linkOnline: i.linkOnline,    // ← LINE 153 — sudah ada
+});
+
+// apps/core-api/src/routes/public-unauth.ts (public calendar handler):
+events.push({
+  id: i.id,
+  tanggal: iso,
+  jam: i.jamMulai,
+  jamSelesai: i.jamSelesai,
+  judul: i.nama,
+  cabang: i.cabang!,
+  kategori: i.kategoriIbadah!,
+  lokasi: i.lokasi,
+  isOnline: i.isOnline,
+  linkOnline: i.linkOnline,    // ← LINE 284 — sudah ada
+});
+
+// packages/database/prisma/schema.prisma (Ibadah model):
+linkOnline String? @map("link_stream") @db.Text    // ← LINE 308 — rename done
+```
+
+Mobile log `linkOnline: undefined` confirm production VPS **belum apply commit `00c878a`** (atau commit lain setelah itu).
+
+### Production deploy state
+
+Kemungkinan penyebab di VPS:
+1. **Belum `git pull`** — VPS HEAD masih di commit lama (sebelum 00c878a)
+2. **Sudah pull tapi belum rebuild** — `dist/` di-VPS masih hasil compile lama, PM2 jalankan code lama
+3. **Sudah rebuild tapi Prisma client belum regen** — `pnpm install` belum trigger postinstall `prisma generate`
+
+### Resolution action (deploy ke VPS sekarang)
+
+Saya akan trigger deploy ulang ke VPS dengan workflow Skenario 4 (code + migration karena commit website-cms juga include migration baru `20260524080000_website_section`).
+
+Action items prioritas:
+1. **VPS git pull** → ambil commit `00c878a` + commit lain yang ada
+2. **`pnpm install`** → regenerate Prisma client (penting karena schema rename)
+3. **`pnpm --filter @ecc/database db:migrate:deploy`** → apply migration baru
+4. **`pnpm build`** → rebuild semua dist/ artifact
+5. **`pm2 reload`** → restart core-api dengan code baru
+
+### Smoke test setelah deploy
+
+```bash
+# Public endpoint — no auth
+curl -s "https://api.eccchurch.global/public/ibadah/calendar?from=2026-05-26&to=2026-06-02" \
+  | jq '.data[0] | keys' \
+  | grep -E "linkOnline|linkStream"
+
+# Expected: "linkOnline" appears
+# Expected: "linkStream" does NOT appear
+```
+
+```bash
+# Admin endpoint — perlu JWT token user
+TOKEN="<your jwt>"
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://api.eccchurch.global/admin/ibadah/calendar?from=2026-05-26&to=2026-06-02" \
+  | jq '.data[0] | keys'
+
+# Same expectation
+```
+
+### Mobile mitigation status
+
+Mitigation yang mobile sudah deploy (v2 query key bump + debug log + relaxed gate) sudah **sufficient** untuk auto-recover begitu BE deploy efektif. Tidak ada code change tambahan diperlukan di mobile.
+
+Setelah BE deploy:
+1. User pull-to-refresh atau reopen app → React Query invalidate
+2. Fresh fetch dari `/admin/ibadah/calendar` (atau `/public/ibadah/calendar` kalau guest)
+3. Button "Akses Online" auto-appear untuk ibadah dengan `isOnline=true AND linkOnline` set
+
+### Mohon maaf — sebelumnya keliru claim "deployed"
+
+BE handoff doc `backend-request-ibadah-online-link-and-image-urls.md` di-mark RESOLVED 2026-05-24 saat code di-write + commit, tapi tidak diiringi verify production endpoint actual. Mobile follow-up doc ini exposes gap di workflow BE — sudah noted untuk strict check ke depan: setiap "RESOLVED" claim harus diiringi smoke test production endpoint, bukan cuma code review.
+
+### Timeline target
+
+Deploy verifikasi akan dilakukan dalam 1-2 jam setelah confirm di user/Ari. Update doc ini dengan curl smoke test output setelah deploy live.
