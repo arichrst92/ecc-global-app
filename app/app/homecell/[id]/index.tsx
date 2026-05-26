@@ -16,7 +16,6 @@ import {
   ArrowLeft,
   CalendarPlus,
   Calendar as CalendarIcon,
-  ChevronRight,
   Clock,
   MapPin,
   MessageCircle,
@@ -37,7 +36,6 @@ import { useHomecellSchedules } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import type { HomecellMember } from '@/types/homecell';
 import type { HomecellSchedule } from '@/types/homecellSchedule';
-import { formatDateWithDay } from '@/utils/date';
 
 export default function HomecellDetailScreen() {
   const { t } = useTranslation();
@@ -288,9 +286,22 @@ export default function HomecellDetailScreen() {
               </Pressable>
             </View>
             {schedulesQuery.data && schedulesQuery.data.length > 0 ? (
-              <View className="gap-2">
-                {schedulesQuery.data.slice(0, 5).map((s) => (
-                  <ScheduleRow
+              <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+                {/* Table header */}
+                <View className="flex-row items-center px-3 py-2 bg-neutral-50 border-b border-neutral-100">
+                  <Text className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider flex-[35]">
+                    Tanggal
+                  </Text>
+                  <Text className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider flex-[45]">
+                    Lokasi
+                  </Text>
+                  <Text className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider flex-[20] text-right">
+                    Hadir
+                  </Text>
+                </View>
+                {/* Table rows */}
+                {schedulesQuery.data.map((s) => (
+                  <ScheduleTableRow
                     key={s.id}
                     schedule={s}
                     memberCount={activeMembers.length}
@@ -489,7 +500,14 @@ function MemberRow({
   );
 }
 
-function ScheduleRow({
+/**
+ * Compact tabular row untuk schedule list di homecell detail.
+ * Single-line layout: tanggal | lokasi | hadir count. Dense — supaya
+ * banyak data tidak bikin scroll panjang. Tap untuk drill ke detail.
+ *
+ * Tanggal format short (mis. "Jum, 24 Mei") supaya muat single-line.
+ */
+function ScheduleTableRow({
   schedule,
   memberCount,
   onPress,
@@ -498,31 +516,40 @@ function ScheduleRow({
   memberCount: number;
   onPress: () => void;
 }) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const lang = i18n.language;
+  // Short date format: "Jum, 24 Mei" / "Fri, 24 May"
+  const d = new Date(schedule.tanggal);
+  const dayShort = d.toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
+    weekday: 'short',
+  });
+  const dateShort = d.toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
+    day: 'numeric',
+    month: 'short',
+  });
+  const dateLabel = `${dayShort}, ${dateShort}`;
+  const ratioPct =
+    memberCount > 0
+      ? Math.round((schedule.attendanceCount / memberCount) * 100)
+      : 0;
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+      className="flex-row items-center px-3 py-2.5 border-b border-neutral-100 active:bg-neutral-50"
     >
-      <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
-        <CalendarIcon size={18} color="#D97706" />
-      </View>
-      <View className="flex-1 min-w-0">
-        <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
-          {formatDateWithDay(schedule.tanggal, lang)}
-        </Text>
-        <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-          {schedule.lokasi}
-        </Text>
-        <Text className="text-[11px] text-brand-600 font-semibold mt-1">
-          {t('homecell.schedule_progress', {
-            attended: schedule.attendanceCount,
-            total: memberCount,
-          })}
+      <Text className="text-xs font-semibold text-neutral-900 flex-[35]" numberOfLines={1}>
+        {dateLabel}
+      </Text>
+      <Text className="text-xs text-neutral-600 flex-[45] pr-2" numberOfLines={1}>
+        {schedule.lokasi}
+      </Text>
+      <View className="flex-[20] items-end">
+        <Text
+          className={`text-xs font-bold ${ratioPct >= 75 ? 'text-emerald-600' : ratioPct >= 40 ? 'text-amber-600' : 'text-neutral-500'}`}
+        >
+          {schedule.attendanceCount}/{memberCount}
         </Text>
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
     </Pressable>
   );
 }
