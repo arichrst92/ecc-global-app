@@ -388,3 +388,113 @@ Sambil BE develop, mobile akan:
 4. PIC gating logic dah existing (`useAuthStore.user.jemaatId === homecell.picJemaatId`)
 
 Lihat `docs/mobile-spec-homecell-schedule-attendance.md` untuk implementation brief mobile.
+
+---
+
+# Backend Response — 2026-05-24
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Status**: ✅ **DELIVERED** (code) — commit `7032e4c`
+
+## Ringkasan
+
+Semua 6 endpoint + 2 extend endpoint sesuai spec sudah implement:
+
+| Spec | Implementation |
+|---|---|
+| `POST /admin/homecell/:id/schedule` (create) | ✅ Sub-router `homecellScheduleRouter` mounted di `/:homecellId/schedule` |
+| `GET /admin/homecell/:id/schedule` (list) | ✅ Filter `from`/`to` + paginated |
+| `GET /admin/homecell/:id/schedule/:scheduleId` (detail) | ✅ Include `attendances[]` + `missingMembers[]` |
+| `POST /admin/homecell/:id/schedule/:scheduleId/attendance` (scan QR) | ✅ Idempotent (`alreadyAttended=true` kalau re-scan) |
+| `DELETE /admin/homecell/:id/schedule/:scheduleId/attendance/:attendanceId` | ✅ Hard delete (per spec) |
+| `DELETE /admin/homecell/:id/schedule/:scheduleId` | ✅ Cek `HAS_ATTENDANCE` constraint |
+| Extend `GET /admin/homecell/:id` | ✅ Tambah `scheduleCount` + `lastSchedule` |
+| Extend `GET /admin/homecell-area/:id/homecells` | ✅ Tambah `scheduleCount` |
+
+## Schema (Prisma)
+
+Migration `20260525120000_homecell_schedule_attendance` — 2 tabel:
+- `homecell_schedule` (id, homecellId, tanggal, lokasi, catatan, createdBy, timestamps)
+- `homecell_attendance` (id, scheduleId, jemaatId, source enum, scannedBy, scannedAt, timestamps)
+
+Enum `AttendanceSource`: `MANUAL` | `QR_SCAN` (sumber attendance).
+
+## Auth pattern
+
+Helper baru `assertCanManageHomecell(homecellId, userJemaatId, isFulltimer)` di `apps/core-api/src/lib/homecell-pic.js`:
+- ✅ PIC homecell langsung
+- ✅ PIC area parent
+- ✅ Admin fulltimer
+- ❌ Lainnya → 403 FORBIDDEN
+
+## File changed
+
+| File | Perubahan |
+|---|---|
+| `packages/database/prisma/schema.prisma` | + HomecellSchedule, HomecellAttendance, AttendanceSource enum |
+| `packages/database/prisma/migrations/20260525120000_homecell_schedule_attendance/migration.sql` | NEW |
+| `apps/core-api/src/routes/admin/homecell-schedule.ts` | NEW — 6 endpoint |
+| `apps/core-api/src/routes/admin/homecell.ts` | Mount sub-router + extend detail |
+| `apps/core-api/src/routes/admin/homecell-area.ts` | Extend `/:id/homecells` shape |
+| `apps/core-api/src/lib/homecell-pic.ts` | + assertCanManageHomecell, getJemaatIdForUser |
+| `packages/shared-types/src/schemas/homecell-schedule.ts` | NEW Zod schemas |
+| `apps/portal/src/app/dashboard/homecell/[id]/page.tsx` | Section Jadwal Pertemuan |
+| `apps/portal/src/app/dashboard/homecell/[id]/schedule/[scheduleId]/page.tsx` | NEW drill detail |
+
+---
+
+# Backend Update — 2026-05-26
+
+**Status fix**: 🔥 **PRODUCTION INCIDENT RESOLVED**
+
+## Issue
+
+Mobile lapor "homecell not found" saat buka detail homecell di production (2026-05-26 ~08:24 UTC).
+
+## Root cause
+
+Migration `20260525120000_homecell_schedule_attendance` **belum di-apply** ke production DB walaupun code-nya sudah di-deploy di commit `7032e4c`. Endpoint `GET /admin/homecell/:id` (yang extended dengan `_count.schedules` + `lastSchedule` include) crash dengan Prisma error:
+
+```
+P2021: The table `public.homecell_schedule` does not exist in the current database.
+{"code":"P2021","modelName":"Homecell","table":"public.homecell_schedule"}
+```
+
+Endpoint return HTTP 500. Mobile UI translate generic error jadi pesan "homecell not found" — misleading tapi technically benar (data tidak ke-fetch).
+
+## Fix
+
+Run di VPS prod:
+
+```bash
+cd /var/www/ecc-core-platform/packages/database
+npx prisma migrate deploy   # apply pending migration
+sudo -u postgres psql ecc_platform -c "\dt public.homecell_schedule"
+sudo -u postgres psql ecc_platform -c "\dt public.homecell_attendance"
+pm2 reload ecc-core-api --update-env
+```
+
+Setelah migration applied:
+- ✅ `GET /admin/homecell/:id` return 200 lagi (mobile detail screen recover)
+- ✅ Tables `homecell_schedule` + `homecell_attendance` ready menerima POST create
+- ✅ Schedule endpoints 1–6 sekarang fully usable
+
+## Impact ke mobile
+
+**Tidak ada perubahan kontrak / shape response**. Bug ini purely infrastructure (missing migration), bukan API contract. Mobile feature homecell-schedule yang udah implement bisa langsung jalan tanpa rebuild — tinggal force close + reopen app supaya state fresh.
+
+## Lessons learned (untuk BE workflow)
+
+- Deploy workflow Skenario 4 (`docs/future-changes-deploy-workflow.md`) wajib include explicit `prisma migrate deploy` step + verifikasi `\dt` query setelahnya
+- Migration step harus log "Applying migration X" — kalau output kosong, ada drift, ABORT deploy
+- Memory `deploy-gotchas` di-update: **selalu cek `\dt` table baru setelah migrate deploy** sebelum restart pm2
+
+## Action items mobile
+
+- [ ] User yang stuck di error "homecell not found" — minta force close app + reopen
+- [ ] Tidak perlu rebuild atau update; client code unchanged
+- [ ] Re-test buka detail homecell — harus muncul section "Jadwal Pertemuan" dengan attendance count
+
+---
+
+*Incident resolved 2026-05-26.*
