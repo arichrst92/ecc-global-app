@@ -14,6 +14,9 @@ import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   ArrowLeft,
+  CalendarPlus,
+  Calendar as CalendarIcon,
+  ChevronRight,
   Clock,
   MapPin,
   MessageCircle,
@@ -30,8 +33,11 @@ import {
   useHomecellDetail,
   useRemoveHomecellMember,
 } from '@/hooks/useHomecell';
+import { useHomecellSchedules } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import type { HomecellMember } from '@/types/homecell';
+import type { HomecellSchedule } from '@/types/homecellSchedule';
+import { formatDateWithDay } from '@/utils/date';
 
 export default function HomecellDetailScreen() {
   const { t } = useTranslation();
@@ -43,6 +49,9 @@ export default function HomecellDetailScreen() {
   const detailQuery = useHomecellDetail(id);
   const removeMutation = useRemoveHomecellMember(id);
   const homecell = detailQuery.data;
+  // Schedules — PIC only feature. Query enabled selalu, gated render via canRemove.
+  // BE endpoint masih pending — query 404 → empty state graceful.
+  const schedulesQuery = useHomecellSchedules(id);
 
   const [confirmRemove, setConfirmRemove] = useState<HomecellMember | null>(null);
 
@@ -258,6 +267,50 @@ export default function HomecellDetailScreen() {
           </Pressable>
         ) : null}
 
+        {/* Jadwal Pertemuan section — PIC only.
+            Tampil walau BE endpoint belum deploy (query 404 → empty state). */}
+        {canRemove ? (
+          <View className="mb-4">
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                {t('homecell.schedules_section', {
+                  count: schedulesQuery.data?.length ?? 0,
+                })}
+              </Text>
+              <Pressable
+                onPress={() => router.push(`/homecell/${id}/schedule/new`)}
+                className="flex-row items-center gap-1"
+              >
+                <CalendarPlus size={14} color="#EA580C" />
+                <Text className="text-xs font-semibold text-brand-600">
+                  {t('homecell.schedules_create_btn')}
+                </Text>
+              </Pressable>
+            </View>
+            {schedulesQuery.data && schedulesQuery.data.length > 0 ? (
+              <View className="gap-2">
+                {schedulesQuery.data.slice(0, 5).map((s) => (
+                  <ScheduleRow
+                    key={s.id}
+                    schedule={s}
+                    memberCount={activeMembers.length}
+                    onPress={() =>
+                      router.push(`/homecell/${id}/schedule/${s.id}`)
+                    }
+                  />
+                ))}
+              </View>
+            ) : (
+              <View className="bg-white rounded-2xl p-5 border border-dashed border-neutral-300 items-center">
+                <CalendarIcon size={28} color="#A3A3A3" />
+                <Text className="text-sm text-neutral-500 text-center mt-2">
+                  {t('homecell.schedules_empty')}
+                </Text>
+              </View>
+            )}
+          </View>
+        ) : null}
+
         {/* Active members */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
           {t('homecell.members_section', { count: activeMembers.length })}
@@ -432,6 +485,44 @@ function MemberRow({
           <Trash2 size={14} color="#DC2626" />
         </Pressable>
       ) : null}
+    </Pressable>
+  );
+}
+
+function ScheduleRow({
+  schedule,
+  memberCount,
+  onPress,
+}: {
+  schedule: HomecellSchedule;
+  memberCount: number;
+  onPress: () => void;
+}) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  return (
+    <Pressable
+      onPress={onPress}
+      className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+    >
+      <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
+        <CalendarIcon size={18} color="#D97706" />
+      </View>
+      <View className="flex-1 min-w-0">
+        <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+          {formatDateWithDay(schedule.tanggal, lang)}
+        </Text>
+        <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+          {schedule.lokasi}
+        </Text>
+        <Text className="text-[11px] text-brand-600 font-semibold mt-1">
+          {t('homecell.schedule_progress', {
+            attended: schedule.attendanceCount,
+            total: memberCount,
+          })}
+        </Text>
+      </View>
+      <ChevronRight size={16} color="#A3A3A3" />
     </Pressable>
   );
 }
