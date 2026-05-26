@@ -19,7 +19,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -66,6 +66,8 @@ export default function ScheduleDetailScreen() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<HomecellAttendance | null>(null);
   const [confirmDeleteSchedule, setConfirmDeleteSchedule] = useState(false);
+
+  const insets = useSafeAreaInsets();
 
   const schedule = detailQuery.data;
 
@@ -231,7 +233,13 @@ export default function ScheduleDetailScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 100 }}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingTop: 16,
+          // Extra bottom padding supaya last item tidak ke-overlap FAB.
+          // FAB position = insets.bottom + 16 + button height(~52) → tambah 100 buffer.
+          paddingBottom: insets.bottom + 100,
+        }}
       >
         {schedule.catatan ? (
           <View className="bg-amber-50 border border-amber-100 rounded-2xl p-3 mb-4">
@@ -314,8 +322,13 @@ export default function ScheduleDetailScreen() {
         ) : null}
       </ScrollView>
 
-      {/* FAB Scan QR */}
-      <View className="absolute bottom-6 right-6">
+      {/* FAB Scan QR — offset dari safe-area inset bottom supaya tidak
+          overlap Android gesture bar atau 3-button nav. Minimum 16px gap
+          dari edge sistem. */}
+      <View
+        className="absolute right-6"
+        style={{ bottom: insets.bottom + 16 }}
+      >
         <Pressable
           onPress={() => setScannerOpen(true)}
           className="bg-brand-500 rounded-full px-5 py-4 flex-row items-center gap-2 shadow-lg"
