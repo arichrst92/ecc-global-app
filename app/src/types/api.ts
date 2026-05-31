@@ -64,7 +64,9 @@ export type User = {
   isFulltimer: boolean;
   canAccessPortal: boolean;
   menuAccess: MenuAccess;
-  hasFaceEnrolled: boolean;
+  /** BE retain field 90 hari pasca face removal (M33). Mobile tidak baca
+   *  — optional supaya tidak break parsing kalau BE drop di response. */
+  hasFaceEnrolled?: boolean;
   fotoUrl?: string | null;
 };
 

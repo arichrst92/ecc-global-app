@@ -24,7 +24,6 @@ import { prefetchBranches } from '@/hooks/useBranches';
 import { prefetchMaintenance, useMaintenanceMode } from '@/hooks/useMaintenanceMode';
 import { prefetchAppVersion, useAppVersion } from '@/hooks/useAppVersion';
 import { prefetchAppConfig, useAppConfig } from '@/hooks/useAppConfig';
-import { setTelemetrySamplingRate } from '@/services/telemetry';
 import {
   initErrorReporting,
   setReportingUser,
@@ -165,13 +164,11 @@ function AppEffects() {
     setReportingUser(authUser ? { noHp: authUser.noHp } : null);
   }, [authUser]);
 
-  // Sync /public/app-config telemetrySamplingRate → service module state.
-  // Service-layer code tidak hook-able; pakai mutable module state yang
-  // di-update setiap appConfig query refresh.
-  const { data: appConfig } = useAppConfig();
-  useEffect(() => {
-    setTelemetrySamplingRate(appConfig.telemetrySamplingRate);
-  }, [appConfig.telemetrySamplingRate]);
+  // Pre-warm /public/app-config — meskipun field-nya (faceMatchThreshold,
+  // lowConfidenceWarnThreshold) sudah dormant pasca face login removal,
+  // endpoint masih dipakai untuk telemetrySamplingRate + errorReportingEnabled
+  // (general telemetry config). Hook call cukup untuk trigger cache prime.
+  useAppConfig();
 
   return null;
 }

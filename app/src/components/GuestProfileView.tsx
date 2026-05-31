@@ -11,7 +11,6 @@ import {
   Calendar,
   Church,
   MapPin,
-  MessageCircleMore,
   UserPlus,
 } from 'lucide-react-native';
 
@@ -100,10 +99,6 @@ export function GuestProfileView() {
           <Feature icon={<Church size={20} color="#EA580C" />} label={t('guest.feature_ibadah')} />
           <Feature icon={<HandHeart size={20} color="#059669" />} label={t('guest.feature_giving')} />
           <Feature icon={<Calendar size={20} color="#2563EB" />} label={t('guest.feature_event')} />
-          <Feature
-            icon={<MessageCircleMore size={20} color="#D97706" />}
-            label={t('guest.feature_face_login')}
-          />
         </View>
 
         {/* CTA */}

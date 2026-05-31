@@ -47,5 +47,5 @@ export type MeProfile = {
       area: { id: string; nama: string };
     };
   }>;
-  user?: { id: string; fotoUrl?: string | null; faceEnrolledAt?: string | null };
+  user?: { id: string; fotoUrl?: string | null };
 };

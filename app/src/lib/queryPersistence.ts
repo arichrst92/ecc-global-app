@@ -33,9 +33,6 @@ const EXCLUDED_KEY_PREFIXES = new Set<string>([
   'maintenance-mode',
   'app-version',
   'app-config',
-  'face-profile-status',
-  'face-profile',
-  'liveness-nonce',
   'me-access',
   'auth-refresh',
 ]);

@@ -43,7 +43,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Els App butuh akses kamera untuk scan QR jemaat dan face recognition.",
+          "cameraPermission": "Els App butuh akses kamera untuk scan QR jemaat.",
           "recordAudioAndroid": false
         }
       ],
@@ -52,9 +52,6 @@
       [
         "expo-build-properties",
         {
-          "ios": {
-            "deploymentTarget": "16.0"
-          },
           "android": {
             "minSdkVersion": 24
           }
