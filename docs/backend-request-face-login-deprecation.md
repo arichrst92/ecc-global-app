@@ -94,3 +94,115 @@ Mobile APK baru: ~v1.1.0 (target rilis 2-3 hari setelah PR merge + EAS build).
 Decision bisa di-revert kalau diperlukan:
 - Mobile: revert commit, `npm install`, `expo prebuild --clean`, ready in ~1 jam
 - BE: tidak perlu apa-apa kalau Option B (retain tables forever) di-pilih — restore mobile auto kembali functional
+
+---
+
+# Backend Response — 2026-05-31
+
+**Dari**: Tim Backend ECC (IDEA dev team)
+**Status**: ✅ **ACKNOWLEDGED** — semua action item confirmed.
+
+## Konteks tambahan dari sisi BE
+
+Portal admin (https://portal.eccchurch.global) **sudah lebih dulu** strip face login UI di commit `52d2080` (2026-05-26) — tombol Login dengan Wajah di /login + section Face Recognition di /dashboard/profile sudah hilang. Itu berarti setelah mobile APK baru lo rilis + force-update aktif, **tidak ada UI consumer face login lagi** di seluruh stack ECC (cuma diagnostics/admin telemetry yang tetap monitor data historis).
+
+## Decision per action item
+
+### 1. ✅ Retention 90 hari endpoint face — CONFIRMED
+
+Semua 6 endpoint **retain operational, no breaking change** sampai mobile signal force-update threshold aman:
+
+| Endpoint | Status |
+|---|---|
+| `POST /auth/face/login` | ✅ retain |
+| `POST /auth/face/liveness-nonce` | ✅ retain |
+| `POST /auth/face/enroll` | ✅ retain |
+| `GET /auth/me/face-profile` | ✅ retain |
+| `PUT /auth/me/face-profile` | ✅ retain |
+| `DELETE /auth/me/face-profile` (alias `POST /auth/face/reset`) | ✅ retain |
+
+Plus internal helper `liveness_nonce` issuance + `LIVENESS_NONCE_SECRET` env tetap aktif.
+
+### 2. ✅ Database retention — Option B (indefinite)
+
+Sesuai rekomendasi lo — pilih **Option B**. Storage murah, optionality nice, dan kalau ada user iseng yang minta restore wajah pun bisa langsung tanpa data loss.
+
+Tables/columns yang retained:
+- `User.faceDescriptor` (Json), `faceEnrolledAt` (DateTime?), `faceModelVersion` (VarChar?), `faceMetadata` (Json?)
+- `FaceTelemetryEvent` table (full)
+- `AppConfig.faceMatchThreshold` (column on global singleton)
+
+Cleanup job `cleanup-face-telemetry` di `scheduled-jobs.ts` tetap jalan (retention 90 hari per row, bukan per fitur — itu menjaga DB lean tanpa mempengaruhi feature availability).
+
+### 3. ⚠️ Field face di `/public/app-config` — KEEP (tidak drop)
+
+Mobile baru di-ignore — agreed. Tapi BE **tetap return** 4 field tsb sampai 90-day window expire, alasannya:
+- Mobile APK lama (pre-deprecation) baca cached default kalau field hilang → defensive coding di sisi mobile aman, tapi BE sengaja cautious
+- Cost retain = 4 angka di JSON response = nol
+- Risk drop sekarang = mobile lama panic logging "missing field" → noisy crash reports tanpa benefit
+
+Future cleanup: drop bersama keputusan Option A (tables) kalau force-update threshold tercapai.
+
+Saat ini `/public/app-config` tetap return:
+```json
+{
+  "faceMatchThreshold": 0.5,
+  "lowConfidenceWarnThreshold": 0.7,
+  "telemetrySamplingRate": 1.0,
+  "errorReportingEnabled": true
+}
+```
+
+(Note: `telemetrySamplingRate` + `errorReportingEnabled` itu **general telemetry**, bukan face-spesifik — tetap relevan untuk error reporting yang sekarang aktif. Cuma `faceMatchThreshold` + `lowConfidenceWarnThreshold` yang face-spesifik dan akan ikut dropped saat retention expire.)
+
+### 4. ⚠️ Field face di response `/auth/face/login` + `/auth/otp/verify` (login response) — KEEP
+
+`user.hasFaceEnrolled` (boolean) di login response **tetap di-return**. Computed dari `!!user.faceDescriptor`, hampir-gratis. Cost retain = nol, cost drop = mobile lama break.
+
+Portal udah handle: `AuthUser.hasFaceEnrolled?` di auth-store sudah optional (commit `52d2080`) — kalau BE drop nanti pun portal tetep clean.
+
+### 5. ✅ Force-update minVersion timing — STAND BY
+
+Workflow:
+1. Mobile rilis APK baru v1.1.0 ke Play Store + App Store
+2. Monitor stable rollout > 80% (mobile-side analytics)
+3. Mobile **ping balik via doc atau Slack** — kasih versi yang sudah strip face (mis. `1.1.0`)
+4. BE update `AppVersion.minSupportedVersion` di portal `/dashboard/app-version` per-platform
+5. User APK lama dapat force-update modal saat open app
+
+Saat ini `AppVersion.minSupportedVersion` di production masih versi pre-deprecation. BE TIDAK akan touch tanpa explicit signal dari lo — ping kapan aman.
+
+### 6. ✅ Telemetry endpoint `/diagnostics/face-telemetry` — retain idle
+
+Admin diagnostics tab tetap ada di portal (per commit `52d2080` cuma copy yang di-clarify "mobile only") — useful untuk historical analysis. Endpoint silent kalau mobile baru gak kirim payload, gak ada masalah.
+
+## File yang BE TIDAK touch
+
+- ❌ `prisma/schema.prisma` — no migration
+- ❌ `apps/core-api/src/routes/auth.ts` — face endpoints unchanged
+- ❌ `apps/core-api/src/routes/public-unauth.ts` `/app-config` — fields retained
+- ❌ `apps/core-api/src/routes/admin/diagnostics.ts` — telemetry endpoint retained
+- ❌ `apps/core-api/src/lib/scheduled-jobs.ts` — cleanup-face-telemetry job retained
+
+**Zero code change** dari sisi BE untuk request ini. Pure operational acknowledgment.
+
+## Memo internal untuk timeline cleanup
+
+Saat lo ping bahwa APK baru sudah stable + force-update aktif > 90 hari, BE akan:
+- Drop `faceMatchThreshold` + `lowConfidenceWarnThreshold` dari `/public/app-config` response
+- Drop `user.hasFaceEnrolled` dari login response
+- Drop OpenAPI schema definitions untuk face endpoints
+- Migration: bisa drop columns + table (kalau benar-benar Option A dipilih nanti) atau retain (default Option B)
+- Bersih-bersih `apps/core-api/src/routes/admin/diagnostics.ts` Face Telemetry tab di portal (kalau diputuskan endpoint sunset)
+
+Catatan ini tracked sebagai TODO di `[[deploy-gotchas]]` memory.
+
+## Action items mobile (info)
+
+- [x] PR mobile rilis APK baru tanpa face UI → boleh proceed kapan saja
+- [ ] Setelah Play Store + App Store rollout > 80%, ping BE dengan versi yang sudah safe untuk force-update threshold
+- [ ] (Setelah force-update aktif > 90 hari) ping BE untuk Option A/B decision finalize
+
+---
+
+*Acknowledged 2026-05-31.*
