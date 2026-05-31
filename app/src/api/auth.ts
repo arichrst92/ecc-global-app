@@ -10,14 +10,7 @@ import type {
   RegisterPayload,
   AuthSuccessData,
   EnrollmentVerifyResponse,
-  FaceEnrollPayload,
-  FaceEnrollResponse,
-  FaceLoginPayload,
-  FaceLoginResponse,
-  FaceProfileStatus,
-  LivenessNonceResponse,
   LogoutPayload,
-  RequestLivenessNoncePayload,
 } from '@/types/auth';
 
 /**
@@ -84,72 +77,6 @@ export function verifyOtp(payload: VerifyOtpPayload) {
  */
 export function register(payload: RegisterPayload) {
   return api.post<AuthSuccessData>('/auth/register', payload, { skipAuth: true });
-}
-
-/**
- * POST /auth/face/liveness-nonce
- * Per BE handoff liveness-nonce V1 (2026-05-22):
- * - Request opaque HMAC nonce sebelum show liveness UI
- * - TTL 3 menit, one-shot consume
- * - Submit nonce di body /face/login atau /face/enroll
- * - V1 grace: nonce OPTIONAL; V2 cutover 2026-06-01 → required
- *
- * Tidak perlu auth (mirror /face/login behavior). Bind ke noHp + purpose.
- */
-export function requestLivenessNonce(payload: RequestLivenessNoncePayload) {
-  return api.post<LivenessNonceResponse>(
-    '/auth/face/liveness-nonce',
-    payload,
-    { skipAuth: true },
-  );
-}
-
-/**
- * POST /auth/face/login
- * Login dengan face recognition descriptor.
- * Descriptor 128-dim Float32, computed on-device dengan face-api.js compatible
- * library. Body sertakan `noHp` untuk reduce search space (O(1) compare).
- *
- * Response include `confidence` (0..1, higher = better match).
- * Error codes: FACE_NOT_ENROLLED, FACE_NO_MATCH, FACE_MODEL_MISMATCH,
- * FACE_INVALID_DESCRIPTOR, FACE_LOGIN_RATE_LIMIT.
- */
-export function faceLogin(payload: FaceLoginPayload) {
-  return api.post<FaceLoginResponse>('/auth/face/login', payload, { skipAuth: true });
-}
-
-/**
- * GET /auth/me/face-profile
- * Cek status enrollment user. Mobile pakai untuk decide tampilkan
- * "Aktifkan Login Wajah" atau "Sudah aktif + opsi update/hapus".
- */
-export function getFaceProfile() {
-  return api.get<FaceProfileStatus>('/auth/me/face-profile');
-}
-
-/**
- * POST /auth/face/enroll
- * First-time enrollment. Tolak kalau sudah ada (409 FACE_ALREADY_ENROLLED).
- * Untuk replace existing, pakai updateFaceProfile (PUT).
- */
-export function enrollFace(payload: FaceEnrollPayload) {
-  return api.post<FaceEnrollResponse>('/auth/face/enroll', payload);
-}
-
-/**
- * PUT /auth/me/face-profile
- * Re-enroll / update existing face descriptor.
- */
-export function updateFaceProfile(payload: FaceEnrollPayload) {
-  return api.put<FaceEnrollResponse>('/auth/me/face-profile', payload);
-}
-
-/**
- * DELETE /auth/me/face-profile
- * PDP Law right-to-delete. Hapus stored descriptor + metadata.
- */
-export function deleteFaceProfile() {
-  return api.delete<{ hasFaceEnrolled: false }>('/auth/me/face-profile');
 }
 
 /**

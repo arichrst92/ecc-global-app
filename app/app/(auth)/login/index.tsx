@@ -1,7 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+/**
+ * Login screen — OTP-only.
+ *
+ * 2026-05-26: Face login removed (lihat docs/mobile-face-login-removal-impact.md).
+ * Sebelumnya screen ini punya tombol Face Login + capture modal + liveness flow.
+ * Sekarang clean — input nomor → OTP via WhatsApp.
+ */
+import { useState } from 'react';
 import {
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -12,50 +18,23 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Info, MessageCircleMore, ScanFace } from 'lucide-react-native';
+import { ArrowLeft, Info, MessageCircleMore } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
-import { useToast } from '@/components/ui/Toast';
-import { faceLogin, requestLivenessNonce, requestOtp } from '@/api/auth';
-import { FaceCapture } from '@/components/face/FaceCapture';
-import { isFaceDescriptorReady } from '@/services/faceDescriptor';
-import { newTelemetrySessionId, trackFaceEvent } from '@/services/telemetry';
-import { useAppConfig } from '@/hooks/useAppConfig';
-import { useAuthStore } from '@/stores/auth.store';
+import { requestOtp } from '@/api/auth';
 import { normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
-import {
-  FACE_MODEL_VERSION,
-  type FaceLoginPayload,
-  type FaceLoginResponse,
-} from '@/types/auth';
 
 export default function LoginPhoneScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const showToast = useToast((s) => s.show);
-  const login = useAuthStore((s) => s.login);
-  const setFaceEnrolledHint = useAuthStore((s) => s.setFaceEnrolledHint);
-  const { data: appConfig } = useAppConfig();
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [captureOpen, setCaptureOpen] = useState(false);
-  const [faceEngineReady, setFaceEngineReady] = useState(false);
-
-  // Poll face engine readiness — di Expo Go selalu false, hide face button.
-  useEffect(() => {
-    setFaceEngineReady(isFaceDescriptorReady());
-    const id = setInterval(() => {
-      setFaceEngineReady(isFaceDescriptorReady());
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
 
   const mutation = useMutation({
     mutationFn: async (e164: string) => requestOtp({ noHp: e164, purpose: 'LOGIN' }),
     onSuccess: (_data, e164) => {
-      showToast(t('auth.otp_sent'), 'success');
       router.push({ pathname: '/(auth)/login/otp', params: { noHp: e164 } });
     },
     onError: (err) => {
@@ -73,72 +52,6 @@ export default function LoginPhoneScreen() {
     },
   });
 
-  // Track /face/login roundtrip duration untuk telemetry.
-  const serverRequestStartedAt = useRef<number>(0);
-
-  const faceLoginMutation = useMutation({
-    mutationFn: (payload: FaceLoginPayload) => {
-      serverRequestStartedAt.current = Date.now();
-      return faceLogin(payload);
-    },
-    onSuccess: async (data: FaceLoginResponse) => {
-      await login(data.accessToken, data.refreshToken, data.user);
-      // Persist hint supaya Welcome quick-login bisa show face button next time
-      await setFaceEnrolledHint(true);
-      setCaptureOpen(false);
-      // BE-configurable threshold (per /public/app-config).
-      if (data.confidence < appConfig.lowConfidenceWarnThreshold) {
-        showToast(t('face.low_confidence_warn'), 'info');
-      } else {
-        showToast(t('auth.login_success'), 'success');
-      }
-      trackFaceEvent({
-        sessionId: telemetrySessionId,
-        noHp: normalizePhone(phone) ?? undefined,
-        event: 'face_login_server_response',
-        outcome: 'success',
-        flow: 'login',
-        confidence: data.confidence,
-        durationMs: { serverRoundtrip: Date.now() - serverRequestStartedAt.current },
-      });
-    },
-    onError: (err) => {
-      setCaptureOpen(false);
-      // Reset nonce supaya retry langsung request fresh one
-      setLivenessNonce(null);
-      setLivenessNonceExpiresAt(null);
-      trackFaceEvent({
-        sessionId: telemetrySessionId,
-        noHp: normalizePhone(phone) ?? undefined,
-        event: 'face_login_server_response',
-        outcome: 'failure',
-        flow: 'login',
-        failureReason: err instanceof ApiError ? err.code : 'NETWORK_ERROR',
-        durationMs: { serverRoundtrip: Date.now() - serverRequestStartedAt.current },
-      });
-      if (err instanceof ApiError) {
-        const code = err.code.toLowerCase();
-        if (code === 'face_not_enrolled') {
-          showToast(t('face.error_face_not_enrolled'), 'error');
-        } else if (
-          code === 'face_no_match' ||
-          code === 'face_model_mismatch' ||
-          code === 'face_invalid_descriptor' ||
-          code === 'face_login_rate_limit'
-        ) {
-          showToast(t(`face.error_${code}`), 'error');
-        } else if (code.startsWith('liveness_nonce_')) {
-          // Per BE handoff liveness-nonce: error codes EXPIRED/REUSED/INVALID/etc
-          showToast(t(`face.error_${code}`), 'error');
-        } else {
-          showToast(err.message, 'error');
-        }
-      } else {
-        showToast(t('error.network'), 'error');
-      }
-    },
-  });
-
   function submit() {
     setError(null);
     const e164 = normalizePhone(phone);
@@ -147,89 +60,6 @@ export default function LoginPhoneScreen() {
       return;
     }
     mutation.mutate(e164);
-  }
-
-  // Liveness nonce per BE handoff 2026-05-22 — request sebelum show liveness UI.
-  // V1 grace: kalau request gagal, tetap proceed (BE log warn). V2 cutover
-  // 2026-06-01 akan strict — need fresh nonce.
-  // expiresAt dipakai untuk countdown badge di FaceCapture/LivenessChallenge.
-  const [livenessNonce, setLivenessNonce] = useState<string | null>(null);
-  const [livenessNonceExpiresAt, setLivenessNonceExpiresAt] = useState<string | null>(null);
-  // Telemetry session — mint baru tiap open flow (correlate events).
-  const [telemetrySessionId, setTelemetrySessionId] = useState<string>('');
-
-  /** Request fresh nonce. Return true on success, false on failure.
-   *  V2 strict (post 2026-06-01): nonce REQUIRED — startFaceLogin return early
-   *  kalau ini false. Toast error sudah di-show di sini. */
-  async function fetchNonce(sessionId: string, e164?: string): Promise<boolean> {
-    const phoneNumber = e164 ?? normalizePhone(phone);
-    if (!phoneNumber) return false;
-    const startedAt = Date.now();
-    try {
-      const res = await requestLivenessNonce({ noHp: phoneNumber, purpose: 'LOGIN' });
-      setLivenessNonce(res.nonce);
-      setLivenessNonceExpiresAt(res.expiresAt);
-      trackFaceEvent({
-        sessionId,
-        noHp: phoneNumber,
-        event: 'face_nonce_request',
-        outcome: 'success',
-        flow: 'login',
-        durationMs: { nonceRoundtrip: Date.now() - startedAt },
-      });
-      return true;
-    } catch (err) {
-      setLivenessNonce(null);
-      setLivenessNonceExpiresAt(null);
-      showToast(t('face.error_nonce_request_failed'), 'error');
-      trackFaceEvent({
-        sessionId,
-        noHp: phoneNumber,
-        event: 'face_nonce_request',
-        outcome: 'failure',
-        flow: 'login',
-        failureReason: err instanceof ApiError ? err.code : 'NETWORK_ERROR',
-        durationMs: { nonceRoundtrip: Date.now() - startedAt },
-      });
-      return false;
-    }
-  }
-
-  async function startFaceLogin() {
-    setError(null);
-    const e164 = normalizePhone(phone);
-    if (!e164) {
-      setError(t('auth.error_invalid_phone'));
-      return;
-    }
-    // Mint sessionId baru untuk correlate events downstream.
-    const sid = newTelemetrySessionId();
-    setTelemetrySessionId(sid);
-    trackFaceEvent({
-      sessionId: sid,
-      noHp: e164,
-      event: 'face_login_attempt',
-      outcome: 'success',
-      flow: 'login',
-    });
-    const ok = await fetchNonce(sid, e164);
-    if (!ok) return; // V2 strict: jangan buka capture tanpa nonce
-    setCaptureOpen(true);
-  }
-
-  function handleDescriptor(descriptor: number[]) {
-    const e164 = normalizePhone(phone);
-    if (!e164) {
-      setError(t('auth.error_invalid_phone'));
-      setCaptureOpen(false);
-      return;
-    }
-    faceLoginMutation.mutate({
-      noHp: e164,
-      descriptor,
-      modelVersion: FACE_MODEL_VERSION,
-      livenessNonce: livenessNonce ?? undefined,
-    });
   }
 
   return (
@@ -281,56 +111,17 @@ export default function LoginPhoneScreen() {
           </View>
         </ScrollView>
 
-        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100 gap-2">
+        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
           <Button
             label={t('auth.send_otp')}
             onPress={submit}
             loading={mutation.isPending}
-            disabled={phone.length < 8 || faceLoginMutation.isPending}
+            disabled={phone.length < 8}
             fullWidth
             size="lg"
           />
-          {faceEngineReady ? (
-            <>
-              <Pressable
-                onPress={startFaceLogin}
-                disabled={phone.length < 8 || mutation.isPending || faceLoginMutation.isPending}
-                className={`flex-row items-center justify-center gap-2 py-3 rounded-xl border ${
-                  phone.length < 8 || mutation.isPending || faceLoginMutation.isPending
-                    ? 'border-neutral-200 opacity-50'
-                    : 'border-brand-500'
-                }`}
-              >
-                <ScanFace size={18} color="#EA580C" />
-                <Text className="text-sm font-semibold text-brand-600">
-                  {faceLoginMutation.isPending
-                    ? t('common.loading')
-                    : t('auth.signin_face')}
-                </Text>
-              </Pressable>
-              <Text className="text-[10px] text-neutral-400 text-center mt-1">
-                {t('auth.face_login_hint')}
-              </Text>
-            </>
-          ) : null}
         </View>
       </KeyboardAvoidingView>
-
-      {/* Face capture modal */}
-      <Modal visible={captureOpen} animationType="slide" onRequestClose={() => setCaptureOpen(false)}>
-        {captureOpen ? (
-          <FaceCapture
-            onSuccess={handleDescriptor}
-            onCancel={() => setCaptureOpen(false)}
-            requireLiveness
-            nonceExpiresAt={livenessNonceExpiresAt}
-            onRefreshNonce={() => fetchNonce(telemetrySessionId)}
-            telemetrySessionId={telemetrySessionId}
-            telemetryFlow="login"
-            telemetryNoHp={normalizePhone(phone) ?? undefined}
-          />
-        ) : null}
-      </Modal>
     </SafeAreaView>
   );
 }

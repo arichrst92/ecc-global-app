@@ -3,8 +3,6 @@ import { Home, Church, CalendarDays, HandHeart, UserRound } from 'lucide-react-n
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { FaceEnrollmentPrompt } from '@/components/face/FaceEnrollmentPrompt';
-
 export default function TabsLayout() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -12,8 +10,7 @@ export default function TabsLayout() {
   // supaya tab bar tidak overlap dengan system UI
   const bottomInset = insets.bottom;
   return (
-    <>
-      <Tabs
+    <Tabs
         screenOptions={{
           tabBarActiveTintColor: '#F97316',
           tabBarInactiveTintColor: '#737373',
@@ -64,8 +61,6 @@ export default function TabsLayout() {
             tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />,
           }}
         />
-      </Tabs>
-      <FaceEnrollmentPrompt />
-    </>
+    </Tabs>
   );
 }

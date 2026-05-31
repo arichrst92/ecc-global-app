@@ -18,7 +18,6 @@ import { useNotificationsStore } from '@/stores/notifications.store';
 import { usePrinterStore } from '@/stores/printer.store';
 import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
-import { FaceDescriptorProvider } from '@/components/face/FaceDescriptorProvider';
 import { ForceUpdateModal } from '@/components/ForceUpdateModal';
 import { MaintenanceModal } from '@/components/MaintenanceModal';
 import { prefetchBranches } from '@/hooks/useBranches';
@@ -133,22 +132,20 @@ export default function RootLayout() {
         client={queryClient}
         persistOptions={{ persister: queryPersister, ...persistOptions }}
       >
-        <FaceDescriptorProvider>
-          {/* AppEffects: hooks yang butuh QueryClient context (mis. useAppConfig)
-              harus di-render INSIDE PersistQueryClientProvider — jangan di RootLayout
-              karena provider belum mounted saat hook ke-call. */}
-          <AppEffects />
-          {/* Default StatusBar — 'auto' adapt ke system color scheme (light mode = dark icons).
-              Individual screens dengan orange header pakai <StatusBar style="light" />
-              untuk override (icons putih supaya visible di atas orange). */}
-          <StatusBar style="dark" translucent backgroundColor="transparent" />
-          <MaintenanceGate>
-            <ForceUpdateGate>
-              <RootLayoutNav />
-            </ForceUpdateGate>
-          </MaintenanceGate>
-          <ToastContainer />
-        </FaceDescriptorProvider>
+        {/* AppEffects: hooks yang butuh QueryClient context (mis. useAppConfig)
+            harus di-render INSIDE PersistQueryClientProvider — jangan di RootLayout
+            karena provider belum mounted saat hook ke-call. */}
+        <AppEffects />
+        {/* Default StatusBar — 'auto' adapt ke system color scheme (light mode = dark icons).
+            Individual screens dengan orange header pakai <StatusBar style="light" />
+            untuk override (icons putih supaya visible di atas orange). */}
+        <StatusBar style="dark" translucent backgroundColor="transparent" />
+        <MaintenanceGate>
+          <ForceUpdateGate>
+            <RootLayoutNav />
+          </ForceUpdateGate>
+        </MaintenanceGate>
+        <ToastContainer />
       </PersistQueryClientProvider>
     </SafeAreaProvider>
   );

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,6 @@ import {
   Info,
   LogOut,
   Pencil,
-  ScanFace,
   ScanLine,
   Sparkles,
   Store,
@@ -54,14 +53,25 @@ function ProfileTabAuthenticated() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const language = usePreferencesStore((s) => s.language);
   const languageLabel = language === 'id' ? 'Bahasa Indonesia' : 'English';
-  const faceEnrolledHint = useAuthStore((s) => s.faceEnrolledHint);
-
-  // Scanner mode visible kalau user authorized untuk minimal 1 event ATAU ibadah
+  // Family + Scanner mode visible kalau user authorized untuk minimal 1 event/ibadah
+  const familyQuery = useMyFamily();
   const scannerEventsQuery = useScannerEvents();
   const scannerIbadahQuery = useScannerIbadah();
   const isScannerAuthorized =
     (scannerEventsQuery.data?.length ?? 0) > 0 ||
     (scannerIbadahQuery.data?.length ?? 0) > 0;
+
+  // Pull-to-refresh: refetch semua query yang feed profile page (family info,
+  // scanner authorization, plus invalidate any cached me data).
+  const isRefreshing =
+    familyQuery.isFetching ||
+    scannerEventsQuery.isFetching ||
+    scannerIbadahQuery.isFetching;
+  function handleRefresh() {
+    void familyQuery.refetch();
+    void scannerEventsQuery.refetch();
+    void scannerIbadahQuery.refetch();
+  }
 
   function confirmLogout() {
     setConfirmOpen(false);
@@ -108,6 +118,14 @@ function ProfileTabAuthenticated() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor="#F97316"
+            colors={['#F97316']}
+          />
+        }
       >
 
         {/* Quick Access dipindah ke Dashboard. Scanner Mode tetap di sini
@@ -168,13 +186,6 @@ function ProfileTabAuthenticated() {
             label={t('profile.language')}
             sub={languageLabel}
             onPress={() => router.push('/settings/language')}
-          />
-          <MenuRow
-            icon={<ScanFace size={18} color="#7C3AED" />}
-            iconBg="bg-violet-50"
-            label={t('face.settings_label')}
-            sub={faceEnrolledHint ? t('face.settings_on') : t('face.settings_off')}
-            onPress={() => router.push('/settings/face' as never)}
           />
           <MenuRow
             icon={<Download size={18} color="#16A34A" />}
