@@ -3,7 +3,7 @@
 **Dari:** Tim Backend ECC (IDEA)
 **Untuk:** Tim Mobile (Ari) + siapa saja yg consume Jemaat/Group data
 **Tanggal:** 2026-07-28
-**Status:** ✅ Selesai di local, **belum deploy production** (menunggu approval)
+**Status:** 🚀 **DEPLOYED PRODUCTION** per 2026-07-29 — semua schema live di `api.eccchurch.global`, data import dilakukan bertahap via portal admin (Shiftsoft Sync UI di Developer Tools).
 **Related:**
 - [`backend-notice-magic-link-email-login.md`](./backend-notice-magic-link-email-login.md) — login flow untuk 6736 legacy jemaat (dipicu oleh migration ini)
 - [`backend-notice-group-endpoints.md`](./backend-notice-group-endpoints.md) — 12 REST endpoint yg expose Group ke mobile (sudah tersedia)
@@ -244,21 +244,21 @@ Berikut yg **tidak** ter-import dari Shiftsoft, bisa lo request kalau dibutuhkan
 
 ## Deployment status
 
-**Local:** ✅ Selesai (all 6782 jemaat + 314 group di local DB)
+**Local:** ✅ Selesai
+**VPS Production:** 🚀 **LIVE per 2026-07-29** — schema deployed, data import bertahap.
 
-**VPS Production:** ⏸️ **Menunggu approval** — commit sudah di `origin/main` (SHA cek `git log`). Deploy flow untuk BE ops (bukan mobile):
+**Import method di prod:** admin trigger via portal UI `https://portal.eccchurch.global/dashboard/shiftsoft-sync` (Fulltimer-only). Preview + review + commit wizard — bisa per-tenant, per-record action untuk redundant record (skip / null-noHp / null-email). Fallback CLI script tetap tersedia untuk BE ops di `docs/sprint-2-deploy-checklist.md`.
 
+**Untuk mobile:** semua endpoint Jemaat sudah return field baru (14 kolom + `onboardedAt`). Mobile bisa langsung test consume via prod API. Sample test:
 ```bash
-# Di VPS
-git pull origin main
-cd packages/database
-npx dotenv-cli -e ../../.env -- npx prisma migrate deploy  # apply 2 migration
-npx dotenv-cli -e ../../.env -- npx prisma generate
-# ... plus set 8 SHIFTSOFT_HASH_* di VPS .env
-# ... plus rerun script db:migrate-shiftsoft + db:migrate-shiftsoft-groups
+# Pakai JWT admin
+curl -H "Authorization: Bearer <JWT>" \
+  https://api.eccchurch.global/admin/jemaat/<any-id>
+# Response include: tanggalBergabungGereja, pendidikanTerakhir, statusPekerjaan,
+# namaKantor, alamatKantor, statusPernikahan, tanggalPernikahan, sudahBaptisAir,
+# tanggalBaptisAir, sudahBaptisRohKudus, tanggalBaptisRohKudus,
+# spiritualJourneyLevel, bapaRohaniJemaatId, legacyShiftsoftId, onboardedAt
 ```
-
-**Timing production deploy:** akan dikoordinasi terpisah — tidak block mobile development karena schema change 100% additive (no breaking change).
 
 ---
 
@@ -294,4 +294,4 @@ Kalau mobile mau feature baru (browse group, filter jemaat by field baru, dll), 
 
 ---
 
-*Doc versi: 1.1 — 2026-07-28. Update log: v1.1 tambah `isPublic`+`joinCode` di Group schema, redirect endpoint section ke `backend-notice-group-endpoints.md`, cross-ref ke magic-link doc.*
+*Doc versi: 1.2 — 2026-07-29. Update log: v1.2 status DEPLOYED PRODUCTION, tambah pointer ke Shiftsoft Sync UI. v1.1 tambah `isPublic`+`joinCode` di Group schema.*

@@ -3,7 +3,7 @@
 **Dari:** Tim Backend ECC (IDEA)
 **Untuk:** Tim Mobile (Ari)
 **Tanggal:** 2026-07-28
-**Status:** ✅ Selesai di local, **belum deploy production**
+**Status:** 🚀 **DEPLOYED PRODUCTION** per 2026-07-29 — semua 4 endpoint magic-link + onboarding wizard + session 365d live di `api.eccchurch.global`. SendGrid + deep link URL config aktif.
 **Related:** [`backend-notice-shiftsoft-migration.md`](./backend-notice-shiftsoft-migration.md)
 
 ---
@@ -466,4 +466,28 @@ Kalau ada request/questions, kirim `backend-request-*.md` di folder ini.
 
 ---
 
-*Doc versi: 1.0 — 2026-07-28. Update kalau ada perubahan schema/endpoint signifikan.*
+*Doc versi: 1.1 — 2026-07-29. Update log: v1.1 status DEPLOYED PRODUCTION.*
+
+---
+
+## Sample test end-to-end (prod live)
+
+```bash
+# 1. Request magic link ke email jemaat legacy yang punya email valid
+curl -X POST https://api.eccchurch.global/auth/email/request-magic-link \
+  -H "Content-Type: application/json" \
+  -d '{"email":"<email-jemaat>"}'
+# Expect: {"success":true,"message":"Kalau email terdaftar..."}
+# Cek inbox — link akan datang dari noreply@eccchurch.global
+
+# 2. Extract token dari email URL (format: ecc://auth/email/verify?token=xxx)
+TOKEN="paste-64char-hex-here"
+
+# 3. Verify → dapat JWT
+curl -X POST https://api.eccchurch.global/auth/email/verify-magic-link \
+  -H "Content-Type: application/json" \
+  -d "{\"token\":\"$TOKEN\"}"
+# Expect: {"success":true, "data":{"accessToken":"...", "user":{"needsOnboarding":true|false, ...}}}
+```
+
+Test di dev/staging: sama pattern, cuma ganti host. Kalau `needsOnboarding=true` → route ke wizard, panggil `POST /auth/onboarding/complete` untuk selesaikan.

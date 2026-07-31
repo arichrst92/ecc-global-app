@@ -3,7 +3,7 @@
 **Dari:** Tim Backend ECC (IDEA)
 **Untuk:** Tim Mobile (Ari)
 **Tanggal:** 2026-07-28
-**Status:** ✅ Backend siap di local, **belum deploy production**
+**Status:** 🚀 **DEPLOYED PRODUCTION** per 2026-07-29 — 12 endpoint `/admin/group/*` + `/admin/me/group-membership` live di `api.eccchurch.global`. Table `church_group` + `group_member` ready. Mobile UI bisa langsung consume.
 **Related:** [`backend-notice-shiftsoft-migration.md`](./backend-notice-shiftsoft-migration.md) (Group schema + import data)
 
 ---
@@ -520,9 +520,22 @@ curl -H "Authorization: Bearer $JWT" \
 
 ## Deployment status
 
-Backend endpoints **selesai di local, belum production**. Deploy timing akan dikoordinasi terpisah.
+🚀 **LIVE per 2026-07-29** di `https://api.eccchurch.global`.
 
-**Coordinated deploy dengan magic link module** (module 24) — karena schema patch + Group data + endpoint semua di-bundle 1 sprint. Mobile UI bisa mulai develop paralel — endpoints spec sudah final.
+Sample test dari mobile dev (setelah punya JWT):
+```bash
+JWT="<paste-your-token>"
+
+# List group Bandung
+curl -H "Authorization: Bearer $JWT" \
+  "https://api.eccchurch.global/admin/group?limit=10"
+
+# My groups
+curl -H "Authorization: Bearer $JWT" \
+  "https://api.eccchurch.global/admin/me/group-membership"
+```
+
+Data import legacy bertahap via portal admin — beberapa cabang bisa masih kosong sementara admin selesaikan sync. Panggil `GET /admin/group?cabangId=X` untuk cek data availability per cabang.
 
 ---
 
@@ -537,4 +550,4 @@ Feature request/questions → `backend-request-group-*.md` di folder ini.
 
 ---
 
-*Doc versi: 1.0 — 2026-07-28. Update kalau ada endpoint/schema change signifikan.*
+*Doc versi: 1.1 — 2026-07-29. Update log: v1.1 status DEPLOYED PRODUCTION + sample curl test.*
