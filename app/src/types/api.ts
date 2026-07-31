@@ -55,6 +55,18 @@ export type MenuAccess = Record<
   { canRead: boolean; canWrite?: boolean; canDelete?: boolean }
 >;
 
+/**
+ * Onboarding wizard hint per BE notice magic-link 2026-07-28.
+ * BE include field ini di login response kalau `needsOnboarding=true`,
+ * supaya mobile tau step mana yang mandatory di wizard.
+ */
+export type OnboardingReason = {
+  /** True kalau jemaat belum punya noHp — wizard Step 1 (add noHp via OTP WA). */
+  missingNoHp: boolean;
+  /** List field profile yang wajib diisi di Step 2 (jenisKelamin, tanggalLahir, dll). */
+  missingProfile: string[];
+};
+
 export type User = {
   id: string;
   jemaatId: string;
@@ -68,6 +80,15 @@ export type User = {
    *  — optional supaya tidak break parsing kalau BE drop di response. */
   hasFaceEnrolled?: boolean;
   fotoUrl?: string | null;
+  /** Email jemaat — dari BE notice magic-link 2026-07-28. Optional karena
+   *  legacy user pre-migration mungkin belum punya. */
+  email?: string | null;
+  /** Kalau true, mobile wajib route ke onboarding wizard first-login
+   *  sebelum masuk main app. Per BE notice magic-link 2026-07-28. */
+  needsOnboarding?: boolean;
+  /** Hint field yang missing untuk driving wizard step visibility.
+   *  Cuma populated kalau needsOnboarding=true. */
+  onboardingReason?: OnboardingReason;
 };
 
 export type AuthTokens = {

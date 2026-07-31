@@ -2,7 +2,7 @@
 
 import type { User } from './api';
 
-export type OtpPurpose = 'LOGIN' | 'ENROLLMENT';
+export type OtpPurpose = 'LOGIN' | 'ENROLLMENT' | 'ONBOARDING_ADD_NOHP';
 
 export type RequestOtpPayload = {
   noHp: string; // E.164 format
@@ -51,6 +51,47 @@ export type RegisterPayload = {
    *  - JEMAAT_TETAP → role Jemaat + sub-role Tetap
    *  - NEW_COMER → role Jemaat + sub-role New Comer */
   jenisJemaat?: JenisJemaat;
+  /** Email untuk backup login via magic link. Optional, tapi disarankan
+   *  supaya kalau HP hilang / OTP WA gagal user bisa fallback ke email.
+   *  Per BE notice magic-link 2026-07-28. */
+  email?: string;
+};
+
+/**
+ * Payload POST /auth/email/request-magic-link
+ * Kirim magic link ke email jemaat. Response 200 selalu (anti-enumeration),
+ * jadi mobile tidak bisa tau apakah email terdaftar dari response.
+ * Rate limit: 5 request per 1 jam per IP.
+ * Per BE notice magic-link 2026-07-28.
+ */
+export type RequestMagicLinkPayload = {
+  email: string;
+};
+
+/**
+ * Payload POST /auth/email/verify-magic-link
+ * Consume token dari deeplink URL (ecc://auth/email/verify?token=xxx).
+ * Rate limit: 10 request per 15 menit per IP.
+ * Errors: 401 UNAUTHORIZED (token invalid / expired / already used).
+ * Per BE notice magic-link 2026-07-28.
+ */
+export type VerifyMagicLinkPayload = {
+  token: string;
+};
+
+/**
+ * Payload POST /auth/onboarding/complete
+ * Save profile fields + set onboardedAt=now(). Butuh Bearer JWT.
+ * Semua field opsional — kalau undefined, BE skip. Idempotent.
+ * Per BE notice magic-link 2026-07-28.
+ */
+export type CompleteOnboardingPayload = {
+  namaLengkap?: string;
+  jenisKelamin?: 'L' | 'P';
+  tanggalLahir?: string; // ISO date "YYYY-MM-DD"
+  alamat?: string;
+  cabangId?: string;
+  email?: string;
 };
 
 export type AuthSuccessData = {

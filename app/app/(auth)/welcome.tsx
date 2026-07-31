@@ -8,7 +8,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, Eye, MessageCircleMore, UserPlus } from 'lucide-react-native';
+import { ChevronRight, Eye, Mail, MessageCircleMore, UserPlus } from 'lucide-react-native';
 
 import { useAuthStore } from '@/stores/auth.store';
 
@@ -35,6 +35,16 @@ export default function WelcomeScreen() {
       iconBg: 'bg-white/20',
       variant: 'primary',
       onPress: () => router.push('/(auth)/login'),
+    },
+    {
+      // Magic link email login — untuk jemaat legacy dgn noHp invalid, atau
+      // sebagai fallback kalau HP hilang. Per BE notice magic-link 2026-07-28.
+      label: t('auth.signin_email'),
+      sub: t('auth.signin_email_sub'),
+      icon: <Mail size={20} color="#EA580C" />,
+      iconBg: 'bg-brand-50',
+      variant: 'secondary',
+      onPress: () => router.push('/(auth)/login/email' as never),
     },
   ];
 

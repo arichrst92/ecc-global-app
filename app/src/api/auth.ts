@@ -11,7 +11,11 @@ import type {
   AuthSuccessData,
   EnrollmentVerifyResponse,
   LogoutPayload,
+  RequestMagicLinkPayload,
+  VerifyMagicLinkPayload,
+  CompleteOnboardingPayload,
 } from '@/types/auth';
+import type { User } from '@/types/api';
 
 /**
  * POST /auth/otp/request
@@ -109,4 +113,110 @@ export function getMeAccess() {
     canAccessPortal: boolean;
     menuAccess: Record<string, { canRead: boolean; canWrite?: boolean; canDelete?: boolean }>;
   }>('/auth/me/access');
+}
+
+// ============================================================
+// Magic Link Email Login (BE notice magic-link 2026-07-28)
+// ============================================================
+
+/**
+ * POST /auth/email/request-magic-link
+ * Request magic link ke email jemaat. Response always 200 (anti-enumeration),
+ * mobile tidak bisa tau apakah email exists di DB.
+ *
+ * Rate limit: 5 request per 1 jam per IP.
+ *
+ * Errors:
+ * - 429 TOO_MANY_REQUESTS: rate limit hit — show friendly copy
+ * - 400 BAD_REQUEST: format email invalid
+ */
+export function requestMagicLink(payload: RequestMagicLinkPayload) {
+  return api.post<{ message: string }>('/auth/email/request-magic-link', payload, {
+    skipAuth: true,
+  });
+}
+
+/**
+ * POST /auth/email/verify-magic-link
+ * Consume token dari deeplink URL → issue JWT + user object.
+ * One-time use: token yg sudah dipakai return 401 kalau di-retry.
+ *
+ * Rate limit: 10 request per 15 menit per IP.
+ *
+ * Errors:
+ * - 401 UNAUTHORIZED: token invalid, expired (>15 menit), atau already used
+ * - 429 TOO_MANY_REQUESTS: rate limit hit
+ */
+export function verifyMagicLink(payload: VerifyMagicLinkPayload) {
+  return api.post<AuthSuccessData>('/auth/email/verify-magic-link', payload, {
+    skipAuth: true,
+  });
+}
+
+/**
+ * POST /auth/email/resend-magic-link
+ * Alias dari request-magic-link — untuk UX "Kirim Ulang" saat user gak dapat email.
+ * Share rate limiter dengan request-magic-link (5 per 1 jam per IP).
+ */
+export function resendMagicLink(payload: RequestMagicLinkPayload) {
+  return api.post<{ message: string }>('/auth/email/resend-magic-link', payload, {
+    skipAuth: true,
+  });
+}
+
+/**
+ * POST /auth/otp/request — extended untuk purpose=ONBOARDING_ADD_NOHP
+ * Kirim OTP ke nomor HP baru yang mau di-set untuk jemaat authenticated
+ * (mis. legacy jemaat yang login via magic link, sekarang add noHp).
+ *
+ * BE cek: noHp belum dipakai jemaat lain (409 Conflict kalau ya).
+ *
+ * Errors:
+ * - 409 CONFLICT: noHp sudah dipakai jemaat lain
+ * - 429 TOO_MANY_REQUESTS: rate limit
+ *
+ * Per BE notice magic-link 2026-07-28 section 2.
+ */
+export function requestOtpAddNoHp(noHp: string) {
+  return api.post<{ message: string }>('/auth/otp/request', {
+    noHp,
+    purpose: 'ONBOARDING_ADD_NOHP',
+  });
+}
+
+/**
+ * POST /auth/otp/verify — extended untuk purpose=ONBOARDING_ADD_NOHP
+ * WAJIB kirim Authorization Bearer JWT — beda dari OTP verify normal.
+ * BE extract jemaatId dari JWT (bukan lookup by noHp) → set Jemaat.noHp =
+ * noHp untuk authenticated jemaat. TIDAK issue JWT baru.
+ *
+ * Errors:
+ * - 401 UNAUTHORIZED: JWT invalid/missing atau OTP salah/expired
+ * - 409 CONFLICT: noHp sudah dipakai jemaat lain (race condition)
+ *
+ * Per BE notice magic-link 2026-07-28 section 2.
+ */
+export function verifyOtpAddNoHp(payload: { noHp: string; kode: string }) {
+  return api.post<{ noHp: string }>('/auth/otp/verify', {
+    ...payload,
+    purpose: 'ONBOARDING_ADD_NOHP',
+  });
+}
+
+/**
+ * POST /auth/onboarding/complete
+ * Save profile fields + set onboardedAt=now(). Butuh Bearer JWT (JWT dari magic
+ * link verify sebelumnya). Field yg undefined di-skip.
+ *
+ * Idempotent — kalau onboardedAt sudah NOT NULL, field lain tetap di-update
+ * tapi onboardedAt gak berubah.
+ *
+ * Rate limit: 20 per 15 menit per user.
+ *
+ * Errors:
+ * - 401 UNAUTHORIZED: JWT invalid / missing
+ * - 400 BAD_REQUEST: cabang tidak valid, tanggal invalid, dll
+ */
+export function completeOnboarding(payload: CompleteOnboardingPayload) {
+  return api.post<User>('/auth/onboarding/complete', payload);
 }

@@ -214,6 +214,7 @@ function ForceUpdateGate({ children }: { children: React.ReactNode }) {
 function RootLayoutNav() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const jemaatId = useAuthStore((s) => s.user?.jemaatId);
+  const needsOnboarding = useAuthStore((s) => s.user?.needsOnboarding === true);
   const segments = useSegments();
   const router = useRouter();
   const rehydrateEventFlow = useEventFlowStore((s) => s.hydrate);
@@ -221,19 +222,38 @@ function RootLayoutNav() {
   // Auth-aware redirect logic.
   // Public routes yang allowed tanpa auth (T&C, Privacy linked dari welcome
   // screen) di-whitelist di sini supaya tidak kena redirect loop ke welcome.
+  //
+  // Note: segments[0] === 'auth' (tanpa kurung) adalah URL-level segment untuk
+  // deeplink handler seperti /auth/email/verify (magic link). Ini BEDA dengan
+  // '(auth)' group yang di-render di stack. Kita whitelist supaya deeplink
+  // magic link bisa consume token TANPA session dulu.
+  //
+  // Onboarding gate: authed user dengan user.needsOnboarding=true di-force ke
+  // /(auth)/onboarding sebelum bisa masuk main app. Legacy jemaat dari
+  // Shiftsoft migration akan trigger flow ini first-login. Per BE notice
+  // magic-link 2026-07-28.
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
+    const inOnboarding = inAuthGroup && segments[1] === 'onboarding';
     const inPublicLegal = segments[0] === 'legal';
-    const publicAllowed = inAuthGroup || inPublicLegal;
+    // Cast: 'auth' segment adalah URL-level (file di app/auth/email/verify.tsx),
+    // typed routes typegen belum tentu ada 'auth' di union — cast ke string.
+    const inDeeplinkAuth = (segments[0] as string) === 'auth';
+    const publicAllowed = inAuthGroup || inPublicLegal || inDeeplinkAuth;
 
     if (!isAuthenticated && !publicAllowed) {
       // Not authed, not on auth/legal screen → redirect ke welcome
       router.replace('/(auth)/welcome');
-    } else if (isAuthenticated && inAuthGroup) {
-      // Authed but on auth screen → redirect ke tabs
+    } else if (isAuthenticated && needsOnboarding && !inOnboarding && !inDeeplinkAuth) {
+      // Authed but wizard belum selesai → force ke onboarding.
+      // Exception: inDeeplinkAuth supaya kalau user klik magic link ulang saat
+      // sudah authed, verify screen tetap consume token + set needsOnboarding.
+      router.replace('/(auth)/onboarding' as never);
+    } else if (isAuthenticated && inAuthGroup && !inOnboarding && !needsOnboarding) {
+      // Authed, onboarding done, but on auth screen (welcome/login) → tabs
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, segments, router]);
+  }, [isAuthenticated, needsOnboarding, segments, router]);
 
   // Re-hydrate event-flow + notifications stores saat jemaatId berubah
   // (login/logout/switch user) supaya data milik user yang benar di-load
@@ -248,6 +268,9 @@ function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FFFFFF' } }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        {/* Magic link deeplink handler (ecc://auth/email/verify?token=xxx).
+            File at app/auth/email/verify.tsx; routed via URL segment. */}
+        <Stack.Screen name="auth/email/verify" />
       </Stack>
     </ThemeProvider>
   );
