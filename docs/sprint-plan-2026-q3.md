@@ -1,25 +1,31 @@
 # Mobile Sprint Plan — Q3 2026
 
 **Owner:** Ari
-**Date:** 2026-07-31
-**Scope:** Sprints v1.1 → v1.3 dari Els App mobile
+**Date:** 2026-07-31 (v1.0), 2026-08-02 (v1.1 — add S4/S5)
+**Scope:** Sprints v1.1 → v1.5 dari Els App mobile
 **Related BE notices:**
 - `backend-notice-shiftsoft-migration.md` — data migration 6782 jemaat + 314 group
 - `backend-notice-magic-link-email-login.md` — magic link + onboarding wizard
 - `backend-notice-group-endpoints.md` — 12 endpoint Group ready
+- `backend-notice-checkout-ibadah.md` — Modul 26 (Checkout scan)
+- `backend-notice-kids-ibadah-pickup.md` — Modul 27 (Kode jemput anak)
+- `backend-notice-ckids-mobile-tab.md` — Modul 28 (Point + hadiah anak)
+- `backend-notice-family-refactor.md` — Family granular 11 tipe (DEPLOYED 2026-08-02)
 
 ---
 
 ## Overview
 
-BE deployed 3 major batches 2026-07-29. Mobile roadmap dibagi 3 sprint incremental. Sprint 1 sudah 90% done (Play Store ready). Sprint 2 unblocks 6736 legacy jemaat (highest business priority). Sprint 3 new discovery feature.
+BE deployed 3 major batches 2026-07-29 (magic link, Shiftsoft, Group) + 4 modul baru 2026-08-01/02 (checkout, kids pickup, ckids, family refactor). Mobile roadmap dibagi 5 sprint incremental.
 
 | Sprint | Version | Theme | Duration | Priority |
 |---|---|---|---|---|
 | **S1** | v1.1.0 | Play Store first release | ~1 minggu (mostly done) | 🔴 Critical |
-| **S2** | v1.2.0 | Magic Link + Onboarding | ~2 minggu | 🔴 Critical |
+| **S2** | v1.2.0 | Magic Link + Onboarding | ~2 minggu ✅ code done | 🔴 Critical |
 | **S3** | v1.3.0 | Group Feature | ~2 minggu | 🟡 High |
-| **Backlog** | v1.4+ | Profile enhancements + push | TBD | 🟢 Medium |
+| **S4** | v1.4.0 | Kids bundle (Checkout + Pickup) | ~2 minggu | 🟠 High |
+| **S5** | v1.5.0 | CKids Tab (point + hadiah) | ~2 minggu | 🟠 High |
+| **Backlog** | v1.6+ | Family granular + profile + push | TBD | 🟢 Medium |
 
 ---
 
@@ -241,9 +247,179 @@ BE deployed 3 major batches 2026-07-29. Mobile roadmap dibagi 3 sprint increment
 
 ---
 
-## 📋 Backlog — v1.4+ (Future Sprints)
+## 🧒 Sprint 4 — v1.4.0 Kids Bundle (Checkout + Pickup Code)
 
-Item yang bisa masuk sprint berikutnya after v1.3, prioritas TBD:
+**Goal:** Support 2 modul BE deployed 2026-08-01: **Modul 26 (Checkout scan)** untuk security tracking + **Modul 27 (Kids Ibadah + Pickup Code)** supaya parent bisa jemput anak dgn kode verify di stall.
+
+**Business value:** Compliance safety untuk ibadah anak (accountability keluar-masuk), reduce risk penjemputan salah orang. Aligned dgn best practice church kids ministry.
+
+**Related BE notices:** `backend-notice-checkout-ibadah.md` + `backend-notice-kids-ibadah-pickup.md`
+
+### User Stories
+
+| ID | Story | Points |
+|---|---|---|
+| S4.1 | As admin scanner, aku bisa toggle mode Check-in / Checkout di scanner screen | 3 |
+| S4.2 | As parent, aku bisa lihat status "Sudah Checkout" di reservasi detail anak | 2 |
+| S4.3 | As jemaat, aku lihat badge 🧒 di list ibadah untuk ibadah anak | 1 |
+| S4.4 | As parent, aku dapat kode jemput 6-digit setelah check-in anak (auto-generated BE) | 3 |
+| S4.5 | As admin stall pickup, aku input kode jemput → verify → mark pickedUpAt | 3 |
+| S4.6 | As parent, aku lihat kode jemput besar + reminder "Tunjukkan ke admin saat jemput" di reservasi detail | 2 |
+| S4.7 | As parent, notif push lokal saat receive pickupCode dari response check-in | 2 |
+
+### Task Breakdown
+
+**Phase 4A — Modul 26 Checkout (~3 hari)**
+
+- [ ] Types: extend `Ibadah` dgn `requiresCheckout: boolean`, `Reservasi` dgn `checkedOutAt`, `checkedOutBy` di `src/types/reservasi.ts` + `src/types/ibadah.ts`
+- [ ] API: `checkoutReservasi(kode)` → `POST /admin/reservasi/checkout` di `src/api/reservasi.ts`
+- [ ] Hook: `useCheckoutReservasi` (mutation dgn invalidate stats)
+- [ ] Scanner screen (`app/scanner/ibadah/[id].tsx`) — mode toggle Check-in / Checkout (SegmentedControl)
+- [ ] Dispatch endpoint berdasarkan mode aktif
+- [ ] `ScanResultModal` — handle status COMPLETED (checked-in + checked-out) badge
+- [ ] Reservasi detail — tampil timestamp checkout kalau ada
+- [ ] Guard client: kalau ibadah `requiresCheckout=false`, disable mode toggle checkout dgn tooltip "Ibadah ini tidak require checkout"
+- [ ] i18n keys `scanner.checkout.*`
+
+**Phase 4B — Modul 27 Kids Pickup (~3 hari)**
+
+- [ ] Types: extend `Ibadah.isKidsIbadah`, `Reservasi.pickupCode/pickedUpAt/pickedUpByJemaatId`
+- [ ] API: `pickupReservasi({ pickupCode, kodeReservasi?, pickedUpByJemaatId? })` → `POST /admin/reservasi/pickup`
+- [ ] Hook: `usePickupReservasi` (mutation)
+- [ ] Ibadah list — render badge 🧒 kalau `isKidsIbadah=true`
+- [ ] Reservasi detail (parent view) — kalau ada `pickupCode`, tampil block prominent:
+  - Big 6-digit display (font 40px, letter-spacing wide, mono)
+  - Copy "Tunjukkan ke admin saat jemput anak"
+  - Icon 🧒 + warna pink accent
+- [ ] Scanner screen — tambah 3rd mode "Pickup" (di samping Check-in + Checkout, cuma tampil kalau di halaman scanner ibadah anak)
+- [ ] Modal Pickup: input 6-digit + optional scan QR parent
+- [ ] Handle 404 "kode expired" + 400 "multiple match, kirim kodeReservasi juga"
+- [ ] Push notif lokal saat receive `pickupCode` dari response check-in
+- [ ] i18n keys `kids.pickup.*`
+
+**Phase 4C — Testing + polish (~2 hari)**
+
+- [ ] E2E test flow: create ibadah kids → check-in via scanner → verify pickupCode di response → parent see code di reservasi detail → admin scan pickup → verify pickedUpAt set
+- [ ] Test skenario error: kode expired, kode salah, multiple match, checkout tapi belum checkin
+- [ ] Backward compat test: mobile lama consume response check-in tetap OK (ignore pickupCode field)
+
+### Dependencies
+
+- BE deploy Modul 26 + 27 ke production (bundle deploy, biasanya 1x)
+- Existing scanner infrastructure (already active dari homecell scan)
+- QR generator library (existing)
+
+### Definition of Done
+
+- Scanner mendukung 3 mode (check-in, checkout, pickup) sesuai konteks ibadah
+- Parent bisa lihat pickup code + tunjukkan ke admin saat jemput
+- Admin bisa verify pickup kode + record pickedUpAt
+- Backward compat: mobile lama tetap jalan (field baru optional, ignore-able)
+- No regression di existing check-in flow
+
+### Risks
+
+- **User confusion 3 mode scanner** — jelas kan copy + icon: Check-in (biru), Checkout (kuning), Pickup (pink) + tooltip
+- **Pickup code collision** — BE ensure unique per (ibadah, tanggal). Kalau multiple ibadah di hari sama, backend expect `kodeReservasi` sebagai disambiguator. Client handle 400 dgn friendly retry
+- **Parent lupa kode** — kode selalu re-accessible di reservasi detail (tidak expire di client sampai pickup atau 24 jam)
+
+---
+
+## 🎁 Sprint 5 — v1.5.0 CKids Tab (Point + Hadiah)
+
+**Goal:** Tab "CKids" di bottom nav untuk parent view point balance anak + katalog hadiah + history redeem. **BUKAN redeem di mobile** — anak datang fisik ke stall di subdomain `ckids.eccchurch.global`.
+
+**Business value:** Engagement kids ministry — parent tracking progress anak, motivasi anak collect point, katalog hadiah visible attractive.
+
+**Related BE notice:** `backend-notice-ckids-mobile-tab.md`
+
+### User Stories
+
+| ID | Story | Points |
+|---|---|---|
+| S5.1 | As parent, aku lihat tab "CKids" muncul di bottom nav kalau aku punya anak | 2 |
+| S5.2 | As parent, aku lihat point balance anak + cabang home-nya | 3 |
+| S5.3 | As parent, aku bisa pilih anak lain kalau punya multi anak | 3 |
+| S5.4 | As parent, aku browse katalog hadiah cabang anak (nama, foto, point cost, stock) | 5 |
+| S5.5 | As parent, aku bisa show QR anak fullscreen untuk stall pickup | 2 |
+| S5.6 | As parent, aku lihat history redeem anak (nama hadiah, tanggal, point spent) | 3 |
+| S5.7 | As parent, aku dapat pemberitahuan real-time saat anak earn / spend point | 2 |
+
+### Task Breakdown
+
+**Phase 5A — Data & routing (~2 hari)**
+
+- [ ] Backend request: `GET /admin/me/children-points` — shortcut fetch balance semua anak dalam 1 call. Kirim `backend-request-me-children-points.md`
+- [ ] Backend request: filter `jemaatId` di `GET /admin/gift-stall/redeems` untuk history per anak
+- [ ] Sementara fallback: `GET /admin/keluarga?jemaatId=self` + fetch balance per anak via `GET /admin/gift-stall/lookup-jemaat?kode=X&cabangId=Y`
+- [ ] Types: `HadiahKatalog`, `JemaatPointBalance`, `PointTransaction`, `HadiahRedeem`, enum `PointTxType`, `PointSource`
+- [ ] Hook: `useMyChildren()` — return list anak (via keluarga filter tipeRelasi='Anak')
+- [ ] Hook: `useChildPointBalance(anakId, cabangId)`
+- [ ] Hook: `useHadiahKatalog(cabangId)` — infinite scroll
+- [ ] Hook: `useChildRedeemHistory(anakId)`
+- [ ] Store: `useChildSelectionStore` — selected anak ID (persist per user)
+- [ ] Add tab "CKids" ke `app/(tabs)/_layout.tsx` dgn conditional visibility
+
+**Phase 5B — CKids Tab UI (~3 hari)**
+
+- [ ] Route: `app/(tabs)/ckids.tsx` — main screen
+- [ ] Anak selector dropdown (kalau multi anak) — pattern `Picker` existing
+- [ ] Point balance card — big number + cabang label + last update timestamp
+- [ ] "Tunjukkan QR ke Stall" primary CTA
+- [ ] Katalog grid (3-kolom): foto + nama + point cost + stock indicator
+- [ ] Tap hadiah → modal detail (foto besar + deskripsi + stock + point cost)
+- [ ] History redeem list (tabular): nama hadiah + tanggal + -point
+- [ ] Empty state: "Belum ada point / hadiah" dgn illustrasi + copy engaging
+
+**Phase 5C — QR modal + push notif (~2 hari)**
+
+- [ ] Route: `app/(tabs)/ckids/qr.tsx` — fullscreen QR anak (240x240 minimum)
+- [ ] QR menampilkan `jemaat.kode` (8-char) — pattern sama dgn profile QR jemaat
+- [ ] Kode text di bawah QR (untuk fallback kalau QR tidak scan-able)
+- [ ] Push notif lokal handler (kalau BE eventually push server-side FCM saat point txn)
+- [ ] Sementara: manual invalidate cache setiap tab CKids di-open (pull-to-refresh juga)
+
+**Phase 5D — Testing + polish (~2 hari)**
+
+- [ ] Test tab visibility rule (user tanpa anak → tab hidden, dgn anak → visible)
+- [ ] Test multi anak switcher + state persistence
+- [ ] Test empty states (belum ada anak, belum ada point, belum ada history)
+- [ ] Test QR readability di scanner stall
+- [ ] Backward compat: user tanpa anak → tab tidak muncul, no breaking change
+
+### Dependencies
+
+- BE deploy Modul 28 + subdomain `ckids.eccchurch.global` untuk stall admin
+- BE tambah 2 endpoint (via request): `/admin/me/children-points` + filter `jemaatId` di redeems
+- Modul 27 (Kids Ibadah) sudah live — supaya point earn (KEHADIRAN_KIDS source) bisa jalan
+
+### Definition of Done
+
+- Tab CKids muncul conditional untuk parent
+- Balance + katalog + history + QR complete
+- Multi anak switcher works
+- Backend endpoints (dgn 2 tambahan) siap
+- No regression di bottom nav existing (Home, Ibadah, Event, Giving, Profile)
+
+### Risks
+
+- **Butuh 2 endpoint BE tambahan** — kalau BE lambat, mobile fallback pakai existing endpoint (agak slow, multi-call)
+- **Tab bar overflow** — bottom nav 5 tabs, tambah CKids jadi 6. Pertimbangkan replace 1 tab (mis. Ibadah masuk sub-menu) atau condensed layout
+- **Multi cabang complexity** — kalau parent+anak beda cabang, balance ditampilkan per cabang. UI perlu clear tentang scoping
+
+---
+
+## 📋 Backlog — v1.6+ (Future Sprints)
+
+Item yang bisa masuk sprint berikutnya after v1.5, prioritas TBD:
+
+### Family Relation Granular UI (adopt refactor 2026-08-02)
+
+- Refactor UI add-family: dropdown 11 tipe granular dari `GET /admin/keluarga/tipe` (Suami, Istri, Ayah, Ibu, Anak Laki-Laki, Anak Perempuan, Saudara Kandung, Kakek, Nenek, Cucu, Wali)
+- Display `tipeRelasi.nama` (bukan `role` broad) di list family — mis. "Suami: Budi" bukan "SPOUSE: Budi"
+- Fetch + cache `TipeRelasiKeluarga` master data (jarang berubah — long TTL cache)
+- Backward compat: submit `tipeRelasiId` (new) alternate dgn `role` (old) — BE accept dual
+- Ref: `backend-notice-family-refactor.md` — deployed 2026-08-02, mobile lama tetap jalan tanpa update
 
 ### Profile Enhancements (dari Shiftsoft migration data)
 
@@ -292,13 +468,15 @@ Item yang bisa masuk sprint berikutnya after v1.3, prioritas TBD:
 - **Testing:** Internal testing 1 minggu per release sebelum promote ke Production
 - **Release rhythm:** 1 minor version per 3 minggu (2 sprint + 1 minggu release buffer)
 
-**Rough Q3 timeline:**
+**Revised Q3-Q4 timeline (after Aug 2026 BE batch):**
 
 | Bulan | Sprint | Milestone |
 |---|---|---|
-| **Aug 2026** | S1 wrap (v1.1.0) + S2 start | Play Store live + Magic Link dev |
-| **Sep 2026** | S2 wrap (v1.2.0) + S3 start | Legacy jemaat unblocked + Group dev |
-| **Oct 2026** | S3 wrap (v1.3.0) + backlog planning | Group feature live |
+| **Aug 2026** (early) | S1 wrap (v1.1.0) + S2 code done | Play Store live + Magic Link code done |
+| **Aug 2026** (mid) | S2 smoke test + release + S3 start | Legacy jemaat unblocked + Group dev |
+| **Sep 2026** | S3 wrap (v1.3.0) + S4 start | Group feature live + Kids bundle dev |
+| **Oct 2026** | S4 wrap (v1.4.0) + S5 start | Kids checkout+pickup live + CKids dev |
+| **Nov 2026** | S5 wrap (v1.5.0) + backlog planning | CKids Tab live |
 
 ---
 
@@ -326,6 +504,20 @@ Item yang bisa masuk sprint berikutnya after v1.3, prioritas TBD:
 - PIC create group manual (bukan Shiftsoft imported): > 20 new groups per month
 - QR scanner usage: > 40% of joins via QR (rest via public browse)
 
+### S4 (v1.4.0) — Kids bundle
+
+- Ibadah anak checkout rate: > 90% (safety compliance target)
+- Pickup code verify success rate: > 95% (kode 6-digit clarity + no expiry issues)
+- Time-to-pickup average: < 3 menit dari parent tap "Show Code" ke admin verify
+- Zero incident report "salah jemput" pasca launch
+
+### S5 (v1.5.0) — CKids Tab
+
+- Tab CKids DAU (daily active users) parent: > 30% dari total parent yg punya anak kids-ibadah
+- Katalog view impressions per session: > 3 hadiah / session (indikator engagement)
+- QR anak show frequency: > 1x per week per active parent (stall pickup indicator)
+- Push notif opt-in rate (kalau ada FCM): > 70%
+
 ---
 
 ## 🔄 Coordination Points dengan BE
@@ -343,10 +535,23 @@ Anticipated BE requests per sprint:
 - Kalau ada bug di Group endpoints — quick BE turnaround (~1-2 hari)
 - Consider Guest browse endpoint kalau mau expose Group ke non-authenticated (optional, tidak blocking)
 
+**S4:**
+- Confirm deploy Modul 26 (checkout) + Modul 27 (pickup) ke production sebelum mobile mulai code
+- Test data: minta BE toggle 1 ibadah jadi `isKidsIbadah=true` + `requiresCheckout=true` untuk staging test
+- Coordinate copy WA notif untuk parent (kalau BE eventually kirim otomatis)
+
+**S5:**
+- Request 2 endpoint tambahan (via `backend-request-me-children-points.md`):
+  1. `GET /admin/me/children-points` — shortcut fetch balance semua anak dalam 1 call
+  2. Filter `jemaatId` di `GET /admin/gift-stall/redeems` untuk history per anak
+- Confirm subdomain `ckids.eccchurch.global` sudah live sebelum push mobile launch (parent akan bertanya "di mana redeem")
+- Sync target launch timing dgn stall physical setup (jangan launch mobile sebelum stall ready)
+
 **Backlog:**
 - Push notification infra (FCM setup end-to-end)
 - Ministry attendance mirror pattern (new endpoints)
 - Family relations import from Shiftsoft (complex fuzzy match, deferred)
+- Family granular refactor sudah deployed 2026-08-02 — mobile UI adoption optional (backward compat aman)
 
 ---
 
@@ -359,4 +564,6 @@ Anticipated BE requests per sprint:
 
 ---
 
-*Doc versi: 1.0 — 2026-07-31. Update log: v1.0 initial sprint plan post-BE 3-batch deploy.*
+*Doc versi: 1.1 — 2026-08-02. Update log:*
+*- v1.0 (2026-07-31) initial sprint plan post-BE 3-batch deploy (magic link, Shiftsoft, Group)*
+*- v1.1 (2026-08-02) add Sprint 4 (Kids bundle — Modul 26 + 27) + Sprint 5 (CKids Tab — Modul 28) + Family granular ke backlog*
