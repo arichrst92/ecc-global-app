@@ -162,7 +162,7 @@ BE deployed 3 major batches 2026-07-29 (magic link, Shiftsoft, Group) + 4 modul 
 
 ---
 
-## 👥 Sprint 3 — v1.3.0 Group Feature
+## 👥 Sprint 3 — v1.3.0 Group Feature ✅ CODE COMPLETE (M40)
 
 **Goal:** Enable discovery + participation di 314 groups (family/ministry/community/homecell-style) yang sudah di-import dari Shiftsoft.
 

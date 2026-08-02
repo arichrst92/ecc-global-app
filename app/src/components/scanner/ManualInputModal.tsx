@@ -18,11 +18,17 @@ export function ManualInputModal({
   onClose,
   onSubmit,
   loading,
+  title,
+  placeholder,
 }: {
   visible: boolean;
   onClose: () => void;
   onSubmit: (kode: string) => void;
   loading?: boolean;
+  /** Override default title 'scanner.manual_title'. Passed as literal string, not i18n key. */
+  title?: string;
+  /** Override placeholder di TextInput. */
+  placeholder?: string;
 }) {
   const { t } = useTranslation();
   const [kode, setKode] = useState('');
@@ -60,7 +66,7 @@ export function ManualInputModal({
             <View className="flex-row items-center gap-2">
               <Keyboard size={18} color="#525252" />
               <Text className="text-lg font-bold text-neutral-900">
-                {t('scanner.manual_title')}
+                {title ?? t('scanner.manual_title')}
               </Text>
             </View>
             <Pressable onPress={handleClose} className="w-8 h-8 items-center justify-center">
@@ -77,7 +83,7 @@ export function ManualInputModal({
               setKode(v.toUpperCase());
               setError(null);
             }}
-            placeholder="ABC23XYZ"
+            placeholder={placeholder ?? 'ABC23XYZ'}
             placeholderTextColor="#A3A3A3"
             autoCapitalize="characters"
             autoCorrect={false}
