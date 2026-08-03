@@ -349,9 +349,9 @@ BE deployed 3 major batches 2026-07-29 (magic link, Shiftsoft, Group) + 4 modul 
 
 **Phase 5A — Data & routing (~2 hari)**
 
-- [ ] Backend request: `GET /admin/me/children-points` — shortcut fetch balance semua anak dalam 1 call. Kirim `backend-request-me-children-points.md`
-- [ ] Backend request: filter `jemaatId` di `GET /admin/gift-stall/redeems` untuk history per anak
-- [ ] Sementara fallback: `GET /admin/keluarga?jemaatId=self` + fetch balance per anak via `GET /admin/gift-stall/lookup-jemaat?kode=X&cabangId=Y`
+- [x] ~~Backend request: `GET /admin/me/children-points`~~ ✅ **RESOLVED 2026-08-03** — endpoint live, cache 60s, skip anak tanpa balance. Ref: `backend-request-ckids-me-endpoints.md`
+- [x] ~~Backend request: filter `jemaatId` di `GET /admin/gift-stall/redeems`~~ ✅ **RESOLVED 2026-08-03** — replaced dgn dedicated endpoint `GET /admin/me/children-redeem-history?jemaatId=<anakId>` (guard: verify anak requester)
+- [x] ~~Sementara fallback multi-call~~ — TIDAK PERLU. Mobile wire langsung ke 2 endpoint proper di atas.
 - [ ] Types: `HadiahKatalog`, `JemaatPointBalance`, `PointTransaction`, `HadiahRedeem`, enum `PointTxType`, `PointSource`
 - [ ] Hook: `useMyChildren()` — return list anak (via keluarga filter tipeRelasi='Anak')
 - [ ] Hook: `useChildPointBalance(anakId, cabangId)`
@@ -389,9 +389,9 @@ BE deployed 3 major batches 2026-07-29 (magic link, Shiftsoft, Group) + 4 modul 
 
 ### Dependencies
 
-- BE deploy Modul 28 + subdomain `ckids.eccchurch.global` untuk stall admin
-- BE tambah 2 endpoint (via request): `/admin/me/children-points` + filter `jemaatId` di redeems
-- Modul 27 (Kids Ibadah) sudah live — supaya point earn (KEHADIRAN_KIDS source) bisa jalan
+- BE deploy Modul 28 + subdomain `ckids.eccchurch.global` untuk stall admin ✅ LIVE 2026-08-02
+- BE tambah 2 endpoint ✅ **RESOLVED 2026-08-03** — `/admin/me/children-points` + `/admin/me/children-redeem-history` + bonus `/admin/me/reservasi` (untuk parent view pickup code)
+- Modul 27 (Kids Ibadah) sudah live — supaya point earn (KEHADIRAN_KIDS source) bisa jalan ✅
 
 ### Definition of Done
 
@@ -540,18 +540,29 @@ Anticipated BE requests per sprint:
 - Test data: minta BE toggle 1 ibadah jadi `isKidsIbadah=true` + `requiresCheckout=true` untuk staging test
 - Coordinate copy WA notif untuk parent (kalau BE eventually kirim otomatis)
 
-**S5:**
-- Request 2 endpoint tambahan (via `backend-request-me-children-points.md`):
-  1. `GET /admin/me/children-points` — shortcut fetch balance semua anak dalam 1 call
-  2. Filter `jemaatId` di `GET /admin/gift-stall/redeems` untuk history per anak
-- Confirm subdomain `ckids.eccchurch.global` sudah live sebelum push mobile launch (parent akan bertanya "di mana redeem")
-- Sync target launch timing dgn stall physical setup (jangan launch mobile sebelum stall ready)
+**S5:** ✅ ALL RESOLVED 2026-08-03
+- ✅ `GET /admin/me/children-points` — live (cache 60s, skip anak tanpa balance)
+- ✅ Filter jemaatId di redeems → **replaced dgn dedicated** `GET /admin/me/children-redeem-history?jemaatId=<anakId>` (cleaner auth, guard via getMyChildrenIds())
+- ✅ Bonus: `GET /admin/me/reservasi` untuk parent view active pickup code
+- ✅ Subdomain `ckids.eccchurch.global` LIVE per 2026-08-02
+- Sync launch timing dgn stall physical setup (jangan launch mobile sebelum stall ready)
+
+**S6 (proposed — v1.6.0 Walk-in Scanner Refactor):**
+- Adopt walk-in flow untuk parity dgn ckids web (`POST /admin/reservasi/walk-in` + `GET /admin/reservasi/active-today`)
+  - Scanner scan QR profile jemaat (bukan QR reservasi) — konsisten input di semua touchpoint
+  - Auto-detect ibadah untuk checkout/pickup (1-tap)
+  - Support walk-in tanpa reservasi upfront
+- Wire M42 fallback → 3 endpoint proper: `/me/children-points`, `/me/children-redeem-history`, `/me/reservasi`
+- Family granular UI adopt dropdown (12 tipe termasuk Wali + Lainnya baru) via `GET /admin/keluarga/tipe`
+- Group add member scan QR via `POST /admin/group/:id/members/by-kode`
+- Ref: [`backend-notice-scanner-walkin-flow.md`](./backend-notice-scanner-walkin-flow.md), [`backend-notice-updates-2026-08-03.md`](./backend-notice-updates-2026-08-03.md)
 
 **Backlog:**
 - Push notification infra (FCM setup end-to-end)
 - Ministry attendance mirror pattern (new endpoints)
 - Family relations import from Shiftsoft (complex fuzzy match, deferred)
-- Family granular refactor sudah deployed 2026-08-02 — mobile UI adoption optional (backward compat aman)
+- Family granular refactor sudah deployed 2026-08-02 — mobile UI adoption optional (backward compat aman) → moved ke S6 proposed
+- Walk-in scanner endpoint sudah deployed — mobile adoption optional untuk parity ckids → S6 proposed
 
 ---
 
@@ -564,6 +575,7 @@ Anticipated BE requests per sprint:
 
 ---
 
-*Doc versi: 1.1 — 2026-08-02. Update log:*
+*Doc versi: 1.2 — 2026-08-03. Update log:*
 *- v1.0 (2026-07-31) initial sprint plan post-BE 3-batch deploy (magic link, Shiftsoft, Group)*
 *- v1.1 (2026-08-02) add Sprint 4 (Kids bundle — Modul 26 + 27) + Sprint 5 (CKids Tab — Modul 28) + Family granular ke backlog*
+*- v1.2 (2026-08-03) mark S5 all deps RESOLVED (endpoint children-points + children-redeem-history + reservasi live), propose S6 (v1.6.0 Walk-in Scanner Refactor + wire M42 + family/group granular adoption)*

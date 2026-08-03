@@ -1,7 +1,7 @@
 # BE Request — Homecell Schedule + QR Attendance
 
 **Owner:** Mobile (Ari)
-**Status:** Pending BE design + implementation
+**Status:** ✅ **RESOLVED** (2026-05-26 code live; doc status back-fill 2026-08-03) — 7 endpoint live + migration deployed di production.
 **Date:** 2026-05-24
 **Related:** existing homecell endpoints di `mobile-api-guide section 12.6` + BE patch 21p
 
@@ -498,3 +498,119 @@ Setelah migration applied:
 ---
 
 *Incident resolved 2026-05-26.*
+
+---
+
+## 🔧 BE RESPONSE — Consolidated (back-fill 2026-08-03)
+
+Doc status di-update dari "Pending" → "RESOLVED" karena semua endpoint sudah live di production per 2026-05-26 (post migration deploy). Ringkasan final untuk mobile reference.
+
+**File implementation**: `apps/core-api/src/routes/admin/homecell-schedule.ts` (mounted via `homecellRouter.use('/:homecellId/schedule', homecellScheduleRouter)`).
+
+### 7 Endpoint Live
+
+| # | Method | Path | Deskripsi |
+|---|---|---|---|
+| 1 | POST | `/admin/homecell/:homecellId/schedule` | Create jadwal (tanggal + lokasi + catatan opsional) |
+| 2 | GET | `/admin/homecell/:homecellId/schedule` | List jadwal (query `from`, `to`, `limit`) + `attendanceCount` per row |
+| 3 | GET | `/admin/homecell/:homecellId/schedule/:scheduleId` | Detail + `attendances[]` + `missingMembers[]` (member aktif yg belum scan) |
+| 4 | POST | `/admin/homecell/:homecellId/schedule/:scheduleId/attendance` | Scan QR — body `{ kode }` — **idempotent** return `alreadyAttended` flag |
+| 5 | DELETE | `/admin/homecell/:homecellId/schedule/:scheduleId/attendance/:attendanceId` | Correction hapus attendance individual |
+| 6 | DELETE | `/admin/homecell/:homecellId/schedule/:scheduleId` | Hapus schedule (guard: attendanceCount=0, kalau ada attendance harus hapus satu-satu dulu) |
+
+### Auth Model (final)
+
+Semua endpoint gate via `assertCanManageHomecell(homecellId, userJemaatId, isFulltimer)`:
+- ✅ PIC homecell (KEPALA_HOMECELL/WAKIL/SEKRETARIS)
+- ✅ PIC area parent (KEPALA_AREA/dst — inherited via area chain)
+- ✅ Fulltimer bypass
+
+Kalau bukan PIC & bukan Fulltimer → 403 `NOT_HOMECELL_PIC`.
+
+### Idempotent Behavior (endpoint #4)
+
+Re-scan member yang sama dalam schedule yang sama:
+- Tidak error, tidak duplikat row
+- Return existing attendance + `alreadyAttended: true`
+- `attendanceCount` di response reflect total real (bukan +1 palsu)
+
+Ini cocok untuk PIC UX yang scan cepat — accidental double-scan tidak break flow.
+
+### Error Codes
+
+| HTTP | Code | Kondisi |
+|---|---|---|
+| 400 | `KODE_NOT_FOUND` | QR kode tidak match jemaat |
+| 400 | `NOT_HOMECELL_MEMBER` | Jemaat bukan active member homecell ini |
+| 400 | `HAS_ATTENDANCE` | Delete schedule tapi masih ada attendance |
+| 403 | `NOT_HOMECELL_PIC` | Requester bukan PIC/area/fulltimer |
+| 404 | Generic | Schedule tidak ditemukan / homecell mismatch |
+
+### Response Shape (endpoint #3 — detail)
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "homecellId": "uuid",
+    "tanggal": "2026-05-24T00:00:00.000Z",
+    "lokasi": "Rumah Kak Budi, Jl. Merdeka 45",
+    "catatan": "Bawa buku sharing",
+    "creator": { "id": "uuid", "namaLengkap": "Sarah PIC" },
+    "createdBy": "uuid",
+    "createdAt": "2026-05-24T08:30:00Z",
+    "attendanceCount": 8,
+    "memberCount": 12,
+    "attendances": [
+      {
+        "id": "uuid",
+        "jemaatId": "uuid",
+        "jemaat": { "id": "...", "namaLengkap": "Budi", "kode": "ABC12345", "fotoUrl": "..." },
+        "scannedAt": "2026-05-24T18:15:00Z",
+        "scannedBy": "uuid",
+        "scanner": { "id": "...", "namaLengkap": "Sarah PIC" },
+        "source": "QR_SCAN"
+      }
+    ],
+    "missingMembers": [
+      { "jemaatId": "uuid", "namaLengkap": "Andi", "kode": "XYZ98765" }
+    ]
+  }
+}
+```
+
+### Testing curl
+
+```bash
+JWT="<pic-JWT>"
+HOMECELL_ID="<uuid>"
+
+# Create jadwal
+curl -X POST -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"tanggal":"2026-08-10","lokasi":"Rumah Budi","catatan":"Bawa buku"}' \
+  https://api.eccchurch.global/admin/homecell/$HOMECELL_ID/schedule
+
+# Scan QR anggota
+SCHED_ID="<schedule-uuid>"
+curl -X POST -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"kode":"ABC12345"}' \
+  https://api.eccchurch.global/admin/homecell/$HOMECELL_ID/schedule/$SCHED_ID/attendance
+
+# Detail + missing members
+curl -H "Authorization: Bearer $JWT" \
+  https://api.eccchurch.global/admin/homecell/$HOMECELL_ID/schedule/$SCHED_ID
+```
+
+### Portal Read-only View
+
+Portal `/dashboard/homecell/:id` sudah include section "Jadwal Pertemuan" (read-only per requirement) — list schedule + drill-down detail attendance. Confirmed via portal HomecellDetail page.
+
+### Backward Compat
+
+Data model additive, tidak touch tabel homecell existing. Migration `20260525_add_homecell_schedule` idempotent.
+
+— IDEA dev
+

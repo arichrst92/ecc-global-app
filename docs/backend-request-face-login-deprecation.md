@@ -1,7 +1,7 @@
 # BE Request — Face Login Deprecation Coordination
 
 **Owner:** Mobile (Ari)
-**Status:** Pending BE acknowledgment
+**Status:** ✅ **ACKNOWLEDGED** (2026-05-31) — retention 90d active. **Update 2026-08-03**: minVersion bump pending mobile signal Play Store rollout %.
 **Date:** 2026-05-26
 **Related:** Mobile face login feature di-remove (lihat `mobile-face-login-removal-impact.md`).
 
@@ -206,3 +206,82 @@ Catatan ini tracked sebagai TODO di `[[deploy-gotchas]]` memory.
 ---
 
 *Acknowledged 2026-05-31.*
+
+---
+
+# Backend Update — 2026-08-03 (Status Recheck, ~9 minggu post-ACK)
+
+**Dari:** Tim Backend ECC (IDEA dev)
+
+## Current State (verified 2026-08-03)
+
+Post 9-minggu retention window, semua yang di-commit di ACK 2026-05-31 masih **intact**:
+
+### Endpoint retention — ✅ ALL LIVE
+
+Grep production `apps/core-api/src/routes/auth.ts`:
+- `POST /auth/face/login` — line 419
+- `POST /auth/face/enroll` — line 504
+- `PUT /auth/me/face-profile` — line 621
+- Plus `liveness-nonce` helper di `lib/liveness-nonce.ts`
+
+Zero breaking change. Endpoint operational, no traffic dari mobile baru (v1.1.0+), tapi kalau ada user pre-v1.1.0 masih bisa login normal.
+
+### Database retention — ✅ Option B intact
+
+Schema masih retained:
+- `Jemaat.faceDescriptor` (Json) — schema.prisma line 488
+- `FaceTelemetryEvent` table
+- `AppConfig.faceMatchThreshold`
+
+Cleanup job `cleanup-face-telemetry` masih jalan (row-level 90d retention, feature availability unchanged).
+
+### `/public/app-config` fields — ✅ retained
+
+`faceMatchThreshold` + `lowConfidenceWarnThreshold` masih di response. Mobile baru ignore, mobile lama tetap consume.
+
+## Pending Signal dari Mobile
+
+Ari, dari action items lo:
+- [x] PR mobile rilis APK baru tanpa face UI ✅
+- [ ] **Play Store + App Store rollout > 80% ping** — belum di-signal
+- [ ] Option A/B finalize decision (setelah force-update > 90 hari)
+
+**Kalau v1.1.0+ sudah rollout stable > 80%** — ping backend team dengan:
+1. Confirmed minimum version yang safe untuk force-update (mis. `1.1.0` atau `1.2.0` post-magic-link)
+2. Platform breakdown (iOS + Android bisa beda timing)
+
+Backend akan bump `AppVersion.minSupportedVersion` per platform via portal `/dashboard/app-version`.
+
+**Kalau belum rollout target %** — no action, tunggu aja. BE siaga.
+
+## Retention Countdown
+
+- ACK date: 2026-05-31
+- 90d expire: **2026-08-29** (~4 minggu lagi dari sekarang)
+
+Setelah retention expire + force-update stable, BE bisa proceed dengan optional cleanup:
+- Drop face fields dari `/public/app-config` response (bukan schema — schema tetap Option B)
+- Drop `user.hasFaceEnrolled` dari login response
+- Drop OpenAPI face endpoint schemas
+- (Opsional) drop face endpoints `/auth/face/*` — kalau confident zero traffic
+
+Skema DB **tetap retained** (Option B) — cheap storage, optionality preserved.
+
+## Rekomendasi Timeline
+
+| Milestone | Target | Owner |
+|---|---|---|
+| Mobile ping rollout % + safe minVersion | ASAP (tergantung Play Store stats) | Ari |
+| BE bump minSupportedVersion via portal | Same day sebagai reply mobile ping | BE |
+| Wait force-update settle (5-7 hari) | Setelah bump | — |
+| Drop `/app-config` face fields + OpenAPI cleanup | ~2 minggu post-bump | BE |
+| Endpoint sunset decision (drop vs retain forever) | ~3-6 bulan post-bump | Joint |
+
+## Kalau Mobile Skip / Defer
+
+Semua retention **infinite-safe** kalau lo defer indefinitely — Option B (retain forever) itu cost storage sangat kecil. Face endpoint idle, tidak affect performance. Zero pressure dari BE untuk cleanup.
+
+— IDEA dev
+
+*Recheck 2026-08-03.*
