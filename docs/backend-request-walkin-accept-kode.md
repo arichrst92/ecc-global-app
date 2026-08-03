@@ -4,6 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA)
 **Tanggal:** 2026-08-03
 **Priority:** 🟡 Medium — enable mobile adopt walk-in flow per BE notice 2026-08-03
+**Status:** ✅ **RESOLVED** (2026-08-03) — Opsi A adopted, endpoint extended, tsc clean di ckids + core-api. Deploy pending.
 **Related:** [`backend-notice-scanner-walkin-flow.md`](./backend-notice-scanner-walkin-flow.md)
 
 ---
@@ -123,3 +124,101 @@ Kalau ada blocker (mis. zod discriminated union complexity):
 ---
 
 *Doc versi: 1.0 — 2026-08-03.*
+
+---
+
+## 🔧 BE RESPONSE (2026-08-03)
+
+Pilih **Opsi A** — extend existing endpoint. Alasan: satu endpoint untuk satu logical operation, mobile cukup switch field, dan zod refine XOR simple untuk maintain.
+
+### Changes
+
+**File**: `packages/shared-types/src/schemas/reservasi.ts`
+
+Schema `walkInReservasiSchema` sekarang:
+```typescript
+export const walkInReservasiSchema = z
+  .object({
+    jemaatId: uuidSchema.optional(),
+    kode: z.string().trim().min(4).max(20).optional(),
+    ibadahId: uuidSchema,
+    tanggalIbadah: z.string().date(),
+    action: z.enum(['checkin', 'checkout', 'pickup']),
+  })
+  .refine((v) => !!v.jemaatId !== !!v.kode, {
+    message: 'Kirim salah satu: jemaatId ATAU kode (bukan keduanya, bukan kosong)',
+    path: ['jemaatId'],
+  });
+```
+
+**File**: `apps/core-api/src/routes/admin/reservasi.ts`
+
+Handler resolve:
+```typescript
+const parsed = walkInReservasiSchema.parse(req.body);
+const jemaat = parsed.jemaatId
+  ? await prisma.jemaat.findUnique({ where: { id: parsed.jemaatId }, select: {...} })
+  : await prisma.jemaat.findUnique({ where: { kode: parsed.kode.toUpperCase() }, select: {...} });
+if (!jemaat) throw NotFound(parsed.kode ? `Jemaat dgn kode ${parsed.kode.toUpperCase()} tidak ditemukan` : 'Jemaat tidak ditemukan');
+```
+
+Kode di-normalize uppercase sebelum lookup (konsisten dgn homecell/group `by-kode` pattern).
+
+### Behavior Confirmed
+
+| Input | Result |
+|---|---|
+| `{ jemaatId, ibadahId, tanggalIbadah, action }` | ✅ Existing flow, ckids tetap jalan |
+| `{ kode, ibadahId, tanggalIbadah, action }` | ✅ New flow untuk mobile scanner |
+| `{ jemaatId, kode, ... }` | ❌ 400 "Kirim salah satu..." |
+| `{ ibadahId, tanggalIbadah, action }` (both missing) | ❌ 400 "Kirim salah satu..." |
+| `{ kode: "anak1234", ... }` (lowercase) | ✅ Auto-uppercase → lookup `ANAK1234` |
+| `{ kode: "NOTFOUND", ... }` | ❌ 404 "Jemaat dgn kode NOTFOUND tidak ditemukan" |
+
+### Backward Compat
+
+- Ckids web (`apps/ckids/src/app/ibadah/page.tsx:506`) tetap kirim `jemaatId` — tidak break
+- Mobile bisa langsung switch pakai `kode` — zero migration effort
+- Response shape identik
+
+### Testing curl
+
+```bash
+JWT="<admin-JWT>"
+IBADAH="<uuid>"
+
+# Via kode (mobile scanner)
+curl -X POST -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d "{\"kode\":\"ANAK1234\",\"ibadahId\":\"$IBADAH\",\"tanggalIbadah\":\"2026-08-04\",\"action\":\"checkin\"}" \
+  https://api.eccchurch.global/admin/reservasi/walk-in
+
+# Via jemaatId (ckids web / existing)
+curl -X POST -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d "{\"jemaatId\":\"<uuid>\",\"ibadahId\":\"$IBADAH\",\"tanggalIbadah\":\"2026-08-04\",\"action\":\"checkin\"}" \
+  https://api.eccchurch.global/admin/reservasi/walk-in
+```
+
+### Build Status
+
+- `pnpm --filter @ecc/shared-types build` ✅ clean
+- `apps/core-api` tsc --noEmit ✅ clean
+- No mobile-breaking change
+
+### Deploy Steps (VPS)
+
+```bash
+ssh root@187.77.118.85
+cd /var/www/ecc-core-platform
+git pull origin main
+pnpm install --frozen-lockfile
+pnpm --filter @ecc/shared-types build
+pnpm --filter @ecc/core-api build
+pm2 restart ecc-core-api --update-env
+pm2 logs ecc-core-api --lines 50
+```
+
+Testing post-deploy: kirim curl dengan `kode` → confirm 200/201 return dengan `pickupCode` (kalau kids ibadah).
+
+— IDEA dev
