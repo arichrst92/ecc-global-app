@@ -1117,9 +1117,15 @@
     "add_member_error_required": "Jemaat ID is required.",
     "add_member_error_not_found": "Jemaat not found.",
     "add_member_success": "Member added. WhatsApp notification sent.",
+    "add_member_success_nama": "{{nama}} added successfully",
     "add_member_already": "Member already exists in this group.",
     "add_member_action": "Add Member",
     "add_member_hint": "Member will receive a WhatsApp notification about joining. Ensure their phone number is valid.",
+    "add_member_scan_title": "Scan Member QR",
+    "add_member_manual_title": "Enter Member Code",
+    "add_member_error_not_found_title": "Member Not Found",
+    "add_member_error_not_found_msg": "Code not registered or member inactive. Double-check the QR.",
+    "add_member_error_forbidden": "Only group PIC can add members.",
     "remove_member_confirm_title": "Remove member?",
     "remove_member_confirm_msg": "{{nama}} will be removed from the group and notified via WhatsApp. Continue?",
     "remove_member_confirm_ok": "Yes, Remove",
@@ -1209,5 +1215,15 @@
     "qr_balance_breakdown": "Balance by Branch",
     "qr_no_child_title": "No child selected",
     "qr_no_child_body": "Go back to CKids tab to select a child first."
+  },
+  "my_reservasi": {
+    "title": "My Reservations",
+    "subtitle": "Active services + child pickup codes",
+    "empty_title": "No active reservations",
+    "empty_body": "Reservations appear here after you check in to a service.",
+    "kids_section": "Kids Services — Pickup Codes",
+    "other_section": "Other Services",
+    "checkin_at": "Check-in {{time}}",
+    "checkout_at": "Checkout {{time}}"
   }
 }

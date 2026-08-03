@@ -97,7 +97,9 @@ export default function CKidsTabScreen() {
 
   const cabangId = primaryBalance?.cabang.id;
   const katalogQuery = useHadiahKatalog(cabangId);
-  const historyQuery = useChildRedeemHistory(selected?.anak.id, cabangId);
+  // Post BE response 2026-08-03: dedicated endpoint scope by JemaatRelasi
+  // (cabangId tidak dipakai — BE filter by jemaatId + parent guard)
+  const historyQuery = useChildRedeemHistory(selected?.anak.id, 50);
 
   const isRefreshing = balancesQuery.isPending
     ? false
@@ -424,12 +426,12 @@ function RedeemRow({ item, lang }: { item: HadiahRedeem; lang: string }) {
   return (
     <View className="flex-row items-center gap-3 py-2 border-b border-neutral-100">
       <View className="w-10 h-10 rounded-lg bg-neutral-100 items-center justify-center overflow-hidden">
-        {item.fotoHadiahSnapshot ? (
+        {item.hadiahFotoUrl ? (
           <Image
             source={{
-              uri: item.fotoHadiahSnapshot.startsWith('http')
-                ? item.fotoHadiahSnapshot
-                : `${env.apiBaseUrl}${item.fotoHadiahSnapshot}`,
+              uri: item.hadiahFotoUrl.startsWith('http')
+                ? item.hadiahFotoUrl
+                : `${env.apiBaseUrl}${item.hadiahFotoUrl}`,
             }}
             className="w-full h-full"
             resizeMode="cover"
@@ -440,13 +442,14 @@ function RedeemRow({ item, lang }: { item: HadiahRedeem; lang: string }) {
       </View>
       <View className="flex-1 min-w-0">
         <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
-          {item.namaHadiahSnapshot}
+          {item.hadiahNama}
         </Text>
         <Text className="text-xs text-neutral-500">
-          {formatDate(item.redeemedAt, lang)}
+          {formatDate(item.processedAt, lang)}
+          {item.processedBy ? ` · ${item.processedBy.namaLengkap}` : ''}
         </Text>
       </View>
-      <Text className="text-sm font-bold text-red-600">-{item.pointSpent}</Text>
+      <Text className="text-sm font-bold text-red-600">-{item.pointDeducted}</Text>
     </View>
   );
 }

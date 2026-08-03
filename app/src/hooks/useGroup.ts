@@ -13,6 +13,7 @@ import {
   dismissGroup,
   regenerateGroupCode,
   addGroupMember,
+  addGroupMemberByKode,
   removeGroupMember,
   joinGroup,
   joinGroupByCode,
@@ -116,6 +117,21 @@ export function useAddGroupMember(groupId: string) {
   return useMutation({
     mutationFn: ({ jemaatId, catatan }: { jemaatId: string; catatan?: string }) =>
       addGroupMember(groupId, jemaatId, catatan),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: GROUP_KEYS.detail(groupId) });
+    },
+  });
+}
+
+/**
+ * Mutation: add member via scan QR (kode 8-char).
+ * Live 2026-08-03 — preferred UX vs `useAddGroupMember` (butuh UUID literal).
+ */
+export function useAddGroupMemberByKode(groupId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ kode, catatan }: { kode: string; catatan?: string }) =>
+      addGroupMemberByKode(groupId, kode, catatan),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GROUP_KEYS.detail(groupId) });
     },

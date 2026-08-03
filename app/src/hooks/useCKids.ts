@@ -1,10 +1,7 @@
 /**
  * React Query hooks untuk CKids Tab.
- * Per BE notice ckids-mobile-tab 2026-08-01.
- *
- * Fallback pattern: kalau /admin/me/children-points belum ada (404),
- * hook fallback ke multi-call lookup per anak. Detect via ApiError code +
- * catch fallback path.
+ * Per BE notice ckids-mobile-tab 2026-08-01 + BE response 2026-08-03
+ * (endpoint /admin/me/children-points + /admin/me/children-redeem-history live).
  */
 
 import { useMemo } from 'react';
@@ -12,14 +9,12 @@ import { useQuery } from '@tanstack/react-query';
 
 import {
   getMyChildrenPoints,
-  lookupJemaatPoint,
   listHadiah,
   getChildRedeemHistory,
 } from '@/api/ckids';
 import { listFamily } from '@/api/family';
-import type { ChildPointBalance, ChildGroupedBalance } from '@/types/ckids';
+import type { ChildGroupedBalance } from '@/types/ckids';
 import type { FamilyRelation } from '@/types/family';
-import { ApiError } from '@/types/api';
 
 export const CKIDS_KEYS = {
   all: ['ckids'] as const,
@@ -55,30 +50,13 @@ export function useMyChildren() {
 }
 
 /**
- * Get point balances semua anak — try dedicated endpoint dulu, fallback ke
- * multi-call kalau BE belum ready.
+ * Get point balances semua anak — dedicated endpoint live 2026-08-03.
+ * BE cache-control 60s — mobile bisa cache selaras.
  */
 export function useMyChildrenPoints() {
   return useQuery({
     queryKey: CKIDS_KEYS.childrenPoints(),
-    queryFn: async () => {
-      try {
-        return await getMyChildrenPoints();
-      } catch (err) {
-        // Kalau 404 (endpoint belum ada) — kita bisa fallback via lookup per anak,
-        // tapi butuh jemaat kode + cabangId. Fallback disabled untuk sekarang
-        // karena BE endpoint gate Fulltimer. Kembalikan empty + warning di UI.
-        if (err instanceof ApiError && err.code === 'NOT_FOUND') {
-          // eslint-disable-next-line no-console
-          console.warn(
-            '[useMyChildrenPoints] Endpoint /admin/me/children-points belum ada. ' +
-              'Return empty. Ref: docs/backend-request-ckids-me-endpoints.md',
-          );
-          return [] as ChildPointBalance[];
-        }
-        throw err;
-      }
-    },
+    queryFn: getMyChildrenPoints,
     staleTime: 60_000,
   });
 }
@@ -141,19 +119,14 @@ export function useHadiahKatalog(cabangId: string | undefined) {
 }
 
 /**
- * History redeem per anak.
- *
- * Filter jemaatId BELUM ADA di BE — hook client-side filter setelah fetch
- * (butuh cabangId scope untuk avoid full-table scan).
+ * History redeem per anak — dedicated parent-scoped endpoint live 2026-08-03.
+ * BE guard verify jemaatId sebagai anak requester (via JemaatRelasi) → 403
+ * kalau bukan.
  */
-export function useChildRedeemHistory(jemaatId: string | undefined, cabangId?: string) {
+export function useChildRedeemHistory(jemaatId: string | undefined, limit = 50) {
   return useQuery({
     queryKey: CKIDS_KEYS.redeemHistory(jemaatId ?? ''),
-    queryFn: async () => {
-      const items = await getChildRedeemHistory({ jemaatId, cabangId, limit: 50 });
-      // Client-side safety filter kalau BE belum apply jemaatId param
-      return jemaatId ? items.filter((r) => r.jemaatId === jemaatId) : items;
-    },
+    queryFn: () => getChildRedeemHistory(jemaatId!, limit),
     enabled: !!jemaatId,
     staleTime: 60_000,
   });

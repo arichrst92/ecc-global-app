@@ -1117,9 +1117,15 @@
     "add_member_error_required": "Jemaat ID wajib diisi.",
     "add_member_error_not_found": "Jemaat tidak ditemukan.",
     "add_member_success": "Anggota berhasil ditambahkan. Notif WA terkirim.",
+    "add_member_success_nama": "{{nama}} berhasil ditambahkan",
     "add_member_already": "Anggota sudah ada di group ini.",
     "add_member_action": "Tambah Anggota",
     "add_member_hint": "Anggota akan menerima notif WhatsApp bahwa mereka baru bergabung. Pastikan noHp jemaat valid.",
+    "add_member_scan_title": "Scan QR Jemaat",
+    "add_member_manual_title": "Input Kode Jemaat",
+    "add_member_error_not_found_title": "Jemaat Tidak Ditemukan",
+    "add_member_error_not_found_msg": "Kode tidak terdaftar atau jemaat sudah tidak aktif. Cek kembali kode QR.",
+    "add_member_error_forbidden": "Hanya PIC group yang bisa menambah anggota.",
     "remove_member_confirm_title": "Keluarkan anggota?",
     "remove_member_confirm_msg": "{{nama}} akan dikeluarkan dari group + dapat notif WA. Yakin?",
     "remove_member_confirm_ok": "Ya, Keluarkan",
@@ -1209,5 +1215,15 @@
     "qr_balance_breakdown": "Balance per Cabang",
     "qr_no_child_title": "Belum ada anak dipilih",
     "qr_no_child_body": "Kembali ke tab CKids untuk pilih anak dulu."
+  },
+  "my_reservasi": {
+    "title": "Reservasi Saya",
+    "subtitle": "Ibadah aktif + kode jemput anak",
+    "empty_title": "Belum ada reservasi aktif",
+    "empty_body": "Reservasi akan muncul setelah Anda check-in ke ibadah.",
+    "kids_section": "Ibadah Anak — Kode Jemput",
+    "other_section": "Ibadah Lain",
+    "checkin_at": "Check-in {{time}}",
+    "checkout_at": "Checkout {{time}}"
   }
 }

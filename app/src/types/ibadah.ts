@@ -110,3 +110,43 @@ export type Reservasi = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+/**
+ * Response `GET /admin/me/reservasi` — parent-scoped reservasi (self + anak).
+ * Include nested jemaat (bisa anak) + ibadah summary.
+ * Per BE response 2026-08-03 di `backend-request-me-reservasi-pickup-code.md`.
+ */
+export type MyReservasi = {
+  id: string;
+  kode: string;
+  tanggalIbadah: string;
+  status: ReservasiStatus;
+  joinedAt?: string | null;
+  checkedOutAt?: string | null;
+  /** Admin yg check-in — kalau `= self`, berarti parent yg drop off anak. */
+  checkedInBy?: string | null;
+  pickupCode?: string | null;
+  pickedUpAt?: string | null;
+  jemaat: {
+    id: string;
+    namaLengkap: string;
+    kode: string;
+    fotoUrl?: string | null;
+  };
+  ibadah: {
+    id: string;
+    nama: string;
+    jamMulai: string;
+    jamSelesai: string;
+    isKidsIbadah?: boolean;
+    requiresCheckout?: boolean;
+  };
+};
+
+/** Query params untuk `GET /admin/me/reservasi`. */
+export type ListMyReservasiParams = {
+  ibadahId?: string;
+  tanggal?: string;
+  status?: 'RESERVE' | 'JOIN' | 'CANCEL';
+  activeOnly?: boolean;
+};

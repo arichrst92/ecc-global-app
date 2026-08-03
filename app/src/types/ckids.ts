@@ -54,22 +54,38 @@ export type HadiahKatalog = {
 };
 
 /**
- * History redeem — dari filter jemaatId di `GET /admin/gift-stall/redeems`
- * atau parent-scoped endpoint (butuh BE request — lihat
- * `backend-request-ckids-me-endpoints.md`).
+ * History redeem — dari dedicated parent endpoint
+ * `GET /admin/me/children-redeem-history?jemaatId=X`.
  *
- * Snapshot nama+foto hadiah supaya history tetap valid kalau katalog berubah.
+ * Snapshot fields (hadiahNama, hadiahFotoUrl) supaya history tetap valid
+ * kalau katalog berubah nanti.
+ *
+ * Per BE response 2026-08-03 di `backend-request-ckids-me-endpoints.md`.
  */
 export type HadiahRedeem = {
   id: string;
   jemaatId: string;
   hadiahId: string;
-  namaHadiahSnapshot: string;
-  fotoHadiahSnapshot?: string | null;
-  pointSpent: number;
-  redeemedAt: string; // ISO datetime
-  adminName?: string;
+  /** Snapshot nama hadiah saat redeem. */
+  hadiahNama: string;
+  /** Snapshot foto hadiah URL. */
+  hadiahFotoUrl?: string | null;
+  /** Point yg terpotong (positive number). */
+  pointDeducted: number;
+  /** Timestamp redeem (ISO datetime). */
+  processedAt: string;
+  /** Live katalog hadiah reference (bisa null kalau hadiah sudah dihapus). */
+  hadiah?: {
+    id: string;
+    nama: string;
+    fotoUrl?: string | null;
+  } | null;
   cabang?: CabangRef;
+  /** Admin yg proses redeem (Fulltimer di stall). */
+  processedBy?: {
+    id: string;
+    namaLengkap: string;
+  } | null;
 };
 
 /** Point transaction log — dari `GET /admin/gift-stall/transactions?jemaatId=X` (opsional). */

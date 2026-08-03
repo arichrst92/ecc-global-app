@@ -1,29 +1,30 @@
 /**
- * PIC — Add member ke group via scan QR jemaat atau input kode manual.
+ * PIC — Add member ke group via scan QR jemaat.
  *
- * Endpoint: POST /admin/group/:id/members/:jemaatId — butuh jemaatId (bukan kode).
- * Mobile flow:
- * 1. Scan QR jemaat → kode 8-char → resolve ke jemaatId via existing lookup
- *    (mobile pakai endpoint scanner atau jemaat lookup by kode)
- * 2. Alternatively: pakai endpoint helper /admin/group/:id/members/by-kode
- *    kalau BE sediakan (belum ada di notice; sementara pakai 2-step lookup+add)
+ * Live 2026-08-03: BE endpoint `POST /admin/group/:id/members/by-kode`
+ * (lookup jemaat by kode 8-char → add member). Idempotent + trigger notif WA.
  *
- * Simplification untuk M40: pakai search jemaat by nama/kode → tap pilih → add.
- * TODO Sprint 3.5: implement QR scan direct kalau BE sediakan endpoint by-kode.
+ * Flow:
+ * 1. Buka scanner kamera (reuse ScannerCamera)
+ * 2. User scan QR jemaat → kode 8-char terbaca
+ * 3. POST /admin/group/:id/members/by-kode { kode }
+ * 4. Response 200/201 → toast + back ke Group Detail
  *
- * Per BE notice group-endpoints 2026-07-28.
+ * Manual input fallback: tap "Input Manual" → prompt 8-char kode.
+ *
+ * Per BE response `backend-request-group-add-member-by-kode.md`.
  */
 import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Info, UserPlus } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 
-import { Button } from '@/components/ui/Button';
-import { TextField } from '@/components/ui/TextField';
+import { ManualInputModal } from '@/components/scanner/ManualInputModal';
+import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import { useToast } from '@/components/ui/Toast';
-import { useAddGroupMember } from '@/hooks/useGroup';
+import { useAddGroupMemberByKode } from '@/hooks/useGroup';
 import { ApiError } from '@/types/api';
 
 export default function AddGroupMemberScreen() {
@@ -32,40 +33,46 @@ export default function AddGroupMemberScreen() {
   const showToast = useToast((s) => s.show);
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const [jemaatIdInput, setJemaatIdInput] = useState('');
-  const [catatan, setCatatan] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [manualOpen, setManualOpen] = useState(false);
+  const [paused, setPaused] = useState(false);
 
-  const addMutation = useAddGroupMember(id);
+  const addMutation = useAddGroupMemberByKode(id);
 
-  function submit() {
-    setError(null);
-    const trimmed = jemaatIdInput.trim();
-    if (!trimmed) {
-      setError(t('group.add_member_error_required'));
-      return;
-    }
+  function submitKode(kode: string) {
+    setPaused(true);
     addMutation.mutate(
-      { jemaatId: trimmed, catatan: catatan.trim() || undefined },
+      { kode },
       {
         onSuccess: (data) => {
+          setManualOpen(false);
           showToast(
             data.alreadyMember
               ? t('group.add_member_already')
-              : t('group.add_member_success'),
+              : t('group.add_member_success_nama', {
+                  nama: data.jemaat.namaLengkap,
+                }),
             'success',
           );
           router.back();
         },
         onError: (err) => {
+          setPaused(false);
           if (err instanceof ApiError) {
             if (err.code === 'NOT_FOUND') {
-              setError(t('group.add_member_error_not_found'));
+              Alert.alert(
+                t('group.add_member_error_not_found_title'),
+                t('group.add_member_error_not_found_msg'),
+              );
+            } else if (err.code === 'FORBIDDEN') {
+              Alert.alert(
+                t('common.error'),
+                t('group.add_member_error_forbidden'),
+              );
             } else {
-              setError(err.message);
+              Alert.alert(t('common.error'), err.message);
             }
           } else {
-            setError(t('error.network'));
+            Alert.alert(t('common.error'), t('error.network'));
           }
         },
       },
@@ -73,64 +80,43 @@ export default function AddGroupMemberScreen() {
   }
 
   return (
-    <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
-        <View className="px-4 py-2 flex-row items-center">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+    <View className="flex-1 bg-black">
+      <ScannerCamera
+        paused={paused || addMutation.isPending || manualOpen}
+        onScan={submitKode}
+        onManualInput={() => setManualOpen(true)}
+      />
+
+      {/* Top overlay */}
+      <SafeAreaView
+        edges={['top']}
+        pointerEvents="box-none"
+        style={{ position: 'absolute', top: 0, left: 0, right: 0 }}
+      >
+        <View className="flex-row items-center gap-2 px-4 py-2">
+          <Pressable
+            onPress={() => router.back()}
+            className="w-10 h-10 items-center justify-center rounded-full bg-black/50"
+            hitSlop={8}
+          >
+            <ArrowLeft size={20} color="#fff" />
           </Pressable>
-          <View className="flex-1">
-            <Text className="text-base font-bold text-neutral-900">
-              {t('group.add_member_title')}
+          <View className="flex-1 bg-black/50 rounded-full px-4 py-2">
+            <Text className="text-white font-bold text-sm text-center">
+              {t('group.add_member_scan_title')}
             </Text>
-            <Text className="text-xs text-neutral-500">{t('group.add_member_subtitle')}</Text>
           </View>
         </View>
       </SafeAreaView>
 
-      <View className="flex-1 p-4 gap-4">
-        <View className="bg-white rounded-2xl p-4 gap-3 border border-neutral-100">
-          <TextField
-            label={t('group.add_member_field_jemaat_id') + ' *'}
-            placeholder="uuid jemaat..."
-            value={jemaatIdInput}
-            onChangeText={(v) => {
-              setJemaatIdInput(v);
-              setError(null);
-            }}
-            error={error ?? undefined}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!addMutation.isPending}
-          />
-          <TextField
-            label={t('group.add_member_field_catatan')}
-            placeholder={t('group.add_member_field_catatan_placeholder')}
-            value={catatan}
-            onChangeText={setCatatan}
-            multiline
-            editable={!addMutation.isPending}
-          />
-        </View>
-
-        <View className="p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-          <Info size={14} color="#92400e" style={{ marginTop: 1 }} />
-          <Text className="text-xs text-amber-800 flex-1 leading-relaxed">
-            {t('group.add_member_hint')}
-          </Text>
-        </View>
-
-        <View className="mt-auto">
-          <Button
-            label={t('group.add_member_action')}
-            onPress={submit}
-            loading={addMutation.isPending}
-            fullWidth
-            size="lg"
-            leftIcon={<UserPlus size={18} color="#fff" />}
-          />
-        </View>
-      </View>
+      <ManualInputModal
+        visible={manualOpen}
+        onClose={() => setManualOpen(false)}
+        onSubmit={submitKode}
+        loading={addMutation.isPending}
+        title={t('group.add_member_manual_title')}
+        placeholder="ABC23XYZ"
+      />
     </View>
   );
 }

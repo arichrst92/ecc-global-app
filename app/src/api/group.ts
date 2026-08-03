@@ -139,6 +139,25 @@ export function addGroupMember(
 }
 
 /**
+ * POST /admin/group/:id/members/by-kode — PIC add member via scan QR (kode
+ * 8-char alphanumeric). Live 2026-08-03 (mirror pattern homecell).
+ * Per BE response `backend-request-group-add-member-by-kode.md`.
+ */
+export function addGroupMemberByKode(
+  groupId: string,
+  kode: string,
+  catatan?: string,
+) {
+  return api.post<{
+    alreadyMember: boolean;
+    jemaat: { id: string; namaLengkap: string; kode: string };
+  }>(
+    `/admin/group/${groupId}/members/by-kode`,
+    catatan ? { kode, catatan } : { kode },
+  );
+}
+
+/**
  * DELETE /admin/group/:id/members/:jemaatId — PIC remove member.
  * Soft delete + trigger notif WA. Idempotent.
  */

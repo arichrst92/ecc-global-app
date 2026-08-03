@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { ApiError, type ApiErrorBody } from '@/types/api';
 import { api } from './client';
 import type { MeStats, MeProfile } from '@/types/me';
+import type { MyReservasi, ListMyReservasiParams } from '@/types/ibadah';
 
 /** GET /admin/me — full profile (Jemaat + roles + homecells) */
 export function getMyProfile() {
@@ -34,6 +35,26 @@ type UpdateProfilePayload = {
 /** PATCH /admin/me — edit limited fields */
 export function updateMyProfile(payload: UpdateProfilePayload) {
   return api.patch<MeProfile>('/admin/me', payload);
+}
+
+/**
+ * GET /admin/me/reservasi — parent-scoped reservasi (self + anak).
+ * Live 2026-08-03 (BE response `backend-request-me-reservasi-pickup-code.md`).
+ *
+ * Include reservasi jemaatId=self + reservasi anak yg di-checkin oleh user.
+ * Filter defaults activeOnly=true (24 jam terakhir kalau tanggal kosong).
+ */
+export function listMyReservasi(params: ListMyReservasiParams = {}) {
+  const search = new URLSearchParams();
+  if (params.ibadahId) search.set('ibadahId', params.ibadahId);
+  if (params.tanggal) search.set('tanggal', params.tanggal);
+  if (params.status) search.set('status', params.status);
+  if (params.activeOnly !== undefined)
+    search.set('activeOnly', String(params.activeOnly));
+  const qs = search.toString();
+  return api.get<MyReservasi[]>(
+    qs ? `/admin/me/reservasi?${qs}` : '/admin/me/reservasi',
+  );
 }
 
 /** POST /admin/me/foto — upload foto profil (multipart) */
