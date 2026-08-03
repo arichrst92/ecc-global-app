@@ -18,10 +18,24 @@ export type FamilyMemberJemaat = {
   isDependent: boolean;
 };
 
+/**
+ * Tipe relasi keluarga granular — dari master data `tipe_relasi_keluarga`.
+ * BE include field ini di response post-family-refactor 2026-08-02.
+ * 12 tipe: Suami, Istri, Ayah, Ibu, Anak Laki-Laki, Anak Perempuan,
+ * Saudara Kandung, Kakek, Nenek, Cucu, Wali, Lainnya.
+ */
+export type TipeRelasiKeluarga = {
+  id: string;
+  nama: string;
+};
+
 /** Row dari GET /admin/me/family */
 export type FamilyRelation = {
   id: string;
   role: FamilyRole;
+  /** Granular tipe relasi — post BE refactor 2026-08-02. Optional untuk
+   *  backward compat (mobile lama tanpa field ini tetap parse OK). */
+  tipeRelasi?: TipeRelasiKeluarga | null;
   isVerified: boolean;
   createdAt: string;
   jemaat: FamilyMemberJemaat;

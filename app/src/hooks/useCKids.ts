@@ -27,8 +27,14 @@ export const CKIDS_KEYS = {
 
 /**
  * List anak dari family relations user (via existing /admin/me/family).
- * Filter FamilyRelation dgn role='CHILD' (broad enum, backward-compat post
- * family refactor 2026-08-02).
+ *
+ * Defensive filter — check EITHER:
+ * - `role === 'CHILD'` (broad enum backward compat), ATAU
+ * - `tipeRelasi.nama` include 'Anak' (post refactor 2026-08-02 granular:
+ *   'Anak Laki-Laki', 'Anak Perempuan', 'Anak')
+ *
+ * Kalau BE inconsistent (mis. row lama role='CHILD' + row baru tipeRelasi
+ * only), filter tetap catch keduanya.
  */
 export function useMyChildren() {
   const query = useQuery({
@@ -38,7 +44,12 @@ export function useMyChildren() {
   });
 
   const children = useMemo(
-    () => (query.data ?? []).filter((f: FamilyRelation) => f.role === 'CHILD'),
+    () =>
+      (query.data ?? []).filter((f: FamilyRelation) => {
+        if (f.role === 'CHILD') return true;
+        const tipeNama = f.tipeRelasi?.nama?.toLowerCase() ?? '';
+        return tipeNama.includes('anak');
+      }),
     [query.data],
   );
 
