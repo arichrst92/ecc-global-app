@@ -409,7 +409,15 @@ function FullProfile({
                     {f.jemaat.namaLengkap}
                   </Text>
                   <Text className="text-xs text-neutral-500 mt-0.5">
-                    {t(`family.role_${f.role.toLowerCase()}`)}
+                    {/* Post family refactor 2026-08-02: prefer tipeRelasi.nama
+                        granular (mis. "Suami", "Anak Laki-Laki") kalau ada.
+                        Fallback ke role broad enum (SPOUSE/CHILD/dll) untuk
+                        backward compat. Defensive: kalau kedua-nya undefined,
+                        show 'Keluarga' generic. */}
+                    {f.tipeRelasi?.nama ??
+                      (f.role
+                        ? t(`family.role_${f.role.toLowerCase()}`)
+                        : t('family.role_generic'))}
                   </Text>
                 </View>
               </Pressable>

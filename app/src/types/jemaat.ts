@@ -22,7 +22,12 @@ export type JemaatPublicRole = {
 };
 
 export type JemaatPublicFamily = {
-  role: 'SPOUSE' | 'CHILD' | 'PARENT' | 'SIBLING';
+  /** Broad enum role. Post family refactor 2026-08-02, BE kadang return null
+   *  kalau row baru cuma populate tipeRelasi granular. Defensive: mobile handle
+   *  null + fallback ke tipeRelasi.nama. */
+  role?: 'SPOUSE' | 'CHILD' | 'PARENT' | 'SIBLING' | 'GUARDIAN' | 'OTHER' | null;
+  /** Granular tipe relasi (post-refactor). Optional untuk backward compat. */
+  tipeRelasi?: { id: string; nama: string } | null;
   jemaat: {
     id: string;
     namaLengkap: string;
