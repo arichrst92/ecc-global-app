@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   listScannerEvents,
@@ -7,7 +7,10 @@ import {
   checkinEvent,
   getIbadahCheckinStats,
   getEventCheckinStats,
+  checkoutReservasi,
+  pickupReservasi,
 } from '@/api/scanner';
+import type { ReservasiPickupPayload } from '@/types/scanner';
 
 /** List event yang user authorized scan */
 export function useScannerEvents() {
@@ -66,5 +69,41 @@ export function useEventCheckinStats(eventId: string, enabled = true) {
     enabled: !!eventId && enabled,
     refetchInterval: 10_000,
     staleTime: 5_000,
+  });
+}
+
+/**
+ * Mutation checkout reservasi ibadah (Modul 26).
+ * Auto-invalidate stats supaya counter update.
+ */
+export function useCheckoutReservasi(ibadahId: string, tanggalIbadah?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (kode: string) => checkoutReservasi(kode),
+    onSuccess: () => {
+      if (tanggalIbadah) {
+        queryClient.invalidateQueries({
+          queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
+        });
+      }
+    },
+  });
+}
+
+/**
+ * Mutation pickup anak (Modul 27).
+ * Verify pickup code 6-digit → set pickedUpAt di reservasi.
+ */
+export function usePickupReservasi(ibadahId: string, tanggalIbadah?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ReservasiPickupPayload) => pickupReservasi(payload),
+    onSuccess: () => {
+      if (tanggalIbadah) {
+        queryClient.invalidateQueries({
+          queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
+        });
+      }
+    },
   });
 }

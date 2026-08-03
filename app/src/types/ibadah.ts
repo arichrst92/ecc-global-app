@@ -31,6 +31,14 @@ export type IbadahListItem = {
    *  detail + public/calendar. */
   linkOnline?: string | null;
   isActive: boolean;
+  /** Toggle per ibadah — kalau true, wajib checkout via scan admin saat
+   *  jemaat keluar. Default false. Per BE notice Modul 26 2026-08-01
+   *  (backend-notice-checkout-ibadah.md). */
+  requiresCheckout?: boolean;
+  /** Flag ibadah anak — trigger pickup code (6-digit) + point earn.
+   *  Default false. Per BE notice Modul 27 2026-08-01
+   *  (backend-notice-kids-ibadah-pickup.md). */
+  isKidsIbadah?: boolean;
   cabang: CabangRef;
   kategoriIbadah?: KategoriIbadah | null;
   pelayananCount?: number;
@@ -69,4 +77,36 @@ export type IbadahPetugas = {
     fotoUrl?: string | null;
   };
   role: string; // "Leader", "Member"
+};
+
+/**
+ * Reservasi (existing) + extended fields dari Modul 26 (checkout) + Modul 27
+ * (kids pickup). Ini shape untuk consumer mobile — detail schema BE di
+ * backend-notice-checkout-ibadah.md + backend-notice-kids-ibadah-pickup.md.
+ */
+export type ReservasiStatus = 'RESERVE' | 'JOIN' | 'COMPLETED' | 'CANCEL';
+
+export type Reservasi = {
+  id: string;
+  kode: string; // 7-char alphanumeric
+  ibadahId: string;
+  jemaatId: string;
+  tanggalIbadah: string;
+  status: ReservasiStatus;
+  joinedAt?: string | null;
+  /** Timestamp saat admin scan QR checkout. NULL = belum checkout.
+   *  Per BE notice Modul 26 2026-08-01. */
+  checkedOutAt?: string | null;
+  /** Admin (jemaat UUID) yg scan checkout. */
+  checkedOutBy?: string | null;
+  /** 6-digit numeric, auto-gen saat check-in kalau ibadah.isKidsIbadah=true.
+   *  NULL untuk ibadah non-kids. Unique per (ibadah, tanggal).
+   *  Per BE notice Modul 27 2026-08-01. */
+  pickupCode?: string | null;
+  /** Timestamp saat admin verify pickup code. NULL = anak belum di-pickup. */
+  pickedUpAt?: string | null;
+  /** Parent/wali (jemaat UUID) yg jemput. Optional (kalau admin scan QR parent). */
+  pickedUpByJemaatId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 };

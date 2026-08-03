@@ -247,7 +247,7 @@ BE deployed 3 major batches 2026-07-29 (magic link, Shiftsoft, Group) + 4 modul 
 
 ---
 
-## 🧒 Sprint 4 — v1.4.0 Kids Bundle (Checkout + Pickup Code)
+## 🧒 Sprint 4 — v1.4.0 Kids Bundle (Checkout + Pickup Code) ✅ CODE COMPLETE (M41)
 
 **Goal:** Support 2 modul BE deployed 2026-08-01: **Modul 26 (Checkout scan)** untuk security tracking + **Modul 27 (Kids Ibadah + Pickup Code)** supaya parent bisa jemput anak dgn kode verify di stall.
 

@@ -15,6 +15,9 @@ import type {
   CheckinMeta,
   IbadahCheckinStats,
   EventCheckinStats,
+  ReservasiCheckoutResult,
+  ReservasiPickupResult,
+  ReservasiPickupPayload,
 } from '@/types/scanner';
 
 /** GET /admin/me/scanner-events — events yang user authorized scan */
@@ -116,6 +119,42 @@ export function getIbadahCheckinStats(ibadahId: string, tanggalIbadah: string) {
   return api.get<IbadahCheckinStats>(
     `/admin/ibadah/${ibadahId}/checkin/stats?tanggalIbadah=${tanggalIbadah}`,
   );
+}
+
+// ============================================================
+// Modul 26 — Checkout scan (BE notice checkout-ibadah 2026-08-01)
+// ============================================================
+
+/**
+ * POST /admin/reservasi/checkout — scan QR jemaat saat keluar ibadah.
+ * Symmetric dgn /checkin. Idempotent — sudah checkout return same data +
+ * message "Sudah checkout sebelumnya".
+ *
+ * Errors:
+ * - 400: ibadah tidak require checkout, atau reservasi CANCEL, atau belum check-in
+ * - 404: kode reservasi tidak ditemukan
+ */
+export function checkoutReservasi(kode: string) {
+  return api.post<ReservasiCheckoutResult>('/admin/reservasi/checkout', { kode });
+}
+
+// ============================================================
+// Modul 27 — Kids ibadah pickup (BE notice kids-ibadah-pickup 2026-08-01)
+// ============================================================
+
+/**
+ * POST /admin/reservasi/pickup — admin verify pickup code + set pickedUpAt.
+ * Guard: cuma reservasi dgn ibadah.isKidsIbadah=true, belum di-pickup, status=JOIN,
+ * scope 24 jam terakhir.
+ *
+ * Errors:
+ * - 400: multiple match untuk kode 6-digit — perlu kirim kodeReservasi juga
+ * - 400: parent jemaat tidak ditemukan
+ * - 400: kodeReservasi tidak match dgn pickup code
+ * - 404: kode tidak ada / expired / sudah di-pickup
+ */
+export function pickupReservasi(payload: ReservasiPickupPayload) {
+  return api.post<ReservasiPickupResult>('/admin/reservasi/pickup', payload);
 }
 
 /** GET /admin/event/:id/checkin/stats */

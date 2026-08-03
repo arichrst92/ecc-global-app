@@ -194,7 +194,19 @@ function IbadahCard({
   item,
   onPress,
 }: {
-  item: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; pelayananNama: string; role: string };
+  item: {
+    ibadahId: string;
+    nama: string;
+    jamMulai: string;
+    jamSelesai: string;
+    lokasi: string;
+    pelayananNama: string;
+    role: string;
+    /** Flag Modul 27 — render badge 🧒 kalau true. */
+    isKidsIbadah?: boolean;
+    /** Flag Modul 26 — hint scanner support checkout mode. */
+    requiresCheckout?: boolean;
+  };
   onPress: () => void;
 }) {
   return (
@@ -206,9 +218,16 @@ function IbadahCard({
         <Church size={20} color="#EA580C" />
       </View>
       <View className="flex-1 min-w-0">
-        <Text className="font-bold text-neutral-900" numberOfLines={1}>
-          {item.nama}
-        </Text>
+        <View className="flex-row items-center gap-1.5">
+          <Text className="font-bold text-neutral-900 flex-1" numberOfLines={1}>
+            {item.nama}
+          </Text>
+          {item.isKidsIbadah ? (
+            <View className="bg-pink-100 px-1.5 py-0.5 rounded">
+              <Text className="text-[10px] font-bold text-pink-700">🧒 KIDS</Text>
+            </View>
+          ) : null}
+        </View>
         <View className="flex-row items-center gap-1.5 mt-1">
           <Clock size={12} color="#A3A3A3" />
           <Text className="text-xs text-neutral-500">
@@ -220,10 +239,17 @@ function IbadahCard({
             {item.lokasi}
           </Text>
         </View>
-        <View className="bg-brand-50 self-start px-2 py-0.5 rounded-full mt-1">
-          <Text className="text-[10px] font-bold text-brand-700">
-            {item.pelayananNama} · {item.role}
-          </Text>
+        <View className="flex-row items-center gap-1.5 mt-1">
+          <View className="bg-brand-50 self-start px-2 py-0.5 rounded-full">
+            <Text className="text-[10px] font-bold text-brand-700">
+              {item.pelayananNama} · {item.role}
+            </Text>
+          </View>
+          {item.requiresCheckout ? (
+            <View className="bg-amber-100 px-2 py-0.5 rounded-full">
+              <Text className="text-[10px] font-bold text-amber-700">CHECKOUT</Text>
+            </View>
+          ) : null}
         </View>
       </View>
       <ChevronRight size={16} color="#A3A3A3" />

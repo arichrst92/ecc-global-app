@@ -14,6 +14,12 @@ export type ScannerIbadah = {
   pelayananNama: string;
   role: string;
   level: number;
+  /** Toggle wajib checkout per ibadah — trigger mode Checkout di scanner.
+   *  Per BE notice Modul 26 2026-08-01. */
+  requiresCheckout?: boolean;
+  /** Flag ibadah anak — trigger badge 🧒 + mode Pickup di scanner.
+   *  Per BE notice Modul 27 2026-08-01. */
+  isKidsIbadah?: boolean;
 };
 
 /** Scanner-authorized event dari GET /admin/me/scanner-events */
@@ -43,10 +49,50 @@ export type IbadahCheckinResult = {
   ibadahId: string;
   jemaatId: string;
   tanggalIbadah: string;
-  status: 'JOIN' | 'BATAL';
+  status: 'JOIN' | 'BATAL' | 'COMPLETED';
   kode: string;
   joinedAt: string;
   jemaat: CheckinJemaat;
+  /** Kalau ibadah kids, auto-populate 6-digit pickup code untuk parent.
+   *  Per BE notice Modul 27 2026-08-01. Backward compat: mobile lama ignore. */
+  pickupCode?: string | null;
+};
+
+/** Response data dari POST /admin/reservasi/checkout — Modul 26. */
+export type ReservasiCheckoutResult = {
+  id: string;
+  kode: string;
+  status: 'JOIN' | 'COMPLETED';
+  joinedAt: string;
+  checkedOutAt: string;
+  checkedOutBy: string;
+  jemaatId: string;
+  ibadahId: string;
+};
+
+/** Response data dari POST /admin/reservasi/pickup — Modul 27. */
+export type ReservasiPickupResult = {
+  reservasi: {
+    id: string;
+    kode: string;
+    pickedUpAt: string;
+    pickedUpByJemaatId?: string | null;
+  };
+  anak: {
+    id: string;
+    namaLengkap: string;
+    fotoUrl?: string | null;
+  };
+  ibadahNama: string;
+};
+
+/** Payload POST /admin/reservasi/pickup. */
+export type ReservasiPickupPayload = {
+  pickupCode: string; // 6-digit
+  /** Optional disambiguation kalau multiple ibadah share kode 6-digit hari sama. */
+  kodeReservasi?: string;
+  /** Optional — scan QR parent untuk record siapa yg jemput. */
+  pickedUpByJemaatId?: string;
 };
 
 /** Response data dari POST /admin/event/:id/checkin */
