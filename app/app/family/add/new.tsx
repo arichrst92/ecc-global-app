@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -11,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Info, UserPlus } from 'lucide-react-native';
+import { ArrowLeft, Calendar as CalendarIcon, Info, UserPlus } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
@@ -28,6 +29,8 @@ export default function FamilyAddNewScreen() {
   const [namaError, setNamaError] = useState<string | null>(null);
   const [gender, setGender] = useState<'L' | 'P' | null>(null);
   const [role, setRole] = useState<FamilyRole | null>(null);
+  const [tanggalLahir, setTanggalLahir] = useState<string>(''); // ISO YYYY-MM-DD, '' = belum diisi
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const showToast = useToast((s) => s.show);
   const registerMutation = useRegisterNewFamily();
 
@@ -43,6 +46,7 @@ export default function FamilyAddNewScreen() {
         namaLengkap: nama.trim(),
         role,
         jenisKelamin: gender,
+        tanggalLahir: tanggalLahir || null,
         noHp: null, // dependent — no phone
       },
       {
@@ -144,6 +148,31 @@ export default function FamilyAddNewScreen() {
             </View>
           </View>
 
+          {/* Tanggal lahir — optional, penting untuk anak dependent (age gate,
+              kids ibadah eligibility, dll) */}
+          <View className="mt-5">
+            <Text className="text-xs font-medium text-neutral-600 mb-1">
+              {t('family.dob_label')}
+            </Text>
+            <Pressable
+              onPress={() => setShowDatePicker(true)}
+              disabled={registerMutation.isPending}
+              className="px-3 py-3 border rounded-lg flex-row items-center justify-between border-neutral-200"
+            >
+              <Text
+                className={`text-sm ${
+                  tanggalLahir ? 'text-neutral-900' : 'text-neutral-400'
+                }`}
+              >
+                {tanggalLahir || t('family.dob_placeholder')}
+              </Text>
+              <CalendarIcon size={18} color="#737373" />
+            </Pressable>
+            <Text className="text-xs text-neutral-500 mt-1">
+              {t('family.dob_helper')}
+            </Text>
+          </View>
+
           <View className="mt-5">
             <RolePicker
               value={role}
@@ -172,6 +201,118 @@ export default function FamilyAddNewScreen() {
           />
         </View>
       </KeyboardAvoidingView>
+
+      {showDatePicker ? (
+        <DatePickerModal
+          value={tanggalLahir ? new Date(tanggalLahir) : new Date(2010, 0, 1)}
+          onChange={(d) => setTanggalLahir(d.toISOString().slice(0, 10))}
+          onClose={() => setShowDatePicker(false)}
+        />
+      ) : null}
     </SafeAreaView>
+  );
+}
+
+/* ==============================================================
+ * DatePickerModal — reuse pattern dari onboarding wizard.
+ * Native @react-native-community/datetimepicker lazy import.
+ * TODO: extract ke shared component src/components/ui/DatePickerModal.tsx
+ * kalau dipakai 4+ tempat.
+ * ============================================================== */
+function DatePickerModal({
+  value,
+  onChange,
+  onClose,
+}: {
+  value: Date;
+  onChange: (d: Date) => void;
+  onClose: () => void;
+}) {
+  const [DateTimePicker, setMod] = useState<React.ComponentType<{
+    value: Date;
+    mode: 'date';
+    display: 'spinner' | 'default';
+    maximumDate?: Date;
+    minimumDate?: Date;
+    textColor?: string;
+    themeVariant?: 'light' | 'dark';
+    onChange: (event: unknown, date?: Date) => void;
+  }> | null>(null);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      onClose();
+      return;
+    }
+    (async () => {
+      try {
+        // @ts-ignore lazy import
+        const mod = (await import('@react-native-community/datetimepicker')) as unknown as {
+          default: React.ComponentType<{
+            value: Date;
+            mode: 'date';
+            display: 'spinner' | 'default';
+            maximumDate?: Date;
+            minimumDate?: Date;
+            textColor?: string;
+            themeVariant?: 'light' | 'dark';
+            onChange: (event: unknown, date?: Date) => void;
+          }>;
+        };
+        setMod(() => mod.default);
+      } catch {
+        onClose();
+      }
+    })();
+  }, [onClose]);
+
+  if (!DateTimePicker) return null;
+
+  if (Platform.OS === 'android') {
+    return (
+      <DateTimePicker
+        value={value}
+        mode="date"
+        display="default"
+        maximumDate={new Date()}
+        minimumDate={new Date(1900, 0, 1)}
+        onChange={(_e, d) => {
+          if (d) onChange(d);
+          onClose();
+        }}
+      />
+    );
+  }
+
+  return (
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable onPress={onClose} className="flex-1 bg-black/50 items-center justify-end">
+        <Pressable
+          onPress={() => {}}
+          className="bg-white w-full rounded-t-3xl pt-4 pb-8 px-4"
+        >
+          <View className="flex-row items-center justify-between mb-2">
+            <Pressable onPress={onClose}>
+              <Text className="text-sm text-neutral-500 px-2 py-1">Batal</Text>
+            </Pressable>
+            <Pressable onPress={onClose}>
+              <Text className="text-sm font-bold text-brand-600 px-2 py-1">OK</Text>
+            </Pressable>
+          </View>
+          <DateTimePicker
+            value={value}
+            mode="date"
+            display="spinner"
+            maximumDate={new Date()}
+            minimumDate={new Date(1900, 0, 1)}
+            textColor="#171717"
+            themeVariant="light"
+            onChange={(_e, d) => {
+              if (d) onChange(d);
+            }}
+          />
+        </Pressable>
+      </Pressable>
+    </Modal>
   );
 }
