@@ -49,6 +49,20 @@ Redeem history salah satu anak parent. Guard: 403 kalau `jemaatId` bukan anak re
 
 ---
 
+## 3b. Scanner Walk-in Flow (Konsistensi Ckids ↔ Mobile) 🆕
+
+Ckids web pakai flow **walk-in universal** — scan QR profile jemaat + auto-detect ibadah untuk 1-tap check-in/checkout/pickup. Mobile admin scanner (M41) masih pakai flow kode-reservasi based.
+
+**Backend endpoint sudah live**: `POST /admin/reservasi/walk-in { jemaatId, ibadahId, tanggalIbadah, action }` + helper `GET /admin/reservasi/active-today`.
+
+Mobile bisa switch untuk parity dgn ckids (optional refactor). Endpoint existing (`/checkin`, `/checkout`, `/pickup` via kode reservasi) **tetap live** — mobile lama tidak break.
+
+**Detail lengkap + UI recommendation**: [`backend-notice-scanner-walkin-flow.md`](./backend-notice-scanner-walkin-flow.md)
+
+**Effort estimate**: ~2-3 hari mobile side Sprint 5.
+
+---
+
 ## 4. Ckids Web App Updates (ckids.eccchurch.global)
 
 Perubahan admin-side subdomain, mobile team informational only:
@@ -95,6 +109,7 @@ Semua idempotent + backward compat.
 **Prioritas medium**:
 - [ ] Group add member scan QR (via `by-kode` endpoint)
 - [ ] Family module: optional adopt granular UI (dropdown `/admin/keluarga/tipe`)
+- [ ] Scanner walk-in flow refactor untuk parity dgn ckids ([detail](./backend-notice-scanner-walkin-flow.md))
 
 **Optional / defer**:
 - [ ] Skip fallback pattern lama di `/admin/keluarga` multi-call — sekarang ada endpoint proper
