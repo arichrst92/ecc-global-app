@@ -4,6 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA)
 **Tanggal:** 2026-07-31
 **Priority:** 🟡 Medium — blocking smoke test M37 (onboarding wizard) sebelum release v1.2.0
+**Status:** ✅ **RESOLVED** (2026-08-02) — script idempotent + siap execute. Lihat "BE Response" di bawah.
 **Related:** [`backend-notice-magic-link-email-login.md`](./backend-notice-magic-link-email-login.md)
 
 ---
@@ -181,3 +182,74 @@ Kalau tidak bisa / ada masalah:
 ---
 
 *Doc versi: 1.0 — 2026-07-31.*
+
+---
+
+## 🔧 BE RESPONSE (2026-08-02)
+
+Selesai — script idempotent siap execute. Detail:
+
+### Approach
+
+Bikin script `packages/database/prisma/scripts/seed-test-onboarding.ts` yang:
+- **Idempotent** — kalau kode `TEST-001/002/003` sudah ada, di-reset ke state initial (regression testing berulang)
+- **Auto-cleanup magic link token** lama saat reset supaya test fresh
+- **Configurable**: cabang, email prefix, noHp custom via CLI flags
+- **Create User row** otomatis supaya auth login bisa jalan
+
+Alias `pnpm --filter @ecc/database db:seed-test-onboarding` (ada di `packages/database/package.json`).
+
+### Execute di production
+
+```bash
+ssh deploy@187.77.118.85
+cd /var/www/ecc-core-platform
+
+# Default: cabang aktif pertama, email @ide.asia
+pnpm --filter @ecc/database db:seed-test-onboarding
+
+# Atau custom cabang (case-insensitive):
+pnpm --filter @ecc/database db:seed-test-onboarding -- --cabang="Jakarta"
+```
+
+Output print 3 UUID + cabang ID + noHp assigned untuk TEST-002/003.
+
+### Data yang di-seed
+
+| Kode | Email | noHp | Onboarded? | Skenario |
+|---|---|---|---|---|
+| TEST-001 | `test-onboarding-1@ide.asia` | NULL | NO | Full wizard: intro → add-phone → OTP → profile → submit |
+| TEST-002 | `test-onboarding-2@ide.asia` | random `+628…` | NO | Wizard skip add-phone, profile only |
+| TEST-003 | `test-onboarding-3@ide.asia` | random `+628…` | YES (now) | Control — skip wizard, langsung main app |
+
+### Testing steps
+
+1. Buka mobile → **Login pakai Email** → input `test-onboarding-1@ide.asia`
+2. Cek inbox `@ide.asia` — magic link ter-kirim via SendGrid
+3. Klik link → app open + auto-verify → response `needsOnboarding=true`
+4. Wizard trigger → step-by-step complete
+5. Landing di main app → `onboardedAt` di DB sudah set
+
+### Reset untuk regression testing
+
+Jalanin ulang script — otomatis reset:
+- `onboardedAt` back to NULL
+- `noHp/jenisKelamin/tanggalLahir` back to initial
+- MagicLinkToken di-delete (biar link email fresh)
+
+### Konfirmasi checklist
+
+- [x] SendGrid **live di prod** (verified deploy 2026-07-29). Delivery ke `@ide.asia` OK (test done Ari earlier).
+- [x] Endpoint `POST /auth/onboarding/complete` **live di prod** per Sprint 2 deploy.
+- [x] Rate limit magic link 5/jam/IP — cukup untuk smoke test.
+- [x] User row auto-created oleh script.
+
+### Kalau ada issue
+
+- **Magic link gak masuk**: cek SendGrid dashboard Activity Feed
+- **Endpoint verify fail**: log core-api via `pm2 logs ecc-core-api --lines 30`
+- **Wizard state stuck**: reset via jalanin script ulang
+
+Bilang kalau ada issue lain / butuh tambahan skenario test.
+
+— IDEA dev
