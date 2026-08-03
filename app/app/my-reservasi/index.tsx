@@ -76,7 +76,7 @@ export default function MyReservasiScreen() {
           <RefreshControl
             refreshing={query.isRefetching}
             onRefresh={() => query.refetch()}
-            tintColor="#EC4899"
+            tintColor="#F97316"
           />
         }
       >
@@ -111,8 +111,8 @@ export default function MyReservasiScreen() {
             {kidsReservasi.length > 0 ? (
               <View className="gap-3 mb-6">
                 <View className="flex-row items-center gap-2">
-                  <Baby size={16} color="#EC4899" />
-                  <Text className="text-xs font-bold text-pink-700 uppercase">
+                  <Baby size={16} color="#F97316" />
+                  <Text className="text-xs font-bold text-brand-700 uppercase">
                     {t('my_reservasi.kids_section')}
                   </Text>
                 </View>
@@ -150,7 +150,7 @@ function KidsReservasiCard({ reservasi }: { reservasi: MyReservasi }) {
   return (
     <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
       {/* Header — nama anak + ibadah */}
-      <View className="p-4 flex-row items-center gap-3 bg-pink-50">
+      <View className="p-4 flex-row items-center gap-3 bg-brand-50">
         <Avatar
           size={44}
           name={reservasi.jemaat.namaLengkap}

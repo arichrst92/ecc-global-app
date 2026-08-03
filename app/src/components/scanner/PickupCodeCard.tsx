@@ -52,10 +52,10 @@ export function PickupCodeCard({
   }
 
   return (
-    <View className="bg-pink-50 border-2 border-pink-200 rounded-2xl p-5">
+    <View className="bg-brand-50 border-2 border-brand-200 rounded-2xl p-5">
       <View className="flex-row items-center gap-2 mb-3">
-        <Baby size={18} color="#EC4899" />
-        <Text className="text-xs font-bold text-pink-700 uppercase">
+        <Baby size={18} color="#F97316" />
+        <Text className="text-xs font-bold text-brand-700 uppercase">
           {t('kids.pickup_code_title')}
         </Text>
       </View>
@@ -68,9 +68,9 @@ export function PickupCodeCard({
       ) : null}
 
       {/* Big 6-digit display */}
-      <View className="bg-white rounded-xl py-6 items-center border border-pink-200">
+      <View className="bg-white rounded-xl py-6 items-center border border-brand-200">
         <Text
-          className="text-5xl font-bold tracking-widest text-pink-600"
+          className="text-5xl font-bold tracking-widest text-brand-600"
           style={{ letterSpacing: 8 }}
         >
           {pickupCode}
@@ -78,8 +78,8 @@ export function PickupCodeCard({
       </View>
 
       <View className="flex-row items-start gap-2 mt-3">
-        <Info size={14} color="#BE185D" style={{ marginTop: 1 }} />
-        <Text className="text-xs text-pink-800 flex-1 leading-relaxed">
+        <Info size={14} color="#C2410C" style={{ marginTop: 1 }} />
+        <Text className="text-xs text-brand-800 flex-1 leading-relaxed">
           {t('kids.pickup_code_instruction')}
         </Text>
       </View>

@@ -82,7 +82,7 @@ export function PickupInputModal({
           </View>
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center gap-2">
-              <Baby size={20} color="#EC4899" />
+              <Baby size={20} color="#F97316" />
               <Text className="text-lg font-bold text-neutral-900">
                 {t('scanner.pickup_modal_title')}
               </Text>
@@ -105,7 +105,7 @@ export function PickupInputModal({
             maxLength={6}
             editable={!loading}
             className={`px-4 py-4 border-2 rounded-xl text-4xl font-bold text-center tracking-widest text-neutral-900 ${
-              error ? 'border-red-400' : 'border-pink-300'
+              error ? 'border-red-400' : 'border-brand-300'
             }`}
             style={Platform.OS === 'android' ? { includeFontPadding: false } : undefined}
           />

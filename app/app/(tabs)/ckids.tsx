@@ -194,8 +194,8 @@ export default function CKidsTabScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white" edges={['top']}>
         <View className="flex-1 items-center justify-center px-8">
-          <View className="w-20 h-20 rounded-3xl bg-pink-50 items-center justify-center mb-4">
-            <Baby size={40} color="#EC4899" />
+          <View className="w-20 h-20 rounded-3xl bg-brand-50 items-center justify-center mb-4">
+            <Baby size={40} color="#F97316" />
           </View>
           <Text className="text-lg font-bold text-neutral-900 text-center mb-2">
             {t('ckids.empty_title')}
@@ -216,7 +216,7 @@ export default function CKidsTabScreen() {
   if (childrenPending || balancesQuery.isPending) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center" edges={['top']}>
-        <ActivityIndicator color="#EC4899" />
+        <ActivityIndicator color="#F97316" />
       </SafeAreaView>
     );
   }
@@ -225,7 +225,7 @@ export default function CKidsTabScreen() {
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-3 flex-row items-center gap-2">
-          <Baby size={22} color="#EC4899" />
+          <Baby size={22} color="#F97316" />
           <Text className="text-lg font-bold text-neutral-900 flex-1">
             {t('ckids.tab_title')}
           </Text>
@@ -236,7 +236,7 @@ export default function CKidsTabScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#EC4899" />
+          <RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />
         }
       >
         {/* Anak selector — tampil kalau multi anak. Selector kini source
@@ -287,7 +287,7 @@ export default function CKidsTabScreen() {
               onPress={() => setCabangPickerOpen(true)}
               className="flex-row items-center gap-3 p-3 rounded-xl bg-neutral-50 border border-neutral-200"
             >
-              <View className="w-9 h-9 rounded-lg bg-pink-100 items-center justify-center">
+              <View className="w-9 h-9 rounded-lg bg-brand-100 items-center justify-center">
                 <Text className="text-lg">🏢</Text>
               </View>
               <View className="flex-1">
@@ -308,7 +308,7 @@ export default function CKidsTabScreen() {
         {selectedEntry ? (
           <View className="bg-white mt-2 p-5">
             <View className="rounded-3xl overflow-hidden">
-              <View className="bg-pink-500 p-5">
+              <View className="bg-brand-500 p-5">
                 <Text className="text-xs font-bold text-white/80 uppercase">
                   {t('ckids.balance_label')}
                 </Text>
@@ -336,10 +336,10 @@ export default function CKidsTabScreen() {
               </View>
               <Pressable
                 onPress={() => router.push('/ckids/qr' as never)}
-                className="bg-white flex-row items-center justify-center gap-2 py-4 border-t-2 border-pink-100 active:bg-pink-50"
+                className="bg-white flex-row items-center justify-center gap-2 py-4 border-t-2 border-brand-100 active:bg-brand-50"
               >
-                <QrCode size={20} color="#EC4899" />
-                <Text className="text-sm font-bold text-pink-700">
+                <QrCode size={20} color="#F97316" />
+                <Text className="text-sm font-bold text-brand-700">
                   {t('ckids.show_qr_cta')}
                 </Text>
               </Pressable>
@@ -359,13 +359,13 @@ export default function CKidsTabScreen() {
             → detail modal. Fix M50 per user request. */}
         <View className="bg-white mt-3 p-4">
           <View className="flex-row items-center gap-2 mb-3">
-            <ShoppingBag size={16} color="#EC4899" />
+            <ShoppingBag size={16} color="#F97316" />
             <Text className="text-sm font-bold text-neutral-900">
               {t('ckids.katalog_title')}
             </Text>
           </View>
           {katalogQuery.isPending ? (
-            <ActivityIndicator color="#EC4899" style={{ marginVertical: 24 }} />
+            <ActivityIndicator color="#F97316" style={{ marginVertical: 24 }} />
           ) : katalogQuery.data && katalogQuery.data.length > 0 ? (
             <FlatList
               data={katalogQuery.data}
@@ -393,13 +393,13 @@ export default function CKidsTabScreen() {
         {/* History redeem */}
         <View className="bg-white mt-3 p-4">
           <View className="flex-row items-center gap-2 mb-3">
-            <History size={16} color="#EC4899" />
+            <History size={16} color="#F97316" />
             <Text className="text-sm font-bold text-neutral-900">
               {t('ckids.history_title')}
             </Text>
           </View>
           {historyQuery.isPending ? (
-            <ActivityIndicator color="#EC4899" style={{ marginVertical: 16 }} />
+            <ActivityIndicator color="#F97316" style={{ marginVertical: 16 }} />
           ) : historyQuery.data && historyQuery.data.length > 0 ? (
             <View className="gap-2">
               {historyQuery.data.slice(0, 10).map((r) => (
@@ -445,7 +445,7 @@ export default function CKidsTabScreen() {
                     }}
                     className={`flex-row items-center gap-3 p-3 rounded-xl border ${
                       entry.anak.id === selectedAnakId
-                        ? 'bg-pink-50 border-pink-300'
+                        ? 'bg-brand-50 border-brand-300'
                         : 'bg-white border-neutral-200'
                     }`}
                   >
@@ -508,11 +508,11 @@ export default function CKidsTabScreen() {
                     }}
                     className={`flex-row items-center gap-3 p-3 rounded-xl border ${
                       isSelected
-                        ? 'bg-pink-50 border-pink-300'
+                        ? 'bg-brand-50 border-brand-300'
                         : 'bg-white border-neutral-200'
                     }`}
                   >
-                    <View className="w-9 h-9 rounded-lg bg-pink-100 items-center justify-center">
+                    <View className="w-9 h-9 rounded-lg bg-brand-100 items-center justify-center">
                       <Text className="text-lg">🏢</Text>
                     </View>
                     <View className="flex-1">
@@ -524,7 +524,7 @@ export default function CKidsTabScreen() {
                       </Text>
                     </View>
                     {isSelected ? (
-                      <View className="w-6 h-6 rounded-full bg-pink-500 items-center justify-center">
+                      <View className="w-6 h-6 rounded-full bg-brand-500 items-center justify-center">
                         <Text className="text-white text-xs font-bold">✓</Text>
                       </View>
                     ) : null}
@@ -565,8 +565,8 @@ function HadiahRow({
   return (
     <Pressable
       onPress={onPress}
-      className={`bg-white rounded-xl overflow-hidden border flex-row gap-3 p-3 active:bg-pink-50 ${
-        canAfford && inStock ? 'border-pink-200' : 'border-neutral-200'
+      className={`bg-white rounded-xl overflow-hidden border flex-row gap-3 p-3 active:bg-brand-50 ${
+        canAfford && inStock ? 'border-brand-200' : 'border-neutral-200'
       }`}
     >
       <View className="w-20 h-20 rounded-lg bg-neutral-100 items-center justify-center overflow-hidden">
@@ -599,7 +599,7 @@ function HadiahRow({
           <View className="flex-row items-baseline gap-1">
             <Text
               className={`text-base font-bold ${
-                canAfford ? 'text-pink-600' : 'text-neutral-500'
+                canAfford ? 'text-brand-600' : 'text-neutral-500'
               }`}
             >
               {item.pointCost}
@@ -689,15 +689,15 @@ function HadiahDetailModal({
 
             {/* Point + stock badges */}
             <View className="flex-row items-center gap-2 mt-4">
-              <View className="bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 flex-1">
-                <Text className="text-xs text-pink-700 uppercase font-bold">
+              <View className="bg-brand-50 border border-brand-200 rounded-xl px-4 py-3 flex-1">
+                <Text className="text-xs text-brand-700 uppercase font-bold">
                   {t('ckids.detail_cost_label')}
                 </Text>
                 <View className="flex-row items-baseline gap-1 mt-1">
-                  <Text className="text-2xl font-bold text-pink-600">
+                  <Text className="text-2xl font-bold text-brand-600">
                     {item.pointCost}
                   </Text>
-                  <Text className="text-sm text-pink-700">{t('ckids.points_unit')}</Text>
+                  <Text className="text-sm text-brand-700">{t('ckids.points_unit')}</Text>
                 </View>
               </View>
               <View

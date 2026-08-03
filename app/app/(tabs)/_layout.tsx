@@ -66,7 +66,7 @@ export default function TabsLayout() {
           // deeplink /ckids atau nested route dari profil.
           href: showCKidsTab ? undefined : null,
           // Custom pink accent kalau tampil (subtle differentiation)
-          tabBarActiveTintColor: '#EC4899',
+          tabBarActiveTintColor: '#F97316',
         }}
       />
       <Tabs.Screen

@@ -231,7 +231,7 @@ export default function ScannerIbadahScreen() {
 
   // Mode-based colors
   const modeColor =
-    mode === 'checkin' ? '#3b82f6' : mode === 'checkout' ? '#F59E0B' : '#EC4899';
+    mode === 'checkin' ? '#3b82f6' : mode === 'checkout' ? '#F59E0B' : '#F97316';
 
   return (
     <View className="flex-1 bg-black">
@@ -259,7 +259,7 @@ export default function ScannerIbadahScreen() {
                 {ibadahMeta?.nama ?? t('scanner.title')}
               </Text>
               {isKidsIbadah ? (
-                <View className="bg-pink-500/80 px-1.5 py-0.5 rounded">
+                <View className="bg-brand-500/80 px-1.5 py-0.5 rounded">
                   <Text className="text-white text-[10px] font-bold">🧒 KIDS</Text>
                 </View>
               ) : null}
@@ -285,7 +285,7 @@ export default function ScannerIbadahScreen() {
           {mode === 'pickup' ? (
             <Pressable
               onPress={() => setPickupOpen(true)}
-              className="bg-pink-500 rounded-2xl p-4 mb-3 flex-row items-center gap-3 active:opacity-80"
+              className="bg-brand-500 rounded-2xl p-4 mb-3 flex-row items-center gap-3 active:opacity-80"
             >
               <View className="w-11 h-11 rounded-xl bg-white/20 items-center justify-center">
                 <Baby size={22} color="#fff" />
@@ -324,7 +324,7 @@ export default function ScannerIbadahScreen() {
             {isKidsIbadah ? (
               <ModeChip
                 active={mode === 'pickup'}
-                activeColor="#EC4899"
+                activeColor="#F97316"
                 icon={<Baby size={14} color={mode === 'pickup' ? '#fff' : '#a3a3a3'} />}
                 label={t('scanner.mode_pickup')}
                 onPress={() => setMode('pickup')}

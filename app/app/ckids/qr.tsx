@@ -42,7 +42,7 @@ export default function CKidsQrScreen() {
           </Pressable>
         </View>
         <View className="flex-1 items-center justify-center px-8">
-          <Baby size={40} color="#EC4899" />
+          <Baby size={40} color="#F97316" />
           <Text className="text-base font-bold text-neutral-900 mt-3">
             {t('ckids.qr_no_child_title')}
           </Text>
@@ -58,7 +58,7 @@ export default function CKidsQrScreen() {
   const kode = selected.anak.kode;
 
   return (
-    <View className="flex-1 bg-pink-500">
+    <View className="flex-1 bg-brand-500">
       <SafeAreaView edges={['top']}>
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
