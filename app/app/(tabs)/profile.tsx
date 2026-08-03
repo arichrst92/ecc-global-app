@@ -7,7 +7,9 @@ import { useQuery } from '@tanstack/react-query';
 import {
   AlertTriangle,
   Award,
+  Baby,
   Building2,
+  CalendarCheck,
   ChevronRight,
   Download,
   Globe,
@@ -20,6 +22,7 @@ import {
   Store,
   Trash2,
   Users,
+  Users2,
   UserPlus,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -162,6 +165,35 @@ function ProfileTabAuthenticated() {
 
         {/* Ministry / pelayanan current user */}
         <MinistryCard />
+
+        {/* Aktivitas & komunitas — M40 (Group) + M41 (My Reservasi) */}
+        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+          {t('profile.section_community')}
+        </Text>
+        <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100 mb-4">
+          <MenuRow
+            icon={<Users2 size={18} color="#7C3AED" />}
+            iconBg="bg-purple-50"
+            label={t('profile.group_browse')}
+            sub={t('profile.group_browse_sub')}
+            onPress={() => router.push('/group' as never)}
+          />
+          <MenuRow
+            icon={<Users size={18} color="#3B82F6" />}
+            iconBg="bg-blue-50"
+            label={t('profile.my_groups')}
+            sub={t('profile.my_groups_sub')}
+            onPress={() => router.push('/profile/my-groups' as never)}
+          />
+          <MenuRow
+            icon={<CalendarCheck size={18} color="#EC4899" />}
+            iconBg="bg-pink-50"
+            label={t('profile.my_reservasi')}
+            sub={t('profile.my_reservasi_sub')}
+            onPress={() => router.push('/my-reservasi' as never)}
+            isLast
+          />
+        </View>
 
         {/* Bisnis saya — Local Market owner entry */}
         <View className="bg-white rounded-2xl border border-neutral-100 mb-4">
