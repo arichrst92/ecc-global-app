@@ -784,6 +784,7 @@ function DatePickerModal({
   onChange: (d: Date) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [DateTimePicker, setMod] = useState<React.ComponentType<{
     value: Date;
     mode: 'date';
@@ -849,10 +850,12 @@ function DatePickerModal({
         >
           <View className="flex-row items-center justify-between mb-2">
             <Pressable onPress={onClose}>
-              <Text className="text-sm text-neutral-500 px-2 py-1">Batal</Text>
+              <Text className="text-sm text-neutral-500 px-2 py-1">{t('common.cancel')}</Text>
             </Pressable>
             <Pressable onPress={onClose}>
-              <Text className="text-sm font-bold text-brand-600 px-2 py-1">OK</Text>
+              <Text className="text-sm font-bold text-brand-600 px-2 py-1">
+                {t('common.confirm')}
+              </Text>
             </Pressable>
           </View>
           <DateTimePicker

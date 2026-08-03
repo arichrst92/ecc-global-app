@@ -66,6 +66,8 @@ export default function CKidsTabScreen() {
   const isHydrating = useCKidsSelectionStore((s) => s.isHydrating);
 
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [cabangPickerOpen, setCabangPickerOpen] = useState(false);
+  const [selectedCabangId, setSelectedCabangId] = useState<string | null>(null);
   const [hadiahDetail, setHadiahDetail] = useState<HadiahKatalog | null>(null);
 
   // Hydrate selection store on mount (parallel dgn other stores at app boot)
@@ -107,20 +109,72 @@ export default function CKidsTabScreen() {
 
   const selected: ChildGroupedBalance | null = selectedEntry?.balance ?? null;
 
-  // Primary balance row untuk display (kalau anak multi-cabang, pilih yg balance terbesar)
+  // List cabang available untuk anak yg dipilih.
+  // Includes: (1) cabang tempat anak punya balance + (2) cabang home anak
+  // dari family relations (kalau berbeda dgn balance cabang).
+  const availableCabangList = useMemo(() => {
+    const list: { id: string; nama: string }[] = [];
+    const seen = new Set<string>();
+    if (selected) {
+      for (const b of selected.balances) {
+        if (!seen.has(b.cabang.id)) {
+          list.push({ id: b.cabang.id, nama: b.cabang.nama });
+          seen.add(b.cabang.id);
+        }
+      }
+    }
+    // Kalau cabang home anak belum masuk (mis. baru add anak, belum earn point)
+    const homeCabang = selectedEntry?.anak.cabang;
+    if (homeCabang && !seen.has(homeCabang.id)) {
+      list.push({ id: homeCabang.id, nama: homeCabang.nama });
+    }
+    return list;
+  }, [selected, selectedEntry]);
+
+  // Reset cabang selection saat anak berganti — auto-pick sesuai priority
+  useEffect(() => {
+    if (!selectedEntry) return;
+    // Kalau selectedCabangId tidak valid untuk anak baru → reset
+    if (selectedCabangId && !availableCabangList.find((c) => c.id === selectedCabangId)) {
+      setSelectedCabangId(null);
+    }
+  }, [selectedEntry?.anak.id, availableCabangList, selectedCabangId, selectedEntry]);
+
+  // Primary balance = cabang yang user pilih explicit, atau default =
+  // cabang dgn balance terbesar (kalau punya balance), atau home cabang.
   const primaryBalance = useMemo(() => {
     if (!selected) return null;
+    // Explicit user selection
+    if (selectedCabangId) {
+      return (
+        selected.balances.find((b) => b.cabang.id === selectedCabangId) ?? null
+      );
+    }
+    // Default = cabang dgn balance terbesar
     return (
       selected.balances.reduce(
         (max, curr) => (curr.balance > max.balance ? curr : max),
         selected.balances[0],
       ) ?? null
     );
-  }, [selected]);
+  }, [selected, selectedCabangId]);
 
-  // Katalog fetch: pakai cabang anak dari family (bukan dari balance)
-  // supaya anak tanpa balance tetap bisa browse katalog cabangnya.
-  const cabangId = primaryBalance?.cabang.id ?? selectedEntry?.anak.cabang?.id;
+  // Katalog fetch: prefer explicit cabang selection, else primaryBalance,
+  // else cabang home anak dari family (untuk anak belum earn point).
+  const cabangId =
+    selectedCabangId ??
+    primaryBalance?.cabang.id ??
+    selectedEntry?.anak.cabang?.id;
+
+  const activeCabangNama = useMemo(() => {
+    if (!cabangId) return null;
+    const found =
+      availableCabangList.find((c) => c.id === cabangId) ??
+      (selectedEntry?.anak.cabang?.id === cabangId
+        ? selectedEntry.anak.cabang
+        : null);
+    return found?.nama ?? null;
+  }, [cabangId, availableCabangList, selectedEntry]);
   const katalogQuery = useHadiahKatalog(cabangId);
   // Post BE response 2026-08-03: dedicated endpoint scope by JemaatRelasi
   // (cabangId tidak dipakai — BE filter by jemaatId + parent guard)
@@ -217,6 +271,33 @@ export default function CKidsTabScreen() {
                   {t('ckids.no_selection')}
                 </Text>
               )}
+              <ChevronDown size={18} color="#737373" />
+            </Pressable>
+          </View>
+        ) : null}
+
+        {/* Cabang picker — tampil kalau anak punya balance di 2+ cabang,
+            atau kalau cabang home berbeda dari cabang balance (multi-branch). */}
+        {availableCabangList.length > 1 && activeCabangNama ? (
+          <View className="bg-white px-4 py-3 border-b border-neutral-100">
+            <Text className="text-xs font-bold text-neutral-500 uppercase mb-2">
+              {t('ckids.cabang_label')}
+            </Text>
+            <Pressable
+              onPress={() => setCabangPickerOpen(true)}
+              className="flex-row items-center gap-3 p-3 rounded-xl bg-neutral-50 border border-neutral-200"
+            >
+              <View className="w-9 h-9 rounded-lg bg-pink-100 items-center justify-center">
+                <Text className="text-lg">🏢</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-sm font-bold text-neutral-900">
+                  {activeCabangNama}
+                </Text>
+                <Text className="text-xs text-neutral-500">
+                  {t('ckids.cabang_hint', { total: availableCabangList.length })}
+                </Text>
+              </View>
               <ChevronDown size={18} color="#737373" />
             </Pressable>
           </View>
@@ -384,6 +465,69 @@ export default function CKidsTabScreen() {
                           : ` · ${t('ckids.balance_empty_short')}`}
                       </Text>
                     </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Cabang picker modal — pilih cabang aktif untuk balance + katalog view */}
+      <Modal
+        visible={cabangPickerOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setCabangPickerOpen(false)}
+      >
+        <Pressable
+          onPress={() => setCabangPickerOpen(false)}
+          className="flex-1 bg-black/60 justify-end"
+        >
+          <Pressable onPress={() => {}} className="bg-white rounded-t-3xl p-5">
+            <View className="items-center mb-3">
+              <View className="w-10 h-1 bg-neutral-300 rounded-full" />
+            </View>
+            <Text className="text-base font-bold text-neutral-900 mb-1">
+              {t('ckids.cabang_picker_title')}
+            </Text>
+            <Text className="text-xs text-neutral-500 mb-4">
+              {t('ckids.cabang_picker_sub')}
+            </Text>
+            <View className="gap-2">
+              {availableCabangList.map((c) => {
+                const isSelected = cabangId === c.id;
+                const balance =
+                  selected?.balances.find((b) => b.cabang.id === c.id)?.balance ?? 0;
+                return (
+                  <Pressable
+                    key={c.id}
+                    onPress={() => {
+                      setSelectedCabangId(c.id);
+                      setCabangPickerOpen(false);
+                    }}
+                    className={`flex-row items-center gap-3 p-3 rounded-xl border ${
+                      isSelected
+                        ? 'bg-pink-50 border-pink-300'
+                        : 'bg-white border-neutral-200'
+                    }`}
+                  >
+                    <View className="w-9 h-9 rounded-lg bg-pink-100 items-center justify-center">
+                      <Text className="text-lg">🏢</Text>
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-sm font-bold text-neutral-900">
+                        {c.nama}
+                      </Text>
+                      <Text className="text-xs text-neutral-500">
+                        {balance} {t('ckids.points_unit')}
+                      </Text>
+                    </View>
+                    {isSelected ? (
+                      <View className="w-6 h-6 rounded-full bg-pink-500 items-center justify-center">
+                        <Text className="text-white text-xs font-bold">✓</Text>
+                      </View>
+                    ) : null}
                   </Pressable>
                 );
               })}
