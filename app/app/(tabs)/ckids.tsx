@@ -66,23 +66,46 @@ export default function CKidsTabScreen() {
   const isHydrating = useCKidsSelectionStore((s) => s.isHydrating);
 
   const [selectorOpen, setSelectorOpen] = useState(false);
+  const [hadiahDetail, setHadiahDetail] = useState<HadiahKatalog | null>(null);
 
   // Hydrate selection store on mount (parallel dgn other stores at app boot)
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
+  // Merged list: semua anak dari family relations + balance data (kalau ada).
+  // Fix M50: anak baru yg belum earn point tetap muncul di selector — BE
+  // /me/children-points skip anak tanpa balance (design intent).
+  const anakSelectorList = useMemo(() => {
+    return myChildren.map((rel) => {
+      const balance = balancesQuery.data.find((b) => b.anak.id === rel.jemaat.id);
+      return {
+        anak: {
+          id: rel.jemaat.id,
+          namaLengkap: rel.jemaat.namaLengkap,
+          fotoUrl: rel.jemaat.fotoUrl,
+          kode: rel.jemaat.kode,
+          cabang: rel.jemaat.cabang,
+        },
+        balance: balance ?? null, // null = anak belum earn point
+      };
+    });
+  }, [myChildren, balancesQuery.data]);
+
   // Auto-select first anak kalau belum ada selection + list ready
   useEffect(() => {
-    if (!isHydrating && !selectedAnakId && balancesQuery.data.length > 0) {
-      ensureDefault(balancesQuery.data[0].anak.id);
+    if (!isHydrating && !selectedAnakId && anakSelectorList.length > 0) {
+      ensureDefault(anakSelectorList[0].anak.id);
     }
-  }, [isHydrating, selectedAnakId, balancesQuery.data, ensureDefault]);
+  }, [isHydrating, selectedAnakId, anakSelectorList, ensureDefault]);
 
-  const selected = useMemo<ChildGroupedBalance | null>(() => {
-    if (!selectedAnakId) return balancesQuery.data[0] ?? null;
-    return balancesQuery.data.find((b) => b.anak.id === selectedAnakId) ?? null;
-  }, [selectedAnakId, balancesQuery.data]);
+  const selectedEntry = useMemo(() => {
+    if (anakSelectorList.length === 0) return null;
+    if (!selectedAnakId) return anakSelectorList[0];
+    return anakSelectorList.find((e) => e.anak.id === selectedAnakId) ?? anakSelectorList[0];
+  }, [selectedAnakId, anakSelectorList]);
+
+  const selected: ChildGroupedBalance | null = selectedEntry?.balance ?? null;
 
   // Primary balance row untuk display (kalau anak multi-cabang, pilih yg balance terbesar)
   const primaryBalance = useMemo(() => {
@@ -95,11 +118,13 @@ export default function CKidsTabScreen() {
     );
   }, [selected]);
 
-  const cabangId = primaryBalance?.cabang.id;
+  // Katalog fetch: pakai cabang anak dari family (bukan dari balance)
+  // supaya anak tanpa balance tetap bisa browse katalog cabangnya.
+  const cabangId = primaryBalance?.cabang.id ?? selectedEntry?.anak.cabang?.id;
   const katalogQuery = useHadiahKatalog(cabangId);
   // Post BE response 2026-08-03: dedicated endpoint scope by JemaatRelasi
   // (cabangId tidak dipakai — BE filter by jemaatId + parent guard)
-  const historyQuery = useChildRedeemHistory(selected?.anak.id, 50);
+  const historyQuery = useChildRedeemHistory(selectedEntry?.anak.id, 50);
 
   const isRefreshing = balancesQuery.isPending
     ? false
@@ -160,8 +185,9 @@ export default function CKidsTabScreen() {
           <RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#EC4899" />
         }
       >
-        {/* Anak selector */}
-        {myChildren.length > 1 ? (
+        {/* Anak selector — tampil kalau multi anak. Selector kini source
+            dari useMyChildren (family list), bukan cuma anak yg punya balance. */}
+        {anakSelectorList.length > 1 ? (
           <View className="bg-white px-4 py-3 border-b border-neutral-100">
             <Text className="text-xs font-bold text-neutral-500 uppercase mb-2">
               {t('ckids.selected_anak')}
@@ -170,19 +196,19 @@ export default function CKidsTabScreen() {
               onPress={() => setSelectorOpen(true)}
               className="flex-row items-center gap-3 p-3 rounded-xl bg-neutral-50 border border-neutral-200"
             >
-              {selected ? (
+              {selectedEntry ? (
                 <>
                   <Avatar
                     size={40}
-                    name={selected.anak.namaLengkap}
-                    fotoUrl={selected.anak.fotoUrl}
+                    name={selectedEntry.anak.namaLengkap}
+                    fotoUrl={selectedEntry.anak.fotoUrl}
                   />
                   <View className="flex-1">
                     <Text className="text-sm font-bold text-neutral-900">
-                      {selected.anak.namaLengkap}
+                      {selectedEntry.anak.namaLengkap}
                     </Text>
                     <Text className="text-xs text-neutral-500">
-                      {selected.balances[0]?.cabang.nama ?? '—'}
+                      {selectedEntry.anak.cabang?.nama ?? '—'}
                     </Text>
                   </View>
                 </>
@@ -196,8 +222,9 @@ export default function CKidsTabScreen() {
           </View>
         ) : null}
 
-        {/* Point balance card */}
-        {selected && primaryBalance ? (
+        {/* Point balance card — kalau anak punya balance, tampil pink card.
+            Kalau belum earn point → empty state (anak baru add). */}
+        {selectedEntry ? (
           <View className="bg-white mt-2 p-5">
             <View className="rounded-3xl overflow-hidden">
               <View className="bg-pink-500 p-5">
@@ -206,18 +233,23 @@ export default function CKidsTabScreen() {
                 </Text>
                 <View className="flex-row items-baseline gap-2 mt-1">
                   <Text className="text-5xl font-bold text-white">
-                    {primaryBalance.balance}
+                    {primaryBalance?.balance ?? 0}
                   </Text>
                   <Text className="text-lg font-semibold text-white/80">
                     {t('ckids.points_unit')}
                   </Text>
                 </View>
                 <Text className="text-xs text-white/70 mt-1">
-                  {selected.anak.namaLengkap} · {primaryBalance.cabang.nama}
+                  {selectedEntry.anak.namaLengkap}
+                  {primaryBalance ? ` · ${primaryBalance.cabang.nama}` : ''}
                 </Text>
-                {selected.balances.length > 1 ? (
+                {selected && selected.balances.length > 1 ? (
                   <Text className="text-[10px] text-white/70 mt-2">
                     +{selected.balances.length - 1} {t('ckids.other_branches')}
+                  </Text>
+                ) : !primaryBalance ? (
+                  <Text className="text-[10px] text-white/70 mt-2">
+                    {t('ckids.balance_empty_hint')}
                   </Text>
                 ) : null}
               </View>
@@ -242,7 +274,8 @@ export default function CKidsTabScreen() {
           </Text>
         </View>
 
-        {/* Katalog hadiah */}
+        {/* Katalog hadiah — list vertical row (bukan grid), item clickable
+            → detail modal. Fix M50 per user request. */}
         <View className="bg-white mt-3 p-4">
           <View className="flex-row items-center gap-2 mb-3">
             <ShoppingBag size={16} color="#EC4899" />
@@ -255,16 +288,14 @@ export default function CKidsTabScreen() {
           ) : katalogQuery.data && katalogQuery.data.length > 0 ? (
             <FlatList
               data={katalogQuery.data}
-              horizontal={false}
-              numColumns={3}
-              columnWrapperStyle={{ gap: 8 }}
-              contentContainerStyle={{ gap: 8 }}
               scrollEnabled={false}
               keyExtractor={(item) => item.id}
+              ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
               renderItem={({ item }) => (
-                <HadiahCard
+                <HadiahRow
                   item={item}
                   currentBalance={primaryBalance?.balance ?? 0}
+                  onPress={() => setHadiahDetail(item)}
                 />
               )}
             />
@@ -321,64 +352,80 @@ export default function CKidsTabScreen() {
               {t('ckids.select_anak_title')}
             </Text>
             <View className="gap-2">
-              {balancesQuery.data.map((c) => (
-                <Pressable
-                  key={c.anak.id}
-                  onPress={() => {
-                    setSelectedAnakId(c.anak.id);
-                    setSelectorOpen(false);
-                  }}
-                  className={`flex-row items-center gap-3 p-3 rounded-xl border ${
-                    c.anak.id === selectedAnakId
-                      ? 'bg-pink-50 border-pink-300'
-                      : 'bg-white border-neutral-200'
-                  }`}
-                >
-                  <Avatar size={40} name={c.anak.namaLengkap} fotoUrl={c.anak.fotoUrl} />
-                  <View className="flex-1">
-                    <Text className="text-sm font-bold text-neutral-900">
-                      {c.anak.namaLengkap}
-                    </Text>
-                    <Text className="text-xs text-neutral-500">
-                      {c.totalBalance} {t('ckids.points_unit')} ·{' '}
-                      {c.balances.length}{' '}
-                      {c.balances.length === 1
-                        ? t('ckids.branch_singular')
-                        : t('ckids.branch_plural')}
-                    </Text>
-                  </View>
-                </Pressable>
-              ))}
+              {anakSelectorList.map((entry) => {
+                const total = entry.balance?.totalBalance ?? 0;
+                const branchCount = entry.balance?.balances.length ?? 0;
+                return (
+                  <Pressable
+                    key={entry.anak.id}
+                    onPress={() => {
+                      setSelectedAnakId(entry.anak.id);
+                      setSelectorOpen(false);
+                    }}
+                    className={`flex-row items-center gap-3 p-3 rounded-xl border ${
+                      entry.anak.id === selectedAnakId
+                        ? 'bg-pink-50 border-pink-300'
+                        : 'bg-white border-neutral-200'
+                    }`}
+                  >
+                    <Avatar size={40} name={entry.anak.namaLengkap} fotoUrl={entry.anak.fotoUrl} />
+                    <View className="flex-1">
+                      <Text className="text-sm font-bold text-neutral-900">
+                        {entry.anak.namaLengkap}
+                      </Text>
+                      <Text className="text-xs text-neutral-500">
+                        {total} {t('ckids.points_unit')}
+                        {branchCount > 0
+                          ? ` · ${branchCount} ${
+                              branchCount === 1
+                                ? t('ckids.branch_singular')
+                                : t('ckids.branch_plural')
+                            }`
+                          : ` · ${t('ckids.balance_empty_short')}`}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
             </View>
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* Hadiah detail modal — tap katalog item → info lengkap */}
+      <HadiahDetailModal
+        item={hadiahDetail}
+        currentBalance={primaryBalance?.balance ?? 0}
+        onClose={() => setHadiahDetail(null)}
+      />
     </View>
   );
 }
 
 /* ==============================================================
- * HADIAH CARD
+ * HADIAH ROW — vertical list item, tap → detail modal.
  * ============================================================== */
-function HadiahCard({
+function HadiahRow({
   item,
   currentBalance,
+  onPress,
 }: {
   item: HadiahKatalog;
   currentBalance: number;
+  onPress: () => void;
 }) {
   const { t } = useTranslation();
   const canAfford = currentBalance >= item.pointCost;
   const inStock = item.stock > 0;
 
   return (
-    <View
-      className={`flex-1 bg-white rounded-xl overflow-hidden border ${
+    <Pressable
+      onPress={onPress}
+      className={`bg-white rounded-xl overflow-hidden border flex-row gap-3 p-3 active:bg-pink-50 ${
         canAfford && inStock ? 'border-pink-200' : 'border-neutral-200'
       }`}
-      style={{ minWidth: 0 }}
     >
-      <View className="aspect-square bg-neutral-100 items-center justify-center">
+      <View className="w-20 h-20 rounded-lg bg-neutral-100 items-center justify-center overflow-hidden">
         {item.fotoUrl ? (
           <Image
             source={{
@@ -393,29 +440,201 @@ function HadiahCard({
           <Gift size={28} color="#A3A3A3" />
         )}
       </View>
-      <View className="p-2">
-        <Text className="text-[11px] font-semibold text-neutral-900" numberOfLines={2}>
-          {item.nama}
-        </Text>
-        <View className="flex-row items-baseline gap-0.5 mt-1">
-          <Text
-            className={`text-xs font-bold ${
-              canAfford ? 'text-pink-600' : 'text-neutral-500'
-            }`}
-          >
-            {item.pointCost}
+      <View className="flex-1 min-w-0 justify-between py-0.5">
+        <View>
+          <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+            {item.nama}
           </Text>
-          <Text className="text-[10px] text-neutral-500">pts</Text>
+          {item.deskripsi ? (
+            <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={2}>
+              {item.deskripsi}
+            </Text>
+          ) : null}
         </View>
-        {!inStock ? (
-          <Text className="text-[10px] text-red-600 mt-0.5">{t('ckids.out_of_stock')}</Text>
-        ) : item.stock < 5 ? (
-          <Text className="text-[10px] text-amber-700 mt-0.5">
-            {t('ckids.stock_left', { count: item.stock })}
-          </Text>
-        ) : null}
+        <View className="flex-row items-center justify-between mt-1">
+          <View className="flex-row items-baseline gap-1">
+            <Text
+              className={`text-base font-bold ${
+                canAfford ? 'text-pink-600' : 'text-neutral-500'
+              }`}
+            >
+              {item.pointCost}
+            </Text>
+            <Text className="text-xs text-neutral-500">{t('ckids.points_unit')}</Text>
+          </View>
+          {!inStock ? (
+            <View className="bg-red-50 px-2 py-0.5 rounded">
+              <Text className="text-[10px] font-bold text-red-700">
+                {t('ckids.out_of_stock')}
+              </Text>
+            </View>
+          ) : item.stock < 5 ? (
+            <View className="bg-amber-50 px-2 py-0.5 rounded">
+              <Text className="text-[10px] font-bold text-amber-700">
+                {t('ckids.stock_left', { count: item.stock })}
+              </Text>
+            </View>
+          ) : (
+            <View className="bg-emerald-50 px-2 py-0.5 rounded">
+              <Text className="text-[10px] font-bold text-emerald-700">
+                {t('ckids.in_stock', { count: item.stock })}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
-    </View>
+    </Pressable>
+  );
+}
+
+/* ==============================================================
+ * HADIAH DETAIL MODAL — tap katalog row → full info popup.
+ * ============================================================== */
+function HadiahDetailModal({
+  item,
+  currentBalance,
+  onClose,
+}: {
+  item: HadiahKatalog | null;
+  currentBalance: number;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  if (!item) return null;
+  const canAfford = currentBalance >= item.pointCost;
+  const inStock = item.stock > 0;
+  const shortage = item.pointCost - currentBalance;
+
+  return (
+    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable
+        onPress={onClose}
+        className="flex-1 bg-black/60 justify-end"
+      >
+        <Pressable
+          onPress={() => {}}
+          className="bg-white rounded-t-3xl"
+          style={{ maxHeight: '85%' }}
+        >
+          <View className="items-center pt-3 pb-2">
+            <View className="w-10 h-1 bg-neutral-300 rounded-full" />
+          </View>
+
+          <ScrollView className="px-5 pb-6" showsVerticalScrollIndicator={false}>
+            {/* Foto besar */}
+            <View className="aspect-square rounded-2xl bg-neutral-100 items-center justify-center overflow-hidden mb-4">
+              {item.fotoUrl ? (
+                <Image
+                  source={{
+                    uri: item.fotoUrl.startsWith('http')
+                      ? item.fotoUrl
+                      : `${env.apiBaseUrl}${item.fotoUrl}`,
+                  }}
+                  className="w-full h-full"
+                  resizeMode="cover"
+                />
+              ) : (
+                <Gift size={64} color="#D4D4D4" />
+              )}
+            </View>
+
+            <Text className="text-xl font-bold text-neutral-900">{item.nama}</Text>
+            <Text className="text-xs text-neutral-500 mt-1">
+              {item.cabang.nama}
+            </Text>
+
+            {/* Point + stock badges */}
+            <View className="flex-row items-center gap-2 mt-4">
+              <View className="bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 flex-1">
+                <Text className="text-xs text-pink-700 uppercase font-bold">
+                  {t('ckids.detail_cost_label')}
+                </Text>
+                <View className="flex-row items-baseline gap-1 mt-1">
+                  <Text className="text-2xl font-bold text-pink-600">
+                    {item.pointCost}
+                  </Text>
+                  <Text className="text-sm text-pink-700">{t('ckids.points_unit')}</Text>
+                </View>
+              </View>
+              <View
+                className={`border rounded-xl px-4 py-3 flex-1 ${
+                  !inStock
+                    ? 'bg-red-50 border-red-200'
+                    : item.stock < 5
+                    ? 'bg-amber-50 border-amber-200'
+                    : 'bg-emerald-50 border-emerald-200'
+                }`}
+              >
+                <Text
+                  className={`text-xs uppercase font-bold ${
+                    !inStock ? 'text-red-700' : item.stock < 5 ? 'text-amber-700' : 'text-emerald-700'
+                  }`}
+                >
+                  {t('ckids.detail_stock_label')}
+                </Text>
+                <Text
+                  className={`text-2xl font-bold mt-1 ${
+                    !inStock ? 'text-red-600' : item.stock < 5 ? 'text-amber-600' : 'text-emerald-600'
+                  }`}
+                >
+                  {item.stock}
+                </Text>
+              </View>
+            </View>
+
+            {/* Deskripsi */}
+            {item.deskripsi ? (
+              <View className="mt-5">
+                <Text className="text-xs font-bold text-neutral-500 uppercase mb-2">
+                  {t('ckids.detail_description')}
+                </Text>
+                <Text className="text-sm text-neutral-700 leading-relaxed">
+                  {item.deskripsi}
+                </Text>
+              </View>
+            ) : null}
+
+            {/* Status badge — bisa afford atau tidak */}
+            <View
+              className={`mt-5 p-3 rounded-xl border ${
+                canAfford && inStock
+                  ? 'bg-emerald-50 border-emerald-200'
+                  : 'bg-neutral-50 border-neutral-200'
+              }`}
+            >
+              <Text
+                className={`text-sm font-bold ${
+                  canAfford && inStock ? 'text-emerald-700' : 'text-neutral-700'
+                }`}
+              >
+                {!inStock
+                  ? t('ckids.detail_status_out_of_stock')
+                  : canAfford
+                  ? t('ckids.detail_status_can_afford')
+                  : t('ckids.detail_status_short', { shortage })}
+              </Text>
+            </View>
+
+            {/* Redeem info — di stall only */}
+            <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
+              <Info size={14} color="#92400e" style={{ marginTop: 1 }} />
+              <Text className="text-xs text-amber-800 flex-1 leading-relaxed">
+                {t('ckids.detail_redeem_stall')}
+              </Text>
+            </View>
+
+            <Pressable
+              onPress={onClose}
+              className="mt-5 mb-2 py-3 rounded-xl bg-neutral-100 items-center"
+            >
+              <Text className="text-sm font-bold text-neutral-700">
+                {t('common.close')}
+              </Text>
+            </Pressable>
+          </ScrollView>
+        </Pressable>
+      </Pressable>
+    </Modal>
   );
 }
 

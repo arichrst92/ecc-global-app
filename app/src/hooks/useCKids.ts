@@ -16,9 +16,16 @@ import { listFamily } from '@/api/family';
 import type { ChildGroupedBalance } from '@/types/ckids';
 import type { FamilyRelation } from '@/types/family';
 
+// Reuse family query key supaya invalidate dari useRegisterNewFamily /
+// useLinkByKode juga reach useMyChildren cache (bukan cache terpisah).
+const FAMILY_QUERY_KEY = ['family', 'list'] as const;
+
 export const CKIDS_KEYS = {
   all: ['ckids'] as const,
-  myChildren: () => [...CKIDS_KEYS.all, 'my-children'] as const,
+  /** Alias ke FAMILY_QUERY_KEY — share cache dgn useMyFamily supaya
+   *  invalidate dari mutation family (add/link/unlink) auto reach CKids
+   *  tab. Fix M50: sebelumnya cache terpisah, add anak → CKids tetap kosong. */
+  myChildren: (): readonly ['family', 'list'] => FAMILY_QUERY_KEY,
   childrenPoints: () => [...CKIDS_KEYS.all, 'children-points'] as const,
   hadiah: (cabangId?: string) => [...CKIDS_KEYS.all, 'hadiah', cabangId] as const,
   redeemHistory: (jemaatId: string) =>
