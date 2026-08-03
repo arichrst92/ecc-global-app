@@ -24,8 +24,6 @@ import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanR
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import { PickupInputModal } from '@/components/scanner/PickupInputModal';
 import {
-  useCheckinIbadah,
-  useCheckoutReservasi,
   useIbadahCheckinStats,
   usePickupReservasi,
   useScannerIbadah,
@@ -54,13 +52,10 @@ export default function ScannerIbadahScreen() {
   const requiresCheckout = ibadahMeta?.requiresCheckout === true;
   const isKidsIbadah = ibadahMeta?.isKidsIbadah === true;
 
-  const checkinMutation = useCheckinIbadah(id);
-  const checkoutMutation = useCheckoutReservasi(id, tanggalIbadah);
   const pickupMutation = usePickupReservasi(id, tanggalIbadah);
   const statsQuery = useIbadahCheckinStats(id, tanggalIbadah);
-  // Walk-in universal (Modul 2026-08-03) — 1 endpoint untuk checkin+checkout+pickup.
-  // Preferred flow kalau BE support `kode` alternate (pending backend-request-
-  // walkin-accept-kode.md). Fallback ke endpoint spesifik kalau walk-in fail.
+  // Walk-in universal (BE endpoint live 2026-08-03 dgn kode alternate).
+  // 1 endpoint untuk semua mode: checkin + checkout + pickup.
   const walkInMutation = useWalkInReservasi(id, tanggalIbadah);
 
   const isPrinterConnected = usePrinterStore((s) => s.isConnected);
@@ -74,11 +69,7 @@ export default function ScannerIbadahScreen() {
   const [pendingKode, setPendingKode] = useState<string | null>(null);
   const [printLoading, setPrintLoading] = useState(false);
 
-  const anyMutationPending =
-    checkinMutation.isPending ||
-    checkoutMutation.isPending ||
-    pickupMutation.isPending ||
-    walkInMutation.isPending;
+  const anyMutationPending = pickupMutation.isPending || walkInMutation.isPending;
 
   async function handlePrint() {
     if (!result || result.kind !== 'success') return;
@@ -108,87 +99,38 @@ export default function ScannerIbadahScreen() {
     }
   }
 
-  function runCheckin(kode: string, force = false) {
-    setPendingKode(kode);
-    checkinMutation.mutate(
-      { kode, tanggalIbadah, force },
-      {
-        onSuccess: ({ data, meta }) => {
-          setManualOpen(false);
-          setResult({
-            kind: 'success',
-            namaLengkap: data.jemaat.namaLengkap,
-            fotoUrl: data.jemaat.fotoUrl,
-            walkIn: meta.walkIn,
-            alreadyCheckedIn: meta.alreadyCheckedIn,
-          });
-          // Kalau ibadah kids + ada pickupCode di response, show toast big untuk parent
-          if (isKidsIbadah && data.pickupCode) {
-            showToast(
-              t('scanner.pickup_code_generated', { code: data.pickupCode }),
-              'success',
-            );
-          }
-          statsQuery.refetch();
-        },
-        onError: (err) => {
-          setManualOpen(false);
-          handleScanError(err, kode);
-        },
-      },
-    );
-  }
-
-  function runCheckout(kode: string) {
-    setPendingKode(kode);
-    // Prefer walk-in endpoint (accept jemaat kode) — cleaner semantic vs
-    // legacy checkoutReservasi which expects reservasi kode. Post BE support
-    // for `kode` alternate (backend-request-walkin-accept-kode.md 2026-08-03).
-    walkInMutation.mutate(
-      { kode, ibadahId: id, tanggalIbadah, action: 'checkout' },
-      {
-        onSuccess: (data) => {
-          setManualOpen(false);
-          setResult({
-            kind: 'success',
-            namaLengkap: data.jemaat.namaLengkap,
-            fotoUrl: data.jemaat.fotoUrl,
-            walkIn: false,
-            alreadyCheckedIn:
-              data.reservasi.status === 'COMPLETED' && !!data.reservasi.checkedOutAt,
-          });
-          statsQuery.refetch();
-        },
-        onError: (err) => {
-          setManualOpen(false);
-          handleScanError(err, kode);
-        },
-      },
-    );
-  }
-
   /**
-   * Alternative checkin via walk-in endpoint (adopt post BE kode support).
-   * Not yet wired ke handleScan — mode 'checkin' masih pakai runCheckin
-   * (existing endpoint /admin/ibadah/:id/checkin) supaya release v1.4.0
-   * tidak block. Setelah walk-in flow validated di prod (checkout mode dulu),
-   * migrate check-in ke walk-in juga di sprint berikutnya.
+   * Unified walk-in flow untuk semua mode. Post BE deploy 2026-08-03:
+   * walk-in endpoint accept `kode` alternate (backend-request-walkin-accept-
+   * kode.md → RESOLVED). Mobile scanner scan QR profile jemaat (8-char kode)
+   * + kirim ke walk-in endpoint dgn action sesuai mode.
+   *
+   * Response include jemaat info + reservasi (id, kode, status, pickupCode).
+   * Untuk kids ibadah + checkin, response include pickupCode → show toast
+   * prominent untuk parent.
    */
-  function runWalkInCheckin(kode: string) {
+  function runWalkIn(kode: string, action: 'checkin' | 'checkout' | 'pickup') {
     setPendingKode(kode);
     walkInMutation.mutate(
-      { kode, ibadahId: id, tanggalIbadah, action: 'checkin' },
+      { kode, ibadahId: id, tanggalIbadah, action },
       {
         onSuccess: (data) => {
           setManualOpen(false);
+          const alreadyDone =
+            (action === 'checkin' && data.reservasi.status === 'JOIN' && !!data.reservasi.joinedAt) ||
+            (action === 'checkout' &&
+              data.reservasi.status === 'COMPLETED' &&
+              !!data.reservasi.checkedOutAt) ||
+            (action === 'pickup' && !!data.reservasi.pickedUpAt);
           setResult({
             kind: 'success',
             namaLengkap: data.jemaat.namaLengkap,
             fotoUrl: data.jemaat.fotoUrl,
-            walkIn: true,
-            alreadyCheckedIn: false,
+            walkIn: action === 'checkin',
+            alreadyCheckedIn: alreadyDone,
           });
-          if (isKidsIbadah && data.pickupCode) {
+          // Kids ibadah + checkin → show toast prominent dgn kode jemput
+          if (action === 'checkin' && isKidsIbadah && data.pickupCode) {
             showToast(
               t('scanner.pickup_code_generated', { code: data.pickupCode }),
               'success',
@@ -261,9 +203,13 @@ export default function ScannerIbadahScreen() {
   }
 
   function handleScan(kode: string) {
-    if (mode === 'checkout') runCheckout(kode);
-    else if (mode === 'checkin') runCheckin(kode);
-    // Mode pickup tidak trigger via QR scan camera (butuh 6-digit input)
+    // Semua mode pakai walk-in endpoint (BE support kode alternate live 2026-08-03).
+    // Mode pickup ALSO accept scan QR anak — walk-in resolve via jemaat kode +
+    // auto-detect kids reservasi. Alternative parent-driven: input 6-digit kode
+    // via PickupInputModal.
+    if (mode === 'checkout') runWalkIn(kode, 'checkout');
+    else if (mode === 'checkin') runWalkIn(kode, 'checkin');
+    else if (mode === 'pickup') runWalkIn(kode, 'pickup');
   }
 
   function dismissResult() {
@@ -273,12 +219,15 @@ export default function ScannerIbadahScreen() {
 
   function handleForce() {
     if (!pendingKode) return;
-    runCheckin(pendingKode, true);
+    // Force retry walk-in checkin (mis. conflict override).
+    // BE walk-in idempotent — retry same kode = no-op kalau sudah check-in.
+    runWalkIn(pendingKode, 'checkin');
   }
 
   const stats = statsQuery.data;
-  const isPaused =
-    result !== null || manualOpen || pickupOpen || anyMutationPending || mode === 'pickup';
+  // Mode pickup: allow scan QR anak (walk-in) ATAU 6-digit input. Kamera aktif
+  // di kedua mode. Pause hanya saat modal/result open atau mutation in-flight.
+  const isPaused = result !== null || manualOpen || pickupOpen || anyMutationPending;
 
   // Mode-based colors
   const modeColor =
@@ -388,8 +337,10 @@ export default function ScannerIbadahScreen() {
       <ManualInputModal
         visible={manualOpen}
         onClose={() => setManualOpen(false)}
-        onSubmit={(kode) => (mode === 'checkout' ? runCheckout(kode) : runCheckin(kode))}
-        loading={checkinMutation.isPending || checkoutMutation.isPending}
+        onSubmit={(kode) =>
+          runWalkIn(kode, mode === 'pickup' ? 'pickup' : mode)
+        }
+        loading={walkInMutation.isPending}
       />
 
       <PickupInputModal
@@ -407,7 +358,7 @@ export default function ScannerIbadahScreen() {
         onPrint={handlePrint}
         canPrint={isPrinterConnected}
         autoPrint={autoPrint && isPrinterConnected}
-        forceLoading={checkinMutation.isPending}
+        forceLoading={walkInMutation.isPending}
         printLoading={printLoading}
       />
     </View>
