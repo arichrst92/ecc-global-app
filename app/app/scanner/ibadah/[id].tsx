@@ -29,6 +29,7 @@ import {
   useIbadahCheckinStats,
   usePickupReservasi,
   useScannerIbadah,
+  useWalkInReservasi,
 } from '@/hooks/useScanner';
 import { usePrinterStore } from '@/stores/printer.store';
 import { printerService, PrinterError } from '@/services/printer';
@@ -57,6 +58,10 @@ export default function ScannerIbadahScreen() {
   const checkoutMutation = useCheckoutReservasi(id, tanggalIbadah);
   const pickupMutation = usePickupReservasi(id, tanggalIbadah);
   const statsQuery = useIbadahCheckinStats(id, tanggalIbadah);
+  // Walk-in universal (Modul 2026-08-03) — 1 endpoint untuk checkin+checkout+pickup.
+  // Preferred flow kalau BE support `kode` alternate (pending backend-request-
+  // walkin-accept-kode.md). Fallback ke endpoint spesifik kalau walk-in fail.
+  const walkInMutation = useWalkInReservasi(id, tanggalIbadah);
 
   const isPrinterConnected = usePrinterStore((s) => s.isConnected);
   const paperSize = usePrinterStore((s) => s.paperSize);
@@ -70,7 +75,10 @@ export default function ScannerIbadahScreen() {
   const [printLoading, setPrintLoading] = useState(false);
 
   const anyMutationPending =
-    checkinMutation.isPending || checkoutMutation.isPending || pickupMutation.isPending;
+    checkinMutation.isPending ||
+    checkoutMutation.isPending ||
+    pickupMutation.isPending ||
+    walkInMutation.isPending;
 
   async function handlePrint() {
     if (!result || result.kind !== 'success') return;
@@ -133,23 +141,67 @@ export default function ScannerIbadahScreen() {
 
   function runCheckout(kode: string) {
     setPendingKode(kode);
-    checkoutMutation.mutate(kode, {
-      onSuccess: (data) => {
-        setManualOpen(false);
-        // Response tidak include full jemaat info — kita display kode + status
-        setResult({
-          kind: 'success',
-          namaLengkap: data.kode,
-          walkIn: false,
-          alreadyCheckedIn: data.status === 'COMPLETED' && !!data.checkedOutAt,
-        });
-        statsQuery.refetch();
+    // Prefer walk-in endpoint (accept jemaat kode) — cleaner semantic vs
+    // legacy checkoutReservasi which expects reservasi kode. Post BE support
+    // for `kode` alternate (backend-request-walkin-accept-kode.md 2026-08-03).
+    walkInMutation.mutate(
+      { kode, ibadahId: id, tanggalIbadah, action: 'checkout' },
+      {
+        onSuccess: (data) => {
+          setManualOpen(false);
+          setResult({
+            kind: 'success',
+            namaLengkap: data.jemaat.namaLengkap,
+            fotoUrl: data.jemaat.fotoUrl,
+            walkIn: false,
+            alreadyCheckedIn:
+              data.reservasi.status === 'COMPLETED' && !!data.reservasi.checkedOutAt,
+          });
+          statsQuery.refetch();
+        },
+        onError: (err) => {
+          setManualOpen(false);
+          handleScanError(err, kode);
+        },
       },
-      onError: (err) => {
-        setManualOpen(false);
-        handleScanError(err, kode);
+    );
+  }
+
+  /**
+   * Alternative checkin via walk-in endpoint (adopt post BE kode support).
+   * Not yet wired ke handleScan — mode 'checkin' masih pakai runCheckin
+   * (existing endpoint /admin/ibadah/:id/checkin) supaya release v1.4.0
+   * tidak block. Setelah walk-in flow validated di prod (checkout mode dulu),
+   * migrate check-in ke walk-in juga di sprint berikutnya.
+   */
+  function runWalkInCheckin(kode: string) {
+    setPendingKode(kode);
+    walkInMutation.mutate(
+      { kode, ibadahId: id, tanggalIbadah, action: 'checkin' },
+      {
+        onSuccess: (data) => {
+          setManualOpen(false);
+          setResult({
+            kind: 'success',
+            namaLengkap: data.jemaat.namaLengkap,
+            fotoUrl: data.jemaat.fotoUrl,
+            walkIn: true,
+            alreadyCheckedIn: false,
+          });
+          if (isKidsIbadah && data.pickupCode) {
+            showToast(
+              t('scanner.pickup_code_generated', { code: data.pickupCode }),
+              'success',
+            );
+          }
+          statsQuery.refetch();
+        },
+        onError: (err) => {
+          setManualOpen(false);
+          handleScanError(err, kode);
+        },
       },
-    });
+    );
   }
 
   function runPickup(pickupCode: string) {

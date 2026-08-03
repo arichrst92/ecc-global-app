@@ -95,6 +95,67 @@ export type ReservasiPickupPayload = {
   pickedUpByJemaatId?: string;
 };
 
+/**
+ * Walk-in action universal — check-in / checkout / pickup dalam 1 endpoint.
+ * Per BE notice scanner-walkin-flow 2026-08-03.
+ *
+ * ⚠️ Endpoint accept `jemaatId` (existing). Mobile mau tambah support `kode`
+ * — kirim `backend-request-walkin-accept-kode.md`. Types di sini support
+ * dua-duanya (either-or) untuk future compat.
+ */
+export type WalkInAction = 'checkin' | 'checkout' | 'pickup';
+
+export type WalkInReservasiPayload = {
+  /** Either `jemaatId` (existing BE) atau `kode` (pending BE request). Kirim salah satu. */
+  jemaatId?: string;
+  /** Kode profile jemaat 8-char (pending BE support). */
+  kode?: string;
+  ibadahId: string;
+  tanggalIbadah: string; // YYYY-MM-DD
+  action: WalkInAction;
+};
+
+export type WalkInReservasiResult = {
+  reservasi: {
+    id: string;
+    kode: string;
+    status: 'JOIN' | 'COMPLETED' | 'RESERVE';
+    joinedAt?: string | null;
+    checkedOutAt?: string | null;
+    pickedUpAt?: string | null;
+    pickupCode?: string | null;
+  };
+  jemaat: {
+    id: string;
+    namaLengkap: string;
+    kode: string;
+    fotoUrl?: string | null;
+  };
+  ibadahNama: string;
+  /** Convenience — sama dgn reservasi.pickupCode, kalau ada. */
+  pickupCode?: string | null;
+};
+
+/**
+ * Response `GET /admin/reservasi/active-today` — reservasi status JOIN hari ini
+ * untuk jemaat spesifik. Dipakai untuk auto-detect ibadah aktif saat mode
+ * checkout / pickup di scanner walk-in.
+ */
+export type ActiveTodayReservasi = {
+  id: string;
+  kode: string;
+  ibadahId: string;
+  ibadahNama: string;
+  tanggalIbadah: string;
+  status: 'JOIN' | 'COMPLETED';
+  joinedAt: string;
+  checkedOutAt?: string | null;
+  pickupCode?: string | null;
+  pickedUpAt?: string | null;
+  isKidsIbadah?: boolean;
+  requiresCheckout?: boolean;
+};
+
 /** Response data dari POST /admin/event/:id/checkin */
 export type EventCheckinResult = {
   id: string;

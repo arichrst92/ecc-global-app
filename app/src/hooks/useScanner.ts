@@ -9,8 +9,13 @@ import {
   getEventCheckinStats,
   checkoutReservasi,
   pickupReservasi,
+  walkInReservasi,
+  getActiveToday,
 } from '@/api/scanner';
-import type { ReservasiPickupPayload } from '@/types/scanner';
+import type {
+  ReservasiPickupPayload,
+  WalkInReservasiPayload,
+} from '@/types/scanner';
 
 /** List event yang user authorized scan */
 export function useScannerEvents() {
@@ -105,5 +110,43 @@ export function usePickupReservasi(ibadahId: string, tanggalIbadah?: string) {
         });
       }
     },
+  });
+}
+
+/**
+ * Walk-in universal (Modul walk-in flow) — checkin/checkout/pickup 1 endpoint.
+ * Per BE notice scanner-walkin-flow 2026-08-03.
+ */
+export function useWalkInReservasi(ibadahId?: string, tanggalIbadah?: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: WalkInReservasiPayload) => walkInReservasi(payload),
+    onSuccess: () => {
+      if (ibadahId && tanggalIbadah) {
+        queryClient.invalidateQueries({
+          queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
+        });
+      }
+    },
+  });
+}
+
+/**
+ * Get active reservasi today untuk jemaat spesifik. Dipakai untuk
+ * auto-detect ibadah aktif saat mode checkout/pickup.
+ *
+ * Fresh fetch on-demand — bukan long-lived cache karena data cepat berubah
+ * (check-in/checkout tambah/kurang list).
+ */
+export function useActiveToday(
+  jemaatId: string | undefined,
+  mode?: 'checkout' | 'pickup' | 'none',
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: ['scanner', 'active-today', jemaatId, mode],
+    queryFn: () => getActiveToday(jemaatId!, mode),
+    enabled: !!jemaatId && enabled,
+    staleTime: 10_000,
   });
 }

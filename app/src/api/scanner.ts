@@ -18,6 +18,9 @@ import type {
   ReservasiCheckoutResult,
   ReservasiPickupResult,
   ReservasiPickupPayload,
+  WalkInReservasiPayload,
+  WalkInReservasiResult,
+  ActiveTodayReservasi,
 } from '@/types/scanner';
 
 /** GET /admin/me/scanner-events — events yang user authorized scan */
@@ -141,6 +144,50 @@ export function checkoutReservasi(kode: string) {
 // ============================================================
 // Modul 27 — Kids ibadah pickup (BE notice kids-ibadah-pickup 2026-08-01)
 // ============================================================
+
+// ============================================================
+// Walk-in universal (BE notice scanner-walkin-flow 2026-08-03)
+// ============================================================
+
+/**
+ * POST /admin/reservasi/walk-in — universal scan endpoint (checkin/checkout/pickup).
+ *
+ * Behavior per action:
+ * - checkin: upsert reservasi (create baru atau flip RESERVE→JOIN). Auto-gen
+ *   kode + pickupCode kalau kids ibadah.
+ * - checkout: cari reservasi existing (jemaat+ibadah+tanggal) → set checkedOutAt.
+ * - pickup: cari kids reservasi existing → set pickedUpAt. Skip pickupCode validate.
+ *
+ * ⚠️ Existing BE accept `jemaatId` UUID. Mobile prefer `kode` — pending BE add
+ * support per `backend-request-walkin-accept-kode.md`. Sampai BE deploy, mobile
+ * pakai either flow: kalau punya jemaatId → send jemaatId; kalau cuma kode →
+ * pending fallback strategy (mis. lookup dulu).
+ */
+export function walkInReservasi(payload: WalkInReservasiPayload) {
+  return api.post<WalkInReservasiResult>('/admin/reservasi/walk-in', payload);
+}
+
+/**
+ * GET /admin/reservasi/active-today?jemaatId=X&mode=<checkout|pickup|none>
+ *
+ * Auto-detect ibadah aktif jemaat hari ini — dipakai untuk 1-tap checkout/pickup
+ * di scanner walk-in flow.
+ *
+ * Mode filter:
+ * - checkout: hanya reservasi ibadah requiresCheckout=true yg belum checkout
+ * - pickup: hanya kids reservasi yg belum di-pickup
+ * - none: semua reservasi JOIN hari ini
+ */
+export function getActiveToday(
+  jemaatId: string,
+  mode?: 'checkout' | 'pickup' | 'none',
+) {
+  const search = new URLSearchParams({ jemaatId });
+  if (mode) search.set('mode', mode);
+  return api.get<ActiveTodayReservasi[]>(
+    `/admin/reservasi/active-today?${search.toString()}`,
+  );
+}
 
 /**
  * POST /admin/reservasi/pickup — admin verify pickup code + set pickedUpAt.
