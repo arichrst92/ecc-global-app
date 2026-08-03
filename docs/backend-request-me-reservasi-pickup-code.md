@@ -4,6 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA)
 **Tanggal:** 2026-08-02
 **Priority:** 🟡 Medium — enable parent-side pickup code UX + smoke test M41
+**Status:** ✅ **RESOLVED (partial)** (2026-08-03) — Request #1 endpoint live. Request #2 setup ibadah test butuh manual SQL / admin portal.
 **Related:** [`backend-notice-kids-ibadah-pickup.md`](./backend-notice-kids-ibadah-pickup.md), [`backend-notice-checkout-ibadah.md`](./backend-notice-checkout-ibadah.md)
 
 ---
@@ -146,3 +147,91 @@ Tidak perlu — flags additive, tidak break flow existing.
 ---
 
 *Doc versi: 1.0 — 2026-08-02.*
+
+---
+
+## 🔧 BE RESPONSE (2026-08-03)
+
+### Request 1 — Parent Reservasi Endpoint ✅ DONE
+
+Endpoint live di `apps/core-api/src/routes/admin/me.ts`.
+
+**Path final**: `GET /admin/me/reservasi`
+**Auth**: Bearer JWT parent (any authenticated jemaat)
+
+**Query params**: sesuai usulan
+- `ibadahId` (uuid, optional)
+- `tanggal` (YYYY-MM-DD, optional)
+- `status` (RESERVE|JOIN|CANCEL, optional)
+- `activeOnly` (default true, filter 24 jam terakhir kalau tanggal kosong)
+
+**Include**:
+- Reservasi `jemaatId = self` (aktivitas diri sendiri)
+- Reservasi anak yang di-check-in oleh user (`checkedInBy = self`) — jadi parent yg tap "check-in child" di admin scanner otomatis lihat pickup code anaknya
+
+**Response shape** — sesuai usulan, plus jemaat info:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "kode": "R7K2X9P",
+      "tanggalIbadah": "2026-08-04",
+      "status": "JOIN",
+      "joinedAt": "2026-08-04T09:00:00Z",
+      "checkedOutAt": null,
+      "checkedInBy": "parent-uuid",
+      "pickupCode": "483920",
+      "pickedUpAt": null,
+      "jemaat": {
+        "id": "anak-uuid",
+        "namaLengkap": "Budi Junior",
+        "kode": "ANAK1234",
+        "fotoUrl": null
+      },
+      "ibadah": {
+        "id": "uuid",
+        "nama": "Ibadah Anak Minggu Pagi",
+        "jamMulai": "09:00",
+        "jamSelesai": "10:30",
+        "isKidsIbadah": true,
+        "requiresCheckout": true
+      }
+    }
+  ]
+}
+```
+
+**Rate limit**: admin-tier (300/menit).
+
+Testing:
+```bash
+JWT="<parent-JWT>"
+curl -H "Authorization: Bearer $JWT" \
+  "https://api.eccchurch.global/admin/me/reservasi?activeOnly=true"
+```
+
+### Request 2 — Setup Ibadah Test
+
+Perlu manual step — 2 opsi:
+
+**Opsi A (recommended)**: pakai portal admin
+1. Buka `https://portal.eccchurch.global/dashboard/ibadah`
+2. Pilih 1 ibadah aktif (mis. "Ibadah Anak Minggu Pagi" kalau sudah ada)
+3. Edit → toggle **"Ibadah Anak?"** ON + **"Wajib Checkout?"** ON → Save
+4. Kirim UUID ibadah ke mobile team
+
+**Opsi B**: SQL direct di VPS
+```sql
+sudo -u postgres psql ecc_platform -c "
+UPDATE ibadah
+SET is_kids_ibadah = true, requires_checkout = true
+WHERE nama ILIKE '%anak%' AND is_active = true
+RETURNING id, nama;
+"
+```
+
+Pilih salah satu, kirim UUID ibadah ke Ari untuk smoke test. Kalau belum ada ibadah "Anak" di prod, tim admin gereja bisa create dummy dulu.
+
+— IDEA dev

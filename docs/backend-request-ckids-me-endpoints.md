@@ -4,6 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA)
 **Tanggal:** 2026-08-02
 **Priority:** 🔴 Critical — blocking Sprint 5 (CKids Tab) v1.5.0 release
+**Status:** ✅ **RESOLVED** (2026-08-03) — 2 endpoint baru live, siap consume.
 **Related:** [`backend-notice-ckids-mobile-tab.md`](./backend-notice-ckids-mobile-tab.md)
 
 ---
@@ -182,3 +183,95 @@ Kalau ada masalah / alternative approach preferred, discuss di ECC repo issue.
 ---
 
 *Doc versi: 1.0 — 2026-08-02.*
+
+---
+
+## 🔧 BE RESPONSE (2026-08-03)
+
+Ke-2 endpoint live di `apps/core-api/src/routes/admin/me.ts`.
+
+### 1. `GET /admin/me/children-points` ✅ DONE
+
+**Auth**: Bearer JWT parent (any authenticated jemaat)
+
+**Implementation notes**:
+- Query `JemaatRelasi` WHERE `jemaatId=self` AND `tipeRelasi.nama IN ('Anak Laki-Laki', 'Anak Perempuan', 'Anak')` — support post-refactor granular DAN backward-compat legacy nama.
+- Join `jemaat_point_balance` per (anak, cabang). Skip anak tanpa balance record (bukan return `0` — differentiate seperti Ari usul).
+- `Cache-Control: private, max-age=60` di response header — mobile bisa cache 1 menit.
+- Rate limit: admin-tier (300/menit).
+
+**Response** — sesuai usulan:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "anak": { "id": "...", "namaLengkap": "Budi Junior", "fotoUrl": null, "kode": "ANAK1234" },
+      "cabang": { "id": "...", "nama": "ECC Bandung" },
+      "balance": 150,
+      "lastUpdate": "2026-08-04T10:00:00Z"
+    }
+  ]
+}
+```
+
+### 2. Redeem history per anak ✅ DONE (Alternative dedicated endpoint)
+
+Pilih approach kedua (dedicated parent-scoped endpoint) — lebih clean auth.
+
+**Path final**: `GET /admin/me/children-redeem-history?jemaatId=<anakId>&limit=20`
+
+**Auth**: Bearer JWT parent. **Guard**: `jemaatId` di query harus terverify sebagai anak requester (via JemaatRelasi lookup) — kalau tidak → **403 Forbidden**.
+
+**Query params**:
+- `jemaatId` (uuid, wajib)
+- `limit` (default 20, max 100)
+
+**Response** — pakai existing `hadiah_redeem` shape:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "jemaatId": "uuid-anak",
+      "hadiahId": "uuid-lego",
+      "pointDeducted": 200,
+      "hadiahNama": "Robot LEGO",     // snapshot
+      "hadiahFotoUrl": "/uploads/hadiah/lego.webp",  // snapshot
+      "processedAt": "2026-08-04T11:30:00Z",
+      "hadiah": { "id": "...", "nama": "...", "fotoUrl": "..." },
+      "cabang": { "id": "...", "nama": "..." },
+      "processedBy": { "id": "...", "namaLengkap": "Kak Sarah" }
+    }
+  ]
+}
+```
+
+**Alasan pilih dedicated endpoint (bukan filter Fulltimer endpoint)**:
+- Cleaner auth model — parent guard di 1 tempat via `getMyChildrenIds()` helper
+- Response bersih, gak leak Fulltimer-only fields (adminId dsb)
+- Existing `/admin/gift-stall/redeems` tetap Fulltimer-only untuk stall admin monitoring
+
+Testing curl:
+```bash
+JWT="<parent-JWT>"
+
+# Balance semua anak
+curl -H "Authorization: Bearer $JWT" \
+  https://api.eccchurch.global/admin/me/children-points
+
+# History anak spesifik
+curl -H "Authorization: Bearer $JWT" \
+  "https://api.eccchurch.global/admin/me/children-redeem-history?jemaatId=<anak-uuid>&limit=20"
+```
+
+### Family relation dependency
+
+⚠️ **Penting**: endpoint ini reliance pada `JemaatRelasi` — parent perlu setup relasi anak-nya dulu (via `/admin/me/family/link-by-kode` atau `/register-new`). Kalau belum ada relasi, `children-points` return `[]`.
+
+Post-refactor family (2026-08-02) — mobile app add family → auto masuk `jemaat_relasi` table (backward compat + granular). Old data yg pernah di `family_relation` sudah di-drop clean per stage 2.
+
+Untuk **mobile fallback pattern** yang Ari usulkan (multi-call via `/admin/keluarga`) — sekarang GAK PERLU. `/me/children-points` gantiin proper.
+
+— IDEA dev

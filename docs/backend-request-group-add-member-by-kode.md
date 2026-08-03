@@ -4,6 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA)
 **Tanggal:** 2026-08-02
 **Priority:** 🟢 Low — UX improvement, tidak blocking release Sprint 3
+**Status:** ✅ **RESOLVED** (2026-08-03) — endpoint live, siap consume.
 **Related:** [`backend-notice-group-endpoints.md`](./backend-notice-group-endpoints.md)
 
 ---
@@ -111,3 +112,50 @@ Kalau OK:
 ---
 
 *Doc versi: 1.0 — 2026-08-02.*
+
+---
+
+## 🔧 BE RESPONSE (2026-08-03)
+
+Endpoint sudah live di `apps/core-api/src/routes/admin/group.ts`.
+
+**Path final**: `POST /admin/group/:id/members/by-kode` (sesuai usulan)
+**Auth**: PIC group atau `isFulltimer=true` (via `assertCanManageGroup`)
+
+**Behavior**:
+- Lookup jemaat by `kode` uppercase — 404 kalau tidak ada / nonaktif
+- Delegate ke upsert `group_member` (idempotent — reactivate kalau existing isActive=false)
+- Trigger notif WA `GROUP_MEMBER_ADDED` (Fonnte)
+- Audit log `via: 'by-kode'` + kode
+
+**Request body**:
+```json
+{ "kode": "ABC23XYZ", "catatan": "Direct add via scan" }
+```
+
+**Response 200/201** — mirror pattern `/homecell/:id/members/by-kode`:
+```json
+{
+  "success": true,
+  "message": "Budi Santoso berhasil ditambahkan",
+  "data": {
+    "alreadyMember": false,
+    "jemaat": { "id": "uuid", "namaLengkap": "Budi Santoso", "kode": "ABC23XYZ" }
+  }
+}
+```
+
+**Rate limit**: admin-tier (300/menit) — sudah cukup.
+
+Testing curl:
+```bash
+JWT="<pic-JWT>"
+curl -X POST -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"kode":"ABC23XYZ"}' \
+  https://api.eccchurch.global/admin/group/<group-id>/members/by-kode
+```
+
+Deploy: bareng bundle Sprint request 3 hari ini (git push + `pnpm build` + PM2 restart).
+
+— IDEA dev
