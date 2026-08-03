@@ -23,7 +23,8 @@
     "event": "Events",
     "persembahan": "Give",
     "profile": "Profile",
-    "scanner": "Scanner"
+    "scanner": "Scanner",
+    "ckids": "CKids"
   },
   "onboarding": {
     "slide1_title": "Welcome to the ECC Family",
@@ -1178,5 +1179,35 @@
     "error_nama_required": "Group name is required.",
     "error_cabang_required": "Branch is required.",
     "error_jenis_required": "Group type is required."
+  },
+  "ckids": {
+    "tab_title": "CKids — Kids Points & Rewards",
+    "empty_title": "No children registered",
+    "empty_body": "Add your child to family relations to activate the CKids tab.",
+    "add_child_cta": "Add Child",
+    "selected_anak": "Active Child",
+    "no_selection": "Choose a child…",
+    "select_anak_title": "Choose Child",
+    "balance_label": "Point Balance",
+    "points_unit": "pts",
+    "other_branches": "other branches",
+    "branch_singular": "branch",
+    "branch_plural": "branches",
+    "show_qr_cta": "Show QR at Stall",
+    "stall_info": "Rewards can ONLY be redeemed in person at the CKids stall during kids service. Not available in-app.",
+    "katalog_title": "Rewards Catalog",
+    "katalog_empty": "No rewards available in this branch yet.",
+    "out_of_stock": "Out of stock",
+    "stock_left": "{{count}} left",
+    "history_title": "Redemption History",
+    "history_empty": "No redemptions yet.",
+    "qr_screen_title": "Child QR",
+    "qr_screen_subtitle": "Show to stall admin",
+    "qr_kode_label": "Member Code",
+    "qr_instruction_title": "How to Redeem",
+    "qr_instruction_body": "Visit the CKids stall during kids service. Show this QR to the admin. Admin scans → picks reward → points auto-deducted.",
+    "qr_balance_breakdown": "Balance by Branch",
+    "qr_no_child_title": "No child selected",
+    "qr_no_child_body": "Go back to CKids tab to select a child first."
   }
 }

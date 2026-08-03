@@ -325,7 +325,7 @@ BE deployed 3 major batches 2026-07-29 (magic link, Shiftsoft, Group) + 4 modul 
 
 ---
 
-## 🎁 Sprint 5 — v1.5.0 CKids Tab (Point + Hadiah)
+## 🎁 Sprint 5 — v1.5.0 CKids Tab (Point + Hadiah) ✅ CODE COMPLETE (M42)
 
 **Goal:** Tab "CKids" di bottom nav untuk parent view point balance anak + katalog hadiah + history redeem. **BUKAN redeem di mobile** — anak datang fisik ke stall di subdomain `ckids.eccchurch.global`.
 

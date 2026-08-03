@@ -23,7 +23,8 @@
     "event": "Event",
     "persembahan": "Beri",
     "profile": "Profil",
-    "scanner": "Scanner"
+    "scanner": "Scanner",
+    "ckids": "CKids"
   },
   "onboarding": {
     "slide1_title": "Selamat Datang di Keluarga ECC",
@@ -1178,5 +1179,35 @@
     "error_nama_required": "Nama group wajib diisi.",
     "error_cabang_required": "Cabang wajib dipilih.",
     "error_jenis_required": "Jenis group wajib dipilih."
+  },
+  "ckids": {
+    "tab_title": "CKids — Point & Hadiah Anak",
+    "empty_title": "Belum ada anak terdaftar",
+    "empty_body": "Tambahkan anak Anda ke keluarga di menu Keluarga untuk aktivasi CKids Tab.",
+    "add_child_cta": "Tambah Anak",
+    "selected_anak": "Anak Aktif",
+    "no_selection": "Pilih anak…",
+    "select_anak_title": "Pilih Anak",
+    "balance_label": "Point Balance",
+    "points_unit": "pts",
+    "other_branches": "cabang lain",
+    "branch_singular": "cabang",
+    "branch_plural": "cabang",
+    "show_qr_cta": "Tunjukkan QR ke Stall",
+    "stall_info": "Redeem hadiah HANYA bisa dilakukan langsung di stall ECC saat ada ibadah anak. Tidak bisa via app.",
+    "katalog_title": "Katalog Hadiah",
+    "katalog_empty": "Belum ada hadiah di cabang ini.",
+    "out_of_stock": "Habis",
+    "stock_left": "{{count}} tersisa",
+    "history_title": "Riwayat Redeem",
+    "history_empty": "Belum pernah redeem hadiah.",
+    "qr_screen_title": "QR Anak",
+    "qr_screen_subtitle": "Tunjukkan ke admin stall",
+    "qr_kode_label": "Kode Jemaat",
+    "qr_instruction_title": "Cara Redeem",
+    "qr_instruction_body": "Datang ke stall CKids saat ibadah anak. Tunjukkan QR ini ke admin. Admin scan → pilih hadiah → point terpotong otomatis.",
+    "qr_balance_breakdown": "Balance per Cabang",
+    "qr_no_child_title": "Belum ada anak dipilih",
+    "qr_no_child_body": "Kembali ke tab CKids untuk pilih anak dulu."
   }
 }
