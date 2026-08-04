@@ -550,12 +550,27 @@ Anticipated BE requests per sprint:
 **S6 (proposed — v1.6.0 Walk-in Scanner Refactor):**
 - Adopt walk-in flow untuk parity dgn ckids web (`POST /admin/reservasi/walk-in` + `GET /admin/reservasi/active-today`)
   - Scanner scan QR profile jemaat (bukan QR reservasi) — konsisten input di semua touchpoint
+  - Endpoint accept `jemaatId` UUID ATAU `kode` 8-char alternate — mobile pakai `kode` dari QR scan langsung (no extra lookup call needed)
   - Auto-detect ibadah untuk checkout/pickup (1-tap)
   - Support walk-in tanpa reservasi upfront
 - Wire M42 fallback → 3 endpoint proper: `/me/children-points`, `/me/children-redeem-history`, `/me/reservasi`
 - Family granular UI adopt dropdown (12 tipe termasuk Wali + Lainnya baru) via `GET /admin/keluarga/tipe`
 - Group add member scan QR via `POST /admin/group/:id/members/by-kode`
-- Ref: [`backend-notice-scanner-walkin-flow.md`](./backend-notice-scanner-walkin-flow.md), [`backend-notice-updates-2026-08-03.md`](./backend-notice-updates-2026-08-03.md)
+- Ref: [`backend-notice-scanner-walkin-flow.md`](./backend-notice-scanner-walkin-flow.md), [`backend-notice-walkin-accept-kode.md`](./backend-request-walkin-accept-kode.md), [`backend-notice-updates-2026-08-03.md`](./backend-notice-updates-2026-08-03.md)
+
+**S6.5 (proposed — v1.6.5 In-App Notification Feed) 🆕:**
+
+Backend Modul 30 sudah live per 2026-08-03 — table `notification` + 4 endpoint `/admin/me/notifications/*` + emit di **13 event**. Mobile adopt:
+
+- **Bell icon di header** semua tab (Home, Ibadah, CKids, Event, Profile) dgn badge count via `GET /admin/me/notifications/unread-count` (cache 10s server, poll 30s client)
+- **Notification screen** (`app/notifications.tsx`) dgn infinite scroll pakai cursor `before` param, tap row → mark-read + navigate ke `actionUrl`
+- **Header actions**: "Tandai semua sudah dibaca" → `POST /admin/me/notifications/mark-all-read`
+- **Pause polling saat app background** (React Native `AppState`) — 50-80% reduction beban
+- **13 InAppNotifType icons** per type: kids checkin (baby+star), pickup (door), redeem (gift), point earned/adjusted (plus/edit), family (heart), group added/removed/dismissed (users), event approved/checkin (ticket), branch change (map)
+- Empty state + skeleton loading + relative time ("2 menit lalu")
+- Ref: [`backend-notice-in-app-notifications.md`](./backend-notice-in-app-notifications.md)
+
+Effort estimate: 4-6 jam mobile (bell + screen + hook + navigation wiring + AppState pause).
 
 **Backlog:**
 - Push notification infra (FCM setup end-to-end)
@@ -575,7 +590,8 @@ Anticipated BE requests per sprint:
 
 ---
 
-*Doc versi: 1.2 — 2026-08-03. Update log:*
+*Doc versi: 1.3 — 2026-08-03. Update log:*
 *- v1.0 (2026-07-31) initial sprint plan post-BE 3-batch deploy (magic link, Shiftsoft, Group)*
 *- v1.1 (2026-08-02) add Sprint 4 (Kids bundle — Modul 26 + 27) + Sprint 5 (CKids Tab — Modul 28) + Family granular ke backlog*
 *- v1.2 (2026-08-03) mark S5 all deps RESOLVED (endpoint children-points + children-redeem-history + reservasi live), propose S6 (v1.6.0 Walk-in Scanner Refactor + wire M42 + family/group granular adoption)*
+*- v1.3 (2026-08-03) walkin accept kode alternate live; add S6.5 v1.6.5 In-App Notification Feed (Modul 30 — 13 event trigger, bell icon + notif screen, polling 30s)*
