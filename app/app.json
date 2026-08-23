@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/ecc-icon-circle.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F97316"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "supportsTablet": true,
