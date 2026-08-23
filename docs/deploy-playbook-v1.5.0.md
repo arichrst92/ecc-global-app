@@ -64,11 +64,13 @@ Bundle **semua sprint code-complete** ke 1 first release **v1.5.0**:
 
 Semua sudah ada di `playstore-assets/`:
 - ✅ `store-listing-copy.md` — description ID + EN
-- ✅ `privacy-policy.md` — public URL harus di-host (GitHub Pages / eccchurch.global)
-- ✅ `terms-and-conditions.md` — public URL host
-- ✅ `release-v1.0.0.md` — release notes template (update ke v1.5.0)
-- ✅ `icon-512.png` — hi-res icon (Play Store butuh 512×512)
-- ✅ `feature-graphic-1024x500.png` — Play Store feature graphic
+- ✅ `release-v1.5.0.md` — release notes (short 500 char + extended 4000 char, bilingual)
+- ✅ `play-icon-512.png` — hi-res icon (Play Store butuh 512×512)
+- ✅ `play-feature-graphic-1024x500.png` — Play Store feature graphic
+
+Legal URLs LIVE public (2026-08-23):
+- ✅ Privacy Policy: **https://eccchurch.global/privacy**
+- ✅ Terms & Conditions: **https://eccchurch.global/terms**
 
 **Belum ada (kalau iOS):**
 - ❌ Screenshots iPhone 6.7" (mandatory) + iPad 12.9" (kalau supports tablet)
@@ -110,20 +112,14 @@ eas build --profile production --platform android
 - Sign dgn keystore EAS-managed
 - Download AAB dari email atau https://expo.dev/accounts/arichrst92/projects
 
-### Step 1.3 — Host Privacy Policy URL (kalau belum)
+### Step 1.3 — Legal URLs (LIVE 2026-08-23) ✅
 
-**Opsi A (recommended) — GitHub Pages:**
-```bash
-# Create repo public ecc-legal atau branch gh-pages di repo mobile
-# Upload playstore-assets/privacy-policy.md → convert ke privacy-policy.html
-# Enable GitHub Pages → dapat URL public
-# Contoh: https://arichrst92.github.io/ecc-legal/privacy-policy.html
-```
+Public URLs sudah di-host di website eccchurch.global:
 
-**Opsi B — Website ECC:**
-- Kalau ada eccchurch.global website, host di /privacy dan /terms
+- **Privacy Policy:** https://eccchurch.global/privacy
+- **Terms & Conditions:** https://eccchurch.global/terms
 
-Save URL untuk step berikut.
+Verify accessible dari incognito browser sebelum submit ke Play Console + App Store Connect.
 
 ### Step 1.4 — Play Console setup
 
@@ -197,8 +193,8 @@ Save URL untuk step berikut.
 - **Category:** Lifestyle (primary), Social Networking (secondary)
 - **Content Rights:** No third-party rights
 - **Age Rating:** 4+ (no offensive content)
-- **Privacy Policy URL:** (from Play Store step 1.3)
-- **Support URL:** eccchurch.global atau contact email
+- **Privacy Policy URL:** https://eccchurch.global/privacy
+- **Support URL:** https://eccchurch.global (atau contact email support@eccchurch.global)
 
 ### Step 2.4 — Prep iOS Credentials di EAS
 
