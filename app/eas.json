@@ -38,6 +38,11 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "changesNotSentForReview": false
+      },
+      "ios": {}
+    }
   }
 }
