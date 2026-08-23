@@ -2,7 +2,7 @@
   "expo": {
     "name": "Els App",
     "slug": "ecc-mobile-app",
-    "version": "1.0.0",
+    "version": "1.5.0",
     "orientation": "portrait",
     "icon": "./assets/images/ecc-icon.png",
     "scheme": "ecc",
@@ -17,8 +17,15 @@
       "bundleIdentifier": "idea.eccchurch.global",
       "icon": "./assets/images/ecc-icon.png",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Els App membutuhkan akses kamera untuk scan QR jemaat saat check-in ibadah, event, dan menambah anggota keluarga/group.",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["ecc"]
+          }
+        ]
+      },
+      "associatedDomains": []
     },
     "android": {
       "package": "idea.eccchurch.global",

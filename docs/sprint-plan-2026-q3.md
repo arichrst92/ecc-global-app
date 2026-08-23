@@ -595,3 +595,4 @@ Effort estimate: 4-6 jam mobile (bell + screen + hook + navigation wiring + AppS
 *- v1.1 (2026-08-02) add Sprint 4 (Kids bundle — Modul 26 + 27) + Sprint 5 (CKids Tab — Modul 28) + Family granular ke backlog*
 *- v1.2 (2026-08-03) mark S5 all deps RESOLVED (endpoint children-points + children-redeem-history + reservasi live), propose S6 (v1.6.0 Walk-in Scanner Refactor + wire M42 + family/group granular adoption)*
 *- v1.3 (2026-08-03) walkin accept kode alternate live; add S6.5 v1.6.5 In-App Notification Feed (Modul 30 — 13 event trigger, bell icon + notif screen, polling 30s)*
+*- v1.4 (2026-08-03) Modul 30 P3 extension → 16 total event types (+EVENT_REGISTERED, HOMECELL_ATTENDED, VISIT_RECORDED); Ministry Phase 2 item 4 POST /join simple version RESOLVED; user guide portal section In-App Notif ready*

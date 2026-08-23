@@ -4,7 +4,7 @@
 **Dari**: Mobile dev (Ari Christian)
 **Tanggal**: 2026-05-22
 **Priority**: 🟡 **MEDIUM** — UX feature, currently rendered as placeholder
-**Status**: ✅ **RESOLVED Phase 1 (items 1+2)** (BE patch 2026-05-22a). Items 3+4 (detail with full members + join with approval) — item 3 sudah ready, item 4 deferred.
+**Status**: ✅ **RESOLVED all 4 items** (Phase 1 items 1+2 di 2026-05-22a; item 3 GET /:id detail ready sejak awal; item 4 POST /:id/join simple version di 2026-08-03 — skip approval flow, direct ACTIVE + notif ke leader).
 
 ## TL;DR
 
@@ -318,3 +318,58 @@ git push
 1. `pnpm db:migrate dev` (apply migration 20260522010000)
 2. `pnpm db:generate` (regen Prisma client untuk new fields)
 3. `pnpm dev` restart core-api + portal
+
+---
+
+## 🔧 BE Response Phase 2 — Item 4 POST /join (2026-08-03)
+
+**Path final**: `POST /admin/ministry/:id/join`
+
+**Body**:
+```json
+{
+  "roleId": "uuid",       // optional — kalau kosong, backend pilih level terendah
+  "motivasi": "string"    // optional catatan untuk leader
+}
+```
+
+**Behavior**:
+- **Simple direct-join, skip approval flow**. Status langsung `ACTIVE` (bukan PENDING).
+- Kalau `roleId` disupply + valid → assign role tsb. Kalau kosong → pilih role dgn `level` paling rendah (biasanya "Anggota").
+- Kalau ministry `isActive=false` → 400 "Ministry ini tidak buka untuk join".
+- Kalau user sudah member aktif → 409 ALREADY_MEMBER (Conflict).
+- Auto notif in-app ke leader ministry (role level >= 5) — heads-up review member baru.
+
+**Response 201**:
+```json
+{
+  "success": true,
+  "data": {
+    "membershipId": "uuid",
+    "status": "ACTIVE",
+    "ministry": { "id": "uuid", "nama": "Worship Team" },
+    "posisi": "Anggota"
+  },
+  "message": "Selamat datang di Worship Team sebagai Anggota"
+}
+```
+
+**Alasan skip approval**: Approval flow (PENDING/APPROVED/REJECTED) butuh design decision + migration schema + approve/reject endpoints. Simple direct-join sudah cover kebutuhan kebanyakan (parent apply → langsung terlibat, leader boleh remove kalau tidak sesuai). Kalau nanti butuh formal approval, extend endpoint dgn `?requireApproval=true` query + status field.
+
+**Testing curl**:
+```bash
+JWT="<jemaat-JWT>"
+MINISTRY_ID="<uuid>"
+
+# Join dgn default role (level terendah)
+curl -X POST -H "Authorization: Bearer $JWT" \
+  https://api.eccchurch.global/admin/ministry/$MINISTRY_ID/join
+
+# Join dgn role spesifik
+curl -X POST -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"roleId":"<role-uuid>","motivasi":"Ingin melayani di sound"}' \
+  https://api.eccchurch.global/admin/ministry/$MINISTRY_ID/join
+```
+
+— IDEA dev

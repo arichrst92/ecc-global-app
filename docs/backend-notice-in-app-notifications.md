@@ -42,12 +42,14 @@ model Notification {
 }
 ```
 
-**Enum `InAppNotifType`** (13 values total per 2026-08-03 extension):
-- Ckids: `CKIDS_CHECKIN`, `CKIDS_PICKUP`, `GIFT_REDEEMED`, `POINT_EARNED`, `POINT_ADJUSTED`
-- Family: `FAMILY_LINKED`
-- Group: `GROUP_MEMBER_ADDED`, `GROUP_MEMBER_REMOVED`, `GROUP_DISMISSED`
-- Event: `EVENT_APPROVED`, `EVENT_CHECKED_IN`
-- Branch Change: `BRANCH_CHANGE_APPROVED`, `BRANCH_CHANGE_REJECTED`
+**Enum `InAppNotifType`** (16 values total per 2026-08-03 P3 extension):
+- Ckids (5): `CKIDS_CHECKIN`, `CKIDS_PICKUP`, `GIFT_REDEEMED`, `POINT_EARNED`, `POINT_ADJUSTED`
+- Family (1): `FAMILY_LINKED`
+- Group (3): `GROUP_MEMBER_ADDED`, `GROUP_MEMBER_REMOVED`, `GROUP_DISMISSED`
+- Event (3): `EVENT_REGISTERED`, `EVENT_APPROVED`, `EVENT_CHECKED_IN`
+- Homecell (1): `HOMECELL_ATTENDED`
+- Visit (1): `VISIT_RECORDED`
+- Branch Change (2): `BRANCH_CHANGE_APPROVED`, `BRANCH_CHANGE_REJECTED`
 
 Terpisah dari `notification_log` existing (yang untuk queue outbound WA). Kalau nanti mau kirim WA + in-app duplicate, keduanya coexist.
 
@@ -143,6 +145,9 @@ Mark semua unread notif user sebagai read.
 | `EVENT_CHECKED_IN` | Peserta scan QR di hari H event | `/event/{uuid}` | Ticket + qrcode |
 | `BRANCH_CHANGE_APPROVED` | Admin approve permohonan pindah cabang | `/profile/branch` | Map + check |
 | `BRANCH_CHANGE_REJECTED` | Admin reject permohonan pindah cabang | `/profile/branch` | Map + x |
+| `EVENT_REGISTERED` | Self-register peserta event | `/event/{uuid}` | Ticket + plus |
+| `HOMECELL_ATTENDED` | PIC scan QR jemaat di pertemuan homecell | `/homecell/{uuid}` | Home + check |
+| `VISIT_RECORDED` | Jemaat lain scan QR Anda untuk record visit | `/visits/{uuid}` | User + eye |
 
 Metadata JSON konten bervariasi per type — pakai untuk display prominent (mis. `metadata.pickupCode` di card besar untuk CKIDS_CHECKIN).
 
@@ -229,6 +234,7 @@ Kalau ada blocker atau mau discuss UX detail, kirim reply di doc ini atau ping v
 
 ---
 
-*Doc versi: 1.1 — 2026-08-03. Update log:*
+*Doc versi: 1.2 — 2026-08-03. Update log:*
 *- v1.0 (2026-08-03) initial spec dgn 6 event kids-family*
 *- v1.1 (2026-08-03) extend dgn 7 event tambahan (group add/remove/dismiss, event approve/checkin, branch change approve/reject) → total 13 InAppNotifType. Migration `20260803110000_extend_notif_types` ALTER TYPE ADD VALUE idempotent.*
+*- v1.2 (2026-08-03) P3 extension +3 event (EVENT_REGISTERED, HOMECELL_ATTENDED, VISIT_RECORDED) → total 16. Migration `20260803120000_extend_notif_types_p3`.*
