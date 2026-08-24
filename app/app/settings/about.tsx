@@ -10,7 +10,7 @@ import Constants from 'expo-constants';
 export default function AboutScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const version = (Constants.expoConfig?.version as string) ?? '0.1.0';
+  const version = (Constants.expoConfig?.version as string) ?? '1.6.0';
 
   return (
     <View className="flex-1 bg-neutral-50">

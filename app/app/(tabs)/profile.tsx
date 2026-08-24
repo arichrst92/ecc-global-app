@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import Constants from 'expo-constants';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -83,6 +84,9 @@ function ProfileTabAuthenticated() {
   }
 
   if (!user) return null;
+
+  const appVersion =
+    (Constants.expoConfig?.version as string | undefined) ?? '1.0.0';
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -234,7 +238,7 @@ function ProfileTabAuthenticated() {
             icon={<Info size={18} color="#0F766E" />}
             iconBg="bg-teal-50"
             label={t('profile.about')}
-            sub="v0.1.0"
+            sub={`v${appVersion}`}
             onPress={() => router.push('/settings/about')}
             isLast
           />
@@ -267,7 +271,7 @@ function ProfileTabAuthenticated() {
         </View>
 
         <Text className="text-xs text-neutral-400 text-center mt-4">
-          Els App v0.1.0
+          Els App v{appVersion}
         </Text>
       </ScrollView>
 
