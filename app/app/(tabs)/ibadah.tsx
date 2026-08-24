@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Calendar, Church, ChevronRight, ChevronsUpDown } from 'lucide-react-native';
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
+import { NotificationBell } from '@/components/NotificationBell';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { GuestIbadahView } from '@/components/guest/GuestIbadahView';
 import { getIbadahCalendar } from '@/api/ibadah';
@@ -72,6 +73,7 @@ function IbadahListAuthenticated() {
           >
             <ChevronsUpDown size={18} color="#EA580C" />
           </Pressable>
+          <NotificationBell variant="dark" badgeBorderColor="#FFFFFF" />
         </View>
       </SafeAreaView>
 

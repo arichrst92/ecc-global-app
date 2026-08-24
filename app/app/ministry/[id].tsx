@@ -28,8 +28,9 @@ import {
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { useMinistryDetail } from '@/hooks/useMinistry';
+import { useJoinMinistry, useMinistryDetail } from '@/hooks/useMinistry';
 import type { MinistryMember } from '@/types/ministry';
+import { ApiError } from '@/types/api';
 
 export default function MinistryDetailScreen() {
   const { t } = useTranslation();
@@ -39,6 +40,41 @@ export default function MinistryDetailScreen() {
 
   const query = useMinistryDetail(id);
   const ministry = query.data;
+  const joinMutation = useJoinMinistry(id);
+
+  function handleJoin() {
+    if (!ministry) return;
+    joinMutation.mutate(
+      {},
+      {
+        onSuccess: (data) => {
+          showToast(
+            t('ministry.join_success', {
+              ministry: ministry.nama,
+              posisi: data.posisi,
+            }),
+            'success',
+          );
+        },
+        onError: (err) => {
+          if (err instanceof ApiError) {
+            // BE returns code 'CONFLICT' or explicit 'ALREADY_MEMBER' string in message
+            const isAlreadyMember =
+              err.status === 409 ||
+              /already/i.test(err.message ?? '') ||
+              /sudah/i.test(err.message ?? '');
+            if (isAlreadyMember) {
+              showToast(t('ministry.join_already_member'), 'info');
+              return;
+            }
+            showToast(err.message || t('ministry.join_error'), 'error');
+          } else {
+            showToast(t('ministry.join_error'), 'error');
+          }
+        },
+      },
+    );
+  }
 
   // Group members by posisi (role pelayanan). Order group by level DESC
   // (leader/senior dulu), members dalam group by sinceDate ASC.
@@ -277,11 +313,28 @@ export default function MinistryDetailScreen() {
           </View>
         )}
 
-        {/* Join info (Phase 1 — manual via WA leader) */}
+        {/* Join button — Phase 2 (POST /admin/ministry/:id/join live 2026-08-03) */}
         {!ministry.myMembership && ministry.isOpen ? (
-          <View className="bg-amber-50 rounded-2xl p-3 border border-amber-100 mt-4">
-            <Text className="text-xs text-amber-800 leading-relaxed">
-              {t('ministry.join_via_wa_notice')}
+          <View className="mt-6">
+            <Button
+              onPress={handleJoin}
+              disabled={joinMutation.isPending}
+              loading={joinMutation.isPending}
+              label={t('ministry.join_cta')}
+              variant="primary"
+              fullWidth
+            />
+            <Text className="text-[11px] text-neutral-500 text-center mt-2 leading-relaxed">
+              {t('ministry.join_notice')}
+            </Text>
+          </View>
+        ) : null}
+
+        {/* Closed ministry notice */}
+        {!ministry.myMembership && !ministry.isOpen ? (
+          <View className="bg-neutral-100 rounded-2xl p-3 mt-4">
+            <Text className="text-xs text-neutral-600 leading-relaxed text-center">
+              {t('ministry.closed_notice')}
             </Text>
           </View>
         ) : null}

@@ -26,6 +26,7 @@ import {
 } from 'lucide-react-native';
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
+import { NotificationBell } from '@/components/NotificationBell';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { GuestPersembahanView } from '@/components/guest/GuestPersembahanView';
 import { useToast } from '@/components/ui/Toast';
@@ -92,6 +93,7 @@ function PersembahanTabAuthenticated() {
           >
             <ChevronsUpDown size={18} color="#EA580C" />
           </Pressable>
+          <NotificationBell variant="dark" badgeBorderColor="#FFFFFF" />
         </View>
       </SafeAreaView>
 

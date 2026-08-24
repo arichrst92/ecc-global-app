@@ -31,6 +31,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useMyFamily } from '@/hooks/useFamily';
 import { Button } from '@/components/ui/Button';
 import { GuestProfileView } from '@/components/GuestProfileView';
+import { NotificationBell } from '@/components/NotificationBell';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
@@ -90,7 +91,10 @@ function ProfileTabAuthenticated() {
       <View className="bg-brand-500 rounded-b-3xl">
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-8">
-            <Text className="text-white text-lg font-bold mb-4">{t('profile.title')}</Text>
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-white text-lg font-bold">{t('profile.title')}</Text>
+              <NotificationBell variant="light" badgeBorderColor="#F97316" />
+            </View>
             <View className="flex-row items-center gap-4">
               <Avatar
                 name={user.namaLengkap}

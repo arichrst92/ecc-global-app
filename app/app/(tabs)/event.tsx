@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { CalendarDays, ChevronsUpDown, MapPin, Users } from 'lucide-react-native';
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
+import { NotificationBell } from '@/components/NotificationBell';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { GuestEventView } from '@/components/guest/GuestEventView';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -96,6 +97,7 @@ function EventListAuthenticated() {
           >
             <ChevronsUpDown size={18} color="#EA580C" />
           </Pressable>
+          <NotificationBell variant="dark" badgeBorderColor="#FFFFFF" />
         </View>
 
         {/* Filter chips */}

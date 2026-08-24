@@ -812,7 +812,13 @@
     "contact_leader_sub": "Chat WhatsApp ke leader untuk diskusi join ministry ini",
     "no_leader_contact": "Kontak leader belum tersedia. Hubungi admin cabang untuk info ministry ini.",
     "wa_message": "Halo {{name}}, saya tertarik untuk bergabung di ministry *{{ministry}}*. Mohon info lebih lanjut. Terima kasih.",
-    "join_via_wa_notice": "Untuk gabung ministry, hubungi leader via WhatsApp. Penambahan member dilakukan oleh admin / leader."
+    "join_via_wa_notice": "Untuk gabung ministry, hubungi leader via WhatsApp. Penambahan member dilakukan oleh admin / leader.",
+    "join_cta": "Gabung Ministry Ini",
+    "join_notice": "Anda akan langsung ditambahkan sebagai anggota. Leader akan diberi tahu.",
+    "join_success": "Selamat datang di {{ministry}} sebagai {{posisi}}!",
+    "join_already_member": "Anda sudah menjadi anggota ministry ini.",
+    "join_error": "Gagal join. Coba lagi atau hubungi leader.",
+    "closed_notice": "Ministry ini sedang tidak menerima anggota baru."
   },
   "homecell": {
     "title": "Homecell Saya",

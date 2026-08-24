@@ -1,13 +1,16 @@
 /**
- * Ministry API — per BE patch 2026-05-22a (mobile-api-guide section 16).
- * Pelayanan di BE schema = "Ministry" di mobile naming.
+ * Ministry API — per BE patch 2026-05-22a (list + detail) + Phase 2
+ * `backend-request-ministry-endpoints.md` item 4 RESOLVED 2026-08-03
+ * (POST /admin/ministry/:id/join simple direct-join, skip approval flow).
  *
- * Read-only endpoints untuk Phase 1. Join flow (POST /admin/ministry/:id/join)
- * di-defer ke Phase 2 — sementara user hubungi leader via WA.
+ * Pelayanan di BE schema = "Ministry" di mobile naming.
  */
 
 import { api } from './client';
-import type { MinistryListItem, MinistryDetail } from '@/types/ministry';
+import type {
+  MinistryListItem,
+  MinistryDetail,
+} from '@/types/ministry';
 
 /**
  * GET /admin/ministry — list semua ministry (pelayanan) yang aktif.
@@ -24,4 +27,33 @@ export function listMinistries() {
  */
 export function getMinistryDetail(id: string) {
   return api.get<MinistryDetail>(`/admin/ministry/${id}`);
+}
+
+/**
+ * POST /admin/ministry/:id/join — direct join (status ACTIVE).
+ * Per BE response 2026-08-03: skip approval flow, langsung ACTIVE.
+ * - `roleId` optional — kalau kosong, BE pilih role level terendah (biasanya "Anggota")
+ * - `motivasi` optional catatan untuk leader (in-app notif otomatis ke leader)
+ *
+ * Error responses:
+ * - 400 kalau ministry.isActive=false ("Ministry ini tidak buka untuk join")
+ * - 409 kalau user sudah member aktif (ALREADY_MEMBER)
+ */
+export type JoinMinistryPayload = {
+  roleId?: string;
+  motivasi?: string;
+};
+
+export type JoinMinistryResult = {
+  membershipId: string;
+  status: 'ACTIVE';
+  ministry: { id: string; nama: string };
+  posisi: string;
+};
+
+export function joinMinistry(id: string, payload: JoinMinistryPayload = {}) {
+  return api.post<JoinMinistryResult>(
+    `/admin/ministry/${id}/join`,
+    payload,
+  );
 }

@@ -812,7 +812,13 @@
     "contact_leader_sub": "WhatsApp the leader to discuss joining this ministry",
     "no_leader_contact": "Leader contact not available. Please contact your branch admin for info about this ministry.",
     "wa_message": "Hi {{name}}, I'm interested in joining the *{{ministry}}* ministry. Could you please share more details? Thanks.",
-    "join_via_wa_notice": "To join a ministry, contact the leader via WhatsApp. Member assignment is done by admin / leader."
+    "join_via_wa_notice": "To join a ministry, contact the leader via WhatsApp. Member assignment is done by admin / leader.",
+    "join_cta": "Join This Ministry",
+    "join_notice": "You'll be added as a member immediately. The leader will be notified.",
+    "join_success": "Welcome to {{ministry}} as {{posisi}}!",
+    "join_already_member": "You are already a member of this ministry.",
+    "join_error": "Could not join. Please try again or contact the leader.",
+    "closed_notice": "This ministry is currently not accepting new members."
   },
   "homecell": {
     "title": "My Homecells",

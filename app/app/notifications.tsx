@@ -1,97 +1,102 @@
+/**
+ * Notifications screen — real BE-backed feed via /admin/me/notifications.
+ * Per BE notice `backend-notice-in-app-notifications.md` (2026-08-03).
+ *
+ * Features:
+ * - Cursor-based infinite scroll
+ * - Group by Today / Yesterday / Earlier
+ * - Tap notif → mark read + navigate ke actionUrl
+ * - Header action: Mark all read
+ * - Empty state
+ *
+ * Previous version pakai local zustand `notifications.store` — di-deprecate
+ * karena BE deliver real in-app feed.
+ */
 import { useMemo } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
+  Archive,
   ArrowLeft,
+  Baby,
   Bell,
-  CalendarDays,
   CheckCheck,
-  Church,
-  CreditCard,
-  HandHeart,
-  Newspaper,
+  Eye,
+  Gift,
+  Handshake,
+  Home,
+  MapPin,
+  MapPinOff,
+  Sliders,
+  Star,
+  Ticket,
+  UserPlus,
+  UserX,
   Users,
 } from 'lucide-react-native';
 
-import { useNotificationsStore } from '@/stores/notifications.store';
-import type {
-  NotificationCategory,
-  NotificationItem,
-} from '@/stores/notifications.store';
+import {
+  useFlatNotifications,
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+} from '@/hooks/useNotifications';
+import {
+  notifIconColors,
+  notifIconKey,
+  resolveNotifRoute,
+  type NotifIconKey,
+} from '@/utils/notifRouting';
+import type { InAppNotification } from '@/types/notification';
 
-function categoryIcon(cat: NotificationCategory): {
-  icon: React.ReactNode;
-  bg: string;
-} {
-  switch (cat) {
-    case 'ibadah':
-      return {
-        icon: <Church size={18} color="#EA580C" />,
-        bg: 'bg-brand-50',
-      };
-    case 'event':
-      return {
-        icon: <CalendarDays size={18} color="#D97706" />,
-        bg: 'bg-amber-50',
-      };
-    case 'renungan':
-      return {
-        icon: <Newspaper size={18} color="#7c3aed" />,
-        bg: 'bg-purple-50',
-      };
-    case 'news':
-      return {
-        icon: <Newspaper size={18} color="#525252" />,
-        bg: 'bg-neutral-100',
-      };
-    case 'payment':
-      return {
-        icon: <CreditCard size={18} color="#1d4ed8" />,
-        bg: 'bg-blue-50',
-      };
+/* ==============================================================
+ * ICON RENDERER
+ * ============================================================== */
+function NotifIcon({ iconKey, color }: { iconKey: NotifIconKey; color: string }) {
+  switch (iconKey) {
+    case 'baby-check':
+      return <Baby size={18} color={color} />;
+    case 'handshake':
+      return <Handshake size={18} color={color} />;
+    case 'gift':
+      return <Gift size={18} color={color} />;
+    case 'star':
+      return <Star size={18} color={color} />;
+    case 'sliders':
+      return <Sliders size={18} color={color} />;
     case 'family':
-      return {
-        icon: <Users size={18} color="#059669" />,
-        bg: 'bg-emerald-50',
-      };
-    case 'branch_change':
-      return {
-        icon: <HandHeart size={18} color="#9a3412" />,
-        bg: 'bg-orange-50',
-      };
-    case 'system':
+      return <Users size={18} color={color} />;
+    case 'group-add':
+      return <UserPlus size={18} color={color} />;
+    case 'group-remove':
+      return <UserX size={18} color={color} />;
+    case 'archive':
+      return <Archive size={18} color={color} />;
+    case 'ticket-plus':
+    case 'ticket-check':
+    case 'ticket-qr':
+      return <Ticket size={18} color={color} />;
+    case 'home-check':
+      return <Home size={18} color={color} />;
+    case 'user-eye':
+      return <Eye size={18} color={color} />;
+    case 'map-check':
+      return <MapPin size={18} color={color} />;
+    case 'map-x':
+      return <MapPinOff size={18} color={color} />;
     default:
-      return {
-        icon: <Bell size={18} color="#525252" />,
-        bg: 'bg-neutral-100',
-      };
+      return <Bell size={18} color={color} />;
   }
 }
 
-function groupByDate(items: NotificationItem[]) {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const yesterday = today - 24 * 60 * 60 * 1000;
-
-  const groups: Record<'today' | 'yesterday' | 'earlier', NotificationItem[]> = {
-    today: [],
-    yesterday: [],
-    earlier: [],
-  };
-  for (const item of items) {
-    if (item.createdAt >= today) groups.today.push(item);
-    else if (item.createdAt >= yesterday) groups.yesterday.push(item);
-    else groups.earlier.push(item);
-  }
-  return groups;
-}
-
+/* ==============================================================
+ * TIME AGO
+ * ============================================================== */
 type TFn = (key: string, opts?: { count?: number }) => string;
 
-function timeAgo(ts: number, t: TFn): string {
-  const diff = Date.now() - ts;
+function timeAgo(iso: string, t: TFn): string {
+  const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60_000);
   if (m < 1) return t('notifications.now');
   if (m < 60) return t('notifications.minutes_ago', { count: m });
@@ -101,21 +106,69 @@ function timeAgo(ts: number, t: TFn): string {
   return t('notifications.days_ago', { count: d });
 }
 
+/* ==============================================================
+ * GROUP BY DATE
+ * ============================================================== */
+type Section = { title: string; data: InAppNotification[] };
+
+function groupSections(items: InAppNotification[], t: TFn): Section[] {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const yesterday = today - 24 * 60 * 60 * 1000;
+
+  const buckets = { today: [] as InAppNotification[], yesterday: [] as InAppNotification[], earlier: [] as InAppNotification[] };
+  for (const n of items) {
+    const ts = new Date(n.createdAt).getTime();
+    if (ts >= today) buckets.today.push(n);
+    else if (ts >= yesterday) buckets.yesterday.push(n);
+    else buckets.earlier.push(n);
+  }
+
+  const sections: Section[] = [];
+  if (buckets.today.length)
+    sections.push({ title: t('notifications.section_today'), data: buckets.today });
+  if (buckets.yesterday.length)
+    sections.push({ title: t('notifications.section_yesterday'), data: buckets.yesterday });
+  if (buckets.earlier.length)
+    sections.push({ title: t('notifications.section_earlier'), data: buckets.earlier });
+  return sections;
+}
+
+/* ==============================================================
+ * MAIN SCREEN
+ * ============================================================== */
 export default function NotificationsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const items = useNotificationsStore((s) => s.items);
-  const markRead = useNotificationsStore((s) => s.markRead);
-  const markAllRead = useNotificationsStore((s) => s.markAllRead);
 
-  const groups = useMemo(() => groupByDate(items), [items]);
-  const hasUnread = items.some((i) => !i.read);
+  const query = useFlatNotifications();
+  const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
 
-  function handleTap(item: NotificationItem) {
-    if (!item.read) markRead(item.id);
-    if (item.deepLink) {
+  const items = query.items;
+  const hasUnread = items.some((n) => !n.readAt);
+
+  const sections = useMemo(() => groupSections(items, t as TFn), [items, t]);
+
+  // Flatten sections back to a single list with header rows untuk FlatList.
+  const listData = useMemo(() => {
+    const rows: Array<
+      | { kind: 'section'; title: string }
+      | { kind: 'row'; notif: InAppNotification }
+    > = [];
+    for (const s of sections) {
+      rows.push({ kind: 'section', title: s.title });
+      for (const n of s.data) rows.push({ kind: 'row', notif: n });
+    }
+    return rows;
+  }, [sections]);
+
+  function handleTap(notif: InAppNotification) {
+    if (!notif.readAt) markRead.mutate(notif.id);
+    const route = resolveNotifRoute(notif);
+    if (route) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      router.push(item.deepLink as any);
+      router.push(route as any);
     }
   }
 
@@ -126,6 +179,7 @@ export default function NotificationsScreen() {
           <Pressable
             onPress={() => router.back()}
             className="w-10 h-10 items-center justify-center"
+            accessibilityLabel={t('common.back')}
           >
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
@@ -134,8 +188,9 @@ export default function NotificationsScreen() {
           </Text>
           {hasUnread ? (
             <Pressable
-              onPress={() => markAllRead()}
+              onPress={() => markAllRead.mutate()}
               className="flex-row items-center gap-1.5 px-3 py-1.5"
+              disabled={markAllRead.isPending}
             >
               <CheckCheck size={14} color="#EA580C" />
               <Text className="text-xs font-semibold text-brand-600">
@@ -146,87 +201,96 @@ export default function NotificationsScreen() {
         </View>
       </SafeAreaView>
 
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 32 }}
-      >
-        {items.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <>
-            {groups.today.length > 0 ? (
-              <Section title={t('notifications.section_today')}>
-                {groups.today.map((n) => (
-                  <NotificationRow key={n.id} item={n} onPress={() => handleTap(n)} />
-                ))}
-              </Section>
-            ) : null}
-            {groups.yesterday.length > 0 ? (
-              <Section title={t('notifications.section_yesterday')}>
-                {groups.yesterday.map((n) => (
-                  <NotificationRow key={n.id} item={n} onPress={() => handleTap(n)} />
-                ))}
-              </Section>
-            ) : null}
-            {groups.earlier.length > 0 ? (
-              <Section title={t('notifications.section_earlier')}>
-                {groups.earlier.map((n) => (
-                  <NotificationRow key={n.id} item={n} onPress={() => handleTap(n)} />
-                ))}
-              </Section>
-            ) : null}
-          </>
-        )}
-
-        {/* Push notif coming-soon notice di-hide per user feedback —
-            sudah ada local triggers untuk event flows, family link, branch
-            change, dll. User tidak perlu disclaimer "in development". */}
-      </ScrollView>
+      {query.isPending ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator color="#F97316" />
+        </View>
+      ) : query.isError ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-sm text-red-600 text-center mb-3">
+            {t('error.generic')}
+          </Text>
+          <Pressable onPress={() => query.refetch()}>
+            <Text className="text-sm font-bold text-brand-600">
+              {t('common.retry')}
+            </Text>
+          </Pressable>
+        </View>
+      ) : items.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <FlatList
+          data={listData}
+          keyExtractor={(item, idx) =>
+            item.kind === 'section' ? `s-${item.title}-${idx}` : `n-${item.notif.id}`
+          }
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 32 }}
+          onRefresh={() => query.refetch()}
+          refreshing={query.isRefetching && !query.isFetchingNextPage}
+          onEndReachedThreshold={0.4}
+          onEndReached={() => {
+            if (query.hasNextPage && !query.isFetchingNextPage) {
+              query.fetchNextPage();
+            }
+          }}
+          renderItem={({ item }) => {
+            if (item.kind === 'section') {
+              return (
+                <Text className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mt-4 mb-2 px-1">
+                  {item.title}
+                </Text>
+              );
+            }
+            return <NotifRow item={item.notif} onPress={() => handleTap(item.notif)} />;
+          }}
+          ListFooterComponent={
+            query.isFetchingNextPage ? (
+              <View className="py-4 items-center">
+                <ActivityIndicator color="#F97316" size="small" />
+              </View>
+            ) : null
+          }
+          ItemSeparatorComponent={() => <View className="h-2" />}
+        />
+      )}
     </View>
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <View className="mt-3">
-      <Text className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-2 px-1">
-        {title}
-      </Text>
-      <View className="gap-2">{children}</View>
-    </View>
-  );
-}
-
-function NotificationRow({
+/* ==============================================================
+ * NOTIFICATION ROW
+ * ============================================================== */
+function NotifRow({
   item,
   onPress,
 }: {
-  item: NotificationItem;
+  item: InAppNotification;
   onPress: () => void;
 }) {
   const { t } = useTranslation();
-  const cat = categoryIcon(item.category);
+  const iconKey = notifIconKey(item.type);
+  const colors = notifIconColors(iconKey);
+  const isUnread = !item.readAt;
+
   return (
     <Pressable
       onPress={onPress}
       className={`p-3 rounded-2xl flex-row items-start gap-3 ${
-        item.read ? 'bg-white border border-neutral-100' : 'bg-brand-50 border border-brand-100'
+        isUnread
+          ? 'bg-brand-50 border border-brand-100'
+          : 'bg-white border border-neutral-100'
       }`}
     >
-      <View className={`w-10 h-10 rounded-xl ${cat.bg} items-center justify-center`}>
-        {cat.icon}
+      <View
+        className={`w-10 h-10 rounded-xl ${colors.bgClass} items-center justify-center`}
+      >
+        <NotifIcon iconKey={iconKey} color={colors.fg} />
       </View>
       <View className="flex-1 min-w-0">
         <View className="flex-row items-start gap-2">
           <Text
             className={`flex-1 text-sm font-semibold ${
-              item.read ? 'text-neutral-700' : 'text-neutral-900'
+              isUnread ? 'text-neutral-900' : 'text-neutral-700'
             }`}
             numberOfLines={1}
           >
@@ -238,24 +302,27 @@ function NotificationRow({
         </View>
         <Text
           className={`text-xs mt-0.5 ${
-            item.read ? 'text-neutral-500' : 'text-neutral-700'
+            isUnread ? 'text-neutral-700' : 'text-neutral-500'
           }`}
           numberOfLines={2}
         >
           {item.body}
         </Text>
       </View>
-      {!item.read ? (
+      {isUnread ? (
         <View className="w-2 h-2 rounded-full bg-brand-500 mt-1" />
       ) : null}
     </Pressable>
   );
 }
 
+/* ==============================================================
+ * EMPTY STATE
+ * ============================================================== */
 function EmptyState() {
   const { t } = useTranslation();
   return (
-    <View className="items-center py-20 px-8">
+    <View className="flex-1 items-center justify-center px-8">
       <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-4">
         <Bell size={32} color="#A3A3A3" />
       </View>

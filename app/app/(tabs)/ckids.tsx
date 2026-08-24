@@ -40,6 +40,7 @@ import {
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { NotificationBell } from '@/components/NotificationBell';
 import {
   useHadiahKatalog,
   useMyChildren,
@@ -229,6 +230,7 @@ export default function CKidsTabScreen() {
           <Text className="text-lg font-bold text-neutral-900 flex-1">
             {t('ckids.tab_title')}
           </Text>
+          <NotificationBell variant="dark" badgeBorderColor="#FFFFFF" />
         </View>
       </SafeAreaView>
 
