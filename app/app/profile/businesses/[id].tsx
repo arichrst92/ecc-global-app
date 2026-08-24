@@ -2,12 +2,11 @@
  * Owner business detail/edit — per BE handoff doc 2026-05-22 (rev a).
  *
  * Layout: hero+logo with edit buttons, form fields editable inline,
- * social links dynamic list, PDF upload (image-only fallback for v1),
- * toggle isActive, delete with confirm.
+ * social links dynamic list, PDF upload (real via expo-document-picker
+ * post v1.6.0), toggle isActive, delete with confirm.
  *
- * NOTE: PDF upload pakai expo-image-picker bisa via document picker — but
- * untuk simplicity v1, kita anggap PDF upload feature placeholder (BE ready
- * tapi UI defer ke v2 pakai expo-document-picker). User bisa contact admin.
+ * PDF: max 5 MB (BE limit), MIME application/pdf only, client-side
+ * size validation sebelum upload.
  */
 import { useEffect, useState } from 'react';
 import {
@@ -28,6 +27,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 import {
   ArrowLeft,
   Camera,
@@ -52,6 +52,7 @@ import {
   useUpdateBusiness,
   useUploadBusinessHero,
   useUploadBusinessLogo,
+  useUploadBusinessPdf,
 } from '@/hooks/useLocalBusiness';
 import { ApiError } from '@/types/api';
 import { env } from '@/config/env';
@@ -72,6 +73,7 @@ export default function OwnerBusinessDetailScreen() {
   const heroDeleteMutation = useDeleteBusinessHero(id ?? '');
   const logoUploadMutation = useUploadBusinessLogo(id ?? '');
   const logoDeleteMutation = useDeleteBusinessLogo(id ?? '');
+  const pdfUploadMutation = useUploadBusinessPdf(id ?? '');
   const pdfDeleteMutation = useDeleteBusinessPdf(id ?? '');
   const deleteBizMutation = useDeleteBusiness();
 
@@ -107,6 +109,43 @@ export default function OwnerBusinessDetailScreen() {
       setIsActive(biz.isActive);
     }
   }, [biz]);
+
+  /**
+   * PDF company profile picker — max 5 MB (BE limit).
+   * Uses expo-document-picker native sheet, MIME filter application/pdf.
+   */
+  async function pickAndUploadPdf() {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'application/pdf',
+      copyToCacheDirectory: true,
+      multiple: false,
+    });
+    if (result.canceled || !result.assets[0]) return;
+    const asset = result.assets[0];
+
+    // Client-side size validation — max 5 MB to match BE
+    const MAX_BYTES = 5 * 1024 * 1024;
+    if (typeof asset.size === 'number' && asset.size > MAX_BYTES) {
+      showToast(t('my_business.pdf_too_large'), 'error');
+      return;
+    }
+
+    const fileObj = {
+      uri: asset.uri,
+      name: asset.name || 'company-profile.pdf',
+      type: asset.mimeType || 'application/pdf',
+    };
+
+    pdfUploadMutation.mutate(fileObj, {
+      onSuccess: () => {
+        showToast(t('my_business.pdf_upload_success'), 'success');
+      },
+      onError: (err) => {
+        const msg = err instanceof ApiError ? err.message : t('error.network');
+        showToast(msg, 'error');
+      },
+    });
+  }
 
   async function pickAndUploadImage(target: 'hero' | 'logo') {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -593,12 +632,29 @@ export default function OwnerBusinessDetailScreen() {
                   </Pressable>
                 </View>
               ) : (
-                <View className="bg-neutral-100 rounded-2xl p-4 flex-row items-center gap-3">
-                  <Upload size={18} color="#737373" />
-                  <Text className="text-xs text-neutral-600 flex-1">
-                    {t('my_business.pdf_not_supported')}
-                  </Text>
-                </View>
+                <Pressable
+                  onPress={pickAndUploadPdf}
+                  disabled={pdfUploadMutation.isPending}
+                  className="bg-white rounded-2xl p-4 border border-dashed border-neutral-300 flex-row items-center gap-3"
+                >
+                  <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+                    {pdfUploadMutation.isPending ? (
+                      <ActivityIndicator color="#EA580C" size="small" />
+                    ) : (
+                      <Upload size={18} color="#EA580C" />
+                    )}
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-neutral-900">
+                      {pdfUploadMutation.isPending
+                        ? t('my_business.pdf_uploading')
+                        : t('my_business.pdf_upload_cta')}
+                    </Text>
+                    <Text className="text-xs text-neutral-500 mt-0.5">
+                      {t('my_business.pdf_max_size')}
+                    </Text>
+                  </View>
+                </Pressable>
               )}
             </Field>
 
