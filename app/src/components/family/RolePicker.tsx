@@ -14,6 +14,11 @@ function roleLabel(role: FamilyRole, t: (k: string) => string): string {
       return t('family.role_parent');
     case 'SIBLING':
       return t('family.role_sibling');
+    case 'GUARDIAN':
+      return t('family.role_guardian');
+    case 'OTHER':
+    default:
+      return t('family.role_other');
   }
 }
 

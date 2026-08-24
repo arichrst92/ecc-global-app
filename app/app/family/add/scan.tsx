@@ -7,19 +7,19 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { ArrowLeft, QrCode, RefreshCw } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
-import { RolePicker } from '@/components/family/RolePicker';
+import { TipeRelasiPicker } from '@/components/family/TipeRelasiPicker';
 import { useToast } from '@/components/ui/Toast';
 import { useLinkByKode } from '@/hooks/useFamily';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
-import type { FamilyRole } from '@/types/family';
+import type { TipeRelasi } from '@/types/tipeRelasi';
 
 export default function FamilyScanScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedKode, setScannedKode] = useState<string | null>(null);
-  const [role, setRole] = useState<FamilyRole | null>(null);
+  const [tipe, setTipe] = useState<TipeRelasi | null>(null);
   const showToast = useToast((s) => s.show);
   const linkMutation = useLinkByKode();
 
@@ -37,9 +37,9 @@ export default function FamilyScanScreen() {
   const addNotification = useNotificationsStore((s) => s.add);
 
   function handleSubmit() {
-    if (!scannedKode || !role) return;
+    if (!scannedKode || !tipe) return;
     linkMutation.mutate(
-      { kode: scannedKode, role },
+      { kode: scannedKode, tipeRelasiId: tipe.id },
       {
         onSuccess: (data) => {
           const name = data.target?.namaLengkap ?? '';
@@ -141,7 +141,11 @@ export default function FamilyScanScreen() {
             </Text>
           </View>
 
-          <RolePicker value={role} onChange={setRole} disabled={linkMutation.isPending} />
+          <TipeRelasiPicker
+            value={tipe}
+            onChange={setTipe}
+            disabled={linkMutation.isPending}
+          />
 
           <Pressable
             onPress={() => setScannedKode(null)}
@@ -160,7 +164,7 @@ export default function FamilyScanScreen() {
               label={t('family.link_member')}
               onPress={handleSubmit}
               loading={linkMutation.isPending}
-              disabled={!role}
+              disabled={!tipe}
               fullWidth
               size="lg"
             />

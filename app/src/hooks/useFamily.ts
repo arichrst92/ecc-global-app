@@ -5,10 +5,15 @@ import {
   linkByKode,
   linkByPhone,
   registerNewFamily,
+  updateFamilyRelation,
   updateFamilyRole,
   unlinkFamily,
 } from '@/api/family';
-import type { FamilyRole } from '@/types/family';
+import type {
+  FamilyRole,
+  LinkByKodePayload,
+  LinkByPhonePayload,
+} from '@/types/family';
 
 const FAMILY_QUERY_KEY = ['family', 'list'] as const;
 
@@ -25,7 +30,7 @@ export function useMyFamily() {
 export function useLinkByKode() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { kode: string; role: FamilyRole }) => linkByKode(payload),
+    mutationFn: (payload: LinkByKodePayload) => linkByKode(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
     },
@@ -36,7 +41,7 @@ export function useLinkByKode() {
 export function useLinkByPhone() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { noHp: string; role: FamilyRole }) => linkByPhone(payload),
+    mutationFn: (payload: LinkByPhonePayload) => linkByPhone(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
     },
@@ -54,12 +59,26 @@ export function useRegisterNewFamily() {
   });
 }
 
-/** Mutation: update role */
+/** Mutation: update role (legacy broad enum) */
 export function useUpdateFamilyRole() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (args: { jemaatId: string; role: FamilyRole }) =>
       updateFamilyRole(args.jemaatId, args.role),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+    },
+  });
+}
+
+/** Mutation: update relation via granular tipeRelasiId (recommended) */
+export function useUpdateFamilyRelation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (args: {
+      jemaatId: string;
+      payload: import('@/types/family').UpdateFamilyRelationPayload;
+    }) => updateFamilyRelation(args.jemaatId, args.payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
     },

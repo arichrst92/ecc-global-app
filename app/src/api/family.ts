@@ -40,11 +40,23 @@ export function registerNewFamily(payload: RegisterNewFamilyPayload) {
 }
 
 /**
- * PATCH /admin/me/family/:jemaatId — update role family member.
+ * PATCH /admin/me/family/:jemaatId — update relation type family member.
  * {jemaatId} = jemaat target (jemaatB di row family relation).
+ *
+ * Payload dual accept per BE refactor 2026-08-02:
+ * - `role: FamilyRole` (broad, backward compat) ATAU
+ * - `tipeRelasiId: string` (granular UUID, recommended)
  */
+export function updateFamilyRelation(
+  jemaatId: string,
+  payload: import('@/types/family').UpdateFamilyRelationPayload,
+) {
+  return api.patch<LinkFamilyResponse>(`/admin/me/family/${jemaatId}`, payload);
+}
+
+/** @deprecated use updateFamilyRelation with discriminator payload */
 export function updateFamilyRole(jemaatId: string, role: FamilyRole) {
-  return api.patch<LinkFamilyResponse>(`/admin/me/family/${jemaatId}`, { role });
+  return updateFamilyRelation(jemaatId, { role });
 }
 
 /**

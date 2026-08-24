@@ -349,7 +349,19 @@
     "unlinked": "Hubungan keluarga berhasil dihapus.",
     "edit_dependent_btn": "Edit Profil Anggota",
     "edit_dependent_sub": "Ubah nama, tanggal lahir, alamat anggota dependent ini",
-    "edit_dependent_soon": "Fitur edit profil dependent menunggu endpoint backend siap. Untuk sekarang hubungi pengurus cabang."
+    "edit_dependent_soon": "Fitur edit profil dependent menunggu endpoint backend siap. Untuk sekarang hubungi pengurus cabang.",
+    "tipe_label": "Hubungan dengan Anda",
+    "tipe_placeholder": "Pilih tipe hubungan",
+    "tipe_picker_title": "Pilih Tipe Hubungan",
+    "tipe_load_error": "Gagal memuat daftar tipe hubungan. Coba lagi.",
+    "tipe_empty": "Belum ada tipe hubungan tersedia.",
+    "cat_pasangan": "Pasangan",
+    "cat_orangtua": "Orang Tua",
+    "cat_anak": "Anak",
+    "cat_saudara": "Saudara",
+    "cat_kakeknenek": "Kakek / Nenek",
+    "cat_cucu": "Cucu",
+    "cat_walilain": "Wali / Lainnya"
   },
   "placeholder": {
     "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."

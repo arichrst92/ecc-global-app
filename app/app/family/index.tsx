@@ -26,7 +26,25 @@ function roleLabel(role: FamilyRole, t: (k: string) => string): string {
       return t('family.role_parent');
     case 'SIBLING':
       return t('family.role_sibling');
+    case 'GUARDIAN':
+      return t('family.role_guardian');
+    case 'OTHER':
+    default:
+      return t('family.role_other');
   }
+}
+
+/**
+ * Display label — prefer tipeRelasi.nama (granular) over broad role.
+ * Post BE refactor 2026-08-02 semua row baru punya tipeRelasi.
+ * Row lama (pre-refactor) fallback ke roleLabel.
+ */
+function relationDisplayLabel(
+  relation: FamilyRelation,
+  t: (k: string) => string,
+): string {
+  if (relation.tipeRelasi?.nama) return relation.tipeRelasi.nama;
+  return roleLabel(relation.role, t);
 }
 
 function roleColor(role: FamilyRole): { bg: string; text: string } {
@@ -39,6 +57,11 @@ function roleColor(role: FamilyRole): { bg: string; text: string } {
       return { bg: 'bg-amber-100', text: 'text-amber-700' };
     case 'SIBLING':
       return { bg: 'bg-emerald-100', text: 'text-emerald-700' };
+    case 'GUARDIAN':
+      return { bg: 'bg-purple-100', text: 'text-purple-700' };
+    case 'OTHER':
+    default:
+      return { bg: 'bg-neutral-100', text: 'text-neutral-700' };
   }
 }
 
@@ -172,7 +195,7 @@ function FamilyCard({
         </Text>
         <View className={`${color.bg} self-start px-2 py-0.5 rounded-full mt-1`}>
           <Text className={`text-[10px] font-bold ${color.text}`}>
-            {roleLabel(role, t)}
+            {relationDisplayLabel(relation, t)}
           </Text>
         </View>
       </View>

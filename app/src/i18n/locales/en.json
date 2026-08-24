@@ -349,7 +349,19 @@
     "unlinked": "Family relation removed.",
     "edit_dependent_btn": "Edit Member Profile",
     "edit_dependent_sub": "Change name, date of birth, address of this dependent member",
-    "edit_dependent_soon": "Dependent profile editing is awaiting backend endpoint. For now please contact your branch admin."
+    "edit_dependent_soon": "Dependent profile editing is awaiting backend endpoint. For now please contact your branch admin.",
+    "tipe_label": "Relationship to you",
+    "tipe_placeholder": "Choose relationship type",
+    "tipe_picker_title": "Choose Relationship",
+    "tipe_load_error": "Failed to load relationship types. Please try again.",
+    "tipe_empty": "No relationship types available.",
+    "cat_pasangan": "Spouse",
+    "cat_orangtua": "Parents",
+    "cat_anak": "Children",
+    "cat_saudara": "Siblings",
+    "cat_kakeknenek": "Grandparents",
+    "cat_cucu": "Grandchildren",
+    "cat_walilain": "Guardian / Other"
   },
   "placeholder": {
     "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."

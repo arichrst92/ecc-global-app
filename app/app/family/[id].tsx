@@ -7,12 +7,16 @@ import { AlertTriangle, ArrowLeft, MapPin, Pencil, Phone, Trash2 } from 'lucide-
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { RolePicker } from '@/components/family/RolePicker';
+import { TipeRelasiPicker } from '@/components/family/TipeRelasiPicker';
 import { useToast } from '@/components/ui/Toast';
-import { useMyFamily, useUnlinkFamily, useUpdateFamilyRole } from '@/hooks/useFamily';
+import {
+  useMyFamily,
+  useUnlinkFamily,
+  useUpdateFamilyRelation,
+} from '@/hooks/useFamily';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { ApiError } from '@/types/api';
-import type { FamilyRole } from '@/types/family';
+import type { TipeRelasi } from '@/types/tipeRelasi';
 
 export default function FamilyDetailScreen() {
   const { t } = useTranslation();
@@ -24,9 +28,9 @@ export default function FamilyDetailScreen() {
   const relation = familyQuery.data?.find((f) => f.jemaat.id === id);
 
   const [unlinkOpen, setUnlinkOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<FamilyRole | null>(null);
+  const [editingTipe, setEditingTipe] = useState<TipeRelasi | null>(null);
 
-  const updateMutation = useUpdateFamilyRole();
+  const updateMutation = useUpdateFamilyRelation();
   const unlinkMutation = useUnlinkFamily();
 
   if (familyQuery.isPending) {
@@ -59,18 +63,24 @@ export default function FamilyDetailScreen() {
     );
   }
 
-  const { jemaat, role } = relation;
-  const currentRole = editingRole ?? role;
-  const hasRoleChange = editingRole !== null && editingRole !== role;
+  const { jemaat } = relation;
+  // Current display: prefer tipeRelasi (granular) dari server, fallback ke null
+  // saat row lama tanpa tipeRelasi (user harus pick granular untuk update)
+  const serverTipe: TipeRelasi | null = relation.tipeRelasi
+    ? { id: relation.tipeRelasi.id, nama: relation.tipeRelasi.nama }
+    : null;
+  const currentTipe = editingTipe ?? serverTipe;
+  const hasTipeChange =
+    editingTipe !== null && editingTipe.id !== serverTipe?.id;
 
   function handleSaveRole() {
-    if (!editingRole) return;
+    if (!editingTipe) return;
     updateMutation.mutate(
-      { jemaatId: jemaat.id, role: editingRole },
+      { jemaatId: jemaat.id, payload: { tipeRelasiId: editingTipe.id } },
       {
         onSuccess: () => {
           showToast(t('family.role_updated'), 'success');
-          setEditingRole(null);
+          setEditingTipe(null);
         },
         onError: (err) => {
           const msg = err instanceof ApiError ? err.message : t('error.network');
@@ -164,20 +174,20 @@ export default function FamilyDetailScreen() {
           </View>
         </View>
 
-        {/* Role editor */}
+        {/* Role editor — granular tipe relasi */}
         <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4">
-          <RolePicker
-            value={currentRole}
-            onChange={setEditingRole}
+          <TipeRelasiPicker
+            value={currentTipe}
+            onChange={setEditingTipe}
             disabled={updateMutation.isPending}
           />
-          {hasRoleChange ? (
+          {hasTipeChange ? (
             <View className="flex-row gap-2 mt-3">
               <View className="flex-1">
                 <Button
                   label={t('common.cancel')}
                   variant="secondary"
-                  onPress={() => setEditingRole(null)}
+                  onPress={() => setEditingTipe(null)}
                   fullWidth
                   disabled={updateMutation.isPending}
                 />

@@ -15,19 +15,19 @@ import { ArrowLeft, Info } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
-import { RolePicker } from '@/components/family/RolePicker';
+import { TipeRelasiPicker } from '@/components/family/TipeRelasiPicker';
 import { useToast } from '@/components/ui/Toast';
 import { useLinkByPhone } from '@/hooks/useFamily';
 import { normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
-import type { FamilyRole } from '@/types/family';
+import type { TipeRelasi } from '@/types/tipeRelasi';
 
 export default function FamilyAddPhoneScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  const [role, setRole] = useState<FamilyRole | null>(null);
+  const [tipe, setTipe] = useState<TipeRelasi | null>(null);
   const showToast = useToast((s) => s.show);
   const linkMutation = useLinkByPhone();
 
@@ -38,9 +38,9 @@ export default function FamilyAddPhoneScreen() {
       setPhoneError(t('auth.error_invalid_phone'));
       return;
     }
-    if (!role) return;
+    if (!tipe) return;
     linkMutation.mutate(
-      { noHp: e164, role },
+      { noHp: e164, tipeRelasiId: tipe.id },
       {
         onSuccess: (data) => {
           showToast(
@@ -68,7 +68,7 @@ export default function FamilyAddPhoneScreen() {
     );
   }
 
-  const submitDisabled = !role || phone.length < 8;
+  const submitDisabled = !tipe || phone.length < 8;
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
@@ -116,7 +116,11 @@ export default function FamilyAddPhoneScreen() {
           </View>
 
           <View className="mt-5">
-            <RolePicker value={role} onChange={setRole} disabled={linkMutation.isPending} />
+            <TipeRelasiPicker
+              value={tipe}
+              onChange={setTipe}
+              disabled={linkMutation.isPending}
+            />
           </View>
         </ScrollView>
 

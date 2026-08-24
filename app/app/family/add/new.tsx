@@ -16,11 +16,11 @@ import { ArrowLeft, Calendar as CalendarIcon, Info, UserPlus } from 'lucide-reac
 
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
-import { RolePicker } from '@/components/family/RolePicker';
+import { TipeRelasiPicker } from '@/components/family/TipeRelasiPicker';
 import { useToast } from '@/components/ui/Toast';
 import { useRegisterNewFamily } from '@/hooks/useFamily';
 import { ApiError } from '@/types/api';
-import type { FamilyRole } from '@/types/family';
+import type { TipeRelasi } from '@/types/tipeRelasi';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -28,7 +28,7 @@ export default function FamilyAddNewScreen() {
   const [nama, setNama] = useState('');
   const [namaError, setNamaError] = useState<string | null>(null);
   const [gender, setGender] = useState<'L' | 'P' | null>(null);
-  const [role, setRole] = useState<FamilyRole | null>(null);
+  const [tipe, setTipe] = useState<TipeRelasi | null>(null);
   const [tanggalLahir, setTanggalLahir] = useState<string>(''); // ISO YYYY-MM-DD, '' = belum diisi
   const [showDatePicker, setShowDatePicker] = useState(false);
   const showToast = useToast((s) => s.show);
@@ -40,11 +40,11 @@ export default function FamilyAddNewScreen() {
       setNamaError(t('family.nama_required'));
       return;
     }
-    if (!role) return;
+    if (!tipe) return;
     registerMutation.mutate(
       {
         namaLengkap: nama.trim(),
-        role,
+        tipeRelasiId: tipe.id,
         jenisKelamin: gender,
         tanggalLahir: tanggalLahir || null,
         noHp: null, // dependent — no phone
@@ -68,7 +68,7 @@ export default function FamilyAddNewScreen() {
     );
   }
 
-  const submitDisabled = !nama.trim() || !role;
+  const submitDisabled = !nama.trim() || !tipe;
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
@@ -174,9 +174,9 @@ export default function FamilyAddNewScreen() {
           </View>
 
           <View className="mt-5">
-            <RolePicker
-              value={role}
-              onChange={setRole}
+            <TipeRelasiPicker
+              value={tipe}
+              onChange={setTipe}
               disabled={registerMutation.isPending}
             />
           </View>
