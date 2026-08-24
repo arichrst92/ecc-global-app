@@ -197,3 +197,111 @@ Kalau ada blocker atau butuh iterate response BE, reply di doc ini atau ping via
 ---
 
 *Doc versi: 1.0 — 2026-08-24.*
+
+---
+
+## 🔧 BE RESPONSE (2026-08-24)
+
+**Dari:** Tim Backend ECC (IDEA dev)
+
+Terima kasih adoption complete-nya. Semua 3 open questions dijawab + 1 minor fix di ministry endpoint.
+
+### Q1 — Cache TTL unread-count per-role tuning?
+
+**Answer**: Saat ini **hardcoded 10s** di `apps/core-api/src/routes/admin/me.ts:1228`:
+```typescript
+res.setHeader('Cache-Control', 'private, max-age=10');
+```
+
+Belum ada per-role tuning. Analisis worst-case delay yang lo hitung `10s cache + 30s poll + network ≈ ~40s` sudah correct.
+
+**Rekomendasi BE**: **keep hardcoded 10s** untuk MVP. Alasan:
+- Per-role tuning butuh query DB (cek relasi CHILD) tiap request unread-count → defeat purpose caching
+- 40s worst-case fine untuk 16 event types yg tidak time-critical (kids pickup masih dapat kode di app dalam <1 menit)
+- Kalau ada complaint spesifik (parent bilang "kode telat muncul"), turunkan ke 5s global — lebih simple daripada branching per-role
+
+**Kalau nanti mau tune**: bisa switch ke `Cache-Control: no-cache` + rely on in-memory query cache (Prisma has built-in). Effort ~30 menit. Ping kalau butuh.
+
+### Q2 — Deduplication policy: 2 anak back-to-back
+
+**Answer**: **1 notif per event per parent** — sesuai asumsi mobile UI current. Backend emit terpisah:
+- Anak A check-in → `createNotificationBatch(parents, {type: CKIDS_CHECKIN, metadata: {anakId: A}})`
+- Anak B check-in → `createNotificationBatch(parents, {type: CKIDS_CHECKIN, metadata: {anakId: B}})`
+
+Result: parent yg punya A+B akan lihat **2 rows di feed** — 1 per anak, dgn pickupCode masing-masing di metadata. Cocok karena tiap check-in punya pickupCode unik.
+
+**Aggregation** (mis. "2 anak sudah check-in") **tidak diimplementasi** — defer sampai user feedback justify. Kalau nanti diadopsi, akan pakai:
+- New notif type `CKIDS_CHECKIN_BATCH` (bukan modify existing type — backward compat)
+- `metadata.entries: [{anakId, pickupCode}, ...]` array
+- Debounce window 30-60s per parent per ibadah
+
+Mobile UI current yg render 1-per-event tetap aman.
+
+### Q3 — Timezone consistency
+
+**Answer**: **UTC dengan Z suffix** (confirmed).
+
+Backend pakai Prisma default (`DateTime @default(now())` = UTC), dan serialize via `date.toISOString()` yang always emit `2026-08-24T04:57:38.687Z` format.
+
+Verify:
+```bash
+node -e "console.log(new Date().toISOString())"
+# 2026-08-24T04:57:38.687Z
+```
+
+Semua `createdAt` di response `/admin/me/notifications` dan endpoint lain (audit, reservasi, dll) mengikuti pattern sama. **Aman parse via `new Date(iso).getTime()`** di mobile — akan auto-convert ke device locale.
+
+### Bonus Fix — Ministry 409 `ALREADY_MEMBER` code
+
+Lo mention heuristik `status === 409 || /already/i.test(message)`. Saya patch endpoint untuk emit **explicit code `ALREADY_MEMBER`**:
+
+**Sebelum** (`ministry.ts:193`):
+```typescript
+if (existing) throw Conflict('Anda sudah member ministry ini');
+// Response: { error: { code: 'CONFLICT', message: '...' } }
+```
+
+**Sesudah**:
+```typescript
+if (existing) throw new ApiError(409, 'ALREADY_MEMBER', 'Anda sudah member ministry ini');
+// Response: { error: { code: 'ALREADY_MEMBER', message: '...' } }
+```
+
+**Deploy status**: patch di local, siap commit. Setelah deploy VPS, lo bisa switch mobile ke `error.code === 'ALREADY_MEMBER'` yg lebih presisi. Heuristik existing tetap jalan (backward compat) — no urgent switch needed.
+
+### Recommendations untuk Deploy
+
+**Sebelum submit v1.6.0 ke store**:
+1. Test round-trip 16 type — bisa manual via portal (mis. redeem hadiah untuk trigger GIFT_REDEEMED, admin adjust point untuk POINT_ADJUSTED)
+2. Test cursor pagination — pastikan `hasMore=true` case ter-handle (butuh > 20 notif di 1 user, bisa generate cepat dgn admin loop point-adjust)
+3. Test ministry ALREADY_MEMBER — attempt join 2x, kedua kali harus 409 dgn code `ALREADY_MEMBER` (setelah patch deploy)
+
+**BE tidak punya notif emit dashboard** — semua notif natural side-effect dari admin action. Kalau butuh dev testing lebih cepat, saya bisa expose endpoint dev-only `POST /admin/dev/emit-notif { jemaatId, type, ... }` — cuma 15 menit kerja. Ping kalau perlu.
+
+### Deploy Steps BE
+
+```bash
+# Mac
+cd /Users/idea/Projects/ecc-core-platform
+git add apps/core-api/src/routes/admin/ministry.ts
+git commit -m "fix(ministry): 409 emit ALREADY_MEMBER code (not generic CONFLICT)
+
+Mobile v1.6.0 heuristik cocok dgn status+message match, tapi explicit
+code lebih presisi. Backward compat aman — CONFLICT code sebelumnya
+tidak dipakai di client match, cuma display error message."
+git push origin main
+
+# VPS
+ssh root@187.77.118.85
+cd /var/www/ecc-core-platform
+git pull origin main
+pnpm --filter @ecc/core-api build
+pm2 restart ecc-core-api --update-env
+pm2 logs ecc-core-api --lines 20
+```
+
+Selesai. Ready untuk lo submit v1.6.0.
+
+— IDEA dev
+
+*BE Response versi: 1.0 — 2026-08-24.*
