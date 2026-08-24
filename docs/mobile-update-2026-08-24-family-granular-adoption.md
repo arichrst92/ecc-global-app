@@ -179,3 +179,115 @@ Kalau ada question / issue integration, reply di doc ini atau kirim `backend-req
 ---
 
 *Doc versi: 1.0 — 2026-08-24.*
+
+---
+
+## 🔧 BE RESPONSE (2026-08-24)
+
+**Dari:** Tim Backend ECC (IDEA dev)
+
+Sprint 6 extension adoption sudah proper. 2 questions + 1 observation dijawab, zero code change dibutuhkan.
+
+### Q1 — Response shape `/admin/keluarga/tipe`
+
+**Confirmed** (baca `apps/core-api/src/routes/admin/keluarga.ts:16-35`):
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "nama": "Ayah",
+      "deskripsi": "Orang tua laki-laki",
+      "isActive": true,
+      "createdAt": "2026-...",
+      "updatedAt": "2026-..."
+    }
+  ],
+  "meta": { "page": 1, "limit": 20, "total": 12, "totalPages": 1 }
+}
+```
+
+- ✅ Wrapped standard `{ success, data, meta }`
+- ❌ **TIDAK ada field `kategori`**. Schema `TipeRelasiKeluarga` cuma id/nama/deskripsi/isActive
+- Mobile heuristik string-match tetap dibutuhkan
+- **Rekomendasi request**: mobile sebaiknya pass `?limit=100` (bukan default 20) untuk safe kalau BE tambah tipe di future
+
+**Future option kalau butuh**: BE bisa tambah nullable field `kategori` di schema (30 menit effort). Sekarang tidak diadopsi karena mobile heuristik sudah cover.
+
+### Q2 — Trust vs Reject/Auto-correct `tipeRelasiId` vs Gender
+
+**Behavior current = (a) TRUST INPUT** ✅ sesuai preference mobile.
+
+Per `apps/core-api/src/lib/family-relation.ts:59-66`:
+```typescript
+if (input.tipeRelasiId) {
+  const t = await tx.tipeRelasiKeluarga.findUnique({
+    where: { id: input.tipeRelasiId },
+    select: { id: true },
+  });
+  if (!t) throw BadRequest('tipeRelasiId tidak ditemukan');
+  return t.id;
+}
+```
+
+- BE cuma verify tipe **exists di DB**, TIDAK cross-check dgn gender jemaat
+- User perempuan pilih "Ayah" → BE simpan "Ayah" tanpa error
+- No 400 rejection, no silent auto-correct
+
+**Alasan**: cover adopsi, blended family, admin override cases. Kalau mobile picker sengaja tidak filter by gender, BE trust picker sebagai source of truth.
+
+**Reciprocal computation TETAP gender-aware** — kalau A (P) tag B "Ayah", reciprocal B computed via `self.jenisKelamin=P` → tipe B: "Anak Perempuan". Konsisten dgn logic reciprocal untuk semua tipe (Suami↔Istri, Ayah/Ibu↔Anak L/P, dll).
+
+### Observation — Kakak/Adik Belum Di-Seed
+
+Mobile picker kategori "Saudara" anticipate 3 items: `Saudara Kandung`, `Kakak`, `Adik`. Backend seed cuma **1 tipe untuk saudara**: `Saudara Kandung`.
+
+Seeded list per `packages/database/prisma/seed.ts`:
+```
+Suami, Istri, Ayah, Ibu, Anak Laki-Laki, Anak Perempuan,
+Saudara Kandung, Kakek, Nenek, Cucu, Wali, Lainnya   (12 total)
+```
+
+**Decision**: **Keep 12 tipe existing, no additional seed**. Alasan:
+- Distinction Kakak/Adik jarang relevan untuk data master gereja
+- Kalau butuh (mis. wedding invitation, funeral, dll), admin bisa CRUD via portal `/dashboard/tipe-relasi`
+- Mobile picker akan tampil cuma 1 item di kategori Saudara — expected behavior, no error
+
+Kalau nanti butuh Mertua/Menantu/Kakak/Adik/dll, tinggal add via portal admin (endpoint `POST /admin/keluarga/tipe` sudah ada) — atau kabari untuk seed batch.
+
+### Testing Data Seed Script
+
+Untuk item testing yg Ari mention di section 7:
+- **12 tipe granular sudah ke-seed** via migration `20260802200000_seed_tipe_relasi_lainnya` (production per 2026-08-02)
+- **Test jemaat**: 3 dummy jemaat TEST-001/002/003 tersedia via `pnpm --filter @ecc/database db:seed-test-onboarding` (ref `backend-request-seed-onboarding-test-jemaat.md`)
+- Untuk smoke test 5 scenarios di section 7, cukup pakai 3 test jemaat + Ari's own jemaat (Ari sebagai self, TEST-001/002/003 sebagai target)
+
+### Bonus Fix (Deployed 2026-08-24)
+
+Selama audit sesi ini, saya notice bug notif `FAMILY_LINKED` — text pakai `tipeB` (reciprocal, cara target lihat self) instead of `tipeA` (cara self lihat target). Sudah fixed di commit `070fd32`.
+
+**Contoh**: Ari (L) add Sarah (P) SPOUSE:
+- **Sebelum**: Notif ke Sarah "Anda ditambahkan sebagai **Suami**" ← salah, Sarah perempuan
+- **Sesudah**: Notif ke Sarah "Anda ditambahkan sebagai **Istri**" ← benar, ini bagaimana Ari melihat Sarah
+
+Mobile v1.6.0 render notif langsung dari BE payload → zero code change, auto-benefit post-deploy.
+
+Metadata sekarang expose kedua:
+- `metadata.tipeRelasi` — tipeA (cara self lihat target)
+- `metadata.reciprocalTipe` — tipeB (cara target lihat self, baru)
+
+Optional: mobile bisa render hint `(Hubungan Anda ke [byNamaLengkap]: [reciprocalTipe])` untuk clarity, tapi tidak wajib.
+
+### Deploy Status
+
+- ✅ Family granular endpoints live per 2026-08-02
+- ✅ Modul 30 in-app notif live per 2026-08-24
+- ✅ Bug fix FAMILY_LINKED notif live per 2026-08-24 (commit `070fd32`)
+
+Semua siap untuk mobile v1.6.0 submit ke store. Ping kalau ada issue post-launch.
+
+— IDEA dev
+
+*BE Response versi: 1.0 — 2026-08-24.*
