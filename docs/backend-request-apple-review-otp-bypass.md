@@ -4,6 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA)
 **Tanggal:** 2026-08-30
 **Priority:** 🔴 URGENT — blocking App Store approval (v1.0.0 rejected)
+**Status BE:** ✅ **DELIVERED 2026-08-30** — code merged, waiting deploy VPS + reviewer jemaat register.
 **Related:**
 - Apple rejection: Guideline 2.1 - Information Needed (2026-08-29)
 - Reviewer feedback: "We were unable to sign in when magic link was unresponsive when tapped"
@@ -193,10 +194,54 @@ logger.info('app-review-otp-bypass', {
 ## Confirm sebelum deploy
 
 - [ ] Nomor `+6281805807807` sudah register sebagai jemaat aktif di production
-- [ ] Bypass code deployed di `apps/core-api` (production)
+- [x] Bypass code merged di `apps/core-api/src/routes/auth.ts` (2026-08-30)
+- [ ] `.env` production di-set `APP_REVIEW_BYPASS_NUMBERS` + `APP_REVIEW_BYPASS_OTP`
+- [ ] Deploy: `pnpm --filter @ecc/core-api build` + `pm2 restart ecc-core-api`
 - [ ] Verification curl request test lolos (dua-duanya request + verify)
-- [ ] Audit log entry tercatat saat bypass hit
+- [ ] Audit log entry tercatat saat bypass hit (`grep "app-review bypass" pm2 logs`)
 - [ ] Reply confirmation ke tim mobile (Ari) → mobile lanjut reply Apple
+
+## BE Implementation Notes (2026-08-30)
+
+**Approach chosen:** ENV-based allowlist (lebih flexible drpd hardcoded), controlled dgn 2 var:
+- `APP_REVIEW_BYPASS_NUMBERS` — comma-separated E.164
+- `APP_REVIEW_BYPASS_OTP` — static code
+- Bypass **hanya aktif untuk purpose=LOGIN**. ENROLLMENT / RESET_FACE / ONBOARDING_ADD_NOHP normal flow.
+- Rate limiter `otpRequestLimiter` + `authVerifyLimiter` **tetap apply** ke nomor bypass.
+- Kalau ENV kosong → bypass total OFF (default aman).
+
+**Log format** (grep-able):
+- `[auth-otp] app-review bypass request (no WA send)`
+- `[auth-otp] app-review bypass verify success`
+- `[auth-otp] app-review bypass wrong OTP`
+
+**Config production (untuk deploy op):**
+```bash
+# /var/www/ecc-core-platform/.env
+APP_REVIEW_BYPASS_NUMBERS=+6281805807807
+APP_REVIEW_BYPASS_OTP=123456
+```
+
+**Register reviewer jemaat via portal admin:**
+1. Login portal sebagai Fulltimer
+2. Buka `/dashboard/jemaat` → tombol tambah
+3. Isi: noHp=+6281805807807, namaLengkap="Apple Reviewer", cabang=pusat, jenisKelamin=L, tanggalLahir=1990-01-01, isActive=on
+4. Save
+
+Atau via Prisma:
+```typescript
+await prisma.jemaat.create({
+  data: {
+    noHp: '+6281805807807',
+    namaLengkap: 'Apple Reviewer',
+    email: 'apple-review@eccchurch.global',
+    cabangId: '<cabang-id-pusat>',
+    jenisKelamin: 'L',
+    tanggalLahir: new Date('1990-01-01'),
+    isActive: true,
+  },
+});
+```
 
 ---
 
