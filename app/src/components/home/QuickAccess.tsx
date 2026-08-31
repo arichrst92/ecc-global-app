@@ -1,6 +1,8 @@
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import {
   BookOpen,
   Calendar,
@@ -48,6 +50,8 @@ export function QuickAccess() {
 
   const scannerEventsQuery = useScannerEvents();
   const scannerIbadahQuery = useScannerIbadah();
+  // Untuk iOS persembahan tile — direct open web per-cabang.
+  const { branch: viewingBranch } = useViewingBranch();
   const isScannerAuthorized =
     (scannerEventsQuery.data?.length ?? 0) > 0 ||
     (scannerIbadahQuery.data?.length ?? 0) > 0;
@@ -78,23 +82,30 @@ export function QuickAccess() {
       label: t('quickaccess.event'),
       onPress: () => router.push('/(tabs)/event'),
     },
-    // Persembahan tile — hidden di iOS per Apple Guideline 3.2.2(iv)
-    // (charitable donations require Benevity/Candid nonprofit approval).
-    // iOS user diarahkan ke website eksternal via tab persembahan yg
-    // sekarang self-redirect ke Safari. Sembunyikan tile juga supaya
-    // consistent — cuma tampil di Android.
-    ...(Platform.OS === 'ios'
-      ? []
-      : [
-          {
-            key: 'persembahan',
-            icon: HandHeart,
-            iconColor: '#EA580C',
-            iconBg: 'bg-brand-50',
-            label: t('quickaccess.persembahan'),
-            onPress: () => router.push('/(tabs)/persembahan'),
-          } as QuickAccessTile,
-        ]),
+    // Persembahan tile — visible di kedua platform tapi behavior beda:
+    // - Android: navigate ke in-app tab persembahan (full flow rekening + QRIS + upload bukti)
+    // - iOS: tap → direct Linking.openURL ke web per-cabang (Apple Guideline
+    //   3.2.2(iv) — charitable donation harus external untuk non-Benevity nonprofit)
+    {
+      key: 'persembahan',
+      icon: HandHeart,
+      iconColor: '#EA580C',
+      iconBg: 'bg-brand-50',
+      label: t('quickaccess.persembahan'),
+      onPress: () => {
+        if (Platform.OS === 'ios') {
+          const kode = viewingBranch?.kode;
+          const url = kode
+            ? `https://eccchurch.global/persembahan/${encodeURIComponent(kode)}`
+            : 'https://eccchurch.global/persembahan';
+          Linking.openURL(url).catch(() => {
+            // Silent fail — Safari should always be available
+          });
+        } else {
+          router.push('/(tabs)/persembahan');
+        }
+      },
+    },
     {
       key: 'berita',
       icon: Newspaper,

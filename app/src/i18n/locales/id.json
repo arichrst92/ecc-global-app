@@ -469,7 +469,8 @@
     "back_to_home": "Kembali ke Beranda",
     "ios_bebas_blocked_title": "Tersedia di Web",
     "ios_bebas_blocked_body": "Pendaftaran event dengan nominal bebas hanya tersedia melalui website kami. Silakan lanjutkan pendaftaran di web.",
-    "ios_bebas_open_web": "Buka di Browser"
+    "ios_bebas_open_web": "Buka di Browser",
+    "ios_open_web_cta": "Beri Persembahan via Web"
   },
   "branch": {
     "active_label": "Cabang aktif",

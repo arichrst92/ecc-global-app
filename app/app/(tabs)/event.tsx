@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -66,14 +65,10 @@ function EventListAuthenticated() {
   const query = useEventList();
 
   const filtered = useMemo(() => {
-    let all = query.data ?? [];
-    // iOS: hide NOMINAL_BEBAS events entirely — Apple Guideline 3.2.2(iv)
-    // forbids in-app charitable donation without Benevity/Candid approval.
-    // NOMINAL_BEBAS = free-amount donation event, considered donation flow.
-    // Android tetap show semua tipe.
-    if (Platform.OS === 'ios') {
-      all = all.filter((e) => e.tipeBayar !== 'NOMINAL_BEBAS');
-    }
+    const all = query.data ?? [];
+    // NOTE: iOS TIDAK filter NOMINAL_BEBAS lagi — user tetap bisa lihat event
+    // di list + detail, tapi CTA "Beri Persembahan" di detail redirect ke web
+    // (Apple Guideline 3.2.2(iv) compliant via external payment flow).
     if (filter === 'all') return all;
     if (filter === 'GRATIS') return all.filter((e) => e.tipeBayar === 'GRATIS');
     return all.filter((e) => e.tipeBayar !== 'GRATIS');
