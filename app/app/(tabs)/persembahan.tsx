@@ -38,6 +38,21 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { env } from '@/config/env';
 import type { Rekening } from '@/types/rekening';
 
+/**
+ * Build persembahan web URL — pass cabangKode dari session/viewing branch
+ * kalau ada supaya user langsung ke detail cabang mereka. Fallback ke index
+ * (cabang selector) kalau kode tidak tersedia (guest, cabang missing).
+ *
+ * Per BE notice `backend-request-persembahan-per-cabang-url.md` (2026-08-31).
+ */
+function buildPersembahanUrl(cabangKode: string | null | undefined): string {
+  const base = 'https://eccchurch.global/persembahan';
+  if (cabangKode && cabangKode.trim().length > 0) {
+    return `${base}/${encodeURIComponent(cabangKode.trim())}`;
+  }
+  return base;
+}
+
 /** Map purpose keyword ke icon untuk visual hint */
 function purposeIcon(purpose: string): React.ReactNode {
   const p = purpose.toLowerCase();
@@ -58,7 +73,6 @@ function purposeIcon(purpose: string): React.ReactNode {
  * Android: keep in-app flow (rekening, QRIS, upload bukti) — Google Play
  * tidak punya restriction serupa untuk church donations.
  */
-const PERSEMBAHAN_WEB_URL = 'https://eccchurch.global/persembahan';
 
 export default function PersembahanTab() {
   // iOS: redirect ke web page + tampil placeholder screen dgn button
@@ -83,12 +97,17 @@ export default function PersembahanTab() {
  */
 function PersembahanIosRedirect() {
   const { t } = useTranslation();
+  // Pakai viewing branch (user home OR cabang yg lagi di-view kalau switch)
+  // supaya web page langsung tampil rekening cabang tsb.
+  const { branch } = useViewingBranch();
+  const url = buildPersembahanUrl(branch?.kode);
 
   useEffect(() => {
     // Auto-open Safari saat screen mount
-    Linking.openURL(PERSEMBAHAN_WEB_URL).catch(() => {
+    Linking.openURL(url).catch(() => {
       // Ignore — user bisa tap button manual di bawah
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -105,7 +124,7 @@ function PersembahanIosRedirect() {
           {t('persembahan.ios_body')}
         </Text>
         <Pressable
-          onPress={() => Linking.openURL(PERSEMBAHAN_WEB_URL)}
+          onPress={() => Linking.openURL(url)}
           className="bg-brand-500 rounded-2xl px-6 py-3.5 flex-row items-center gap-2"
         >
           <Text className="text-white font-bold text-sm">
@@ -113,7 +132,7 @@ function PersembahanIosRedirect() {
           </Text>
         </Pressable>
         <Text className="text-xs text-neutral-400 mt-4">
-          {PERSEMBAHAN_WEB_URL}
+          {url}
         </Text>
       </View>
     </SafeAreaView>

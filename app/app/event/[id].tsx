@@ -14,9 +14,19 @@ import { useEventDetail, useMyDonations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { useAuthStore } from '@/stores/auth.store';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
 import type { EventDonation } from '@/types/event';
+
+/** Build per-cabang persembahan URL — per BE notice 2026-08-31 */
+function buildPersembahanUrl(cabangKode: string | null | undefined): string {
+  const base = 'https://eccchurch.global/persembahan';
+  if (cabangKode && cabangKode.trim().length > 0) {
+    return `${base}/${encodeURIComponent(cabangKode.trim())}`;
+  }
+  return base;
+}
 
 export default function EventDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -27,6 +37,7 @@ export default function EventDetailScreen() {
 
   const query = useEventDetail(id);
   const event = query.data;
+  const { branch: viewingBranch } = useViewingBranch();
 
   function handleShare() {
     if (!event) return;
@@ -231,7 +242,9 @@ export default function EventDetailScreen() {
               {t('event.ios_bebas_blocked_body')}
             </Text>
             <Pressable
-              onPress={() => Linking.openURL('https://eccchurch.global/persembahan')}
+              onPress={() =>
+                Linking.openURL(buildPersembahanUrl(viewingBranch?.kode))
+              }
               className="bg-brand-500 rounded-2xl px-6 py-3.5"
             >
               <Text className="text-white font-bold text-sm">
