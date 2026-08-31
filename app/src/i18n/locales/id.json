@@ -472,7 +472,10 @@
     "ios_bebas_open_web": "Buka di Browser",
     "ios_open_web_cta": "Beri Persembahan via Web",
     "open_web_cta": "Lanjutkan",
-    "free_amount": "Nominal sukarela"
+    "free_amount": "Nominal sukarela",
+    "bebas_web_title": "Lanjutkan di Web",
+    "bebas_web_body": "Persembahan nominal sukarela dilakukan melalui website. Membuka browser sekarang...",
+    "bebas_web_open": "Buka di Browser"
   },
   "branch": {
     "active_label": "Cabang aktif",

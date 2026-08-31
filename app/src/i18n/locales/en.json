@@ -472,7 +472,10 @@
     "ios_bebas_open_web": "Open in Browser",
     "ios_open_web_cta": "Give via Web",
     "open_web_cta": "Continue",
-    "free_amount": "Free amount"
+    "free_amount": "Free amount",
+    "bebas_web_title": "Continue on the Web",
+    "bebas_web_body": "Free-amount donation is completed via our website. Opening browser now...",
+    "bebas_web_open": "Open in Browser"
   },
   "branch": {
     "active_label": "Active branch",

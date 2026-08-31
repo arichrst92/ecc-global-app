@@ -26,6 +26,7 @@ import {
 } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
+import { BebasWebRedirect } from '@/components/event/BebasWebRedirect';
 import { useToast } from '@/components/ui/Toast';
 import { useEventDetail } from '@/hooks/useEvents';
 import { useNotificationsStore } from '@/stores/notifications.store';
@@ -52,6 +53,11 @@ export default function EventDonateScreen() {
   const addNotification = useNotificationsStore((s) => s.add);
 
   const eventQuery = useEventDetail(id);
+  // Gate: donate screen adalah full NOMINAL_BEBAS flow → Apple 3.2.2(iv)
+  // charitable donation must be external. Redirect ke web.
+  if (eventQuery.data && id) {
+    return <BebasWebRedirect eventId={id} />;
+  }
   const event = eventQuery.data;
 
   const [nominalInput, setNominalInput] = useState('');

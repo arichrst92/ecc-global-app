@@ -8,6 +8,7 @@ import { ArrowLeft, Check, HandHeart, Info } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { BebasWebRedirect } from '@/components/event/BebasWebRedirect';
 import { TextField } from '@/components/ui/TextField';
 import { useEventDetail } from '@/hooks/useEvents';
 import { useAuthStore } from '@/stores/auth.store';
@@ -32,6 +33,11 @@ export default function EventRegisterScreen() {
 
   const eventQuery = useEventDetail(id);
   const event = eventQuery.data;
+  // Gate NOMINAL_BEBAS registration → web (Apple 3.2.2iv compliance).
+  // Route tetap accessible via deeplink, jadi guard di sini.
+  if (event && event.tipeBayar === 'NOMINAL_BEBAS' && id) {
+    return <BebasWebRedirect eventId={id} />;
+  }
 
   // Untuk event NOMINAL_BEBAS, user input nominal sendiri (string supaya bisa
   // kontrol format input — parse ke number saat submit)

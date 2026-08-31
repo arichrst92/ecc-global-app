@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Camera, Check, Copy, Home, RefreshCw, Send } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
+import { BebasWebRedirect } from '@/components/event/BebasWebRedirect';
 import { useToast } from '@/components/ui/Toast';
 import { useEventDetail } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
@@ -34,6 +35,13 @@ export default function EventPaymentScreen() {
   const eventQuery = useEventDetail(id);
   const event = eventQuery.data;
   const queryClient = useQueryClient();
+
+  // Gate NOMINAL_BEBAS payment/upload-bukti → web (Apple 3.2.2iv).
+  // Payment screen support both BEBAS + TETAP; TETAP tetap in-app (Apple
+  // 3.1.5b physical goods), BEBAS redirect keluar.
+  if (event && event.tipeBayar === 'NOMINAL_BEBAS' && id) {
+    return <BebasWebRedirect eventId={id} />;
+  }
 
   // Cek participation dari persistent store
   const participation = useEventFlowStore((s) =>
