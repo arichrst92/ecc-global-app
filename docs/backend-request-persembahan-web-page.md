@@ -4,6 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA) / Tim Web (kalau terpisah)
 **Tanggal:** 2026-08-31
 **Priority:** 🔴 URGENT — blocking iOS App Store approval (v1.7.0 resubmit)
+**Status Web/BE:** ✅ **DELIVERED 2026-08-31** — page live di `apps/landing`, whitelist dari coming-soon middleware, consume `/public/cabang/:id/rekening`.
 **Related:**
 - Apple rejection: Guideline 3.2.2(iv) - Charitable donations, 2026-08-31
 - Mobile commit: `100d0d7 feat(ios-compliance): hide persembahan + NOMINAL_BEBAS event untuk iOS (v1.7.0)`
