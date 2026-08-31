@@ -384,7 +384,10 @@
     "qris_hint": "Scan dengan aplikasi mobile banking atau e-wallet apa pun.",
     "no_qris": "QRIS belum tersedia untuk rekening ini.",
     "empty_title": "Belum ada rekening",
-    "empty_msg": "Cabang ini belum menambahkan rekening persembahan."
+    "empty_msg": "Cabang ini belum menambahkan rekening persembahan.",
+    "ios_title": "Persembahan via Web",
+    "ios_body": "Silakan buka website kami untuk melihat info rekening dan melakukan persembahan. Membuka di Safari sekarang...",
+    "ios_open_web": "Buka di Browser"
   },
   "event": {
     "title": "Event & Movement",
@@ -463,7 +466,10 @@
     "status_menunggu": "Menunggu Verifikasi",
     "status_bayar": "Lunas",
     "status_hadir": "Hadir",
-    "back_to_home": "Kembali ke Beranda"
+    "back_to_home": "Kembali ke Beranda",
+    "ios_bebas_blocked_title": "Tersedia di Web",
+    "ios_bebas_blocked_body": "Pendaftaran event dengan nominal bebas hanya tersedia melalui website kami. Silakan lanjutkan pendaftaran di web.",
+    "ios_bebas_open_web": "Buka di Browser"
   },
   "branch": {
     "active_label": "Cabang aktif",

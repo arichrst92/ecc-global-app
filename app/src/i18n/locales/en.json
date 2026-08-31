@@ -384,7 +384,10 @@
     "qris_hint": "Scan with any mobile banking or e-wallet app.",
     "no_qris": "QRIS is not yet available for this account.",
     "empty_title": "No accounts yet",
-    "empty_msg": "This branch hasn't added giving accounts."
+    "empty_msg": "This branch hasn't added giving accounts.",
+    "ios_title": "Giving via Web",
+    "ios_body": "Please visit our website to view account details and complete your giving. Opening in Safari now...",
+    "ios_open_web": "Open in Browser"
   },
   "event": {
     "title": "Events & Movements",
@@ -463,7 +466,10 @@
     "status_menunggu": "Awaiting Verification",
     "status_bayar": "Paid",
     "status_hadir": "Attended",
-    "back_to_home": "Back to Home"
+    "back_to_home": "Back to Home",
+    "ios_bebas_blocked_title": "Available on Web",
+    "ios_bebas_blocked_body": "This free-amount event registration is available on our website. Please continue on the web to register.",
+    "ios_bebas_open_web": "Open in Browser"
   },
   "branch": {
     "active_label": "Active branch",

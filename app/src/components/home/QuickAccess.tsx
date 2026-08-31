@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -78,14 +78,23 @@ export function QuickAccess() {
       label: t('quickaccess.event'),
       onPress: () => router.push('/(tabs)/event'),
     },
-    {
-      key: 'persembahan',
-      icon: HandHeart,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.persembahan'),
-      onPress: () => router.push('/(tabs)/persembahan'),
-    },
+    // Persembahan tile — hidden di iOS per Apple Guideline 3.2.2(iv)
+    // (charitable donations require Benevity/Candid nonprofit approval).
+    // iOS user diarahkan ke website eksternal via tab persembahan yg
+    // sekarang self-redirect ke Safari. Sembunyikan tile juga supaya
+    // consistent — cuma tampil di Android.
+    ...(Platform.OS === 'ios'
+      ? []
+      : [
+          {
+            key: 'persembahan',
+            icon: HandHeart,
+            iconColor: '#EA580C',
+            iconBg: 'bg-brand-50',
+            label: t('quickaccess.persembahan'),
+            onPress: () => router.push('/(tabs)/persembahan'),
+          } as QuickAccessTile,
+        ]),
     {
       key: 'berita',
       icon: Newspaper,

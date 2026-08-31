@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Baby, CalendarDays, Church, HandHeart, Home, UserRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -74,6 +75,12 @@ export default function TabsLayout() {
         options={{
           title: t('nav.persembahan'),
           tabBarIcon: ({ color, size }) => <HandHeart color={color} size={size} />,
+          // iOS: hide tab per Apple Guideline 3.2.2(iv) — charitable donation
+          // requires Benevity/Candid nonprofit approval. Route tetap accessible
+          // via deeplink; screen internal-nya self-detect Platform + redirect
+          // ke external Safari link (eccchurch.global/persembahan).
+          // Android tetap show tab full in-app persembahan.
+          href: Platform.OS === 'ios' ? null : undefined,
         }}
       />
       <Tabs.Screen

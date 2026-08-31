@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  Linking,
   Modal,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -48,7 +50,23 @@ function purposeIcon(purpose: string): React.ReactNode {
   return <HandHeart size={20} color="#fff" />;
 }
 
+/**
+ * iOS: Apple Guideline 3.2.2(iv) melarang in-app charitable donation
+ * untuk non-Benevity/Candid approved nonprofits. Solusi: redirect ke
+ * website eksternal (Safari via SFSafariViewController via Linking.openURL).
+ *
+ * Android: keep in-app flow (rekening, QRIS, upload bukti) — Google Play
+ * tidak punya restriction serupa untuk church donations.
+ */
+const PERSEMBAHAN_WEB_URL = 'https://eccchurch.global/persembahan';
+
 export default function PersembahanTab() {
+  // iOS: redirect ke web page + tampil placeholder screen dgn button
+  if (Platform.OS === 'ios') {
+    return <PersembahanIosRedirect />;
+  }
+
+  // Android: original in-app flow
   // Guard di luar — rules-of-hooks safe. Guest pakai /public/cabang/:id/rekening
   // (no upload bukti, no riwayat — CTA daftar prominent).
   const isGuest = useAuthStore((s) => s.isGuest);
@@ -56,6 +74,50 @@ export default function PersembahanTab() {
     return <GuestPersembahanView />;
   }
   return <PersembahanTabAuthenticated />;
+}
+
+/**
+ * iOS-only screen: kalau user reach route via deeplink, tampilkan
+ * simple info + button "Buka di Browser" yang open Safari.
+ * Auto-redirect on mount (kalau user tap tile → langsung ke Safari).
+ */
+function PersembahanIosRedirect() {
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    // Auto-open Safari saat screen mount
+    Linking.openURL(PERSEMBAHAN_WEB_URL).catch(() => {
+      // Ignore — user bisa tap button manual di bawah
+    });
+  }, []);
+
+  return (
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <StatusBar style="dark" />
+      <View className="flex-1 items-center justify-center px-8">
+        <View className="w-20 h-20 rounded-3xl bg-brand-50 items-center justify-center mb-6">
+          <HandHeart size={40} color="#EA580C" />
+        </View>
+        <Text className="text-xl font-bold text-neutral-900 text-center mb-2">
+          {t('persembahan.ios_title')}
+        </Text>
+        <Text className="text-sm text-neutral-600 text-center mb-8 leading-relaxed">
+          {t('persembahan.ios_body')}
+        </Text>
+        <Pressable
+          onPress={() => Linking.openURL(PERSEMBAHAN_WEB_URL)}
+          className="bg-brand-500 rounded-2xl px-6 py-3.5 flex-row items-center gap-2"
+        >
+          <Text className="text-white font-bold text-sm">
+            {t('persembahan.ios_open_web')}
+          </Text>
+        </Pressable>
+        <Text className="text-xs text-neutral-400 mt-4">
+          {PERSEMBAHAN_WEB_URL}
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
 }
 
 function PersembahanTabAuthenticated() {

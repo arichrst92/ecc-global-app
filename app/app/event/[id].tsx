@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Modal, Platform, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -156,6 +156,11 @@ export default function EventDetailScreen() {
 
   const isFree = event?.tipeBayar === 'GRATIS';
   const isFull = event?.quotaPeserta != null && event.pesertaCount >= event.quotaPeserta;
+  // iOS: block NOMINAL_BEBAS events per Apple Guideline 3.2.2(iv) — free-amount
+  // donation event = charitable donation, forbidden untuk non-Benevity nonprofits.
+  // Kalau user reach detail via deeplink → tampil placeholder + redirect ke web.
+  const isBebasBlockedOnIos =
+    Platform.OS === 'ios' && event?.tipeBayar === 'NOMINAL_BEBAS';
   const priceLabel = (() => {
     if (!event) return '';
     if (event.tipeBayar === 'GRATIS') return t('event.free');
@@ -212,6 +217,34 @@ export default function EventDetailScreen() {
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
             <Pressable onPress={() => query.refetch()} className="px-4 py-2 bg-brand-500 rounded-lg">
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
+            </Pressable>
+          </View>
+        ) : event && isBebasBlockedOnIos ? (
+          <View className="items-center py-20 px-8">
+            <View className="w-20 h-20 rounded-3xl bg-brand-50 items-center justify-center mb-6 mt-16">
+              <HandHeart size={40} color="#EA580C" />
+            </View>
+            <Text className="text-xl font-bold text-neutral-900 text-center mb-2">
+              {t('event.ios_bebas_blocked_title')}
+            </Text>
+            <Text className="text-sm text-neutral-600 text-center mb-6 leading-relaxed">
+              {t('event.ios_bebas_blocked_body')}
+            </Text>
+            <Pressable
+              onPress={() => Linking.openURL('https://eccchurch.global/persembahan')}
+              className="bg-brand-500 rounded-2xl px-6 py-3.5"
+            >
+              <Text className="text-white font-bold text-sm">
+                {t('event.ios_bebas_open_web')}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => router.back()}
+              className="mt-4 px-4 py-2"
+            >
+              <Text className="text-sm text-neutral-500 font-medium">
+                {t('common.back')}
+              </Text>
             </Pressable>
           </View>
         ) : event ? (

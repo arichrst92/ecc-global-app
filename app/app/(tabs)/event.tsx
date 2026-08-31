@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -65,7 +66,14 @@ function EventListAuthenticated() {
   const query = useEventList();
 
   const filtered = useMemo(() => {
-    const all = query.data ?? [];
+    let all = query.data ?? [];
+    // iOS: hide NOMINAL_BEBAS events entirely — Apple Guideline 3.2.2(iv)
+    // forbids in-app charitable donation without Benevity/Candid approval.
+    // NOMINAL_BEBAS = free-amount donation event, considered donation flow.
+    // Android tetap show semua tipe.
+    if (Platform.OS === 'ios') {
+      all = all.filter((e) => e.tipeBayar !== 'NOMINAL_BEBAS');
+    }
     if (filter === 'all') return all;
     if (filter === 'GRATIS') return all.filter((e) => e.tipeBayar === 'GRATIS');
     return all.filter((e) => e.tipeBayar !== 'GRATIS');
