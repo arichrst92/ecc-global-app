@@ -4,6 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA) / Tim Web
 **Tanggal:** 2026-08-31
 **Priority:** 🔴 URGENT — blocking mobile v1.7.2 iOS App Store approval + Android UX consistency
+**Status Web:** ✅ **PHASE 1 DELIVERED 2026-08-31** — display-only page live (event info + rekening + QRIS + deep-link back). Register/upload flow perlu backend endpoint tambahan (Phase 2).
 **Related:**
 - Mobile commit: `40b1533 feat(cross-platform): unify iOS+Android persembahan/paid-event → web (v1.7.2)`
 - Apple rejection: Guideline 3.2.2(iv), 2026-08-31
@@ -198,3 +199,62 @@ Kalau butuh design mockup, contoh code, atau alternative approach, reply doc ini
 ---
 
 *Doc versi: 1.0 — 2026-08-31. Priority urgent — blocking iOS deploy + cross-platform UX consistency.*
+
+---
+
+## BE/Web Response — Phase 1 (2026-08-31)
+
+### ✅ Delivered
+
+**URL:** `https://eccchurch.global/event/{id}/pembayaran` — HTTP 200 dgn full render.
+
+**Contents:**
+- Header + logo + judul + ringkasan
+- Event info card: tanggal (id-ID format), waktu, lokasi, cabang, hero image (kalau ada)
+- Fee display: GRATIS / NOMINAL_TETAP (Rp X) / NOMINAL_BEBAS (sukarela)
+- Payment info: bank + nomor rekening (copy button) + a.n. + QRIS thumbnail (kalau ada)
+- Panduan pendaftaran (adaptive: free vs berbayar)
+- **Deep-link back button** — auto-detect UA:
+  - Mobile: primary CTA `ecc://event/{id}` + secondary link ke App Store / Play Store
+  - Desktop: dua tombol "Download di App Store" / "Download di Play Store"
+- Legal disclaimer + Privacy/Terms link
+- Middleware: whitelisted dari coming-soon rewrite
+
+**Data source:** existing `GET /public/event/:id` (bankNama, bankNomor, bankAtasNama, qrisImageUrl, cabang, tipeBayar, nominal, dsb). Tidak butuh endpoint baru untuk phase ini.
+
+**404 handling:** `notFound()` Next.js kalau event `id` tidak ada / belum published.
+
+**Verify:**
+```bash
+curl -sI https://eccchurch.global/event/{valid-event-id}/pembayaran   # → 200
+curl -sI https://eccchurch.global/event/NGACO/pembayaran              # → 404
+```
+
+### ⏳ Phase 2 Backlog — Register + Upload Bukti + Cancel
+
+**Blocker:** endpoint yg dipakai mobile untuk actions ini adalah `/admin/event/{id}/register`, `/admin/event/{id}/upload-bukti`, `/admin/event/{id}/cancel` — semua **require JWT (admin auth)**.
+
+Web SSR public tidak punya user session → tidak bisa langsung call endpoint admin. Perlu salah satu:
+
+**Opsi A — Web-action token (recommended):**
+Mobile generate one-time short-lived token via new endpoint `POST /auth/web-action-token` → return `{ token, expiresIn: 300 }`. Mobile pass ke URL: `/event/{id}/pembayaran?wt={token}`. Web SSR forward token sbg `Authorization: Bearer` ke BE. BE verify token (mirip magic link) → allow action.
+
+BE effort: ~2-3 jam (endpoint + verify handler + short-lived token model).
+Mobile effort: ~1 jam (generate + append ke deep-link).
+
+**Opsi B — Public magic upload endpoint:**
+New endpoint `POST /public/event/{id}/upload-bukti` yg accept file + `participationId` + `hmacSignature`. Mobile generate HMAC dari secret shared. Less secure tapi bebas token expiry.
+
+**Opsi C — In-app flow retained untuk actions:**
+Sesuai copy panduan Phase 1: web display info + rekening, user transfer manual (bank/QRIS), lalu **kembali ke app** untuk upload bukti via existing in-app flow. Deep-link back button sudah support ini.
+
+**Rekomendasi:** ship Phase 1 dulu (deep-link back → in-app upload) untuk resubmit ke Apple. Apple Guideline 3.2.2(iv) tidak melarang **upload bukti** in-app — cuma pembayaran itu sendiri. Jadi register + upload bukti tetap boleh di-app; hanya redirect flow untuk display info + transfer.
+
+Kalau opsi C acceptable, Phase 2 tidak perlu dibangun sama sekali. Kabari kalau perlu Phase 2 tetap dibangun.
+
+### Timeline
+
+- **Web Phase 1:** ✅ 2026-08-31 (production deploy after merge)
+- **Mobile action:** validate deep-link `ecc://event/{id}` sudah handled di router (kemungkinan sudah, via existing `app/event/[id].tsx`). Test end-to-end.
+- **Apple resubmit:** setelah verify URL live.
+- **Phase 2 (kalau perlu):** koordinasi mobile + BE, target 1-2 hari.
