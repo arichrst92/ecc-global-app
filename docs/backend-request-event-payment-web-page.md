@@ -4,7 +4,7 @@
 **Untuk:** Tim Backend ECC (IDEA) / Tim Web
 **Tanggal:** 2026-08-31
 **Priority:** 🔴 URGENT — blocking mobile v1.7.2 iOS App Store approval + Android UX consistency
-**Status Web:** ✅ **PHASE 1 DELIVERED 2026-08-31** — display-only page live (event info + rekening + QRIS + deep-link back). Register/upload flow perlu backend endpoint tambahan (Phase 2).
+**Status Web:** ✅ **DELIVERED 2026-08-31** — display page + deep-link back live. Register/upload tetap in-app (Opsi C dipilih 2026-08-31 by Ari). Phase 2 SKIPPED.
 **Related:**
 - Mobile commit: `40b1533 feat(cross-platform): unify iOS+Android persembahan/paid-event → web (v1.7.2)`
 - Apple rejection: Guideline 3.2.2(iv), 2026-08-31
@@ -248,13 +248,13 @@ New endpoint `POST /public/event/{id}/upload-bukti` yg accept file + `participat
 **Opsi C — In-app flow retained untuk actions:**
 Sesuai copy panduan Phase 1: web display info + rekening, user transfer manual (bank/QRIS), lalu **kembali ke app** untuk upload bukti via existing in-app flow. Deep-link back button sudah support ini.
 
-**Rekomendasi:** ship Phase 1 dulu (deep-link back → in-app upload) untuk resubmit ke Apple. Apple Guideline 3.2.2(iv) tidak melarang **upload bukti** in-app — cuma pembayaran itu sendiri. Jadi register + upload bukti tetap boleh di-app; hanya redirect flow untuk display info + transfer.
-
-Kalau opsi C acceptable, Phase 2 tidak perlu dibangun sama sekali. Kabari kalau perlu Phase 2 tetap dibangun.
+**Decision 2026-08-31 (Ari):** ✅ **Opsi C dipilih** — Phase 2 tidak dibangun. Web hanya display + deep-link back. Register/upload/cancel tetap di in-app existing flow.
 
 ### Timeline
 
-- **Web Phase 1:** ✅ 2026-08-31 (production deploy after merge)
-- **Mobile action:** validate deep-link `ecc://event/{id}` sudah handled di router (kemungkinan sudah, via existing `app/event/[id].tsx`). Test end-to-end.
-- **Apple resubmit:** setelah verify URL live.
-- **Phase 2 (kalau perlu):** koordinasi mobile + BE, target 1-2 hari.
+- **Web:** ✅ 2026-08-31 (production deploy after merge)
+- **Mobile action:**
+  1. Validate deep-link `ecc://event/{id}` sudah handled di router (existing `app/event/[id].tsx`)
+  2. Test end-to-end: tap "Pembayaran" di app → Safari open → tap "Kembali ke ECC App" → app buka & land di event detail
+  3. Submit v1.7.2 iOS ke Apple + reply reviewer
+- **Apple resubmit:** setelah verify URL live (curl HTTP 200).
