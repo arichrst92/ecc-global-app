@@ -188,7 +188,7 @@ export default function EventDetailScreen() {
       if (userNominal && userNominal > 0) {
         return `Rp ${userNominal.toLocaleString('id-ID')}`;
       }
-      return lang === 'id' ? 'Persembahan' : 'Donation';
+      return t('event.free_amount');
     }
     const num = Number(event.nominal);
     return `Rp ${num.toLocaleString('id-ID')}`;
