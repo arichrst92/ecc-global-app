@@ -491,7 +491,11 @@
     "detail_bukti_tap_view": "Tap image to zoom",
     "detail_notes_label": "Notes",
     "detail_notes_empty": "No notes.",
-    "detail_tap_hint": "Tap for details"
+    "detail_tap_hint": "Tap for details",
+    "detail_self": "Myself",
+    "family_registrations_title": "{{count}} Registrations (Family)",
+    "register_family_more": "Register Another Family Member",
+    "cancel_not_family": "You are not allowed to cancel this registration"
   },
   "branch": {
     "active_label": "Active branch",

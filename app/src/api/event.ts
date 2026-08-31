@@ -12,6 +12,7 @@ import type {
   EventParticipation,
   BatchRegisterResponse,
   EventDonation,
+  MineAndFamilyParticipationsResponse,
 } from '@/types/event';
 
 type ListOptions = {
@@ -65,6 +66,66 @@ type BatchRegisterPayload = {
 /** POST /admin/event/:eventId/peserta/batch — multi-family registration (Phase 1) */
 export function registerPesertaBatch(eventId: string, payload: BatchRegisterPayload) {
   return api.post<BatchRegisterResponse>(`/admin/event/${eventId}/peserta/batch`, payload);
+}
+
+/**
+ * GET /admin/event/:idOrSlug/peserta/mine-and-family — per BE update
+ * 2026-08-31 family-multi.
+ *
+ * List semua participation di event ini yg jemaatId-nya ada di family set
+ * requester (self + JemaatRelasi direct + spouse-transitive). Skip BATAL,
+ * sorted registeredAt DESC. Setiap item punya field extra:
+ * - `isSelf: boolean`
+ * - `relationLabel: string` ("Diri sendiri", "Istri", "Anak Laki-Laki", dll)
+ *
+ * Response envelope BE `{success, data: {participations: [...]}}` — kita
+ * unwrap ke array langsung untuk kemudahan konsumsi hooks.
+ */
+export async function listMineAndFamilyParticipations(
+  idOrSlug: string,
+): Promise<EventParticipation[]> {
+  const res = await api.get<MineAndFamilyParticipationsResponse>(
+    `/admin/event/${idOrSlug}/peserta/mine-and-family`,
+  );
+  return res.participations;
+}
+
+/**
+ * POST /admin/event/:idOrSlug/peserta/:participationId/self-cancel — per BE
+ * update 2026-08-31 family-multi.
+ *
+ * Cancel participation by ID. Auth guard: `participation.jemaatId` harus di
+ * family set requester (self + JemaatRelasi direct + spouse-transitive) —
+ * kalau bukan → 403. Idempotent (`meta.alreadyCancelled=true` kalau sudah
+ * BATAL). Reject 400 kalau status HADIR.
+ *
+ * BE pakai POST bukan DELETE karena `DELETE /peserta/:pid` sudah dipakai admin
+ * hard-delete di portal admin (backward compat).
+ */
+export async function selfCancelParticipation(
+  idOrSlug: string,
+  participationId: string,
+): Promise<{ participation: EventParticipation; alreadyCancelled: boolean }> {
+  const accessToken = useAuthStore.getState().accessToken;
+  const res = await fetch(
+    `${env.apiBaseUrl}/admin/event/${idOrSlug}/peserta/${participationId}/self-cancel`,
+    {
+      method: 'POST',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    },
+  );
+  const json = (await res.json()) as
+    | { success: true; data: EventParticipation; meta?: { alreadyCancelled?: boolean } }
+    | { success: false; error: { code: string; message: string } };
+
+  if (!json.success) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    throw new ApiError({ code: json.error.code as any, message: json.error.message }, res.status);
+  }
+  return {
+    participation: json.data,
+    alreadyCancelled: !!json.meta?.alreadyCancelled,
+  };
 }
 
 /**

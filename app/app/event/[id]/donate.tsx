@@ -88,6 +88,7 @@ export default function EventDonateScreen() {
       // Invalidate donations list supaya event detail update
       queryClient.invalidateQueries({ queryKey: ['event', 'my-donations', id] });
       queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
+      queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
     },
     onError: (err) => {
       if (err instanceof Error && err.message === 'NOMINAL_INVALID') {
@@ -112,6 +113,7 @@ export default function EventDonateScreen() {
       setUploadedUrl(url);
       await queryClient.invalidateQueries({ queryKey: ['event', 'my-donations', id] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
+      await queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
       // Local notification — donasi tercatat, bukti terupload
       if (event) {
         addNotification({

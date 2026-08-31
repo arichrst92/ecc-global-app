@@ -9,8 +9,8 @@ import { AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, Ch
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useToast } from '@/components/ui/Toast';
-import { cancelMyParticipation } from '@/api/event';
-import { useEventDetail, useMyDonations } from '@/hooks/useEvents';
+import { selfCancelParticipation } from '@/api/event';
+import { useEventDetail, useMyDonations, useMyEventParticipations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { useAuthStore } from '@/stores/auth.store';
@@ -39,6 +39,12 @@ export default function EventDetailScreen() {
   const query = useEventDetail(id);
   const event = query.data;
   const { branch: viewingBranch } = useViewingBranch();
+
+  // Family multi-participation list per BE update 2026-08-31.
+  // Include self + JemaatRelasi direct + spouse-transitive. Skip BATAL.
+  // Untuk guest → hook gated → returns empty.
+  const familyQuery = useMyEventParticipations(id);
+  const familyParticipations: EventParticipation[] = familyQuery.data ?? [];
 
   function handleShare() {
     if (!event) return;
@@ -120,23 +126,27 @@ export default function EventDetailScreen() {
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
+  const [selectedParticipation, setSelectedParticipation] =
+    useState<EventParticipation | null>(null);
   const queryClient = useQueryClient();
 
-  // Mutation cancel registration
+  // Mutation cancel — per BE update 2026-08-31: pakai self-cancel per-id.
+  // Support cancel participation self OR family (guard di BE side).
   const cancelMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (participationId: string) => {
       if (!event) throw new Error('Missing event');
-      return cancelMyParticipation(event.id);
+      return selfCancelParticipation(event.id, participationId);
     },
     onSuccess: async (result) => {
       setCancelModalOpen(false);
-      if (event) await removeParticipation(event.id);
+      // Kalau yang di-cancel adalah participation user sendiri, clean local store
+      const cancelledIsSelf = selectedParticipation?.isSelf ?? false;
+      if (event && cancelledIsSelf) await removeParticipation(event.id);
+      setSelectedParticipation(null);
       showToast(
         result.alreadyCancelled ? t('event.already_cancelled') : t('event.cancel_success'),
         'success',
       );
-      // Local notification — pendaftaran dibatalkan (skip kalau alreadyCancelled
-      // dari sisi BE, supaya tidak spam notif yang sama)
       if (event && !result.alreadyCancelled) {
         addNotification({
           category: 'event',
@@ -145,10 +155,10 @@ export default function EventDetailScreen() {
           deepLink: `/event/${event.id}`,
         });
       }
-      // Invalidate event queries supaya myParticipation di detail re-fetch
-      // dan tombol kembali jadi "Daftar Sekarang"
+      // Invalidate all event queries — detail + my-participation + mine-and-family
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
+      await queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
     },
     onError: (err) => {
       setCancelModalOpen(false);
@@ -156,9 +166,10 @@ export default function EventDetailScreen() {
         if (err.code === 'BAD_REQUEST') {
           showToast(t('event.cancel_blocked_hadir'), 'error');
         } else if (err.code === 'NOT_FOUND') {
-          // User belum daftar (stale local state) — clean up local
-          if (event) removeParticipation(event.id);
+          if (event && selectedParticipation?.isSelf) removeParticipation(event.id);
           showToast(t('event.cancel_not_registered'), 'info');
+        } else if (err.code === 'FORBIDDEN') {
+          showToast(t('event.cancel_not_family'), 'error');
         } else {
           showToast(err.message, 'error');
         }
@@ -323,23 +334,66 @@ export default function EventDetailScreen() {
                 )}
               </View>
 
-              {/* Participation status tracker — prominent card di atas deskripsi
-                  supaya user langsung lihat status pendaftaran mereka. Clickable
-                  → buka modal dengan info lengkap (nama, bukti transfer, catatan). */}
-              {participation ? (
+              {/* Participation trackers — satu card per participation (self +
+                  family). Per BE update 2026-08-31 family-multi. Clickable →
+                  modal dengan info lengkap + tombol cancel per-tracker. */}
+              {familyParticipations.length > 0 ? (
+                <View className="mt-4 gap-2">
+                  {familyParticipations.length > 1 ? (
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-sm font-bold text-neutral-900">
+                        {t('event.family_registrations_title', {
+                          count: familyParticipations.length,
+                        })}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {familyParticipations.map((p) => (
+                    <ParticipationStatusCard
+                      key={p.id}
+                      participation={p}
+                      isFree={isFree}
+                      lang={lang}
+                      onPress={() => {
+                        setSelectedParticipation(p);
+                        setDetailModalOpen(true);
+                      }}
+                    />
+                  ))}
+                </View>
+              ) : participation ? (
+                // Fallback: kalau family list belum ready (offline) tapi ada
+                // local participation → tampil sebagai single card read-only.
                 <ParticipationStatusCard
-                  status={participation.status}
-                  registeredAt={participation.registeredAt}
-                  nominalBayar={
-                    event.myParticipation?.nominalBayar
-                      ? Number(event.myParticipation.nominalBayar)
-                      : 'nominalBayar' in participation
-                        ? (participation as { nominalBayar?: number | null }).nominalBayar
-                        : null
-                  }
+                  participation={{
+                    id: participation.participationId,
+                    eventId: event.id,
+                    jemaatId:
+                      'jemaatId' in participation
+                        ? (participation as { jemaatId: string }).jemaatId
+                        : '',
+                    status: participation.status,
+                    nominalBayar:
+                      event.myParticipation?.nominalBayar
+                        ? String(event.myParticipation.nominalBayar)
+                        : '0',
+                    registeredAt: new Date(participation.registeredAt).toISOString(),
+                    isSelf: true,
+                    relationLabel: t('event.detail_self'),
+                  }}
                   isFree={isFree}
                   lang={lang}
-                  onPress={() => setDetailModalOpen(true)}
+                  onPress={() => {
+                    // Buka modal dengan data yang ada (mungkin partial)
+                    if (event.myParticipation) {
+                      setSelectedParticipation({
+                        ...event.myParticipation,
+                        isSelf: true,
+                        relationLabel: t('event.detail_self'),
+                      });
+                      setDetailModalOpen(true);
+                    }
+                  }}
                 />
               ) : null}
 
@@ -420,14 +474,28 @@ export default function EventDetailScreen() {
                 </View>
               </View>
             ) : participation ? (
-              <ParticipationCTA
-                status={participation.status}
-                tipeBayar={event.tipeBayar}
-                priceLabel={priceLabel}
-                onContinuePayment={() => router.push(`/event/${id}/payment`)}
-              />
+              <View>
+                <ParticipationCTA
+                  status={participation.status}
+                  tipeBayar={event.tipeBayar}
+                  priceLabel={priceLabel}
+                  onContinuePayment={() => router.push(`/event/${id}/payment`)}
+                />
+                {/* Sekunder: user bisa daftarkan family member lain */}
+                {!isFull ? (
+                  <Pressable
+                    onPress={() => router.push(`/event/${id}/register`)}
+                    className="py-2 mt-2 items-center"
+                  >
+                    <Text className="text-sm font-semibold text-brand-500">
+                      + {t('event.register_family_more')}
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
             ) : (
-              // Belum daftar — show normal register CTA
+              // Self belum daftar. Kalau family ada yg sudah daftar, label
+              // "Daftarkan Peserta Lain"; kalau kosong → "Daftar Sekarang".
               <View className="flex-row items-center gap-3">
                 <View>
                   <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
@@ -435,7 +503,13 @@ export default function EventDetailScreen() {
                 </View>
                 <View className="flex-1">
                   <Button
-                    label={isFull ? t('event.quota_full') : t('event.register_now')}
+                    label={
+                      isFull
+                        ? t('event.quota_full')
+                        : familyParticipations.length > 0
+                          ? t('event.register_family_more')
+                          : t('event.register_now')
+                    }
                     onPress={() => router.push(`/event/${id}/register`)}
                     disabled={isFull}
                     fullWidth
@@ -451,27 +525,25 @@ export default function EventDetailScreen() {
 
       {/* Participation detail modal — full info: nama, status, bukti, catatan.
           Cancel dari modal → close modal → open confirmation modal. */}
-      {event && participation ? (
+      {event && selectedParticipation ? (
         <ParticipationDetailModal
           visible={detailModalOpen}
-          onClose={() => setDetailModalOpen(false)}
-          beParticipation={event.myParticipation ?? null}
-          fallback={{
-            status: participation.status,
-            registeredAt: participation.registeredAt,
-            nominalBayar:
-              event.myParticipation?.nominalBayar
-                ? Number(event.myParticipation.nominalBayar)
-                : 'nominalBayar' in participation
-                  ? (participation as { nominalBayar?: number | null }).nominalBayar ?? null
-                  : null,
+          onClose={() => {
+            setDetailModalOpen(false);
+            // Delay clear supaya modal close animation smooth
+            setTimeout(() => setSelectedParticipation(null), 250);
           }}
+          participation={selectedParticipation}
           isFree={isFree}
           lang={lang}
           onOpenImage={(url) => setZoomImageUrl(url)}
+          onContinuePayment={() => {
+            setDetailModalOpen(false);
+            router.push(`/event/${id}/payment`);
+          }}
           onCancel={() => {
             setDetailModalOpen(false);
-            // Small delay supaya modal detail close smooth dulu
+            // Delay supaya modal detail close animasi selesai
             setTimeout(() => setCancelModalOpen(true), 250);
           }}
         />
@@ -524,6 +596,14 @@ export default function EventDetailScreen() {
             <Text className="text-lg font-bold text-neutral-900 mb-1">
               {t('event.cancel_confirm_title')}
             </Text>
+            {selectedParticipation ? (
+              <Text className="text-xs text-neutral-500 mb-2">
+                {selectedParticipation.jemaat?.namaLengkap ?? ''}
+                {selectedParticipation.relationLabel
+                  ? ` (${selectedParticipation.relationLabel})`
+                  : ''}
+              </Text>
+            ) : null}
             <Text className="text-sm text-neutral-500 mb-4 leading-relaxed">
               {t('event.cancel_confirm_msg')}
             </Text>
@@ -541,7 +621,11 @@ export default function EventDetailScreen() {
                 <Button
                   label={t('event.confirm_cancel')}
                   variant="danger"
-                  onPress={() => cancelMutation.mutate()}
+                  onPress={() => {
+                    if (selectedParticipation) {
+                      cancelMutation.mutate(selectedParticipation.id);
+                    }
+                  }}
                   fullWidth
                   loading={cancelMutation.isPending}
                 />
@@ -818,21 +902,24 @@ function formatTimeRange(event: {
  * PARTICIPATION STATUS CARD — prominent tracker di detail
  * ============================================================== */
 function ParticipationStatusCard({
-  status,
-  registeredAt,
-  nominalBayar,
+  participation,
   isFree,
   lang,
   onPress,
 }: {
-  status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
-  registeredAt: number;
-  nominalBayar?: number | null;
+  participation: EventParticipation;
   isFree: boolean;
   lang: string;
   onPress?: () => void;
 }) {
   const { t } = useTranslation();
+  const status = participation.status;
+  const registeredAt = new Date(participation.registeredAt).getTime();
+  const nominalBayar = participation.nominalBayar
+    ? Number(participation.nominalBayar)
+    : null;
+  const namaPeserta = participation.jemaat?.namaLengkap;
+  const relationLabel = participation.relationLabel;
 
   const cfg = (() => {
     if (status === 'HADIR')
@@ -907,7 +994,7 @@ function ParticipationStatusCard({
     <Pressable
       onPress={onPress}
       android_ripple={onPress ? { color: 'rgba(0,0,0,0.05)' } : undefined}
-      className={`mt-4 ${cfg.bg} border ${cfg.border} rounded-2xl p-4 active:opacity-80`}
+      className={`${cfg.bg} border ${cfg.border} rounded-2xl p-4 active:opacity-80`}
     >
       <View className="flex-row items-start gap-3">
         <View
@@ -916,22 +1003,36 @@ function ParticipationStatusCard({
           {cfg.icon}
         </View>
         <View className="flex-1 min-w-0">
+          {/* Nama peserta + relation label (badge kecil) */}
           <View className="flex-row items-center justify-between">
-            <Text className={`text-sm font-bold ${cfg.titleColor}`}>
-              {t('event.registration_status_label')}
-            </Text>
-            {onPress ? (
-              <ChevronRight size={16} color="#6B7280" />
-            ) : null}
+            <View className="flex-1 min-w-0 flex-row items-center gap-2">
+              <Text
+                className={`text-base font-bold ${cfg.titleColor}`}
+                numberOfLines={1}
+              >
+                {namaPeserta ?? t('event.detail_self')}
+              </Text>
+              {relationLabel ? (
+                <View className="bg-white/60 px-1.5 py-0.5 rounded">
+                  <Text className={`text-[10px] font-semibold ${cfg.bodyColor}`}>
+                    {relationLabel}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+            {onPress ? <ChevronRight size={16} color="#6B7280" /> : null}
           </View>
-          <Text className={`text-base font-bold ${cfg.titleColor} mt-0.5`}>
+
+          {/* Status title + body */}
+          <Text className={`text-sm font-semibold ${cfg.titleColor} mt-1`}>
             {cfg.title}
           </Text>
-          <Text className={`text-xs ${cfg.bodyColor} mt-1 leading-relaxed`}>
+          <Text className={`text-xs ${cfg.bodyColor} mt-0.5 leading-relaxed`}>
             {cfg.body}
           </Text>
 
-          <View className="flex-row items-center gap-4 mt-3">
+          {/* Meta row */}
+          <View className="flex-row items-center gap-4 mt-2.5">
             <View>
               <Text className={`text-[10px] ${cfg.bodyColor} uppercase font-bold`}>
                 {t('event.registered_since')}
@@ -974,45 +1075,46 @@ function ParticipationStatusCard({
 function ParticipationDetailModal({
   visible,
   onClose,
-  beParticipation,
-  fallback,
+  participation,
   isFree,
   lang,
   onOpenImage,
+  onContinuePayment,
   onCancel,
 }: {
   visible: boolean;
   onClose: () => void;
-  beParticipation: EventParticipation | null;
-  fallback: {
-    status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
-    registeredAt: number;
-    nominalBayar: number | null;
-  };
+  participation: EventParticipation;
   isFree: boolean;
   lang: string;
   onOpenImage: (url: string) => void;
+  onContinuePayment?: () => void;
   onCancel?: () => void;
 }) {
   const { t } = useTranslation();
 
-  // Prefer BE data (has jemaat.namaLengkap, catatan, buktiTransferUrl)
-  const status = beParticipation?.status ?? fallback.status;
-  const registeredAtMs = beParticipation
-    ? new Date(beParticipation.registeredAt).getTime()
-    : fallback.registeredAt;
-  const nominalNum = beParticipation
-    ? Number(beParticipation.nominalBayar)
-    : fallback.nominalBayar ?? 0;
-  const namaPeserta = beParticipation?.jemaat?.namaLengkap ?? null;
-  const catatan = beParticipation?.catatan ?? null;
-  const buktiUrl = beParticipation?.buktiTransferUrl
-    ? beParticipation.buktiTransferUrl.startsWith('http')
-      ? beParticipation.buktiTransferUrl
-      : `${env.apiBaseUrl}${beParticipation.buktiTransferUrl}`
+  const status = participation.status;
+  const registeredAtMs = new Date(participation.registeredAt).getTime();
+  const nominalNum = participation.nominalBayar
+    ? Number(participation.nominalBayar)
+    : 0;
+  const namaPeserta = participation.jemaat?.namaLengkap ?? null;
+  const relationLabel = participation.relationLabel ?? null;
+  const isSelf = participation.isSelf ?? false;
+  const catatan = participation.catatan ?? null;
+  const buktiUrl = participation.buktiTransferUrl
+    ? participation.buktiTransferUrl.startsWith('http')
+      ? participation.buktiTransferUrl
+      : `${env.apiBaseUrl}${participation.buktiTransferUrl}`
     : null;
-  const paidAt = beParticipation?.paidAt ?? null;
-  const attendedAt = beParticipation?.attendedAt ?? null;
+  const paidAt = participation.paidAt ?? null;
+  const attendedAt = participation.attendedAt ?? null;
+  // Continue payment hanya untuk participation self, status DAFTAR, event
+  // berbayar. Payment flow saat ini butuh participation self di event flow store.
+  const showContinuePayment: boolean =
+    !!onContinuePayment && isSelf && status === 'DAFTAR' && !isFree;
+  const showCancel: boolean =
+    !!onCancel && status !== 'HADIR' && status !== 'BATAL';
 
   const statusCfg = (() => {
     if (status === 'HADIR')
@@ -1078,11 +1180,17 @@ function ParticipationDetailModal({
               </Text>
             </View>
 
-            {/* Nama peserta */}
+            {/* Nama peserta + relation label */}
             <DetailRow
               icon={<User size={18} color="#EA580C" />}
               label={t('event.detail_participant_label')}
-              value={namaPeserta ?? '—'}
+              value={
+                namaPeserta
+                  ? relationLabel
+                    ? `${namaPeserta} • ${relationLabel}`
+                    : namaPeserta
+                  : relationLabel ?? '—'
+              }
             />
 
             {/* Waktu daftar */}
@@ -1181,18 +1289,31 @@ function ParticipationDetailModal({
               </View>
             </View>
 
-            {/* Cancel button — per-tracker cancel. Hidden untuk status
-                HADIR (BE reject) atau BATAL (sudah cancel). */}
-            {onCancel && status !== 'HADIR' && status !== 'BATAL' ? (
-              <View className="mt-6 border-t border-neutral-100 pt-4">
-                <Pressable
-                  onPress={onCancel}
-                  className="bg-red-50 border border-red-200 rounded-xl py-3 items-center active:opacity-80"
-                >
-                  <Text className="text-sm font-semibold text-red-600">
-                    {t('event.cancel_registration')}
-                  </Text>
-                </Pressable>
+            {/* Actions — Continue Payment (untuk self DAFTAR berbayar) +
+                Cancel per-tracker. Cancel hidden untuk HADIR/BATAL. */}
+            {showContinuePayment || showCancel ? (
+              <View className="mt-6 border-t border-neutral-100 pt-4 gap-2">
+                {showContinuePayment ? (
+                  <Pressable
+                    onPress={onContinuePayment}
+                    className="bg-brand-500 rounded-xl py-3 items-center active:opacity-80 flex-row justify-center gap-2"
+                  >
+                    <Upload size={16} color="#fff" />
+                    <Text className="text-sm font-semibold text-white">
+                      {t('event.continue_payment')}
+                    </Text>
+                  </Pressable>
+                ) : null}
+                {showCancel ? (
+                  <Pressable
+                    onPress={onCancel}
+                    className="bg-red-50 border border-red-200 rounded-xl py-3 items-center active:opacity-80"
+                  >
+                    <Text className="text-sm font-semibold text-red-600">
+                      {t('event.cancel_registration')}
+                    </Text>
+                  </Pressable>
+                ) : null}
               </View>
             ) : null}
           </ScrollView>

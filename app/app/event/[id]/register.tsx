@@ -94,6 +94,7 @@ export default function EventRegisterScreen() {
       // Invalidate event queries supaya myParticipation field di detail ke-update
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
+      await queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
 
       // Local notification — pendaftaran event berhasil
       if (event) {
@@ -135,6 +136,7 @@ export default function EventRegisterScreen() {
             // Invalidate event detail → re-fetch akan dapat myParticipation dari BE
             await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
             await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
+            await queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
             Alert.alert(
               t('event.already_registered'),
               t('event.already_registered_recovery'),

@@ -491,7 +491,11 @@
     "detail_bukti_tap_view": "Ketuk gambar untuk memperbesar",
     "detail_notes_label": "Catatan",
     "detail_notes_empty": "Tidak ada catatan.",
-    "detail_tap_hint": "Ketuk untuk lihat detail"
+    "detail_tap_hint": "Ketuk untuk lihat detail",
+    "detail_self": "Diri sendiri",
+    "family_registrations_title": "{{count}} Pendaftaran (Keluarga)",
+    "register_family_more": "Daftarkan Anggota Keluarga Lain",
+    "cancel_not_family": "Anda tidak diizinkan membatalkan pendaftaran ini"
   },
   "branch": {
     "active_label": "Cabang aktif",

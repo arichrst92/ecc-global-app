@@ -5,6 +5,7 @@ import {
   getEventDetail,
   getMyParticipation,
   listMyDonations,
+  listMineAndFamilyParticipations,
 } from '@/api/event';
 import { publicEventDetail } from '@/api/publicGuest';
 import { useAuthStore } from '@/stores/auth.store';
@@ -102,6 +103,32 @@ export function useMyParticipation(idOrSlug: string | undefined, enabled = true)
     },
     enabled: !!idOrSlug && enabled,
     staleTime: 60_000, // 1 menit — refresh lebih sering daripada detail
+  });
+}
+
+/**
+ * Fetch semua participation di event ini untuk self + family (JemaatRelasi
+ * direct + spouse-transitive). Per BE update 2026-08-31 family-multi.
+ *
+ * Skip untuk guest mode — endpoint require auth.
+ *
+ * Returns empty array kalau BE balas NOT_FOUND (belum ada peserta di event
+ * yang jemaatId-nya di family set). Throws untuk error lain.
+ */
+export function useMyEventParticipations(idOrSlug: string | undefined) {
+  const isGuest = useAuthStore((s) => s.isGuest);
+  return useQuery<EventParticipation[]>({
+    queryKey: ['event', 'mine-and-family', idOrSlug],
+    queryFn: async () => {
+      try {
+        return await listMineAndFamilyParticipations(idOrSlug!);
+      } catch (err) {
+        if (err instanceof ApiError && err.code === 'NOT_FOUND') return [];
+        throw err;
+      }
+    },
+    enabled: !!idOrSlug && !isGuest,
+    staleTime: 60_000, // 1 menit — sama kayak my-participation
   });
 }
 

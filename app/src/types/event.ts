@@ -55,9 +55,22 @@ export type EventDetail = EventListItem & {
   tags?: string[];
   author?: { id: string; jemaat: { id: string; namaLengkap: string } };
   myParticipation?: EventParticipation | null;
+  /** Per BE update 2026-08-31 — count participations di event yg jemaatId
+   *  ada di family set requester (self + relasi + spouse-transitive). Exclude
+   *  BATAL. Untuk unauthenticated → 0. Additive field, backward-compat safe. */
+  familyParticipationsCount?: number;
 };
 
-/** Participation/Peserta row */
+/** Participation/Peserta row.
+ *
+ * Per BE update 2026-08-31 family-multi:
+ * - `cancelledAt` — soft-delete timestamp waktu status di-set BATAL
+ * - `isSelf` — hanya ada di response `/peserta/mine-and-family`. True kalau
+ *   participation ini milik user yang login sendiri (bukan family member).
+ * - `relationLabel` — hanya ada di response `/peserta/mine-and-family`.
+ *   Human-readable relation dari `TipeRelasiKeluarga.nama` (mis. "Diri sendiri",
+ *   "Istri", "Anak Laki-Laki"). Untuk viaSpouse fallback ke "Keluarga".
+ */
 export type EventParticipation = {
   id: string;
   eventId: string;
@@ -69,7 +82,17 @@ export type EventParticipation = {
   registeredAt: string;
   paidAt?: string | null;
   attendedAt?: string | null;
+  cancelledAt?: string | null;
   jemaat?: { id: string; namaLengkap: string; fotoUrl?: string | null };
+  isSelf?: boolean;
+  relationLabel?: string;
+};
+
+/** Response GET /admin/event/:idOrSlug/peserta/mine-and-family — per BE update
+ *  2026-08-31 family-multi. Includes self + family (JemaatRelasi direct +
+ *  spouse-transitive). Skip BATAL, sorted registeredAt DESC. */
+export type MineAndFamilyParticipationsResponse = {
+  participations: EventParticipation[];
 };
 
 /** Response dari POST /admin/event/:id/peserta/batch */
