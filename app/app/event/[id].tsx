@@ -144,7 +144,7 @@ export default function EventDetailScreen() {
       }
       // Invalidate event queries supaya myParticipation di detail re-fetch
       // dan tombol kembali jadi "Daftar Sekarang"
-      await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
+      await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
     },
     onError: (err) => {

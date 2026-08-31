@@ -74,7 +74,7 @@ export default function EventPaymentScreen() {
         await updateStatus(event.id, 'MENUNGGU_VERIFIKASI');
       }
       // Invalidate event queries supaya myParticipation.status di detail ke-update
-      await queryClient.invalidateQueries({ queryKey: ['event', 'detail', id] });
+      await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
       // Local notification — bukti pembayaran terupload, menunggu verifikasi admin
       if (event) {
