@@ -475,7 +475,10 @@
     "free_amount": "Nominal sukarela",
     "bebas_web_title": "Lanjutkan di Web",
     "bebas_web_body": "Persembahan nominal sukarela dilakukan melalui website. Membuka browser sekarang...",
-    "bebas_web_open": "Buka di Browser"
+    "bebas_web_open": "Buka di Browser",
+    "registration_status_label": "Status Pendaftaran Anda",
+    "registered_since": "Daftar sejak",
+    "nominal_label": "Nominal"
   },
   "branch": {
     "active_label": "Cabang aktif",

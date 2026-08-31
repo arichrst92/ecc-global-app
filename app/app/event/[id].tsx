@@ -320,6 +320,22 @@ export default function EventDetailScreen() {
                 )}
               </View>
 
+              {/* Participation status tracker — prominent card di atas deskripsi
+                  supaya user langsung lihat status pendaftaran mereka. */}
+              {participation ? (
+                <ParticipationStatusCard
+                  status={participation.status}
+                  registeredAt={participation.registeredAt}
+                  nominalBayar={
+                    'nominalBayar' in participation
+                      ? (participation as { nominalBayar?: number | null }).nominalBayar
+                      : null
+                  }
+                  isFree={isFree}
+                  lang={lang}
+                />
+              ) : null}
+
               {/* Deskripsi */}
               <View className="mt-5">
                 <Text className="text-lg font-bold text-neutral-900 mb-2">
@@ -762,4 +778,142 @@ function formatTimeRange(event: {
     return `${fmt(start)} WIB`;
   }
   return `${fmt(start)} - ${fmt(end)} WIB`;
+}
+
+/* ==============================================================
+ * PARTICIPATION STATUS CARD — prominent tracker di detail
+ * ============================================================== */
+function ParticipationStatusCard({
+  status,
+  registeredAt,
+  nominalBayar,
+  isFree,
+  lang,
+}: {
+  status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
+  registeredAt: number;
+  nominalBayar?: number | null;
+  isFree: boolean;
+  lang: string;
+}) {
+  const { t } = useTranslation();
+
+  const cfg = (() => {
+    if (status === 'HADIR')
+      return {
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-100',
+        iconBg: 'bg-emerald-500',
+        titleColor: 'text-emerald-900',
+        bodyColor: 'text-emerald-700',
+        icon: <CheckCircle2 size={20} color="#fff" />,
+        title: t('event.status_hadir'),
+        body: t('event.attended_thanks'),
+      };
+    if (status === 'BAYAR')
+      return {
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-100',
+        iconBg: 'bg-emerald-500',
+        titleColor: 'text-emerald-900',
+        bodyColor: 'text-emerald-700',
+        icon: <Check size={20} color="#fff" />,
+        title: t('event.status_bayar'),
+        body: t('event.see_you_at_event'),
+      };
+    if (status === 'MENUNGGU_VERIFIKASI')
+      return {
+        bg: 'bg-amber-50',
+        border: 'border-amber-100',
+        iconBg: 'bg-amber-500',
+        titleColor: 'text-amber-900',
+        bodyColor: 'text-amber-700',
+        icon: <Clock size={20} color="#fff" />,
+        title: t('event.status_menunggu'),
+        body: t('event.waiting_admin_verification'),
+      };
+    if (status === 'DAFTAR' && isFree)
+      return {
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-100',
+        iconBg: 'bg-emerald-500',
+        titleColor: 'text-emerald-900',
+        bodyColor: 'text-emerald-700',
+        icon: <Check size={20} color="#fff" />,
+        title: t('event.already_registered'),
+        body: t('event.see_you_at_event'),
+      };
+    // DAFTAR + berbayar → belum bayar
+    return {
+      bg: 'bg-amber-50',
+      border: 'border-amber-100',
+      iconBg: 'bg-amber-500',
+      titleColor: 'text-amber-900',
+      bodyColor: 'text-amber-700',
+      icon: <Upload size={20} color="#fff" />,
+      title: t('event.status_daftar'),
+      body: t('event.continue_payment_notice'),
+    };
+  })();
+
+  const timeAgo = (() => {
+    const diff = Date.now() - registeredAt;
+    const m = Math.floor(diff / 60_000);
+    if (m < 1) return t('notifications.now');
+    if (m < 60) return t('notifications.minutes_ago', { count: m });
+    const h = Math.floor(m / 60);
+    if (h < 24) return t('notifications.hours_ago', { count: h });
+    const d = Math.floor(h / 24);
+    return t('notifications.days_ago', { count: d });
+  })();
+
+  return (
+    <View
+      className={`mt-4 ${cfg.bg} border ${cfg.border} rounded-2xl p-4`}
+    >
+      <View className="flex-row items-start gap-3">
+        <View
+          className={`w-10 h-10 rounded-xl ${cfg.iconBg} items-center justify-center`}
+        >
+          {cfg.icon}
+        </View>
+        <View className="flex-1 min-w-0">
+          <Text className={`text-sm font-bold ${cfg.titleColor}`}>
+            {t('event.registration_status_label')}
+          </Text>
+          <Text className={`text-base font-bold ${cfg.titleColor} mt-0.5`}>
+            {cfg.title}
+          </Text>
+          <Text className={`text-xs ${cfg.bodyColor} mt-1 leading-relaxed`}>
+            {cfg.body}
+          </Text>
+
+          <View className="flex-row items-center gap-4 mt-3">
+            <View>
+              <Text className={`text-[10px] ${cfg.bodyColor} uppercase font-bold`}>
+                {t('event.registered_since')}
+              </Text>
+              <Text className={`text-xs ${cfg.titleColor} font-semibold mt-0.5`}>
+                {timeAgo}
+              </Text>
+            </View>
+            {nominalBayar && nominalBayar > 0 ? (
+              <View>
+                <Text
+                  className={`text-[10px] ${cfg.bodyColor} uppercase font-bold`}
+                >
+                  {t('event.nominal_label')}
+                </Text>
+                <Text
+                  className={`text-xs ${cfg.titleColor} font-semibold mt-0.5`}
+                >
+                  Rp {nominalBayar.toLocaleString('id-ID')}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    </View>
+  );
 }

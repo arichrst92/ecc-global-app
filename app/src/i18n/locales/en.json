@@ -475,7 +475,10 @@
     "free_amount": "Free amount",
     "bebas_web_title": "Continue on the Web",
     "bebas_web_body": "Free-amount donation is completed via our website. Opening browser now...",
-    "bebas_web_open": "Open in Browser"
+    "bebas_web_open": "Open in Browser",
+    "registration_status_label": "Your Registration",
+    "registered_since": "Registered",
+    "nominal_label": "Amount"
   },
   "branch": {
     "active_label": "Active branch",
