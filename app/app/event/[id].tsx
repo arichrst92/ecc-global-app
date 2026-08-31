@@ -1038,12 +1038,15 @@ function ParticipationDetailModal({
       transparent
       animationType="slide"
       onRequestClose={onClose}
+      statusBarTranslucent
     >
-      <View className="flex-1 bg-black/50 justify-end">
-        <Pressable className="flex-1" onPress={onClose} />
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        {/* Tap backdrop di area atas untuk close */}
+        <Pressable style={{ flex: 1 }} onPress={onClose} />
+        {/* Modal sheet — fixed height 85% supaya ScrollView bisa flex-1 */}
         <View
-          className="bg-white rounded-t-3xl"
-          style={{ maxHeight: '90%' }}
+          className="bg-white rounded-t-3xl overflow-hidden"
+          style={{ height: '85%' }}
         >
           {/* Handle bar */}
           <View className="items-center pt-3 pb-1">
@@ -1065,8 +1068,8 @@ function ParticipationDetailModal({
           </View>
 
           <ScrollView
-            className="flex-1"
-            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}
           >
             {/* Status pill big */}
             <View className={`self-start px-3 py-1.5 rounded-full ${statusCfg.bg} mb-4`}>
