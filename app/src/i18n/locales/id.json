@@ -478,7 +478,20 @@
     "bebas_web_open": "Buka di Browser",
     "registration_status_label": "Status Pendaftaran Anda",
     "registered_since": "Daftar sejak",
-    "nominal_label": "Nominal"
+    "nominal_label": "Nominal",
+    "detail_modal_title": "Detail Pendaftaran",
+    "detail_participant_label": "Atas Nama",
+    "detail_status_label": "Status",
+    "detail_registered_label": "Waktu Daftar",
+    "detail_paid_label": "Waktu Bayar",
+    "detail_attended_label": "Waktu Hadir",
+    "detail_nominal_label": "Nominal",
+    "detail_bukti_label": "Bukti Transfer",
+    "detail_bukti_empty": "Belum ada bukti transfer diupload.",
+    "detail_bukti_tap_view": "Ketuk gambar untuk memperbesar",
+    "detail_notes_label": "Catatan",
+    "detail_notes_empty": "Tidak ada catatan.",
+    "detail_tap_hint": "Ketuk untuk lihat detail"
   },
   "branch": {
     "active_label": "Cabang aktif",

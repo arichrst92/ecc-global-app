@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Modal, Platform, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Modal, Platform, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, Clock, HandHeart, MapPin, PlayCircle, Share2, Upload, Users, X } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, ChevronRight, Clock, FileText, HandHeart, MapPin, PlayCircle, Receipt, Share2, Upload, User, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -17,7 +17,8 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
-import type { EventDonation } from '@/types/event';
+import { env } from '@/config/env';
+import type { EventDonation, EventParticipation } from '@/types/event';
 
 /** Build per-cabang persembahan URL — per BE notice 2026-08-31 */
 function buildPersembahanUrl(cabangKode: string | null | undefined): string {
@@ -117,6 +118,8 @@ export default function EventDetailScreen() {
   const showToast = useToast((s) => s.show);
   const addNotification = useNotificationsStore((s) => s.add);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Mutation cancel registration
@@ -321,18 +324,22 @@ export default function EventDetailScreen() {
               </View>
 
               {/* Participation status tracker — prominent card di atas deskripsi
-                  supaya user langsung lihat status pendaftaran mereka. */}
+                  supaya user langsung lihat status pendaftaran mereka. Clickable
+                  → buka modal dengan info lengkap (nama, bukti transfer, catatan). */}
               {participation ? (
                 <ParticipationStatusCard
                   status={participation.status}
                   registeredAt={participation.registeredAt}
                   nominalBayar={
-                    'nominalBayar' in participation
-                      ? (participation as { nominalBayar?: number | null }).nominalBayar
-                      : null
+                    event.myParticipation?.nominalBayar
+                      ? Number(event.myParticipation.nominalBayar)
+                      : 'nominalBayar' in participation
+                        ? (participation as { nominalBayar?: number | null }).nominalBayar
+                        : null
                   }
                   isFree={isFree}
                   lang={lang}
+                  onPress={() => setDetailModalOpen(true)}
                 />
               ) : null}
 
@@ -442,6 +449,54 @@ export default function EventDetailScreen() {
           </SafeAreaView>
         </View>
       ) : null}
+
+      {/* Participation detail modal — full info: nama, status, bukti, catatan */}
+      {event && participation ? (
+        <ParticipationDetailModal
+          visible={detailModalOpen}
+          onClose={() => setDetailModalOpen(false)}
+          beParticipation={event.myParticipation ?? null}
+          fallback={{
+            status: participation.status,
+            registeredAt: participation.registeredAt,
+            nominalBayar:
+              event.myParticipation?.nominalBayar
+                ? Number(event.myParticipation.nominalBayar)
+                : 'nominalBayar' in participation
+                  ? (participation as { nominalBayar?: number | null }).nominalBayar ?? null
+                  : null,
+          }}
+          isFree={isFree}
+          lang={lang}
+          onOpenImage={(url) => setZoomImageUrl(url)}
+        />
+      ) : null}
+
+      {/* Zoomed bukti image modal — full-screen tap-to-close */}
+      <Modal
+        visible={!!zoomImageUrl}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setZoomImageUrl(null)}
+      >
+        <Pressable
+          onPress={() => setZoomImageUrl(null)}
+          className="flex-1 bg-black/90 items-center justify-center"
+        >
+          {zoomImageUrl ? (
+            <Image
+              source={{ uri: zoomImageUrl }}
+              style={{ width: '100%', height: '80%' }}
+              resizeMode="contain"
+            />
+          ) : null}
+          <View className="absolute top-12 right-4">
+            <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center">
+              <X size={20} color="#fff" />
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
 
       {/* Cancel confirmation modal */}
       <Modal
@@ -789,12 +844,14 @@ function ParticipationStatusCard({
   nominalBayar,
   isFree,
   lang,
+  onPress,
 }: {
   status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
   registeredAt: number;
   nominalBayar?: number | null;
   isFree: boolean;
   lang: string;
+  onPress?: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -868,8 +925,10 @@ function ParticipationStatusCard({
   })();
 
   return (
-    <View
-      className={`mt-4 ${cfg.bg} border ${cfg.border} rounded-2xl p-4`}
+    <Pressable
+      onPress={onPress}
+      android_ripple={onPress ? { color: 'rgba(0,0,0,0.05)' } : undefined}
+      className={`mt-4 ${cfg.bg} border ${cfg.border} rounded-2xl p-4 active:opacity-80`}
     >
       <View className="flex-row items-start gap-3">
         <View
@@ -878,9 +937,14 @@ function ParticipationStatusCard({
           {cfg.icon}
         </View>
         <View className="flex-1 min-w-0">
-          <Text className={`text-sm font-bold ${cfg.titleColor}`}>
-            {t('event.registration_status_label')}
-          </Text>
+          <View className="flex-row items-center justify-between">
+            <Text className={`text-sm font-bold ${cfg.titleColor}`}>
+              {t('event.registration_status_label')}
+            </Text>
+            {onPress ? (
+              <ChevronRight size={16} color="#6B7280" />
+            ) : null}
+          </View>
           <Text className={`text-base font-bold ${cfg.titleColor} mt-0.5`}>
             {cfg.title}
           </Text>
@@ -912,8 +976,271 @@ function ParticipationStatusCard({
               </View>
             ) : null}
           </View>
+
+          {onPress ? (
+            <Text className={`text-[10px] ${cfg.bodyColor} mt-2 italic`}>
+              {t('event.detail_tap_hint')}
+            </Text>
+          ) : null}
         </View>
+      </View>
+    </Pressable>
+  );
+}
+
+/* ==============================================================
+ * PARTICIPATION DETAIL MODAL — full info: nama peserta, status,
+ * bukti transfer image (tap to zoom), catatan admin.
+ * ============================================================== */
+function ParticipationDetailModal({
+  visible,
+  onClose,
+  beParticipation,
+  fallback,
+  isFree,
+  lang,
+  onOpenImage,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  beParticipation: EventParticipation | null;
+  fallback: {
+    status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
+    registeredAt: number;
+    nominalBayar: number | null;
+  };
+  isFree: boolean;
+  lang: string;
+  onOpenImage: (url: string) => void;
+}) {
+  const { t } = useTranslation();
+
+  // Prefer BE data (has jemaat.namaLengkap, catatan, buktiTransferUrl)
+  const status = beParticipation?.status ?? fallback.status;
+  const registeredAtMs = beParticipation
+    ? new Date(beParticipation.registeredAt).getTime()
+    : fallback.registeredAt;
+  const nominalNum = beParticipation
+    ? Number(beParticipation.nominalBayar)
+    : fallback.nominalBayar ?? 0;
+  const namaPeserta = beParticipation?.jemaat?.namaLengkap ?? null;
+  const catatan = beParticipation?.catatan ?? null;
+  const buktiUrl = beParticipation?.buktiTransferUrl
+    ? beParticipation.buktiTransferUrl.startsWith('http')
+      ? beParticipation.buktiTransferUrl
+      : `${env.apiBaseUrl}${beParticipation.buktiTransferUrl}`
+    : null;
+  const paidAt = beParticipation?.paidAt ?? null;
+  const attendedAt = beParticipation?.attendedAt ?? null;
+
+  const statusCfg = (() => {
+    if (status === 'HADIR')
+      return { label: t('event.status_hadir'), bg: 'bg-emerald-100', text: 'text-emerald-700' };
+    if (status === 'BAYAR')
+      return { label: t('event.status_bayar'), bg: 'bg-emerald-100', text: 'text-emerald-700' };
+    if (status === 'MENUNGGU_VERIFIKASI')
+      return { label: t('event.status_menunggu'), bg: 'bg-amber-100', text: 'text-amber-700' };
+    if (status === 'BATAL')
+      return { label: t('event.status_batal'), bg: 'bg-neutral-200', text: 'text-neutral-600' };
+    return {
+      label: isFree ? t('event.already_registered') : t('event.status_daftar'),
+      bg: 'bg-amber-100',
+      text: 'text-amber-700',
+    };
+  })();
+
+  const registeredLabel = formatDateTime(registeredAtMs, lang);
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View className="flex-1 bg-black/50 justify-end">
+        <Pressable className="flex-1" onPress={onClose} />
+        <View
+          className="bg-white rounded-t-3xl"
+          style={{ maxHeight: '90%' }}
+        >
+          {/* Handle bar */}
+          <View className="items-center pt-3 pb-1">
+            <View className="w-10 h-1 rounded-full bg-neutral-300" />
+          </View>
+
+          {/* Header */}
+          <View className="px-5 pt-2 pb-3 flex-row items-center justify-between border-b border-neutral-100">
+            <Text className="text-lg font-bold text-neutral-900">
+              {t('event.detail_modal_title')}
+            </Text>
+            <Pressable
+              onPress={onClose}
+              className="w-9 h-9 rounded-full bg-neutral-100 items-center justify-center"
+              accessibilityLabel={t('common.close') ?? 'Close'}
+            >
+              <X size={18} color="#171717" />
+            </Pressable>
+          </View>
+
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+          >
+            {/* Status pill big */}
+            <View className={`self-start px-3 py-1.5 rounded-full ${statusCfg.bg} mb-4`}>
+              <Text className={`text-xs font-bold ${statusCfg.text}`}>
+                {statusCfg.label}
+              </Text>
+            </View>
+
+            {/* Nama peserta */}
+            <DetailRow
+              icon={<User size={18} color="#EA580C" />}
+              label={t('event.detail_participant_label')}
+              value={namaPeserta ?? '—'}
+            />
+
+            {/* Waktu daftar */}
+            <DetailRow
+              icon={<Clock size={18} color="#EA580C" />}
+              label={t('event.detail_registered_label')}
+              value={registeredLabel}
+            />
+
+            {/* Waktu bayar */}
+            {paidAt ? (
+              <DetailRow
+                icon={<CheckCircle2 size={18} color="#10B981" />}
+                label={t('event.detail_paid_label')}
+                value={formatDateTime(new Date(paidAt).getTime(), lang)}
+              />
+            ) : null}
+
+            {/* Waktu hadir */}
+            {attendedAt ? (
+              <DetailRow
+                icon={<Check size={18} color="#10B981" />}
+                label={t('event.detail_attended_label')}
+                value={formatDateTime(new Date(attendedAt).getTime(), lang)}
+              />
+            ) : null}
+
+            {/* Nominal */}
+            {!isFree && nominalNum > 0 ? (
+              <DetailRow
+                icon={<Receipt size={18} color="#EA580C" />}
+                label={t('event.detail_nominal_label')}
+                value={`Rp ${nominalNum.toLocaleString('id-ID')}`}
+              />
+            ) : null}
+
+            {/* Bukti transfer — hanya untuk berbayar */}
+            {!isFree ? (
+              <View className="mt-4">
+                <View className="flex-row items-center gap-2 mb-2">
+                  <View className="w-9 h-9 rounded-xl bg-brand-50 items-center justify-center">
+                    <FileText size={18} color="#EA580C" />
+                  </View>
+                  <Text className="text-sm font-bold text-neutral-900">
+                    {t('event.detail_bukti_label')}
+                  </Text>
+                </View>
+                {buktiUrl ? (
+                  <>
+                    <Pressable
+                      onPress={() => onOpenImage(buktiUrl)}
+                      className="rounded-xl overflow-hidden border border-neutral-200 active:opacity-80"
+                    >
+                      <Image
+                        source={{ uri: buktiUrl }}
+                        style={{ width: '100%', height: 220 }}
+                        resizeMode="cover"
+                      />
+                    </Pressable>
+                    <Text className="text-[11px] text-neutral-500 mt-1.5 italic text-center">
+                      {t('event.detail_bukti_tap_view')}
+                    </Text>
+                  </>
+                ) : (
+                  <View className="bg-neutral-50 border border-neutral-100 rounded-xl px-3 py-4 items-center">
+                    <Text className="text-xs text-neutral-500 italic">
+                      {t('event.detail_bukti_empty')}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            ) : null}
+
+            {/* Catatan */}
+            <View className="mt-4">
+              <View className="flex-row items-center gap-2 mb-2">
+                <View className="w-9 h-9 rounded-xl bg-brand-50 items-center justify-center">
+                  <FileText size={18} color="#EA580C" />
+                </View>
+                <Text className="text-sm font-bold text-neutral-900">
+                  {t('event.detail_notes_label')}
+                </Text>
+              </View>
+              <View
+                className={`rounded-xl px-3 py-3 border ${
+                  catatan
+                    ? 'bg-amber-50 border-amber-100'
+                    : 'bg-neutral-50 border-neutral-100'
+                }`}
+              >
+                <Text
+                  className={`text-sm ${catatan ? 'text-neutral-800' : 'text-neutral-500 italic'} leading-relaxed`}
+                >
+                  {catatan || t('event.detail_notes_empty')}
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+function DetailRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <View className="flex-row items-center gap-3 py-2">
+      <View className="w-9 h-9 rounded-xl bg-brand-50 items-center justify-center">
+        {icon}
+      </View>
+      <View className="flex-1 min-w-0">
+        <Text className="text-[10px] text-neutral-500 uppercase font-bold">
+          {label}
+        </Text>
+        <Text className="text-sm text-neutral-900 font-semibold mt-0.5">
+          {value}
+        </Text>
       </View>
     </View>
   );
+}
+
+/** Format epoch ms → "31 Aug 2026, 14:32" (id) or "Aug 31, 2026, 2:32 PM" (en) */
+function formatDateTime(ms: number, lang: string): string {
+  try {
+    const d = new Date(ms);
+    return d.toLocaleString(lang === 'id' ? 'id-ID' : 'en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return new Date(ms).toISOString();
+  }
 }

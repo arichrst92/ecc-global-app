@@ -478,7 +478,20 @@
     "bebas_web_open": "Open in Browser",
     "registration_status_label": "Your Registration",
     "registered_since": "Registered",
-    "nominal_label": "Amount"
+    "nominal_label": "Amount",
+    "detail_modal_title": "Registration Details",
+    "detail_participant_label": "On Behalf Of",
+    "detail_status_label": "Status",
+    "detail_registered_label": "Registered At",
+    "detail_paid_label": "Paid At",
+    "detail_attended_label": "Attended At",
+    "detail_nominal_label": "Amount",
+    "detail_bukti_label": "Payment Proof",
+    "detail_bukti_empty": "No transfer proof uploaded yet.",
+    "detail_bukti_tap_view": "Tap image to zoom",
+    "detail_notes_label": "Notes",
+    "detail_notes_empty": "No notes.",
+    "detail_tap_hint": "Tap for details"
   },
   "branch": {
     "active_label": "Active branch",
