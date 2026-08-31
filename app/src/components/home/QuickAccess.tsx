@@ -1,4 +1,4 @@
-import { Linking, Platform, Pressable, Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -82,10 +82,9 @@ export function QuickAccess() {
       label: t('quickaccess.event'),
       onPress: () => router.push('/(tabs)/event'),
     },
-    // Persembahan tile — visible di kedua platform tapi behavior beda:
-    // - Android: navigate ke in-app tab persembahan (full flow rekening + QRIS + upload bukti)
-    // - iOS: tap → direct Linking.openURL ke web per-cabang (Apple Guideline
-    //   3.2.2(iv) — charitable donation harus external untuk non-Benevity nonprofit)
+    // Persembahan tile — konsisten di iOS + Android:
+    // Tap → Linking.openURL ke web per-cabang (Apple 3.2.2(iv) compliant,
+    // Android ikut pattern sama untuk konsistensi cross-platform).
     {
       key: 'persembahan',
       icon: HandHeart,
@@ -93,17 +92,13 @@ export function QuickAccess() {
       iconBg: 'bg-brand-50',
       label: t('quickaccess.persembahan'),
       onPress: () => {
-        if (Platform.OS === 'ios') {
-          const kode = viewingBranch?.kode;
-          const url = kode
-            ? `https://eccchurch.global/persembahan/${encodeURIComponent(kode)}`
-            : 'https://eccchurch.global/persembahan';
-          Linking.openURL(url).catch(() => {
-            // Silent fail — Safari should always be available
-          });
-        } else {
-          router.push('/(tabs)/persembahan');
-        }
+        const kode = viewingBranch?.kode;
+        const url = kode
+          ? `https://eccchurch.global/persembahan/${encodeURIComponent(kode)}`
+          : 'https://eccchurch.global/persembahan';
+        Linking.openURL(url).catch(() => {
+          // Silent fail — browser should always be available
+        });
       },
     },
     {

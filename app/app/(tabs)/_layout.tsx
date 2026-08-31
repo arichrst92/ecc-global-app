@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Baby, CalendarDays, Church, HandHeart, Home, UserRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -75,12 +74,12 @@ export default function TabsLayout() {
         options={{
           title: t('nav.persembahan'),
           tabBarIcon: ({ color, size }) => <HandHeart color={color} size={size} />,
-          // iOS: hide tab per Apple Guideline 3.2.2(iv) — charitable donation
-          // requires Benevity/Candid nonprofit approval. Route tetap accessible
-          // via deeplink; screen internal-nya self-detect Platform + redirect
-          // ke external Safari link (eccchurch.global/persembahan).
-          // Android tetap show tab full in-app persembahan.
-          href: Platform.OS === 'ios' ? null : undefined,
+          // Hidden dari bottom nav di kedua platform (iOS + Android) untuk UX
+          // konsisten. Persembahan diakses via tile Quick Access di Home yg
+          // langsung open web per-cabang (Apple 3.2.2(iv) compliant, Android
+          // ikut pattern sama supaya cross-platform behavior identik).
+          // Route tetap registered supaya deeplink /persembahan tetap handled.
+          href: null,
         }}
       />
       <Tabs.Screen

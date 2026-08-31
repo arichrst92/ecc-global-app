@@ -75,27 +75,16 @@ function purposeIcon(purpose: string): React.ReactNode {
  */
 
 export default function PersembahanTab() {
-  // iOS: redirect ke web page + tampil placeholder screen dgn button
-  if (Platform.OS === 'ios') {
-    return <PersembahanIosRedirect />;
-  }
-
-  // Android: original in-app flow
-  // Guard di luar — rules-of-hooks safe. Guest pakai /public/cabang/:id/rekening
-  // (no upload bukti, no riwayat — CTA daftar prominent).
-  const isGuest = useAuthStore((s) => s.isGuest);
-  if (isGuest) {
-    return <GuestPersembahanView />;
-  }
-  return <PersembahanTabAuthenticated />;
+  // Konsisten iOS + Android: semua redirect ke web page.
+  // Bottom-nav tab sudah hidden, screen ini hanya defensive untuk deeplink.
+  return <PersembahanWebRedirect />;
 }
 
 /**
- * iOS-only screen: kalau user reach route via deeplink, tampilkan
- * simple info + button "Buka di Browser" yang open Safari.
- * Auto-redirect on mount (kalau user tap tile → langsung ke Safari).
+ * Fallback screen kalau user reach route via deeplink — tampilkan simple info +
+ * button "Buka di Browser" + auto-open browser on mount.
  */
-function PersembahanIosRedirect() {
+function PersembahanWebRedirect() {
   const { t } = useTranslation();
   // Pakai viewing branch (user home OR cabang yg lagi di-view kalau switch)
   // supaya web page langsung tampil rekening cabang tsb.

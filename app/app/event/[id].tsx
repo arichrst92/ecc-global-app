@@ -167,12 +167,14 @@ export default function EventDetailScreen() {
 
   const isFree = event?.tipeBayar === 'GRATIS';
   const isFull = event?.quotaPeserta != null && event.pesertaCount >= event.quotaPeserta;
-  // iOS + paid event (BEBAS/TETAP): payment flow harus redirect ke web
-  // (Apple Guideline 3.2.2(iv) untuk charitable donations, dan external payment
-  // pattern untuk fixed-price event registration).
-  const isIosPaidEvent =
-    Platform.OS === 'ios' && event != null && event.tipeBayar !== 'GRATIS';
-  const persembahanWebUrl = buildPersembahanUrl(viewingBranch?.kode);
+  // Paid event (BEBAS/TETAP) — payment/donasi flow redirect ke web di iOS
+  // maupun Android (Apple 3.2.2(iv) compliance + Android ikut pattern konsisten).
+  const isPaidEvent = event != null && event.tipeBayar !== 'GRATIS';
+  // Event-specific payment page (per BE notice — whitelist coming-soon).
+  // Fallback ke persembahan per-cabang kalau event URL tidak reachable.
+  const eventPaymentWebUrl = event
+    ? `https://eccchurch.global/event/${encodeURIComponent(event.id)}/pembayaran`
+    : buildPersembahanUrl(viewingBranch?.kode);
   const priceLabel = (() => {
     if (!event) return '';
     if (event.tipeBayar === 'GRATIS') return t('event.free');
@@ -352,20 +354,9 @@ export default function EventDetailScreen() {
                 </View>
               ) : null}
 
-              {/* Donations history — khusus NOMINAL_BEBAS yang punya donations.
-                  Hidden di iOS: menampilkan riwayat donasi di dalam app bisa
-                  dianggap tracking donation → borderline Apple 3.2.2(iv).
-                  User bisa lihat riwayat via web page saja. */}
-              {Platform.OS !== 'ios' &&
-              isBebas &&
-              donationsQuery.data &&
-              donationsQuery.data.donations.length > 0 ? (
-                <DonationsHistory
-                  donations={donationsQuery.data.donations}
-                  totalConfirmed={donationsQuery.data.totalConfirmed}
-                  lang={lang}
-                />
-              ) : null}
+              {/* Donations history section — hidden di kedua platform untuk
+                  konsistensi + hindari borderline Apple 3.2.2(iv) (tracking
+                  in-app donation). Riwayat bisa dilihat di web page. */}
             </View>
           </>
         ) : null}
@@ -377,9 +368,9 @@ export default function EventDetailScreen() {
       {event && !isGuest ? (
         <View className="bg-white border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
-            {isIosPaidEvent ? (
-              // iOS + paid event (BEBAS or TETAP) — redirect ke web untuk
-              // completion (Apple Guideline 3.2.2(iv) + external payment).
+            {isPaidEvent ? (
+              // Paid event (BEBAS or TETAP) — always redirect ke web untuk
+              // completion. Konsisten iOS + Android.
               <View className="flex-row items-center gap-3">
                 <View>
                   <Text className="text-xs text-neutral-500">
@@ -391,9 +382,9 @@ export default function EventDetailScreen() {
                 </View>
                 <View className="flex-1">
                   <Button
-                    label={t('event.ios_open_web_cta')}
+                    label={t('event.open_web_cta')}
                     onPress={() =>
-                      Linking.openURL(persembahanWebUrl).catch(() => {})
+                      Linking.openURL(eventPaymentWebUrl).catch(() => {})
                     }
                     leftIcon={<HandHeart size={16} color="#fff" />}
                     fullWidth
