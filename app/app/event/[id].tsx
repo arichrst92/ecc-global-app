@@ -425,7 +425,6 @@ export default function EventDetailScreen() {
                 tipeBayar={event.tipeBayar}
                 priceLabel={priceLabel}
                 onContinuePayment={() => router.push(`/event/${id}/payment`)}
-                onCancel={() => setCancelModalOpen(true)}
               />
             ) : (
               // Belum daftar — show normal register CTA
@@ -450,7 +449,8 @@ export default function EventDetailScreen() {
         </View>
       ) : null}
 
-      {/* Participation detail modal — full info: nama, status, bukti, catatan */}
+      {/* Participation detail modal — full info: nama, status, bukti, catatan.
+          Cancel dari modal → close modal → open confirmation modal. */}
       {event && participation ? (
         <ParticipationDetailModal
           visible={detailModalOpen}
@@ -469,6 +469,11 @@ export default function EventDetailScreen() {
           isFree={isFree}
           lang={lang}
           onOpenImage={(url) => setZoomImageUrl(url)}
+          onCancel={() => {
+            setDetailModalOpen(false);
+            // Small delay supaya modal detail close smooth dulu
+            setTimeout(() => setCancelModalOpen(true), 250);
+          }}
         />
       ) : null}
 
@@ -554,18 +559,17 @@ function ParticipationCTA({
   tipeBayar,
   priceLabel,
   onContinuePayment,
-  onCancel,
 }: {
   status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
   tipeBayar: 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS';
   priceLabel: string;
   onContinuePayment: () => void;
-  onCancel: () => void;
 }) {
   const { t } = useTranslation();
   const isFree = tipeBayar === 'GRATIS';
-  // Status yang bisa di-cancel (per BE: DAFTAR, MENUNGGU_VERIFIKASI, BAYAR)
-  const canCancel = status === 'DAFTAR' || status === 'MENUNGGU_VERIFIKASI' || status === 'BAYAR';
+
+  // Cancel button dipindah ke detail modal (per-tracker). CTA bottom sekarang
+  // fokus ke primary action saja: lanjutkan pembayaran atau status confirmation.
 
   // DAFTAR + berbayar → user sudah daftar tapi belum upload bukti
   if (status === 'DAFTAR' && !isFree) {
@@ -577,7 +581,7 @@ function ParticipationCTA({
             {t('event.continue_payment_notice')}
           </Text>
         </View>
-        <View className="flex-row items-center gap-3 mb-2">
+        <View className="flex-row items-center gap-3">
           <View>
             <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
             <Text className="text-lg font-bold text-neutral-900">{priceLabel}</Text>
@@ -592,9 +596,6 @@ function ParticipationCTA({
             />
           </View>
         </View>
-        <Pressable onPress={onCancel} className="py-2 items-center">
-          <Text className="text-sm font-medium text-red-600">{t('event.cancel_registration')}</Text>
-        </Pressable>
       </View>
     );
   }
@@ -602,23 +603,16 @@ function ParticipationCTA({
   // MENUNGGU_VERIFIKASI → user sudah upload bukti, tunggu admin
   if (status === 'MENUNGGU_VERIFIKASI') {
     return (
-      <View>
-        <View className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex-row items-center gap-3">
-          <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
-            <Clock size={18} color="#fff" />
-          </View>
-          <View className="flex-1">
-            <Text className="font-semibold text-amber-900 text-sm">{t('event.status_menunggu')}</Text>
-            <Text className="text-xs text-amber-700 mt-0.5">
-              {t('event.waiting_admin_verification')}
-            </Text>
-          </View>
+      <View className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex-row items-center gap-3">
+        <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
+          <Clock size={18} color="#fff" />
         </View>
-        {canCancel ? (
-          <Pressable onPress={onCancel} className="py-2 mt-2 items-center">
-            <Text className="text-sm font-medium text-red-600">{t('event.cancel_registration')}</Text>
-          </Pressable>
-        ) : null}
+        <View className="flex-1">
+          <Text className="font-semibold text-amber-900 text-sm">{t('event.status_menunggu')}</Text>
+          <Text className="text-xs text-amber-700 mt-0.5">
+            {t('event.waiting_admin_verification')}
+          </Text>
+        </View>
       </View>
     );
   }
@@ -626,49 +620,34 @@ function ParticipationCTA({
   // BAYAR → confirmed, tunggu hari H untuk hadir
   if (status === 'BAYAR') {
     return (
-      <View>
-        <View className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex-row items-center gap-3">
-          <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
-            <CheckCircle2 size={18} color="#fff" />
-          </View>
-          <View className="flex-1">
-            <Text className="font-semibold text-emerald-900 text-sm">{t('event.status_bayar')}</Text>
-            <Text className="text-xs text-emerald-700 mt-0.5">
-              {t('event.see_you_at_event')}
-            </Text>
-          </View>
+      <View className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex-row items-center gap-3">
+        <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
+          <CheckCircle2 size={18} color="#fff" />
         </View>
-        {canCancel ? (
-          <Pressable onPress={onCancel} className="py-2 mt-2 items-center">
-            <Text className="text-sm font-medium text-red-600">{t('event.cancel_registration')}</Text>
-          </Pressable>
-        ) : null}
+        <View className="flex-1">
+          <Text className="font-semibold text-emerald-900 text-sm">{t('event.status_bayar')}</Text>
+          <Text className="text-xs text-emerald-700 mt-0.5">
+            {t('event.see_you_at_event')}
+          </Text>
+        </View>
       </View>
     );
   }
 
-  // HADIR atau DAFTAR-gratis → success, no cancel button (HADIR rejected by BE)
+  // HADIR atau DAFTAR-gratis → success confirmation
   return (
-    <View>
-      <View className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex-row items-center gap-3">
-        <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
-          <Check size={18} color="#fff" />
-        </View>
-        <View className="flex-1">
-          <Text className="font-semibold text-emerald-900 text-sm">
-            {status === 'HADIR' ? t('event.status_hadir') : t('event.already_registered')}
-          </Text>
-          <Text className="text-xs text-emerald-700 mt-0.5">
-            {status === 'HADIR' ? t('event.attended_thanks') : t('event.see_you_at_event')}
-          </Text>
-        </View>
+    <View className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex-row items-center gap-3">
+      <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
+        <Check size={18} color="#fff" />
       </View>
-      {/* DAFTAR-gratis bisa cancel */}
-      {status === 'DAFTAR' && isFree ? (
-        <Pressable onPress={onCancel} className="py-2 mt-2 items-center">
-          <Text className="text-sm font-medium text-red-600">{t('event.cancel_registration')}</Text>
-        </Pressable>
-      ) : null}
+      <View className="flex-1">
+        <Text className="font-semibold text-emerald-900 text-sm">
+          {status === 'HADIR' ? t('event.status_hadir') : t('event.already_registered')}
+        </Text>
+        <Text className="text-xs text-emerald-700 mt-0.5">
+          {status === 'HADIR' ? t('event.attended_thanks') : t('event.see_you_at_event')}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -1000,6 +979,7 @@ function ParticipationDetailModal({
   isFree,
   lang,
   onOpenImage,
+  onCancel,
 }: {
   visible: boolean;
   onClose: () => void;
@@ -1012,6 +992,7 @@ function ParticipationDetailModal({
   isFree: boolean;
   lang: string;
   onOpenImage: (url: string) => void;
+  onCancel?: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -1196,6 +1177,21 @@ function ParticipationDetailModal({
                 </Text>
               </View>
             </View>
+
+            {/* Cancel button — per-tracker cancel. Hidden untuk status
+                HADIR (BE reject) atau BATAL (sudah cancel). */}
+            {onCancel && status !== 'HADIR' && status !== 'BATAL' ? (
+              <View className="mt-6 border-t border-neutral-100 pt-4">
+                <Pressable
+                  onPress={onCancel}
+                  className="bg-red-50 border border-red-200 rounded-xl py-3 items-center active:opacity-80"
+                >
+                  <Text className="text-sm font-semibold text-red-600">
+                    {t('event.cancel_registration')}
+                  </Text>
+                </Pressable>
+              </View>
+            ) : null}
           </ScrollView>
         </View>
       </View>
