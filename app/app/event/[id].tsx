@@ -167,11 +167,15 @@ export default function EventDetailScreen() {
 
   const isFree = event?.tipeBayar === 'GRATIS';
   const isFull = event?.quotaPeserta != null && event.pesertaCount >= event.quotaPeserta;
-  // Paid event (BEBAS/TETAP) — payment/donasi flow redirect ke web di iOS
-  // maupun Android (Apple 3.2.2(iv) compliance + Android ikut pattern konsisten).
-  const isPaidEvent = event != null && event.tipeBayar !== 'GRATIS';
-  // Event-specific payment page (per BE notice — whitelist coming-soon).
-  // Fallback ke persembahan per-cabang kalau event URL tidak reachable.
+  // Per hybrid decision Opsi C (2026-08-31):
+  // - NOMINAL_BEBAS (donasi sukarela) → redirect ke web (Apple 3.2.2iv,
+  //   charitable donation must be external)
+  // - NOMINAL_TETAP (fixed ticket price physical event) → in-app register +
+  //   upload bukti + cancel (Apple 3.1.5b allows physical goods/services)
+  // - GRATIS → in-app register (no payment involved)
+  const isBebasOnly = event?.tipeBayar === 'NOMINAL_BEBAS';
+  // Event-specific web page (Phase 1 delivered — info rekening + QRIS +
+  // deep-link back button). Data source /public/event/:id.
   const eventPaymentWebUrl = event
     ? `https://eccchurch.global/event/${encodeURIComponent(event.id)}/pembayaran`
     : buildPersembahanUrl(viewingBranch?.kode);
@@ -368,9 +372,9 @@ export default function EventDetailScreen() {
       {event && !isGuest ? (
         <View className="bg-white border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
-            {isPaidEvent ? (
-              // Paid event (BEBAS or TETAP) — always redirect ke web untuk
-              // completion. Konsisten iOS + Android.
+            {isBebasOnly ? (
+              // NOMINAL_BEBAS (donasi sukarela) — redirect ke web
+              // (Apple 3.2.2iv compliance untuk charitable donation).
               <View className="flex-row items-center gap-3">
                 <View>
                   <Text className="text-xs text-neutral-500">
@@ -386,30 +390,6 @@ export default function EventDetailScreen() {
                     onPress={() =>
                       Linking.openURL(eventPaymentWebUrl).catch(() => {})
                     }
-                    leftIcon={<HandHeart size={16} color="#fff" />}
-                    fullWidth
-                    size="lg"
-                  />
-                </View>
-              </View>
-            ) : isBebas ? (
-              // NOMINAL_BEBAS: special CTA "Beri Donasi" / "Beri Donasi Lagi"
-              <View className="flex-row items-center gap-3">
-                <View>
-                  <Text className="text-xs text-neutral-500">{t('event.total_given')}</Text>
-                  <Text className="text-lg font-bold text-blue-600">
-                    Rp{' '}
-                    {(donationsQuery.data?.totalConfirmed ?? 0).toLocaleString('id-ID')}
-                  </Text>
-                </View>
-                <View className="flex-1">
-                  <Button
-                    label={
-                      (donationsQuery.data?.donations.length ?? 0) > 0
-                        ? t('event.donate_again')
-                        : t('event.donate_now')
-                    }
-                    onPress={() => router.push(`/event/${id}/donate`)}
                     leftIcon={<HandHeart size={16} color="#fff" />}
                     fullWidth
                     size="lg"
