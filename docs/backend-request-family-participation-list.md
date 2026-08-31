@@ -4,6 +4,7 @@
 **Requester**: Mobile team (Ari)
 **Priority**: MEDIUM (blocker untuk fitur family-multi-register di mobile)
 **Related**: `mobile-be-align-event-payment-hybrid-flow.md`, `EventParticipation` schema
+**Status BE**: ✅ **DELIVERED 2026-08-31** — reply detail: `be-update-2026-08-31-family-participation-list.md`
 
 ---
 
