@@ -131,13 +131,26 @@ export default function FamilyDetailScreen() {
             <Text className="text-white/80 text-xs mt-0.5 font-mono tracking-widest">
               {jemaat.kode}
             </Text>
-            {jemaat.isDependent ? (
-              <View className="bg-white/20 px-2 py-1 rounded-full mt-2">
+            <View className="flex-row items-center gap-1.5 mt-2">
+              {jemaat.isDependent ? (
+                <View className="bg-white/20 px-2 py-1 rounded-full">
+                  <Text className="text-[10px] font-bold text-white">
+                    {t('family.dependent_badge')}
+                  </Text>
+                </View>
+              ) : null}
+              <View
+                className={`px-2 py-1 rounded-full ${
+                  relation.isVerified ? 'bg-green-400/30' : 'bg-amber-400/30'
+                }`}
+              >
                 <Text className="text-[10px] font-bold text-white">
-                  {t('family.dependent_badge')}
+                  {relation.isVerified
+                    ? `✓ ${t('family.verified')}`
+                    : t('family.unverified')}
                 </Text>
               </View>
-            ) : null}
+            </View>
           </View>
         </SafeAreaView>
       </View>

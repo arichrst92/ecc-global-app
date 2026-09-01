@@ -326,6 +326,8 @@
     "dob_helper": "Untuk anak, tanggal lahir dipakai buat cek eligibility ibadah anak + reminder ulang tahun.",
     "dependent_notice": "Akun ini tidak bisa login mandiri. Anda akan jadi wali (primary guardian) yang mengelola.",
     "dependent_badge": "DEPENDEN",
+    "verified": "Terverifikasi",
+    "unverified": "Belum Terverifikasi",
     "register_new_btn": "Daftarkan",
     "register_new_success": "{{name}} berhasil didaftarkan dan ditambahkan ke keluarga.",
     "role_label": "Hubungan dengan Anda",

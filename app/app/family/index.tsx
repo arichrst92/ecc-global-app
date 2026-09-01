@@ -168,7 +168,7 @@ function FamilyCard({
   onPress: () => void;
 }) {
   const { t } = useTranslation();
-  const { jemaat, role } = relation;
+  const { jemaat, role, isVerified } = relation;
   const color = roleColor(role);
 
   return (
@@ -193,10 +193,25 @@ function FamilyCard({
         <Text className="text-xs text-neutral-500 mt-0.5">
           {jemaat.noHp ? formatPhoneDisplay(jemaat.noHp) : jemaat.cabang.nama}
         </Text>
-        <View className={`${color.bg} self-start px-2 py-0.5 rounded-full mt-1`}>
-          <Text className={`text-[10px] font-bold ${color.text}`}>
-            {relationDisplayLabel(relation, t)}
-          </Text>
+        <View className="flex-row items-center flex-wrap gap-1.5 mt-1">
+          <View className={`${color.bg} self-start px-2 py-0.5 rounded-full`}>
+            <Text className={`text-[10px] font-bold ${color.text}`}>
+              {relationDisplayLabel(relation, t)}
+            </Text>
+          </View>
+          <View
+            className={`self-start px-2 py-0.5 rounded-full ${
+              isVerified ? 'bg-green-100' : 'bg-amber-100'
+            }`}
+          >
+            <Text
+              className={`text-[10px] font-bold ${
+                isVerified ? 'text-green-700' : 'text-amber-700'
+              }`}
+            >
+              {isVerified ? `✓ ${t('family.verified')}` : t('family.unverified')}
+            </Text>
+          </View>
         </View>
       </View>
       <ChevronRight size={16} color="#A3A3A3" />

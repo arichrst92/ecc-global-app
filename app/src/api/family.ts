@@ -11,7 +11,6 @@ import type {
   LinkFamilyResponse,
   RegisterNewFamilyPayload,
   RegisterNewFamilyResponse,
-  FamilyRole,
 } from '@/types/family';
 
 /** GET /admin/me/family — list anggota keluarga current user */
@@ -52,11 +51,6 @@ export function updateFamilyRelation(
   payload: import('@/types/family').UpdateFamilyRelationPayload,
 ) {
   return api.patch<LinkFamilyResponse>(`/admin/me/family/${jemaatId}`, payload);
-}
-
-/** @deprecated use updateFamilyRelation with discriminator payload */
-export function updateFamilyRole(jemaatId: string, role: FamilyRole) {
-  return updateFamilyRelation(jemaatId, { role });
 }
 
 /**

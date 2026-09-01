@@ -326,6 +326,8 @@
     "dob_helper": "For children, DOB is used to check kids service eligibility + birthday reminders.",
     "dependent_notice": "This account can't log in independently. You will be the primary guardian.",
     "dependent_badge": "DEPENDENT",
+    "verified": "Verified",
+    "unverified": "Unverified",
     "register_new_btn": "Register",
     "register_new_success": "{{name}} registered and added to family.",
     "role_label": "Relationship to you",

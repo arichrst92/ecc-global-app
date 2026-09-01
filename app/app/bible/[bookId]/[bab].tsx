@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
   ScrollView,
@@ -32,6 +33,7 @@ import {
 import { useAuthStore } from '@/stores/auth.store';
 import { useBibleStore } from '@/stores/bible.store';
 import type {
+  BibleChapter,
   BibleFontSize,
   BibleVerse,
   BibleVersionCode,
@@ -70,14 +72,37 @@ export default function BibleChapterScreen() {
   const [showVersionModal, setShowVersionModal] = useState(false);
 
   const ref = book ? `${book.singkatan.toUpperCase()} ${bab}` : '';
-  const chapter = book ? getChapter(selectedVersionCode, book.id, bab) : null;
   const versionMeta = BIBLE_VERSION_BY_CODE.get(selectedVersionCode);
+
+  const [chapter, setChapter] = useState<BibleChapter | null>(null);
+  const [isLoadingChapter, setIsLoadingChapter] = useState(true);
 
   useEffect(() => {
     if (book) {
       setLastRead(ref, book.id, bab);
     }
   }, [ref, book, bab, setLastRead]);
+
+  // Chapter content di-lazy-load per versi (lihat src/data/bible/index.ts) —
+  // load async supaya versi lain yang belum pernah dibuka tidak ikut ter-load.
+  useEffect(() => {
+    let cancelled = false;
+    if (!book) {
+      setChapter(null);
+      setIsLoadingChapter(false);
+      return;
+    }
+    setIsLoadingChapter(true);
+    getChapter(selectedVersionCode, book.id, bab).then((result) => {
+      if (!cancelled) {
+        setChapter(result);
+        setIsLoadingChapter(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedVersionCode, book, bab]);
 
   if (!book) {
     return (
@@ -211,7 +236,11 @@ export default function BibleChapterScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 100 }}
       >
-        {chapter ? (
+        {isLoadingChapter ? (
+          <View className="items-center py-16">
+            <ActivityIndicator color="#EA580C" />
+          </View>
+        ) : chapter ? (
           <View className="bg-white rounded-2xl p-5 border border-neutral-100">
             {chapter.ayat.map((verse) => {
               const isSelected = selectedVerse === verse.nomor;

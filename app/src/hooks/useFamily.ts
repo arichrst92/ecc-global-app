@@ -6,12 +6,10 @@ import {
   linkByPhone,
   registerNewFamily,
   updateFamilyRelation,
-  updateFamilyRole,
   unlinkFamily,
 } from '@/api/family';
 import { useAuthStore } from '@/stores/auth.store';
 import type {
-  FamilyRole,
   LinkByKodePayload,
   LinkByPhonePayload,
 } from '@/types/family';
@@ -57,18 +55,6 @@ export function useRegisterNewFamily() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: registerNewFamily,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
-    },
-  });
-}
-
-/** Mutation: update role (legacy broad enum) */
-export function useUpdateFamilyRole() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (args: { jemaatId: string; role: FamilyRole }) =>
-      updateFamilyRole(args.jemaatId, args.role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
     },

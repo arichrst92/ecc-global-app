@@ -201,8 +201,9 @@ function VisitRow({
   visit: VisitListItem;
   onPress: () => void;
 }) {
-  const { t } = useTranslation();
-  const time = new Date(visit.tanggalVisit).toLocaleTimeString('id-ID', {
+  const { t, i18n } = useTranslation();
+  const localeCode = i18n.language === 'id' ? 'id-ID' : 'en-US';
+  const time = new Date(visit.tanggalVisit).toLocaleTimeString(localeCode, {
     hour: '2-digit',
     minute: '2-digit',
   });

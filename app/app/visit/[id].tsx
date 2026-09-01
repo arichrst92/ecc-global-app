@@ -49,7 +49,8 @@ import {
 import { ApiError } from '@/types/api';
 
 export default function VisitDetailScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const localeCode = i18n.language === 'id' ? 'id-ID' : 'en-US';
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const showToast = useToast((s) => s.show);
@@ -78,10 +79,18 @@ export default function VisitDetailScreen() {
     }
   }, [visit]);
 
+  // "now" di-refresh tiap menit supaya canCancel reactive — tanpa ini, cancel
+  // button bisa silently stay visible past window 1-jam sampai next re-render.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const iv = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(iv);
+  }, []);
+
   // Cancel allowed kalau initiator + visit < 1 jam
   const canCancel = (() => {
     if (!visit?.iAmInitiator) return false;
-    const ageMs = Date.now() - new Date(visit.createdAt).getTime();
+    const ageMs = now - new Date(visit.createdAt).getTime();
     return ageMs < 60 * 60 * 1000;
   })();
 
@@ -175,7 +184,7 @@ export default function VisitDetailScreen() {
     );
   }
 
-  const tanggalStr = new Date(visit.tanggalVisit).toLocaleString('id-ID', {
+  const tanggalStr = new Date(visit.tanggalVisit).toLocaleString(localeCode, {
     day: '2-digit',
     month: 'long',
     year: 'numeric',

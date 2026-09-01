@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -25,7 +25,7 @@ import {
   OT_BOOKS,
 } from '@/data/bible-books';
 import { getVerseOfDay } from '@/data/bible-verses-of-day';
-import { BIBLE_VERSION_BY_CODE, getVerse } from '@/data/bible';
+import { BIBLE_VERSION_BY_CODE, getVerse, preloadVersion } from '@/data/bible';
 import type { BibleBook, Testament } from '@/types/bible';
 
 /**
@@ -43,18 +43,33 @@ export default function BibleHomeScreen() {
   const selectedVersionCode = useBibleStore((s) => s.selectedVersionCode);
   const versionMeta = BIBLE_VERSION_BY_CODE.get(selectedVersionCode);
 
+  // Preload versi terpilih di background supaya UX tidak lag saat user tap
+  // chapter pertama kali (versi JSON di-lazy-load — lihat src/data/bible/index.ts).
+  useEffect(() => {
+    preloadVersion(selectedVersionCode);
+  }, [selectedVersionCode]);
+
   // Pakai teks dari bundled version kalau available; fall back ke curated text
   const verseOfDayBase = useMemo(() => getVerseOfDay(), []);
-  const verseOfDay = useMemo(() => {
-    const fromBundle = getVerse(
+  const [verseOfDay, setVerseOfDay] = useState(verseOfDayBase);
+
+  useEffect(() => {
+    let cancelled = false;
+    getVerse(
       selectedVersionCode,
       verseOfDayBase.bookId,
       verseOfDayBase.bab,
       verseOfDayBase.ayat,
-    );
-    return {
-      ...verseOfDayBase,
-      teks: fromBundle?.teks ?? verseOfDayBase.teks,
+    ).then((fromBundle) => {
+      if (!cancelled) {
+        setVerseOfDay({
+          ...verseOfDayBase,
+          teks: fromBundle?.teks ?? verseOfDayBase.teks,
+        });
+      }
+    });
+    return () => {
+      cancelled = true;
     };
   }, [selectedVersionCode, verseOfDayBase]);
 
