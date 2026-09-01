@@ -4,6 +4,7 @@
 **Requester**: Mobile team (Ari)
 **Priority**: MEDIUM (visible bug di event detail + event list mobile)
 **Related**: `be-update-2026-08-31-family-participation-list.md` (family multi)
+**Status BE**: ✅ **DELIVERED 2026-09-01** — filter `status != BATAL` applied ke `pesertaCount` di admin list + detail. Public endpoint tidak return pesertaCount, no change.
 
 ---
 
