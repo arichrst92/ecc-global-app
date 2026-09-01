@@ -4,6 +4,7 @@
 **Requester**: Mobile team (Ari)
 **Priority**: LOW (mobile sudah workaround, tapi ideal-nya BE consistent)
 **Related**: `backend-request-family-participation-list.md`, batch endpoint `POST /peserta/batch`
+**Status BE**: ✅ **DELIVERED 2026-09-01** — batch endpoint sekarang reactivate BATAL rows (sama seperti single endpoint). Failed code untuk row aktif diganti `ALREADY_REGISTERED` (dari `DUPLICATE`).
 
 ---
 
