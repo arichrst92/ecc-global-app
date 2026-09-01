@@ -15,7 +15,8 @@ import { useMyFamily } from '@/hooks/useFamily';
 import { useAuthStore } from '@/stores/auth.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
-import { registerPesertaBatch } from '@/api/event';
+import { registerPeserta } from '@/api/event';
+import type { EventParticipation } from '@/types/event';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { formatDate } from '@/utils/date';
 import { ApiError } from '@/types/api';
@@ -100,21 +101,56 @@ export default function EventRegisterScreen() {
     [selectedIds, alreadyRegisteredIds],
   );
 
+  // WORKAROUND: BE batch endpoint (`POST /peserta/batch`) TIDAK support
+  // reactivate BATAL row → DAFTAR (unique constraint hit). Single endpoint
+  // (`POST /peserta`) sudah support (BE patch 21g). Loop parallel single calls
+  // sampai BE fix batch reactivate. Trade-off: N HTTP requests bukan 1.
+  // BE fix request: `docs/backend-request-batch-reactivate.md`.
   const batchMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (): Promise<{
+      successful: EventParticipation[];
+      failed: Array<{ jemaatId: string; error: { code: string; message: string } }>;
+    }> => {
       if (!user || !event) throw new Error('Missing data');
-      let nominalBayarPerOrang: number | undefined;
+      let nominalBayar: number | undefined;
       if (event.tipeBayar === 'NOMINAL_TETAP') {
-        nominalBayarPerOrang = Number(event.nominal);
+        nominalBayar = Number(event.nominal);
       } else if (event.tipeBayar === 'NOMINAL_BEBAS') {
         const parsed = parseNominal(bebasNominal);
-        nominalBayarPerOrang = parsed ?? 0;
+        nominalBayar = parsed ?? 0;
       }
-      return registerPesertaBatch(event.id, {
-        jemaatIds: activeSelectedIds,
-        nominalBayarPerOrang,
-        catatan: catatan || undefined,
+      // Parallel single-register calls. Each call reactivates BATAL kalau ada.
+      const results = await Promise.allSettled(
+        activeSelectedIds.map((jemaatId) =>
+          registerPeserta(event.id, {
+            jemaatId,
+            nominalBayar,
+            catatan: catatan || undefined,
+          }),
+        ),
+      );
+      const successful: EventParticipation[] = [];
+      const failed: Array<{
+        jemaatId: string;
+        error: { code: string; message: string };
+      }> = [];
+      results.forEach((r, i) => {
+        const jemaatId = activeSelectedIds[i];
+        if (r.status === 'fulfilled') {
+          successful.push(r.value);
+        } else {
+          const err = r.reason;
+          if (err instanceof ApiError) {
+            failed.push({ jemaatId, error: { code: err.code, message: err.message } });
+          } else {
+            failed.push({
+              jemaatId,
+              error: { code: 'UNKNOWN', message: t('error.network') },
+            });
+          }
+        }
       });
+      return { successful, failed };
     },
     onSuccess: async (data) => {
       // Persist self participation ke local store kalau sukses (offline fallback)
