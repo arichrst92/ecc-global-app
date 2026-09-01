@@ -374,7 +374,13 @@
     "empty_msg": "Konten baru akan muncul di sini.",
     "bible_verse": "Ayat Hari Ini",
     "prev": "Sebelumnya",
-    "next": "Berikutnya"
+    "next": "Berikutnya",
+    "bookmark_add": "Simpan",
+    "bookmark_remove": "Hapus dari Tersimpan",
+    "bookmarks_title": "Artikel Tersimpan",
+    "bookmarks_empty_title": "Belum Ada Bookmark",
+    "bookmarks_empty_body": "Bookmark artikel favorit dari halaman detail untuk membacanya kembali.",
+    "bookmarks_tab": "Tersimpan"
   },
   "persembahan": {
     "title": "Persembahan",

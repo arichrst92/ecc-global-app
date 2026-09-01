@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 import {
   listNews,
@@ -81,6 +81,58 @@ export function useRenunganList(limit = 30) {
       const res = await publicRenunganList({ limit });
       return res.data.map(adaptPublicRenungan);
     },
+    staleTime: 5 * 60_000,
+  });
+}
+
+type NewsPage = { items: NewsItem[]; nextPage: number | undefined };
+type RenunganPage = { items: RenunganItem[]; nextPage: number | undefined };
+
+/** News list — infinite scroll variant untuk content hub (page-based
+ *  load-more). Guest fallback pakai /public/news + meta.total untuk decide
+ *  hasNextPage. Terpisah dari `useNewsList` (dipakai preview home dgn limit
+ *  kecil) supaya query cache key + shape tidak bentrok. */
+export function useNewsListInfinite() {
+  const isGuest = useAuthStore((s) => s.isGuest);
+  return useInfiniteQuery<NewsPage>({
+    queryKey: ['news', 'list-infinite', isGuest ? 'guest' : 'auth'],
+    queryFn: async ({ pageParam }) => {
+      const page = pageParam as number;
+      if (!isGuest) {
+        const items = await listNews({ page, limit: 20 });
+        return { items, nextPage: items.length === 20 ? page + 1 : undefined };
+      }
+      const res = await publicNewsList({ page, limit: 20 });
+      const items = res.data.map(adaptPublicNews);
+      const hasMore = page * res.meta.limit < res.meta.total;
+      return { items, nextPage: hasMore ? page + 1 : undefined };
+    },
+    initialPageParam: 1,
+    getNextPageParam: (last) => last.nextPage,
+    staleTime: 5 * 60_000,
+  });
+}
+
+/** Renungan list — infinite scroll variant, sama pattern dengan
+ *  `useNewsListInfinite`. Terpisah dari `useRenunganList` (dipakai preview
+ *  home + prev/next nav di detail screen). */
+export function useRenunganListInfinite() {
+  const isGuest = useAuthStore((s) => s.isGuest);
+  return useInfiniteQuery<RenunganPage>({
+    queryKey: ['renungan', 'list-infinite', isGuest ? 'guest' : 'auth'],
+    queryFn: async ({ pageParam }) => {
+      const page = pageParam as number;
+      if (!isGuest) {
+        const items = await listRenungan({ page, limit: 20 });
+        return { items, nextPage: items.length === 20 ? page + 1 : undefined };
+      }
+      const res = await publicRenunganList({ page, limit: 20 });
+      const items = res.data.map(adaptPublicRenungan);
+      const hasMore = page * res.meta.limit < res.meta.total;
+      return { items, nextPage: hasMore ? page + 1 : undefined };
+    },
+    initialPageParam: 1,
+    getNextPageParam: (last) => last.nextPage,
     staleTime: 5 * 60_000,
   });
 }

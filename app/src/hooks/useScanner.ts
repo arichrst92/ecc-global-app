@@ -35,19 +35,36 @@ export function useScannerIbadah() {
   });
 }
 
-/** Mutation check-in ibadah */
+/** Mutation check-in ibadah — invalidate stats + my-reservasi (parent yang
+ *  buka /my-reservasi di device sama auto-sync). */
 export function useCheckinIbadah(ibadahId: string) {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: { kode: string; tanggalIbadah?: string; force?: boolean }) =>
       checkinIbadah(ibadahId, payload),
+    onSuccess: (_, variables) => {
+      if (variables.tanggalIbadah) {
+        queryClient.invalidateQueries({
+          queryKey: ['scanner', 'stats', 'ibadah', ibadahId, variables.tanggalIbadah],
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
+    },
   });
 }
 
-/** Mutation check-in event */
+/** Mutation check-in event — invalidate event stats + my-reservasi. */
 export function useCheckinEvent(eventId: string) {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: { kode: string; force?: boolean }) =>
       checkinEvent(eventId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['scanner', 'stats', 'event', eventId],
+      });
+      queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
+    },
   });
 }
 
@@ -91,6 +108,7 @@ export function useCheckoutReservasi(ibadahId: string, tanggalIbadah?: string) {
           queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
         });
       }
+      queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
     },
   });
 }
@@ -109,6 +127,7 @@ export function usePickupReservasi(ibadahId: string, tanggalIbadah?: string) {
           queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
         });
       }
+      queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
     },
   });
 }

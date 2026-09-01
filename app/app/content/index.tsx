@@ -1,19 +1,12 @@
-import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, BookOpen, Newspaper } from 'lucide-react-native';
+import { ArrowLeft, Bookmark, BookOpen, Newspaper } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
-import { useNewsList, useRenunganList } from '@/hooks/useContent';
+import { useNewsListInfinite, useRenunganListInfinite } from '@/hooks/useContent';
 import { formatDate } from '@/utils/date';
 import type { NewsItem, RenunganItem } from '@/types/content';
 
@@ -28,10 +21,25 @@ export default function ContentListScreen() {
     tab === 'renungan' ? 'renungan' : 'news',
   );
 
-  const newsQuery = useNewsList();
-  const renunganQuery = useRenunganList();
+  const newsQuery = useNewsListInfinite();
+  const renunganQuery = useRenunganListInfinite();
 
   const activeQuery = activeTab === 'news' ? newsQuery : renunganQuery;
+
+  const newsItems = useMemo(
+    () => newsQuery.data?.pages.flatMap((p) => p.items) ?? [],
+    [newsQuery.data],
+  );
+  const renunganItems = useMemo(
+    () => renunganQuery.data?.pages.flatMap((p) => p.items) ?? [],
+    [renunganQuery.data],
+  );
+
+  function handleEndReached(query: typeof newsQuery | typeof renunganQuery) {
+    if (query.hasNextPage && !query.isFetchingNextPage) {
+      query.fetchNextPage();
+    }
+  }
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -46,6 +54,13 @@ export default function ContentListScreen() {
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('content.title')}
           </Text>
+          <Pressable
+            onPress={() => router.push('/content/bookmarks')}
+            accessibilityLabel={t('content.bookmarks_tab')}
+            className="w-10 h-10 items-center justify-center"
+          >
+            <Bookmark size={20} color="#171717" />
+          </Pressable>
         </View>
 
         {/* Tab switcher */}
@@ -65,44 +80,77 @@ export default function ContentListScreen() {
         </View>
       </SafeAreaView>
 
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: 32 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={activeQuery.isRefetching}
-            onRefresh={() => activeQuery.refetch()}
-            tintColor="#F97316"
-          />
-        }
-      >
-        {activeQuery.isPending ? (
-          <View className="items-center py-16">
-            <ActivityIndicator color="#F97316" />
-          </View>
-        ) : activeQuery.isError ? (
-          <ErrorState onRetry={() => activeQuery.refetch()} />
-        ) : (activeQuery.data?.length ?? 0) === 0 ? (
-          <EmptyState type={activeTab} />
-        ) : activeTab === 'news' ? (
-          <View className="gap-3">
-            {(newsQuery.data ?? []).map((n) => (
-              <NewsCard key={n.id} item={n} lang={lang} onPress={() => router.push(`/content/news/${n.slug || n.id}`)} />
-            ))}
-          </View>
-        ) : (
-          <View className="gap-3">
-            {(renunganQuery.data ?? []).map((r) => (
-              <RenunganCard
-                key={r.id}
-                item={r}
-                lang={lang}
-                onPress={() => router.push(`/content/renungan/${r.slug || r.id}`)}
-              />
-            ))}
-          </View>
-        )}
-      </ScrollView>
+      {activeQuery.isPending ? (
+        <View className="flex-1 items-center py-16">
+          <ActivityIndicator color="#F97316" />
+        </View>
+      ) : activeQuery.isError ? (
+        <ErrorState onRetry={() => activeQuery.refetch()} />
+      ) : activeTab === 'news' ? (
+        <FlatList
+          key="news"
+          data={newsItems}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingVertical: 16,
+            paddingBottom: 32,
+            flexGrow: 1,
+          }}
+          ItemSeparatorComponent={() => <View className="h-3" />}
+          refreshing={newsQuery.isRefetching}
+          onRefresh={() => newsQuery.refetch()}
+          onEndReachedThreshold={0.4}
+          onEndReached={() => handleEndReached(newsQuery)}
+          ListEmptyComponent={<EmptyState type="news" />}
+          ListFooterComponent={
+            newsQuery.isFetchingNextPage ? (
+              <View className="py-4">
+                <ActivityIndicator color="#F97316" />
+              </View>
+            ) : null
+          }
+          renderItem={({ item }) => (
+            <NewsCard
+              item={item}
+              lang={lang}
+              onPress={() => router.push(`/content/news/${item.slug || item.id}`)}
+            />
+          )}
+        />
+      ) : (
+        <FlatList
+          key="renungan"
+          data={renunganItems}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingVertical: 16,
+            paddingBottom: 32,
+            flexGrow: 1,
+          }}
+          ItemSeparatorComponent={() => <View className="h-3" />}
+          refreshing={renunganQuery.isRefetching}
+          onRefresh={() => renunganQuery.refetch()}
+          onEndReachedThreshold={0.4}
+          onEndReached={() => handleEndReached(renunganQuery)}
+          ListEmptyComponent={<EmptyState type="renungan" />}
+          ListFooterComponent={
+            renunganQuery.isFetchingNextPage ? (
+              <View className="py-4">
+                <ActivityIndicator color="#F97316" />
+              </View>
+            ) : null
+          }
+          renderItem={({ item }) => (
+            <RenunganCard
+              item={item}
+              lang={lang}
+              onPress={() => router.push(`/content/renungan/${item.slug || item.id}`)}
+            />
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -225,7 +273,7 @@ function EmptyState({ type }: { type: Tab }) {
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   const { t } = useTranslation();
   return (
-    <View className="items-center py-20 px-8">
+    <View className="flex-1 items-center py-20 px-8">
       <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
       <Pressable onPress={onRetry} className="px-4 py-2 bg-brand-500 rounded-lg">
         <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>

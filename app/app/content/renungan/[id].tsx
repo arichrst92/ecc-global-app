@@ -3,11 +3,12 @@ import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, BookOpen, Calendar, Share2 } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight, Bookmark, BookOpen, Calendar, Share2 } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { SimpleMarkdown } from '@/components/ui/SimpleMarkdown';
 import { useRenunganDetail, useRenunganList } from '@/hooks/useContent';
+import { useBookmarksStore } from '@/stores/bookmarks.store';
 import { formatDate } from '@/utils/date';
 
 export default function RenunganDetailScreen() {
@@ -18,6 +19,24 @@ export default function RenunganDetailScreen() {
 
   const detailQuery = useRenunganDetail(id);
   const item = detailQuery.data;
+
+  const toggleBookmark = useBookmarksStore((s) => s.toggle);
+  const bookmarked = useBookmarksStore((s) =>
+    item ? s.isBookmarked('RENUNGAN', item.id) : false,
+  );
+
+  function handleToggleBookmark() {
+    if (!item) return;
+    toggleBookmark({
+      id: item.id,
+      tipe: 'RENUNGAN',
+      judul: item.judul,
+      slug: item.slug,
+      ringkasan: item.ringkasan,
+      heroImageUrl: item.heroImageUrl,
+      publishedAt: item.publishedAt,
+    });
+  }
   // Prev/next computed dari list (sorted desc by tanggal di BE).
   // Pakai list untuk navigasi lokal tanpa extra round-trip per click.
   const listQuery = useRenunganList(30);
@@ -63,12 +82,27 @@ export default function RenunganDetailScreen() {
               >
                 <ArrowLeft size={20} color="#fff" />
               </Pressable>
-              <Pressable
-                onPress={handleShare}
-                className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
-              >
-                <Share2 size={18} color="#fff" />
-              </Pressable>
+              <View className="flex-row items-center gap-2">
+                <Pressable
+                  onPress={handleToggleBookmark}
+                  accessibilityLabel={
+                    bookmarked ? t('content.bookmark_remove') : t('content.bookmark_add')
+                  }
+                  className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
+                >
+                  <Bookmark
+                    size={18}
+                    color="#fff"
+                    fill={bookmarked ? '#fff' : 'transparent'}
+                  />
+                </Pressable>
+                <Pressable
+                  onPress={handleShare}
+                  className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
+                >
+                  <Share2 size={18} color="#fff" />
+                </Pressable>
+              </View>
             </View>
           </SafeAreaView>
         </View>

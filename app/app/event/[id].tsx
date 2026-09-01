@@ -329,8 +329,11 @@ export default function EventDetailScreen() {
 
               {/* Participation trackers — satu card per participation (self +
                   family). Per BE update 2026-08-31 family-multi. Clickable →
-                  modal dengan info lengkap + tombol cancel per-tracker. */}
-              {familyParticipations.length > 0 ? (
+                  modal dengan info lengkap + tombol cancel per-tracker.
+                  Hidden untuk event GRATIS — tracker card tidak relevan
+                  (tidak ada bukti transfer, tidak ada nominal, hanya status
+                  DAFTAR). Bottom CTA sudah cukup indikasi "sudah daftar". */}
+              {!isFree && familyParticipations.length > 0 ? (
                 <View className="mt-4 gap-2">
                   {familyParticipations.length > 1 ? (
                     <View className="flex-row items-center justify-between">
@@ -354,9 +357,10 @@ export default function EventDetailScreen() {
                     />
                   ))}
                 </View>
-              ) : participation ? (
+              ) : !isFree && participation ? (
                 // Fallback: kalau family list belum ready (offline) tapi ada
                 // local participation → tampil sebagai single card read-only.
+                // Skip untuk event GRATIS (tracker tidak relevan).
                 <ParticipationStatusCard
                   participation={{
                     id: participation.participationId,

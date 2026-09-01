@@ -374,7 +374,13 @@
     "empty_msg": "New content will appear here.",
     "bible_verse": "Today's Verse",
     "prev": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "bookmark_add": "Save",
+    "bookmark_remove": "Remove from Saved",
+    "bookmarks_title": "Saved Articles",
+    "bookmarks_empty_title": "No Bookmarks Yet",
+    "bookmarks_empty_body": "Bookmark your favorite articles from the detail page to read them again later.",
+    "bookmarks_tab": "Saved"
   },
   "persembahan": {
     "title": "Giving",

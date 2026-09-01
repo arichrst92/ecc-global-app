@@ -2,11 +2,12 @@ import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Calendar, MapPin, Share2, User } from 'lucide-react-native';
+import { ArrowLeft, Bookmark, Calendar, MapPin, Share2, User } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { SimpleMarkdown } from '@/components/ui/SimpleMarkdown';
 import { useNewsDetail } from '@/hooks/useContent';
+import { useBookmarksStore } from '@/stores/bookmarks.store';
 import { formatDate } from '@/utils/date';
 
 export default function NewsDetailScreen() {
@@ -16,6 +17,22 @@ export default function NewsDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const query = useNewsDetail(id);
   const item = query.data;
+
+  const toggleBookmark = useBookmarksStore((s) => s.toggle);
+  const bookmarked = useBookmarksStore((s) => (item ? s.isBookmarked('NEWS', item.id) : false));
+
+  function handleToggleBookmark() {
+    if (!item) return;
+    toggleBookmark({
+      id: item.id,
+      tipe: 'NEWS',
+      judul: item.judul,
+      slug: item.slug,
+      ringkasan: item.ringkasan,
+      heroImageUrl: item.heroImageUrl,
+      publishedAt: item.publishedAt,
+    });
+  }
 
   async function handleShare() {
     if (!item) return;
@@ -42,12 +59,27 @@ export default function NewsDetailScreen() {
               >
                 <ArrowLeft size={20} color="#fff" />
               </Pressable>
-              <Pressable
-                onPress={handleShare}
-                className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
-              >
-                <Share2 size={18} color="#fff" />
-              </Pressable>
+              <View className="flex-row items-center gap-2">
+                <Pressable
+                  onPress={handleToggleBookmark}
+                  accessibilityLabel={
+                    bookmarked ? t('content.bookmark_remove') : t('content.bookmark_add')
+                  }
+                  className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
+                >
+                  <Bookmark
+                    size={18}
+                    color="#fff"
+                    fill={bookmarked ? '#fff' : 'transparent'}
+                  />
+                </Pressable>
+                <Pressable
+                  onPress={handleShare}
+                  className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
+                >
+                  <Share2 size={18} color="#fff" />
+                </Pressable>
+              </View>
             </View>
           </SafeAreaView>
         </View>

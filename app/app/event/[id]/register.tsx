@@ -216,8 +216,10 @@ export default function EventRegisterScreen() {
 
       // Full success routing
       if (isFree) {
+        // Event gratis: back ke halaman detail event (bukan beranda) supaya
+        // user langsung lihat status "Sudah Daftar" + info event yg didaftarkan.
         Alert.alert(t('event.register_success'), undefined, [
-          { text: 'OK', onPress: () => router.replace('/(tabs)') },
+          { text: 'OK', onPress: () => router.replace(`/event/${id}` as never) },
         ]);
         return;
       }
