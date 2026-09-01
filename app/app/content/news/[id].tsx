@@ -9,6 +9,7 @@ import { SimpleMarkdown } from '@/components/ui/SimpleMarkdown';
 import { useNewsDetail } from '@/hooks/useContent';
 import { useBookmarksStore } from '@/stores/bookmarks.store';
 import { formatDate } from '@/utils/date';
+import { buildNewsShareUrl } from '@/utils/share';
 
 export default function NewsDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -37,9 +38,21 @@ export default function NewsDetailScreen() {
   async function handleShare() {
     if (!item) return;
     try {
+      // Format tanggal human-readable + Universal Link untuk buka di app
+      const publishDate = item.publishedAt
+        ? formatDate(item.publishedAt, lang)
+        : '';
+      const parts: string[] = [item.judul];
+      if (publishDate) parts.push(`📅 ${publishDate}`);
+      parts.push('');
+      parts.push(item.ringkasan);
+      parts.push('');
+      parts.push(buildNewsShareUrl(item.slug));
+      parts.push('');
+      parts.push(t('common.share_signature'));
       await Share.share({
         title: item.judul,
-        message: `${item.judul}\n\n${item.ringkasan}\n\n— Els App`,
+        message: parts.join('\n'),
       });
     } catch {
       // user cancel — ignore

@@ -65,7 +65,7 @@ export default function BibleHomeScreen() {
     if (!book) return;
     const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
     Share.share({
-      message: `"${verseOfDay.teks}"\n\n— ${book.nama} ${verseOfDay.bab}:${verseOfDay.ayat} (${versionLabel})`,
+      message: `"${verseOfDay.teks}"\n\n— ${book.nama} ${verseOfDay.bab}:${verseOfDay.ayat} (${versionLabel})\n\n${t('common.share_signature')}`,
     });
   }
 

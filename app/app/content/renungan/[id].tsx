@@ -10,6 +10,7 @@ import { SimpleMarkdown } from '@/components/ui/SimpleMarkdown';
 import { useRenunganDetail, useRenunganList } from '@/hooks/useContent';
 import { useBookmarksStore } from '@/stores/bookmarks.store';
 import { formatDate } from '@/utils/date';
+import { buildRenunganShareUrl } from '@/utils/share';
 
 export default function RenunganDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -60,9 +61,27 @@ export default function RenunganDetailScreen() {
   async function handleShare() {
     if (!item) return;
     try {
+      // Format tanggal renungan (khusus renungan pakai field `tanggal`) +
+      // Universal Link untuk buka detail di app kalau recipient sudah install
+      const dateStr = item.tanggal
+        ? formatDate(item.tanggal, lang)
+        : item.publishedAt
+          ? formatDate(item.publishedAt, lang)
+          : '';
+      const parts: string[] = [];
+      if (dateStr) parts.push(`📅 ${dateStr}`);
+      if (item.ayatAlkitab) parts.push(`📖 ${item.ayatAlkitab}`);
+      parts.push('');
+      parts.push(`*${item.judul}*`);
+      parts.push('');
+      parts.push(item.ringkasan);
+      parts.push('');
+      parts.push(buildRenunganShareUrl(item.slug));
+      parts.push('');
+      parts.push(t('common.share_signature'));
       await Share.share({
         title: item.judul,
-        message: `📖 ${item.ayatAlkitab}\n\n*${item.judul}*\n\n${item.ringkasan}\n\n— Els App`,
+        message: parts.join('\n'),
       });
     } catch {
       // user cancel — ignore

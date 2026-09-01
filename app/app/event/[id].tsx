@@ -17,6 +17,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
+import { buildEventShareUrl } from '@/utils/share';
 import { env } from '@/config/env';
 import type { EventParticipation } from '@/types/event';
 
@@ -49,13 +50,33 @@ export default function EventDetailScreen() {
   function handleShare() {
     if (!event) return;
     const lines: string[] = [event.judul];
-    if (event.tanggalMulai) lines.push(event.tanggalMulai);
-    if (event.lokasi) lines.push(event.lokasi);
+    // Format tanggal human-readable (mis. "5 Sep 2026") — bukan ISO raw
+    if (event.tanggalMulai) {
+      const dateStr = formatDate(event.tanggalMulai, lang);
+      const endStr =
+        event.tanggalSelesai && event.tanggalSelesai !== event.tanggalMulai
+          ? ` - ${formatDate(event.tanggalSelesai, lang)}`
+          : '';
+      // Include jam kalau ada — BE patch 2026-05-22a
+      const jam = event.jamMulai
+        ? ` · ${event.jamMulai}${event.jamSelesai ? `-${event.jamSelesai}` : ''} WIB`
+        : '';
+      lines.push(`📅 ${dateStr}${endStr}${jam}`);
+    }
+    if (event.lokasi && event.lokasi.trim()) {
+      lines.push(`📍 ${event.lokasi}`);
+    }
     if (event.ringkasan) {
       lines.push('');
       lines.push(event.ringkasan);
     }
-    Share.share({ message: lines.join('\n') });
+    // Universal Link — kalau recipient punya app installed → langsung buka
+    // di app. Kalau tidak → open di browser (fallback).
+    lines.push('');
+    lines.push(buildEventShareUrl(event.id));
+    lines.push('');
+    lines.push(t('common.share_signature'));
+    Share.share({ title: event.judul, message: lines.join('\n') });
   }
 
   const addParticipation = useEventFlowStore((s) => s.addParticipation);

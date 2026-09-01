@@ -125,7 +125,7 @@ export default function BibleChapterScreen() {
   function shareVerse(verse: BibleVerse) {
     const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
     Share.share({
-      message: `"${verse.teks}"\n\n— ${book!.nama} ${bab}:${verse.nomor} (${versionLabel})`,
+      message: `"${verse.teks}"\n\n— ${book!.nama} ${bab}:${verse.nomor} (${versionLabel})\n\n${t('common.share_signature')}`,
     });
   }
 
