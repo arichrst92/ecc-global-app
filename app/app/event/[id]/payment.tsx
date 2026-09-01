@@ -11,7 +11,7 @@ import { ArrowLeft, Camera, Check, Copy, Home, RefreshCw, Send } from 'lucide-re
 import { Button } from '@/components/ui/Button';
 import { BebasWebRedirect } from '@/components/event/BebasWebRedirect';
 import { useToast } from '@/components/ui/Toast';
-import { useEventDetail } from '@/hooks/useEvents';
+import { useEventDetail, useMyEventParticipations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { uploadBukti } from '@/api/event';
@@ -29,11 +29,17 @@ type PickedImage = {
 export default function EventPaymentScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // Per Gap #1 fix v1.8.1: support `?participationId=` untuk family payment.
+  // Kalau tidak dikirim → default ke self participation (backward compat).
+  const { id, participationId } = useLocalSearchParams<{
+    id: string;
+    participationId?: string;
+  }>();
   const showToast = useToast((s) => s.show);
 
   const eventQuery = useEventDetail(id);
   const event = eventQuery.data;
+  const familyQuery = useMyEventParticipations(id);
   const queryClient = useQueryClient();
 
   // Gate NOMINAL_BEBAS payment/upload-bukti → web (Apple 3.2.2iv).
@@ -43,10 +49,28 @@ export default function EventPaymentScreen() {
     return <BebasWebRedirect eventId={id} />;
   }
 
-  // Cek participation dari persistent store
-  const participation = useEventFlowStore((s) =>
+  // Cek participation — priority:
+  //   1. Kalau ?participationId= param ada → cari di family list (support family)
+  //   2. Kalau tidak → fallback ke local store (self, backward compat)
+  const localParticipation = useEventFlowStore((s) =>
     event ? s.getParticipation(event.id) : null,
   );
+  const targetParticipation = participationId
+    ? familyQuery.data?.find((p) => p.id === participationId) ?? null
+    : null;
+  const isForFamily = !!participationId && !!targetParticipation && !targetParticipation.isSelf;
+  // Kalau ?participationId= param dikirim, pakai HANYA target participation
+  // dari family list. Jangan fallback ke local (bisa upload ke self yg salah).
+  // Kalau tidak ada param → fallback ke local (backward compat self flow).
+  const resolvedParticipationId = participationId
+    ? targetParticipation?.id ?? null
+    : localParticipation?.participationId ?? null;
+  const resolvedNominal = targetParticipation?.nominalBayar
+    ? Number(targetParticipation.nominalBayar)
+    : null;
+  const namaPeserta = targetParticipation?.jemaat?.namaLengkap ?? null;
+  const relationLabel = targetParticipation?.relationLabel ?? null;
+
   const updateStatus = useEventFlowStore((s) => s.updateParticipationStatus);
   const resetFlow = useEventFlowStore((s) => s.resetFlow);
   const addNotification = useNotificationsStore((s) => s.add);
@@ -57,8 +81,10 @@ export default function EventPaymentScreen() {
 
   const uploadMutation = useMutation({
     mutationFn: async () => {
-      if (!event || !participation || !pickedImage) throw new Error('Missing context');
-      return uploadBukti(event.id, participation.participationId, {
+      if (!event || !resolvedParticipationId || !pickedImage) {
+        throw new Error('Missing context');
+      }
+      return uploadBukti(event.id, resolvedParticipationId, {
         uri: pickedImage.uri,
         name: pickedImage.name,
         type: pickedImage.type,
@@ -69,8 +95,9 @@ export default function EventPaymentScreen() {
         ? `${env.apiBaseUrl}${data.buktiTransferUrl}`
         : null;
       setUploadedUrl(url);
-      // Update status di persistent store → MENUNGGU_VERIFIKASI
-      if (event) {
+      // Update status di persistent store → MENUNGGU_VERIFIKASI.
+      // Skip untuk family (local store hanya track self participation).
+      if (event && !isForFamily) {
         await updateStatus(event.id, 'MENUNGGU_VERIFIKASI');
       }
       // Invalidate event queries supaya myParticipation.status di detail ke-update
@@ -82,7 +109,9 @@ export default function EventPaymentScreen() {
         addNotification({
           category: 'payment',
           title: t('notif.event_payment_title'),
-          body: t('notif.event_payment_body', { judul: event.judul }),
+          body: namaPeserta && isForFamily
+            ? t('notif.event_payment_body_family', { judul: event.judul, nama: namaPeserta })
+            : t('notif.event_payment_body', { judul: event.judul }),
           deepLink: `/event/${event.id}`,
         });
       }
@@ -159,18 +188,48 @@ export default function EventPaymentScreen() {
 
   // Untuk NOMINAL_BEBAS, nominal yang dibayar = nominalBayar yang user input
   // saat register. Source priority:
-  //   1. BE myParticipation.nominalBayar (truth setelah refetch)
-  //   2. Local store participation.nominalBayar (instant fallback sebelum refetch)
-  //   3. event.nominal (fixed value untuk NOMINAL_TETAP, atau 0 untuk BEBAS)
+  //   1. Target participation dari family list (truth per participation)
+  //   2. BE myParticipation.nominalBayar (truth utk self)
+  //   3. Local store participation.nominalBayar (instant fallback)
+  //   4. event.nominal (fixed value untuk NOMINAL_TETAP, atau 0 untuk BEBAS)
   const isBebas = event.tipeBayar === 'NOMINAL_BEBAS';
   const beNominal = event.myParticipation?.nominalBayar
     ? Number(event.myParticipation.nominalBayar)
     : null;
-  const localNominal = participation?.nominalBayar ?? null;
+  const localNominal = localParticipation?.nominalBayar ?? null;
   const nominal = isBebas
-    ? beNominal ?? localNominal ?? Number(event.nominal)
+    ? resolvedNominal ?? beNominal ?? localNominal ?? Number(event.nominal)
     : Number(event.nominal);
   const isUploaded = !!uploadedUrl;
+
+  // Kalau ?participationId= dikirim tapi family list masih loading atau target
+  // tidak ditemukan → tunggu / show error, JANGAN upload ke self yg salah.
+  if (participationId && !resolvedParticipationId) {
+    return (
+      <View className="flex-1 bg-neutral-50 items-center justify-center px-8">
+        {familyQuery.isPending ? (
+          <Text className="text-sm text-neutral-500">{t('common.loading')}</Text>
+        ) : (
+          <>
+            <Text className="text-sm text-neutral-900 font-semibold text-center mb-2">
+              {t('event.payment_target_not_found_title')}
+            </Text>
+            <Text className="text-xs text-neutral-500 text-center mb-4">
+              {t('event.payment_target_not_found_body')}
+            </Text>
+            <Pressable
+              onPress={() => router.back()}
+              className="bg-brand-500 rounded-xl px-4 py-2"
+            >
+              <Text className="text-white text-sm font-semibold">
+                {t('common.back')}
+              </Text>
+            </Pressable>
+          </>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -189,6 +248,26 @@ export default function EventPaymentScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
       >
+        {/* Family peserta banner — kalau upload untuk family, tampil siapa */}
+        {isForFamily && namaPeserta ? (
+          <View className="bg-brand-50 border border-brand-100 rounded-2xl p-3 mb-3 flex-row items-center gap-3">
+            <View className="w-8 h-8 rounded-full bg-brand-500 items-center justify-center">
+              <Text className="text-white text-xs font-bold">
+                {namaPeserta.slice(0, 1).toUpperCase()}
+              </Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-[10px] font-bold text-brand-700 uppercase">
+                {t('event.payment_for_family')}
+              </Text>
+              <Text className="text-sm font-semibold text-brand-900">
+                {namaPeserta}
+                {relationLabel ? ` • ${relationLabel}` : ''}
+              </Text>
+            </View>
+          </View>
+        ) : null}
+
         {/* Status pill */}
         <View className="bg-amber-50 border border-amber-100 rounded-2xl p-3 mb-4 flex-row items-center gap-3">
           <View className="w-8 h-8 rounded-full bg-amber-500 items-center justify-center">

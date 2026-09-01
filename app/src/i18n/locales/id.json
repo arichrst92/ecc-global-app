@@ -495,7 +495,10 @@
     "detail_self": "Diri sendiri",
     "family_registrations_title": "{{count}} Pendaftaran (Keluarga)",
     "register_family_more": "Daftarkan Anggota Keluarga Lain",
-    "cancel_not_family": "Anda tidak diizinkan membatalkan pendaftaran ini"
+    "cancel_not_family": "Anda tidak diizinkan membatalkan pendaftaran ini",
+    "payment_for_family": "Pembayaran untuk",
+    "payment_target_not_found_title": "Pendaftaran Tidak Ditemukan",
+    "payment_target_not_found_body": "Pendaftaran yang ingin dibayar tidak ditemukan atau sudah dibatalkan."
   },
   "branch": {
     "active_label": "Cabang aktif",
@@ -586,7 +589,8 @@
     "event_payment_title": "Bukti pembayaran terupload",
     "event_payment_body": "Pembayaran untuk \"{{judul}}\" menunggu verifikasi admin (1-24 jam).",
     "event_donation_title": "Donasi tercatat",
-    "event_donation_body": "Donasi Anda untuk \"{{judul}}\" terupload. Menunggu verifikasi admin."
+    "event_donation_body": "Donasi Anda untuk \"{{judul}}\" terupload. Menunggu verifikasi admin.",
+    "event_payment_body_family": "Bukti pembayaran {{judul}} atas nama {{nama}} sudah terupload"
   },
   "notifications": {
     "title": "Notifikasi",

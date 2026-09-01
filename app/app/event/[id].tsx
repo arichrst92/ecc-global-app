@@ -125,7 +125,6 @@ export default function EventDetailScreen() {
   const addNotification = useNotificationsStore((s) => s.add);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
-  const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
   const [selectedParticipation, setSelectedParticipation] =
     useState<EventParticipation | null>(null);
   const queryClient = useQueryClient();
@@ -524,7 +523,8 @@ export default function EventDetailScreen() {
       ) : null}
 
       {/* Participation detail modal — full info: nama, status, bukti, catatan.
-          Cancel dari modal → close modal → open confirmation modal. */}
+          Zoom bukti transfer di-handle di dalam modal (absolute overlay,
+          bukan nested Modal). Cancel → close modal → open confirmation modal. */}
       {event && selectedParticipation ? (
         <ParticipationDetailModal
           visible={detailModalOpen}
@@ -536,10 +536,15 @@ export default function EventDetailScreen() {
           participation={selectedParticipation}
           isFree={isFree}
           lang={lang}
-          onOpenImage={(url) => setZoomImageUrl(url)}
           onContinuePayment={() => {
+            // Gap #1 fix (v1.8.1): kirim participationId supaya payment flow
+            // support self + family (bukan hardcoded self).
             setDetailModalOpen(false);
-            router.push(`/event/${id}/payment`);
+            router.push(
+              `/event/${id}/payment?participationId=${selectedParticipation.id}` as
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                any,
+            );
           }}
           onCancel={() => {
             setDetailModalOpen(false);
@@ -548,32 +553,6 @@ export default function EventDetailScreen() {
           }}
         />
       ) : null}
-
-      {/* Zoomed bukti image modal — full-screen tap-to-close */}
-      <Modal
-        visible={!!zoomImageUrl}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setZoomImageUrl(null)}
-      >
-        <Pressable
-          onPress={() => setZoomImageUrl(null)}
-          className="flex-1 bg-black/90 items-center justify-center"
-        >
-          {zoomImageUrl ? (
-            <Image
-              source={{ uri: zoomImageUrl }}
-              style={{ width: '100%', height: '80%' }}
-              resizeMode="contain"
-            />
-          ) : null}
-          <View className="absolute top-12 right-4">
-            <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center">
-              <X size={20} color="#fff" />
-            </View>
-          </View>
-        </Pressable>
-      </Modal>
 
       {/* Cancel confirmation modal */}
       <Modal
@@ -1078,7 +1057,6 @@ function ParticipationDetailModal({
   participation,
   isFree,
   lang,
-  onOpenImage,
   onContinuePayment,
   onCancel,
 }: {
@@ -1087,11 +1065,14 @@ function ParticipationDetailModal({
   participation: EventParticipation;
   isFree: boolean;
   lang: string;
-  onOpenImage: (url: string) => void;
   onContinuePayment?: () => void;
   onCancel?: () => void;
 }) {
   const { t } = useTranslation();
+  // Local zoom state — pakai overlay absolute-positioned di DALAM modal ini,
+  // BUKAN nested Modal. Nested Modal punya masalah stacking di iOS (zoom modal
+  // render di bawah detail modal → tidak terlihat / tap tidak respon).
+  const [zoomedUrl, setZoomedUrl] = useState<string | null>(null);
 
   const status = participation.status;
   const registeredAtMs = new Date(participation.registeredAt).getTime();
@@ -1100,7 +1081,6 @@ function ParticipationDetailModal({
     : 0;
   const namaPeserta = participation.jemaat?.namaLengkap ?? null;
   const relationLabel = participation.relationLabel ?? null;
-  const isSelf = participation.isSelf ?? false;
   const catatan = participation.catatan ?? null;
   const buktiUrl = participation.buktiTransferUrl
     ? participation.buktiTransferUrl.startsWith('http')
@@ -1109,10 +1089,11 @@ function ParticipationDetailModal({
     : null;
   const paidAt = participation.paidAt ?? null;
   const attendedAt = participation.attendedAt ?? null;
-  // Continue payment hanya untuk participation self, status DAFTAR, event
-  // berbayar. Payment flow saat ini butuh participation self di event flow store.
+  // Continue payment untuk any participation (self + family) yang berbayar
+  // dan masih DAFTAR (belum upload bukti). Gap #1 fix v1.8.1: BE guard sudah
+  // allow upload bukti untuk family. Payment.tsx accept ?participationId=.
   const showContinuePayment: boolean =
-    !!onContinuePayment && isSelf && status === 'DAFTAR' && !isFree;
+    !!onContinuePayment && status === 'DAFTAR' && !isFree;
   const showCancel: boolean =
     !!onCancel && status !== 'HADIR' && status !== 'BATAL';
 
@@ -1150,6 +1131,50 @@ function ParticipationDetailModal({
           className="bg-white rounded-t-3xl overflow-hidden"
           style={{ height: '85%' }}
         >
+          {/* Zoom overlay — absolute inside SAME modal (bukan nested Modal).
+              iOS bug workaround: nested Modal render di bawah parent → tap tidak
+              responsive. Absolute overlay dalam parent selalu paling atas. */}
+          {zoomedUrl ? (
+            <Pressable
+              onPress={() => setZoomedUrl(null)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.95)',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 100,
+              }}
+            >
+              <Image
+                source={{ uri: zoomedUrl }}
+                style={{ width: '100%', height: '80%' }}
+                resizeMode="contain"
+              />
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 20,
+                  right: 20,
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <X size={20} color="#fff" />
+              </View>
+              <Text className="text-[11px] text-white/70 mt-3 italic">
+                {t('common.close') ?? 'Tap untuk tutup'}
+              </Text>
+            </Pressable>
+          ) : null}
+
           {/* Handle bar */}
           <View className="items-center pt-3 pb-1">
             <View className="w-10 h-1 rounded-full bg-neutral-300" />
@@ -1241,7 +1266,7 @@ function ParticipationDetailModal({
                 {buktiUrl ? (
                   <>
                     <Pressable
-                      onPress={() => onOpenImage(buktiUrl)}
+                      onPress={() => setZoomedUrl(buktiUrl)}
                       className="rounded-xl overflow-hidden border border-neutral-200 active:opacity-80"
                     >
                       <Image

@@ -495,7 +495,10 @@
     "detail_self": "Myself",
     "family_registrations_title": "{{count}} Registrations (Family)",
     "register_family_more": "Register Another Family Member",
-    "cancel_not_family": "You are not allowed to cancel this registration"
+    "cancel_not_family": "You are not allowed to cancel this registration",
+    "payment_for_family": "Payment for",
+    "payment_target_not_found_title": "Registration Not Found",
+    "payment_target_not_found_body": "The registration you want to pay for was not found or has been cancelled."
   },
   "branch": {
     "active_label": "Active branch",
@@ -586,7 +589,8 @@
     "event_payment_title": "Payment proof uploaded",
     "event_payment_body": "Payment for \"{{judul}}\" awaiting admin verification (1-24 hours).",
     "event_donation_title": "Donation recorded",
-    "event_donation_body": "Your donation for \"{{judul}}\" uploaded. Awaiting admin verification."
+    "event_donation_body": "Your donation for \"{{judul}}\" uploaded. Awaiting admin verification.",
+    "event_payment_body_family": "Payment proof for {{judul}} on behalf of {{nama}} has been uploaded"
   },
   "notifications": {
     "title": "Notifications",
