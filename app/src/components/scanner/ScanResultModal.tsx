@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Info,
-  Printer,
   RotateCcw,
   ShieldAlert,
   UserCheck,
@@ -28,44 +27,27 @@ export function ScanResultModal({
   onDismiss,
   onForce,
   onScanAgain,
-  onPrint,
   forceLoading,
-  printLoading,
-  canPrint,
-  autoPrint,
 }: {
   result: ScanResultKind | null;
   onDismiss: () => void;
   onForce?: () => void;
   onScanAgain: () => void;
-  onPrint?: () => void;
   forceLoading?: boolean;
-  printLoading?: boolean;
-  /** Tampil print button kalau printer connected */
-  canPrint?: boolean;
-  /** Kalau true, auto-trigger print saat success */
-  autoPrint?: boolean;
 }) {
   const { t } = useTranslation();
   const visible = result !== null;
 
-  // Auto-dismiss success setelah 2.5s (atau 3.5s kalau auto-print active)
+  // Auto-dismiss success setelah 2.5s
   useEffect(() => {
     if (!visible || !result) return;
     if (result.kind === 'success' && !result.alreadyCheckedIn) {
-      // Trigger auto-print kalau enabled + printer connected
-      if (autoPrint && canPrint && onPrint) {
-        onPrint();
-      }
-      const tm = setTimeout(
-        () => {
-          onScanAgain();
-        },
-        autoPrint ? 3500 : 2500,
-      );
+      const tm = setTimeout(() => {
+        onScanAgain();
+      }, 2500);
       return () => clearTimeout(tm);
     }
-  }, [visible, result, onScanAgain, autoPrint, canPrint, onPrint]);
+  }, [visible, result, onScanAgain]);
 
   if (!result) return null;
 
@@ -118,27 +100,13 @@ export function ScanResultModal({
                 </View>
               </View>
             ) : (
-              <>
-                {/* Print Label button — kalau success + printer connected */}
-                {result.kind === 'success' && canPrint && onPrint ? (
-                  <Button
-                    label={t('scanner.print_label')}
-                    variant="secondary"
-                    onPress={onPrint}
-                    loading={printLoading}
-                    leftIcon={<Printer size={14} color="#404040" />}
-                    fullWidth
-                    size="md"
-                  />
-                ) : null}
-                <Button
-                  label={t('scanner.scan_next')}
-                  onPress={onScanAgain}
-                  leftIcon={<RotateCcw size={14} color="#fff" />}
-                  fullWidth
-                  size="lg"
-                />
-              </>
+              <Button
+                label={t('scanner.scan_next')}
+                onPress={onScanAgain}
+                leftIcon={<RotateCcw size={14} color="#fff" />}
+                fullWidth
+                size="lg"
+              />
             )}
           </View>
         </Pressable>

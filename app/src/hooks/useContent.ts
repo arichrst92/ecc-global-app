@@ -6,24 +6,81 @@ import {
   getNewsDetail,
   getRenunganDetail,
 } from '@/api/content';
-import { publicNewsDetail, publicRenunganDetail } from '@/api/publicGuest';
+import {
+  publicNewsList,
+  publicRenunganList,
+  publicNewsDetail,
+  publicRenunganDetail,
+} from '@/api/publicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import type { NewsItem, RenunganItem } from '@/types/content';
+import type {
+  PublicNewsItem,
+  PublicRenunganItem,
+} from '@/types/publicGuest';
 
-/** News list — sinode-wide, paginated */
+/** Adapt PublicNewsItem (public/news list) → NewsItem shape. Missing fields
+ *  (konten body, viewCount) diisi default — list view tidak butuh keduanya. */
+function adaptPublicNews(pub: PublicNewsItem): NewsItem {
+  return {
+    id: pub.id,
+    tipe: 'NEWS',
+    judul: pub.judul,
+    slug: pub.slug,
+    ringkasan: pub.ringkasan ?? '',
+    konten: '', // body only fetched on detail
+    heroImageUrl: pub.heroImageUrl,
+    tags: pub.tags,
+    isPublished: true,
+    publishedAt: pub.tanggal,
+    cabang: pub.cabang,
+    author: pub.author ? { jemaat: { namaLengkap: pub.author.namaLengkap } } : undefined,
+  };
+}
+
+/** Adapt PublicRenunganItem → RenunganItem shape. */
+function adaptPublicRenungan(pub: PublicRenunganItem): RenunganItem {
+  return {
+    id: pub.id,
+    tipe: 'RENUNGAN',
+    judul: pub.judul,
+    slug: pub.slug,
+    ringkasan: pub.ringkasan ?? '',
+    konten: '',
+    heroImageUrl: null,
+    isPublished: true,
+    publishedAt: pub.tanggal,
+    tanggal: pub.tanggal,
+    ayatAlkitab: pub.ayatAlkitab ?? '',
+  };
+}
+
+/** News list — sinode-wide, paginated. Guest mode pakai /public/news
+ *  (skipAuth), authenticated pakai /admin/news. */
 export function useNewsList(limit = 20) {
+  const isGuest = useAuthStore((s) => s.isGuest);
   return useQuery<NewsItem[]>({
-    queryKey: ['news', 'list', limit],
-    queryFn: () => listNews({ limit }),
+    queryKey: ['news', 'list', isGuest ? 'guest' : 'auth', limit],
+    queryFn: async () => {
+      if (!isGuest) return listNews({ limit });
+      const res = await publicNewsList({ limit });
+      return res.data.map(adaptPublicNews);
+    },
     staleTime: 5 * 60_000,
   });
 }
 
-/** Renungan list — sinode-wide, paginated, sorted desc by tanggal */
+/** Renungan list — sinode-wide, paginated, sorted desc by tanggal.
+ *  Guest fallback ke /public/renungan. */
 export function useRenunganList(limit = 30) {
+  const isGuest = useAuthStore((s) => s.isGuest);
   return useQuery<RenunganItem[]>({
-    queryKey: ['renungan', 'list', limit],
-    queryFn: () => listRenungan({ limit }),
+    queryKey: ['renungan', 'list', isGuest ? 'guest' : 'auth', limit],
+    queryFn: async () => {
+      if (!isGuest) return listRenungan({ limit });
+      const res = await publicRenunganList({ limit });
+      return res.data.map(adaptPublicRenungan);
+    },
     staleTime: 5 * 60_000,
   });
 }

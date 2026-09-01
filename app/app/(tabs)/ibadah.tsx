@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Church, ChevronRight, ChevronsUpDown } from 'lucide-react-native';
+import { Calendar, Church, ChevronRight, ChevronsUpDown, Ticket } from 'lucide-react-native';
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -14,7 +14,6 @@ import { getIbadahCalendar } from '@/api/ibadah';
 import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { todayIso, addDaysIso, formatDateWithDay, groupByDate, isToday } from '@/utils/date';
-import { useTranslation as useI18n } from 'react-i18next';
 
 const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 
@@ -67,6 +66,13 @@ function IbadahListAuthenticated() {
               </View>
             ) : null}
           </View>
+          <Pressable
+            onPress={() => router.push('/my-reservasi' as never)}
+            className="w-10 h-10 items-center justify-center"
+            accessibilityLabel={t('ibadah.my_reservations') ?? 'Reservasi Saya'}
+          >
+            <Ticket size={18} color="#EA580C" />
+          </Pressable>
           <Pressable
             onPress={() => setSwitcherOpen(true)}
             className="w-10 h-10 items-center justify-center"
@@ -127,7 +133,7 @@ function DateSection({
   items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null }[];
   onTapItem: (id: string) => void;
 }) {
-  const { i18n } = useI18n();
+  const { i18n } = useTranslation();
   const lang = i18n.language;
   const today = isToday(date);
 

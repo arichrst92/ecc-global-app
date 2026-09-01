@@ -29,16 +29,13 @@ import {
   useScannerIbadah,
   useWalkInReservasi,
 } from '@/hooks/useScanner';
-import { usePrinterStore } from '@/stores/printer.store';
-import { printerService, PrinterError } from '@/services/printer';
 import { ApiError } from '@/types/api';
-import { todayIso, formatDate } from '@/utils/date';
+import { todayIso } from '@/utils/date';
 
 type ScannerMode = 'checkin' | 'checkout' | 'pickup';
 
 export default function ScannerIbadahScreen() {
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language;
+  const { t } = useTranslation();
   const router = useRouter();
   const { id, tanggal } = useLocalSearchParams<{ id: string; tanggal?: string }>();
   const tanggalIbadah = tanggal || todayIso();
@@ -58,46 +55,13 @@ export default function ScannerIbadahScreen() {
   // 1 endpoint untuk semua mode: checkin + checkout + pickup.
   const walkInMutation = useWalkInReservasi(id, tanggalIbadah);
 
-  const isPrinterConnected = usePrinterStore((s) => s.isConnected);
-  const paperSize = usePrinterStore((s) => s.paperSize);
-  const autoPrint = usePrinterStore((s) => s.autoPrint);
-
   const [mode, setMode] = useState<ScannerMode>('checkin');
   const [manualOpen, setManualOpen] = useState(false);
   const [pickupOpen, setPickupOpen] = useState(false);
   const [result, setResult] = useState<ScanResultKind | null>(null);
   const [pendingKode, setPendingKode] = useState<string | null>(null);
-  const [printLoading, setPrintLoading] = useState(false);
 
   const anyMutationPending = pickupMutation.isPending || walkInMutation.isPending;
-
-  async function handlePrint() {
-    if (!result || result.kind !== 'success') return;
-    setPrintLoading(true);
-    try {
-      const statusLabel =
-        mode === 'checkout' ? 'CHECKOUT' : result.walkIn ? 'WALK-IN' : 'JOIN';
-      await printerService.printLabel(
-        {
-          header: ibadahMeta?.nama ? `ECC · ${ibadahMeta.nama}` : 'ECC Ibadah',
-          namaLengkap: result.namaLengkap,
-          kode: pendingKode ?? '',
-          detail: formatDate(tanggalIbadah, lang),
-          status: statusLabel,
-        },
-        paperSize,
-      );
-      showToast(t('printer.test_print_sent'), 'success');
-    } catch (err) {
-      if (err instanceof PrinterError) {
-        showToast(err.message, 'error');
-      } else {
-        showToast(t('error.network'), 'error');
-      }
-    } finally {
-      setPrintLoading(false);
-    }
-  }
 
   /**
    * Unified walk-in flow untuk semua mode. Post BE deploy 2026-08-03:
@@ -355,11 +319,7 @@ export default function ScannerIbadahScreen() {
         onDismiss={dismissResult}
         onForce={result?.kind === 'conflict' ? handleForce : undefined}
         onScanAgain={dismissResult}
-        onPrint={handlePrint}
-        canPrint={isPrinterConnected}
-        autoPrint={autoPrint && isPrinterConnected}
         forceLoading={walkInMutation.isPending}
-        printLoading={printLoading}
       />
     </View>
   );

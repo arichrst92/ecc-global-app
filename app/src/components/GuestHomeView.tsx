@@ -115,7 +115,7 @@ export function GuestHomeView() {
                 {t('home.latest_news')}
               </Text>
               <Pressable
-                onPress={() => router.push('/content/news' as never)}
+                onPress={() => router.push('/content?tab=news' as never)}
                 className="flex-row items-center gap-0.5"
               >
                 <Text className="text-xs text-brand-600 font-semibold">{t('home.see_all')}</Text>

@@ -10,6 +10,7 @@ import {
   FileText,
   MapPin,
   QrCode,
+  Ticket,
   Users,
   Video,
 } from 'lucide-react-native';
@@ -51,9 +52,16 @@ export default function IbadahDetailScreen() {
             >
               <ArrowLeft size={20} color="#fff" />
             </Pressable>
-            <Text className="flex-1 text-white text-base font-semibold text-center mr-10">
+            <Text className="flex-1 text-white text-base font-semibold text-center">
               {t('ibadah.detail_title')}
             </Text>
+            <Pressable
+              onPress={() => router.push('/my-reservasi' as never)}
+              className="w-10 h-10 rounded-full bg-white/15 items-center justify-center"
+              accessibilityLabel={t('ibadah.my_reservations') ?? 'Reservasi Saya'}
+            >
+              <Ticket size={18} color="#fff" />
+            </Pressable>
           </View>
 
           {ibadah ? (

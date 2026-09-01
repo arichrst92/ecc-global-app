@@ -59,14 +59,7 @@ export function GuestIbadahView() {
       <View className="bg-brand-500 rounded-b-3xl">
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-6">
-            <Text className="text-white text-lg font-bold mb-3">{t('nav.ibadah')}</Text>
-            <Pressable
-              onPress={() => {
-                // Cabang picker via Picker modal — pakai segmented-like state
-                // Simpler: cycle through branches kalau cuma trigger picker
-                // Implementation: just open picker by tapping below
-              }}
-            />
+            <Text className="text-white text-lg font-bold">{t('nav.ibadah')}</Text>
           </View>
         </SafeAreaView>
       </View>

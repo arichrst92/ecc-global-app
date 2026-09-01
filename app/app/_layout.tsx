@@ -15,7 +15,6 @@ import { usePreferencesStore } from '@/stores/preferences.store';
 import { useBranchStore } from '@/stores/branch.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
-import { usePrinterStore } from '@/stores/printer.store';
 import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { ForceUpdateModal } from '@/components/ForceUpdateModal';
@@ -80,7 +79,6 @@ export default function RootLayout() {
   const hydrateBranch = useBranchStore((s) => s.hydrate);
   const hydrateEventFlow = useEventFlowStore((s) => s.hydrate);
   const hydrateNotifications = useNotificationsStore((s) => s.hydrate);
-  const hydratePrinter = usePrinterStore((s) => s.hydrate);
   const hydrateBible = useBibleStore((s) => s.hydrate);
 
   useEffect(() => {
@@ -94,7 +92,6 @@ export default function RootLayout() {
       hydrateBranch(),
       hydrateEventFlow(),
       hydrateNotifications(),
-      hydratePrinter(),
       hydrateBible(),
     ]).then(() => setHydrated(true));
     // Splash pre-warm — parallel dengan hydration. Gate decisions
@@ -111,7 +108,6 @@ export default function RootLayout() {
     hydrateBranch,
     hydrateEventFlow,
     hydrateNotifications,
-    hydratePrinter,
     hydrateBible,
   ]);
 
