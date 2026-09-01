@@ -4,6 +4,7 @@
 **Requester**: Mobile team (Ari)
 **Priority**: MEDIUM (Sprint 8 feature — enables branded https:// deep links)
 **Related**: Mobile v2.1.0 (`app.json` config), custom scheme `ecc://` (existing)
+**Status BE**: ✅ **CODE DELIVERED 2026-09-01** — waiting Android SHA-256 fingerprints dari mobile team untuk production env. Reply detail: `be-update-2026-09-01-universal-links-hosted.md`
 
 ---
 
