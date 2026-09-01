@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -59,6 +59,22 @@ export default function CalendarScreen() {
     staleTime: 10 * 60_000,
   });
 
+  // Aggregate loading/error/refetch state across ketiga queries — dipakai
+  // untuk error banner + pull-to-refresh. Grid tetap dirender walau pending
+  // (cuma dots yang bergantung data), jadi loading indicator kecil di header
+  // saja — tidak block seluruh layout (konsisten dengan pattern ministry list
+  // tapi lebih ringan karena grid punya value tanpa data juga).
+  const isPending = eventsQuery.isPending || ibadahQuery.isPending || familyQuery.isPending;
+  const isError = eventsQuery.isError || ibadahQuery.isError || familyQuery.isError;
+  const isRefetching =
+    eventsQuery.isRefetching || ibadahQuery.isRefetching || familyQuery.isRefetching;
+
+  function refetchAll() {
+    eventsQuery.refetch();
+    ibadahQuery.refetch();
+    familyQuery.refetch();
+  }
+
   // Index items by day (1-31) — filter client-side ke month yang aktif
   const itemsByDay = useMemo(() => {
     const map = new Map<number, DayItem[]>();
@@ -114,7 +130,7 @@ export default function CalendarScreen() {
     (familyQuery.data ?? []).forEach((rel) => {
       const tgl = rel.jemaat.tanggalLahir;
       if (!tgl) return;
-      const birthDate = new Date(tgl);
+      const birthDate = parseLocalDate(tgl);
       if (birthDate.getMonth() === month) {
         const day = birthDate.getDate();
         const age = year - birthDate.getFullYear();
@@ -186,13 +202,37 @@ export default function CalendarScreen() {
           <Text className="text-base font-bold text-neutral-900 flex-1">
             {t('calendar.title')}
           </Text>
+          {isPending ? <ActivityIndicator size="small" color="#F97316" /> : null}
         </View>
       </SafeAreaView>
 
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetchAll}
+            tintColor="#F97316"
+          />
+        }
       >
+        {/* Error banner — tampil kalau salah satu query gagal, tetap render
+            grid di bawahnya (data yang berhasil load tetap ditampilkan). */}
+        {isError ? (
+          <View className="bg-red-50 border border-red-100 rounded-xl p-3 mb-4 flex-row items-center gap-3">
+            <Text className="text-xs text-red-600 flex-1">
+              {t('error.generic')}
+            </Text>
+            <Pressable
+              onPress={refetchAll}
+              className="px-3 py-1.5 bg-red-500 rounded-lg"
+            >
+              <Text className="text-white font-semibold text-xs">{t('common.retry')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
+
         {/* Month nav */}
         <View className="flex-row items-center justify-between mb-4">
           <Pressable

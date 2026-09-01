@@ -18,14 +18,17 @@ import { ArrowLeft, ChevronRight, HeartHandshake, Users } from 'lucide-react-nat
 import { Avatar } from '@/components/ui/Avatar';
 import { getMyProfile } from '@/api/me';
 import { useMinistryList } from '@/hooks/useMinistry';
+import { useAuthStore } from '@/stores/auth.store';
 
 export default function MinistryListScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const isGuest = useAuthStore((s) => s.isGuest);
   const meQuery = useQuery({
     queryKey: ['me', 'ministry-list'],
     queryFn: getMyProfile,
     staleTime: 5 * 60_000,
+    enabled: !isGuest,
   });
   const ministryListQuery = useMinistryList();
 

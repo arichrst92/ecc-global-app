@@ -891,7 +891,8 @@
     "join_success": "Selamat datang di {{ministry}} sebagai {{posisi}}!",
     "join_already_member": "Anda sudah menjadi anggota ministry ini.",
     "join_error": "Gagal join. Coba lagi atau hubungi leader.",
-    "closed_notice": "Ministry ini sedang tidak menerima anggota baru."
+    "closed_notice": "Ministry ini sedang tidak menerima anggota baru.",
+    "member_whatsapp": "Chat WhatsApp"
   },
   "homecell": {
     "title": "Homecell Saya",

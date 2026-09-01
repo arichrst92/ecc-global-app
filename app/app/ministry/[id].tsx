@@ -299,7 +299,7 @@ export default function MinistryDetailScreen() {
                               openWhatsApp(m.jemaat.noHp!, ministry.nama, m.jemaat.namaLengkap);
                             }}
                             className="w-9 h-9 rounded-full bg-green-50 items-center justify-center"
-                            accessibilityLabel={t('homecell.member_whatsapp')}
+                            accessibilityLabel={t('ministry.member_whatsapp')}
                           >
                             <MessageCircle size={14} color="#16A34A" />
                           </Pressable>

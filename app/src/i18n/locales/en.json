@@ -891,7 +891,8 @@
     "join_success": "Welcome to {{ministry}} as {{posisi}}!",
     "join_already_member": "You are already a member of this ministry.",
     "join_error": "Could not join. Please try again or contact the leader.",
-    "closed_notice": "This ministry is currently not accepting new members."
+    "closed_notice": "This ministry is currently not accepting new members.",
+    "member_whatsapp": "WhatsApp chat"
   },
   "homecell": {
     "title": "My Homecells",

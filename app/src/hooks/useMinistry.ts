@@ -6,6 +6,7 @@ import {
   listMinistries,
   type JoinMinistryPayload,
 } from '@/api/ministry';
+import { useAuthStore } from '@/stores/auth.store';
 
 export const MINISTRY_KEYS = {
   all: ['ministry'] as const,
@@ -14,21 +15,24 @@ export const MINISTRY_KEYS = {
     [...MINISTRY_KEYS.all, 'detail', id] as const,
 };
 
-/** List semua ministry — cache 5 menit. */
+/** List semua ministry — cache 5 menit. Guest tidak punya akses (no token). */
 export function useMinistryList() {
+  const isGuest = useAuthStore((s) => s.isGuest);
   return useQuery({
     queryKey: MINISTRY_KEYS.list(),
     queryFn: listMinistries,
     staleTime: 5 * 60_000,
+    enabled: !isGuest,
   });
 }
 
-/** Detail ministry + members. */
+/** Detail ministry + members. Guest tidak punya akses (no token). */
 export function useMinistryDetail(id: string | undefined) {
+  const isGuest = useAuthStore((s) => s.isGuest);
   return useQuery({
     queryKey: MINISTRY_KEYS.detail(id),
     queryFn: () => getMinistryDetail(id!),
-    enabled: !!id,
+    enabled: !!id && !isGuest,
     staleTime: 60_000,
   });
 }
