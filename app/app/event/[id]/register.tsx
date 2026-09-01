@@ -54,7 +54,9 @@ export default function EventRegisterScreen() {
     return <BebasWebRedirect eventId={id} />;
   }
 
-  // Selected jemaat IDs — default pre-check self (kalau self belum daftar)
+  // Selected jemaat IDs — default pre-check self. Kalau self ternyata sudah
+  // terdaftar, `activeSelectedIds` di bawah akan filter out (jangan count
+  // atau submit yg sudah daftar).
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
     if (!user) return new Set();
     return new Set([user.jemaatId]);
@@ -91,6 +93,13 @@ export default function EventRegisterScreen() {
     setBebasError(null);
   }
 
+  // Filter out jemaat yg sudah terdaftar dari selection actual — self mungkin
+  // pre-checked tapi ternyata sudah punya participation (BE fetch async).
+  const activeSelectedIds = useMemo(
+    () => Array.from(selectedIds).filter((jid) => !alreadyRegisteredIds.has(jid)),
+    [selectedIds, alreadyRegisteredIds],
+  );
+
   const batchMutation = useMutation({
     mutationFn: async () => {
       if (!user || !event) throw new Error('Missing data');
@@ -101,9 +110,8 @@ export default function EventRegisterScreen() {
         const parsed = parseNominal(bebasNominal);
         nominalBayarPerOrang = parsed ?? 0;
       }
-      const jemaatIds = Array.from(selectedIds);
       return registerPesertaBatch(event.id, {
-        jemaatIds,
+        jemaatIds: activeSelectedIds,
         nominalBayarPerOrang,
         catatan: catatan || undefined,
       });
@@ -207,7 +215,7 @@ export default function EventRegisterScreen() {
   });
 
   function handleSubmit() {
-    if (selectedIds.size === 0) {
+    if (activeSelectedIds.length === 0) {
       Alert.alert(t('event.register_select_at_least_one'));
       return;
     }
@@ -232,12 +240,12 @@ export default function EventRegisterScreen() {
     return num !== null ? `Rp ${num.toLocaleString('id-ID')}` : '';
   })();
 
+  const selectedCount = activeSelectedIds.length;
   const submitDisabled =
     !event ||
-    selectedIds.size === 0 ||
+    selectedCount === 0 ||
     (isBebas && (parseNominal(bebasNominal) ?? 0) < 1000);
 
-  const selectedCount = selectedIds.size;
   const totalNominal =
     event?.tipeBayar === 'NOMINAL_TETAP'
       ? Number(event.nominal) * selectedCount

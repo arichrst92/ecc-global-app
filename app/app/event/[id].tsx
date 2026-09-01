@@ -466,29 +466,11 @@ export default function EventDetailScreen() {
                   />
                 </View>
               </View>
-            ) : participation ? (
-              <View>
-                <ParticipationCTA
-                  status={participation.status}
-                  tipeBayar={event.tipeBayar}
-                  priceLabel={priceLabel}
-                  onContinuePayment={() => router.push(`/event/${id}/payment`)}
-                />
-                {/* Sekunder: user bisa daftarkan family member lain */}
-                {!isFull ? (
-                  <Pressable
-                    onPress={() => router.push(`/event/${id}/register`)}
-                    className="py-2 mt-2 items-center"
-                  >
-                    <Text className="text-sm font-semibold text-brand-500">
-                      + {t('event.register_family_more')}
-                    </Text>
-                  </Pressable>
-                ) : null}
-              </View>
             ) : (
-              // Self belum daftar. Kalau family ada yg sudah daftar, label
-              // "Daftarkan Peserta Lain"; kalau kosong → "Daftar Sekarang".
+              // Bottom CTA hanya show register button (status confirmation
+              // section dihapus — sudah tampil per-tracker di atas). Label
+              // context-aware: "Daftarkan Peserta Lain" kalau ada tracker
+              // aktif, atau "Daftar Sekarang" kalau kosong.
               <View className="flex-row items-center gap-3">
                 <View>
                   <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
@@ -499,7 +481,7 @@ export default function EventDetailScreen() {
                     label={
                       isFull
                         ? t('event.quota_full')
-                        : familyParticipations.length > 0
+                        : familyParticipations.length > 0 || participation
                           ? t('event.register_family_more')
                           : t('event.register_now')
                     }
@@ -607,104 +589,6 @@ export default function EventDetailScreen() {
           </Pressable>
         </Pressable>
       </Modal>
-    </View>
-  );
-}
-
-function ParticipationCTA({
-  status,
-  tipeBayar,
-  priceLabel,
-  onContinuePayment,
-}: {
-  status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'HADIR' | 'BATAL';
-  tipeBayar: 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS';
-  priceLabel: string;
-  onContinuePayment: () => void;
-}) {
-  const { t } = useTranslation();
-  const isFree = tipeBayar === 'GRATIS';
-
-  // Cancel button dipindah ke detail modal (per-tracker). CTA bottom sekarang
-  // fokus ke primary action saja: lanjutkan pembayaran atau status confirmation.
-
-  // DAFTAR + berbayar → user sudah daftar tapi belum upload bukti
-  if (status === 'DAFTAR' && !isFree) {
-    return (
-      <View>
-        <View className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-3 flex-row items-center gap-2">
-          <Clock size={16} color="#D97706" />
-          <Text className="text-xs text-amber-800 flex-1 font-medium">
-            {t('event.continue_payment_notice')}
-          </Text>
-        </View>
-        <View className="flex-row items-center gap-3">
-          <View>
-            <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
-            <Text className="text-lg font-bold text-neutral-900">{priceLabel}</Text>
-          </View>
-          <View className="flex-1">
-            <Button
-              label={t('event.continue_payment')}
-              onPress={onContinuePayment}
-              fullWidth
-              size="lg"
-              leftIcon={<Upload size={16} color="#fff" />}
-            />
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  // MENUNGGU_VERIFIKASI → user sudah upload bukti, tunggu admin
-  if (status === 'MENUNGGU_VERIFIKASI') {
-    return (
-      <View className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex-row items-center gap-3">
-        <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
-          <Clock size={18} color="#fff" />
-        </View>
-        <View className="flex-1">
-          <Text className="font-semibold text-amber-900 text-sm">{t('event.status_menunggu')}</Text>
-          <Text className="text-xs text-amber-700 mt-0.5">
-            {t('event.waiting_admin_verification')}
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
-  // BAYAR → confirmed, tunggu hari H untuk hadir
-  if (status === 'BAYAR') {
-    return (
-      <View className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex-row items-center gap-3">
-        <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
-          <CheckCircle2 size={18} color="#fff" />
-        </View>
-        <View className="flex-1">
-          <Text className="font-semibold text-emerald-900 text-sm">{t('event.status_bayar')}</Text>
-          <Text className="text-xs text-emerald-700 mt-0.5">
-            {t('event.see_you_at_event')}
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
-  // HADIR atau DAFTAR-gratis → success confirmation
-  return (
-    <View className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex-row items-center gap-3">
-      <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
-        <Check size={18} color="#fff" />
-      </View>
-      <View className="flex-1">
-        <Text className="font-semibold text-emerald-900 text-sm">
-          {status === 'HADIR' ? t('event.status_hadir') : t('event.already_registered')}
-        </Text>
-        <Text className="text-xs text-emerald-700 mt-0.5">
-          {status === 'HADIR' ? t('event.attended_thanks') : t('event.see_you_at_event')}
-        </Text>
-      </View>
     </View>
   );
 }
