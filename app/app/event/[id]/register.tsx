@@ -15,8 +15,7 @@ import { useMyFamily } from '@/hooks/useFamily';
 import { useAuthStore } from '@/stores/auth.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
-import { registerPeserta } from '@/api/event';
-import type { EventParticipation } from '@/types/event';
+import { registerPesertaBatch } from '@/api/event';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { formatDate } from '@/utils/date';
 import { ApiError } from '@/types/api';
@@ -101,56 +100,25 @@ export default function EventRegisterScreen() {
     [selectedIds, alreadyRegisteredIds],
   );
 
-  // WORKAROUND: BE batch endpoint (`POST /peserta/batch`) TIDAK support
-  // reactivate BATAL row → DAFTAR (unique constraint hit). Single endpoint
-  // (`POST /peserta`) sudah support (BE patch 21g). Loop parallel single calls
-  // sampai BE fix batch reactivate. Trade-off: N HTTP requests bukan 1.
-  // BE fix request: `docs/backend-request-batch-reactivate.md`.
+  // v2.0.0: revert workaround loop-of-singles → kembali ke batch endpoint.
+  // BE fix delivered 2026-09-01 (per docs/be-update-2026-09-01-batch-reactivate-
+  // and-payment-history-fix.md): batch endpoint sekarang reactivate BATAL rows
+  // sama seperti single endpoint. Failed code untuk row aktif = `ALREADY_REGISTERED`.
   const batchMutation = useMutation({
-    mutationFn: async (): Promise<{
-      successful: EventParticipation[];
-      failed: Array<{ jemaatId: string; error: { code: string; message: string } }>;
-    }> => {
+    mutationFn: async () => {
       if (!user || !event) throw new Error('Missing data');
-      let nominalBayar: number | undefined;
+      let nominalBayarPerOrang: number | undefined;
       if (event.tipeBayar === 'NOMINAL_TETAP') {
-        nominalBayar = Number(event.nominal);
+        nominalBayarPerOrang = Number(event.nominal);
       } else if (event.tipeBayar === 'NOMINAL_BEBAS') {
         const parsed = parseNominal(bebasNominal);
-        nominalBayar = parsed ?? 0;
+        nominalBayarPerOrang = parsed ?? 0;
       }
-      // Parallel single-register calls. Each call reactivates BATAL kalau ada.
-      const results = await Promise.allSettled(
-        activeSelectedIds.map((jemaatId) =>
-          registerPeserta(event.id, {
-            jemaatId,
-            nominalBayar,
-            catatan: catatan || undefined,
-          }),
-        ),
-      );
-      const successful: EventParticipation[] = [];
-      const failed: Array<{
-        jemaatId: string;
-        error: { code: string; message: string };
-      }> = [];
-      results.forEach((r, i) => {
-        const jemaatId = activeSelectedIds[i];
-        if (r.status === 'fulfilled') {
-          successful.push(r.value);
-        } else {
-          const err = r.reason;
-          if (err instanceof ApiError) {
-            failed.push({ jemaatId, error: { code: err.code, message: err.message } });
-          } else {
-            failed.push({
-              jemaatId,
-              error: { code: 'UNKNOWN', message: t('error.network') },
-            });
-          }
-        }
+      return registerPesertaBatch(event.id, {
+        jemaatIds: activeSelectedIds,
+        nominalBayarPerOrang,
+        catatan: catatan || undefined,
       });
-      return { successful, failed };
     },
     onSuccess: async (data) => {
       // Persist self participation ke local store kalau sukses (offline fallback)

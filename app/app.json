@@ -2,7 +2,7 @@
   "expo": {
     "name": "Els App",
     "slug": "ecc-mobile-app",
-    "version": "1.9.5",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/ecc-icon.png",
     "scheme": "ecc",
@@ -25,7 +25,10 @@
           }
         ]
       },
-      "associatedDomains": []
+      "associatedDomains": [
+        "applinks:eccchurch.global",
+        "applinks:www.eccchurch.global"
+      ]
     },
     "android": {
       "package": "idea.eccchurch.global",
@@ -44,6 +47,63 @@
             {
               "scheme": "ecc",
               "host": "auth"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "eccchurch.global",
+              "pathPrefix": "/event"
+            },
+            {
+              "scheme": "https",
+              "host": "eccchurch.global",
+              "pathPrefix": "/ibadah"
+            },
+            {
+              "scheme": "https",
+              "host": "eccchurch.global",
+              "pathPrefix": "/content"
+            },
+            {
+              "scheme": "https",
+              "host": "eccchurch.global",
+              "pathPrefix": "/renungan"
+            },
+            {
+              "scheme": "https",
+              "host": "eccchurch.global",
+              "pathPrefix": "/news"
+            },
+            {
+              "scheme": "https",
+              "host": "www.eccchurch.global",
+              "pathPrefix": "/event"
+            },
+            {
+              "scheme": "https",
+              "host": "www.eccchurch.global",
+              "pathPrefix": "/ibadah"
+            },
+            {
+              "scheme": "https",
+              "host": "www.eccchurch.global",
+              "pathPrefix": "/content"
+            },
+            {
+              "scheme": "https",
+              "host": "www.eccchurch.global",
+              "pathPrefix": "/renungan"
+            },
+            {
+              "scheme": "https",
+              "host": "www.eccchurch.global",
+              "pathPrefix": "/news"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
