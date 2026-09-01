@@ -102,7 +102,6 @@ export default function EventPaymentScreen() {
       }
       // Invalidate event queries supaya myParticipation.status di detail ke-update
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
-      await queryClient.invalidateQueries({ queryKey: ['event', 'my-participation', id] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
       // Local notification — bukti pembayaran terupload, menunggu verifikasi admin
       if (event) {

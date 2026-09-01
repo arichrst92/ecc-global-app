@@ -498,7 +498,20 @@
     "cancel_not_family": "Anda tidak diizinkan membatalkan pendaftaran ini",
     "payment_for_family": "Pembayaran untuk",
     "payment_target_not_found_title": "Pendaftaran Tidak Ditemukan",
-    "payment_target_not_found_body": "Pendaftaran yang ingin dibayar tidak ditemukan atau sudah dibatalkan."
+    "payment_target_not_found_body": "Pendaftaran yang ingin dibayar tidak ditemukan atau sudah dibatalkan.",
+    "per_person": "per orang",
+    "register_select_participants": "Pilih Peserta",
+    "selected": "dipilih",
+    "already_registered_short": "Sudah Daftar",
+    "no_family_yet": "Belum ada anggota keluarga yang terhubung. Tambah di menu Keluarga.",
+    "no_phone": "Tanpa nomor HP",
+    "total_for_selected": "Total untuk {{count}} peserta",
+    "register_confirm_multi": "Daftarkan {{count}} Peserta",
+    "register_select_at_least_one": "Pilih minimal 1 peserta",
+    "register_partial_title": "Sebagian Berhasil",
+    "register_partial_body": "Berhasil daftar: {{success}}\nGagal: {{failed}}\n\nDetail:\n{{details}}",
+    "register_multi_success_title": "Pendaftaran Berhasil",
+    "register_multi_success_body": "{{count}} peserta berhasil didaftarkan. Silakan buka setiap tracker di halaman event untuk upload bukti pembayaran."
   },
   "branch": {
     "active_label": "Cabang aktif",
@@ -590,7 +603,8 @@
     "event_payment_body": "Pembayaran untuk \"{{judul}}\" menunggu verifikasi admin (1-24 jam).",
     "event_donation_title": "Donasi tercatat",
     "event_donation_body": "Donasi Anda untuk \"{{judul}}\" terupload. Menunggu verifikasi admin.",
-    "event_payment_body_family": "Bukti pembayaran {{judul}} atas nama {{nama}} sudah terupload"
+    "event_payment_body_family": "Bukti pembayaran {{judul}} atas nama {{nama}} sudah terupload",
+    "event_register_body_family": "{{nama}} berhasil didaftarkan di event {{judul}}"
   },
   "notifications": {
     "title": "Notifikasi",

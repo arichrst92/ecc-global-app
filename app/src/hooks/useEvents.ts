@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import {
   listEvents,
   getEventDetail,
-  getMyParticipation,
   listMyDonations,
   listMineAndFamilyParticipations,
 } from '@/api/event';
@@ -82,27 +81,6 @@ export function useEventDetail(idOrSlug: string | undefined) {
         : getEventDetail(idOrSlug!),
     enabled: !!idOrSlug,
     staleTime: 5 * 60_000,
-  });
-}
-
-/** Fetch user's participation di event ini sebagai standalone query.
- * Pakai post-mutation untuk refresh ringan tanpa refetch detail penuh.
- *
- * Returns null kalau BE balas NOT_FOUND (user belum daftar). Throws untuk error
- * lain. */
-export function useMyParticipation(idOrSlug: string | undefined, enabled = true) {
-  return useQuery<EventParticipation | null>({
-    queryKey: ['event', 'my-participation', idOrSlug],
-    queryFn: async () => {
-      try {
-        return await getMyParticipation(idOrSlug!);
-      } catch (err) {
-        if (err instanceof ApiError && err.code === 'NOT_FOUND') return null;
-        throw err;
-      }
-    },
-    enabled: !!idOrSlug && enabled,
-    staleTime: 60_000, // 1 menit — refresh lebih sering daripada detail
   });
 }
 

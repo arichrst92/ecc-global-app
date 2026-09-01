@@ -36,16 +36,6 @@ export function getEventDetail(idOrSlug: string) {
   return api.get<EventDetail>(`/admin/event/${idOrSlug}`);
 }
 
-/** GET /admin/event/:idOrSlug/peserta/me — fetch user's participation.
- * Per BE patch 2026-05-21i. Returns participation row atau throws ApiError
- * dengan code 'NOT_FOUND' kalau user belum daftar.
- *
- * Pakai post-mutation (register/cancel/upload) supaya lebih ringan daripada
- * refetch detail penuh. Untuk initial load, prefer `myParticipation` di detail. */
-export function getMyParticipation(idOrSlug: string) {
-  return api.get<EventParticipation>(`/admin/event/${idOrSlug}/peserta/me`);
-}
-
 type RegisterPayload = {
   jemaatId: string;
   nominalBayar?: number;
@@ -121,40 +111,6 @@ export async function selfCancelParticipation(
   if (!json.success) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     throw new ApiError({ code: json.error.code as any, message: json.error.message }, res.status);
-  }
-  return {
-    participation: json.data,
-    alreadyCancelled: !!json.meta?.alreadyCancelled,
-  };
-}
-
-/**
- * DELETE /admin/event/:eventId/peserta/me — cancel registrasi sendiri.
- * Per BE patch 2026-05-21g. Resolve current user dari JWT, mobile tidak perlu
- * kirim participationId.
- *
- * Idempotent: kalau status sudah BATAL, return 200 + meta.alreadyCancelled.
- * Rejected dengan 400 kalau status = HADIR.
- * Rejected dengan 404 kalau user belum terdaftar di event ini.
- *
- * Returns custom shape karena perlu akses ke `meta.alreadyCancelled` —
- * api.delete wrapper strip meta.
- */
-export async function cancelMyParticipation(eventId: string): Promise<{
-  participation: EventParticipation;
-  alreadyCancelled: boolean;
-}> {
-  const accessToken = useAuthStore.getState().accessToken;
-  const res = await fetch(`${env.apiBaseUrl}/admin/event/${eventId}/peserta/me`, {
-    method: 'DELETE',
-    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-  });
-  const json = (await res.json()) as
-    | { success: true; data: EventParticipation; meta?: { alreadyCancelled?: boolean } }
-    | { success: false; error: { code: 'NOT_FOUND' | 'BAD_REQUEST' | 'UNAUTHORIZED'; message: string } };
-
-  if (!json.success) {
-    throw new ApiError(json.error, res.status);
   }
   return {
     participation: json.data,

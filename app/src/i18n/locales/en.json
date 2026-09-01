@@ -498,7 +498,20 @@
     "cancel_not_family": "You are not allowed to cancel this registration",
     "payment_for_family": "Payment for",
     "payment_target_not_found_title": "Registration Not Found",
-    "payment_target_not_found_body": "The registration you want to pay for was not found or has been cancelled."
+    "payment_target_not_found_body": "The registration you want to pay for was not found or has been cancelled.",
+    "per_person": "per person",
+    "register_select_participants": "Select Participants",
+    "selected": "selected",
+    "already_registered_short": "Already Registered",
+    "no_family_yet": "No family members linked yet. Add via the Family menu.",
+    "no_phone": "No phone number",
+    "total_for_selected": "Total for {{count}} participants",
+    "register_confirm_multi": "Register {{count}} Participants",
+    "register_select_at_least_one": "Select at least 1 participant",
+    "register_partial_title": "Partial Success",
+    "register_partial_body": "Registered: {{success}}\nFailed: {{failed}}\n\nDetails:\n{{details}}",
+    "register_multi_success_title": "Registration Success",
+    "register_multi_success_body": "{{count}} participants registered. Open each tracker on the event page to upload payment proof."
   },
   "branch": {
     "active_label": "Active branch",
@@ -590,7 +603,8 @@
     "event_payment_body": "Payment for \"{{judul}}\" awaiting admin verification (1-24 hours).",
     "event_donation_title": "Donation recorded",
     "event_donation_body": "Your donation for \"{{judul}}\" uploaded. Awaiting admin verification.",
-    "event_payment_body_family": "Payment proof for {{judul}} on behalf of {{nama}} has been uploaded"
+    "event_payment_body_family": "Payment proof for {{judul}} on behalf of {{nama}} has been uploaded",
+    "event_register_body_family": "{{nama}} has been registered for {{judul}}"
   },
   "notifications": {
     "title": "Notifications",
