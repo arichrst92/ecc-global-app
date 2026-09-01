@@ -1015,7 +1015,8 @@
     "sample_available_title": "Featured Chapters Available",
     "sample_available_msg": "These popular chapters are ready to read now.",
     "choose_version": "Choose Bible Version",
-    "chapter_not_found": "Chapter not found."
+    "chapter_not_found": "Chapter not found.",
+    "login_required_bookmark": "Sign in to save verse bookmarks"
   },
   "calendar": {
     "title": "Calendar",

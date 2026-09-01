@@ -13,6 +13,7 @@ import {
   updateVisitMeta,
   updateVisitNote,
 } from '@/api/visit';
+import { useAuthStore } from '@/stores/auth.store';
 import type {
   CreateVisitPayload,
   UpdateVisitMetaPayload,
@@ -25,13 +26,15 @@ const PAGE_LIMIT = 20;
 
 /**
  * Infinite scroll list visit saya — filter by role/dateRange/search.
- * Pagination otomatis via fetchNextPage.
+ * Pagination otomatis via fetchNextPage. Guest → disabled (endpoint require auth).
  */
 export function useMyVisits(filter: Omit<VisitListQuery, 'page' | 'limit'> = {}) {
+  const isGuest = useAuthStore((s) => s.isGuest);
   return useInfiniteQuery({
     queryKey: [...VISIT_LIST_KEY, filter],
     queryFn: ({ pageParam = 1 }) =>
       listMyVisits({ ...filter, page: pageParam, limit: PAGE_LIMIT }),
+    enabled: !isGuest,
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       const { page, totalPages } = lastPage.meta;
@@ -41,12 +44,13 @@ export function useMyVisits(filter: Omit<VisitListQuery, 'page' | 'limit'> = {})
   });
 }
 
-/** Detail visit. */
+/** Detail visit. Guest → disabled. */
 export function useVisitDetail(id: string | undefined) {
+  const isGuest = useAuthStore((s) => s.isGuest);
   return useQuery({
     queryKey: ['visit', 'detail', id],
     queryFn: () => getVisitDetail(id!),
-    enabled: !!id,
+    enabled: !!id && !isGuest,
     staleTime: 30_000,
   });
 }

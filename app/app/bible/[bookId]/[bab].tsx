@@ -29,6 +29,7 @@ import {
   BIBLE_VERSION_BY_CODE,
   getChapter,
 } from '@/data/bible';
+import { useAuthStore } from '@/stores/auth.store';
 import { useBibleStore } from '@/stores/bible.store';
 import type {
   BibleFontSize,
@@ -53,6 +54,7 @@ export default function BibleChapterScreen() {
   const bab = Number(params.bab);
   const book = BIBLE_BOOK_BY_ID.get(bookId);
   const showToast = useToast((s) => s.show);
+  const isGuest = useAuthStore((s) => s.isGuest);
 
   const fontSize = useBibleStore((s) => s.fontSize);
   const setFontSize = useBibleStore((s) => s.setFontSize);
@@ -107,6 +109,13 @@ export default function BibleChapterScreen() {
   }
 
   function toggleChapterBookmark() {
+    // Bookmark keyed per-jemaatId di store. Guest tidak punya jemaatId → store
+    // silently no-op. Tanpa gate ini, toast "bookmarked" tampil false-positive
+    // padahal bookmark tidak tersimpan.
+    if (isGuest) {
+      showToast(t('bible.login_required_bookmark'), 'info');
+      return;
+    }
     if (isBabBookmarked) {
       removeBookmark(ref, null);
       showToast(t('bible.remove_bookmark'), 'info');
@@ -130,6 +139,11 @@ export default function BibleChapterScreen() {
   }
 
   function toggleVerseBookmark(verse: BibleVerse) {
+    // Same guest guard as toggleChapterBookmark above.
+    if (isGuest) {
+      showToast(t('bible.login_required_bookmark'), 'info');
+      return;
+    }
     const verseRef = ref;
     if (isBookmarked(verseRef, verse.nomor)) {
       removeBookmark(verseRef, verse.nomor);

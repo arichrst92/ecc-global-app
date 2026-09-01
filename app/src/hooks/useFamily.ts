@@ -9,6 +9,7 @@ import {
   updateFamilyRole,
   unlinkFamily,
 } from '@/api/family';
+import { useAuthStore } from '@/stores/auth.store';
 import type {
   FamilyRole,
   LinkByKodePayload,
@@ -17,11 +18,14 @@ import type {
 
 const FAMILY_QUERY_KEY = ['family', 'list'] as const;
 
-/** List family members current user */
+/** List family members current user. Guest mode → hook disabled (endpoint
+ *  require auth, hindari 401 spam untuk guest yang buka /family screen). */
 export function useMyFamily() {
+  const isGuest = useAuthStore((s) => s.isGuest);
   return useQuery({
     queryKey: FAMILY_QUERY_KEY,
     queryFn: listFamily,
+    enabled: !isGuest,
     staleTime: 5 * 60_000,
   });
 }
