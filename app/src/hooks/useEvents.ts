@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import {
   listEvents,
   getEventDetail,
-  listMyDonations,
   listMineAndFamilyParticipations,
 } from '@/api/event';
 import { publicEventDetail } from '@/api/publicGuest';
@@ -110,26 +109,5 @@ export function useMyEventParticipations(idOrSlug: string | undefined) {
   });
 }
 
-/**
- * Fetch user's donations untuk event ini. Per BE patch 2026-05-21l.
- * Returns donations[] + totalConfirmed (SUM nominal status=BAYAR).
- * Untuk NOMINAL_BEBAS bisa berisi banyak rows; untuk NOMINAL_TETAP biasanya 1.
- */
-export function useMyDonations(idOrSlug: string | undefined, enabled = true) {
-  return useQuery({
-    queryKey: ['event', 'my-donations', idOrSlug],
-    queryFn: async () => {
-      try {
-        return await listMyDonations(idOrSlug!);
-      } catch (err) {
-        // NOT_FOUND = user belum punya participation → no donations
-        if (err instanceof ApiError && err.code === 'NOT_FOUND') {
-          return { donations: [], totalConfirmed: 0 };
-        }
-        throw err;
-      }
-    },
-    enabled: !!idOrSlug && enabled,
-    staleTime: 60_000,
-  });
-}
+// useMyDonations REMOVED di v1.9.3 — donation flow full via web.
+// Restore dari git kalau perlu read-only donation history di mobile lagi.

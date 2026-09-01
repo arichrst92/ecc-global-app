@@ -104,29 +104,5 @@ export type BatchRegisterResponse = {
   }>;
 };
 
-/** EventDonation status — per BE patch 2026-05-21l */
-export type DonationStatus = 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'BATAL';
-
-/** Single donation row per BE patch 2026-05-21l.
- * One participation dapat punya banyak donation rows (multi-donation untuk
- * NOMINAL_BEBAS fundraising). Untuk NOMINAL_TETAP biasanya 1 donation per
- * participation. */
-export type EventDonation = {
-  id: string;
-  participationId: string;
-  nominalBayar: string; // Decimal string
-  buktiTransferUrl?: string | null;
-  status: DonationStatus;
-  catatan?: string | null;
-  paidAt?: string | null;
-  approvedBy?: string | null;
-  approvedAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-/** Response GET /admin/event/:id/donations/me — list user's donations + total */
-export type MyDonationsResponse = {
-  donations: EventDonation[];
-  totalConfirmed: number;
-};
+// EventDonation types REMOVED di v1.9.3. Donation flow full via web (Apple
+// 3.2.2iv). Kalau perlu re-add, restore dari git history commit sebelum v1.9.3.
