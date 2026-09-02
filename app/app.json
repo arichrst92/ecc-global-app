@@ -129,6 +129,13 @@
       "expo-font",
       "expo-web-browser",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Els App membutuhkan akses galeri foto untuk mengunggah bukti pembayaran event dan foto profil.",
+          "cameraPermission": "Els App membutuhkan akses kamera untuk mengambil foto bukti pembayaran dan foto profil."
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {
