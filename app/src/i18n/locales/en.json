@@ -892,7 +892,14 @@
     "join_already_member": "You are already a member of this ministry.",
     "join_error": "Could not join. Please try again or contact the leader.",
     "closed_notice": "This ministry is currently not accepting new members.",
-    "member_whatsapp": "WhatsApp chat"
+    "member_whatsapp": "WhatsApp chat",
+    "join_modal_title": "Choose Your Role",
+    "join_role_label": "Role",
+    "join_role_hint": "Leave blank for default role",
+    "join_motivasi_label": "Motivation (optional)",
+    "join_motivasi_placeholder": "Briefly share why you want to join...",
+    "join_confirm": "Confirm Join",
+    "join_cancel": "Cancel"
   },
   "homecell": {
     "title": "My Homecells",

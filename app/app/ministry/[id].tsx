@@ -5,13 +5,16 @@
  * "Join" button → WA leader (Phase 1 — POST /admin/ministry/:id/join deferred
  * to Phase 2).
  */
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
+  Modal,
   Pressable,
+  RefreshControl,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,16 +23,18 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   CheckCircle2,
+  Circle,
   HeartHandshake,
   MessageCircle,
   Users,
+  X,
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useJoinMinistry, useMinistryDetail } from '@/hooks/useMinistry';
-import type { MinistryMember } from '@/types/ministry';
+import type { MinistryMember, MinistryRole } from '@/types/ministry';
 import { ApiError } from '@/types/api';
 
 export default function MinistryDetailScreen() {
@@ -42,38 +47,66 @@ export default function MinistryDetailScreen() {
   const ministry = query.data;
   const joinMutation = useJoinMinistry(id);
 
-  function handleJoin() {
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
+  const [motivasi, setMotivasi] = useState('');
+
+  function submitJoin(payload: { roleId?: string; motivasi?: string }) {
     if (!ministry) return;
-    joinMutation.mutate(
-      {},
-      {
-        onSuccess: (data) => {
-          showToast(
-            t('ministry.join_success', {
-              ministry: ministry.nama,
-              posisi: data.posisi,
-            }),
-            'success',
-          );
-        },
-        onError: (err) => {
-          if (err instanceof ApiError) {
-            // BE returns code 'CONFLICT' or explicit 'ALREADY_MEMBER' string in message
-            const isAlreadyMember =
-              err.status === 409 ||
-              /already/i.test(err.message ?? '') ||
-              /sudah/i.test(err.message ?? '');
-            if (isAlreadyMember) {
-              showToast(t('ministry.join_already_member'), 'info');
-              return;
-            }
-            showToast(err.message || t('ministry.join_error'), 'error');
-          } else {
-            showToast(t('ministry.join_error'), 'error');
-          }
-        },
+    joinMutation.mutate(payload, {
+      onSuccess: (data) => {
+        setShowJoinModal(false);
+        setSelectedRoleId(null);
+        setMotivasi('');
+        showToast(
+          t('ministry.join_success', {
+            ministry: ministry.nama,
+            posisi: data.posisi,
+          }),
+          'success',
+        );
       },
-    );
+      onError: (err) => {
+        if (err instanceof ApiError) {
+          // BE returns code 'CONFLICT' or explicit 'ALREADY_MEMBER' string in message
+          const isAlreadyMember =
+            err.status === 409 ||
+            /already/i.test(err.message ?? '') ||
+            /sudah/i.test(err.message ?? '');
+          if (isAlreadyMember) {
+            showToast(t('ministry.join_already_member'), 'info');
+            return;
+          }
+          showToast(err.message || t('ministry.join_error'), 'error');
+        } else {
+          showToast(t('ministry.join_error'), 'error');
+        }
+      },
+    });
+  }
+
+  function handleJoinPress() {
+    if (!ministry) return;
+    // Backward compat — kalau ministry tidak punya role list, langsung join
+    // dengan empty payload (BE auto-assign role level terendah).
+    if (!ministry.roles || ministry.roles.length === 0) {
+      submitJoin({});
+      return;
+    }
+    // Default select role dengan level terendah — paling umum untuk anggota baru.
+    const lowestLevelRole = [...ministry.roles].sort(
+      (a, b) => a.level - b.level,
+    )[0];
+    setSelectedRoleId(lowestLevelRole?.id ?? null);
+    setMotivasi('');
+    setShowJoinModal(true);
+  }
+
+  function handleConfirmJoin() {
+    submitJoin({
+      roleId: selectedRoleId ?? undefined,
+      motivasi: motivasi.trim() || undefined,
+    });
   }
 
   // Group members by posisi (role pelayanan). Order group by level DESC
@@ -194,6 +227,13 @@ export default function MinistryDetailScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={query.isRefetching}
+            onRefresh={() => query.refetch()}
+            tintColor="#F97316"
+          />
+        }
       >
         {/* Deskripsi */}
         {ministry.deskripsi ? (
@@ -317,7 +357,7 @@ export default function MinistryDetailScreen() {
         {!ministry.myMembership && ministry.isOpen ? (
           <View className="mt-6">
             <Button
-              onPress={handleJoin}
+              onPress={handleJoinPress}
               disabled={joinMutation.isPending}
               loading={joinMutation.isPending}
               label={t('ministry.join_cta')}
@@ -339,6 +379,162 @@ export default function MinistryDetailScreen() {
           </View>
         ) : null}
       </ScrollView>
+
+      {/* Join role picker modal — slide-up sheet, pattern konsisten dengan
+          event detail modal (app/event/[id].tsx). */}
+      <JoinMinistryModal
+        visible={showJoinModal}
+        roles={ministry.roles ?? []}
+        selectedRoleId={selectedRoleId}
+        onSelectRole={setSelectedRoleId}
+        motivasi={motivasi}
+        onChangeMotivasi={setMotivasi}
+        submitting={joinMutation.isPending}
+        onClose={() => setShowJoinModal(false)}
+        onConfirm={handleConfirmJoin}
+      />
     </View>
+  );
+}
+
+function JoinMinistryModal({
+  visible,
+  roles,
+  selectedRoleId,
+  onSelectRole,
+  motivasi,
+  onChangeMotivasi,
+  submitting,
+  onClose,
+  onConfirm,
+}: {
+  visible: boolean;
+  roles: MinistryRole[];
+  selectedRoleId: string | null;
+  onSelectRole: (roleId: string | null) => void;
+  motivasi: string;
+  onChangeMotivasi: (value: string) => void;
+  submitting: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        {/* Tap backdrop untuk close */}
+        <Pressable style={{ flex: 1 }} onPress={onClose} />
+        <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#fff' }}>
+          <View className="bg-white rounded-t-3xl overflow-hidden">
+            {/* Handle bar */}
+            <View className="items-center pt-3 pb-1">
+              <View className="w-10 h-1 rounded-full bg-neutral-300" />
+            </View>
+
+            {/* Header */}
+            <View className="px-5 pt-2 pb-3 flex-row items-center justify-between border-b border-neutral-100">
+              <Text className="text-lg font-bold text-neutral-900">
+                {t('ministry.join_modal_title')}
+              </Text>
+              <Pressable
+                onPress={onClose}
+                className="w-9 h-9 rounded-full bg-neutral-100 items-center justify-center"
+                accessibilityLabel={t('common.close') ?? 'Close'}
+              >
+                <X size={18} color="#171717" />
+              </Pressable>
+            </View>
+
+            <ScrollView
+              style={{ maxHeight: '70%' }}
+              contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}
+            >
+              {/* Role list */}
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+                {t('ministry.join_role_label')}
+              </Text>
+              <View className="bg-white rounded-2xl border border-neutral-100 mb-1">
+                {roles.map((role, idx) => {
+                  const isSelected = selectedRoleId === role.id;
+                  return (
+                    <Pressable
+                      key={role.id}
+                      onPress={() => onSelectRole(role.id)}
+                      className={`p-3 flex-row items-center gap-3 ${
+                        idx > 0 ? 'border-t border-neutral-100' : ''
+                      }`}
+                    >
+                      {isSelected ? (
+                        <CheckCircle2 size={20} color="#F97316" />
+                      ) : (
+                        <Circle size={20} color="#D4D4D4" />
+                      )}
+                      <Text
+                        className={`text-sm flex-1 ${
+                          isSelected
+                            ? 'font-semibold text-neutral-900'
+                            : 'text-neutral-700'
+                        }`}
+                      >
+                        {role.nama}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Text className="text-[11px] text-neutral-500 mb-4 leading-relaxed">
+                {t('ministry.join_role_hint')}
+              </Text>
+
+              {/* Motivasi */}
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+                {t('ministry.join_motivasi_label')}
+              </Text>
+              <TextInput
+                value={motivasi}
+                onChangeText={onChangeMotivasi}
+                placeholder={t('ministry.join_motivasi_placeholder') ?? ''}
+                placeholderTextColor="#A3A3A3"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+                className="bg-white rounded-2xl border border-neutral-200 px-3 py-3 text-sm text-neutral-900 mb-4"
+                style={{ minHeight: 80 }}
+              />
+            </ScrollView>
+
+            {/* Actions */}
+            <View className="px-5 pb-5 pt-2 border-t border-neutral-100 flex-row gap-3">
+              <View className="flex-1">
+                <Button
+                  onPress={onClose}
+                  label={t('ministry.join_cancel')}
+                  variant="secondary"
+                  fullWidth
+                  disabled={submitting}
+                />
+              </View>
+              <View className="flex-1">
+                <Button
+                  onPress={onConfirm}
+                  label={t('ministry.join_confirm')}
+                  variant="primary"
+                  fullWidth
+                  loading={submitting}
+                  disabled={submitting}
+                />
+              </View>
+            </View>
+          </View>
+        </SafeAreaView>
+      </View>
+    </Modal>
   );
 }

@@ -892,7 +892,14 @@
     "join_already_member": "Anda sudah menjadi anggota ministry ini.",
     "join_error": "Gagal join. Coba lagi atau hubungi leader.",
     "closed_notice": "Ministry ini sedang tidak menerima anggota baru.",
-    "member_whatsapp": "Chat WhatsApp"
+    "member_whatsapp": "Chat WhatsApp",
+    "join_modal_title": "Pilih Peran Anda",
+    "join_role_label": "Peran",
+    "join_role_hint": "Kosongkan untuk peran default",
+    "join_motivasi_label": "Motivasi (opsional)",
+    "join_motivasi_placeholder": "Ceritakan singkat kenapa ingin bergabung...",
+    "join_confirm": "Konfirmasi Gabung",
+    "join_cancel": "Batal"
   },
   "homecell": {
     "title": "Homecell Saya",
