@@ -111,9 +111,26 @@ export const BIBLE_VERSION_BY_CODE = new Map(
 );
 
 /**
+ * Regex detect pointer verse — content BIMK kadang pakai format `(X:Y)` untuk
+ * verses yang content-nya sudah di-merge dengan parent verse (common di
+ * genealogy Matius 1: verse 3-5 pointer ke 1:2, karena isi 3-5 sudah
+ * digabung di dalam text verse 2). Ini intentional dari BIMK translation
+ * source — bukan bug data.
+ */
+const POINTER_REGEX = /^\s*\((\d+):(\d+)\)\s*$/;
+
+function isPointerVerse(teks: string): boolean {
+  return POINTER_REGEX.test(teks);
+}
+
+/**
  * Get a chapter from the specified version. Async — versi JSON di-lazy-load
  * on-demand (lihat loadVersion di atas), lalu di-cache untuk call berikutnya.
  * Returns null kalau bookId / bab di luar range.
+ *
+ * Pointer verses (mis. Matius 1:3 = "(1:2)") di-group dengan parent verse
+ * sebagai range — nomor 3-5 hidden dari list, parent verse 2 dapat
+ * `nomorEnd: 5` sehingga UI bisa render "2-5" (range label).
  */
 export async function getChapter(
   versionCode: BibleVersionCode,
@@ -129,10 +146,21 @@ export async function getChapter(
   const chapter = book.chapters.find((c) => c.bab === bab);
   if (!chapter) return null;
 
-  const ayat: BibleVerse[] = chapter.verses.map((v) => ({
-    nomor: v.nomor,
-    teks: v.teks,
-  }));
+  // Group pointer verses dengan parent (content) verse. Iterate: kalau
+  // pointer, extend parent's nomorEnd. Kalau non-pointer, jadi parent baru.
+  const ayat: BibleVerse[] = [];
+  for (const v of chapter.verses) {
+    if (isPointerVerse(v.teks) && ayat.length > 0) {
+      // Merge pointer ke parent terakhir — extend range
+      const parent = ayat[ayat.length - 1];
+      parent.nomorEnd = v.nomor;
+    } else {
+      ayat.push({
+        nomor: v.nomor,
+        teks: v.teks,
+      });
+    }
+  }
 
   const ref = `${book.id} ${bab}`;
   return {
@@ -152,16 +180,46 @@ export async function hasChapter(
   return (await getChapter(versionCode, bookId, bab)) !== null;
 }
 
-/** Get a single verse (untuk verse-of-day lookup). */
+/**
+ * Get a single verse (untuk verse-of-day lookup).
+ *
+ * Resolve pointer: kalau target verse content-nya berupa pointer `(X:Y)`,
+ * follow ke actual verse. Kalau nomor requested masuk dalam range parent
+ * verse (mis. request 1:3 → parent 1:2 dengan range 2-5), return parent
+ * verse text tapi dengan nomor asli requested. Max 1 hop supaya no infinite.
+ */
 export async function getVerse(
   versionCode: BibleVersionCode,
   bookId: number,
   bab: number,
   nomor: number,
 ): Promise<BibleVerse | null> {
-  const chapter = await getChapter(versionCode, bookId, bab);
+  const raw = await loadVersion(versionCode);
+  if (!raw) return null;
+  const book = raw.books.find((b) => b.numericId === bookId);
+  if (!book) return null;
+  const chapter = book.chapters.find((c) => c.bab === bab);
   if (!chapter) return null;
-  return chapter.ayat.find((v) => v.nomor === nomor) ?? null;
+
+  // Cari raw verse dulu (tanpa grouping) supaya bisa detect pointer.
+  const raw_verse = chapter.verses.find((v) => v.nomor === nomor);
+  if (!raw_verse) return null;
+
+  // Kalau bukan pointer, return as-is.
+  const m = POINTER_REGEX.exec(raw_verse.teks);
+  if (!m) return { nomor: raw_verse.nomor, teks: raw_verse.teks };
+
+  // Pointer format `(X:Y)` — resolve ke target verse.
+  const targetBab = Number(m[1]);
+  const targetNomor = Number(m[2]);
+  const targetChapter =
+    targetBab === bab ? chapter : book.chapters.find((c) => c.bab === targetBab);
+  const targetVerse = targetChapter?.verses.find((v) => v.nomor === targetNomor);
+  if (!targetVerse || isPointerVerse(targetVerse.teks)) {
+    // Fallback: tidak bisa resolve, kembalikan raw pointer teks (better than null)
+    return { nomor: raw_verse.nomor, teks: raw_verse.teks };
+  }
+  return { nomor: raw_verse.nomor, teks: targetVerse.teks };
 }
 
 /** Map standardized 3-letter code → numeric id 1-66 (untuk debug / future use). */

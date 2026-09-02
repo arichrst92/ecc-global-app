@@ -48,6 +48,10 @@ export type BibleVerse = {
   nomor: number;
   /** Teks ayat */
   teks: string;
+  /** Nomor ayat akhir untuk range grouping — hanya di-set kalau parent verse
+   *  merge dengan pointer verses berikutnya (mis. BIMK Matius 1:2 dengan
+   *  pointer 1:3-5, parent verse dapat `nomorEnd: 5` → render "2-5"). */
+  nomorEnd?: number;
 };
 
 export type BibleChapter = {

@@ -257,7 +257,9 @@ export default function BibleChapterScreen() {
                   >
                     <Text className={`${fontClass} text-neutral-900 leading-relaxed`}>
                       <Text className="text-brand-700 font-bold text-xs">
-                        {verse.nomor}{' '}
+                        {verse.nomorEnd && verse.nomorEnd > verse.nomor
+                          ? `${verse.nomor}-${verse.nomorEnd}`
+                          : verse.nomor}{' '}
                       </Text>
                       {verse.teks}
                       {isVerseBookmarked ? (
