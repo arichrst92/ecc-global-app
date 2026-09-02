@@ -309,6 +309,7 @@ export default function MinistryDetailScreen() {
                         <Clock size={12} color="#737373" />
                         <Text className="text-xs text-neutral-500">
                           {s.ibadahJamMulai}
+                          {s.ibadahJamSelesai ? ` - ${s.ibadahJamSelesai}` : ''}
                         </Text>
                       </View>
                       <View className="flex-row items-center gap-1 flex-1">
@@ -326,6 +327,11 @@ export default function MinistryDetailScreen() {
                         {t('ministry.schedule_assignments', { count: s.assignments.length })}
                       </Text>
                     </View>
+                    {s.catatan ? (
+                      <Text className="text-xs text-neutral-500 mt-1.5 italic" numberOfLines={2}>
+                        {s.catatan}
+                      </Text>
+                    ) : null}
                   </View>
                   <ScrollView
                     horizontal

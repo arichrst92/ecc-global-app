@@ -9,61 +9,71 @@ import { publicEventDetail } from '@/api/publicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ApiError } from '@/types/api';
+import { addDaysIso, todayIso } from '@/utils/date';
 import type { EventDetail, EventParticipation, EventListItem } from '@/types/event';
 
 /**
- * Cek apakah event sudah expired (event date < hari ini).
- * Pakai tanggalSelesai kalau ada (multi-day event), fallback ke tanggalMulai.
- * Threshold = start of today di local TZ — event yang berakhir hari ini
- * tetap tampil sampai habis hari.
- */
-function isEventExpired(e: Pick<EventListItem, 'tanggalMulai' | 'tanggalSelesai'>): boolean {
-  const endIso = e.tanggalSelesai ?? e.tanggalMulai;
-  if (!endIso) return false; // defensive — kalau no date, jangan filter out
-  const endTs = new Date(endIso).getTime();
-  if (isNaN(endTs)) return false;
-  // Start of today di local TZ — event berakhir hari ini (24:00) masih
-  // dianggap belum expired. Comparison: end < startOfToday → expired.
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-  return endTs < startOfToday.getTime();
-}
-
-/**
- * Event list dengan visibility scope inklusif + filter expired:
+ * Event list dengan visibility scope inklusif:
  * - **Global events** (sinode=null, cabang=null) → tampil untuk semua user
  * - **Sinode events** (sinode set, cabang=null) → tampil untuk semua cabang di sinode itu
  * - **Cabang events** (cabang set) → tampil hanya untuk user yang viewing cabang itu
- * - **Expired events** (tanggalSelesai < hari ini) → DROP. User cuma tertarik
- *   event yang masih akan datang / berlangsung hari ini.
  *
- * Implementation: fetch SEMUA event published, filter client-side. Lebih hemat
- * daripada 2x roundtrip (global + cabang) karena event count per sinode tipikal kecil.
+ * Implementation: fetch event published dalam window `from`/`to`, filter
+ * cabang-visibility client-side (event count per sinode tipikal kecil, jadi
+ * masih lebih hemat daripada 2x roundtrip global+cabang).
  *
- * TEMPORARY: limit bumped 50 → 200 sebagai workaround sampai BE deliver
- * endpoint dengan `from`/`to` query params. Per
- * `docs/backend-request-event-list-month-scoped.md`. Revert ke 50 setelah BE ready.
+ * Per `docs/be-update-2026-09-02-event-window-and-ministry-schedule.md`, BE
+ * sekarang support server-side date filter (`from`/`to`, overlap logic untuk
+ * multi-day event) — menggantikan workaround v2.1.7 (`limit: 200` + client-side
+ * `isEventExpired()` filter). Window bounded dari BE artinya tidak perlu lagi
+ * double-filter expired di client.
  *
- * @param options.includeExpired - kalau `true` tidak drop past events. Dipakai
- *   Calendar screen supaya user bisa navigate ke bulan lalu + lihat event lama.
- *   Default `false` untuk event tab list (upcoming only, current UX).
+ * @param options.includeExpired - kalau `true`, fetch window mundur ke masa
+ *   lalu juga (dipakai Calendar screen supaya user bisa navigate ke bulan
+ *   lalu). Default `false` → window `today` s/d `today+90d` (event tab, upcoming
+ *   only).
+ * @param options.from - override window start (`YYYY-MM-DD`). Dipakai Calendar
+ *   screen untuk scope per-bulan yang sedang dilihat.
+ * @param options.to - override window end (`YYYY-MM-DD`).
  */
-export function useEventList(options: { includeExpired?: boolean } = {}) {
-  const { includeExpired = false } = options;
+export function useEventList(
+  options: { includeExpired?: boolean; from?: string; to?: string } = {},
+) {
+  const { includeExpired = false, from, to } = options;
   const { viewingCabangId, branch, isLoading } = useViewingBranch();
   const cabangId = viewingCabangId ?? branch?.id ?? null;
+
+  // Default window kalau caller tidak pass from/to eksplisit:
+  // - upcoming (event tab): today s/d today+90d
+  // - includeExpired (calendar, no explicit month window): tidak ada default
+  //   batas atas yang masuk akal untuk "all-time", jadi caller (Calendar
+  //   screen) selalu pass from/to per-bulan sendiri.
+  const effectiveFrom = from ?? (includeExpired ? undefined : todayIso());
+  const effectiveTo = to ?? (includeExpired ? undefined : addDaysIso(90));
+
   return useQuery({
-    queryKey: ['event', 'list', cabangId ?? 'all', includeExpired ? 'all-time' : 'upcoming'],
-    // Fetch semua event published — TIDAK pass cabangId filter ke BE.
-    // TODO: pakai from/to param begitu BE endpoint ready (revert limit ke 50).
-    queryFn: () => listEvents({ limit: 200 }),
+    queryKey: [
+      'event',
+      'list',
+      cabangId ?? 'all',
+      includeExpired ? 'all-time' : 'upcoming',
+      effectiveFrom ?? 'none',
+      effectiveTo ?? 'none',
+    ],
+    queryFn: () =>
+      listEvents({
+        from: effectiveFrom,
+        to: effectiveTo,
+        isPublished: true,
+        // Bounded window dari BE — limit cuma perlu sebagai safety net kalau
+        // window tidak di-set (all-time tanpa from/to eksplisit).
+        limit: effectiveFrom && effectiveTo ? undefined : 200,
+      }),
     enabled: !isLoading,
     staleTime: 5 * 60_000,
     select: (data): EventListItem[] => {
-      // Filter expired kecuali caller minta include (mis. Calendar past-months)
-      const filtered = includeExpired ? data : data.filter((e) => !isEventExpired(e));
-      if (!cabangId) return filtered; // belum login / branch belum resolved → show all
-      return filtered.filter((e) => {
+      if (!cabangId) return data; // belum login / branch belum resolved → show all
+      return data.filter((e) => {
         // Global event → tampil
         if (!e.cabang) return true;
         // Cabang-specific → tampil hanya kalau match viewing cabang

@@ -505,7 +505,8 @@ function MyScheduleRow({
       </View>
       <View className="flex-1 min-w-0">
         <Text className="text-xs text-neutral-500" numberOfLines={1}>
-          {formatDate(item.tanggal, lang)} · {item.ibadahJamMulai} · {item.ibadahNama}
+          {formatDate(item.tanggal, lang)} · {item.ibadahJamMulai}
+          {item.ibadahJamSelesai ? `-${item.ibadahJamSelesai}` : ''} · {item.ibadahNama}
         </Text>
         <Text className="text-sm font-semibold text-neutral-900 mt-0.5" numberOfLines={1}>
           {item.posisi}

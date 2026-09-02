@@ -18,14 +18,29 @@ type ListOptions = {
   cabangId?: string;
   page?: number;
   limit?: number;
+  /** `YYYY-MM-DD` — server-side date filter (overlap logic multi-day event).
+   * Per `docs/be-update-2026-09-02-event-window-and-ministry-schedule.md`. */
+  from?: string;
+  /** `YYYY-MM-DD` — treated end-of-day (inclusive) by BE. */
+  to?: string;
+  /** Default `true` kalau tidak di-set (backward compat existing callers). */
+  isPublished?: boolean;
 };
 
-/** GET /admin/event?isPublished=true */
+/**
+ * GET /admin/event — list event, optionally window-scoped by from/to.
+ * Per BE update 2026-09-02: `from`/`to` (YYYY-MM-DD) di-support server-side,
+ * termasuk overlap logic untuk multi-day event yang start-before-window tapi
+ * end-inside-window. Kalau tidak di-pass, existing behavior (no date filter).
+ */
 export function listEvents(opts: ListOptions = {}) {
-  const params = new URLSearchParams({ isPublished: 'true' });
+  const params = new URLSearchParams();
+  if (opts.isPublished !== false) params.set('isPublished', 'true');
   if (opts.cabangId) params.set('cabangId', opts.cabangId);
   if (opts.page) params.set('page', String(opts.page));
   if (opts.limit) params.set('limit', String(opts.limit));
+  if (opts.from) params.set('from', opts.from);
+  if (opts.to) params.set('to', opts.to);
   return api.get<EventListItem[]>(`/admin/event?${params}`);
 }
 

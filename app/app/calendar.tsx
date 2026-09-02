@@ -39,19 +39,25 @@ export default function CalendarScreen() {
   const [month, setMonth] = useState(today.getMonth()); // 0-indexed
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
 
-  // Calendar-specific: include expired events supaya user bisa navigate ke
-  // bulan lalu dan lihat event yang sudah lewat (past events dimmed di UI).
-  // Event tab list tetap pakai default (upcoming only, exclude expired).
-  const eventsQuery = useEventList({ includeExpired: true });
   const familyQuery = useMyFamily();
   const { viewingCabangId } = useViewingBranch();
 
-  // Ibadah pakai endpoint /admin/ibadah/calendar untuk dapat semua OCCURRENCE
-  // dalam bulan yang aktif. Endpoint ini sudah expand recurring (WEEKLY/BIWEEKLY/
-  // MONTHLY) jadi tanggal-tanggal aktual. Lebih akurat daripada loop dari
-  // `tanggalMulai` master schedule (yang cuma tanggal start, bukan hari recur).
+  // Window per-bulan yang sedang dilihat — dipakai untuk scope event + ibadah
+  // fetch. Ibadah pakai endpoint /admin/ibadah/calendar untuk dapat semua
+  // OCCURRENCE dalam bulan yang aktif. Endpoint ini sudah expand recurring
+  // (WEEKLY/BIWEEKLY/MONTHLY) jadi tanggal-tanggal aktual. Lebih akurat
+  // daripada loop dari `tanggalMulai` master schedule (yang cuma tanggal
+  // start, bukan hari recur).
   const monthStart = useMemo(() => toIsoDate(new Date(year, month, 1)), [year, month]);
   const monthEnd = useMemo(() => toIsoDate(new Date(year, month + 1, 0)), [year, month]);
+
+  // Calendar-specific: include expired events + scope ke window bulan yang
+  // sedang dilihat (per `docs/be-update-2026-09-02-event-window-and-ministry-schedule.md`
+  // server-side from/to filter). Cache per-bulan via queryKey (lihat
+  // useEventList) — klik prev/next month trigger fetch baru, tetap cepat
+  // karena window kecil (1 bulan). Event tab list tetap pakai default
+  // (upcoming only, today s/d today+90d).
+  const eventsQuery = useEventList({ includeExpired: true, from: monthStart, to: monthEnd });
   const ibadahQuery = useQuery({
     queryKey: ['ibadah', 'calendar', monthStart, monthEnd, viewingCabangId ?? 'all'],
     queryFn: () => getIbadahCalendar({
