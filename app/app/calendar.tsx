@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CalendarDays, Cake, Church, ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { useEventList } from '@/hooks/useEvents';
 import { useMyFamily } from '@/hooks/useFamily';
+import { listEvents } from '@/api/event';
 import { getIbadahCalendar } from '@/api/ibadah';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
@@ -40,7 +41,8 @@ export default function CalendarScreen() {
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
 
   const familyQuery = useMyFamily();
-  const { viewingCabangId } = useViewingBranch();
+  const { viewingCabangId, branch } = useViewingBranch();
+  const qc = useQueryClient();
 
   // Window per-bulan yang sedang dilihat — dipakai untuk scope event + ibadah
   // fetch. Ibadah pakai endpoint /admin/ibadah/calendar untuk dapat semua
@@ -67,6 +69,48 @@ export default function CalendarScreen() {
     }),
     staleTime: 10 * 60_000,
   });
+
+  // Prefetch prev + next month (event + ibadah) di background begitu bulan
+  // aktif selesai load. Trade-off: 4 extra request per navigasi bulan, tapi
+  // klik prev/next jadi instant (data sudah warm di cache) — user pattern
+  // browse calendar sering ping-pong prev/next beberapa kali. queryKey harus
+  // exact match sama useEventList (lihat src/hooks/useEvents.ts) dan ibadah
+  // query di atas, supaya prefetch di-consume waktu useQuery jalan, bukan
+  // jadi entry cache terpisah yang tidak pernah dipakai.
+  const eventCabangId = viewingCabangId ?? branch?.id ?? 'all';
+  useEffect(() => {
+    const prevMonthDate = new Date(year, month - 1, 1);
+    const prevStart = toIsoDate(new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1));
+    const prevEnd = toIsoDate(new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth() + 1, 0));
+
+    const nextMonthDate = new Date(year, month + 1, 1);
+    const nextStart = toIsoDate(new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth(), 1));
+    const nextEnd = toIsoDate(new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1, 0));
+
+    // Match queryKey structure dari useEventList (includeExpired: true → 'all-time')
+    qc.prefetchQuery({
+      queryKey: ['event', 'list', eventCabangId, 'all-time', prevStart, prevEnd],
+      queryFn: () => listEvents({ from: prevStart, to: prevEnd, isPublished: true }),
+      staleTime: 5 * 60_000,
+    });
+    qc.prefetchQuery({
+      queryKey: ['event', 'list', eventCabangId, 'all-time', nextStart, nextEnd],
+      queryFn: () => listEvents({ from: nextStart, to: nextEnd, isPublished: true }),
+      staleTime: 5 * 60_000,
+    });
+
+    // Match queryKey ibadahQuery di atas
+    qc.prefetchQuery({
+      queryKey: ['ibadah', 'calendar', prevStart, prevEnd, viewingCabangId ?? 'all'],
+      queryFn: () => getIbadahCalendar({ from: prevStart, to: prevEnd, cabangId: viewingCabangId ?? undefined }),
+      staleTime: 10 * 60_000,
+    });
+    qc.prefetchQuery({
+      queryKey: ['ibadah', 'calendar', nextStart, nextEnd, viewingCabangId ?? 'all'],
+      queryFn: () => getIbadahCalendar({ from: nextStart, to: nextEnd, cabangId: viewingCabangId ?? undefined }),
+      staleTime: 10 * 60_000,
+    });
+  }, [year, month, eventCabangId, viewingCabangId, qc]);
 
   // Aggregate loading/error/refetch state across ketiga queries — dipakai
   // untuk error banner + pull-to-refresh. Grid tetap dirender walau pending
