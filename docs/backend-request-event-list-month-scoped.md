@@ -4,6 +4,7 @@
 **Requester**: Mobile team (Ari)
 **Priority**: LOW-MEDIUM (mobile workaround live, tapi tidak scalable)
 **Related**: Existing endpoint `GET /admin/event`, ibadah calendar pattern
+**Status BE**: ✅ **DELIVERED 2026-09-02** — reply: `be-update-2026-09-02-event-window-and-ministry-schedule.md`
 
 ---
 

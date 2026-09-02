@@ -4,6 +4,7 @@
 **Requester**: Mobile team (Ari)
 **Priority**: LOW-MEDIUM (feature request, tidak block existing functionality)
 **Related**: Existing ministry endpoints (`GET /admin/ministry`, `POST /admin/ministry/:id/join`)
+**Status BE**: ✅ **DELIVERED 2026-09-02** — full stack: schema + migration + 4 endpoints ministry-scoped + 1 endpoint me-scoped. Reply: `be-update-2026-09-02-event-window-and-ministry-schedule.md`
 
 ---
 
