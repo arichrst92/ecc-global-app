@@ -39,7 +39,10 @@ export default function CalendarScreen() {
   const [month, setMonth] = useState(today.getMonth()); // 0-indexed
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
 
-  const eventsQuery = useEventList();
+  // Calendar-specific: include expired events supaya user bisa navigate ke
+  // bulan lalu dan lihat event yang sudah lewat (past events dimmed di UI).
+  // Event tab list tetap pakai default (upcoming only, exclude expired).
+  const eventsQuery = useEventList({ includeExpired: true });
   const familyQuery = useMyFamily();
   const { viewingCabangId } = useViewingBranch();
 
@@ -363,21 +366,36 @@ export default function CalendarScreen() {
               </View>
             ) : (
               <View className="gap-2">
-                {selectedItems.map((item, i) => {
-                  // Stable composite key — include item ID + index supaya
-                  // multiple ibadah pada day+time sama (mis. cabang yang
-                  // sama jalankan 2 ibadah simultaneous di ruang berbeda)
-                  // tidak collapse ke 1 render karena key collision.
-                  const stableKey =
-                    item.type === 'birthday'
-                      ? `birthday-${item.jemaatId}-${i}`
-                      : item.type === 'ibadah'
-                        ? `ibadah-${item.id}-${item.time ?? ''}-${i}`
-                        : `event-${item.id}-${i}`;
-                  return (
-                    <ItemRow key={stableKey} item={item} router={router} t={t} lang={lang} />
-                  );
-                })}
+                {(() => {
+                  // Cek apakah selected day sebelum hari ini — untuk styling
+                  // past events dimmed (opacity + muted color).
+                  const selectedDate = new Date(year, month, selectedDay);
+                  const startOfToday = new Date();
+                  startOfToday.setHours(0, 0, 0, 0);
+                  const isPastDay = selectedDate.getTime() < startOfToday.getTime();
+                  return selectedItems.map((item, i) => {
+                    // Stable composite key — include item ID + index supaya
+                    // multiple ibadah pada day+time sama (mis. cabang yang
+                    // sama jalankan 2 ibadah simultaneous di ruang berbeda)
+                    // tidak collapse ke 1 render karena key collision.
+                    const stableKey =
+                      item.type === 'birthday'
+                        ? `birthday-${item.jemaatId}-${i}`
+                        : item.type === 'ibadah'
+                          ? `ibadah-${item.id}-${item.time ?? ''}-${i}`
+                          : `event-${item.id}-${i}`;
+                    return (
+                      <ItemRow
+                        key={stableKey}
+                        item={item}
+                        isPast={isPastDay}
+                        router={router}
+                        t={t}
+                        lang={lang}
+                      />
+                    );
+                  });
+                })()}
               </View>
             )}
           </View>
@@ -398,11 +416,13 @@ function LegendDot({ color, label }: { color: string; label: string }) {
 
 function ItemRow({
   item,
+  isPast,
   router,
   t,
   lang,
 }: {
   item: DayItem;
+  isPast: boolean;
   router: ReturnType<typeof useRouter>;
   t: (k: string, opts?: Record<string, unknown>) => string;
   lang: string;
@@ -444,17 +464,23 @@ function ItemRow({
     return (
       <Pressable
         onPress={() => router.push(`/event/${item.id}`)}
-        className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+        className={`bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 ${
+          isPast ? 'opacity-60' : ''
+        }`}
       >
         <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
           <CalendarDays size={18} color="#059669" />
         </View>
         <View className="flex-1">
-          <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+          <Text
+            className={`text-sm font-semibold ${isPast ? 'text-neutral-500' : 'text-neutral-900'}`}
+            numberOfLines={1}
+          >
             {item.title}
           </Text>
           <Text className="text-xs text-neutral-500">
             {t('calendar.label_event')} · {formatDate(item.date, lang)}
+            {isPast ? ` · ${t('calendar.past_event')}` : ''}
           </Text>
         </View>
       </Pressable>

@@ -1043,7 +1043,8 @@
     "label_ibadah": "Service",
     "label_event": "Event",
     "birthday_age": "{{age}}'s birthday",
-    "empty_day": "No agenda for this day."
+    "empty_day": "No agenda for this day.",
+    "past_event": "Past"
   },
   "check_update": {
     "title": "Check for Updates",

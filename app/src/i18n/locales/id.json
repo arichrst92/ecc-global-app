@@ -1043,7 +1043,8 @@
     "label_ibadah": "Ibadah",
     "label_event": "Event",
     "birthday_age": "Ulang tahun ke-{{age}}",
-    "empty_day": "Tidak ada agenda di hari ini."
+    "empty_day": "Tidak ada agenda di hari ini.",
+    "past_event": "Sudah lewat"
   },
   "check_update": {
     "title": "Cek Update",

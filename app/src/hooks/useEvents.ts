@@ -40,23 +40,30 @@ function isEventExpired(e: Pick<EventListItem, 'tanggalMulai' | 'tanggalSelesai'
  * Implementation: fetch SEMUA event published, filter client-side. Lebih hemat
  * daripada 2x roundtrip (global + cabang) karena event count per sinode tipikal kecil.
  *
- * Future: kalau scale grow, request BE add `includeGlobal=true` + `from=` query
- * param supaya filtering jadi BE-side. Untuk sekarang client-filter cukup.
+ * TEMPORARY: limit bumped 50 → 200 sebagai workaround sampai BE deliver
+ * endpoint dengan `from`/`to` query params. Per
+ * `docs/backend-request-event-list-month-scoped.md`. Revert ke 50 setelah BE ready.
+ *
+ * @param options.includeExpired - kalau `true` tidak drop past events. Dipakai
+ *   Calendar screen supaya user bisa navigate ke bulan lalu + lihat event lama.
+ *   Default `false` untuk event tab list (upcoming only, current UX).
  */
-export function useEventList() {
+export function useEventList(options: { includeExpired?: boolean } = {}) {
+  const { includeExpired = false } = options;
   const { viewingCabangId, branch, isLoading } = useViewingBranch();
   const cabangId = viewingCabangId ?? branch?.id ?? null;
   return useQuery({
-    queryKey: ['event', 'list', cabangId ?? 'all'],
-    // Fetch semua event published — TIDAK pass cabangId filter ke BE
-    queryFn: () => listEvents({ limit: 50 }),
+    queryKey: ['event', 'list', cabangId ?? 'all', includeExpired ? 'all-time' : 'upcoming'],
+    // Fetch semua event published — TIDAK pass cabangId filter ke BE.
+    // TODO: pakai from/to param begitu BE endpoint ready (revert limit ke 50).
+    queryFn: () => listEvents({ limit: 200 }),
     enabled: !isLoading,
     staleTime: 5 * 60_000,
     select: (data): EventListItem[] => {
-      // Drop expired SELALU (terlepas dari cabang scope)
-      const upcoming = data.filter((e) => !isEventExpired(e));
-      if (!cabangId) return upcoming; // belum login / branch belum resolved → show all upcoming
-      return upcoming.filter((e) => {
+      // Filter expired kecuali caller minta include (mis. Calendar past-months)
+      const filtered = includeExpired ? data : data.filter((e) => !isEventExpired(e));
+      if (!cabangId) return filtered; // belum login / branch belum resolved → show all
+      return filtered.filter((e) => {
         // Global event → tampil
         if (!e.cabang) return true;
         // Cabang-specific → tampil hanya kalau match viewing cabang
