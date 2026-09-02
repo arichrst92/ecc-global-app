@@ -2,7 +2,7 @@
   "expo": {
     "name": "Els App",
     "slug": "ecc-mobile-app",
-    "version": "2.2.3",
+    "version": "2.2.4",
     "orientation": "portrait",
     "icon": "./assets/images/ecc-icon-ios.png",
     "scheme": "ecc",
@@ -37,6 +37,7 @@
         "backgroundColor": "#F97316"
       },
       "predictiveBackGestureEnabled": false,
+      "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.CAMERA"
       ],
@@ -139,7 +140,10 @@
         "expo-build-properties",
         {
           "android": {
-            "minSdkVersion": 24
+            "minSdkVersion": 24,
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "-keep class com.facebook.hermes.unicode.** { *; }\n-keep class com.facebook.jni.** { *; }\n-keep class com.swmansion.reanimated.** { *; }\n-keep class com.swmansion.gesturehandler.** { *; }\n-keep class com.swmansion.rnscreens.** { *; }\n-keep class com.horcrux.svg.** { *; }\n-keep class com.google.android.gms.** { *; }\n-keep class expo.modules.** { *; }\n-keepattributes *Annotation*\n-keepattributes Signature\n-keepattributes InnerClasses\n-keepattributes EnclosingMethod"
           }
         }
       ]
