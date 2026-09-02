@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video } from 'lucide-react-native';
+import { Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -17,10 +17,12 @@ import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
+import { useMyMinistrySchedule } from '@/hooks/useMinistry';
 import { useQuery } from '@tanstack/react-query';
 import { getIbadahDetail } from '@/api/ibadah';
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
+import type { MyMinistryAssignment } from '@/types/ministrySchedule';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -48,6 +50,10 @@ function HomeScreenAuthenticated() {
   const renunganQuery = useLatestRenungan();
   const newsQuery = useLatestNews();
   const eventsQuery = useHomeEvents();
+  // "Pelayanan Saya" widget — BE endpoint mungkin belum di-deploy, hook
+  // gracefully fallback ke [] (lihat useMinistry.ts / api/ministry.ts).
+  // Widget silently hide kalau data kosong, tidak show error state.
+  const myScheduleQuery = useMyMinistrySchedule();
   const lang = i18n.language;
 
   const isRefreshing =
@@ -55,7 +61,8 @@ function HomeScreenAuthenticated() {
     todayQuery.isRefetching ||
     renunganQuery.isRefetching ||
     newsQuery.isRefetching ||
-    eventsQuery.isRefetching;
+    eventsQuery.isRefetching ||
+    myScheduleQuery.isRefetching;
 
   function refresh() {
     statsQuery.refetch();
@@ -63,6 +70,7 @@ function HomeScreenAuthenticated() {
     renunganQuery.refetch();
     newsQuery.refetch();
     eventsQuery.refetch();
+    myScheduleQuery.refetch();
   }
 
   const todayServices = todayQuery.data ?? [];
@@ -72,6 +80,11 @@ function HomeScreenAuthenticated() {
   const streak = statsQuery.data?.streakWeeks ?? 0;
   const renungan = renunganQuery.data;
   const news = newsQuery.data ?? [];
+  // Max 3 upcoming assignments, sorted by tanggal ASC (defensive — BE spec
+  // tidak eksplisit guarantee order untuk endpoint cross-ministry ini).
+  const myUpcomingSchedule = [...(myScheduleQuery.data ?? [])]
+    .sort((a, b) => a.tanggal.localeCompare(b.tanggal))
+    .slice(0, 3);
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -292,6 +305,37 @@ function HomeScreenAuthenticated() {
             </View>
           )}
         </Section>
+
+        {/* Pelayanan Saya — "Ministry Schedule/Roster" widget, per
+            docs/backend-request-ministry-schedule-roster.md. BE endpoint
+            belum di-deploy; myScheduleQuery gracefully resolve ke [] kalau
+            404, jadi widget hide entirely (silent) sampai BE ready. */}
+        {myUpcomingSchedule.length > 0 ? (
+          <Section title={t('ministry.my_schedule_title')}>
+            <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+              <View className="px-3.5 pt-3 pb-1 flex-row items-center justify-between">
+                <Text className="text-xs text-neutral-500">
+                  {t('ministry.my_schedule_subtitle')}
+                </Text>
+                <View className="bg-brand-50 px-1.5 py-0.5 rounded">
+                  <Text className="text-[10px] font-semibold text-brand-700">
+                    {myUpcomingSchedule.length}
+                  </Text>
+                </View>
+              </View>
+              {myUpcomingSchedule.map((item, idx) => (
+                <MyScheduleRow
+                  key={item.id}
+                  item={item}
+                  isFirst={idx === 0}
+                  lang={lang}
+                  router={router}
+                  t={t}
+                />
+              ))}
+            </View>
+          </Section>
+        ) : null}
       </ScrollView>
 
       <BranchSwitcherSheet visible={switcherOpen} onClose={() => setSwitcherOpen(false)} />
@@ -428,5 +472,49 @@ function TodayServiceCard({
         </Pressable>
       </View>
     </View>
+  );
+}
+
+/**
+ * Satu baris upcoming assignment di widget "Pelayanan Saya" home tab.
+ * Tap → route ke ministry detail (full schedule ministry tsb, per UX plan
+ * di docs/backend-request-ministry-schedule-roster.md).
+ */
+function MyScheduleRow({
+  item,
+  isFirst,
+  lang,
+  router,
+  t,
+}: {
+  item: MyMinistryAssignment;
+  isFirst: boolean;
+  lang: string;
+  router: ReturnType<typeof useRouter>;
+  t: (key: string, options?: Record<string, unknown>) => string;
+}) {
+  return (
+    <Pressable
+      onPress={() => router.push(`/ministry/${item.ministryId}` as never)}
+      className={`px-3.5 py-3 flex-row items-center gap-3 ${
+        isFirst ? '' : 'border-t border-neutral-100'
+      }`}
+    >
+      <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+        <HeartHandshake size={18} color="#EA580C" />
+      </View>
+      <View className="flex-1 min-w-0">
+        <Text className="text-xs text-neutral-500" numberOfLines={1}>
+          {formatDate(item.tanggal, lang)} · {item.ibadahJamMulai} · {item.ibadahNama}
+        </Text>
+        <Text className="text-sm font-semibold text-neutral-900 mt-0.5" numberOfLines={1}>
+          {item.posisi}
+        </Text>
+        <Text className="text-xs text-brand-600 mt-0.5" numberOfLines={1}>
+          {item.ministryNama}
+        </Text>
+      </View>
+      <ChevronRight size={16} color="#A3A3A3" />
+    </Pressable>
   );
 }

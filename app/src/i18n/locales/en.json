@@ -899,7 +899,14 @@
     "join_motivasi_label": "Motivation (optional)",
     "join_motivasi_placeholder": "Briefly share why you want to join...",
     "join_confirm": "Confirm Join",
-    "join_cancel": "Cancel"
+    "join_cancel": "Cancel",
+    "schedule_title": "Ministry Schedule",
+    "schedule_upcoming": "Next 4 Weeks",
+    "schedule_empty": "No schedule yet",
+    "schedule_assignments": "{{count}} people",
+    "my_schedule_title": "My Ministry",
+    "my_schedule_subtitle": "This week's schedule",
+    "my_schedule_no_notes": "No notes"
   },
   "homecell": {
     "title": "My Homecells",

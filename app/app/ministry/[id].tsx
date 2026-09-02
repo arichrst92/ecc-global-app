@@ -24,7 +24,9 @@ import {
   ArrowLeft,
   CheckCircle2,
   Circle,
+  Clock,
   HeartHandshake,
+  MapPin,
   MessageCircle,
   Users,
   X,
@@ -33,19 +35,31 @@ import {
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { useJoinMinistry, useMinistryDetail } from '@/hooks/useMinistry';
+import {
+  useJoinMinistry,
+  useMinistryDetail,
+  useMinistrySchedule,
+} from '@/hooks/useMinistry';
+import { useAuthStore } from '@/stores/auth.store';
 import type { MinistryMember, MinistryRole } from '@/types/ministry';
 import { ApiError } from '@/types/api';
+import { formatDateWithDay } from '@/utils/date';
 
 export default function MinistryDetailScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const showToast = useToast((s) => s.show);
+  const currentUser = useAuthStore((s) => s.user);
 
   const query = useMinistryDetail(id);
   const ministry = query.data;
   const joinMutation = useJoinMinistry(id);
+  // Jadwal 4 minggu ke depan — BE endpoint mungkin belum di-deploy, hook
+  // graceful fallback ke [] (lihat useMinistry.ts / api/ministry.ts). Section
+  // silently hide kalau data kosong, tidak show error state.
+  const scheduleQuery = useMinistrySchedule(id);
+  const schedules = scheduleQuery.data ?? [];
 
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
@@ -263,6 +277,93 @@ export default function MinistryDetailScreen() {
                 {t('ministry.since_label')}{' '}
                 {new Date(ministry.myMembership.sinceDate).toLocaleDateString('id-ID')}
               </Text>
+            </View>
+          </View>
+        ) : null}
+
+        {/* Jadwal 4 Minggu Ke Depan — per docs/backend-request-ministry-schedule-roster.md.
+            BE endpoint belum di-deploy; scheduleQuery gracefully resolve ke []
+            kalau 404, jadi section ini hide entirely (silent) sampai BE ready. */}
+        {schedules.length > 0 ? (
+          <View className="mb-4">
+            <View className="flex-row items-center gap-2 mb-2">
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+                {t('ministry.schedule_title')}
+              </Text>
+              <Text className="text-[11px] text-neutral-400">
+                · {t('ministry.schedule_upcoming')}
+              </Text>
+            </View>
+            <View className="gap-3">
+              {schedules.map((s) => (
+                <View
+                  key={s.id}
+                  className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+                >
+                  <View className="p-3.5 border-b border-neutral-100">
+                    <Text className="text-sm font-semibold text-neutral-900">
+                      {formatDateWithDay(s.tanggal, i18n.language)}
+                    </Text>
+                    <View className="flex-row items-center gap-3 mt-1.5">
+                      <View className="flex-row items-center gap-1">
+                        <Clock size={12} color="#737373" />
+                        <Text className="text-xs text-neutral-500">
+                          {s.ibadahJamMulai}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center gap-1 flex-1">
+                        <MapPin size={12} color="#737373" />
+                        <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
+                          {s.ibadahLokasi}
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="flex-row items-center justify-between mt-1">
+                      <Text className="text-xs text-brand-600 font-medium flex-1" numberOfLines={1}>
+                        {s.ibadahNama}
+                      </Text>
+                      <Text className="text-[10px] text-neutral-400 ml-2">
+                        {t('ministry.schedule_assignments', { count: s.assignments.length })}
+                      </Text>
+                    </View>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ padding: 12, gap: 12 }}
+                  >
+                    {s.assignments.map((a) => {
+                      const isMe = !!currentUser && a.jemaatId === currentUser.jemaatId;
+                      return (
+                        <View key={a.id} className="items-center" style={{ width: 68 }}>
+                          <Avatar
+                            name={a.jemaatNama}
+                            fotoUrl={a.jemaatFotoUrl ?? undefined}
+                            size={44}
+                            className={isMe ? 'bg-brand-500' : undefined}
+                          />
+                          <Text
+                            className={`text-[11px] mt-1 text-center ${
+                              isMe ? 'font-bold text-brand-600' : 'font-medium text-neutral-700'
+                            }`}
+                            numberOfLines={1}
+                          >
+                            {a.jemaatNama}
+                          </Text>
+                          <Text
+                            className={`text-[10px] text-center ${
+                              isMe ? 'font-semibold text-brand-500' : 'text-neutral-400'
+                            }`}
+                            numberOfLines={1}
+                          >
+                            {a.posisi}
+                          </Text>
+                        </View>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              ))}
             </View>
           </View>
         ) : null}

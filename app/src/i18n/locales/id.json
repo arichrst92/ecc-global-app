@@ -899,7 +899,14 @@
     "join_motivasi_label": "Motivasi (opsional)",
     "join_motivasi_placeholder": "Ceritakan singkat kenapa ingin bergabung...",
     "join_confirm": "Konfirmasi Gabung",
-    "join_cancel": "Batal"
+    "join_cancel": "Batal",
+    "schedule_title": "Jadwal Pelayanan",
+    "schedule_upcoming": "4 Minggu Ke Depan",
+    "schedule_empty": "Belum ada jadwal",
+    "schedule_assignments": "{{count}} orang",
+    "my_schedule_title": "Pelayanan Saya",
+    "my_schedule_subtitle": "Jadwal minggu ini",
+    "my_schedule_no_notes": "Tidak ada catatan"
   },
   "homecell": {
     "title": "Homecell Saya",

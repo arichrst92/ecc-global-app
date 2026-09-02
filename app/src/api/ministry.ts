@@ -7,10 +7,15 @@
  */
 
 import { api } from './client';
+import { ApiError } from '@/types/api';
 import type {
   MinistryListItem,
   MinistryDetail,
 } from '@/types/ministry';
+import type {
+  MinistrySchedule,
+  MyMinistryAssignment,
+} from '@/types/ministrySchedule';
 
 /**
  * GET /admin/ministry — list semua ministry (pelayanan) yang aktif.
@@ -56,4 +61,50 @@ export function joinMinistry(id: string, payload: JoinMinistryPayload = {}) {
     `/admin/ministry/${id}/join`,
     payload,
   );
+}
+
+/**
+ * GET /admin/ministry/:id/schedule?from&to — jadwal pelayanan/roster.
+ * Per `docs/backend-request-ministry-schedule-roster.md` (2026-09-02).
+ *
+ * BE endpoint BELUM di-deploy saat fungsi ini ditulis. **Graceful 404
+ * fallback**: kalau BE balas 404 (endpoint belum exist / route not found),
+ * return `[]` alih-alih throw — supaya UI bisa silently hide section
+ * sampai BE ready. Error lain (401/403/5xx) tetap di-throw supaya caller
+ * (react-query) bisa handle normally.
+ */
+export async function getMinistrySchedule(
+  id: string,
+  from: string,
+  to: string,
+): Promise<MinistrySchedule[]> {
+  try {
+    const result = await api.get<{ schedules: MinistrySchedule[] }>(
+      `/admin/ministry/${id}/schedule?from=${from}&to=${to}`,
+    );
+    return result.schedules;
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return [];
+    throw err;
+  }
+}
+
+/**
+ * GET /admin/me/ministry-schedule?from&to — jadwal pelayanan cross-ministry
+ * untuk current user. Sama seperti `getMinistrySchedule`, graceful 404
+ * fallback ke `[]` selama BE endpoint belum live.
+ */
+export async function getMyMinistrySchedule(
+  from: string,
+  to: string,
+): Promise<MyMinistryAssignment[]> {
+  try {
+    const result = await api.get<{ assignments: MyMinistryAssignment[] }>(
+      `/admin/me/ministry-schedule?from=${from}&to=${to}`,
+    );
+    return result.assignments;
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return [];
+    throw err;
+  }
 }
