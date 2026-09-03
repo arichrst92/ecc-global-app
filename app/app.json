@@ -2,7 +2,7 @@
   "expo": {
     "name": "Els App",
     "slug": "ecc-mobile-app",
-    "version": "2.2.4",
+    "version": "2.2.5",
     "orientation": "portrait",
     "icon": "./assets/images/ecc-icon-ios.png",
     "scheme": "ecc",

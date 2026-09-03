@@ -8,19 +8,26 @@
  * gate ini prevent Apple flag saat reviewer explore via deeplink.
  */
 import { useEffect } from 'react';
-import { Linking, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, HandHeart } from 'lucide-react-native';
+import * as WebBrowser from 'expo-web-browser';
 
 export function BebasWebRedirect({ eventId }: { eventId: string }) {
   const { t } = useTranslation();
   const router = useRouter();
   const url = `https://eccchurch.global/event/${encodeURIComponent(eventId)}/pembayaran`;
 
+  // Use WebBrowser.openBrowserAsync — Chrome Custom Tabs (Android) /
+  // SFSafariViewController (iOS). Treated sebagai browser oleh OS sehingga
+  // TIDAK di-intercept oleh app's own App Links intent filter (yang match
+  // pathPrefix: /event). Kalau pakai Linking.openURL, Android routes URL
+  // balik ke app sendiri → Unmatched Route error karena route file
+  // /event/[id]/pembayaran.tsx tidak ada (payment logic di payment.tsx).
   useEffect(() => {
-    Linking.openURL(url).catch(() => {
+    WebBrowser.openBrowserAsync(url).catch(() => {
       // Silent — user can manually tap button below
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,7 +54,7 @@ export function BebasWebRedirect({ eventId }: { eventId: string }) {
           {t('event.bebas_web_body')}
         </Text>
         <Pressable
-          onPress={() => Linking.openURL(url).catch(() => {})}
+          onPress={() => WebBrowser.openBrowserAsync(url).catch(() => {})}
           className="bg-brand-500 rounded-2xl px-6 py-3.5"
         >
           <Text className="text-white font-bold text-sm">

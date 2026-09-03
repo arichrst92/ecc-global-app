@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Modal, Platform, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -483,7 +484,10 @@ export default function EventDetailScreen() {
                   <Button
                     label={t('event.open_web_cta')}
                     onPress={() =>
-                      Linking.openURL(eventPaymentWebUrl).catch(() => {})
+                      // Pakai WebBrowser (Custom Tabs / SFSafariViewController)
+                      // supaya URL /event/xxx/pembayaran tidak di-intercept oleh
+                      // App Links intent filter mobile sendiri → Unmatched Route.
+                      WebBrowser.openBrowserAsync(eventPaymentWebUrl).catch(() => {})
                     }
                     leftIcon={<HandHeart size={16} color="#fff" />}
                     fullWidth
