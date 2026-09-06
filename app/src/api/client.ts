@@ -91,6 +91,15 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
 }
 
 async function parseResponse<T>(res: Response, suppressErrorReport?: boolean): Promise<T> {
+  // 204 No Content — successful response dengan empty body. BE convention untuk
+  // DELETE endpoints (mis. DELETE /admin/me/family/:jemaatId untuk hapus member
+  // keluarga). Skip JSON parse supaya tidak throw "Invalid response".
+  // Return synthetic success shape supaya caller yang expect { success: true }
+  // tetap dapat truthy value.
+  if (res.status === 204) {
+    return { success: true } as T;
+  }
+
   const json = (await res.json().catch(() => null)) as ApiResponse<T> | null;
   if (!json) {
     // Server returned non-JSON (HTML 502/504 dari nginx, etc). Report
