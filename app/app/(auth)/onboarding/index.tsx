@@ -65,6 +65,29 @@ export default function OnboardingWizardScreen() {
 
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const logout = useAuthStore((s) => s.logout);
+
+  // Exit onboarding + logout — untuk case user stuck di wizard (mis. klik magic
+  // link tapi tidak mau lanjut onboarding). Tanpa ini, setiap buka app akan
+  // stuck di intro screen karena user.needsOnboarding tetap true di server.
+  const handleBackToLogin = () => {
+    Alert.alert(
+      t('auth.onboarding.back_to_login_confirm_title'),
+      t('auth.onboarding.back_to_login_confirm_body'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('auth.onboarding.back_to_login'),
+          style: 'destructive',
+          onPress: async () => {
+            reset();
+            await logout();
+            router.replace('/(auth)/welcome');
+          },
+        },
+      ],
+    );
+  };
 
   const step = useOnboardingStore((s) => s.step);
   const setStep = useOnboardingStore((s) => s.setStep);
@@ -133,6 +156,7 @@ export default function OnboardingWizardScreen() {
             setStep('profile');
           }
         }}
+        onBackToLogin={handleBackToLogin}
       />
     );
   }
@@ -228,11 +252,13 @@ function IntroStep({
   missingNoHp,
   missingProfileCount,
   onStart,
+  onBackToLogin,
 }: {
   userName: string;
   missingNoHp: boolean;
   missingProfileCount: number;
   onStart: () => void;
+  onBackToLogin: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -276,7 +302,7 @@ function IntroStep({
         </View>
       </ScrollView>
 
-      <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+      <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100 gap-2">
         <Button
           label={t('auth.onboarding.start')}
           onPress={onStart}
@@ -284,6 +310,14 @@ function IntroStep({
           size="lg"
           rightIcon={<ArrowRight size={18} color="#fff" />}
         />
+        <Pressable
+          onPress={onBackToLogin}
+          className="w-full py-3 items-center justify-center"
+        >
+          <Text className="text-sm font-medium text-neutral-500">
+            {t('auth.onboarding.back_to_login')}
+          </Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

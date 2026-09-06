@@ -141,7 +141,10 @@
       "submit_error_title": "Gagal Menyimpan",
       "error_name_required": "Nama lengkap wajib diisi.",
       "error_gender_required": "Jenis kelamin wajib dipilih.",
-      "error_dob_required": "Tanggal lahir wajib diisi."
+      "error_dob_required": "Tanggal lahir wajib diisi.",
+      "back_to_login": "Kembali ke Login",
+      "back_to_login_confirm_title": "Kembali ke Halaman Login?",
+      "back_to_login_confirm_body": "Anda akan keluar dari akun ini. Progress pengisian profil tidak akan disimpan. Lanjutkan?"
     }
   },
   "guest": {

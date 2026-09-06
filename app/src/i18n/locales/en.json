@@ -141,7 +141,10 @@
       "submit_error_title": "Save Failed",
       "error_name_required": "Full name is required.",
       "error_gender_required": "Please select a gender.",
-      "error_dob_required": "Date of birth is required."
+      "error_dob_required": "Date of birth is required.",
+      "back_to_login": "Back to Login",
+      "back_to_login_confirm_title": "Back to Login?",
+      "back_to_login_confirm_body": "You will be signed out from this account. Your profile progress will not be saved. Continue?"
     }
   },
   "guest": {
