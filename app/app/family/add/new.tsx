@@ -247,7 +247,6 @@ function DatePickerModal({
     }
     (async () => {
       try {
-        // @ts-ignore lazy import
         const mod = (await import('@react-native-community/datetimepicker')) as unknown as {
           default: React.ComponentType<{
             value: Date;

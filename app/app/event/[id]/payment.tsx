@@ -42,13 +42,6 @@ export default function EventPaymentScreen() {
   const familyQuery = useMyEventParticipations(id);
   const queryClient = useQueryClient();
 
-  // Gate NOMINAL_BEBAS payment/upload-bukti → web (Apple 3.2.2iv).
-  // Payment screen support both BEBAS + TETAP; TETAP tetap in-app (Apple
-  // 3.1.5b physical goods), BEBAS redirect keluar.
-  if (event && event.tipeBayar === 'NOMINAL_BEBAS' && id) {
-    return <BebasWebRedirect eventId={id} />;
-  }
-
   // Cek participation — priority:
   //   1. Kalau ?participationId= param ada → cari di family list (support family)
   //   2. Kalau tidak → fallback ke local store (self, backward compat)
@@ -228,6 +221,14 @@ export default function EventPaymentScreen() {
         )}
       </View>
     );
+  }
+
+  // Gate NOMINAL_BEBAS payment/upload-bukti → web (Apple 3.2.2iv).
+  // Payment screen support both BEBAS + TETAP; TETAP tetap in-app (Apple
+  // 3.1.5b physical goods), BEBAS redirect keluar. Gate ini HARUS setelah
+  // semua hook calls di atas (Rules of Hooks — tidak boleh conditional).
+  if (event && event.tipeBayar === 'NOMINAL_BEBAS' && id) {
+    return <BebasWebRedirect eventId={id} />;
   }
 
   return (

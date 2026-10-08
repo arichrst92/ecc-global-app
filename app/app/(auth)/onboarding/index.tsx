@@ -128,7 +128,6 @@ export default function OnboardingWizardScreen() {
       // Only reset kalau sudah selesai submit — supaya kalau user back mid-wizard,
       // state tetap ada. Reset trigger via router.replace('/(tabs)') di submit.
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Guard: kalau user tidak ada / tidak butuh onboarding, route out
@@ -837,7 +836,6 @@ function DatePickerModal({
     }
     (async () => {
       try {
-        // @ts-ignore — lazy import; resolved runtime after `npm install`
         const mod = (await import('@react-native-community/datetimepicker')) as unknown as {
           default: React.ComponentType<{
             value: Date;

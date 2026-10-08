@@ -186,7 +186,7 @@ export default function CKidsTabScreen() {
     : katalogQuery.isRefetching || historyQuery.isRefetching;
 
   function refresh() {
-    balancesQuery && katalogQuery.refetch();
+    if (balancesQuery) katalogQuery.refetch();
     historyQuery.refetch();
   }
 

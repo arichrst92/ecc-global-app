@@ -49,11 +49,6 @@ export default function EventRegisterScreen() {
     [participationsQuery.data],
   );
 
-  // Gate NOMINAL_BEBAS registration → web (Apple 3.2.2iv compliance).
-  if (event && event.tipeBayar === 'NOMINAL_BEBAS' && id) {
-    return <BebasWebRedirect eventId={id} />;
-  }
-
   // Selected jemaat IDs — default pre-check self. Kalau self ternyata sudah
   // terdaftar, `activeSelectedIds` di bawah akan filter out (jangan count
   // atau submit yg sudah daftar).
@@ -258,6 +253,12 @@ export default function EventRegisterScreen() {
       : event?.tipeBayar === 'NOMINAL_BEBAS'
         ? (parseNominal(bebasNominal) ?? 0) * selectedCount
         : 0;
+
+  // Gate NOMINAL_BEBAS registration → web (Apple 3.2.2iv compliance).
+  // HARUS setelah semua hook calls di atas (Rules of Hooks — tidak boleh conditional).
+  if (event && event.tipeBayar === 'NOMINAL_BEBAS' && id) {
+    return <BebasWebRedirect eventId={id} />;
+  }
 
   return (
     <View className="flex-1 bg-neutral-50">

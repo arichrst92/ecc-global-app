@@ -230,7 +230,7 @@ function RootLayoutNav() {
   // magic-link 2026-07-28.
   useEffect(() => {
     const inAuthGroup = segments[0] === '(auth)';
-    const inOnboarding = inAuthGroup && segments[1] === 'onboarding';
+    const inOnboarding = inAuthGroup && (segments as string[])[1] === 'onboarding';
     const inPublicLegal = segments[0] === 'legal';
     // Cast: 'auth' segment adalah URL-level (file di app/auth/email/verify.tsx),
     // typed routes typegen belum tentu ada 'auth' di union — cast ke string.
