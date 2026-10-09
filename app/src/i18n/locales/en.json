@@ -970,7 +970,20 @@
     "schedule_delete_btn": "Delete Schedule",
     "schedule_delete_confirm": "Delete this meeting schedule? Cannot be undone.",
     "schedule_delete_blocked": "Cannot delete — schedule has recorded attendance.",
-    "schedule_deleted_toast": "Meeting schedule deleted"
+    "schedule_deleted_toast": "Meeting schedule deleted",
+    "schedule_bulk_btn": "Bulk Attend",
+    "schedule_bulk_modal_title": "Mark Attendance",
+    "schedule_bulk_subtitle": "Check members who attended, then tap the button below to record them all at once.",
+    "schedule_bulk_already_section": "Already Attended ({{count}})",
+    "schedule_bulk_missing_section": "Not Yet Attended ({{count}})",
+    "schedule_bulk_select_all": "Select All",
+    "schedule_bulk_deselect_all": "Deselect All",
+    "schedule_bulk_submit": "Record {{count}} Member(s)",
+    "schedule_bulk_submit_zero": "Select at least 1 member",
+    "schedule_bulk_empty": "All members have been recorded as attended.",
+    "schedule_bulk_result_all_success": "✓ {{count}} members successfully recorded",
+    "schedule_bulk_result_partial": "{{success}} succeeded, {{failed}} failed — try again for failed ones",
+    "schedule_bulk_result_all_failed": "All failed. Check your internet connection."
   },
   "jemaat": {
     "detail_title": "Member Profile",

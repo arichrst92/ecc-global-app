@@ -27,8 +27,11 @@ import {
   ArrowLeft,
   Camera as CameraIcon,
   CheckCircle2,
+  CheckSquare,
+  ListChecks,
   MapPin,
   ScanLine,
+  Square,
   Trash2,
   UserX,
   X,
@@ -43,6 +46,7 @@ import {
   useRecordAttendance,
   useDeleteAttendance,
   useDeleteSchedule,
+  useBulkAttendance,
 } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import { formatDateWithDay } from '@/utils/date';
@@ -62,8 +66,11 @@ export default function ScheduleDetailScreen() {
   const recordMutation = useRecordAttendance(id, scheduleId);
   const deleteAttMutation = useDeleteAttendance(id, scheduleId);
   const deleteSchedMutation = useDeleteSchedule(id);
+  const bulkMutation = useBulkAttendance(id, scheduleId);
 
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set());
   const [confirmDelete, setConfirmDelete] = useState<HomecellAttendance | null>(null);
   const [confirmDeleteSchedule, setConfirmDeleteSchedule] = useState(false);
 
@@ -112,6 +119,64 @@ export default function ScheduleDetailScreen() {
         const msg = err instanceof ApiError ? err.message : t('error.network');
         showToast(msg, 'error');
         setConfirmDelete(null);
+      },
+    });
+  }
+
+  function toggleBulkSelect(jemaatId: string) {
+    setBulkSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(jemaatId)) next.delete(jemaatId);
+      else next.add(jemaatId);
+      return next;
+    });
+  }
+
+  function selectAllMissing() {
+    const missing = schedule?.missingMembers ?? [];
+    setBulkSelected(new Set(missing.map((m) => m.jemaatId)));
+  }
+
+  function deselectAll() {
+    setBulkSelected(new Set());
+  }
+
+  function openBulkModal() {
+    setBulkSelected(new Set());
+    setBulkOpen(true);
+  }
+
+  function handleBulkSubmit() {
+    const missing = schedule?.missingMembers ?? [];
+    const selectedKodes = missing
+      .filter((m) => bulkSelected.has(m.jemaatId))
+      .map((m) => m.kode);
+    if (selectedKodes.length === 0) return;
+
+    bulkMutation.mutate(selectedKodes, {
+      onSuccess: (result) => {
+        if (result.failed === 0) {
+          showToast(
+            t('homecell.schedule_bulk_result_all_success', { count: result.success }),
+            'success',
+          );
+        } else if (result.success === 0) {
+          showToast(t('homecell.schedule_bulk_result_all_failed'), 'error');
+        } else {
+          showToast(
+            t('homecell.schedule_bulk_result_partial', {
+              success: result.success,
+              failed: result.failed,
+            }),
+            'info',
+          );
+        }
+        setBulkOpen(false);
+        setBulkSelected(new Set());
+      },
+      onError: (err) => {
+        const msg = err instanceof ApiError ? err.message : t('error.network');
+        showToast(msg, 'error');
       },
     });
   }
@@ -322,13 +387,27 @@ export default function ScheduleDetailScreen() {
         ) : null}
       </ScrollView>
 
-      {/* FAB Scan QR — offset dari safe-area inset bottom supaya tidak
-          overlap Android gesture bar atau 3-button nav. Minimum 16px gap
-          dari edge sistem. */}
+      {/* FAB stack — Scan QR (primary brand) + Checklist Bulk (secondary white).
+          Offset dari safe-area inset bottom supaya tidak overlap Android gesture
+          bar atau 3-button nav. */}
       <View
-        className="absolute right-6"
+        className="absolute right-6 gap-3 items-end"
         style={{ bottom: insets.bottom + 16 }}
       >
+        {/* Secondary — Bulk checklist (hanya tampil kalau ada belum hadir) */}
+        {schedule.missingMembers.length > 0 ? (
+          <Pressable
+            onPress={openBulkModal}
+            className="bg-white border border-brand-500 rounded-full px-4 py-3 flex-row items-center gap-2 shadow-md"
+          >
+            <ListChecks size={18} color="#EA580C" />
+            <Text className="text-brand-600 font-bold text-sm">
+              {t('homecell.schedule_bulk_btn')}
+            </Text>
+          </Pressable>
+        ) : null}
+
+        {/* Primary — Scan QR */}
         <Pressable
           onPress={() => setScannerOpen(true)}
           className="bg-brand-500 rounded-full px-5 py-4 flex-row items-center gap-2 shadow-lg"
@@ -339,6 +418,171 @@ export default function ScheduleDetailScreen() {
           </Text>
         </Pressable>
       </View>
+
+      {/* Bulk Attendance Modal — checklist semua member yang belum hadir,
+          submit batch via Promise.allSettled loop single recordAttendance.
+          BE belum punya bulk endpoint, mobile workaround. */}
+      <Modal
+        visible={bulkOpen}
+        animationType="slide"
+        onRequestClose={() => setBulkOpen(false)}
+      >
+        <View className="flex-1 bg-neutral-50">
+          <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+            <View className="px-4 py-2 flex-row items-center">
+              <Pressable
+                onPress={() => setBulkOpen(false)}
+                className="w-10 h-10 items-center justify-center"
+                disabled={bulkMutation.isPending}
+              >
+                <X size={22} color="#171717" />
+              </Pressable>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-neutral-900">
+                  {t('homecell.schedule_bulk_modal_title')}
+                </Text>
+                <Text className="text-xs text-neutral-500">
+                  {formatDateWithDay(schedule.tanggal, lang)}
+                </Text>
+              </View>
+              {/* Select / Deselect All toggle */}
+              {schedule.missingMembers.length > 0 ? (
+                <Pressable
+                  onPress={
+                    bulkSelected.size === schedule.missingMembers.length
+                      ? deselectAll
+                      : selectAllMissing
+                  }
+                  className="px-3 py-1.5 rounded-lg bg-brand-50"
+                  disabled={bulkMutation.isPending}
+                >
+                  <Text className="text-xs font-bold text-brand-700">
+                    {bulkSelected.size === schedule.missingMembers.length
+                      ? t('homecell.schedule_bulk_deselect_all')
+                      : t('homecell.schedule_bulk_select_all')}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+          </SafeAreaView>
+
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{
+              paddingHorizontal: 20,
+              paddingTop: 16,
+              paddingBottom: insets.bottom + 100,
+            }}
+          >
+            <Text className="text-sm text-neutral-600 leading-relaxed mb-4">
+              {t('homecell.schedule_bulk_subtitle')}
+            </Text>
+
+            {/* Belum Hadir — Checkable */}
+            {schedule.missingMembers.length > 0 ? (
+              <>
+                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+                  {t('homecell.schedule_bulk_missing_section', {
+                    count: schedule.missingMembers.length,
+                  })}
+                </Text>
+                <View className="gap-2 mb-5">
+                  {schedule.missingMembers.map((m) => {
+                    const checked = bulkSelected.has(m.jemaatId);
+                    return (
+                      <Pressable
+                        key={m.jemaatId}
+                        onPress={() => toggleBulkSelect(m.jemaatId)}
+                        disabled={bulkMutation.isPending}
+                        className={`rounded-2xl p-3 flex-row items-center gap-3 border ${
+                          checked
+                            ? 'bg-brand-50 border-brand-300'
+                            : 'bg-white border-neutral-100'
+                        }`}
+                      >
+                        {checked ? (
+                          <CheckSquare size={22} color="#EA580C" />
+                        ) : (
+                          <Square size={22} color="#A3A3A3" />
+                        )}
+                        <View className="flex-1 min-w-0">
+                          <Text
+                            className="text-sm font-semibold text-neutral-900"
+                            numberOfLines={1}
+                          >
+                            {m.namaLengkap}
+                          </Text>
+                          <Text className="text-xs text-neutral-400 mt-0.5">{m.kode}</Text>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </>
+            ) : (
+              <View className="bg-white rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
+                <CheckCircle2 size={32} color="#10B981" />
+                <Text className="text-sm text-neutral-600 text-center mt-3">
+                  {t('homecell.schedule_bulk_empty')}
+                </Text>
+              </View>
+            )}
+
+            {/* Sudah Hadir — read-only reference */}
+            {schedule.attendances.length > 0 ? (
+              <>
+                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-3">
+                  {t('homecell.schedule_bulk_already_section', {
+                    count: schedule.attendances.length,
+                  })}
+                </Text>
+                <View className="gap-2">
+                  {schedule.attendances.map((a) => (
+                    <View
+                      key={a.id}
+                      className="bg-neutral-100 rounded-2xl p-3 flex-row items-center gap-3"
+                    >
+                      <CheckCircle2 size={20} color="#10B981" />
+                      <View className="flex-1 min-w-0">
+                        <Text
+                          className="text-sm font-medium text-neutral-700"
+                          numberOfLines={1}
+                        >
+                          {a.jemaat.namaLengkap}
+                        </Text>
+                        <Text className="text-xs text-neutral-500 mt-0.5">
+                          {a.jemaat.kode}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </>
+            ) : null}
+          </ScrollView>
+
+          {/* Submit footer */}
+          {schedule.missingMembers.length > 0 ? (
+            <View
+              className="bg-white border-t border-neutral-100 px-5 pt-3"
+              style={{ paddingBottom: insets.bottom + 12 }}
+            >
+              <Button
+                label={
+                  bulkSelected.size === 0
+                    ? t('homecell.schedule_bulk_submit_zero')
+                    : t('homecell.schedule_bulk_submit', { count: bulkSelected.size })
+                }
+                onPress={handleBulkSubmit}
+                loading={bulkMutation.isPending}
+                disabled={bulkSelected.size === 0 || bulkMutation.isPending}
+                fullWidth
+                size="lg"
+              />
+            </View>
+          ) : null}
+        </View>
+      </Modal>
 
       {/* Scanner modal — continuous (no auto-close after scan) */}
       <Modal

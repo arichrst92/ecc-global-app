@@ -970,7 +970,20 @@
     "schedule_delete_btn": "Hapus Jadwal",
     "schedule_delete_confirm": "Hapus jadwal pertemuan ini? Tidak bisa dibatalkan.",
     "schedule_delete_blocked": "Tidak bisa hapus — jadwal sudah punya kehadiran tercatat.",
-    "schedule_deleted_toast": "Jadwal pertemuan dihapus"
+    "schedule_deleted_toast": "Jadwal pertemuan dihapus",
+    "schedule_bulk_btn": "Absen Checklist",
+    "schedule_bulk_modal_title": "Pilih yang Hadir",
+    "schedule_bulk_subtitle": "Centang anggota yang hadir, lalu tap tombol di bawah untuk mencatat semuanya sekaligus.",
+    "schedule_bulk_already_section": "Sudah Hadir ({{count}})",
+    "schedule_bulk_missing_section": "Belum Hadir ({{count}})",
+    "schedule_bulk_select_all": "Pilih Semua",
+    "schedule_bulk_deselect_all": "Hapus Pilihan",
+    "schedule_bulk_submit": "Hadirkan {{count}} Orang",
+    "schedule_bulk_submit_zero": "Pilih minimal 1 anggota",
+    "schedule_bulk_empty": "Semua anggota sudah tercatat hadir.",
+    "schedule_bulk_result_all_success": "✓ {{count}} anggota berhasil dicatat hadir",
+    "schedule_bulk_result_partial": "{{success}} berhasil, {{failed}} gagal — coba lagi untuk yang gagal",
+    "schedule_bulk_result_all_failed": "Semua gagal dicatat. Cek koneksi internet."
   },
   "jemaat": {
     "detail_title": "Profil Jemaat",

@@ -95,3 +95,49 @@ export function useDeleteAttendance(homecellId: string, scheduleId: string) {
     },
   });
 }
+
+/**
+ * Bulk record attendance via checklist UI.
+ *
+ * BE belum punya bulk endpoint — mobile workaround Promise.allSettled loop
+ * ke single recordAttendance per kode. Return { success, failed, errors }
+ * supaya UI bisa show partial result toast.
+ *
+ * Dedicated BE bulk endpoint di-request via backend-request-homecell-bulk-attendance.md
+ * — nanti kalau delivered, swap implementation (keep hook signature).
+ */
+export type BulkAttendanceResult = {
+  success: number;
+  failed: number;
+  errors: Array<{ kode: string; error: string }>;
+};
+
+export function useBulkAttendance(homecellId: string, scheduleId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (kodes: string[]): Promise<BulkAttendanceResult> => {
+      const results = await Promise.allSettled(
+        kodes.map((kode) => recordAttendance(homecellId, scheduleId, kode)),
+      );
+      let success = 0;
+      let failed = 0;
+      const errors: BulkAttendanceResult['errors'] = [];
+      results.forEach((r, i) => {
+        if (r.status === 'fulfilled') {
+          success += 1;
+        } else {
+          failed += 1;
+          const msg = r.reason instanceof Error ? r.reason.message : 'Unknown error';
+          errors.push({ kode: kodes[i], error: msg });
+        }
+      });
+      return { success, failed, errors };
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ['homecell', homecellId, 'schedule', scheduleId],
+      });
+      qc.invalidateQueries({ queryKey: ['homecell', homecellId, 'schedules'] });
+    },
+  });
+}
