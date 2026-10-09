@@ -484,10 +484,18 @@ export default function EventDetailScreen() {
                   <Button
                     label={t('event.open_web_cta')}
                     onPress={() =>
-                      // Pakai WebBrowser (Custom Tabs / SFSafariViewController)
-                      // supaya URL /event/xxx/pembayaran tidak di-intercept oleh
-                      // App Links intent filter mobile sendiri → Unmatched Route.
-                      WebBrowser.openBrowserAsync(eventPaymentWebUrl).catch(() => {})
+                      // Pakai openAuthSessionAsync biar web button "Kembali ke
+                      // Els App" bisa auto-dismiss browser lewat redirect ke
+                      // scheme ecc://payment-done. Pattern sama dgn OAuth flow,
+                      // tapi kita re-purpose buat dismissal signaling.
+                      //
+                      // Web page redirect ke `ecc://payment-done` → SFSafariVC /
+                      // Chrome Custom Tabs dismiss → user kembali ke payment
+                      // screen (yg sudah punya upload bukti form).
+                      WebBrowser.openAuthSessionAsync(
+                        eventPaymentWebUrl,
+                        'ecc://payment-done',
+                      ).catch(() => {})
                     }
                     leftIcon={<HandHeart size={16} color="#fff" />}
                     fullWidth

@@ -20,14 +20,14 @@ export function BebasWebRedirect({ eventId }: { eventId: string }) {
   const router = useRouter();
   const url = `https://eccchurch.global/event/${encodeURIComponent(eventId)}/pembayaran`;
 
-  // Use WebBrowser.openBrowserAsync — Chrome Custom Tabs (Android) /
+  // Use WebBrowser.openAuthSessionAsync — Chrome Custom Tabs (Android) /
   // SFSafariViewController (iOS). Treated sebagai browser oleh OS sehingga
-  // TIDAK di-intercept oleh app's own App Links intent filter (yang match
-  // pathPrefix: /event). Kalau pakai Linking.openURL, Android routes URL
-  // balik ke app sendiri → Unmatched Route error karena route file
-  // /event/[id]/pembayaran.tsx tidak ada (payment logic di payment.tsx).
+  // TIDAK di-intercept oleh app's own App Links intent filter.
+  //
+  // openAuthSessionAsync (bukan openBrowserAsync) biar web button "Kembali
+  // ke Els App" bisa auto-dismiss browser via redirect ke ecc://payment-done.
   useEffect(() => {
-    WebBrowser.openBrowserAsync(url).catch(() => {
+    WebBrowser.openAuthSessionAsync(url, 'ecc://payment-done').catch(() => {
       // Silent — user can manually tap button below
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,7 +54,9 @@ export function BebasWebRedirect({ eventId }: { eventId: string }) {
           {t('event.bebas_web_body')}
         </Text>
         <Pressable
-          onPress={() => WebBrowser.openBrowserAsync(url).catch(() => {})}
+          onPress={() =>
+            WebBrowser.openAuthSessionAsync(url, 'ecc://payment-done').catch(() => {})
+          }
           className="bg-brand-500 rounded-2xl px-6 py-3.5"
         >
           <Text className="text-white font-bold text-sm">
