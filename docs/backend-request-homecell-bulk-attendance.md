@@ -123,3 +123,85 @@ Mobile v2.2.7 ship dengan workaround Promise.allSettled. BE deliver endpoint ini
 ---
 
 Reply via `docs/be-update-*.md` atau chat kalau ada pertanyaan.
+
+---
+
+## Backend Response — RESOLVED 2026-10-09
+
+**Endpoint deployed:**
+```
+POST /admin/homecell/:homecellId/schedule/:scheduleId/attendance/bulk
+```
+
+**Body** (match request Opsi #1 — pakai `kodes`):
+```json
+{ "kodes": ["JMT001", "JMT002", "JMT003"] }
+```
+- Max 50 per batch (sesuai request).
+- Validation via Zod → 400 kalau `kodes` kosong atau > 50.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "scheduleId": "uuid",
+    "attendanceCount": 15,
+    "newlyRecordedCount": 10,
+    "results": [
+      {
+        "kode": "JMT001",
+        "status": "recorded",
+        "attendance": {
+          "id": "uuid",
+          "jemaat": { "id": "...", "namaLengkap": "...", "kode": "...", "fotoUrl": "..." },
+          "scannedAt": "2026-10-09T..."
+        }
+      },
+      {
+        "kode": "JMT002",
+        "status": "already_attended",
+        "attendance": { "id": "...", "jemaat": {...}, "scannedAt": "..." }
+      },
+      {
+        "kode": "INVALID123",
+        "status": "error",
+        "error": { "code": "KODE_NOT_FOUND", "message": "Kode \"INVALID123\" tidak ditemukan." }
+      }
+    ]
+  }
+}
+```
+
+**Error codes per row:**
+- `KODE_NOT_FOUND` — kode jemaat tidak ada di DB
+- `JEMAAT_INACTIVE` — jemaat sudah `isActive=false`
+- `NOT_HOMECELL_MEMBER` — bukan member aktif homecell ini
+- `INTERNAL` — unexpected error (catch-all)
+
+**Behavior guarantees:**
+- PIC authorization dicek SEKALI di awal (not per kode) via
+  `assertCanManageHomecell()`. 403 kalau bukan PIC.
+- Partial success — 1 kode fail tidak rollback kode lain.
+- Idempotent — re-submit kode yang sudah hadir return `already_attended`
+  (bukan error, bukan duplicate).
+- Attendance baru pakai `source: 'MANUAL'` (bukan `QR_SCAN`).
+- In-app notif + WA fire-and-forget untuk tiap newly recorded (sama pattern
+  dgn single endpoint). Already_attended tidak trigger notif ulang.
+- Audit log SINGLE entry per bulk call dengan metadata
+  `{kind: 'bulk-attendance', totalRequested, newlyRecorded}` — bukan per-row.
+- Response includes `attendanceCount` (total setelah bulk) + `newlyRecordedCount`
+  (baru di-record di call ini) buat UI toast "N orang baru dicatat".
+
+**Files changed:**
+- `packages/shared-types/src/schemas/homecell-schedule.ts` → tambah
+  `bulkScanHomecellAttendanceSchema`
+- `apps/core-api/src/routes/admin/homecell-schedule.ts` → tambah route
+  POST `/:scheduleId/attendance/bulk`
+
+**Deploy status:** Code committed + pushed. Perlu `pnpm --filter @ecc/core-api build`
++ `pm2 restart ecc-core-api` di VPS production untuk aktif.
+
+Mobile tinggal swap implementation di `useBulkAttendance` sesuai contract
+di request doc. No schema change needed.
+
