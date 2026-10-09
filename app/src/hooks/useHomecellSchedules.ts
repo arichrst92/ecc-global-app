@@ -15,6 +15,7 @@ import {
   deleteSchedule,
   recordAttendance,
   deleteAttendance,
+  bulkRecordAttendance,
 } from '@/api/homecellSchedule';
 import type {
   CreateSchedulePayload,
@@ -99,16 +100,25 @@ export function useDeleteAttendance(homecellId: string, scheduleId: string) {
 /**
  * Bulk record attendance via checklist UI.
  *
- * BE belum punya bulk endpoint — mobile workaround Promise.allSettled loop
- * ke single recordAttendance per kode. Return { success, failed, errors }
- * supaya UI bisa show partial result toast.
+ * Per BE delivery 2026-10-09 — pakai dedicated endpoint
+ * POST /admin/homecell/:id/schedule/:scheduleId/attendance/bulk.
  *
- * Dedicated BE bulk endpoint di-request via backend-request-homecell-bulk-attendance.md
- * — nanti kalau delivered, swap implementation (keep hook signature).
+ * Return shape:
+ * - success = newlyRecorded + alreadyAttended (keduanya outcome yang "OK"
+ *   dari sudut pandang user — bukan error)
+ * - failed  = results dengan status 'error'
+ * - newlyRecorded = baru di-insert (exclude already_attended) — buat toast
+ *   yang lebih akurat
+ * - errors[] = per-row error untuk retry/debugging
+ *
+ * BE enforce max 50 kodes/batch. Mobile caller harus chunk kalau > 50
+ * (uncommon — homecell biasanya < 30 member).
  */
 export type BulkAttendanceResult = {
   success: number;
   failed: number;
+  newlyRecorded: number;
+  alreadyAttended: number;
   errors: Array<{ kode: string; error: string }>;
 };
 
@@ -116,22 +126,28 @@ export function useBulkAttendance(homecellId: string, scheduleId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (kodes: string[]): Promise<BulkAttendanceResult> => {
-      const results = await Promise.allSettled(
-        kodes.map((kode) => recordAttendance(homecellId, scheduleId, kode)),
-      );
-      let success = 0;
+      const res = await bulkRecordAttendance(homecellId, scheduleId, kodes);
+      let newlyRecorded = 0;
+      let alreadyAttended = 0;
       let failed = 0;
       const errors: BulkAttendanceResult['errors'] = [];
-      results.forEach((r, i) => {
-        if (r.status === 'fulfilled') {
-          success += 1;
+      res.results.forEach((r) => {
+        if (r.status === 'recorded') {
+          newlyRecorded += 1;
+        } else if (r.status === 'already_attended') {
+          alreadyAttended += 1;
         } else {
           failed += 1;
-          const msg = r.reason instanceof Error ? r.reason.message : 'Unknown error';
-          errors.push({ kode: kodes[i], error: msg });
+          errors.push({ kode: r.kode, error: r.error.message });
         }
       });
-      return { success, failed, errors };
+      return {
+        success: newlyRecorded + alreadyAttended,
+        failed,
+        newlyRecorded,
+        alreadyAttended,
+        errors,
+      };
     },
     onSuccess: () => {
       qc.invalidateQueries({

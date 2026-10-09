@@ -12,6 +12,7 @@ import type {
   HomecellScheduleDetail,
   CreateSchedulePayload,
   ScanAttendanceResponse,
+  BulkAttendanceResponse,
 } from '@/types/homecellSchedule';
 
 type ListOpts = { from?: string; to?: string; limit?: number };
@@ -90,5 +91,29 @@ export function deleteAttendance(
 ): Promise<{ deleted: true }> {
   return api.delete<{ deleted: true }>(
     `/admin/homecell/${homecellId}/schedule/${scheduleId}/attendance/${attendanceId}`,
+  );
+}
+
+/**
+ * Bulk record attendance via array of kodes. Per BE delivery 2026-10-09
+ * (docs/backend-request-homecell-bulk-attendance.md).
+ *
+ * Max 50 kodes per batch (BE enforced via Zod → 400 kalau > 50). Mobile
+ * caller must chunk kalau selected > 50 (uncommon case — homecell biasanya
+ * < 30 member).
+ *
+ * Partial success allowed — per-row status di `results[]`:
+ * - recorded: baru di-insert
+ * - already_attended: idempotent, kode sudah hadir sebelumnya
+ * - error: NOT_HOMECELL_MEMBER / KODE_NOT_FOUND / JEMAAT_INACTIVE / INTERNAL
+ */
+export function bulkRecordAttendance(
+  homecellId: string,
+  scheduleId: string,
+  kodes: string[],
+): Promise<BulkAttendanceResponse> {
+  return api.post<BulkAttendanceResponse>(
+    `/admin/homecell/${homecellId}/schedule/${scheduleId}/attendance/bulk`,
+    { kodes },
   );
 }

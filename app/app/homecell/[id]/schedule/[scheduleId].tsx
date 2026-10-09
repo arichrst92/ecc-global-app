@@ -155,9 +155,11 @@ export default function ScheduleDetailScreen() {
 
     bulkMutation.mutate(selectedKodes, {
       onSuccess: (result) => {
+        // newlyRecorded = baru dicatat di call ini (exclude already_attended)
+        // success = newlyRecorded + alreadyAttended (keduanya outcome yang "OK")
         if (result.failed === 0) {
           showToast(
-            t('homecell.schedule_bulk_result_all_success', { count: result.success }),
+            t('homecell.schedule_bulk_result_all_success', { count: result.newlyRecorded }),
             'success',
           );
         } else if (result.success === 0) {
@@ -165,7 +167,7 @@ export default function ScheduleDetailScreen() {
         } else {
           showToast(
             t('homecell.schedule_bulk_result_partial', {
-              success: result.success,
+              success: result.newlyRecorded,
               failed: result.failed,
             }),
             'info',

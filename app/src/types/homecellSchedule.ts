@@ -60,3 +60,29 @@ export type ScanAttendanceResponse = {
   alreadyAttended: boolean;
   attendanceCount: number;
 };
+
+/** Per-row result dari bulk endpoint. Per BE delivery 2026-10-09. */
+export type BulkAttendanceRowResult =
+  | {
+      kode: string;
+      status: 'recorded' | 'already_attended';
+      attendance: {
+        id: string;
+        jemaat: HomecellAttendance['jemaat'];
+        scannedAt: string;
+      };
+    }
+  | {
+      kode: string;
+      status: 'error';
+      error: { code: string; message: string };
+    };
+
+export type BulkAttendanceResponse = {
+  scheduleId: string;
+  /** Total setelah bulk (termasuk yang already_attended + newly recorded) */
+  attendanceCount: number;
+  /** Baru di-record di call ini (exclude already_attended) */
+  newlyRecordedCount: number;
+  results: BulkAttendanceRowResult[];
+};
