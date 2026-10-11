@@ -25,7 +25,6 @@ import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   ArrowLeft,
-  Camera as CameraIcon,
   CheckCircle2,
   CheckSquare,
   ListChecks,
@@ -41,6 +40,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
+import { ManualInputModal } from '@/components/scanner/ManualInputModal';
 import {
   useHomecellSchedule,
   useRecordAttendance,
@@ -69,6 +69,7 @@ export default function ScheduleDetailScreen() {
   const bulkMutation = useBulkAttendance(id, scheduleId);
 
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set());
   const [confirmDelete, setConfirmDelete] = useState<HomecellAttendance | null>(null);
@@ -78,7 +79,9 @@ export default function ScheduleDetailScreen() {
 
   const schedule = detailQuery.data;
 
-  function handleScan(kode: string) {
+  /** Dipakai scan QR + input kode manual. `onDone` dipanggil saat sukses
+   *  (mis. tutup modal input manual). */
+  function handleScan(kode: string, onDone?: () => void) {
     recordMutation.mutate(kode, {
       onSuccess: (data) => {
         const name = data.jemaat.namaLengkap;
@@ -87,6 +90,7 @@ export default function ScheduleDetailScreen() {
         } else {
           showToast(t('homecell.schedule_attendance_recorded', { name }), 'success');
         }
+        onDone?.();
       },
       onError: (err) => {
         if (err instanceof ApiError) {
@@ -97,7 +101,7 @@ export default function ScheduleDetailScreen() {
           if (code === 'NOT_HOMECELL_MEMBER') {
             showToast(t('homecell.schedule_attendance_not_member'), 'error');
           } else if (code === 'KODE_NOT_FOUND' || code === 'NOT_FOUND') {
-            showToast(t('homecell.kode_not_found_msg', { kode: '?' }), 'error');
+            showToast(t('homecell.kode_not_found_msg', { kode }), 'error');
           } else {
             showToast(err.message, 'error');
           }
@@ -609,14 +613,19 @@ export default function ScheduleDetailScreen() {
           </SafeAreaView>
           <View className="flex-1">
             <ScannerCamera
-              paused={recordMutation.isPending}
-              onScan={handleScan}
-              onManualInput={() => {
-                // Manual input deferred — untuk MVP scan only
-                showToast('Manual input belum tersedia', 'info');
-              }}
+              paused={recordMutation.isPending || manualOpen}
+              onScan={(kode) => handleScan(kode)}
+              onManualInput={() => setManualOpen(true)}
             />
           </View>
+          {/* Input kode manual (8 char) — untuk QR rusak / HP anggota mati.
+              Di-render di dalam scanner Modal supaya stack modal iOS aman. */}
+          <ManualInputModal
+            visible={manualOpen}
+            onClose={() => setManualOpen(false)}
+            onSubmit={(kode) => handleScan(kode, () => setManualOpen(false))}
+            loading={recordMutation.isPending}
+          />
           <View className="bg-black/60 px-5 py-3 pb-8">
             <Text className="text-xs text-white/70 text-center">
               {recordMutation.isPending
