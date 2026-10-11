@@ -115,3 +115,49 @@ End-to-end di HP: event BEBAS → "Lanjutkan" → web terbuka dalam keadaan logi
 ---
 
 Reply via `docs/be-update-*.md` atau chat.
+
+---
+
+## Backend Response — IMPLEMENTED 2026-10-11 (menunggu deploy)
+
+### #1 Mint — `POST /auth/web-action-token` ✅
+Sesuai spec: body `{ purpose: "event-payment", eventId }` → `{ token, expiresIn: 600 }`.
+- Terikat `jemaatId` (dari JWT) + `eventId` + `purpose`; sekali pakai; disimpan **SHA-256 hash** (raw token tidak pernah masuk DB).
+- Rate limit 10/menit per user.
+- `404 NOT_FOUND` kalau event tidak ada / belum published. `400 BAD_REQUEST` kalau event **GRATIS** (TETAP + BEBAS diizinkan).
+- `400` (Zod) kalau `purpose` bukan `event-payment` atau `eventId` bukan UUID.
+
+### #2 Exchange di web ✅
+- `https://eccchurch.global/event/{eventId}/pembayaran?wt={token}` → middleware landing menukar token ke BE (`POST /web-action/exchange`), set cookie `ecc_wa` (httpOnly, Secure, SameSite=Lax, 30 menit), lalu **302 ke URL yang sama tanpa `?wt`** dengan `Referrer-Policy: no-referrer`.
+- Token invalid / expired / sudah dipakai → halaman read-only + banner "Sesi kedaluwarsa, buka ulang dari Els App".
+- Tanpa `wt` → read-only seperti sekarang.
+- Exchange atomic (cegah race 2 tab): token kedua kali → `WEB_TOKEN_USED`.
+
+### #3 Halaman web ber-session ✅
+Kartu **Pendaftaran** muncul di bawah Info Pembayaran:
+- "Masuk sebagai {nama}"
+- Pilih peserta: diri sendiri + keluarga (dari `/admin/me/family`), yang sudah terdaftar ditandai ✓
+- Nominal per orang untuk BEBAS (min `max(Rp 1.000, event.nominal)`)
+- Upload bukti per peserta (status DAFTAR / MENUNGGU_VERIFIKASI) + status chip
+- Batal tetap di app
+- Tombol "Kembali ke Els App" tetap `ecc://payment-done`
+
+Session web **bukan JWT penuh**: hanya diterima di `/web-action/*` dengan scope 1 jemaat + 1 event. Endpoint event dengan `eventId` lain → `403 WEB_SESSION_SCOPE`. Logic daftar/upload memakai handler existing (`/peserta/batch`, `/peserta/:id/bukti`, `/peserta/mine-and-family`, `/me/family`) jadi validasi, notif, dan audit identik dengan app.
+
+### Perbaikan ikut ter-deliver (berdampak ke app juga)
+- `POST /admin/event/:id/peserta/batch` sebelumnya **tidak mengecek keluarga** — user bisa mendaftarkan jemaat lain. Sekarang non-Fulltimer hanya boleh `jemaatIds` = diri sendiri + keluarga → selain itu `403`.
+- Batch sebelumnya **tidak mengirim notif** `EVENT_REGISTERED`. Sekarang in-app notif + WA (kalau aktif) per peserta sukses, sama dengan endpoint single.
+
+### Error codes baru
+| Code | HTTP | Kapan |
+|---|---|---|
+| `WEB_TOKEN_INVALID` | 401 | token tidak dikenal |
+| `WEB_TOKEN_EXPIRED` | 401 | lewat 10 menit |
+| `WEB_TOKEN_USED` | 401 | sudah di-exchange |
+| `WEB_SESSION_EXPIRED` | 401 | session web > 30 menit / tidak ada |
+| `WEB_SESSION_SCOPE` | 403 | session dipakai untuk event lain |
+
+### Catatan mobile
+- Pakai `openAuthSessionAsync(url + '?wt=' + token, 'ecc://payment-done', { preferEphemeralSession: true })` — cookie tetap hidup selama browser session itu.
+- Fallback tanpa `wt` kalau mint gagal sudah aman (read-only).
+
