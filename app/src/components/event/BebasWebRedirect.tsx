@@ -12,26 +12,27 @@ import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, HandHeart } from 'lucide-react-native';
-import * as WebBrowser from 'expo-web-browser';
+
+import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
 
 export function BebasWebRedirect({ eventId }: { eventId: string }) {
   const { t } = useTranslation();
   const router = useRouter();
-  const url = `https://eccchurch.global/event/${encodeURIComponent(eventId)}/pembayaran`;
+  const queryClient = useQueryClient();
 
-  // Use WebBrowser.openAuthSessionAsync — Chrome Custom Tabs (Android) /
-  // SFSafariViewController (iOS). Treated sebagai browser oleh OS sehingga
-  // TIDAK di-intercept oleh app's own App Links intent filter.
-  //
-  // openAuthSessionAsync (bukan openBrowserAsync) biar web button "Kembali
-  // ke Els App" bisa auto-dismiss browser via redirect ke ecc://payment-done.
+  // Opsi A — daftar + upload bukti BEBAS di web dengan web action token
+  // (lihat src/utils/eventPaymentWeb.ts). Setelah browser tertutup → refresh
+  // status event + tracker keluarga supaya pendaftaran dari web terlihat.
+  async function openWeb() {
+    await openEventPaymentWeb(eventId);
+    await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
+    await queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', eventId] });
+  }
+
   useEffect(() => {
-    WebBrowser.openAuthSessionAsync(url, 'ecc://payment-done', {
-      preferEphemeralSession: true,
-    }).catch(() => {
-      // Silent — user can manually tap button below
-    });
+    void openWeb();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -56,11 +57,7 @@ export function BebasWebRedirect({ eventId }: { eventId: string }) {
           {t('event.bebas_web_body')}
         </Text>
         <Pressable
-          onPress={() =>
-            WebBrowser.openAuthSessionAsync(url, 'ecc://payment-done', {
-              preferEphemeralSession: true,
-            }).catch(() => {})
-          }
+          onPress={() => void openWeb()}
           className="bg-brand-500 rounded-2xl px-6 py-3.5"
         >
           <Text className="text-white font-bold text-sm">

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Modal, Platform, Pressable, ScrollView, Share, Text, View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
+import { ActivityIndicator, Image, Linking, Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,21 +14,12 @@ import { useEventDetail, useMyEventParticipations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { useAuthStore } from '@/stores/auth.store';
-import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
 import { buildEventShareUrl } from '@/utils/share';
+import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
 import { env } from '@/config/env';
 import type { EventParticipation } from '@/types/event';
-
-/** Build per-cabang persembahan URL — per BE notice 2026-08-31 */
-function buildPersembahanUrl(cabangKode: string | null | undefined): string {
-  const base = 'https://eccchurch.global/persembahan';
-  if (cabangKode && cabangKode.trim().length > 0) {
-    return `${base}/${encodeURIComponent(cabangKode.trim())}`;
-  }
-  return base;
-}
 
 export default function EventDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -40,7 +30,6 @@ export default function EventDetailScreen() {
 
   const query = useEventDetail(id);
   const event = query.data;
-  const { branch: viewingBranch } = useViewingBranch();
 
   // Family multi-participation list per BE update 2026-08-31.
   // Include self + JemaatRelasi direct + spouse-transitive. Skip BATAL.
@@ -203,11 +192,6 @@ export default function EventDetailScreen() {
   //   upload bukti + cancel (Apple 3.1.5b allows physical goods/services)
   // - GRATIS → in-app register (no payment involved)
   const isBebasOnly = event?.tipeBayar === 'NOMINAL_BEBAS';
-  // Event-specific web page (Phase 1 delivered — info rekening + QRIS +
-  // deep-link back button). Data source /public/event/:id.
-  const eventPaymentWebUrl = event
-    ? `https://eccchurch.global/event/${encodeURIComponent(event.id)}/pembayaran`
-    : buildPersembahanUrl(viewingBranch?.kode);
   const priceLabel = (() => {
     if (!event) return '';
     if (event.tipeBayar === 'GRATIS') return t('event.free');
@@ -483,23 +467,17 @@ export default function EventDetailScreen() {
                 <View className="flex-1">
                   <Button
                     label={t('event.open_web_cta')}
-                    onPress={() =>
-                      // Pakai openAuthSessionAsync biar web button "Kembali ke
-                      // Els App" bisa auto-dismiss browser lewat redirect ke
-                      // scheme ecc://payment-done. Pattern sama dgn OAuth flow,
-                      // tapi kita re-purpose buat dismissal signaling.
-                      //
-                      // Web page redirect ke `ecc://payment-done` → SFSafariVC /
-                      // Chrome Custom Tabs dismiss → user kembali ke payment
-                      // screen (yg sudah punya upload bukti form).
-                      // preferEphemeralSession: iOS skip alert "Els App wants
-                      // to use eccchurch.global to Sign In" (tidak butuh cookie).
-                      WebBrowser.openAuthSessionAsync(
-                        eventPaymentWebUrl,
-                        'ecc://payment-done',
-                        { preferEphemeralSession: true },
-                      ).catch(() => {})
-                    }
+                    onPress={async () => {
+                      // Opsi A: daftar + upload bukti BEBAS di web dengan web
+                      // action token (fallback read-only kalau token gagal).
+                      // Setelah browser tertutup → refresh supaya pendaftaran
+                      // dari web langsung muncul di tracker.
+                      await openEventPaymentWeb(event.id);
+                      await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
+                      await queryClient.invalidateQueries({
+                        queryKey: ['event', 'mine-and-family', id],
+                      });
+                    }}
                     leftIcon={<HandHeart size={16} color="#fff" />}
                     fullWidth
                     size="lg"

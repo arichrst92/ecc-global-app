@@ -154,6 +154,26 @@ export function verifyMagicLink(payload: VerifyMagicLinkPayload) {
 }
 
 /**
+ * POST /auth/web-action-token — token sekali pakai (TTL pendek) supaya web
+ * `/event/{id}/pembayaran` bisa bertindak atas nama jemaat untuk event itu
+ * saja (daftar + upload bukti NOMINAL_BEBAS). Per
+ * docs/backend-request-event-bebas-web-action-token.md.
+ *
+ * suppressErrorReport: caller fallback ke web read-only kalau endpoint belum
+ * ada / gagal — jangan polusi error dashboard.
+ */
+export function requestWebActionToken(payload: {
+  purpose: 'event-payment';
+  eventId: string;
+}) {
+  return api.post<{ token: string; expiresIn: number }>(
+    '/auth/web-action-token',
+    payload,
+    { suppressErrorReport: true },
+  );
+}
+
+/**
  * POST /auth/email/resend-magic-link
  * Alias dari request-magic-link — untuk UX "Kirim Ulang" saat user gak dapat email.
  * Share rate limiter dengan request-magic-link (5 per 1 jam per IP).
