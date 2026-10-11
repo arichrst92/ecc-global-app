@@ -27,7 +27,9 @@ export function BebasWebRedirect({ eventId }: { eventId: string }) {
   // openAuthSessionAsync (bukan openBrowserAsync) biar web button "Kembali
   // ke Els App" bisa auto-dismiss browser via redirect ke ecc://payment-done.
   useEffect(() => {
-    WebBrowser.openAuthSessionAsync(url, 'ecc://payment-done').catch(() => {
+    WebBrowser.openAuthSessionAsync(url, 'ecc://payment-done', {
+      preferEphemeralSession: true,
+    }).catch(() => {
       // Silent — user can manually tap button below
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,7 +57,9 @@ export function BebasWebRedirect({ eventId }: { eventId: string }) {
         </Text>
         <Pressable
           onPress={() =>
-            WebBrowser.openAuthSessionAsync(url, 'ecc://payment-done').catch(() => {})
+            WebBrowser.openAuthSessionAsync(url, 'ecc://payment-done', {
+              preferEphemeralSession: true,
+            }).catch(() => {})
           }
           className="bg-brand-500 rounded-2xl px-6 py-3.5"
         >

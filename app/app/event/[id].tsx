@@ -492,9 +492,12 @@ export default function EventDetailScreen() {
                       // Web page redirect ke `ecc://payment-done` → SFSafariVC /
                       // Chrome Custom Tabs dismiss → user kembali ke payment
                       // screen (yg sudah punya upload bukti form).
+                      // preferEphemeralSession: iOS skip alert "Els App wants
+                      // to use eccchurch.global to Sign In" (tidak butuh cookie).
                       WebBrowser.openAuthSessionAsync(
                         eventPaymentWebUrl,
                         'ecc://payment-done',
+                        { preferEphemeralSession: true },
                       ).catch(() => {})
                     }
                     leftIcon={<HandHeart size={16} color="#fff" />}
