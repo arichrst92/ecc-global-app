@@ -596,7 +596,8 @@ export default function ScheduleDetailScreen() {
       <Modal
         visible={scannerOpen}
         animationType="slide"
-        onRequestClose={() => setScannerOpen(false)}
+        // Back Android: tutup form input manual dulu (overlay), baru scanner
+        onRequestClose={() => (manualOpen ? setManualOpen(false) : setScannerOpen(false))}
         statusBarTranslucent
         navigationBarTranslucent
       >
@@ -623,12 +624,13 @@ export default function ScheduleDetailScreen() {
             />
           </View>
           {/* Input kode manual (8 char) — untuk QR rusak / HP anggota mati.
-              Di-render di dalam scanner Modal supaya stack modal iOS aman. */}
+              `inline` = overlay di dalam scanner Modal (nested Modal tidak tampil). */}
           <ManualInputModal
             visible={manualOpen}
             onClose={() => setManualOpen(false)}
             onSubmit={(kode) => handleScan(kode, () => setManualOpen(false))}
             loading={recordMutation.isPending}
+            inline
           />
           <View className="bg-black/60 px-5 pt-3" style={{ paddingBottom: insets.bottom + 12 }}>
             <Text className="text-xs text-white/70 text-center">

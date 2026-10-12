@@ -4,6 +4,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -20,6 +21,7 @@ export function ManualInputModal({
   loading,
   title,
   placeholder,
+  inline,
 }: {
   visible: boolean;
   onClose: () => void;
@@ -29,6 +31,8 @@ export function ManualInputModal({
   title?: string;
   /** Override placeholder di TextInput. */
   placeholder?: string;
+  /** Render sebagai overlay (bukan Modal) — wajib kalau dipakai di dalam Modal lain. */
+  inline?: boolean;
 }) {
   const { t } = useTranslation();
   const [kode, setKode] = useState('');
@@ -51,8 +55,7 @@ export function ManualInputModal({
     onClose();
   }
 
-  return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+  const content = (
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1 bg-black/60 justify-end"
@@ -114,6 +117,23 @@ export function ManualInputModal({
           </View>
         </View>
       </KeyboardAvoidingView>
+  );
+
+  // Inline: render sebagai overlay absolute — dipakai kalau komponen ini
+  // berada DI DALAM Modal lain (mis. scanner homecell). Modal bertumpuk
+  // sering tidak tampil di RN (iOS/Android), jadi hindari nested Modal.
+  if (inline) {
+    if (!visible) return null;
+    return (
+      <View style={[StyleSheet.absoluteFill, { zIndex: 100, elevation: 100 }]}>
+        {content}
+      </View>
+    );
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      {content}
     </Modal>
   );
 }
