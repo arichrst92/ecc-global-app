@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FlatList, Modal, Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check, ChevronDown, X } from 'lucide-react-native';
 
 export type PickerOption = {
@@ -35,6 +35,9 @@ export function Picker({
   modalTitle,
 }: Props) {
   const [visible, setVisible] = useState(false);
+  // Modal = window terpisah → SafeAreaView native bisa lapor inset 0
+  // (header ketutup status bar). Pakai inset dari root provider.
+  const insets = useSafeAreaInsets();
   const selected = options.find((o) => o.value === value);
 
   return (
@@ -57,8 +60,11 @@ export function Picker({
         <Text className="text-xs text-neutral-500 mt-1">{helper}</Text>
       ) : null}
 
-      <Modal visible={visible} animationType="slide" onRequestClose={() => setVisible(false)}>
-        <SafeAreaView className="flex-1 bg-white">
+      <Modal visible={visible} animationType="slide" onRequestClose={() => setVisible(false)}
+        statusBarTranslucent
+        navigationBarTranslucent
+      >
+        <View className="flex-1 bg-white" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
           <View className="flex-row items-center px-5 py-3 border-b border-neutral-100">
             <Text className="flex-1 text-lg font-bold text-neutral-900">{modalTitle ?? label}</Text>
             <Pressable onPress={() => setVisible(false)} className="w-9 h-9 items-center justify-center">
@@ -89,7 +95,7 @@ export function Picker({
               );
             }}
           />
-        </SafeAreaView>
+        </View>
       </Modal>
     </View>
   );

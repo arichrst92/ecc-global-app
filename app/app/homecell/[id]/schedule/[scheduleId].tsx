@@ -432,9 +432,11 @@ export default function ScheduleDetailScreen() {
         visible={bulkOpen}
         animationType="slide"
         onRequestClose={() => setBulkOpen(false)}
+        statusBarTranslucent
+        navigationBarTranslucent
       >
         <View className="flex-1 bg-neutral-50">
-          <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+          <View className="bg-white border-b border-neutral-100" style={{ paddingTop: insets.top }}>
             <View className="px-4 py-2 flex-row items-center">
               <Pressable
                 onPress={() => setBulkOpen(false)}
@@ -470,7 +472,7 @@ export default function ScheduleDetailScreen() {
                 </Pressable>
               ) : null}
             </View>
-          </SafeAreaView>
+          </View>
 
           <ScrollView
             className="flex-1"
@@ -595,9 +597,11 @@ export default function ScheduleDetailScreen() {
         visible={scannerOpen}
         animationType="slide"
         onRequestClose={() => setScannerOpen(false)}
+        statusBarTranslucent
+        navigationBarTranslucent
       >
         <View className="flex-1 bg-black">
-          <SafeAreaView edges={['top']} className="bg-black/60">
+          <View className="bg-black/60" style={{ paddingTop: insets.top }}>
             <View className="px-4 py-2 flex-row items-center">
               <Pressable
                 onPress={() => setScannerOpen(false)}
@@ -610,7 +614,7 @@ export default function ScheduleDetailScreen() {
               </Text>
               <View className="w-10 h-10" />
             </View>
-          </SafeAreaView>
+          </View>
           <View className="flex-1">
             <ScannerCamera
               paused={recordMutation.isPending || manualOpen}
@@ -626,7 +630,7 @@ export default function ScheduleDetailScreen() {
             onSubmit={(kode) => handleScan(kode, () => setManualOpen(false))}
             loading={recordMutation.isPending}
           />
-          <View className="bg-black/60 px-5 py-3 pb-8">
+          <View className="bg-black/60 px-5 pt-3" style={{ paddingBottom: insets.bottom + 12 }}>
             <Text className="text-xs text-white/70 text-center">
               {recordMutation.isPending
                 ? 'Mencatat kehadiran...'

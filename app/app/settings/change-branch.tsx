@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -30,6 +30,7 @@ export default function ChangeBranchScreen() {
 
   const branchesQuery = useBranches();
   const homeBranchQuery = useHomeBranch();
+  const insets = useSafeAreaInsets();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selected, setSelected] = useState<Cabang | null>(null);
@@ -133,8 +134,10 @@ export default function ChangeBranchScreen() {
         visible={pickerOpen}
         animationType="slide"
         onRequestClose={() => setPickerOpen(false)}
+        statusBarTranslucent
+        navigationBarTranslucent
       >
-        <SafeAreaView className="flex-1 bg-neutral-50">
+        <View className="flex-1 bg-neutral-50" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
           <View className="bg-white border-b border-neutral-100 px-4 py-3 flex-row items-center">
             <Pressable
               onPress={() => setPickerOpen(false)}
@@ -175,7 +178,7 @@ export default function ChangeBranchScreen() {
               ))}
             </View>
           </ScrollView>
-        </SafeAreaView>
+        </View>
       </Modal>
 
       {/* Confirm */}
