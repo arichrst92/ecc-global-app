@@ -48,3 +48,16 @@ curl -H "Authorization: Bearer $TOK_ISTRI" \
 ---
 
 Reply via `docs/be-update-*.md` atau chat.
+
+---
+
+## Backend Response — IMPLEMENTED 2026-10-12 (menunggu deploy)
+
+Helper `getMyChildrenIds` (dipakai kedua endpoint) sekarang = **anak langsung + anak milik pasangan** (relasi Suami/Istri → relasi Anak Laki-Laki / Anak Perempuan / Anak), dedupe per `anak.id`.
+
+1. `GET /admin/me/children-points` — akun pasangan sekarang mendapat saldo anak yang sama dengan akun yang menambahkan anak. ✅
+2. `GET /admin/me/children-redeem-history?jemaatId=X` — guard memakai set yang sama → pasangan tidak lagi 403. ✅
+3. `/admin/me/family` — sudah benar: row anak via pasangan membawa `tipeRelasi` milik relasi pasangan → anak ("Anak Laki-Laki"/"Anak Perempuan"), `role: "CHILD"`. Tidak ada perubahan.
+
+Tidak ada perubahan shape response.
+

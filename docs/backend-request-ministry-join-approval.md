@@ -135,3 +135,40 @@ curl -X POST -H "Authorization: Bearer $TOK_LEADER" -H "Content-Type: applicatio
 ---
 
 Reply via `docs/be-update-*.md` atau chat.
+
+---
+
+## Backend Response — IMPLEMENTED 2026-10-12 (menunggu deploy)
+
+### #1 Schema — tabel terpisah `PelayananJoinRequest`
+Dipilih tabel terpisah (bukan status di `JemaatPelayanan`) supaya membership tetap selalu aktif dan semua query anggota/jadwal/profil existing tidak berubah — otomatis hanya menghitung anggota aktif. Status request: `PENDING` / `APPROVED` / `REJECTED` / `CANCELLED`. Maksimal 1 request PENDING per (jemaat, ministry) dijaga unique index di DB.
+
+### #2 `POST /admin/ministry/:id/join` ✅
+Body tetap `{ roleId?, motivasi? }`. Response:
+```json
+{ "membershipId": "uuid", "requestId": "uuid", "status": "PENDING",
+  "ministry": { "id": "uuid", "nama": "Worship" }, "posisi": "Vocalist" }
+```
+`membershipId` berisi id **request** (sama dgn `requestId`) — membership baru dibuat saat approve.
+- Sudah anggota aktif → `409 ALREADY_MEMBER`
+- Masih ada PENDING → `409 JOIN_REQUEST_PENDING` ("Permintaan Anda masih menunggu persetujuan")
+- Pernah REJECTED → boleh ajukan lagi
+- Notif `MINISTRY_JOIN_REQUESTED` ke leader, meta `{ ministryId, requestId }` + WA (kalau diaktifkan)
+
+### #3 `GET /admin/ministry/:id` ✅
+Tambah `myJoinRequest` (PENDING / REJECTED terbaru; `null` kalau sudah anggota / tidak ada / APPROVED / CANCELLED), `canManageRequests`, `pendingRequestCount` (0 kalau bukan pengelola). `GET /admin/ministry` list juga punya `pendingRequestCount`.
+
+**`canManageRequests`** = membership aktif di ministry tsb dengan role **level ≥ 5** (Leader, Co-Leader, dst.) **atau** Fulltimer.
+
+### #4 Endpoint leader ✅
+- `GET /admin/ministry/:id/join-requests` — PENDING urut `createdAt ASC`, shape sesuai request
+- `POST .../join-requests/:reqId/approve` `{ roleId }` — roleId wajib & harus role aktif ministry ini → membership aktif, `tanggalMulai = now`. Notif `MINISTRY_JOIN_APPROVED`
+- `POST .../join-requests/:reqId/reject` `{ reason? }` (max 300) → Notif `MINISTRY_JOIN_REJECTED`
+- Bukan pengelola → `403`. Request sudah bukan PENDING → `409 JOIN_REQUEST_NOT_PENDING` (atomic, aman kalau 2 leader klik bersamaan)
+
+### #5 `DELETE /admin/ministry/:id/join-request` ✅
+Request PENDING milik sendiri → status `CANCELLED`. `404` kalau tidak ada.
+
+### Notif
+In-app type baru: `MINISTRY_JOIN_REQUESTED`, `MINISTRY_JOIN_APPROVED`, `MINISTRY_JOIN_REJECTED`, `actionUrl: /ministry/{id}`. Ketiganya juga punya WA config (default nonaktif, aktifkan dari portal).
+
