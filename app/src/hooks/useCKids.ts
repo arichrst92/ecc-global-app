@@ -126,6 +126,45 @@ export function useMyChildrenGroupedBalances(): {
   };
 }
 
+/**
+ * Daftar anak (dari /admin/me/family) + saldo poin (opsional, dari
+ * /admin/me/children-points). Dipakai layar QR C-Kids.
+ *
+ * Kenapa tidak cukup children-points saja: endpoint itu (a) skip anak yang
+ * belum punya poin, dan (b) hanya cari relasi LANGSUNG requester → anak.
+ * Akun pasangan yang melihat anak via relasi pasangan dapat `[]` → QR tidak
+ * bisa tampil, padahal kode QR anak sudah ada di data keluarga.
+ */
+export function useMyChildrenWithBalances(): {
+  isPending: boolean;
+  data: ChildGroupedBalance[];
+} {
+  const { children, isPending } = useMyChildren();
+  const balances = useMyChildrenGroupedBalances();
+
+  const data = useMemo<ChildGroupedBalance[]>(
+    () =>
+      children.map((rel) => {
+        const b = balances.data.find((x) => x.anak.id === rel.jemaat.id);
+        return (
+          b ?? {
+            anak: {
+              id: rel.jemaat.id,
+              namaLengkap: rel.jemaat.namaLengkap,
+              fotoUrl: rel.jemaat.fotoUrl,
+              kode: rel.jemaat.kode,
+            },
+            balances: [],
+            totalBalance: 0,
+          }
+        );
+      }),
+    [children, balances.data],
+  );
+
+  return { isPending: isPending || balances.isPending, data };
+}
+
 /** Katalog hadiah cabang tertentu. */
 export function useHadiahKatalog(cabangId: string | undefined) {
   return useQuery({

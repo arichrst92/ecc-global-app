@@ -199,7 +199,7 @@ POST /admin/homecell/:homecellId/schedule/:scheduleId/attendance/bulk
 - `apps/core-api/src/routes/admin/homecell-schedule.ts` → tambah route
   POST `/:scheduleId/attendance/bulk`
 
-**Deploy status:** Code committed + pushed. Perlu `pnpm --filter @ecc/core-api build`
+**Deploy status:** ✅ DEPLOYED ke production (dikonfirmasi Ari 2026-10-11). Code committed + pushed. Perlu `pnpm --filter @ecc/core-api build`
 + `pm2 restart ecc-core-api` di VPS production untuk aktif.
 
 Mobile tinggal swap implementation di `useBulkAttendance` sesuai contract

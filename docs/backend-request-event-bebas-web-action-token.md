@@ -118,7 +118,7 @@ Reply via `docs/be-update-*.md` atau chat.
 
 ---
 
-## Backend Response — IMPLEMENTED 2026-10-11 (menunggu deploy)
+## Backend Response — IMPLEMENTED & DEPLOYED 2026-10-11 (deploy dikonfirmasi Ari)
 
 ### #1 Mint — `POST /auth/web-action-token` ✅
 Sesuai spec: body `{ purpose: "event-payment", eventId }` → `{ token, expiresIn: 600 }`.

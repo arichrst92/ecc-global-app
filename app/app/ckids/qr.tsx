@@ -7,7 +7,7 @@
  *
  * Per BE notice ckids-mobile-tab 2026-08-01.
  */
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -15,20 +15,31 @@ import { ArrowLeft, Baby, ShoppingBag } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { Avatar } from '@/components/ui/Avatar';
-import { useMyChildrenGroupedBalances } from '@/hooks/useCKids';
+import { useMyChildrenWithBalances } from '@/hooks/useCKids';
 import { useCKidsSelectionStore } from '@/stores/ckids-selection.store';
 
 export default function CKidsQrScreen() {
   const { t } = useTranslation();
   const router = useRouter();
 
-  const balancesQuery = useMyChildrenGroupedBalances();
+  // Daftar anak dari data keluarga + poin opsional — supaya QR tetap tampil
+  // untuk anak yang belum punya poin, dan untuk akun pasangan yang melihat
+  // anak via relasi pasangan (children-points return [] untuk mereka).
+  const childrenQuery = useMyChildrenWithBalances();
   const selectedAnakId = useCKidsSelectionStore((s) => s.selectedAnakId);
 
   const selected =
-    balancesQuery.data.find((b) => b.anak.id === selectedAnakId) ??
-    balancesQuery.data[0] ??
+    childrenQuery.data.find((b) => b.anak.id === selectedAnakId) ??
+    childrenQuery.data[0] ??
     null;
+
+  if (!selected && childrenQuery.isPending) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator color="#F97316" />
+      </View>
+    );
+  }
 
   if (!selected) {
     return (
