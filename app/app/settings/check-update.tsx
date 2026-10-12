@@ -11,7 +11,7 @@
  */
 import { useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import Constants from 'expo-constants';
@@ -37,6 +37,7 @@ type CheckResult =
   | { status: 'error'; message: string };
 
 export default function CheckUpdateScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const [result, setResult] = useState<CheckResult>({ status: 'idle' });
@@ -93,7 +94,7 @@ export default function CheckUpdateScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         {/* Current version card */}
         <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center mb-4">

@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Building2, MapPin } from 'lucide-react-native';
@@ -15,6 +15,7 @@ import { useBranches } from '@/hooks/useBranches';
  * Tujuan: jemaat potential (guest) bisa lihat cabang terdekat sebelum daftar.
  */
 export default function BranchListScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const branchesQuery = useBranches();
@@ -37,7 +38,7 @@ export default function BranchListScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         <Text className="text-xs text-neutral-500 mb-3 px-1">
           {t('branch_list.subtitle')}

@@ -17,7 +17,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -39,6 +39,7 @@ import { INDUSTRI_SUGGESTIONS, type LocalBusiness, type TipeBisnis } from '@/typ
 type OnlineFilter = 'all' | 'online' | 'offline';
 
 export default function LocalMarketScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const { viewingCabangId } = useViewingBranch();
@@ -169,7 +170,7 @@ export default function LocalMarketScreen() {
           contentContainerStyle={{
             paddingHorizontal: 20,
             paddingVertical: 16,
-            paddingBottom: 32,
+            paddingBottom: insets.bottom + 32,
             gap: 10,
           }}
           refreshControl={

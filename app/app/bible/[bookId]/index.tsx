@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react-native';
@@ -9,6 +9,7 @@ import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
 /** Book detail — grid pasal 1..totalBab. Semua pasal sekarang available
  * (bundle BIMK + KJV full). */
 export default function BibleBookScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const { bookId } = useLocalSearchParams<{ bookId: string }>();
@@ -54,7 +55,7 @@ export default function BibleBookScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
           {t('bible.select_chapter')}

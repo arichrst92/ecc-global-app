@@ -1,10 +1,11 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ChevronRight, Phone, QrCode, UserPlus } from 'lucide-react-native';
 
 export default function FamilyAddOptionsScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -53,7 +54,7 @@ export default function FamilyAddOptionsScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24, paddingHorizontal: 20, paddingVertical: 16 }}
       >
         <Text className="text-sm text-neutral-600 mb-4 leading-relaxed">
           {t('family.add_intro')}

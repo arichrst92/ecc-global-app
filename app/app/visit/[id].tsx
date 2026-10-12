@@ -22,7 +22,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -49,6 +49,7 @@ import {
 import { ApiError } from '@/types/api';
 
 export default function VisitDetailScreen() {
+  const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const localeCode = i18n.language === 'id' ? 'id-ID' : 'en-US';
   const router = useRouter();
@@ -247,7 +248,7 @@ export default function VisitDetailScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         {/* Lawan profile */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">

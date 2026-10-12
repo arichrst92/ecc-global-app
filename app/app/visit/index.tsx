@@ -17,7 +17,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Handshake, MapPin, Plus, QrCode, Sparkles } from 'lucide-react-native';
@@ -32,6 +32,7 @@ type RoleFilter = 'all' | 'initiator' | 'target';
 type Section = { title: string; data: VisitListItem[] };
 
 export default function VisitListScreen() {
+  const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const router = useRouter();
@@ -129,7 +130,7 @@ export default function VisitListScreen() {
         <FlatList
           data={rows}
           keyExtractor={(r) => r.key}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
           refreshControl={
             <RefreshControl
               refreshing={query.isRefetching}

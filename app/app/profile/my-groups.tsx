@@ -13,7 +13,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ChevronRight, Lock, Plus, Users } from 'lucide-react-native';
@@ -23,6 +23,7 @@ import { GROUP_JENIS_LABELS } from '@/types/group';
 import type { GroupMembership } from '@/types/group';
 
 export default function MyGroupsScreen() {
+  const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'id' | 'en';
   const router = useRouter();
@@ -62,7 +63,7 @@ export default function MyGroupsScreen() {
         contentContainerStyle={{
           paddingHorizontal: 20,
           paddingVertical: 16,
-          paddingBottom: 32,
+          paddingBottom: insets.bottom + 32,
         }}
         refreshControl={
           <RefreshControl

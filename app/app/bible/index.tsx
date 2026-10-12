@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -36,6 +36,7 @@ import type { BibleBook, Testament } from '@/types/bible';
  * tidak punya ayat-nya.
  */
 export default function BibleHomeScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const lastRead = useBibleStore((s) => s.lastRead);
@@ -107,7 +108,7 @@ export default function BibleHomeScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         {/* Verse of day */}
         <View className="bg-white rounded-2xl p-5 border border-brand-100 mb-4">

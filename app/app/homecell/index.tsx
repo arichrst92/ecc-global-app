@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ChevronRight, Clock, MapPin, Users } from 'lucide-react-native';
@@ -15,6 +15,7 @@ import { useManagedHomecells } from '@/hooks/useHomecell';
 import type { PicHomecell } from '@/types/homecell';
 
 export default function HomecellListScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const query = useManagedHomecells();
@@ -41,7 +42,7 @@ export default function HomecellListScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
           <RefreshControl
             refreshing={query.isRefetching}

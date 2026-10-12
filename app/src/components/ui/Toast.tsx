@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { useEffect } from 'react';
 import { Animated, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRef } from 'react';
 
 type ToastType = 'info' | 'success' | 'error' | 'warning';
@@ -35,6 +36,7 @@ const typeStyles: Record<ToastType, string> = {
  */
 export function ToastContainer() {
   const { message, type } = useToast();
+  const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -50,8 +52,9 @@ export function ToastContainer() {
   return (
     <Animated.View
       pointerEvents="none"
-      style={{ opacity }}
-      className="absolute bottom-24 left-0 right-0 items-center px-5 z-50"
+      // Di atas tab bar + navigation bar (edge-to-edge) di semua device
+      style={{ opacity, bottom: insets.bottom + 80 }}
+      className="absolute left-0 right-0 items-center px-5 z-50"
     >
       <View className={`${typeStyles[type]} rounded-xl px-4 py-3 max-w-md`}>
         <Text className="text-white text-sm font-medium text-center">{message}</Text>

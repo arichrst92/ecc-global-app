@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
 import { Camera as CameraIcon, Keyboard } from 'lucide-react-native';
@@ -25,6 +26,7 @@ export function ScannerCamera({
   onManualInput: () => void;
 }) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const lastScanRef = useRef<{ kode: string; ts: number } | null>(null);
 
@@ -102,7 +104,9 @@ export function ScannerCamera({
 
       {/* Manual input fab bottom */}
       <View
-        className="absolute bottom-8 left-0 right-0 items-center"
+        className="absolute left-0 right-0 items-center"
+        // Jangan ketutup navigation bar / home indicator (edge-to-edge)
+        style={{ bottom: Math.max(32, insets.bottom + 16) }}
         pointerEvents="box-none"
       >
         <Pressable

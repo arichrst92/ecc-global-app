@@ -3,7 +3,7 @@
  * Per BE patch 22b.
  */
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Shield } from 'lucide-react-native';
@@ -12,6 +12,7 @@ import { MarkdownView } from '@/components/ui/MarkdownView';
 import { useLegalDocument } from '@/hooks/useLegal';
 
 export default function PrivacyScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const query = useLegalDocument('PRIVACY');
@@ -35,7 +36,7 @@ export default function PrivacyScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center mb-4">
           <View className="w-14 h-14 rounded-2xl bg-blue-50 items-center justify-center mb-2">

@@ -1,5 +1,5 @@
 import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Bookmark, Calendar, MapPin, Share2, User } from 'lucide-react-native';
@@ -12,6 +12,7 @@ import { formatDate } from '@/utils/date';
 import { buildNewsShareUrl } from '@/utils/share';
 
 export default function NewsDetailScreen() {
+  const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function NewsDetailScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}>
         {/* Floating header */}
         <View className="absolute top-0 left-0 right-0 z-10" pointerEvents="box-none">
           <SafeAreaView edges={['top']}>

@@ -1,5 +1,5 @@
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ChevronRight, ExternalLink, FileText, Globe, Mail, Shield } from 'lucide-react-native';
@@ -8,6 +8,7 @@ import * as Linking from 'expo-linking';
 import Constants from 'expo-constants';
 
 export default function AboutScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const version = (Constants.expoConfig?.version as string) ?? '1.6.0';
@@ -30,7 +31,7 @@ export default function AboutScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 32 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: insets.bottom + 32 }}
       >
         <View className="items-center mb-6">
           <Image

@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check, Globe } from 'lucide-react-native';
@@ -19,6 +19,7 @@ const LANGS: Lang[] = [
 ];
 
 export default function LanguageScreen() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const currentLang = usePreferencesStore((s) => s.language);
@@ -42,7 +43,7 @@ export default function LanguageScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24, paddingHorizontal: 20, paddingTop: 16 }}
       >
         <View className="bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-4 flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-xl bg-brand-500 items-center justify-center">

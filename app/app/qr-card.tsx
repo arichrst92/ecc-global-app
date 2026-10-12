@@ -114,7 +114,9 @@ export default function QrCardScreen() {
 
   return (
     <View className="flex-1 bg-brand-600">
-      <SafeAreaView edges={['top']} className="flex-1">
+      {/* top + bottom: indikator halaman & peringatan blur di bawah tidak
+          ketutup navigation bar (edge-to-edge). */}
+      <SafeAreaView edges={['top', 'bottom']} className="flex-1">
         <View className="px-5 pt-2 pb-2 flex-row items-center gap-3">
           <Pressable
             onPress={() => router.back()}
