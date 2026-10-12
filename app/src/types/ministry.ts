@@ -64,4 +64,36 @@ export type MinistryDetail = {
     posisi: string | null;
     sinceDate: string;
   } | null;
+  /** Request join terakhir user (PENDING / REJECTED). Per
+   *  docs/backend-request-ministry-join-approval.md — optional sampai BE deploy. */
+  myJoinRequest?: MyJoinRequest | null;
+  /** true = user boleh approve/reject request (leader). Optional sampai BE deploy. */
+  canManageRequests?: boolean;
+  /** Jumlah request PENDING (hanya untuk yang canManageRequests). */
+  pendingRequestCount?: number;
+};
+
+export type MyJoinRequest = {
+  id: string;
+  status: 'PENDING' | 'REJECTED';
+  requestedRole: MinistryRole | null;
+  motivasi: string | null;
+  createdAt: string;
+  rejectReason: string | null;
+};
+
+/** Row dari GET /admin/ministry/:id/join-requests (leader only) */
+export type MinistryJoinRequest = {
+  id: string;
+  createdAt: string;
+  motivasi: string | null;
+  requestedRole: MinistryRole | null;
+  jemaat: {
+    id: string;
+    namaLengkap: string;
+    kode?: string;
+    fotoUrl?: string | null;
+    noHp?: string | null;
+    cabang?: { id: string; nama: string } | null;
+  };
 };

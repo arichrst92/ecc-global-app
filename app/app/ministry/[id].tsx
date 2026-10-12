@@ -20,28 +20,37 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   CheckCircle2,
+  ChevronRight,
   Circle,
   Clock,
   HeartHandshake,
+  Hourglass,
   MapPin,
   MessageCircle,
+  UserPlus,
   Users,
   X,
+  XCircle,
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import {
+  useApproveJoinRequest,
+  useCancelMyJoinRequest,
   useJoinMinistry,
   useMinistryDetail,
+  useMinistryJoinRequests,
   useMinistrySchedule,
+  useRejectJoinRequest,
 } from '@/hooks/useMinistry';
 import { useAuthStore } from '@/stores/auth.store';
-import type { MinistryMember, MinistryRole } from '@/types/ministry';
+import type { MinistryJoinRequest, MinistryMember, MinistryRole } from '@/types/ministry';
 import { ApiError } from '@/types/api';
 import { formatDateWithDay } from '@/utils/date';
 
@@ -61,6 +70,18 @@ export default function MinistryDetailScreen() {
   const scheduleQuery = useMinistrySchedule(id);
   const schedules = scheduleQuery.data ?? [];
 
+  // Approval flow (docs/backend-request-ministry-join-approval.md). Field
+  // `canManageRequests` hanya ada di BE versi baru → selama BE lama, UI
+  // tetap direct-join dan section leader tidak tampil.
+  const approvalEnabled = !!ministry && ministry.canManageRequests !== undefined;
+  const canManage = !!ministry?.canManageRequests;
+  const myRequest = ministry?.myJoinRequest ?? null;
+  const isPendingRequest = myRequest?.status === 'PENDING';
+  const joinRequestsQuery = useMinistryJoinRequests(id, canManage);
+  const joinRequests = joinRequestsQuery.data ?? [];
+  const cancelRequestMutation = useCancelMyJoinRequest(id);
+  const [reviewing, setReviewing] = useState<MinistryJoinRequest | null>(null);
+
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [motivasi, setMotivasi] = useState('');
@@ -72,6 +93,10 @@ export default function MinistryDetailScreen() {
         setShowJoinModal(false);
         setSelectedRoleId(null);
         setMotivasi('');
+        if (data.status === 'PENDING') {
+          showToast(t('ministry.join_requested', { ministry: ministry.nama }), 'success');
+          return;
+        }
         showToast(
           t('ministry.join_success', {
             ministry: ministry.nama,
@@ -88,7 +113,13 @@ export default function MinistryDetailScreen() {
             /already/i.test(err.message ?? '') ||
             /sudah/i.test(err.message ?? '');
           if (isAlreadyMember) {
-            showToast(t('ministry.join_already_member'), 'info');
+            // BE baru: 409 juga untuk request yang masih PENDING
+            const isPending = /menunggu|pending/i.test(err.message ?? '');
+            showToast(
+              isPending ? t('ministry.join_already_pending') : t('ministry.join_already_member'),
+              'info',
+            );
+            query.refetch();
             return;
           }
           showToast(err.message || t('ministry.join_error'), 'error');
@@ -281,6 +312,107 @@ export default function MinistryDetailScreen() {
           </View>
         ) : null}
 
+        {/* Status permintaan join milik user (approval flow) */}
+        {!ministry.myMembership && isPendingRequest && myRequest ? (
+          <View className="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-4">
+            <View className="flex-row items-center gap-3">
+              <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
+                <Hourglass size={20} color="#fff" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-sm font-semibold text-amber-900">
+                  {t('ministry.pending_title')}
+                </Text>
+                <Text className="text-xs text-amber-800 mt-0.5">
+                  {t('ministry.pending_body', {
+                    role: myRequest.requestedRole?.nama ?? t('ministry.requested_role_none'),
+                    date: new Date(myRequest.createdAt).toLocaleDateString(
+                      i18n.language === 'id' ? 'id-ID' : 'en-US',
+                    ),
+                  })}
+                </Text>
+              </View>
+            </View>
+            <Pressable
+              onPress={() =>
+                cancelRequestMutation.mutate(undefined, {
+                  onSuccess: () => showToast(t('ministry.pending_cancelled'), 'success'),
+                  onError: (err) =>
+                    showToast(
+                      err instanceof ApiError ? err.message : t('error.network'),
+                      'error',
+                    ),
+                })
+              }
+              disabled={cancelRequestMutation.isPending}
+              className="mt-3 self-start px-3 py-1.5 rounded-lg bg-white border border-amber-200"
+            >
+              <Text className="text-xs font-semibold text-amber-800">
+                {cancelRequestMutation.isPending ? t('common.loading') : t('ministry.pending_cancel')}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
+        {!ministry.myMembership && myRequest?.status === 'REJECTED' ? (
+          <View className="bg-neutral-100 rounded-2xl p-4 mb-4 flex-row gap-3">
+            <XCircle size={20} color="#737373" />
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-neutral-800">
+                {t('ministry.rejected_title')}
+              </Text>
+              {myRequest.rejectReason ? (
+                <Text className="text-xs text-neutral-600 mt-0.5">
+                  {t('ministry.rejected_reason', { reason: myRequest.rejectReason })}
+                </Text>
+              ) : null}
+              <Text className="text-xs text-neutral-500 mt-0.5">
+                {t('ministry.rejected_retry_hint')}
+              </Text>
+            </View>
+          </View>
+        ) : null}
+
+        {/* Leader: permintaan bergabung yang menunggu persetujuan */}
+        {canManage && joinRequests.length > 0 ? (
+          <View className="mb-4">
+            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+              {t('ministry.requests_section', { count: joinRequests.length })}
+            </Text>
+            <View className="bg-white rounded-2xl border border-amber-200">
+              {joinRequests.map((r, idx) => (
+                <Pressable
+                  key={r.id}
+                  onPress={() => setReviewing(r)}
+                  className={`p-3 flex-row items-center gap-3 ${
+                    idx > 0 ? 'border-t border-neutral-100' : ''
+                  }`}
+                >
+                  <Avatar
+                    name={r.jemaat.namaLengkap}
+                    fotoUrl={r.jemaat.fotoUrl ?? undefined}
+                    size={40}
+                  />
+                  <View className="flex-1 min-w-0">
+                    <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+                      {r.jemaat.namaLengkap}
+                    </Text>
+                    <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                      {r.requestedRole?.nama ?? t('ministry.requested_role_none')}
+                      {r.jemaat.cabang ? ` · ${r.jemaat.cabang.nama}` : ''}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center gap-1">
+                    <Text className="text-[11px] font-semibold text-amber-700">
+                      {t('ministry.requests_tap_hint')}
+                    </Text>
+                    <ChevronRight size={14} color="#B45309" />
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
         {/* Jadwal 4 Minggu Ke Depan — per docs/backend-request-ministry-schedule-roster.md.
             BE endpoint belum di-deploy; scheduleQuery gracefully resolve ke []
             kalau 404, jadi section ini hide entirely (silent) sampai BE ready. */}
@@ -461,7 +593,7 @@ export default function MinistryDetailScreen() {
         )}
 
         {/* Join button — Phase 2 (POST /admin/ministry/:id/join live 2026-08-03) */}
-        {!ministry.myMembership && ministry.isOpen ? (
+        {!ministry.myMembership && !isPendingRequest && ministry.isOpen ? (
           <View className="mt-6">
             <Button
               onPress={handleJoinPress}
@@ -472,7 +604,7 @@ export default function MinistryDetailScreen() {
               fullWidth
             />
             <Text className="text-[11px] text-neutral-500 text-center mt-2 leading-relaxed">
-              {t('ministry.join_notice')}
+              {approvalEnabled ? t('ministry.join_notice_approval') : t('ministry.join_notice')}
             </Text>
           </View>
         ) : null}
@@ -499,7 +631,18 @@ export default function MinistryDetailScreen() {
         submitting={joinMutation.isPending}
         onClose={() => setShowJoinModal(false)}
         onConfirm={handleConfirmJoin}
+        confirmLabel={approvalEnabled ? t('ministry.join_confirm_request') : undefined}
       />
+
+      {/* Leader: popup tinjau permintaan + tetapkan peran */}
+      {reviewing ? (
+        <ReviewJoinRequestModal
+          ministryId={id}
+          request={reviewing}
+          roles={ministry.roles ?? []}
+          onClose={() => setReviewing(null)}
+        />
+      ) : null}
     </View>
   );
 }
@@ -514,7 +657,9 @@ function JoinMinistryModal({
   submitting,
   onClose,
   onConfirm,
+  confirmLabel,
 }: {
+  confirmLabel?: string;
   visible: boolean;
   roles: MinistryRole[];
   selectedRoleId: string | null;
@@ -631,13 +776,268 @@ function JoinMinistryModal({
               <View className="flex-1">
                 <Button
                   onPress={onConfirm}
-                  label={t('ministry.join_confirm')}
+                  label={confirmLabel ?? t('ministry.join_confirm')}
                   variant="primary"
                   fullWidth
                   loading={submitting}
                   disabled={submitting}
                 />
               </View>
+            </View>
+          </View>
+        </SafeAreaView>
+      </View>
+    </Modal>
+  );
+}
+
+/* ==============================================================
+ * REVIEW JOIN REQUEST — popup leader: data pemohon, motivasi,
+ * tetapkan peran pelayanan, lalu Setujui / Tolak (alasan opsional).
+ * Per docs/backend-request-ministry-join-approval.md.
+ * ============================================================== */
+function ReviewJoinRequestModal({
+  ministryId,
+  request,
+  roles,
+  onClose,
+}: {
+  ministryId: string;
+  request: MinistryJoinRequest;
+  roles: MinistryRole[];
+  onClose: () => void;
+}) {
+  const { t, i18n } = useTranslation();
+  const showToast = useToast((s) => s.show);
+  const qc = useQueryClient();
+  const approveMutation = useApproveJoinRequest(ministryId);
+  const rejectMutation = useRejectJoinRequest(ministryId);
+
+  const sortedRoles = useMemo(() => [...roles].sort((a, b) => b.level - a.level), [roles]);
+  const defaultRoleId =
+    request.requestedRole?.id ??
+    [...roles].sort((a, b) => a.level - b.level)[0]?.id ??
+    null;
+  const [roleId, setRoleId] = useState<string | null>(defaultRoleId);
+  const [rejectMode, setRejectMode] = useState(false);
+  const [reason, setReason] = useState('');
+  const busy = approveMutation.isPending || rejectMutation.isPending;
+  const nama = request.jemaat.namaLengkap;
+
+  function handleError(err: unknown) {
+    if (err instanceof ApiError && err.status === 409) {
+      showToast(t('ministry.review_already_processed'), 'info');
+      qc.invalidateQueries({ queryKey: ['ministry'] });
+      onClose();
+      return;
+    }
+    showToast(err instanceof ApiError ? err.message : t('error.network'), 'error');
+  }
+
+  function approve() {
+    if (!roleId) return;
+    const roleNama = roles.find((r) => r.id === roleId)?.nama ?? '';
+    approveMutation.mutate(
+      { requestId: request.id, roleId },
+      {
+        onSuccess: () => {
+          showToast(t('ministry.review_approved_toast', { nama, role: roleNama }), 'success');
+          onClose();
+        },
+        onError: handleError,
+      },
+    );
+  }
+
+  function reject() {
+    rejectMutation.mutate(
+      { requestId: request.id, reason: reason.trim() || undefined },
+      {
+        onSuccess: () => {
+          showToast(t('ministry.review_rejected_toast', { nama }), 'success');
+          onClose();
+        },
+        onError: handleError,
+      },
+    );
+  }
+
+  return (
+    <Modal visible transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <Pressable style={{ flex: 1 }} onPress={busy ? undefined : onClose} />
+        <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#fff' }}>
+          <View className="bg-white rounded-t-3xl overflow-hidden">
+            <View className="items-center pt-3 pb-1">
+              <View className="w-10 h-1 rounded-full bg-neutral-300" />
+            </View>
+            <View className="px-5 pt-2 pb-3 flex-row items-center justify-between border-b border-neutral-100">
+              <Text className="text-lg font-bold text-neutral-900">
+                {t('ministry.review_title')}
+              </Text>
+              <Pressable
+                onPress={onClose}
+                disabled={busy}
+                className="w-9 h-9 rounded-full bg-neutral-100 items-center justify-center"
+                accessibilityLabel={t('common.close') ?? 'Close'}
+              >
+                <X size={18} color="#171717" />
+              </Pressable>
+            </View>
+
+            <ScrollView
+              style={{ maxHeight: 460 }}
+              contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}
+              keyboardShouldPersistTaps="handled"
+            >
+              {/* Pemohon */}
+              <View className="flex-row items-center gap-3 mb-4">
+                <Avatar name={nama} fotoUrl={request.jemaat.fotoUrl ?? undefined} size={52} />
+                <View className="flex-1 min-w-0">
+                  <Text className="text-base font-bold text-neutral-900" numberOfLines={1}>
+                    {nama}
+                  </Text>
+                  <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                    {[request.jemaat.cabang?.nama, request.jemaat.kode].filter(Boolean).join(' · ')}
+                  </Text>
+                  <Text className="text-[11px] text-neutral-400 mt-0.5">
+                    {new Date(request.createdAt).toLocaleDateString(
+                      i18n.language === 'id' ? 'id-ID' : 'en-US',
+                      { day: 'numeric', month: 'short', year: 'numeric' },
+                    )}
+                  </Text>
+                </View>
+              </View>
+
+              <View className="bg-neutral-50 rounded-2xl p-3 mb-4 gap-2">
+                <View>
+                  <Text className="text-[10px] font-bold text-neutral-500 uppercase">
+                    {t('ministry.review_requested_role')}
+                  </Text>
+                  <Text className="text-sm text-neutral-900 mt-0.5">
+                    {request.requestedRole?.nama ?? t('ministry.requested_role_none')}
+                  </Text>
+                </View>
+                {request.motivasi ? (
+                  <View>
+                    <Text className="text-[10px] font-bold text-neutral-500 uppercase">
+                      {t('ministry.review_motivasi')}
+                    </Text>
+                    <Text className="text-sm text-neutral-700 mt-0.5 leading-relaxed">
+                      {request.motivasi}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+
+              {rejectMode ? (
+                <TextInput
+                  value={reason}
+                  onChangeText={setReason}
+                  placeholder={t('ministry.review_reject_reason_placeholder') ?? ''}
+                  placeholderTextColor="#A3A3A3"
+                  multiline
+                  maxLength={300}
+                  textAlignVertical="top"
+                  editable={!busy}
+                  className="bg-white rounded-2xl border border-neutral-200 px-3 py-3 text-sm text-neutral-900 mb-2"
+                  style={{ minHeight: 80 }}
+                />
+              ) : (
+                <>
+                  <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+                    {t('ministry.review_assign_role')}
+                  </Text>
+                  {sortedRoles.length === 0 ? (
+                    <Text className="text-xs text-red-600 mb-2">{t('ministry.review_no_roles')}</Text>
+                  ) : (
+                    <View className="bg-white rounded-2xl border border-neutral-100 mb-2">
+                      {sortedRoles.map((role, idx) => {
+                        const selected = roleId === role.id;
+                        const isRequested = request.requestedRole?.id === role.id;
+                        return (
+                          <Pressable
+                            key={role.id}
+                            onPress={() => setRoleId(role.id)}
+                            disabled={busy}
+                            className={`p-3 flex-row items-center gap-3 ${
+                              idx > 0 ? 'border-t border-neutral-100' : ''
+                            }`}
+                          >
+                            {selected ? (
+                              <CheckCircle2 size={20} color="#F97316" />
+                            ) : (
+                              <Circle size={20} color="#D4D4D4" />
+                            )}
+                            <Text
+                              className={`text-sm flex-1 ${
+                                selected ? 'font-semibold text-neutral-900' : 'text-neutral-700'
+                              }`}
+                            >
+                              {role.nama}
+                            </Text>
+                            {isRequested ? (
+                              <View className="bg-amber-50 px-1.5 py-0.5 rounded">
+                                <Text className="text-[9px] font-bold text-amber-700">
+                                  {t('ministry.review_requested_role')}
+                                </Text>
+                              </View>
+                            ) : null}
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  )}
+                </>
+              )}
+            </ScrollView>
+
+            <View className="px-5 pb-5 pt-2 border-t border-neutral-100 flex-row gap-3">
+              {rejectMode ? (
+                <>
+                  <View className="flex-1">
+                    <Button
+                      label={t('common.cancel')}
+                      variant="secondary"
+                      onPress={() => setRejectMode(false)}
+                      fullWidth
+                      disabled={busy}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Button
+                      label={t('ministry.review_reject_confirm')}
+                      variant="danger"
+                      onPress={reject}
+                      loading={rejectMutation.isPending}
+                      disabled={busy}
+                      fullWidth
+                    />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View className="flex-1">
+                    <Button
+                      label={t('ministry.review_reject')}
+                      variant="secondary"
+                      onPress={() => setRejectMode(true)}
+                      fullWidth
+                      disabled={busy}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Button
+                      label={t('ministry.review_approve')}
+                      onPress={approve}
+                      loading={approveMutation.isPending}
+                      disabled={busy || !roleId}
+                      fullWidth
+                      leftIcon={<UserPlus size={16} color="#fff" />}
+                    />
+                  </View>
+                </>
+              )}
             </View>
           </View>
         </SafeAreaView>

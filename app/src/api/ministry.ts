@@ -11,6 +11,7 @@ import { ApiError } from '@/types/api';
 import type {
   MinistryListItem,
   MinistryDetail,
+  MinistryJoinRequest,
 } from '@/types/ministry';
 import type {
   MinistrySchedule,
@@ -51,7 +52,9 @@ export type JoinMinistryPayload = {
 
 export type JoinMinistryResult = {
   membershipId: string;
-  status: 'ACTIVE';
+  /** ACTIVE = direct join (BE lama). PENDING = menunggu approval leader
+   *  (docs/backend-request-ministry-join-approval.md). */
+  status: 'ACTIVE' | 'PENDING';
   ministry: { id: string; nama: string };
   posisi: string;
 };
@@ -61,6 +64,43 @@ export function joinMinistry(id: string, payload: JoinMinistryPayload = {}) {
     `/admin/ministry/${id}/join`,
     payload,
   );
+}
+
+/**
+ * GET /admin/ministry/:id/join-requests — request PENDING (leader only).
+ * Graceful 404 → [] selama BE belum deploy (section leader tidak tampil).
+ */
+export async function listJoinRequests(id: string): Promise<MinistryJoinRequest[]> {
+  try {
+    return await api.get<MinistryJoinRequest[]>(
+      `/admin/ministry/${id}/join-requests`,
+      { suppressErrorReport: true },
+    );
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) return [];
+    throw err;
+  }
+}
+
+/** POST .../join-requests/:reqId/approve — leader tentukan peran (wajib). */
+export function approveJoinRequest(id: string, requestId: string, roleId: string) {
+  return api.post<unknown>(
+    `/admin/ministry/${id}/join-requests/${requestId}/approve`,
+    { roleId },
+  );
+}
+
+/** POST .../join-requests/:reqId/reject — alasan opsional. */
+export function rejectJoinRequest(id: string, requestId: string, reason?: string) {
+  return api.post<unknown>(
+    `/admin/ministry/${id}/join-requests/${requestId}/reject`,
+    reason ? { reason } : {},
+  );
+}
+
+/** DELETE /admin/ministry/:id/join-request — pemohon batalkan request PENDING. */
+export function cancelMyJoinRequest(id: string) {
+  return api.delete<unknown>(`/admin/ministry/${id}/join-request`);
 }
 
 /**

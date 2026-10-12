@@ -26,6 +26,7 @@ export function resolveNotifRoute(
   const groupId = pickString(meta, 'groupId');
   const eventId = pickString(meta, 'eventId');
   const homecellId = pickString(meta, 'homecellId');
+  const ministryId = pickString(meta, 'ministryId');
 
   switch (notif.type) {
     case 'CKIDS_CHECKIN':
@@ -63,6 +64,11 @@ export function resolveNotifRoute(
     case 'BRANCH_CHANGE_APPROVED':
     case 'BRANCH_CHANGE_REJECTED':
       return '/profile';
+
+    case 'MINISTRY_JOIN_REQUESTED':
+    case 'MINISTRY_JOIN_APPROVED':
+    case 'MINISTRY_JOIN_REJECTED':
+      return ministryId ? `/ministry/${ministryId}` : '/ministry';
 
     default:
       return null;
@@ -127,6 +133,12 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'map-check';
     case 'BRANCH_CHANGE_REJECTED':
       return 'map-x';
+    case 'MINISTRY_JOIN_REQUESTED':
+      return 'group-add';
+    case 'MINISTRY_JOIN_APPROVED':
+      return 'family';
+    case 'MINISTRY_JOIN_REJECTED':
+      return 'group-remove';
     default:
       return 'bell';
   }

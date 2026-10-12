@@ -1,11 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+  approveJoinRequest,
+  cancelMyJoinRequest,
   getMinistryDetail,
   getMinistrySchedule,
   getMyMinistrySchedule,
   joinMinistry,
+  listJoinRequests,
   listMinistries,
+  rejectJoinRequest,
   type JoinMinistryPayload,
 } from '@/api/ministry';
 import { useAuthStore } from '@/stores/auth.store';
@@ -55,6 +59,54 @@ export function useJoinMinistry(id: string) {
       // Refresh /admin/me supaya profile "Pelayanan Saya" auto-populate
       qc.invalidateQueries({ queryKey: ['me'] });
     },
+  });
+}
+
+/**
+ * Join request PENDING — hanya di-fetch untuk leader (`enabled`).
+ * Per docs/backend-request-ministry-join-approval.md.
+ */
+export function useMinistryJoinRequests(id: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: [...MINISTRY_KEYS.all, 'join-requests', id],
+    queryFn: () => listJoinRequests(id!),
+    enabled: !!id && enabled,
+    staleTime: 30_000,
+  });
+}
+
+function useInvalidateMinistry(id: string) {
+  const qc = useQueryClient();
+  return () => {
+    qc.invalidateQueries({ queryKey: MINISTRY_KEYS.detail(id) });
+    qc.invalidateQueries({ queryKey: MINISTRY_KEYS.list() });
+    qc.invalidateQueries({ queryKey: [...MINISTRY_KEYS.all, 'join-requests', id] });
+  };
+}
+
+export function useApproveJoinRequest(id: string) {
+  const invalidate = useInvalidateMinistry(id);
+  return useMutation({
+    mutationFn: (v: { requestId: string; roleId: string }) =>
+      approveJoinRequest(id, v.requestId, v.roleId),
+    onSuccess: invalidate,
+  });
+}
+
+export function useRejectJoinRequest(id: string) {
+  const invalidate = useInvalidateMinistry(id);
+  return useMutation({
+    mutationFn: (v: { requestId: string; reason?: string }) =>
+      rejectJoinRequest(id, v.requestId, v.reason),
+    onSuccess: invalidate,
+  });
+}
+
+export function useCancelMyJoinRequest(id: string) {
+  const invalidate = useInvalidateMinistry(id);
+  return useMutation({
+    mutationFn: () => cancelMyJoinRequest(id),
+    onSuccess: invalidate,
   });
 }
 
