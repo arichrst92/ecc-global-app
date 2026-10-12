@@ -4,7 +4,7 @@
  * 2026-05-26: Face login removed (lihat docs/mobile-face-login-removal-impact.md).
  * Auth options sekarang: OTP, Sign up, Guest mode.
  */
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,12 @@ type Option = {
   iconBg: string;
   variant: 'primary' | 'secondary';
   onPress: () => void;
+  disabled?: boolean;
 };
+
+// Versi web (elsapp.eccchurch.global) hanya login OTP — magic link email
+// membuka deeplink app, jadi khusus aplikasi mobile.
+const IS_WEB = Platform.OS === 'web';
 
 export default function WelcomeScreen() {
   const { t } = useTranslation();
@@ -40,10 +45,11 @@ export default function WelcomeScreen() {
       // Magic link email login — untuk jemaat legacy dgn noHp invalid, atau
       // sebagai fallback kalau HP hilang. Per BE notice magic-link 2026-07-28.
       label: t('auth.signin_email'),
-      sub: t('auth.signin_email_sub'),
-      icon: <Mail size={20} color="#EA580C" />,
-      iconBg: 'bg-brand-50',
+      sub: IS_WEB ? t('auth.signin_email_mobile_only') : t('auth.signin_email_sub'),
+      icon: <Mail size={20} color={IS_WEB ? '#A3A3A3' : '#EA580C'} />,
+      iconBg: IS_WEB ? 'bg-neutral-100' : 'bg-brand-50',
       variant: 'secondary',
+      disabled: IS_WEB,
       onPress: () => router.push('/(auth)/login/email' as never),
     },
   ];
@@ -148,9 +154,11 @@ function OptionCard({ option }: { option: Option }) {
   return (
     <Pressable
       onPress={option.onPress}
+      disabled={option.disabled}
+      accessibilityState={{ disabled: !!option.disabled }}
       className={`rounded-2xl p-4 flex-row items-center gap-3 ${
         isPrimary ? 'bg-brand-500' : 'bg-white border border-neutral-200'
-      }`}
+      } ${option.disabled ? 'opacity-60' : ''}`}
     >
       <View
         className={`w-10 h-10 rounded-xl items-center justify-center ${option.iconBg}`}
@@ -169,7 +177,7 @@ function OptionCard({ option }: { option: Option }) {
           {option.sub}
         </Text>
       </View>
-      <ChevronRight size={18} color={isPrimary ? '#fff' : '#A3A3A3'} />
+      {!option.disabled && <ChevronRight size={18} color={isPrimary ? '#fff' : '#A3A3A3'} />}
     </Pressable>
   );
 }

@@ -6,7 +6,7 @@
  * akan toast "BE belum ready" message via generic error handler.
  */
 
-import { useState } from 'react';
+import { createElement, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -127,7 +127,27 @@ export default function NewScheduleScreen() {
               {dateLabel}
             </Text>
           </Pressable>
-          {showPicker ? (
+          {Platform.OS === 'web' ? (
+            // DateTimePicker tidak didukung di web → input date bawaan browser.
+            createElement('input', {
+              type: 'date',
+              value: toYmd(tanggal),
+              min: toYmd(minDate),
+              max: toYmd(maxDate),
+              onChange: (e: { target: { value: string } }) => {
+                const v = e.target.value;
+                if (v) setTanggal(new Date(`${v}T00:00:00`));
+              },
+              style: {
+                marginTop: -8,
+                marginBottom: 12,
+                padding: 12,
+                borderRadius: 16,
+                border: '1px solid #E5E5E5',
+                fontSize: 14,
+              },
+            })
+          ) : showPicker ? (
             <DateTimePicker
               value={tanggal}
               mode="date"

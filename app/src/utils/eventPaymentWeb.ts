@@ -14,13 +14,25 @@
  * supaya URL /event/* tidak di-intercept App Links intent filter app sendiri
  * dan supaya redirect `ecc://payment-done` menutup browser.
  */
+import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 
 import { requestWebActionToken } from '@/api/auth';
 
-export function buildEventPaymentWebUrl(eventId: string, token?: string | null) {
+export function buildEventPaymentWebUrl(
+  eventId: string,
+  token?: string | null,
+  returnUrl?: string | null,
+) {
+  // String builder (bukan URL.searchParams — belum lengkap di Hermes) supaya
+  // URL native identik dengan sebelumnya.
   const base = `https://eccchurch.global/event/${encodeURIComponent(eventId)}/pembayaran`;
-  return token ? `${base}?wt=${encodeURIComponent(token)}` : base;
+  const params: string[] = [];
+  if (token) params.push(`wt=${encodeURIComponent(token)}`);
+  // Hanya Els App web: landing menampilkan tombol kembali ke URL ini
+  // (origin di-whitelist di landing). Native tidak mengirim `return`.
+  if (returnUrl) params.push(`return=${encodeURIComponent(returnUrl)}`);
+  return params.length ? `${base}?${params.join('&')}` : base;
 }
 
 /** Resolve setelah browser tertutup (user selesai / tutup manual). */
@@ -31,6 +43,13 @@ export async function openEventPaymentWeb(eventId: string): Promise<void> {
     token = res.token;
   } catch {
     // Fallback read-only — lihat doc di atas
+  }
+  // Web: ecc:// tidak bisa dipakai di browser → buka di tab yang sama, landing
+  // menampilkan tombol "Kembali ke Els App" ke halaman ini. Sesi app tetap
+  // tersimpan (localStorage), jadi kembali ke sini tidak perlu login ulang.
+  if (Platform.OS === 'web') {
+    window.location.assign(buildEventPaymentWebUrl(eventId, token, window.location.href));
+    return;
   }
   try {
     await WebBrowser.openAuthSessionAsync(

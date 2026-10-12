@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Modal, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Constants from 'expo-constants';
@@ -227,13 +227,16 @@ function ProfileTabAuthenticated() {
             sub={languageLabel}
             onPress={() => router.push('/settings/language')}
           />
-          <MenuRow
-            icon={<Download size={18} color="#16A34A" />}
-            iconBg="bg-emerald-50"
-            label={t('profile.check_update')}
-            sub={t('profile.check_update_sub')}
-            onPress={() => router.push('/settings/check-update' as never)}
-          />
+          {/* Versi web selalu terbaru — menu cek update hanya untuk app store. */}
+          {Platform.OS !== 'web' && (
+            <MenuRow
+              icon={<Download size={18} color="#16A34A" />}
+              iconBg="bg-emerald-50"
+              label={t('profile.check_update')}
+              sub={t('profile.check_update_sub')}
+              onPress={() => router.push('/settings/check-update' as never)}
+            />
+          )}
           <MenuRow
             icon={<Info size={18} color="#0F766E" />}
             iconBg="bg-teal-50"

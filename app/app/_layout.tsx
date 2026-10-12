@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '@/i18n';
+// Web: Alert.alert react-native-web = no-op → map ke dialog browser. No-op di native.
+import '@/utils/webAlertPolyfill';
 import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useBranchStore } from '@/stores/branch.store';

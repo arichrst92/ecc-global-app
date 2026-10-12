@@ -7,6 +7,9 @@ import type { AppVersionInfo } from '@/types/appVersion';
 
 const QUERY_KEY = ['app-version'] as const;
 
+/** Versi web selalu build terbaru (deploy statis) — tidak ada force update / store. */
+const IS_WEB = Platform.OS === 'web';
+
 function currentPlatform(): 'ios' | 'android' {
   return Platform.OS === 'android' ? 'android' : 'ios';
 }
@@ -34,6 +37,7 @@ export function useAppVersion() {
         currentVersion: currentVersion(),
       }),
     staleTime: 60 * 60 * 1000, // 1 jam
+    enabled: !IS_WEB,
     refetchOnWindowFocus: true,
     retry: 1,
   });
@@ -47,6 +51,7 @@ export function useAppVersion() {
  * Silent fail — kalau request gagal, useAppVersion hook akan retry sendiri.
  */
 export async function prefetchAppVersion(queryClient: QueryClient): Promise<void> {
+  if (IS_WEB) return;
   try {
     await queryClient.prefetchQuery({
       queryKey: QUERY_KEY,

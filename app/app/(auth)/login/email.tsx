@@ -19,7 +19,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,13 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Cooldown Kirim Ulang biar user tidak spam BE (BE rate limit 5/jam per IP). */
 const RESEND_COOLDOWN_SECONDS = 60;
 
+/** Web hanya login OTP — magic link membuka deeplink app (khusus mobile). */
 export default function LoginEmailScreen() {
+  if (Platform.OS === 'web') return <Redirect href="/(auth)/welcome" />;
+  return <LoginEmailForm />;
+}
+
+function LoginEmailForm() {
   const { t } = useTranslation();
   const router = useRouter();
 

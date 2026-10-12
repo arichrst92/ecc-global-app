@@ -80,6 +80,7 @@
     "error_otp_invalid": "Kode OTP salah atau sudah kadaluarsa.",
     "signin_email": "Masuk dengan Email",
     "signin_email_sub": "Kirim link login ke email Anda",
+    "signin_email_mobile_only": "Hanya tersedia di aplikasi mobile Els App",
     "email": {
       "title": "Masuk dengan Email",
       "subtitle": "Kami akan kirim link login ke email Anda. Klik link tersebut untuk masuk otomatis.",

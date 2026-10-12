@@ -80,6 +80,7 @@
     "error_otp_invalid": "OTP code is invalid or expired.",
     "signin_email": "Sign in with Email",
     "signin_email_sub": "Send a login link to your email",
+    "signin_email_mobile_only": "Only available in the Els App mobile app",
     "email": {
       "title": "Sign in with Email",
       "subtitle": "We'll send a login link to your email. Click it to sign in automatically.",
