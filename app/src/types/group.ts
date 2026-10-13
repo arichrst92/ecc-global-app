@@ -137,9 +137,13 @@ export type GroupJoinRequestRow = {
 
 /** Membership row untuk My Groups — `GET /admin/me/group-membership`. */
 export type GroupMembership = {
+  /** `pic-<groupId>` untuk group yang saya pimpin tapi belum tercatat anggota. */
   membershipId: string;
   tanggalBergabung: string;
+  /** Saya PIC group ini. */
+  isPic?: boolean;
   group: {
+    heroImageUrl?: string | null;
     id: string;
     nama: string;
     jenis: GroupJenis;

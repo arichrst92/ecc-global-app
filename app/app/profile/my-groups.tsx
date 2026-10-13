@@ -6,6 +6,7 @@
  * Per BE notice group-endpoints 2026-07-28.
  */
 import {
+  Image,
   ActivityIndicator,
   Pressable,
   RefreshControl,
@@ -16,6 +17,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { groupImageHref } from '@/components/group/GroupHero';
 import { ArrowLeft, ChevronRight, Lock, Plus, Users } from 'lucide-react-native';
 
 import { useMyGroupMemberships } from '@/hooks/useGroup';
@@ -140,14 +142,27 @@ function MembershipCard({
       className="bg-white rounded-2xl p-4 border border-neutral-100 active:bg-neutral-50"
     >
       <View className="flex-row items-start gap-3">
-        <View className="w-11 h-11 rounded-xl bg-brand-50 items-center justify-center">
-          <Text className="text-lg">{jenisInfo.emoji}</Text>
-        </View>
+        {group.heroImageUrl ? (
+          <Image
+            source={{ uri: groupImageHref(group.heroImageUrl) }}
+            style={{ width: 44, height: 44, borderRadius: 12 }}
+            resizeMode="cover"
+          />
+        ) : (
+          <View className="w-11 h-11 rounded-xl bg-brand-50 items-center justify-center">
+            <Text className="text-lg">{jenisInfo.emoji}</Text>
+          </View>
+        )}
         <View className="flex-1 min-w-0">
           <View className="flex-row items-center gap-1.5">
             <Text className="text-sm font-bold text-neutral-900 flex-1" numberOfLines={1}>
               {group.nama}
             </Text>
+            {membership.isPic ? (
+              <View className="px-1.5 py-0.5 rounded bg-brand-100">
+                <Text className="text-[10px] font-bold text-brand-700">PIC</Text>
+              </View>
+            ) : null}
             {!group.isPublic ? <Lock size={12} color="#737373" /> : null}
           </View>
           <View className="flex-row items-center gap-1.5 mt-0.5">
