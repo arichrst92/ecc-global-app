@@ -43,6 +43,7 @@ import {
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { GroupContentSection } from '@/components/group/GroupContent';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import {
@@ -412,6 +413,9 @@ export default function GroupDetailScreen() {
             </View>
           </View>
         ) : null}
+
+        {/* Pengumuman, voting, file — anggota & PIC/admin */}
+        {isMember || canManageJoin ? <GroupContentSection groupId={id} canManage={canManageJoin} /> : null}
 
         {/* PIC-only: joinCode + QR */}
         {isPIC && !group.isPublic && group.joinCode ? (

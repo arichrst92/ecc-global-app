@@ -79,6 +79,8 @@ export function resolveNotifRoute(
 
     case 'GROUP_JOIN_REQUESTED':
     case 'GROUP_JOIN_APPROVED':
+    case 'GROUP_ANNOUNCEMENT':
+    case 'GROUP_POLL_CREATED':
       return groupId ? `/group/${groupId}` : '/group';
     case 'GROUP_JOIN_REJECTED':
       return '/group';
