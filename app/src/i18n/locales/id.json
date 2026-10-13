@@ -74,7 +74,7 @@
     "logout_confirm_title": "Keluar dari Akun",
     "logout_confirm_msg": "Anda yakin ingin keluar?",
     "logout_success": "Berhasil keluar",
-    "error_invalid_phone": "Format nomor HP tidak valid. Gunakan format 0821xxx atau +62821xxx.",
+    "error_invalid_phone": "Nomor HP tidak valid. Pakai 0821xxx untuk Indonesia, atau pilih kode negara lalu ketik nomornya (tanpa kode negara lagi).",
     "error_not_registered": "Nomor HP belum terdaftar. Hubungi pengurus cabang atau daftar akun baru.",
     "error_rate_limited": "Terlalu banyak permintaan. Coba lagi dalam beberapa menit.",
     "error_otp_invalid": "Kode OTP salah atau sudah kadaluarsa.",

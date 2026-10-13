@@ -64,7 +64,10 @@ export function normalizePhone(input: string): string | null {
     // Buang angka 0 di depan nomor lokal kalau user mengetik "+65 0…" / "+62 0…"
     if (c) {
       const cc = c.dial.slice(1);
-      digits = cc + digits.slice(cc.length).replace(/^0+/, '');
+      let rest = digits.slice(cc.length).replace(/^0+/, '');
+      // Kode negara terketik dobel: pilih +65 lalu ketik "65 9123 4567".
+      if (rest.startsWith(cc) && rest.length - cc.length >= 7) rest = rest.slice(cc.length);
+      digits = cc + rest;
     }
     if (digits.startsWith('62')) return /^62\d{8,13}$/.test(digits) ? '+' + digits : null;
     return /^[1-9]\d{6,14}$/.test(digits) ? '+' + digits : null;
