@@ -29,7 +29,7 @@ import { useMyFamily } from '@/hooks/useFamily';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { env } from '@/config/env';
-import { formatPhoneDisplay, normalizePhone } from '@/utils/phone';
+import { invalidPhoneMessage, formatPhoneDisplay, normalizePhone } from '@/utils/phone';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -41,7 +41,7 @@ import { formatPhoneDisplay, normalizePhone } from '@/utils/phone';
  * Dalam dependent mode, hide phone + email fields (dependent tidak punya kedua-nya).
  */
 export default function EditProfileScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams<{ dependent?: string }>();
   const dependentId = params.dependent;
@@ -127,7 +127,7 @@ export default function EditProfileScreen() {
           const normalized = normalizePhone(noHpTrim);
           if (!normalized) {
             throw new ApiError(
-              { code: 'VALIDATION_ERROR', message: t('auth.error_invalid_phone') },
+              { code: 'VALIDATION_ERROR', message: invalidPhoneMessage(noHpTrim, i18n.language === 'en' ? 'en' : 'id') },
               400,
             );
           }

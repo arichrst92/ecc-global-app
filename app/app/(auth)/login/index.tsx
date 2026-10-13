@@ -23,11 +23,11 @@ import { ArrowLeft, Info, MessageCircleMore } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
 import { requestOtp } from '@/api/auth';
-import { normalizePhone } from '@/utils/phone';
+import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 
 export default function LoginPhoneScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +56,7 @@ export default function LoginPhoneScreen() {
     setError(null);
     const e164 = normalizePhone(phone);
     if (!e164) {
-      setError(t('auth.error_invalid_phone'));
+      setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
       return;
     }
     mutation.mutate(e164);

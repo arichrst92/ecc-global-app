@@ -18,12 +18,12 @@ import { PhoneInput } from '@/components/ui/PhoneInput';
 import { TipeRelasiPicker } from '@/components/family/TipeRelasiPicker';
 import { useToast } from '@/components/ui/Toast';
 import { useLinkByPhone } from '@/hooks/useFamily';
-import { normalizePhone } from '@/utils/phone';
+import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import type { TipeRelasi } from '@/types/tipeRelasi';
 
 export default function FamilyAddPhoneScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export default function FamilyAddPhoneScreen() {
     setPhoneError(null);
     const e164 = normalizePhone(phone);
     if (!e164) {
-      setPhoneError(t('auth.error_invalid_phone'));
+      setPhoneError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
       return;
     }
     if (!tipe) return;

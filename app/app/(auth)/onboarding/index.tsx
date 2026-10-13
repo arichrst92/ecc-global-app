@@ -52,7 +52,7 @@ import {
 import { useAuthStore } from '@/stores/auth.store';
 import { useOnboardingStore } from '@/stores/onboarding.store';
 import { useBranches } from '@/hooks/useBranches';
-import { normalizePhone } from '@/utils/phone';
+import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 
 const RESEND_COOLDOWN_SEC = 60;
@@ -354,7 +354,7 @@ function AddPhoneInputStep({
   onBack: () => void;
   onSubmitted: (e164: string) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [phone, setPhone] = useState(initialValue);
   const [error, setError] = useState<string | null>(null);
 
@@ -382,7 +382,7 @@ function AddPhoneInputStep({
     setError(null);
     const e164 = normalizePhone(phone);
     if (!e164) {
-      setError(t('auth.error_invalid_phone'));
+      setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
       return;
     }
     mutation.mutate(e164);

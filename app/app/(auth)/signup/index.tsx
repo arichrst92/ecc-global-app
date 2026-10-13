@@ -19,11 +19,11 @@ import { Stepper } from '@/components/ui/Stepper';
 import { useToast } from '@/components/ui/Toast';
 import { requestOtp } from '@/api/auth';
 import { useSignupStore } from '@/stores/signup.store';
-import { normalizePhone } from '@/utils/phone';
+import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 
 export default function SignupPhoneScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const showToast = useToast((s) => s.show);
   const reset = useSignupStore((s) => s.reset);
@@ -58,7 +58,7 @@ export default function SignupPhoneScreen() {
     setError(null);
     const e164 = normalizePhone(phone);
     if (!e164) {
-      setError(t('auth.error_invalid_phone'));
+      setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
       return;
     }
     mutation.mutate(e164);
