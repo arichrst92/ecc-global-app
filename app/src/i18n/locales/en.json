@@ -1319,7 +1319,23 @@
     "visibility_change_to_public_hint": "Group will become public. The old invitation code will be removed.",
     "error_nama_required": "Group name is required.",
     "error_cabang_required": "Branch is required.",
-    "error_jenis_required": "Group type is required."
+    "error_jenis_required": "Group type is required.",
+    "join_pending": "Join request to {{nama}} sent. Waiting for the group PIC's approval.",
+    "pending_note": "Your join request is waiting for the group PIC's approval.",
+    "cancel_request": "Cancel request",
+    "cancel_confirm": "Cancel your request to join this group?",
+    "cancelled": "Request cancelled",
+    "requests_section": "Join requests ({{count}})",
+    "requests_empty": "No pending requests.",
+    "approve": "Accept",
+    "reject": "Decline",
+    "approved": "{{nama}} is now a group member",
+    "rejected": "Request declined",
+    "reject_title": "Decline {{nama}}'s request",
+    "reject_placeholder": "Reason (optional) — sent to the member",
+    "via_code": "via invite code",
+    "via_public": "public join",
+    "join_request_btn": "Request to join"
   },
   "ckids": {
     "tab_title": "CKids — Kids Points & Rewards",
@@ -1460,6 +1476,21 @@
     "profile_none": "Not in a homecell yet",
     "profile_none_sub": "Find & join a homecell in your branch",
     "profile_role_leader": "Leader",
-    "profile_role_member": "Member"
+    "profile_role_member": "Member",
+    "materi_section": "Meeting materials",
+    "materi_empty": "No materials for this meeting yet.",
+    "materi_none_all": "No materials from the homecell leader yet.",
+    "materi_upload": "Upload material",
+    "materi_name": "File name",
+    "materi_name_placeholder": "e.g. This week's discussion guide",
+    "materi_desc": "Description (optional)",
+    "materi_desc_placeholder": "e.g. Read before the meeting",
+    "materi_pick": "Choose file",
+    "materi_types": "PDF, image, Word, Excel, PowerPoint (max 20 MB)",
+    "materi_uploaded": "Material uploaded",
+    "materi_deleted": "Material deleted",
+    "materi_delete_confirm": "Delete material \"{{name}}\"?",
+    "materi_upcoming": "Upcoming meetings",
+    "materi_past": "Previous meetings"
   }
 }

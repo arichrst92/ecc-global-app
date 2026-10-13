@@ -5,6 +5,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+  cancelGroupJoin,
+  listGroupJoinRequests,
+  approveGroupJoin,
+  rejectGroupJoin,
   listGroups,
   getGroupDetail,
   getMyGroupMemberships,
@@ -155,7 +159,7 @@ export function useRemoveGroupMember(groupId: string) {
 export function useJoinGroup(groupId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => joinGroup(groupId),
+    mutationFn: (pesan?: string) => joinGroup(groupId, pesan),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GROUP_KEYS.detail(groupId) });
       queryClient.invalidateQueries({ queryKey: GROUP_KEYS.myMemberships() });
@@ -183,5 +187,42 @@ export function useLeaveGroup(groupId: string) {
       queryClient.invalidateQueries({ queryKey: GROUP_KEYS.detail(groupId) });
       queryClient.invalidateQueries({ queryKey: GROUP_KEYS.myMemberships() });
     },
+  });
+}
+
+// ============================================================
+// Approval join group
+// ============================================================
+
+export function useCancelGroupJoin(groupId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => cancelGroupJoin(groupId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: GROUP_KEYS.detail(groupId) }),
+  });
+}
+
+export function useGroupJoinRequests(groupId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: [...GROUP_KEYS.detail(groupId ?? ''), 'join-requests'],
+    queryFn: () => listGroupJoinRequests(groupId!),
+    enabled: !!groupId && enabled,
+    staleTime: 30_000,
+  });
+}
+
+export function useApproveGroupJoin(groupId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (requestId: string) => approveGroupJoin(groupId, requestId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: GROUP_KEYS.detail(groupId) }),
+  });
+}
+
+export function useRejectGroupJoin(groupId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { requestId: string; reason?: string }) => rejectGroupJoin(groupId, v.requestId, v.reason),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: GROUP_KEYS.detail(groupId) }),
   });
 }

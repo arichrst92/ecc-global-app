@@ -103,6 +103,34 @@ export type GroupDetail = Group & {
   parent: GroupParentRef | null;
   children: GroupChildRef[];
   members: GroupMember[];
+  /** Permintaan bergabung user yang masih menunggu persetujuan PIC. */
+  myJoinRequest?: { id: string; createdAt: string } | null;
+  /** [PIC/admin] jumlah permintaan bergabung yang menunggu. */
+  pendingJoinCount?: number;
+};
+
+/** Hasil join: langsung jadi anggota (PIC/admin) atau menunggu persetujuan. */
+export type GroupJoinResult = {
+  groupId: string;
+  status: 'MEMBER' | 'PENDING';
+  requestId: string | null;
+  alreadyMember?: boolean;
+};
+
+/** [PIC/admin] permintaan bergabung — GET /admin/group/:id/join-requests */
+export type GroupJoinRequestRow = {
+  id: string;
+  createdAt: string;
+  via: 'PUBLIC' | 'CODE' | string;
+  pesan: string | null;
+  jemaat: {
+    id: string;
+    namaLengkap: string;
+    kode: string | null;
+    fotoUrl: string | null;
+    noHp: string | null;
+    cabang: { nama: string } | null;
+  };
 };
 
 /** Membership row untuk My Groups — `GET /admin/me/group-membership`. */
@@ -172,6 +200,9 @@ export type JoinByCodeResponse = {
   groupId: string;
   groupNama: string;
   alreadyMember?: boolean;
+  /** MEMBER = langsung bergabung; PENDING = menunggu persetujuan PIC. */
+  status?: 'MEMBER' | 'PENDING';
+  requestId?: string | null;
 };
 
 /** Response regenerate code — `POST /admin/group/:id/regenerate-code`. */

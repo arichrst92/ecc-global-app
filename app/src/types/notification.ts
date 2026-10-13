@@ -43,7 +43,10 @@ export type InAppNotifType =
   | 'MINISTRY_JOIN_REJECTED'
   | 'HOMECELL_JOIN_REQUESTED'
   | 'HOMECELL_JOIN_APPROVED'
-  | 'HOMECELL_JOIN_REJECTED';
+  | 'HOMECELL_JOIN_REJECTED'
+  | 'GROUP_JOIN_REQUESTED'
+  | 'GROUP_JOIN_APPROVED'
+  | 'GROUP_JOIN_REJECTED';
 
 /**
  * Metadata JSON per notif type — kontennya bervariasi.

@@ -16,6 +16,7 @@ import {
   approveHomecellJoin,
   rejectHomecellJoin,
   setHomecellLokasi,
+  getHomecellMateri,
 } from '@/api/homecell';
 
 const HOMECELL_LIST_KEY = ['homecell', 'managed'] as const;
@@ -160,5 +161,15 @@ export function useSetHomecellLokasi() {
   return useMutation({
     mutationFn: (v: { homecellId: string; mapsUrl: string | null }) => setHomecellLokasi(v.homecellId, v.mapsUrl),
     onSuccess: invalidate,
+  });
+}
+
+/** Materi pertemuan (anggota / pemimpin). */
+export function useHomecellMateri(homecellId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: [...ME_HC_KEY, 'materi', homecellId],
+    queryFn: () => getHomecellMateri(homecellId!),
+    enabled: !!homecellId && enabled,
+    staleTime: 60_000,
   });
 }

@@ -14,10 +14,12 @@ import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -44,9 +46,13 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import {
+  useApproveGroupJoin,
+  useCancelGroupJoin,
   useDismissGroup,
   useGroupDetail,
+  useGroupJoinRequests,
   useJoinGroup,
+  useRejectGroupJoin,
   useLeaveGroup,
   useRegenerateGroupCode,
   useRemoveGroupMember,
@@ -76,6 +82,14 @@ export default function GroupDetailScreen() {
   }, [group, user]);
 
   const joinMutation = useJoinGroup(id);
+  const cancelJoinMutation = useCancelGroupJoin(id);
+  const canManageJoin = isPIC || !!user?.isFulltimer;
+  const joinRequestsQuery = useGroupJoinRequests(id, canManageJoin && !!group);
+  const approveJoinMutation = useApproveGroupJoin(id);
+  const rejectJoinMutation = useRejectGroupJoin(id);
+  const [rejectingReq, setRejectingReq] = useState<{ id: string; nama: string } | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const errMsg = (e: unknown) => (e instanceof ApiError ? e.message : t('error.generic'));
   const leaveMutation = useLeaveGroup(id);
   const dismissMutation = useDismissGroup(id);
   const regenerateMutation = useRegenerateGroupCode(id);
@@ -83,7 +97,9 @@ export default function GroupDetailScreen() {
   function handleJoin() {
     joinMutation.mutate(undefined, {
       onSuccess: (data) => {
-        if (data.alreadyMember) {
+        if (data.status === 'PENDING') {
+          showToast(t('group.join_pending', { nama: group?.nama ?? '' }), 'success');
+        } else if (data.alreadyMember) {
           showToast(t('group.already_member'), 'info');
         } else {
           showToast(t('group.join_success', { nama: group?.nama ?? '' }), 'success');
@@ -342,6 +358,61 @@ export default function GroupDetailScreen() {
           </View>
         ) : null}
 
+        {/* PIC/admin: permintaan bergabung */}
+        {canManageJoin && (joinRequestsQuery.data?.length ?? 0) > 0 ? (
+          <View className="mx-4 mt-4 bg-white rounded-2xl border border-amber-200 p-4">
+            <Text className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-3">
+              {t('group.requests_section', { count: joinRequestsQuery.data?.length ?? 0 })}
+            </Text>
+            <View className="gap-3">
+              {(joinRequestsQuery.data ?? []).map((r) => (
+                <View key={r.id} className="gap-2">
+                  <View className="flex-row items-center gap-3">
+                    <Avatar name={r.jemaat.namaLengkap} fotoUrl={r.jemaat.fotoUrl} size={36} />
+                    <View className="flex-1 min-w-0">
+                      <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                        {r.jemaat.namaLengkap}
+                      </Text>
+                      <Text className="text-xs text-neutral-500" numberOfLines={1}>
+                        {[r.jemaat.kode, r.via === 'CODE' ? t('group.via_code') : t('group.via_public')]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </Text>
+                    </View>
+                  </View>
+                  {r.pesan ? <Text className="text-xs text-neutral-600 italic">“{r.pesan}”</Text> : null}
+                  <View className="flex-row gap-2">
+                    <View className="flex-1">
+                      <Button
+                        label={t('group.reject')}
+                        variant="secondary"
+                        size="sm"
+                        onPress={() => {
+                          setRejectReason('');
+                          setRejectingReq({ id: r.id, nama: r.jemaat.namaLengkap });
+                        }}
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <Button
+                        label={t('group.approve')}
+                        size="sm"
+                        loading={approveJoinMutation.isPending && approveJoinMutation.variables === r.id}
+                        onPress={() =>
+                          approveJoinMutation.mutate(r.id, {
+                            onSuccess: () => showToast(t('group.approved', { nama: r.jemaat.namaLengkap }), 'success'),
+                            onError: (e) => showToast(errMsg(e), 'error'),
+                          })
+                        }
+                      />
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
         {/* PIC-only: joinCode + QR */}
         {isPIC && !group.isPublic && group.joinCode ? (
           <View className="bg-white mt-2 p-4">
@@ -446,6 +517,52 @@ export default function GroupDetailScreen() {
         ) : null}
       </ScrollView>
 
+      {/* Modal alasan tolak (PIC) */}
+      <Modal visible={!!rejectingReq} transparent animationType="fade" onRequestClose={() => setRejectingReq(null)}>
+        <View className="flex-1 bg-black/40 items-center justify-center px-6">
+          <View className="bg-white rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
+            <Text className="text-base font-bold text-neutral-900 mb-3">
+              {t('group.reject_title', { nama: rejectingReq?.nama ?? '' })}
+            </Text>
+            <TextInput
+              value={rejectReason}
+              onChangeText={setRejectReason}
+              placeholder={t('group.reject_placeholder')}
+              placeholderTextColor="#A3A3A3"
+              multiline
+              maxLength={300}
+              className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
+              style={{ minHeight: 80, textAlignVertical: 'top' }}
+            />
+            <View className="flex-row gap-2 mt-4">
+              <View className="flex-1">
+                <Button label={t('common.cancel')} variant="secondary" onPress={() => setRejectingReq(null)} />
+              </View>
+              <View className="flex-1">
+                <Button
+                  label={t('group.reject')}
+                  variant="danger"
+                  loading={rejectJoinMutation.isPending}
+                  onPress={() =>
+                    rejectingReq &&
+                    rejectJoinMutation.mutate(
+                      { requestId: rejectingReq.id, reason: rejectReason.trim() || undefined },
+                      {
+                        onSuccess: () => {
+                          setRejectingReq(null);
+                          showToast(t('group.rejected'), 'success');
+                        },
+                        onError: (e) => showToast(errMsg(e), 'error'),
+                      },
+                    )
+                  }
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Sticky footer — Join / Leave / Dismiss */}
       <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
         <View className="px-4 py-3 gap-2">
@@ -471,9 +588,36 @@ export default function GroupDetailScreen() {
                 />
               )}
             </>
+          ) : group.myJoinRequest ? (
+            <>
+              <View className="flex-row items-center gap-2 bg-amber-50 rounded-xl p-3">
+                <Info size={16} color="#92400e" />
+                <Text className="flex-1 text-xs text-amber-900">{t('group.pending_note')}</Text>
+              </View>
+              <Button
+                label={t('group.cancel_request')}
+                variant="secondary"
+                fullWidth
+                loading={cancelJoinMutation.isPending}
+                onPress={() =>
+                  Alert.alert(t('group.cancel_request'), t('group.cancel_confirm'), [
+                    { text: t('common.back'), style: 'cancel' },
+                    {
+                      text: t('group.cancel_request'),
+                      style: 'destructive',
+                      onPress: () =>
+                        cancelJoinMutation.mutate(undefined, {
+                          onSuccess: () => showToast(t('group.cancelled'), 'success'),
+                          onError: (e) => showToast(errMsg(e), 'error'),
+                        }),
+                    },
+                  ])
+                }
+              />
+            </>
           ) : group.isPublic ? (
             <Button
-              label={t('group.join')}
+              label={isPIC || user?.isFulltimer ? t('group.join') : t('group.join_request_btn')}
               onPress={handleJoin}
               loading={joinMutation.isPending}
               fullWidth

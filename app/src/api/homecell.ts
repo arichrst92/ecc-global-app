@@ -4,6 +4,7 @@
  */
 
 import { api } from './client';
+import type { HomecellScheduleFile } from '@/types/homecellSchedule';
 import { env } from '@/config/env';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
@@ -170,5 +171,19 @@ export function setHomecellLokasi(homecellId: string, mapsUrl: string | null) {
   return api.patch<{ id: string; latitude: number | null; longitude: number | null; mapsUrl: string | null }>(
     `/admin/me/homecell/${homecellId}/lokasi`,
     { mapsUrl },
+  );
+}
+
+/** Materi pertemuan untuk anggota: jadwal berikutnya & 10 terakhir yang punya file. */
+export type HomecellMateriSchedule = {
+  id: string;
+  tanggal: string;
+  lokasi: string;
+  catatan: string | null;
+  files: HomecellScheduleFile[];
+};
+export function getHomecellMateri(homecellId: string) {
+  return api.get<{ upcoming: HomecellMateriSchedule[]; past: HomecellMateriSchedule[] }>(
+    `/admin/me/homecell/${homecellId}/materi`,
   );
 }

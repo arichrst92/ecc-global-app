@@ -1319,7 +1319,23 @@
     "visibility_change_to_public_hint": "Group akan jadi public. Kode invitation lama akan dihapus.",
     "error_nama_required": "Nama group wajib diisi.",
     "error_cabang_required": "Cabang wajib dipilih.",
-    "error_jenis_required": "Jenis group wajib dipilih."
+    "error_jenis_required": "Jenis group wajib dipilih.",
+    "join_pending": "Permintaan bergabung ke {{nama}} terkirim. Menunggu persetujuan PIC group.",
+    "pending_note": "Permintaan bergabung Anda sedang menunggu persetujuan PIC group.",
+    "cancel_request": "Batalkan permintaan",
+    "cancel_confirm": "Batalkan permintaan bergabung ke grup ini?",
+    "cancelled": "Permintaan dibatalkan",
+    "requests_section": "Permintaan bergabung ({{count}})",
+    "requests_empty": "Tidak ada permintaan yang menunggu.",
+    "approve": "Terima",
+    "reject": "Tolak",
+    "approved": "{{nama}} sekarang anggota grup",
+    "rejected": "Permintaan ditolak",
+    "reject_title": "Tolak permintaan {{nama}}",
+    "reject_placeholder": "Alasan (opsional) — dikirim ke jemaat",
+    "via_code": "via kode undangan",
+    "via_public": "join publik",
+    "join_request_btn": "Minta bergabung"
   },
   "ckids": {
     "tab_title": "CKids — Point & Hadiah Anak",
@@ -1460,6 +1476,21 @@
     "profile_none": "Belum tergabung di homecell",
     "profile_none_sub": "Cari & gabung homecell di cabang Anda",
     "profile_role_leader": "Pemimpin",
-    "profile_role_member": "Anggota"
+    "profile_role_member": "Anggota",
+    "materi_section": "Materi pertemuan",
+    "materi_empty": "Belum ada materi untuk pertemuan ini.",
+    "materi_none_all": "Belum ada materi dari pemimpin homecell.",
+    "materi_upload": "Upload materi",
+    "materi_name": "Nama file",
+    "materi_name_placeholder": "Mis. Bahan diskusi minggu ini",
+    "materi_desc": "Deskripsi (opsional)",
+    "materi_desc_placeholder": "Mis. Baca sebelum pertemuan",
+    "materi_pick": "Pilih file",
+    "materi_types": "PDF, gambar, Word, Excel, PowerPoint (maks 20 MB)",
+    "materi_uploaded": "Materi diupload",
+    "materi_deleted": "Materi dihapus",
+    "materi_delete_confirm": "Hapus materi \"{{name}}\"?",
+    "materi_upcoming": "Pertemuan berikutnya",
+    "materi_past": "Pertemuan sebelumnya"
   }
 }

@@ -77,6 +77,12 @@ export function resolveNotifRoute(
     case 'HOMECELL_JOIN_REJECTED':
       return '/homecell';
 
+    case 'GROUP_JOIN_REQUESTED':
+    case 'GROUP_JOIN_APPROVED':
+      return groupId ? `/group/${groupId}` : '/group';
+    case 'GROUP_JOIN_REJECTED':
+      return '/group';
+
     default:
       return null;
   }
@@ -151,6 +157,12 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
     case 'HOMECELL_JOIN_APPROVED':
       return 'home-check';
     case 'HOMECELL_JOIN_REJECTED':
+      return 'group-remove';
+    case 'GROUP_JOIN_REQUESTED':
+      return 'group-add';
+    case 'GROUP_JOIN_APPROVED':
+      return 'family';
+    case 'GROUP_JOIN_REJECTED':
       return 'group-remove';
     default:
       return 'bell';

@@ -35,7 +35,21 @@ export type HomecellAttendance = {
   source: 'QR_SCAN' | 'MANUAL';
 };
 
+/** File materi pertemuan (PDF/gambar/dokumen) — diupload PIC/admin. */
+export type HomecellScheduleFile = {
+  id: string;
+  nama: string;
+  deskripsi: string | null;
+  fileUrl: string;
+  fileMime: string;
+  fileName: string | null;
+  fileSize: number | null;
+  createdAt: string;
+  uploadedBy: { id: string; namaLengkap: string } | null;
+};
+
 export type HomecellScheduleDetail = HomecellSchedule & {
+  files?: HomecellScheduleFile[];
   memberCount: number;
   attendances: HomecellAttendance[];
   missingMembers: Array<{

@@ -51,6 +51,12 @@ export default function GroupScanScreen() {
     setPaused(true);
     joinMutation.mutate(code, {
       onSuccess: (data) => {
+        if (data.status === 'PENDING') {
+          // Butuh persetujuan PIC — group private belum bisa dibuka sebelum diterima.
+          showToast(t('group.join_pending', { nama: data.groupNama }), 'success');
+          router.back();
+          return;
+        }
         showToast(
           data.alreadyMember
             ? t('group.already_member')

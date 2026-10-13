@@ -7,7 +7,7 @@
  */
 
 import { api } from './client';
-import type {
+import type { HomecellScheduleFile,
   HomecellSchedule,
   HomecellScheduleDetail,
   CreateSchedulePayload,
@@ -115,5 +115,40 @@ export function bulkRecordAttendance(
   return api.post<BulkAttendanceResponse>(
     `/admin/homecell/${homecellId}/schedule/${scheduleId}/attendance/bulk`,
     { kodes },
+  );
+}
+
+// ============================================================
+//  File materi pertemuan
+// ============================================================
+
+/** File hasil expo-document-picker (native: uri; web: File). */
+export type PickedFile = { uri: string; name: string; mimeType?: string | null; file?: File };
+
+export function uploadScheduleFile(
+  homecellId: string,
+  scheduleId: string,
+  file: PickedFile,
+  meta: { nama: string; deskripsi?: string },
+) {
+  const fd = new FormData();
+  fd.append('nama', meta.nama);
+  if (meta.deskripsi) fd.append('deskripsi', meta.deskripsi);
+  if (file.file) fd.append('file', file.file);
+  else
+    fd.append('file', {
+      uri: file.uri,
+      name: file.name,
+      type: file.mimeType ?? 'application/octet-stream',
+    } as unknown as Blob);
+  return api.upload<HomecellScheduleFile>(
+    `/admin/homecell/${homecellId}/schedule/${scheduleId}/files`,
+    fd,
+  );
+}
+
+export function deleteScheduleFile(homecellId: string, scheduleId: string, fileId: string) {
+  return api.delete<{ success: true }>(
+    `/admin/homecell/${homecellId}/schedule/${scheduleId}/files/${fileId}`,
   );
 }

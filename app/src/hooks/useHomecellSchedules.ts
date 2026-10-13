@@ -9,6 +9,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+  uploadScheduleFile,
+  deleteScheduleFile,
+  type PickedFile,
   listSchedules,
   getScheduleDetail,
   createSchedule,
@@ -165,5 +168,23 @@ export function useBulkAttendance(homecellId: string, scheduleId: string) {
       });
       qc.invalidateQueries({ queryKey: ['homecell', homecellId, 'schedules'] });
     },
+  });
+}
+
+// File materi pertemuan (PIC upload / hapus)
+export function useUploadScheduleFile(homecellId: string, scheduleId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { file: PickedFile; nama: string; deskripsi?: string }) =>
+      uploadScheduleFile(homecellId, scheduleId, v.file, { nama: v.nama, deskripsi: v.deskripsi }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['homecell'] }),
+  });
+}
+
+export function useDeleteScheduleFile(homecellId: string, scheduleId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (fileId: string) => deleteScheduleFile(homecellId, scheduleId, fileId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['homecell'] }),
   });
 }

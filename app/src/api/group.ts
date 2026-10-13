@@ -5,6 +5,8 @@
 
 import { api } from './client';
 import type {
+  GroupJoinResult,
+  GroupJoinRequestRow,
   Group,
   GroupDetail,
   GroupMembership,
@@ -175,10 +177,30 @@ export function removeGroupMember(groupId: string, jemaatId: string) {
  * POST /admin/group/:id/join — self-join public group.
  * Errors: 403 kalau private ("Gunakan kode invitation"), 404 group tidak ada.
  */
-export function joinGroup(groupId: string) {
-  return api.post<{ alreadyMember?: boolean }>(
-    `/admin/group/${groupId}/join`,
-    {},
+export function joinGroup(groupId: string, pesan?: string) {
+  return api.post<GroupJoinResult>(`/admin/group/${groupId}/join`, { pesan: pesan || undefined });
+}
+
+/** DELETE /admin/group/:id/join-request — batalkan permintaan bergabung saya. */
+export function cancelGroupJoin(groupId: string) {
+  return api.delete<{ id: string; status: 'CANCELLED' }>(`/admin/group/${groupId}/join-request`);
+}
+
+/** [PIC/admin] permintaan bergabung yang menunggu. */
+export function listGroupJoinRequests(groupId: string) {
+  return api.get<GroupJoinRequestRow[]>(`/admin/group/${groupId}/join-requests`);
+}
+
+export function approveGroupJoin(groupId: string, requestId: string) {
+  return api.post<{ requestId: string; status: 'APPROVED' }>(
+    `/admin/group/${groupId}/join-requests/${requestId}/approve`,
+  );
+}
+
+export function rejectGroupJoin(groupId: string, requestId: string, reason?: string) {
+  return api.post<{ requestId: string; status: 'REJECTED' }>(
+    `/admin/group/${groupId}/join-requests/${requestId}/reject`,
+    { reason: reason || undefined },
   );
 }
 

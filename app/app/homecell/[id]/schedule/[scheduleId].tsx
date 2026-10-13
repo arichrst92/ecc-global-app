@@ -23,6 +23,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
+  Paperclip,
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
@@ -41,7 +42,10 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
+import { MaterialList, UploadMaterialModal } from '@/components/homecell/ScheduleMaterials';
 import {
+  useUploadScheduleFile,
+  useDeleteScheduleFile,
   useHomecellSchedule,
   useRecordAttendance,
   useDeleteAttendance,
@@ -67,6 +71,9 @@ export default function ScheduleDetailScreen() {
   const deleteAttMutation = useDeleteAttendance(id, scheduleId);
   const deleteSchedMutation = useDeleteSchedule(id);
   const bulkMutation = useBulkAttendance(id, scheduleId);
+  const uploadFileMutation = useUploadScheduleFile(id, scheduleId);
+  const deleteFileMutation = useDeleteScheduleFile(id, scheduleId);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const [scannerOpen, setScannerOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
@@ -391,7 +398,46 @@ export default function ScheduleDetailScreen() {
             </View>
           </>
         ) : null}
+
+        {/* Materi pertemuan — dilihat anggota di app */}
+        <View className="flex-row items-center justify-between mt-6 mb-2">
+          <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+            {t('hcj.materi_section')} ({schedule.files?.length ?? 0})
+          </Text>
+          <Pressable onPress={() => setUploadOpen(true)} className="flex-row items-center gap-1 px-2 py-1">
+            <Paperclip size={14} color="#EA580C" />
+            <Text className="text-xs font-semibold text-brand-600">{t('hcj.materi_upload')}</Text>
+          </Pressable>
+        </View>
+        {(schedule.files?.length ?? 0) === 0 ? (
+          <Text className="text-sm text-neutral-500 mb-2">{t('hcj.materi_empty')}</Text>
+        ) : (
+          <MaterialList
+            files={schedule.files ?? []}
+            onDelete={(f) =>
+              deleteFileMutation.mutate(f.id, {
+                onSuccess: () => showToast(t('hcj.materi_deleted'), 'success'),
+                onError: (e) => showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error'),
+              })
+            }
+          />
+        )}
       </ScrollView>
+
+      <UploadMaterialModal
+        visible={uploadOpen}
+        loading={uploadFileMutation.isPending}
+        onClose={() => setUploadOpen(false)}
+        onSubmit={(v) =>
+          uploadFileMutation.mutate(v, {
+            onSuccess: () => {
+              setUploadOpen(false);
+              showToast(t('hcj.materi_uploaded'), 'success');
+            },
+            onError: (e) => showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error'),
+          })
+        }
+      />
 
       {/* FAB stack — Scan QR (primary brand) + Checklist Bulk (secondary white).
           Offset dari safe-area inset bottom supaya tidak overlap Android gesture

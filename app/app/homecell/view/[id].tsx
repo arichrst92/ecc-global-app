@@ -36,8 +36,10 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { jadwalLabel } from '@/components/homecell/HomecellListCard';
+import { MaterialList } from '@/components/homecell/ScheduleMaterials';
 import {
   useCancelJoinHomecell,
+  useHomecellMateri,
   useHomecellPublic,
   useRequestJoinHomecell,
   useSetHomecellLokasi,
@@ -53,6 +55,7 @@ export default function HomecellViewScreen() {
 
   const q = useHomecellPublic(id);
   const hc = q.data;
+  const materiQ = useHomecellMateri(id, hc?.myStatus === 'MEMBER' || hc?.myStatus === 'LEADER');
   const joinMut = useRequestJoinHomecell();
   const cancelMut = useCancelJoinHomecell();
   const lokasiMut = useSetHomecellLokasi();
@@ -281,6 +284,31 @@ export default function HomecellViewScreen() {
               </View>
             )}
           </View>
+
+          {/* Materi pertemuan (anggota / pemimpin) */}
+          {hc.myStatus === 'MEMBER' || hc.myStatus === 'LEADER' ? (
+            <View className="bg-white rounded-2xl p-4 border border-neutral-100">
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
+                {t('hcj.materi_section')}
+              </Text>
+              {materiQ.isPending ? (
+                <ActivityIndicator color="#F97316" />
+              ) : (materiQ.data?.upcoming.length ?? 0) + (materiQ.data?.past.length ?? 0) === 0 ? (
+                <Text className="text-sm text-neutral-500">{t('hcj.materi_none_all')}</Text>
+              ) : (
+                <View className="gap-4">
+                  {[...(materiQ.data?.upcoming ?? []), ...(materiQ.data?.past ?? [])].map((sc) => (
+                    <View key={sc.id}>
+                      <Text className="text-xs font-semibold text-neutral-700 mb-2">
+                        {fmtDate(sc.tanggal)} · {sc.lokasi}
+                      </Text>
+                      <MaterialList files={sc.files} />
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          ) : null}
 
           {/* Anggota (hanya untuk anggota / pemimpin) */}
           {hc.members.length > 0 ? (
