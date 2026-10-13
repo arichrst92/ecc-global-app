@@ -3,8 +3,9 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { ArrowLeft, QrCode, RefreshCw } from 'lucide-react-native';
+import { Search, ArrowLeft, QrCode, RefreshCw } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { TipeRelasiPicker } from '@/components/family/TipeRelasiPicker';
@@ -19,6 +20,7 @@ export default function FamilyScanScreen() {
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedKode, setScannedKode] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [tipe, setTipe] = useState<TipeRelasi | null>(null);
   const showToast = useToast((s) => s.show);
   const linkMutation = useLinkByKode();
@@ -206,6 +208,24 @@ export default function FamilyScanScreen() {
           {t('family.scan_hint')}
         </Text>
       </View>
+      {/* Input manual: cari jemaat by kode / nama / no HP (kalau QR tidak terbaca) */}
+      <View className="absolute bottom-10 left-0 right-0 items-center">
+        <Pressable
+          onPress={() => setSearchOpen(true)}
+          className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2"
+        >
+          <Search size={16} color="#171717" />
+          <Text className="text-sm font-semibold text-neutral-900">{t('scanner.search_title')}</Text>
+        </Pressable>
+      </View>
+      <JemaatSearchModal
+        visible={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSubmit={(kode) => {
+          setSearchOpen(false);
+          handleScan({ data: kode });
+        }}
+      />
     </View>
   );
 }

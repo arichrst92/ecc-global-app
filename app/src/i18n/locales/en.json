@@ -694,7 +694,14 @@
     "pickup_error_notfound_msg": "Code not found, expired, or child already picked up.",
     "pickup_success_title": "Pickup Successful",
     "pickup_success_msg": "{{nama}} picked up from {{ibadah}}.",
-    "pickup_code_generated": "Kids pickup code: {{code}} — share with parent"
+    "pickup_code_generated": "Kids pickup code: {{code}} — share with parent",
+    "search_title": "Find Member",
+    "search_hint": "Type the QR code, name, or phone number, then pick from the results.",
+    "search_placeholder": "Code / name / phone",
+    "search_min": "Type at least 2 characters",
+    "search_empty": "No matching members",
+    "search_use_kode": "Use code {{kode}}",
+    "search_error": "Search failed. Please try again."
   },
   "kids": {
     "badge_label": "KIDS SERVICE",

@@ -40,7 +40,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
-import { ManualInputModal } from '@/components/scanner/ManualInputModal';
+import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import {
   useHomecellSchedule,
   useRecordAttendance,
@@ -625,7 +625,7 @@ export default function ScheduleDetailScreen() {
           </View>
           {/* Input kode manual (8 char) — untuk QR rusak / HP anggota mati.
               `inline` = overlay di dalam scanner Modal (nested Modal tidak tampil). */}
-          <ManualInputModal
+          <JemaatSearchModal
             visible={manualOpen}
             onClose={() => setManualOpen(false)}
             onSubmit={(kode) => handleScan(kode, () => setManualOpen(false))}

@@ -14,7 +14,7 @@ import {
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { ManualInputModal } from '@/components/scanner/ManualInputModal';
+import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import { useAddHomecellMember, useManagedHomecells } from '@/hooks/useHomecell';
 import { ApiError } from '@/types/api';
@@ -94,7 +94,7 @@ export default function HomecellAddMemberScreen() {
         </View>
       </SafeAreaView>
 
-      <ManualInputModal
+      <JemaatSearchModal
         visible={manualOpen}
         onClose={() => setManualOpen(false)}
         onSubmit={runAdd}

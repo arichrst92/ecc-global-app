@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react-native';
 
-import { ManualInputModal } from '@/components/scanner/ManualInputModal';
+import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import {
@@ -114,7 +114,7 @@ export default function ScannerEventScreen() {
         </View>
       </SafeAreaView>
 
-      <ManualInputModal
+      <JemaatSearchModal
         visible={manualOpen}
         onClose={() => setManualOpen(false)}
         onSubmit={(kode) => runCheckin(kode)}

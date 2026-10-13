@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Baby, LogIn, LogOut } from 'lucide-react-native';
 
 import { useToast } from '@/components/ui/Toast';
-import { ManualInputModal } from '@/components/scanner/ManualInputModal';
+import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import { PickupInputModal } from '@/components/scanner/PickupInputModal';
@@ -298,7 +298,7 @@ export default function ScannerIbadahScreen() {
         </View>
       </SafeAreaView>
 
-      <ManualInputModal
+      <JemaatSearchModal
         visible={manualOpen}
         onClose={() => setManualOpen(false)}
         onSubmit={(kode) =>

@@ -17,3 +17,24 @@ import type { JemaatPublicProfile } from '@/types/jemaat';
 export function getJemaatPublicProfile(id: string) {
   return api.get<JemaatPublicProfile>(`/admin/jemaat-public/${id}`);
 }
+
+/** Hasil cari jemaat untuk input manual di layar scan (no HP disamarkan). */
+export type JemaatSearchResult = {
+  id: string;
+  kode: string | null;
+  namaLengkap: string;
+  fotoUrl: string | null;
+  jenisKelamin: 'L' | 'P' | null;
+  cabang: { id: string; nama: string } | null;
+  noHpMasked: string | null;
+};
+
+/**
+ * GET /admin/jemaat-public/search?q= — cocok dengan kode jemaat, nama, atau
+ * no HP. Hasil diurutkan: kode persis → cabang yang sama → nama.
+ */
+export function searchJemaat(q: string, cabangId?: string | null) {
+  const qs = new URLSearchParams({ q, limit: '20' });
+  if (cabangId) qs.append('cabangId', cabangId);
+  return api.get<JemaatSearchResult[]>(`/admin/jemaat-public/search?${qs}`);
+}

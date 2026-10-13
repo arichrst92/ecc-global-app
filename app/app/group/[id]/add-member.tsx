@@ -21,7 +21,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react-native';
 
-import { ManualInputModal } from '@/components/scanner/ManualInputModal';
+import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import { useToast } from '@/components/ui/Toast';
 import { useAddGroupMemberByKode } from '@/hooks/useGroup';
@@ -109,13 +109,12 @@ export default function AddGroupMemberScreen() {
         </View>
       </SafeAreaView>
 
-      <ManualInputModal
+      <JemaatSearchModal
         visible={manualOpen}
         onClose={() => setManualOpen(false)}
         onSubmit={submitKode}
         loading={addMutation.isPending}
         title={t('group.add_member_manual_title')}
-        placeholder="ABC23XYZ"
       />
     </View>
   );

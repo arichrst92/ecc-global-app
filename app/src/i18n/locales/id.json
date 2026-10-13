@@ -694,7 +694,14 @@
     "pickup_error_notfound_msg": "Kode tidak ditemukan, sudah expired, atau anak sudah di-pickup.",
     "pickup_success_title": "Pickup Berhasil",
     "pickup_success_msg": "{{nama}} berhasil di-pickup dari {{ibadah}}.",
-    "pickup_code_generated": "Kode Jemput Anak: {{code}} — sampaikan ke parent"
+    "pickup_code_generated": "Kode Jemput Anak: {{code}} — sampaikan ke parent",
+    "search_title": "Cari Jemaat",
+    "search_hint": "Ketik kode QR, nama, atau no HP jemaat, lalu pilih dari hasil pencarian.",
+    "search_placeholder": "Kode / nama / no HP",
+    "search_min": "Ketik minimal 2 huruf atau angka",
+    "search_empty": "Tidak ada jemaat yang cocok",
+    "search_use_kode": "Pakai kode {{kode}}",
+    "search_error": "Gagal mencari. Coba lagi."
   },
   "kids": {
     "badge_label": "IBADAH ANAK",
