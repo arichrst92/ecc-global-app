@@ -326,7 +326,7 @@ export default function EditProfileScreen() {
                 <TextInput
                   value={noHpInput}
                   onChangeText={setNoHpInput}
-                  placeholder="0821xxx atau +62821xxx"
+                  placeholder="0821xxx atau +65 9123xxxx"
                   keyboardType="phone-pad"
                   autoCapitalize="none"
                   className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
