@@ -13,6 +13,7 @@ import {
   CalendarCheck,
   ChevronRight,
   Download,
+  FileText,
   Globe,
   HeartHandshake,
   Info,
@@ -37,7 +38,8 @@ import { useAuthStore } from '@/stores/auth.store';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
-import { getMyProfile } from '@/api/me';
+import { getMyProfile, getMySertifikat, sertifikatFileUrl } from '@/api/me';
+import * as WebBrowser from 'expo-web-browser';
 import { formatPhoneDisplay } from '@/utils/phone';
 
 export default function ProfileTab() {
@@ -173,6 +175,9 @@ function ProfileTabAuthenticated() {
 
         {/* Ministry / pelayanan current user */}
         <MinistryCard />
+
+        {/* Sertifikat (dikelola admin di portal) — tampil kalau ada */}
+        <SertifikatCard />
 
         {/* Aktivitas & komunitas — M40 (Group) + M41 (My Reservasi) */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
@@ -563,6 +568,53 @@ function RoleCard() {
  * nama bold + posisi sebagai subtitle. Tap row → navigate ke detail
  * ministry. Empty state CTA → /ministry explore page.
  */
+function SertifikatCard() {
+  const { t, i18n } = useTranslation();
+  const q = useQuery({
+    queryKey: ['me', 'sertifikat'],
+    queryFn: getMySertifikat,
+    staleTime: 5 * 60_000,
+  });
+  const items = q.data ?? [];
+  if (items.length === 0) return null;
+
+  return (
+    <View className="mb-4">
+      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+        {t('profile.certificate_section')}
+      </Text>
+      <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+        {items.map((s, idx) => {
+          const isPdf = s.fileMime === 'application/pdf';
+          const tanggal = new Date(s.tanggal.slice(0, 10) + 'T00:00:00').toLocaleDateString(
+            i18n.language === 'en' ? 'en-US' : 'id-ID',
+            { day: 'numeric', month: 'long', year: 'numeric' },
+          );
+          return (
+            <Pressable
+              key={s.id}
+              disabled={!s.fileUrl}
+              onPress={() => s.fileUrl && void WebBrowser.openBrowserAsync(sertifikatFileUrl(s.fileUrl))}
+              className={`flex-row items-center gap-3 p-4 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+            >
+              <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
+                {isPdf ? <FileText size={18} color="#D97706" /> : <Award size={18} color="#D97706" />}
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                  {s.nama}
+                </Text>
+                <Text className="text-xs text-neutral-500 mt-0.5">{tanggal}</Text>
+              </View>
+              {s.fileUrl ? <ChevronRight size={14} color="#A3A3A3" /> : null}
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 function MinistryCard() {
   const { t } = useTranslation();
   const router = useRouter();

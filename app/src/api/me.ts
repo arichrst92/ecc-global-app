@@ -15,6 +15,28 @@ export function getMyProfile() {
   return api.get<MeProfile>('/admin/me');
 }
 
+/** Sertifikat jemaat (baptis, kelas, dll) — dikelola admin di portal. */
+export type MySertifikat = {
+  id: string;
+  nama: string;
+  /** ISO date (YYYY-MM-DD…) */
+  tanggal: string;
+  /** Relative "/uploads/…" atau URL penuh. Gambar (webp) atau PDF. */
+  fileUrl: string | null;
+  fileMime: string | null;
+  fileName: string | null;
+};
+
+/** GET /admin/me/sertifikat — read-only */
+export function getMySertifikat() {
+  return api.get<MySertifikat[]>('/admin/me/sertifikat');
+}
+
+/** URL lengkap file sertifikat. */
+export function sertifikatFileUrl(url: string): string {
+  return url.startsWith('http') ? url : `${env.apiBaseUrl}${url}`;
+}
+
 /** GET /admin/me/stats — streak, attended count, dll */
 export function getMyStats() {
   return api.get<MeStats>('/admin/me/stats');
