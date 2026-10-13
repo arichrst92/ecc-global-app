@@ -1,4 +1,4 @@
-/** React-query hooks konten group (file, pengumuman, voting). */
+/** React-query hooks konten group/homecell. `root` = prefix API (lihat api/groupContent). */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createGroupAnnouncement,
@@ -13,98 +13,117 @@ import {
   updateGroupPoll,
   uploadGroupFile,
   voteGroupPoll,
+  uploadGroupHero,
+  deleteGroupHero,
 } from '@/api/groupContent';
 import type { PickedFile } from '@/api/homecellSchedule';
 import type { CreateAnnouncementPayload, CreatePollPayload } from '@/types/groupContent';
 
 export const GROUP_CONTENT_KEYS = {
-  files: (id: string) => ['group', 'content', id, 'files'] as const,
-  announcements: (id: string) => ['group', 'content', id, 'announcements'] as const,
-  polls: (id: string) => ['group', 'content', id, 'polls'] as const,
+  files: (root: string) => ['board', root, 'files'] as const,
+  announcements: (root: string) => ['board', root, 'announcements'] as const,
+  polls: (root: string) => ['board', root, 'polls'] as const,
 };
 
-export const useGroupFiles = (groupId: string, enabled = true) =>
-  useQuery({ queryKey: GROUP_CONTENT_KEYS.files(groupId), queryFn: () => listGroupFiles(groupId), enabled: !!groupId && enabled });
+export const useGroupFiles = (root: string, enabled = true) =>
+  useQuery({ queryKey: GROUP_CONTENT_KEYS.files(root), queryFn: () => listGroupFiles(root), enabled: !!root && enabled });
 
-export const useGroupAnnouncements = (groupId: string, enabled = true) =>
+export const useGroupAnnouncements = (root: string, enabled = true) =>
   useQuery({
-    queryKey: GROUP_CONTENT_KEYS.announcements(groupId),
-    queryFn: () => listGroupAnnouncements(groupId),
-    enabled: !!groupId && enabled,
+    queryKey: GROUP_CONTENT_KEYS.announcements(root),
+    queryFn: () => listGroupAnnouncements(root),
+    enabled: !!root && enabled,
   });
 
-export const useGroupPolls = (groupId: string, enabled = true) =>
-  useQuery({ queryKey: GROUP_CONTENT_KEYS.polls(groupId), queryFn: () => listGroupPolls(groupId), enabled: !!groupId && enabled });
+export const useGroupPolls = (root: string, enabled = true) =>
+  useQuery({ queryKey: GROUP_CONTENT_KEYS.polls(root), queryFn: () => listGroupPolls(root), enabled: !!root && enabled });
 
-export function useUploadGroupFile(groupId: string) {
+export function useUploadGroupFile(root: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (v: { file: PickedFile; nama: string; deskripsi?: string }) =>
-      uploadGroupFile(groupId, v.file, { nama: v.nama, deskripsi: v.deskripsi }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.files(groupId) }),
+      uploadGroupFile(root, v.file, { nama: v.nama, deskripsi: v.deskripsi }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.files(root) }),
   });
 }
 
-export function useDeleteGroupFile(groupId: string) {
+export function useDeleteGroupFile(root: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (fileId: string) => deleteGroupFile(groupId, fileId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.files(groupId) }),
+    mutationFn: (fileId: string) => deleteGroupFile(root, fileId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.files(root) }),
   });
 }
 
-export function useCreateGroupAnnouncement(groupId: string) {
+export function useCreateGroupAnnouncement(root: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: CreateAnnouncementPayload) => createGroupAnnouncement(groupId, body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.announcements(groupId) }),
+    mutationFn: (body: CreateAnnouncementPayload) => createGroupAnnouncement(root, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.announcements(root) }),
   });
 }
 
-export function useUpdateGroupAnnouncement(groupId: string) {
+export function useUpdateGroupAnnouncement(root: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { id: string; body: Partial<CreateAnnouncementPayload> }) => updateGroupAnnouncement(groupId, v.id, v.body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.announcements(groupId) }),
+    mutationFn: (v: { id: string; body: Partial<CreateAnnouncementPayload> }) => updateGroupAnnouncement(root, v.id, v.body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.announcements(root) }),
   });
 }
 
-export function useDeleteGroupAnnouncement(groupId: string) {
+export function useDeleteGroupAnnouncement(root: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteGroupAnnouncement(groupId, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.announcements(groupId) }),
+    mutationFn: (id: string) => deleteGroupAnnouncement(root, id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.announcements(root) }),
   });
 }
 
-export function useCreateGroupPoll(groupId: string) {
+export function useCreateGroupPoll(root: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: CreatePollPayload) => createGroupPoll(groupId, body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.polls(groupId) }),
+    mutationFn: (body: CreatePollPayload) => createGroupPoll(root, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.polls(root) }),
   });
 }
 
-export function useUpdateGroupPoll(groupId: string) {
+export function useUpdateGroupPoll(root: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { id: string; isClosed: boolean }) => updateGroupPoll(groupId, v.id, { isClosed: v.isClosed }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.polls(groupId) }),
+    mutationFn: (v: { id: string; isClosed: boolean }) => updateGroupPoll(root, v.id, { isClosed: v.isClosed }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.polls(root) }),
   });
 }
 
-export function useDeleteGroupPoll(groupId: string) {
+export function useDeleteGroupPoll(root: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteGroupPoll(groupId, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.polls(groupId) }),
+    mutationFn: (id: string) => deleteGroupPoll(root, id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.polls(root) }),
   });
 }
 
-export function useVoteGroupPoll(groupId: string) {
+export function useVoteGroupPoll(root: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { pollId: string; optionIds: string[] }) => voteGroupPoll(groupId, v.pollId, v.optionIds),
-    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.polls(groupId) }),
+    mutationFn: (v: { pollId: string; optionIds: string[] }) => voteGroupPoll(root, v.pollId, v.optionIds),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GROUP_CONTENT_KEYS.polls(root) }),
+  });
+}
+
+// ---- Hero image group (PIC)
+export function useUploadGroupHero(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (file: PickedFile) => uploadGroupHero(groupId, file),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['group'] }),
+  });
+}
+
+export function useDeleteGroupHero(groupId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteGroupHero(groupId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['group'] }),
   });
 }

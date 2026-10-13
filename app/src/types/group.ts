@@ -50,6 +50,8 @@ export type Group = {
   hari?: string | null; // MINGGU/SENIN/... atau custom string
   jam?: string | null; // "19:00"
   picJemaatId: string | null;
+  /** Hero/banner (path /uploads/... atau URL). Diganti oleh PIC. */
+  heroImageUrl?: string | null;
   isPublic: boolean;
   /** Kode invitation 8-char alphanumeric. Cuma visible untuk PIC + Fulltimer.
    *  Public group: null.

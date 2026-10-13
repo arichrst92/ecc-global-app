@@ -28,6 +28,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/auth.store';
+import { HomecellBoardSection } from '@/components/group/GroupContent';
 import {
   useHomecellDetail,
   useRemoveHomecellMember,
@@ -322,6 +323,9 @@ export default function HomecellDetailScreen() {
             )}
           </View>
         ) : null}
+
+        {/* Pengumuman & voting homecell (PIC kelola) */}
+        <HomecellBoardSection homecellId={id} canManage className="mb-4" />
 
         {/* Active members */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">

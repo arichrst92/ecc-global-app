@@ -37,6 +37,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { jadwalLabel } from '@/components/homecell/HomecellListCard';
 import { MaterialList } from '@/components/homecell/ScheduleMaterials';
+import { HomecellBoardSection } from '@/components/group/GroupContent';
 import {
   useCancelJoinHomecell,
   useHomecellMateri,
@@ -45,6 +46,7 @@ import {
   useSetHomecellLokasi,
 } from '@/hooks/useHomecell';
 import { ApiError } from '@/types/api';
+import { useAuthStore } from '@/stores/auth.store';
 
 export default function HomecellViewScreen() {
   const insets = useSafeAreaInsets();
@@ -52,6 +54,7 @@ export default function HomecellViewScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const showToast = useToast((s) => s.show);
+  const user = useAuthStore((s) => s.user);
 
   const q = useHomecellPublic(id);
   const hc = q.data;
@@ -308,6 +311,15 @@ export default function HomecellViewScreen() {
                 </View>
               )}
             </View>
+          ) : null}
+
+          {/* Pengumuman & voting homecell (anggota / pemimpin) */}
+          {hc.myStatus === 'MEMBER' || hc.myStatus === 'LEADER' || user?.isFulltimer ? (
+            <HomecellBoardSection
+              homecellId={hc.id}
+              canManage={hc.myStatus === 'LEADER' || !!user?.isFulltimer}
+              className=""
+            />
           ) : null}
 
           {/* Anggota (hanya untuk anggota / pemimpin) */}

@@ -15,6 +15,7 @@
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -38,6 +39,7 @@ import {
 import { Picker } from '@/components/ui/Picker';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useGroups } from '@/hooks/useGroup';
+import { groupImageHref } from '@/components/group/GroupHero';
 import { useBranches } from '@/hooks/useBranches';
 import { useAuthStore } from '@/stores/auth.store';
 import { GROUP_JENIS_LABELS } from '@/types/group';
@@ -241,9 +243,17 @@ function GroupCard({
       className="bg-white rounded-2xl p-4 border border-neutral-100 active:bg-neutral-50"
     >
       <View className="flex-row items-start gap-3">
-        <View className="w-11 h-11 rounded-xl bg-brand-50 items-center justify-center">
-          <Text className="text-lg">{jenisInfo.emoji}</Text>
-        </View>
+        {group.heroImageUrl ? (
+          <Image
+            source={{ uri: groupImageHref(group.heroImageUrl) }}
+            style={{ width: 44, height: 44, borderRadius: 12 }}
+            resizeMode="cover"
+          />
+        ) : (
+          <View className="w-11 h-11 rounded-xl bg-brand-50 items-center justify-center">
+            <Text className="text-lg">{jenisInfo.emoji}</Text>
+          </View>
+        )}
         <View className="flex-1 min-w-0">
           <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
             {group.nama}

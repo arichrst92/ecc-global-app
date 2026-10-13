@@ -1,5 +1,6 @@
 /**
- * Konten group di detail group: Pengumuman, Voting, File.
+ * Papan konten: Pengumuman, Voting, File (group saja). Dipakai di detail
+ * group dan detail homecell.
  * - Anggota: lihat pengumuman, ikut voting, buka file.
  * - PIC / admin: buat & kelola semuanya.
  */
@@ -39,6 +40,7 @@ import {
   useVoteGroupPoll,
 } from '@/hooks/useGroupContent';
 import type { GroupAnnouncement, GroupPoll } from '@/types/groupContent';
+import { groupRoot, homecellRoot } from '@/api/groupContent';
 import { ApiError } from '@/types/api';
 
 type Tab = 'announcements' | 'polls' | 'files';
@@ -52,15 +54,44 @@ const fmtDate = (iso: string, lang: string) =>
   });
 
 export function GroupContentSection({ groupId, canManage }: { groupId: string; canManage: boolean }) {
+  return <ContentBoard root={groupRoot(groupId)} canManage={canManage} showFiles />;
+}
+
+/** Homecell: pengumuman + voting (file materi ada per jadwal). */
+export function HomecellBoardSection({
+  homecellId,
+  canManage,
+  className,
+}: {
+  homecellId: string;
+  canManage: boolean;
+  className?: string;
+}) {
+  return <ContentBoard root={homecellRoot(homecellId)} canManage={canManage} showFiles={false} className={className} />;
+}
+
+/** Papan konten generik. `root` = prefix API (`/admin/group/:id` / `/admin/homecell/:id`). */
+export function ContentBoard({
+  root,
+  canManage,
+  showFiles,
+  className = 'mx-4 mt-4',
+}: {
+  root: string;
+  canManage: boolean;
+  showFiles: boolean;
+  /** Margin container; default untuk layar group. */
+  className?: string;
+}) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>('announcements');
   const tabs: { key: Tab; label: string; Icon: typeof Megaphone }[] = [
     { key: 'announcements', label: t('gc.tab_announcements'), Icon: Megaphone },
     { key: 'polls', label: t('gc.tab_polls'), Icon: BarChart3 },
-    { key: 'files', label: t('gc.tab_files'), Icon: Paperclip },
+    ...(showFiles ? [{ key: 'files' as Tab, label: t('gc.tab_files'), Icon: Paperclip }] : []),
   ];
   return (
-    <View className="mx-4 mt-4 bg-white rounded-2xl border border-neutral-100 p-4">
+    <View className={`${className} bg-white rounded-2xl border border-neutral-100 p-4`}>
       <View className="flex-row bg-neutral-100 rounded-xl p-1 mb-3">
         {tabs.map(({ key, label, Icon }) => {
           const active = tab === key;
@@ -76,9 +107,9 @@ export function GroupContentSection({ groupId, canManage }: { groupId: string; c
           );
         })}
       </View>
-      {tab === 'announcements' && <AnnouncementsTab groupId={groupId} canManage={canManage} />}
-      {tab === 'polls' && <PollsTab groupId={groupId} canManage={canManage} />}
-      {tab === 'files' && <FilesTab groupId={groupId} canManage={canManage} />}
+      {tab === 'announcements' && <AnnouncementsTab root={root} canManage={canManage} />}
+      {tab === 'polls' && <PollsTab root={root} canManage={canManage} />}
+      {tab === 'files' && showFiles && <FilesTab root={root} canManage={canManage} />}
     </View>
   );
 }
@@ -108,13 +139,13 @@ function confirmDelete(t: (k: string, o?: Record<string, unknown>) => string, na
 
 // ============================================================ Pengumuman
 
-function AnnouncementsTab({ groupId, canManage }: { groupId: string; canManage: boolean }) {
+function AnnouncementsTab({ root, canManage }: { root: string; canManage: boolean }) {
   const { t, i18n } = useTranslation();
   const showToast = useToast((s) => s.show);
   const errMsg = useErr();
-  const q = useGroupAnnouncements(groupId);
-  const updateMut = useUpdateGroupAnnouncement(groupId);
-  const deleteMut = useDeleteGroupAnnouncement(groupId);
+  const q = useGroupAnnouncements(root);
+  const updateMut = useUpdateGroupAnnouncement(root);
+  const deleteMut = useDeleteGroupAnnouncement(root);
   const [creating, setCreating] = useState(false);
   const rows = q.data ?? [];
 
@@ -163,7 +194,7 @@ function AnnouncementsTab({ groupId, canManage }: { groupId: string; canManage: 
           ))}
         </View>
       )}
-      <CreateAnnouncementModal groupId={groupId} visible={creating} onClose={() => setCreating(false)} />
+      <CreateAnnouncementModal root={root} visible={creating} onClose={() => setCreating(false)} />
     </View>
   );
 }
@@ -200,11 +231,11 @@ function ToggleRow({ label, value, onChange }: { label: string; value: boolean; 
   );
 }
 
-function CreateAnnouncementModal({ groupId, visible, onClose }: { groupId: string; visible: boolean; onClose: () => void }) {
+function CreateAnnouncementModal({ root, visible, onClose }: { root: string; visible: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
   const errMsg = useErr();
-  const mut = useCreateGroupAnnouncement(groupId);
+  const mut = useCreateGroupAnnouncement(root);
   const [judul, setJudul] = useState('');
   const [isi, setIsi] = useState('');
   const [isPinned, setPinned] = useState(false);
@@ -255,9 +286,9 @@ function CreateAnnouncementModal({ groupId, visible, onClose }: { groupId: strin
 
 // ============================================================ Voting
 
-function PollsTab({ groupId, canManage }: { groupId: string; canManage: boolean }) {
+function PollsTab({ root, canManage }: { root: string; canManage: boolean }) {
   const { t } = useTranslation();
-  const q = useGroupPolls(groupId);
+  const q = useGroupPolls(root);
   const [creating, setCreating] = useState(false);
   const rows = q.data ?? [];
   return (
@@ -270,22 +301,22 @@ function PollsTab({ groupId, canManage }: { groupId: string; canManage: boolean 
       ) : (
         <View className="gap-3">
           {rows.map((p) => (
-            <PollCard key={p.id} groupId={groupId} poll={p} canManage={canManage} />
+            <PollCard key={p.id} root={root} poll={p} canManage={canManage} />
           ))}
         </View>
       )}
-      <CreatePollModal groupId={groupId} visible={creating} onClose={() => setCreating(false)} />
+      <CreatePollModal root={root} visible={creating} onClose={() => setCreating(false)} />
     </View>
   );
 }
 
-function PollCard({ groupId, poll, canManage }: { groupId: string; poll: GroupPoll; canManage: boolean }) {
+function PollCard({ root, poll, canManage }: { root: string; poll: GroupPoll; canManage: boolean }) {
   const { t, i18n } = useTranslation();
   const showToast = useToast((s) => s.show);
   const errMsg = useErr();
-  const voteMut = useVoteGroupPoll(groupId);
-  const updateMut = useUpdateGroupPoll(groupId);
-  const deleteMut = useDeleteGroupPoll(groupId);
+  const voteMut = useVoteGroupPoll(root);
+  const updateMut = useUpdateGroupPoll(root);
+  const deleteMut = useDeleteGroupPoll(root);
   const hasVoted = poll.myVotes.length > 0;
   const [editing, setEditing] = useState(poll.isOpen && !hasVoted);
   const [selected, setSelected] = useState<string[]>(poll.myVotes);
@@ -436,11 +467,11 @@ const DURATIONS: { key: string; days: number | null }[] = [
   { key: 'gc.days_7', days: 7 },
 ];
 
-function CreatePollModal({ groupId, visible, onClose }: { groupId: string; visible: boolean; onClose: () => void }) {
+function CreatePollModal({ root, visible, onClose }: { root: string; visible: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
   const errMsg = useErr();
-  const mut = useCreateGroupPoll(groupId);
+  const mut = useCreateGroupPoll(root);
   const [pertanyaan, setPertanyaan] = useState('');
   const [deskripsi, setDeskripsi] = useState('');
   const [options, setOptions] = useState<string[]>(['', '']);
@@ -535,13 +566,13 @@ function CreatePollModal({ groupId, visible, onClose }: { groupId: string; visib
 
 // ============================================================ File
 
-function FilesTab({ groupId, canManage }: { groupId: string; canManage: boolean }) {
+function FilesTab({ root, canManage }: { root: string; canManage: boolean }) {
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
   const errMsg = useErr();
-  const q = useGroupFiles(groupId);
-  const uploadMut = useUploadGroupFile(groupId);
-  const deleteMut = useDeleteGroupFile(groupId);
+  const q = useGroupFiles(root);
+  const uploadMut = useUploadGroupFile(root);
+  const deleteMut = useDeleteGroupFile(root);
   const [uploading, setUploading] = useState(false);
   const rows = q.data ?? [];
   return (

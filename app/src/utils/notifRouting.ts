@@ -73,6 +73,8 @@ export function resolveNotifRoute(
     case 'HOMECELL_JOIN_REQUESTED':
       return '/homecell/requests';
     case 'HOMECELL_JOIN_APPROVED':
+    case 'HOMECELL_ANNOUNCEMENT':
+    case 'HOMECELL_POLL_CREATED':
       return homecellId ? `/homecell/view/${homecellId}` : '/homecell';
     case 'HOMECELL_JOIN_REJECTED':
       return '/homecell';

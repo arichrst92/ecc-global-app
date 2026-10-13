@@ -1534,6 +1534,12 @@
     "closes_at": "closes {{date}}",
     "file_upload": "Upload file",
     "file_empty": "No files yet.",
-    "file_uploaded": "File uploaded"
+    "file_uploaded": "File uploaded",
+    "hero_add": "Add image",
+    "hero_change": "Change image",
+    "hero_remove": "Remove image",
+    "hero_remove_confirm": "Remove this group image?",
+    "hero_updated": "Group image updated",
+    "hero_permission": "Gallery permission is required to pick an image."
   }
 }

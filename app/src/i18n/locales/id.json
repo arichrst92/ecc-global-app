@@ -1534,6 +1534,12 @@
     "closes_at": "batas {{date}}",
     "file_upload": "Upload file",
     "file_empty": "Belum ada file.",
-    "file_uploaded": "File diupload"
+    "file_uploaded": "File diupload",
+    "hero_add": "Tambah gambar",
+    "hero_change": "Ganti gambar",
+    "hero_remove": "Hapus gambar",
+    "hero_remove_confirm": "Hapus gambar group ini?",
+    "hero_updated": "Gambar group diperbarui",
+    "hero_permission": "Izin akses galeri diperlukan untuk memilih gambar."
   }
 }

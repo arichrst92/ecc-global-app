@@ -44,6 +44,7 @@ import {
 
 import { Avatar } from '@/components/ui/Avatar';
 import { GroupContentSection } from '@/components/group/GroupContent';
+import { GroupHero } from '@/components/group/GroupHero';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import {
@@ -285,19 +286,15 @@ export default function GroupDetailScreen() {
           />
         }
       >
-        {/* Hero */}
-        <View className="bg-brand-50 items-center py-8">
-          <Text className="text-5xl mb-2">{jenisInfo.emoji}</Text>
-          <Text className="text-lg font-bold text-brand-800">{group.nama}</Text>
-          {!group.isPublic ? (
-            <View className="flex-row items-center gap-1 mt-2 bg-white/60 px-3 py-1 rounded-full">
-              <Lock size={12} color="#C2410C" />
-              <Text className="text-xs font-semibold text-brand-700">
-                {t('group.visibility_private')}
-              </Text>
-            </View>
-          ) : null}
-        </View>
+        {/* Hero image — hanya PIC yang bisa ganti */}
+        <GroupHero
+          groupId={id}
+          nama={group.nama}
+          emoji={jenisInfo.emoji}
+          isPublic={group.isPublic}
+          heroImageUrl={group.heroImageUrl}
+          canEdit={group.picJemaatId ? isPIC : !!user?.isFulltimer}
+        />
 
         {/* Meta info */}
         <View className="bg-white p-4 gap-3">
