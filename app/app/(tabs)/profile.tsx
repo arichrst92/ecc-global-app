@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Constants from 'expo-constants';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AlertTriangle,
   Award,
@@ -74,7 +74,9 @@ function ProfileTabAuthenticated() {
     familyQuery.isFetching ||
     scannerEventsQuery.isFetching ||
     scannerIbadahQuery.isFetching;
+  const queryClient = useQueryClient();
   function handleRefresh() {
+    void queryClient.invalidateQueries({ queryKey: ['me'] });
     void familyQuery.refetch();
     void scannerEventsQuery.refetch();
     void scannerIbadahQuery.refetch();
@@ -176,7 +178,7 @@ function ProfileTabAuthenticated() {
         {/* Ministry / pelayanan current user */}
         <MinistryCard />
 
-        {/* Sertifikat (dikelola admin di portal) — tampil kalau ada */}
+        {/* Sertifikat (dikelola admin di portal) */}
         <SertifikatCard />
 
         {/* Aktivitas & komunitas — M40 (Group) + M41 (My Reservasi) */}
@@ -576,13 +578,29 @@ function SertifikatCard() {
     staleTime: 5 * 60_000,
   });
   const items = q.data ?? [];
-  if (items.length === 0) return null;
 
   return (
     <View className="mb-4">
       <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
         {t('profile.certificate_section')}
       </Text>
+      {items.length === 0 ? (
+        <Pressable
+          onPress={() => q.isError && void q.refetch()}
+          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+        >
+          <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
+            <Award size={18} color="#D97706" />
+          </View>
+          <Text className="flex-1 text-sm text-neutral-600">
+            {q.isLoading
+              ? t('common.loading')
+              : q.isError
+                ? t('profile.certificate_error')
+                : t('profile.certificate_empty')}
+          </Text>
+        </Pressable>
+      ) : (
       <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
         {items.map((s, idx) => {
           const isPdf = s.fileMime === 'application/pdf';
@@ -611,6 +629,7 @@ function SertifikatCard() {
           );
         })}
       </View>
+      )}
     </View>
   );
 }

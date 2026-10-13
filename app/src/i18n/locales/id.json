@@ -266,6 +266,8 @@
     "family_empty_sub": "Tambahkan anggota untuk daftar event bareng",
     "ministry_section": "Pelayanan Anda",
     "certificate_section": "Sertifikat",
+    "certificate_empty": "Belum ada sertifikat. Sertifikat ditambahkan oleh admin gereja.",
+    "certificate_error": "Gagal memuat sertifikat. Ketuk untuk coba lagi.",
     "ministry_empty": "Belum terlibat ministry",
     "ministry_explore_sub": "Lihat daftar ministry yang ada di gereja",
     "my_business": "Bisnis Saya",

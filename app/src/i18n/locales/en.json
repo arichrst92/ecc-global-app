@@ -266,6 +266,8 @@
     "family_empty_sub": "Add members to register together for events",
     "ministry_section": "Your Ministry",
     "certificate_section": "Certificates",
+    "certificate_empty": "No certificates yet. Certificates are added by church admins.",
+    "certificate_error": "Failed to load certificates. Tap to retry.",
     "ministry_empty": "Not in any ministry yet",
     "ministry_explore_sub": "See the list of ministries in church",
     "my_business": "My Businesses",
