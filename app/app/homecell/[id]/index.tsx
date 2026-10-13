@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/auth.store';
 import { HomecellBoardSection } from '@/components/group/GroupContent';
+import { LastAttendanceText } from '@/components/homecell/LastAttendanceText';
 import {
   useHomecellDetail,
   useRemoveHomecellMember,
@@ -468,6 +469,7 @@ function MemberRow({
         >
           {member.jemaat.namaLengkap}
         </Text>
+        <LastAttendanceText date={member.lastAttendedAt} daysAgo={member.lastAttendedDaysAgo} />
         {isInactive ? (
           <Text className="text-[10px] text-red-600 mt-0.5 font-semibold">
             {t('homecell.member_inactive')}

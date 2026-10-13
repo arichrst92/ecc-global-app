@@ -1491,7 +1491,12 @@
     "materi_deleted": "Materi dihapus",
     "materi_delete_confirm": "Hapus materi \"{{name}}\"?",
     "materi_upcoming": "Pertemuan berikutnya",
-    "materi_past": "Pertemuan sebelumnya"
+    "materi_past": "Pertemuan sebelumnya",
+    "last_attended": "Terakhir hadir: {{date}}",
+    "last_today": "hari ini",
+    "last_yesterday": "kemarin",
+    "last_days_ago": "{{count}} hari lalu",
+    "last_never": "Belum pernah hadir homecell"
   },
   "gc": {
     "tab_announcements": "Pengumuman",

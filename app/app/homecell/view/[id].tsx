@@ -38,6 +38,7 @@ import { useToast } from '@/components/ui/Toast';
 import { jadwalLabel } from '@/components/homecell/HomecellListCard';
 import { MaterialList } from '@/components/homecell/ScheduleMaterials';
 import { HomecellBoardSection } from '@/components/group/GroupContent';
+import { LastAttendanceText } from '@/components/homecell/LastAttendanceText';
 import {
   useCancelJoinHomecell,
   useHomecellMateri,
@@ -332,9 +333,12 @@ export default function HomecellViewScreen() {
                 {hc.members.map((m) => (
                   <View key={m.id} className="flex-row items-center gap-3">
                     <Avatar name={m.namaLengkap} fotoUrl={m.fotoUrl} size={32} />
-                    <Text className="text-sm text-neutral-800 flex-1" numberOfLines={1}>
-                      {m.namaLengkap}
-                    </Text>
+                    <View className="flex-1 min-w-0">
+                      <Text className="text-sm text-neutral-800" numberOfLines={1}>
+                        {m.namaLengkap}
+                      </Text>
+                      <LastAttendanceText date={m.lastAttendedAt} daysAgo={m.lastAttendedDaysAgo} />
+                    </View>
                   </View>
                 ))}
               </View>

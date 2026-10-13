@@ -39,6 +39,9 @@ export type HomecellMember = {
     noHp?: string | null;
     jenisKelamin?: 'L' | 'P' | null;
   };
+  /** Tanggal pertemuan terakhir yang dihadiri di homecell ini (YYYY-MM-DD). */
+  lastAttendedAt?: string | null;
+  lastAttendedDaysAgo?: number | null;
 };
 
 /** Response GET /admin/homecell/:id — detail + nested members.
@@ -115,7 +118,13 @@ export type HomecellPublicDetail = Omit<HomecellListItem, 'picJemaat'> & {
   picJemaat: { id: string; namaLengkap: string; fotoUrl: string | null; noHp: string | null } | null;
   upcomingSchedules: { id: string; tanggal: string; lokasi: string; catatan: string | null }[];
   /** Hanya terisi kalau user anggota / leader homecell ini. */
-  members: { id: string; namaLengkap: string; fotoUrl: string | null }[];
+  members: {
+    id: string;
+    namaLengkap: string;
+    fotoUrl: string | null;
+    lastAttendedAt?: string | null;
+    lastAttendedDaysAgo?: number | null;
+  }[];
   myPendingRequest: { id: string; createdAt: string } | null;
 };
 

@@ -1491,7 +1491,13 @@
     "materi_deleted": "Material deleted",
     "materi_delete_confirm": "Delete material \"{{name}}\"?",
     "materi_upcoming": "Upcoming meetings",
-    "materi_past": "Previous meetings"
+    "materi_past": "Previous meetings",
+    "last_attended": "Last attended: {{date}}",
+    "last_today": "today",
+    "last_yesterday": "yesterday",
+    "last_days_ago_one": "{{count}} day ago",
+    "last_days_ago_other": "{{count}} days ago",
+    "last_never": "Never attended homecell"
   },
   "gc": {
     "tab_announcements": "Announcements",
