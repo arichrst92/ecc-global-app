@@ -12,13 +12,14 @@ import { BranchChip } from '@/components/branch/BranchChip';
 import { GuestHomeView } from '@/components/GuestHomeView';
 import { NotificationBell } from '@/components/NotificationBell';
 import { QuickAccess } from '@/components/home/QuickAccess';
+import { HomecellSpotlight } from '@/components/home/HomecellSpotlight';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
 import { useMyMinistrySchedule } from '@/hooks/useMinistry';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getIbadahDetail } from '@/api/ibadah';
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
@@ -64,6 +65,7 @@ function HomeScreenAuthenticated() {
     eventsQuery.isRefetching ||
     myScheduleQuery.isRefetching;
 
+  const queryClient = useQueryClient();
   function refresh() {
     statsQuery.refetch();
     todayQuery.refetch();
@@ -71,6 +73,7 @@ function HomeScreenAuthenticated() {
     newsQuery.refetch();
     eventsQuery.refetch();
     myScheduleQuery.refetch();
+    void queryClient.invalidateQueries({ queryKey: ['homecell', 'me'] });
   }
 
   const todayServices = todayQuery.data ?? [];
@@ -148,6 +151,10 @@ function HomeScreenAuthenticated() {
             </View>
           </SafeAreaView>
         </View>
+
+        {/* Homecell Spotlight — fokus utama ECC: homecell saya / pertemuan
+            berikutnya / ajakan bergabung. Menumpang di bawah header. */}
+        <HomecellSpotlight />
 
         {/* Quick Access — visible sesuai otoritas */}
         <QuickAccess />

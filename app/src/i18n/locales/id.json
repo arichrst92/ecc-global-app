@@ -1433,6 +1433,26 @@
     "reject_title": "Tolak permintaan {{name}}",
     "reject_reason_placeholder": "Alasan (opsional) — akan dikirim ke jemaat",
     "rejected": "Permintaan ditolak",
-    "requested_at": "Diminta {{date}}"
+    "requested_at": "Diminta {{date}}",
+    "spot_label_member": "Homecell Anda",
+    "spot_label_leader": "Homecell yang Anda pimpin",
+    "spot_next": "Pertemuan berikutnya",
+    "spot_routine": "Rutin setiap {{jadwal}}",
+    "spot_no_schedule": "Belum ada jadwal pertemuan berikutnya",
+    "spot_view": "Lihat homecell",
+    "spot_manage": "Kelola",
+    "spot_requests": "{{count}} permintaan bergabung",
+    "spot_create_schedule": "Buat jadwal",
+    "spot_more": "+{{count}} homecell lainnya",
+    "spot_none_title": "Bertumbuh bersama di Homecell",
+    "spot_none_body": "Di ECC kita bertumbuh lewat komunitas kecil — berdoa, belajar firman, dan saling menguatkan. Temukan homecell yang dekat dengan Anda.",
+    "spot_find": "Cari homecell terdekat",
+    "spot_browse": "Lihat semua",
+    "spot_pending": "Permintaan bergabung ke {{name}} sedang menunggu persetujuan",
+    "profile_section": "Homecell",
+    "profile_none": "Belum tergabung di homecell",
+    "profile_none_sub": "Cari & gabung homecell di cabang Anda",
+    "profile_role_leader": "Pemimpin",
+    "profile_role_member": "Anggota"
   }
 }

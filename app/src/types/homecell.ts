@@ -99,11 +99,14 @@ export type HomecellListItem = {
   myStatus: HomecellMyStatus;
 };
 
+/** Pertemuan berikutnya (overview). */
+export type HomecellNextSchedule = { id: string; tanggal: string; lokasi: string; catatan: string | null } | null;
+
 export type HomecellOverview = {
   role: 'LEADER' | 'MEMBER' | 'NONE';
   cabang: CabangRef | null;
-  managed: (HomecellListItem & { pendingJoinCount: number })[];
-  memberships: { tanggalBergabung: string; homecell: HomecellListItem }[];
+  managed: (HomecellListItem & { pendingJoinCount: number; nextSchedule?: HomecellNextSchedule })[];
+  memberships: { tanggalBergabung: string; homecell: HomecellListItem & { nextSchedule?: HomecellNextSchedule } }[];
   pendingRequests: { id: string; createdAt: string; pesan: string | null; homecell: { id: string; nama: string } }[];
 };
 

@@ -1433,6 +1433,26 @@
     "reject_title": "Decline {{name}}'s request",
     "reject_reason_placeholder": "Reason (optional) — sent to the member",
     "rejected": "Request declined",
-    "requested_at": "Requested {{date}}"
+    "requested_at": "Requested {{date}}",
+    "spot_label_member": "Your Homecell",
+    "spot_label_leader": "Homecell you lead",
+    "spot_next": "Next meeting",
+    "spot_routine": "Every {{jadwal}}",
+    "spot_no_schedule": "No upcoming meeting scheduled",
+    "spot_view": "View homecell",
+    "spot_manage": "Manage",
+    "spot_requests": "{{count}} join requests",
+    "spot_create_schedule": "Create schedule",
+    "spot_more": "+{{count}} more homecells",
+    "spot_none_title": "Grow together in a Homecell",
+    "spot_none_body": "At ECC we grow through small communities — praying, studying the Word, and encouraging one another. Find a homecell near you.",
+    "spot_find": "Find nearest homecell",
+    "spot_browse": "See all",
+    "spot_pending": "Your request to join {{name}} is waiting for approval",
+    "profile_section": "Homecell",
+    "profile_none": "Not in a homecell yet",
+    "profile_none_sub": "Find & join a homecell in your branch",
+    "profile_role_leader": "Leader",
+    "profile_role_member": "Member"
   }
 }

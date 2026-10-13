@@ -39,6 +39,7 @@ import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { getMyProfile, getMySertifikat, sertifikatFileUrl } from '@/api/me';
+import { useMyHomecellOverview } from '@/hooks/useHomecell';
 import * as WebBrowser from 'expo-web-browser';
 import { formatPhoneDisplay } from '@/utils/phone';
 
@@ -174,6 +175,9 @@ function ProfileTabAuthenticated() {
 
         {/* Role / peran current user */}
         <RoleCard />
+
+        {/* Homecell current user (anggota / pemimpin / belum punya) */}
+        <HomecellProfileCard />
 
         {/* Ministry / pelayanan current user */}
         <MinistryCard />
@@ -629,6 +633,68 @@ function SertifikatCard() {
           );
         })}
       </View>
+      )}
+    </View>
+  );
+}
+
+function HomecellProfileCard() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const q = useMyHomecellOverview();
+  const rows = [
+    ...(q.data?.managed ?? []).map((h) => ({ h, role: 'LEADER' as const })),
+    ...(q.data?.memberships ?? []).map((m) => ({ h: m.homecell, role: 'MEMBER' as const })),
+  ];
+
+  return (
+    <View className="mb-4">
+      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+        {t('hcj.profile_section')}
+      </Text>
+      {rows.length === 0 ? (
+        <Pressable
+          onPress={() => router.push('/homecell')}
+          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+        >
+          <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+            <Users size={18} color="#EA580C" />
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-semibold text-neutral-700">
+              {q.isLoading ? t('common.loading') : t('hcj.profile_none')}
+            </Text>
+            <Text className="text-xs text-neutral-500 mt-0.5">{t('hcj.profile_none_sub')}</Text>
+          </View>
+          <ChevronRight size={16} color="#A3A3A3" />
+        </Pressable>
+      ) : (
+        <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+          {rows.map(({ h, role }, idx) => (
+            <Pressable
+              key={`${role}-${h.id}`}
+              onPress={() =>
+                router.push((role === 'LEADER' ? `/homecell/${h.id}` : `/homecell/view/${h.id}`) as never)
+              }
+              className={`flex-row items-center gap-3 p-4 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+            >
+              <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+                <Users size={18} color="#EA580C" />
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                  {h.nama}
+                </Text>
+                <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                  {role === 'LEADER' ? t('hcj.profile_role_leader') : t('hcj.profile_role_member')} · {h.area.nama}
+                  {' · '}
+                  {t('hcj.members', { count: h.memberCount })}
+                </Text>
+              </View>
+              <ChevronRight size={14} color="#A3A3A3" />
+            </Pressable>
+          ))}
+        </View>
       )}
     </View>
   );

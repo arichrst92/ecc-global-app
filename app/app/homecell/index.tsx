@@ -6,7 +6,7 @@
  * - Belum punya homecell: daftar homecell di cabang + "Cari homecell terdekat"
  *   (GPS) → popup rekomendasi → minta bergabung.
  */
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -18,7 +18,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Bell, ChevronRight, Hourglass, Locate, MapPin, Search, Settings2 } from 'lucide-react-native';
 
@@ -69,6 +69,17 @@ export default function HomecellHubScreen() {
   const cancelMut = useCancelJoinHomecell();
 
   const pendingJoinTotal = managed.reduce((a, h) => a + (h.pendingJoinCount ?? 0), 0);
+
+  // Dari tombol "Cari homecell terdekat" di beranda → langsung cari sekali.
+  const params = useLocalSearchParams<{ nearest?: string }>();
+  const autoNearestDone = useRef(false);
+  useEffect(() => {
+    if (params.nearest === '1' && needsHomecell && !branchLoading && !autoNearestDone.current) {
+      autoNearestDone.current = true;
+      void findNearest();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.nearest, needsHomecell, branchLoading]);
 
   async function findNearest() {
     setLocating(true);
