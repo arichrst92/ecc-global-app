@@ -100,6 +100,9 @@ export type HomecellListItem = {
   /** Jarak dari posisi user (km, 1 desimal) — null kalau lokasi tidak dikirim / homecell belum punya lokasi. */
   distanceKm: number | null;
   myStatus: HomecellMyStatus;
+  /** Pertemuan terakhir (jadwal ≤ hari ini dengan ≥1 hadir), YYYY-MM-DD. */
+  lastMeetingAt?: string | null;
+  lastMeetingDaysAgo?: number | null;
 };
 
 /** Pertemuan berikutnya (overview). */

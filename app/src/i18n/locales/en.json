@@ -1497,7 +1497,9 @@
     "last_yesterday": "yesterday",
     "last_days_ago_one": "{{count}} day ago",
     "last_days_ago_other": "{{count}} days ago",
-    "last_never": "Never attended homecell"
+    "last_never": "Never attended homecell",
+    "last_meeting": "Last meeting: {{date}}",
+    "last_meeting_never": "No meeting recorded yet"
   },
   "gc": {
     "tab_announcements": "Announcements",

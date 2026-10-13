@@ -172,6 +172,7 @@ export default function HomecellViewScreen() {
           {/* Info utama */}
           <View className="bg-white rounded-2xl p-5 border border-neutral-100">
             <Text className="text-xl font-bold text-neutral-900">{hc.nama}</Text>
+            <LastAttendanceText variant="homecell" date={hc.lastMeetingAt} daysAgo={hc.lastMeetingDaysAgo} />
             <Text className="text-xs text-neutral-500 mt-0.5">
               {hc.area.nama} · {hc.area.cabang.nama}
             </Text>

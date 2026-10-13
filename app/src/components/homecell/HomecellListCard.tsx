@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { LastAttendanceText } from '@/components/homecell/LastAttendanceText';
 import { ChevronRight, Clock, MapPin, Navigation, User, Users } from 'lucide-react-native';
 
 import type { HomecellListItem } from '@/types/homecell';
@@ -50,6 +51,7 @@ export function HomecellListCard({ item, onPress }: { item: HomecellListItem; on
           </Text>
           <StatusBadge status={item.myStatus} />
         </View>
+        <LastAttendanceText variant="homecell" date={item.lastMeetingAt} daysAgo={item.lastMeetingDaysAgo} />
         <View className="flex-row items-center gap-1 mt-1">
           <MapPin size={11} color="#A3A3A3" />
           <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>

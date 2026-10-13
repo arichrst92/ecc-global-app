@@ -9,6 +9,7 @@
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { LastAttendanceText } from '@/components/homecell/LastAttendanceText';
 import { Bell, CalendarDays, ChevronRight, Hourglass, Locate, MapPin, Plus, Users } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -183,6 +184,7 @@ function SpotCard({
           <Text className="text-lg font-bold text-neutral-900" numberOfLines={1}>
             {item.nama}
           </Text>
+          <LastAttendanceText variant="homecell" date={item.lastMeetingAt} daysAgo={item.lastMeetingDaysAgo} />
         </View>
         <ChevronRight size={18} color="#A3A3A3" />
       </View>
