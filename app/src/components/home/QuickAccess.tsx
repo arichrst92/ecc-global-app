@@ -21,7 +21,7 @@ import {
 } from 'lucide-react-native';
 
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
-import { useManagedAreas, useManagedHomecells } from '@/hooks/useHomecell';
+import { useManagedAreas } from '@/hooks/useHomecell';
 
 type QuickAccessTile = {
   key: string;
@@ -41,7 +41,7 @@ type QuickAccessTile = {
  * Tiles tampil sesuai otoritas user:
  * - Selalu: Alkitab, Keluarga, Ibadah, Event, Berita, Persembahan, Marketplace (soon)
  * - Kalau authorized scanner: Scanner
- * - Kalau PIC homecell: Homecell
+ * - Homecell (semua jemaat — anggota, calon anggota, & PIC)
  * - Kalau PIC area: Area
  */
 export function QuickAccess() {
@@ -58,9 +58,7 @@ export function QuickAccess() {
 
   // Cek PIC homecell/area dari list yang BE return — kalau ada minimal 1,
   // user PIC di kategori itu.
-  const homecellsQuery = useManagedHomecells();
   const areasQuery = useManagedAreas();
-  const isPicHomecell = (homecellsQuery.data?.length ?? 0) > 0;
   const isPicArea = (areasQuery.data?.length ?? 0) > 0;
 
   // Brand orange theme — semua tile pakai warna sama supaya visual coherent.
@@ -164,9 +162,9 @@ export function QuickAccess() {
     });
   }
 
-  // Homecell + Area tiles — same flat style dengan tile lain (orange-50 outline).
-  // No PIC badge — visual uniform, tetap di-conditional show sesuai authority.
-  if (isPicHomecell) {
+  // Homecell — untuk SEMUA jemaat (anggota: lihat homecell-nya; belum punya:
+  // cari & minta bergabung; PIC: kelola + approve). Area tetap khusus PIC area.
+  {
     tiles.push({
       key: 'homecell',
       icon: Users,

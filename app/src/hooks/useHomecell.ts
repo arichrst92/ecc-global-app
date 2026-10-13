@@ -7,6 +7,15 @@ import {
   getHomecellDetail,
   removeHomecellMember,
   listAreaHomecells,
+  getMyHomecellOverview,
+  browseHomecells,
+  getHomecellPublic,
+  requestJoinHomecell,
+  cancelJoinHomecell,
+  listHomecellJoinRequests,
+  approveHomecellJoin,
+  rejectHomecellJoin,
+  setHomecellLokasi,
 } from '@/api/homecell';
 
 const HOMECELL_LIST_KEY = ['homecell', 'managed'] as const;
@@ -71,5 +80,82 @@ export function useRemoveHomecellMember(homecellId: string) {
       queryClient.invalidateQueries({ queryKey: HOMECELL_LIST_KEY });
       queryClient.invalidateQueries({ queryKey: ['homecell', 'detail', homecellId] });
     },
+  });
+}
+
+// ============================================================
+//  Homecell untuk semua jemaat
+// ============================================================
+
+const ME_HC_KEY = ['homecell', 'me'] as const;
+
+/** Invalidate semua query homecell (overview, browse, detail, request). */
+function useInvalidateHomecell() {
+  const qc = useQueryClient();
+  return () => qc.invalidateQueries({ queryKey: ['homecell'] });
+}
+
+export function useMyHomecellOverview() {
+  return useQuery({ queryKey: [...ME_HC_KEY, 'overview'], queryFn: getMyHomecellOverview, staleTime: 60_000 });
+}
+
+export function useBrowseHomecells(params: { q?: string; lat?: number; lng?: number }, enabled = true) {
+  return useQuery({
+    queryKey: [...ME_HC_KEY, 'browse', params.q ?? '', params.lat ?? null, params.lng ?? null],
+    queryFn: () => browseHomecells(params),
+    enabled,
+    staleTime: 60_000,
+  });
+}
+
+export function useHomecellPublic(homecellId: string | undefined) {
+  return useQuery({
+    queryKey: [...ME_HC_KEY, 'detail', homecellId],
+    queryFn: () => getHomecellPublic(homecellId!),
+    enabled: !!homecellId,
+    staleTime: 30_000,
+  });
+}
+
+export function useRequestJoinHomecell() {
+  const invalidate = useInvalidateHomecell();
+  return useMutation({
+    mutationFn: (v: { homecellId: string; pesan?: string }) => requestJoinHomecell(v.homecellId, v.pesan),
+    onSuccess: invalidate,
+  });
+}
+
+export function useCancelJoinHomecell() {
+  const invalidate = useInvalidateHomecell();
+  return useMutation({ mutationFn: (homecellId: string) => cancelJoinHomecell(homecellId), onSuccess: invalidate });
+}
+
+export function useHomecellJoinRequests(enabled = true) {
+  return useQuery({
+    queryKey: [...ME_HC_KEY, 'join-requests'],
+    queryFn: listHomecellJoinRequests,
+    enabled,
+    staleTime: 30_000,
+  });
+}
+
+export function useApproveHomecellJoin() {
+  const invalidate = useInvalidateHomecell();
+  return useMutation({ mutationFn: (requestId: string) => approveHomecellJoin(requestId), onSuccess: invalidate });
+}
+
+export function useRejectHomecellJoin() {
+  const invalidate = useInvalidateHomecell();
+  return useMutation({
+    mutationFn: (v: { requestId: string; reason?: string }) => rejectHomecellJoin(v.requestId, v.reason),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSetHomecellLokasi() {
+  const invalidate = useInvalidateHomecell();
+  return useMutation({
+    mutationFn: (v: { homecellId: string; mapsUrl: string | null }) => setHomecellLokasi(v.homecellId, v.mapsUrl),
+    onSuccess: invalidate,
   });
 }

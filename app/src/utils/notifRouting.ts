@@ -70,6 +70,13 @@ export function resolveNotifRoute(
     case 'MINISTRY_JOIN_REJECTED':
       return ministryId ? `/ministry/${ministryId}` : '/ministry';
 
+    case 'HOMECELL_JOIN_REQUESTED':
+      return '/homecell/requests';
+    case 'HOMECELL_JOIN_APPROVED':
+      return homecellId ? `/homecell/view/${homecellId}` : '/homecell';
+    case 'HOMECELL_JOIN_REJECTED':
+      return '/homecell';
+
     default:
       return null;
   }
@@ -138,6 +145,12 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
     case 'MINISTRY_JOIN_APPROVED':
       return 'family';
     case 'MINISTRY_JOIN_REJECTED':
+      return 'group-remove';
+    case 'HOMECELL_JOIN_REQUESTED':
+      return 'group-add';
+    case 'HOMECELL_JOIN_APPROVED':
+      return 'home-check';
+    case 'HOMECELL_JOIN_REJECTED':
       return 'group-remove';
     default:
       return 'bell';

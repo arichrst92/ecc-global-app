@@ -71,3 +71,71 @@ export type AreaHomecellRow = {
   } | null;
   memberCount: number;
 };
+
+// ============================================================
+//  Homecell untuk semua jemaat — /admin/me/homecell/*
+//  (lihat docs/be-update-2026-10-13-homecell-join.md)
+// ============================================================
+
+export type HomecellMyStatus = 'MEMBER' | 'PENDING' | 'LEADER' | null;
+
+/** Item list (browse / nearest / overview). */
+export type HomecellListItem = {
+  id: string;
+  nama: string;
+  deskripsi: string | null;
+  alamat: string | null;
+  hari: string | null;
+  jam: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  mapsUrl: string | null;
+  hasLocation: boolean;
+  area: AreaRef;
+  picJemaat: { id: string; namaLengkap: string; fotoUrl: string | null } | null;
+  memberCount: number;
+  /** Jarak dari posisi user (km, 1 desimal) — null kalau lokasi tidak dikirim / homecell belum punya lokasi. */
+  distanceKm: number | null;
+  myStatus: HomecellMyStatus;
+};
+
+export type HomecellOverview = {
+  role: 'LEADER' | 'MEMBER' | 'NONE';
+  cabang: CabangRef | null;
+  managed: (HomecellListItem & { pendingJoinCount: number })[];
+  memberships: { tanggalBergabung: string; homecell: HomecellListItem }[];
+  pendingRequests: { id: string; createdAt: string; pesan: string | null; homecell: { id: string; nama: string } }[];
+};
+
+/** Detail read-only — GET /admin/me/homecell/:id */
+export type HomecellPublicDetail = Omit<HomecellListItem, 'picJemaat'> & {
+  picJemaat: { id: string; namaLengkap: string; fotoUrl: string | null; noHp: string | null } | null;
+  upcomingSchedules: { id: string; tanggal: string; lokasi: string; catatan: string | null }[];
+  /** Hanya terisi kalau user anggota / leader homecell ini. */
+  members: { id: string; namaLengkap: string; fotoUrl: string | null }[];
+  myPendingRequest: { id: string; createdAt: string } | null;
+};
+
+export type HomecellNearestResponse = {
+  items: HomecellListItem[];
+  totalInCabang: number;
+  withoutLocation: number;
+};
+
+/** Permintaan bergabung (untuk leader). */
+export type HomecellJoinRequestRow = {
+  id: string;
+  createdAt: string;
+  pesan: string | null;
+  homecell: { id: string; nama: string };
+  jemaat: {
+    id: string;
+    namaLengkap: string;
+    kode: string;
+    fotoUrl: string | null;
+    noHp: string | null;
+    jenisKelamin: 'L' | 'P' | null;
+    tanggalLahir: string | null;
+    alamat: string | null;
+  };
+};

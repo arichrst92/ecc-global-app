@@ -13,6 +13,11 @@ import type {
   HomecellMember,
   HomecellDetail,
   AreaHomecellRow,
+  HomecellOverview,
+  HomecellListItem,
+  HomecellNearestResponse,
+  HomecellPublicDetail,
+  HomecellJoinRequestRow,
 } from '@/types/homecell';
 
 /** GET /admin/me/homecell-managed — homecell yang user-nya PIC */
@@ -92,4 +97,74 @@ export async function removeHomecellMember(
  */
 export function listAreaHomecells(areaId: string) {
   return api.get<AreaHomecellRow[]>(`/admin/homecell-area/${areaId}/homecells`);
+}
+
+// ============================================================
+//  Homecell untuk semua jemaat — /admin/me/homecell/*
+// ============================================================
+
+/** Ringkasan: homecell yang dipimpin, homecell saya, permintaan pending. */
+export function getMyHomecellOverview() {
+  return api.get<HomecellOverview>('/admin/me/homecell');
+}
+
+/** Daftar homecell di cabang saya (urut jarak kalau lat/lng dikirim). */
+export function browseHomecells(params: { q?: string; lat?: number; lng?: number } = {}) {
+  const qs = new URLSearchParams();
+  if (params.q) qs.append('q', params.q);
+  if (params.lat != null && params.lng != null) {
+    qs.append('lat', String(params.lat));
+    qs.append('lng', String(params.lng));
+  }
+  const s = qs.toString();
+  return api.get<HomecellListItem[]>(`/admin/me/homecell/browse${s ? `?${s}` : ''}`);
+}
+
+/** Rekomendasi homecell terdekat (hanya yang punya lokasi). */
+export function nearestHomecells(lat: number, lng: number, limit = 3) {
+  return api.get<HomecellNearestResponse>(
+    `/admin/me/homecell/nearest?lat=${lat}&lng=${lng}&limit=${limit}`,
+  );
+}
+
+/** Detail read-only (anggota / calon anggota). */
+export function getHomecellPublic(homecellId: string) {
+  return api.get<HomecellPublicDetail>(`/admin/me/homecell/${homecellId}`);
+}
+
+export function requestJoinHomecell(homecellId: string, pesan?: string) {
+  return api.post<{ requestId: string; status: 'PENDING' }>(
+    `/admin/me/homecell/${homecellId}/join-request`,
+    { pesan: pesan || undefined },
+  );
+}
+
+export function cancelJoinHomecell(homecellId: string) {
+  return api.delete<{ id: string; status: 'CANCELLED' }>(`/admin/me/homecell/${homecellId}/join-request`);
+}
+
+/** [Leader] permintaan bergabung PENDING di homecell yang dipimpin. */
+export function listHomecellJoinRequests() {
+  return api.get<HomecellJoinRequestRow[]>('/admin/me/homecell/join-requests');
+}
+
+export function approveHomecellJoin(requestId: string) {
+  return api.post<{ requestId: string; status: 'APPROVED' }>(
+    `/admin/me/homecell/join-requests/${requestId}/approve`,
+  );
+}
+
+export function rejectHomecellJoin(requestId: string, reason?: string) {
+  return api.post<{ requestId: string; status: 'REJECTED' }>(
+    `/admin/me/homecell/join-requests/${requestId}/reject`,
+    { reason: reason || undefined },
+  );
+}
+
+/** [Leader] set lokasi dari link / koordinat Google Maps. null = hapus. */
+export function setHomecellLokasi(homecellId: string, mapsUrl: string | null) {
+  return api.patch<{ id: string; latitude: number | null; longitude: number | null; mapsUrl: string | null }>(
+    `/admin/me/homecell/${homecellId}/lokasi`,
+    { mapsUrl },
+  );
 }

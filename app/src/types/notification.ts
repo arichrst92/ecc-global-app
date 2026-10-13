@@ -40,7 +40,10 @@ export type InAppNotifType =
   // Ministry join approval (docs/backend-request-ministry-join-approval.md)
   | 'MINISTRY_JOIN_REQUESTED'
   | 'MINISTRY_JOIN_APPROVED'
-  | 'MINISTRY_JOIN_REJECTED';
+  | 'MINISTRY_JOIN_REJECTED'
+  | 'HOMECELL_JOIN_REQUESTED'
+  | 'HOMECELL_JOIN_APPROVED'
+  | 'HOMECELL_JOIN_REJECTED';
 
 /**
  * Metadata JSON per notif type — kontennya bervariasi.
