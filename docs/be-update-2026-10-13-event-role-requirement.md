@@ -57,3 +57,10 @@ Tampilkan `error.message` apa adanya, karena isinya sudah berupa kalimat untuk p
 
 - Endpoint publik / guest (`/public/event`) tidak berubah.
 - Alur bayar, upload bukti, dan check-in tetap sama. Pemberian role terjadi otomatis di backend.
+
+## Update: pesan syarat (2026-10-13, revisi)
+
+- Format `error.message` untuk `NOT_ELIGIBLE` sekarang:
+  *"Anda belum diperbolehkan mengikuti event ini. Syaratnya Anda harus Jemaat → Jemaat Tetap → Aktif terlebih dahulu."*
+  Kalau syaratnya lebih dari satu, digabung dengan "atau". Pada pendaftaran keluarga (batch), kata "Anda" diganti nama anggota.
+- `GET /admin/event/:idOrSlug` sekarang punya `eligibilityMessage` (string siap tampil, `null` kalau memenuhi syarat). Sudah dipakai di `app/event/[id].tsx` sebagai banner kuning di atas tombol Daftar.

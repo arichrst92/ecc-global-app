@@ -109,8 +109,11 @@ export function getMyHomecellOverview() {
 }
 
 /** Daftar homecell di cabang saya (urut jarak kalau lat/lng dikirim). */
-export function browseHomecells(params: { q?: string; lat?: number; lng?: number } = {}) {
+export function browseHomecells(
+  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number } = {},
+) {
   const qs = new URLSearchParams();
+  if (params.cabangId) qs.append('cabangId', params.cabangId);
   if (params.q) qs.append('q', params.q);
   if (params.lat != null && params.lng != null) {
     qs.append('lat', String(params.lat));
@@ -121,9 +124,10 @@ export function browseHomecells(params: { q?: string; lat?: number; lng?: number
 }
 
 /** Rekomendasi homecell terdekat (hanya yang punya lokasi). */
-export function nearestHomecells(lat: number, lng: number, limit = 3) {
+export function nearestHomecells(lat: number, lng: number, cabangId?: string | null, limit = 3) {
+  const c = cabangId ? `&cabangId=${encodeURIComponent(cabangId)}` : '';
   return api.get<HomecellNearestResponse>(
-    `/admin/me/homecell/nearest?lat=${lat}&lng=${lng}&limit=${limit}`,
+    `/admin/me/homecell/nearest?lat=${lat}&lng=${lng}&limit=${limit}${c}`,
   );
 }
 

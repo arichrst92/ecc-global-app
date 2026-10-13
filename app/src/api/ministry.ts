@@ -23,8 +23,11 @@ import type {
  * BE wraps response in `{ success, data }`; api client already unwraps,
  * sehingga return type langsung array.
  */
-export function listMinistries() {
-  return api.get<MinistryListItem[]>('/admin/ministry');
+/** cabangId = cabang aktif di app → hanya ministry yang ada anggotanya di cabang itu. */
+export function listMinistries(cabangId?: string | null) {
+  return api.get<MinistryListItem[]>(
+    cabangId ? `/admin/ministry?cabangId=${encodeURIComponent(cabangId)}` : '/admin/ministry',
+  );
 }
 
 /**

@@ -18,6 +18,7 @@ import { ArrowLeft, ChevronRight, HeartHandshake, Users } from 'lucide-react-nat
 import { Avatar } from '@/components/ui/Avatar';
 import { getMyProfile } from '@/api/me';
 import { useMinistryList } from '@/hooks/useMinistry';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useAuthStore } from '@/stores/auth.store';
 
 export default function MinistryListScreen() {
@@ -32,6 +33,7 @@ export default function MinistryListScreen() {
     enabled: !isGuest,
   });
   const ministryListQuery = useMinistryList();
+  const { branch } = useViewingBranch();
 
   const myMinistries = meQuery.data?.ministries ?? [];
   const allMinistries = ministryListQuery.data ?? [];
@@ -46,9 +48,11 @@ export default function MinistryListScreen() {
           >
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
-          <Text className="flex-1 text-base font-bold text-neutral-900">
-            {t('ministry.title')}
-          </Text>
+          <View className="flex-1">
+            <Text className="text-base font-bold text-neutral-900">{t('ministry.title')}</Text>
+            {/* Ministry yang tampil mengikuti cabang aktif */}
+            {branch ? <Text className="text-xs text-neutral-500">{branch.nama}</Text> : null}
+          </View>
         </View>
       </SafeAreaView>
 

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, ChevronRight, Clock, FileText, HandHeart, MapPin, PlayCircle, Receipt, Share2, Upload, User, Users, X } from 'lucide-react-native';
+import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, ChevronRight, Clock, FileText, HandHeart, MapPin, PlayCircle, Receipt, Share2, Upload, User, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -489,6 +489,16 @@ export default function EventDetailScreen() {
               // section dihapus — sudah tampil per-tracker di atas). Label
               // context-aware: "Daftarkan Peserta Lain" kalau ada tracker
               // aktif, atau "Daftar Sekarang" kalau kosong.
+              <View>
+              {event.myEligible === false && event.eligibilityMessage ? (
+                // Belum memenuhi syarat role event. Tombol tetap aktif supaya
+                // anggota keluarga yang memenuhi syarat masih bisa didaftarkan;
+                // backend menolak per orang dengan pesan yang sama.
+                <View className="flex-row items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3">
+                  <ShieldAlert size={16} color="#B45309" />
+                  <Text className="flex-1 text-xs text-amber-900 leading-5">{event.eligibilityMessage}</Text>
+                </View>
+              ) : null}
               <View className="flex-row items-center gap-3">
                 <View>
                   <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
@@ -510,6 +520,7 @@ export default function EventDetailScreen() {
                     rightIcon={<ArrowRight size={16} color="#fff" />}
                   />
                 </View>
+              </View>
               </View>
             )}
           </SafeAreaView>

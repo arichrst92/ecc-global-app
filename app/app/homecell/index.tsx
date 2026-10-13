@@ -34,6 +34,7 @@ import {
 } from '@/hooks/useHomecell';
 import { nearestHomecells } from '@/api/homecell';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { getCurrentCoords, LocationError, type Coords } from '@/utils/location';
 import { ApiError } from '@/types/api';
 import type { HomecellNearestResponse } from '@/types/homecell';
@@ -54,7 +55,12 @@ export default function HomecellHubScreen() {
   const [search, setSearch] = useState('');
   const q = useDebounce(search.trim(), 300);
   const [coords, setCoords] = useState<Coords | null>(null);
-  const browse = useBrowseHomecells({ q, lat: coords?.lat, lng: coords?.lng }, needsHomecell);
+  // Daftar & rekomendasi mengikuti cabang aktif yang dipilih di app.
+  const { branch, viewingCabangId, isLoading: branchLoading } = useViewingBranch();
+  const browse = useBrowseHomecells(
+    { cabangId: viewingCabangId, q, lat: coords?.lat, lng: coords?.lng },
+    needsHomecell && !branchLoading,
+  );
 
   const [locating, setLocating] = useState(false);
   const [nearest, setNearest] = useState<HomecellNearestResponse | null>(null);
@@ -69,7 +75,7 @@ export default function HomecellHubScreen() {
     try {
       const c = await getCurrentCoords();
       setCoords(c);
-      const res = await nearestHomecells(c.lat, c.lng, 3);
+      const res = await nearestHomecells(c.lat, c.lng, viewingCabangId, 3);
       setNearest(res);
       setNearestOpen(true);
     } catch (e) {
@@ -237,8 +243,8 @@ export default function HomecellHubScreen() {
                 <View className="mt-5 mb-2">
                   <SectionTitle
                     text={
-                      data?.cabang
-                        ? t('hcj.find_section', { cabang: data.cabang.nama })
+                      branch
+                        ? t('hcj.find_section', { cabang: branch.nama })
                         : t('hcj.find_section_nocabang')
                     }
                   />

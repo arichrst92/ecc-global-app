@@ -12,24 +12,29 @@ import {
   rejectJoinRequest,
   type JoinMinistryPayload,
 } from '@/api/ministry';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useAuthStore } from '@/stores/auth.store';
 import { addDaysIso, todayIso } from '@/utils/date';
 
 export const MINISTRY_KEYS = {
   all: ['ministry'] as const,
-  list: () => [...MINISTRY_KEYS.all, 'list'] as const,
+  list: (cabangId?: string | null) => [...MINISTRY_KEYS.all, 'list', cabangId ?? 'home'] as const,
   detail: (id: string | undefined) =>
     [...MINISTRY_KEYS.all, 'detail', id] as const,
 };
 
-/** List semua ministry — cache 5 menit. Guest tidak punya akses (no token). */
+/**
+ * List ministry di cabang aktif (yang dipilih di app) — cache 5 menit.
+ * Guest tidak punya akses (no token).
+ */
 export function useMinistryList() {
   const isGuest = useAuthStore((s) => s.isGuest);
+  const { viewingCabangId, isLoading } = useViewingBranch();
   return useQuery({
-    queryKey: MINISTRY_KEYS.list(),
-    queryFn: listMinistries,
+    queryKey: MINISTRY_KEYS.list(viewingCabangId),
+    queryFn: () => listMinistries(viewingCabangId),
     staleTime: 5 * 60_000,
-    enabled: !isGuest,
+    enabled: !isGuest && !isLoading,
   });
 }
 
@@ -55,7 +60,7 @@ export function useJoinMinistry(id: string) {
       joinMinistry(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: MINISTRY_KEYS.detail(id) });
-      qc.invalidateQueries({ queryKey: MINISTRY_KEYS.list() });
+      qc.invalidateQueries({ queryKey: [...MINISTRY_KEYS.all, 'list'] });
       // Refresh /admin/me supaya profile "Pelayanan Saya" auto-populate
       qc.invalidateQueries({ queryKey: ['me'] });
     },
@@ -79,7 +84,7 @@ function useInvalidateMinistry(id: string) {
   const qc = useQueryClient();
   return () => {
     qc.invalidateQueries({ queryKey: MINISTRY_KEYS.detail(id) });
-    qc.invalidateQueries({ queryKey: MINISTRY_KEYS.list() });
+    qc.invalidateQueries({ queryKey: [...MINISTRY_KEYS.all, 'list'] });
     qc.invalidateQueries({ queryKey: [...MINISTRY_KEYS.all, 'join-requests', id] });
   };
 }

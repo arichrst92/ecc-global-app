@@ -75,3 +75,8 @@ npx expo install expo-location
 - [ ] Anggota: detail read-only, tidak ada tombol kelola, ada chat pemimpin.
 - [ ] Leader: Info & lokasi → tempel link Google Maps → homecell muncul di "Cari terdekat".
 - [ ] Web (elsapp): lokasi browser berjalan, karena HTTPS.
+
+## Update: ikut cabang aktif
+
+- `browse` dan `nearest` menerima `?cabangId=` (cabang aktif yang dipilih di app, dari `useViewingBranch`). Tanpa parameter ini, yang dipakai cabang asal jemaat. Sudah dipasang di `app/homecell/index.tsx`.
+- `GET /admin/ministry?cabangId=` menampilkan ministry yang punya anggota aktif di cabang tersebut, plus ministry yang belum punya anggota sama sekali (supaya tetap bisa di-join). `memberCount` dan `leader` juga dihitung per cabang. Sudah dipasang di `useMinistryList()`, dan nama cabang tampil di header layar Ministry.

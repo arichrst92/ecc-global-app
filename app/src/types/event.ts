@@ -59,6 +59,14 @@ export type EventDetail = EventListItem & {
    *  ada di family set requester (self + relasi + spouse-transitive). Exclude
    *  BATAL. Untuk unauthenticated → 0. Additive field, backward-compat safe. */
   familyParticipationsCount?: number;
+  /** Syarat role event (kosong = terbuka untuk semua). BE 2026-10-13. */
+  requirementLabels?: string[];
+  /** true boleh daftar, false belum memenuhi syarat, null tidak diketahui. */
+  myEligible?: boolean | null;
+  /** "Anda belum diperbolehkan mengikuti event ini. Syaratnya Anda harus … terlebih dahulu." */
+  eligibilityMessage?: string | null;
+  /** Role yang otomatis diberikan ke peserta. */
+  grantLabel?: string | null;
 };
 
 /** Participation/Peserta row.

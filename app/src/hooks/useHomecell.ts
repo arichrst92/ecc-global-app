@@ -99,9 +99,12 @@ export function useMyHomecellOverview() {
   return useQuery({ queryKey: [...ME_HC_KEY, 'overview'], queryFn: getMyHomecellOverview, staleTime: 60_000 });
 }
 
-export function useBrowseHomecells(params: { q?: string; lat?: number; lng?: number }, enabled = true) {
+export function useBrowseHomecells(
+  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number },
+  enabled = true,
+) {
   return useQuery({
-    queryKey: [...ME_HC_KEY, 'browse', params.q ?? '', params.lat ?? null, params.lng ?? null],
+    queryKey: [...ME_HC_KEY, 'browse', params.cabangId ?? null, params.q ?? '', params.lat ?? null, params.lng ?? null],
     queryFn: () => browseHomecells(params),
     enabled,
     staleTime: 60_000,
