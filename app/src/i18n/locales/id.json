@@ -527,7 +527,9 @@
     "register_partial_title": "Sebagian Berhasil",
     "register_partial_body": "Berhasil daftar: {{success}}\nGagal: {{failed}}\n\nDetail:\n{{details}}",
     "register_multi_success_title": "Pendaftaran Berhasil",
-    "register_multi_success_body": "{{count}} peserta berhasil didaftarkan. Silakan buka setiap tracker di halaman event untuk upload bukti pembayaran."
+    "register_multi_success_body": "{{count}} peserta berhasil didaftarkan. Silakan buka setiap tracker di halaman event untuk upload bukti pembayaran.",
+    "self_checkin_question": "Apakah Anda sudah berada di lokasi event?",
+    "self_checkin_yes": "Ya, saya di lokasi event"
   },
   "branch": {
     "active_label": "Cabang aktif",
@@ -577,7 +579,7 @@
     "self_checkin_no": "Tidak",
     "self_checkin_yes": "Ya, saya di lokasi ibadah",
     "self_checkin_success": "Check-in berhasil: {{names}}",
-    "self_checkin_opens_at": "Dibuka pukul {{time}} WIB (15 menit sebelum ibadah)",
+    "self_checkin_opens_at": "Dibuka pukul {{time}} WIB (15 menit sebelum mulai)",
     "self_checkin_countdown": "Self check-in akan tersedia dalam"
   },
   "error": {

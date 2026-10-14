@@ -3,6 +3,8 @@
  */
 
 import { api } from './client';
+import { syncServerClock } from '@/utils/serverClock';
+import type { SelfCheckinMember, SelfCheckinResult } from './ibadah';
 import { env } from '@/config/env';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
@@ -165,3 +167,29 @@ export function uploadBukti(
 // mobile perlu reintroduce donation display (mis. read-only history),
 // re-add functions dari git history commit sebelum v1.9.3.
 // ============================================================================
+
+// ============================================================
+// Self check-in event (saya + keluarga terdaftar) — /admin/me/event-checkin/:eventId
+// ============================================================
+
+export type EventSelfCheckinStatus = {
+  available: boolean;
+  reason: 'DISABLED' | 'NO_ATTENDANCE' | 'INACTIVE' | 'TOO_EARLY' | 'ENDED' | null;
+  reasonText: string | null;
+  tanggal: string;
+  opensAt: string | null;
+  closesAt: string | null;
+  serverNow?: string;
+  event: { id: string; judul: string; lokasi: string | null; jamMulai: string | null; jamSelesai: string | null };
+  members: SelfCheckinMember[];
+};
+
+export async function getEventSelfCheckin(eventId: string) {
+  const startedAt = Date.now();
+  const data = await api.get<EventSelfCheckinStatus>(`/admin/me/event-checkin/${eventId}`);
+  syncServerClock(data.serverNow, startedAt);
+  return data;
+}
+
+export const postEventSelfCheckin = (eventId: string, jemaatIds: string[]) =>
+  api.post<SelfCheckinResult>(`/admin/me/event-checkin/${eventId}`, { jemaatIds });

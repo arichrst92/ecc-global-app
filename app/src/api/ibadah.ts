@@ -67,6 +67,8 @@ export type SelfCheckinMember = {
   relasi: string | null;
   status: 'NONE' | 'RESERVE' | 'JOIN' | 'CANCEL';
   checkedInAt: string | null;
+  /** Tidak bisa self check-in (mis. event berbayar belum lunas). */
+  disabledReason?: string | null;
 };
 
 export type SelfCheckinStatus = {

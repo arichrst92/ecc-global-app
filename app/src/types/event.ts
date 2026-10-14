@@ -36,6 +36,8 @@ export type EventListItem = {
   nominal: string; // Decimal string untuk presisi
   quotaPeserta: number | null;
   butuhKehadiran: boolean;
+  /** Peserta boleh self check-in dari aplikasi (15 menit sebelum mulai s.d. selesai). */
+  allowSelfCheckin?: boolean;
   isPublished: boolean;
   publishedAt: string;
   sinode?: SinodeRef | null;

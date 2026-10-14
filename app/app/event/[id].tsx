@@ -9,7 +9,8 @@ import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, Che
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useToast } from '@/components/ui/Toast';
-import { selfCancelParticipation } from '@/api/event';
+import { getEventSelfCheckin, postEventSelfCheckin, selfCancelParticipation } from '@/api/event';
+import { SelfCheckinBar } from '@/components/checkin/SelfCheckinBar';
 import { useEventDetail, useMyEventParticipations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
@@ -452,6 +453,25 @@ export default function EventDetailScreen() {
       {event && !isGuest ? (
         <View className="bg-white border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
+            {/* Self check-in (kalau event mengizinkan): countdown → tombol → popup */}
+            {event.allowSelfCheckin ? (
+              <SelfCheckinBar
+                queryKey={['event', 'self-checkin', event.id]}
+                fetcher={() => getEventSelfCheckin(event.id)}
+                submit={(ids) => postEventSelfCheckin(event.id, ids)}
+                question={t('event.self_checkin_question')}
+                confirmLabel={t('event.self_checkin_yes')}
+                subtitle={(d) =>
+                  [d.event.judul, d.event.jamMulai ? `${d.event.jamMulai}${d.event.jamSelesai ? `–${d.event.jamSelesai}` : ''}` : null, d.event.lokasi]
+                    .filter(Boolean)
+                    .join(' · ')
+                }
+                onCheckedIn={() => {
+                  queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
+                  queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
+                }}
+              />
+            ) : null}
             {isBebasOnly ? (
               // NOMINAL_BEBAS (donasi sukarela) — redirect ke web
               // (Apple 3.2.2iv compliance untuk charitable donation).

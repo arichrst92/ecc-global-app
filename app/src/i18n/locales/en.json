@@ -527,7 +527,9 @@
     "register_partial_title": "Partial Success",
     "register_partial_body": "Registered: {{success}}\nFailed: {{failed}}\n\nDetails:\n{{details}}",
     "register_multi_success_title": "Registration Success",
-    "register_multi_success_body": "{{count}} participants registered. Open each tracker on the event page to upload payment proof."
+    "register_multi_success_body": "{{count}} participants registered. Open each tracker on the event page to upload payment proof.",
+    "self_checkin_question": "Are you already at the event venue?",
+    "self_checkin_yes": "Yes, I'm at the venue"
   },
   "branch": {
     "active_label": "Active branch",
@@ -577,7 +579,7 @@
     "self_checkin_no": "No",
     "self_checkin_yes": "Yes, I'm at the venue",
     "self_checkin_success": "Checked in: {{names}}",
-    "self_checkin_opens_at": "Opens at {{time}} WIB (15 minutes before service)",
+    "self_checkin_opens_at": "Opens at {{time}} WIB (15 minutes before start)",
     "self_checkin_countdown": "Self check-in will be available in"
   },
   "error": {
