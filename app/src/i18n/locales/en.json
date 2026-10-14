@@ -1620,5 +1620,33 @@
     "waiting": "Waiting for a reply from the church team.",
     "church_team": "Church Team",
     "reply_ph": "Write a reply…"
+  },
+  "tamu": {
+    "label": "Guest",
+    "section_title": "Bring a friend (guest)",
+    "section_hint": "For friends who aren't members and don't use Els App. Just a name and phone number.",
+    "section_hint_paid": "For friends who aren't members and don't use Els App. You cover the guest's fee as the inviter.",
+    "add_title": "Add Guest",
+    "add_hint": "Guests don't need Els App. They appear with your family when registering for events and self check-in.",
+    "nama": "Guest name",
+    "nama_ph": "Full name",
+    "no_hp": "Guest phone",
+    "add_btn": "Save guest",
+    "add_btn_long": "Add guest",
+    "walkin_short": "Guest",
+    "walkin_title": "Walk-in Guest",
+    "walkin_hint": "For people who arrive without registering. Marked present right away. If the phone belongs to a registered member, that member is recorded.",
+    "walkin_btn": "Mark present",
+    "walkin_ok": "Guest {{name}} marked present",
+    "walkin_member": "{{name}} is a registered member — marked present",
+    "pembayaran": "Payment",
+    "bayar_TUNAI": "Cash",
+    "bayar_TRANSFER": "Transfer",
+    "bayar_QRIS": "QRIS",
+    "bayar_GRATIS": "Free",
+    "nominal_ph": "Amount received",
+    "nominal_tetap": "Received by staff: Rp {{nominal}}",
+    "quota_full": "Quota is full. Add this guest anyway?",
+    "force_btn": "Add anyway"
   }
 }

@@ -8,6 +8,8 @@ import { ArrowLeft } from 'lucide-react-native';
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
+import { WalkInGuestModal } from '@/components/tamu/WalkInGuestModal';
+import { useEventDetail } from '@/hooks/useEvents';
 import {
   useCheckinEvent,
   useEventCheckinStats,
@@ -27,6 +29,9 @@ export default function ScannerEventScreen() {
   const statsQuery = useEventCheckinStats(id);
 
   const [manualOpen, setManualOpen] = useState(false);
+  const [walkInOpen, setWalkInOpen] = useState(false);
+  // Info tipe bayar untuk form tamu walk-in.
+  const eventDetail = useEventDetail(id);
   const [result, setResult] = useState<ScanResultKind | null>(null);
   const [pendingKode, setPendingKode] = useState<string | null>(null);
 
@@ -81,10 +86,24 @@ export default function ScannerEventScreen() {
   return (
     <View className="flex-1 bg-black">
       <ScannerCamera
-        paused={isPaused}
+        paused={isPaused || walkInOpen}
         onScan={(kode) => runCheckin(kode)}
         onManualInput={() => setManualOpen(true)}
+        onWalkInGuest={eventDetail.data ? () => setWalkInOpen(true) : undefined}
       />
+      {eventDetail.data ? (
+        <WalkInGuestModal
+          visible={walkInOpen}
+          target={{
+            kind: 'event',
+            eventId: id,
+            tipeBayar: eventDetail.data.tipeBayar,
+            nominal: eventDetail.data.nominal as string | number | null | undefined,
+          }}
+          onClose={() => setWalkInOpen(false)}
+          onDone={() => statsQuery.refetch()}
+        />
+      ) : null}
 
       <SafeAreaView edges={['top']} className="absolute top-0 left-0 right-0">
         <View className="px-4 py-2 flex-row items-center">

@@ -312,6 +312,7 @@ export default function IbadahDetailScreen() {
         visible={checkinOpen}
         status={selfCheckin.data}
         loading={checkinMut.isPending}
+        onGuestAdded={() => selfCheckin.refetch()}
         onClose={() => setCheckinOpen(false)}
         onConfirm={(ids) =>
           checkinMut.mutate(ids, {

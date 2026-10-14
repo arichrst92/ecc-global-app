@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
-import { Camera as CameraIcon, Keyboard } from 'lucide-react-native';
+import { Camera as CameraIcon, Keyboard, UserPlus } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 
@@ -20,10 +20,13 @@ export function ScannerCamera({
   paused,
   onScan,
   onManualInput,
+  onWalkInGuest,
 }: {
   paused: boolean;
   onScan: (kode: string) => void;
   onManualInput: () => void;
+  /** Kalau diisi: tampil tombol "+ Tamu" untuk catat tamu walk-in. */
+  onWalkInGuest?: () => void;
 }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -109,15 +112,26 @@ export function ScannerCamera({
         style={{ bottom: Math.max(32, insets.bottom + 16) }}
         pointerEvents="box-none"
       >
-        <Pressable
-          onPress={onManualInput}
-          className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg"
-        >
-          <Keyboard size={16} color="#171717" />
-          <Text className="text-sm font-semibold text-neutral-900">
-            {t('scanner.manual_input')}
-          </Text>
-        </Pressable>
+        <View className="flex-row gap-2">
+          <Pressable
+            onPress={onManualInput}
+            className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg"
+          >
+            <Keyboard size={16} color="#171717" />
+            <Text className="text-sm font-semibold text-neutral-900">
+              {t('scanner.manual_input')}
+            </Text>
+          </Pressable>
+          {onWalkInGuest ? (
+            <Pressable
+              onPress={onWalkInGuest}
+              className="bg-violet-600 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg"
+            >
+              <UserPlus size={16} color="#fff" />
+              <Text className="text-sm font-semibold text-white">{t('tamu.walkin_short')}</Text>
+            </Pressable>
+          ) : null}
+        </View>
       </View>
     </View>
   );

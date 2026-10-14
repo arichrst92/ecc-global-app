@@ -2,9 +2,11 @@ import { useMemo, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, HandHeart, Info, Users } from 'lucide-react-native';
+import { ArrowLeft, Check, HandHeart, Info, UserPlus, Users } from 'lucide-react-native';
+import { AddTamuModal } from '@/components/tamu/AddTamuModal';
+import { listMyTamu } from '@/api/tamu';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -37,6 +39,10 @@ export default function EventRegisterScreen() {
   const familyListQuery = useMyFamily();
   const familyRelations = familyListQuery.data ?? [];
   const participationsQuery = useMyEventParticipations(id);
+  // Tamu saya (teman non-anggota) — bisa didaftarkan & dibayarkan seperti keluarga.
+  const tamuQuery = useQuery({ queryKey: ['tamu', 'mine'], queryFn: listMyTamu });
+  const tamuList = tamuQuery.data ?? [];
+  const [addTamuOpen, setAddTamuOpen] = useState(false);
   // JemaatIds yang SUDAH punya participation aktif (non-BATAL) di event ini —
   // untuk disable checkbox + tampil badge "Sudah Daftar".
   const alreadyRegisteredIds = useMemo(
@@ -139,7 +145,7 @@ export default function EventRegisterScreen() {
           const namaPeserta =
             p.jemaatId === user?.jemaatId
               ? user.namaLengkap
-              : relation?.jemaat.namaLengkap ?? '';
+              : relation?.jemaat.namaLengkap ?? tamuList.find((x) => x.id === p.jemaatId)?.namaLengkap ?? '';
           addNotification({
             category: 'event',
             title: isFree
@@ -161,7 +167,7 @@ export default function EventRegisterScreen() {
             const nama =
               f.jemaatId === user?.jemaatId
                 ? t('event.detail_self')
-                : rel?.jemaat.namaLengkap ?? f.jemaatId;
+                : rel?.jemaat.namaLengkap ?? tamuList.find((x) => x.id === f.jemaatId)?.namaLengkap ?? f.jemaatId;
             return `• ${nama}: ${f.error.message}`;
           })
           .join('\n');
@@ -368,6 +374,48 @@ export default function EventRegisterScreen() {
             </View>
           )}
         </View>
+
+        {/* Tamu (teman non-anggota tanpa akun) */}
+        <View className="mb-4">
+          <View className="flex-row items-center gap-2 mb-2">
+            <UserPlus size={16} color="#7C3AED" />
+            <Text className="text-sm font-bold text-neutral-900 flex-1">{t('tamu.section_title')}</Text>
+          </View>
+          <Text className="text-xs text-neutral-500 mb-2 leading-5">
+            {event?.tipeBayar && event.tipeBayar !== 'GRATIS' ? t('tamu.section_hint_paid') : t('tamu.section_hint')}
+          </Text>
+          {tamuList.length > 0 ? (
+            <View className="gap-2 mb-2">
+              {tamuList.map((g) => (
+                <ParticipantRow
+                  key={g.id}
+                  name={g.namaLengkap}
+                  subtitle={g.noHp ? formatPhoneDisplay(g.noHp) : t('event.no_phone')}
+                  relationLabel={t('tamu.label')}
+                  selected={selectedIds.has(g.id)}
+                  disabled={alreadyRegisteredIds.has(g.id)}
+                  disabledLabel={t('event.already_registered_short')}
+                  onToggle={() => toggleSelect(g.id)}
+                />
+              ))}
+            </View>
+          ) : null}
+          <Pressable
+            onPress={() => setAddTamuOpen(true)}
+            className="flex-row items-center justify-center gap-1.5 py-3 rounded-xl border border-dashed border-violet-300 bg-violet-50"
+          >
+            <UserPlus size={15} color="#7C3AED" />
+            <Text className="text-sm font-semibold text-violet-700">{t('tamu.add_btn_long')}</Text>
+          </Pressable>
+        </View>
+        <AddTamuModal
+          visible={addTamuOpen}
+          onClose={() => setAddTamuOpen(false)}
+          onAdded={(g) => {
+            setAddTamuOpen(false);
+            setSelectedIds((prev) => new Set(prev).add(g.id));
+          }}
+        />
 
         {/* Input nominal manual untuk NOMINAL_BEBAS */}
         {isBebas ? (

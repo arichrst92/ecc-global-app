@@ -6,7 +6,8 @@
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Check, CheckCircle2, MapPin } from 'lucide-react-native';
+import { Check, CheckCircle2, MapPin, UserPlus } from 'lucide-react-native';
+import { AddTamuModal } from '@/components/tamu/AddTamuModal';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +22,7 @@ export function SelfCheckinModal({
   loading,
   onClose,
   onConfirm,
+  onGuestAdded,
 }: {
   visible: boolean;
   status: { members: SelfCheckinMember[]; ibadah?: { nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null } } | undefined;
@@ -31,6 +33,8 @@ export function SelfCheckinModal({
   /** Default: "Ya, saya di lokasi ibadah" */
   confirmLabel?: string;
   loading?: boolean;
+  /** Kalau diisi: tampil "+ Tambah tamu" (teman non-anggota). Dipanggil setelah tamu ditambahkan. */
+  onGuestAdded?: (guestId: string) => void;
   onClose: () => void;
   onConfirm: (jemaatIds: string[]) => void;
 }) {
@@ -46,6 +50,7 @@ export function SelfCheckinModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
+  const [addGuestOpen, setAddGuestOpen] = useState(false);
   const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const pending = members.filter((m) => m.status !== 'JOIN' && !m.disabledReason);
   const sub =
@@ -120,6 +125,16 @@ export function SelfCheckinModal({
             })}
           </ScrollView>
 
+          {onGuestAdded ? (
+            <Pressable
+              onPress={() => setAddGuestOpen(true)}
+              className="flex-row items-center justify-center gap-1.5 py-2.5 mt-2 rounded-xl border border-dashed border-violet-300 bg-violet-50"
+            >
+              <UserPlus size={15} color="#7C3AED" />
+              <Text className="text-sm font-semibold text-violet-700">{t('tamu.add_btn_long')}</Text>
+            </Pressable>
+          ) : null}
+
           {pending.length === 0 ? (
             <Text className="text-sm text-green-700 text-center mt-3">{t('ibadah.self_checkin_all_done')}</Text>
           ) : null}
@@ -139,6 +154,17 @@ export function SelfCheckinModal({
           </View>
         </View>
       </View>
+      {onGuestAdded ? (
+        <AddTamuModal
+          visible={addGuestOpen}
+          onClose={() => setAddGuestOpen(false)}
+          onAdded={(g) => {
+            setAddGuestOpen(false);
+            setSelected((s) => (s.includes(g.id) ? s : [...s, g.id]));
+            onGuestAdded(g.id);
+          }}
+        />
+      ) : null}
     </Modal>
   );
 }

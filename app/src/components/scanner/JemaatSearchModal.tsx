@@ -163,7 +163,7 @@ export function JemaatSearchModal({
                       {j.namaLengkap}
                     </Text>
                     <Text className="text-xs text-neutral-500" numberOfLines={1}>
-                      {[j.kode, j.noHpMasked, j.cabang?.nama].filter(Boolean).join(' · ')}
+                      {[j.isTamu ? t('tamu.label') : null, j.kode, j.noHpMasked, j.cabang?.nama].filter(Boolean).join(' · ')}
                     </Text>
                   </View>
                   <ChevronRight size={16} color="#A3A3A3" />

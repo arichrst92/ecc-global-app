@@ -1619,5 +1619,33 @@
     "waiting": "Menunggu tanggapan tim gereja.",
     "church_team": "Tim Gereja",
     "reply_ph": "Tulis tanggapan…"
+  },
+  "tamu": {
+    "label": "Tamu",
+    "section_title": "Ajak teman (tamu)",
+    "section_hint": "Untuk teman yang bukan jemaat dan tidak memakai Els App. Cukup nama dan no HP.",
+    "section_hint_paid": "Untuk teman yang bukan jemaat dan tidak memakai Els App. Biaya tamu ditanggung Anda sebagai pengundang.",
+    "add_title": "Tambah Tamu",
+    "add_hint": "Tamu tidak perlu install Els App. Ia akan muncul bersama keluarga Anda saat mendaftar event dan self check-in.",
+    "nama": "Nama tamu",
+    "nama_ph": "Nama lengkap",
+    "no_hp": "No HP tamu",
+    "add_btn": "Simpan tamu",
+    "add_btn_long": "Tambah tamu",
+    "walkin_short": "Tamu",
+    "walkin_title": "Tamu Walk-in",
+    "walkin_hint": "Untuk orang yang datang tanpa mendaftar. Langsung tercatat hadir. Kalau no HP-nya milik jemaat terdaftar, jemaat itu yang dicatat.",
+    "walkin_btn": "Catat hadir",
+    "walkin_ok": "Tamu {{name}} tercatat hadir",
+    "walkin_member": "{{name}} ternyata jemaat terdaftar — tercatat hadir",
+    "pembayaran": "Pembayaran",
+    "bayar_TUNAI": "Tunai",
+    "bayar_TRANSFER": "Transfer",
+    "bayar_QRIS": "QRIS",
+    "bayar_GRATIS": "Gratis",
+    "nominal_ph": "Nominal diterima",
+    "nominal_tetap": "Diterima petugas: Rp {{nominal}}",
+    "quota_full": "Kuota peserta penuh. Tetap masukkan tamu ini?",
+    "force_btn": "Tetap masukkan"
   }
 }

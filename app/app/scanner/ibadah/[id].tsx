@@ -22,6 +22,7 @@ import { useToast } from '@/components/ui/Toast';
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
+import { WalkInGuestModal } from '@/components/tamu/WalkInGuestModal';
 import { PickupInputModal } from '@/components/scanner/PickupInputModal';
 import {
   useIbadahCheckinStats,
@@ -56,6 +57,7 @@ export default function ScannerIbadahScreen() {
   const walkInMutation = useWalkInReservasi(id, tanggalIbadah);
 
   const [mode, setMode] = useState<ScannerMode>('checkin');
+  const [walkInOpen, setWalkInOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
   const [pickupOpen, setPickupOpen] = useState(false);
   const [result, setResult] = useState<ScanResultKind | null>(null);
@@ -200,8 +202,9 @@ export default function ScannerIbadahScreen() {
   return (
     <View className="flex-1 bg-black">
       <ScannerCamera
-        paused={isPaused}
+        paused={isPaused || walkInOpen}
         onScan={handleScan}
+        onWalkInGuest={!isKidsIbadah && mode === 'checkin' ? () => setWalkInOpen(true) : undefined}
         onManualInput={() => {
           if (mode === 'pickup') setPickupOpen(true);
           else setManualOpen(true);
@@ -297,6 +300,13 @@ export default function ScannerIbadahScreen() {
           </View>
         </View>
       </SafeAreaView>
+
+      <WalkInGuestModal
+        visible={walkInOpen}
+        target={{ kind: 'ibadah', ibadahId: id, tanggalIbadah }}
+        onClose={() => setWalkInOpen(false)}
+        onDone={() => statsQuery.refetch()}
+      />
 
       <JemaatSearchModal
         visible={manualOpen}

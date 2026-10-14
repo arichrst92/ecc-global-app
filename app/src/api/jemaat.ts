@@ -27,6 +27,8 @@ export type JemaatSearchResult = {
   jenisKelamin: 'L' | 'P' | null;
   cabang: { id: string; nama: string } | null;
   noHpMasked: string | null;
+  /** Tamu (non-anggota tanpa akun). */
+  isTamu?: boolean;
 };
 
 /**
