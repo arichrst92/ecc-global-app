@@ -18,6 +18,7 @@ import {
   HeartHandshake,
   Info,
   LogOut,
+  MessageSquareText,
   Pencil,
   Share2,
   ScanLine,
@@ -232,6 +233,13 @@ function ProfileTabAuthenticated() {
 
         {/* Share Els App — ajak keluarga & teman (link Android, iOS, web) */}
         <View className="bg-white rounded-2xl border border-neutral-100 mb-6">
+          <MenuRow
+            icon={<MessageSquareText size={18} color="#7C3AED" />}
+            iconBg="bg-violet-50"
+            label={t('feedback.menu')}
+            sub={t('feedback.menu_sub')}
+            onPress={() => router.push('/feedback' as never)}
+          />
           <MenuRow
             icon={<Share2 size={18} color="#EA580C" />}
             iconBg="bg-brand-50"

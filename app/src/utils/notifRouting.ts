@@ -87,6 +87,11 @@ export function resolveNotifRoute(
     case 'GROUP_JOIN_REJECTED':
       return '/group';
 
+    case 'FEEDBACK_REPLIED': {
+      const fid = pickString(meta, 'feedbackId');
+      return fid ? `/feedback/${fid}` : '/feedback';
+    }
+
     default:
       return null;
   }
