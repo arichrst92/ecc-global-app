@@ -18,7 +18,8 @@
     "online": "Online",
     "account_name": "Atas Nama",
     "account_number": "Nomor Rekening",
-    "share_signature": "— ELS Global App"
+    "share_signature": "— ELS Global App",
+    "refresh": "Muat ulang"
   },
   "nav": {
     "home": "Beranda",

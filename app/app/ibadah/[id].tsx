@@ -1,4 +1,4 @@
-import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -11,6 +11,7 @@ import {
   FileText,
   MapPin,
   QrCode,
+  RefreshCw,
   UserCheck,
   Ticket,
   Users,
@@ -24,6 +25,7 @@ import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { selfCheckinOpenNow as selfCheckinOpen, serverNowMs } from '@/utils/serverClock';
 import { formatDateWithDay } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
@@ -42,7 +44,8 @@ export default function IbadahDetailScreen() {
     queryKey: ['ibadah', 'detail', 'v2', id, tanggal ?? null],
     queryFn: () => getIbadahDetail(id, tanggal),
     enabled: !!id,
-    staleTime: 5 * 60_000,
+    staleTime: 60_000,
+    refetchOnMount: 'always',
   });
 
   const ibadah = query.data;
@@ -59,6 +62,21 @@ export default function IbadahDetailScreen() {
   });
   const checkinMut = useMutation({ mutationFn: (ids: string[]) => postSelfCheckin(id, ids) });
   const [checkinOpen, setCheckinOpen] = useState(false);
+
+  // Pull to refresh (native) / tombol refresh (web) + refetch saat kembali ke layar.
+  const [refreshing, setRefreshing] = useState(false);
+  async function refreshAll() {
+    setRefreshing(true);
+    try {
+      await Promise.all([query.refetch(), selfCheckin.refetch()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+  useRefetchOnFocus(() => {
+    query.refetch();
+    selfCheckin.refetch();
+  }, !!id);
 
   // Jam acuan = jam server (bukan jam HP) → tombol muncul tepat 15 menit
   // sebelum ibadah & hilang di jam selesai walau jam/zona HP berbeda.
@@ -100,6 +118,15 @@ export default function IbadahDetailScreen() {
             <Text className="flex-1 text-white text-base font-semibold text-center">
               {t('ibadah.detail_title')}
             </Text>
+            {Platform.OS === 'web' ? (
+              <Pressable
+                onPress={refreshAll}
+                className="w-10 h-10 rounded-full bg-white/15 items-center justify-center mr-2"
+                accessibilityLabel={t('common.refresh')}
+              >
+                {refreshing ? <ActivityIndicator size="small" color="#fff" /> : <RefreshCw size={18} color="#fff" />}
+              </Pressable>
+            ) : null}
             <Pressable
               onPress={() => router.push('/my-reservasi' as never)}
               className="w-10 h-10 rounded-full bg-white/15 items-center justify-center"
@@ -128,6 +155,7 @@ export default function IbadahDetailScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 100 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} tintColor="#F97316" />}
       >
         {query.isPending ? (
           <View className="items-center py-20">

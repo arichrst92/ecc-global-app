@@ -18,7 +18,8 @@
     "online": "Online",
     "account_name": "Account Name",
     "account_number": "Account Number",
-    "share_signature": "— ELS Global App"
+    "share_signature": "— ELS Global App",
+    "refresh": "Refresh"
   },
   "nav": {
     "home": "Home",

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Church, ChevronRight, ChevronsUpDown, Ticket } from 'lucide-react-native';
+import { Calendar, Church, ChevronRight, ChevronsUpDown, RefreshCw, Ticket } from 'lucide-react-native';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -40,8 +41,21 @@ function IbadahListAuthenticated() {
     queryKey: ['ibadah', 'calendar', from, to, viewingCabangId ?? 'all'],
     queryFn: () => getIbadahCalendar({ from, to, cabangId: viewingCabangId ?? undefined }),
     enabled: !isLoading,
-    staleTime: 10 * 60_000,
+    // Cache dipersist ke storage — selalu ambil ulang saat layar dibuka supaya
+    // ibadah yang baru dibuat/diubah (termasuk hari ini) langsung muncul.
+    staleTime: 60_000,
+    refetchOnMount: 'always',
   });
+  useRefetchOnFocus(() => query.refetch(), !isLoading);
+  const [manualRefreshing, setManualRefreshing] = useState(false);
+  async function refreshNow() {
+    setManualRefreshing(true);
+    try {
+      await query.refetch();
+    } finally {
+      setManualRefreshing(false);
+    }
+  }
 
   const grouped = groupByDate(query.data ?? []);
   const dates = Object.keys(grouped).sort();
@@ -66,6 +80,15 @@ function IbadahListAuthenticated() {
               </View>
             ) : null}
           </View>
+          {Platform.OS === 'web' ? (
+            <Pressable onPress={refreshNow} className="w-10 h-10 items-center justify-center" accessibilityLabel={t('common.refresh')}>
+              {manualRefreshing || query.isFetching ? (
+                <ActivityIndicator size="small" color="#EA580C" />
+              ) : (
+                <RefreshCw size={18} color="#EA580C" />
+              )}
+            </Pressable>
+          ) : null}
           <Pressable
             onPress={() => router.push('/my-reservasi' as never)}
             className="w-10 h-10 items-center justify-center"
@@ -89,11 +112,7 @@ function IbadahListAuthenticated() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
-            onRefresh={() => query.refetch()}
-            tintColor="#F97316"
-          />
+          <RefreshControl refreshing={manualRefreshing} onRefresh={refreshNow} tintColor="#F97316" />
         }
       >
         {query.isPending ? (
