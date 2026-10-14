@@ -4,6 +4,7 @@
  */
 
 import { api } from './client';
+import { syncServerClock } from '@/utils/serverClock';
 import type { IbadahListItem, IbadahOccurrence, IbadahDetail } from '@/types/ibadah';
 
 type CalendarOptions = {
@@ -75,6 +76,8 @@ export type SelfCheckinStatus = {
   tanggal: string;
   opensAt: string | null;
   closesAt: string | null;
+  /** Jam server (ISO UTC) untuk sinkron jam HP. */
+  serverNow?: string;
   ibadah: { id: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null };
   members: SelfCheckinMember[];
 };
@@ -84,8 +87,12 @@ export type SelfCheckinResult = {
   results: { jemaatId: string; namaLengkap: string; result: 'CHECKED_IN' | 'ALREADY' | 'FAILED'; message?: string }[];
 };
 
-export const getSelfCheckin = (ibadahId: string) =>
-  api.get<SelfCheckinStatus>(`/admin/me/ibadah/${ibadahId}/self-checkin`);
+export async function getSelfCheckin(ibadahId: string) {
+  const startedAt = Date.now();
+  const data = await api.get<SelfCheckinStatus>(`/admin/me/ibadah/${ibadahId}/self-checkin`);
+  syncServerClock(data.serverNow, startedAt);
+  return data;
+}
 
 export const postSelfCheckin = (ibadahId: string, jemaatIds: string[]) =>
   api.post<SelfCheckinResult>(`/admin/me/ibadah/${ibadahId}/self-checkin`, { jemaatIds });

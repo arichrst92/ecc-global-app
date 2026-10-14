@@ -27,7 +27,7 @@ Respons POST: `{ tanggal, results: [{ jemaatId, namaLengkap, result: "CHECKED_IN
 
 ## Aturan
 
-- **Kapan bisa:** self check-in hanya bisa dilakukan di hari ibadah sesuai jadwal (WEEKLY, BIWEEKLY, MONTHLY, atau ONCE) dan pada occurrence yang tidak dibatalkan. Jendelanya dibuka **30 menit sebelum jamMulai sampai jamSelesai**, menurut waktu WIB. Di luar jendela itu, POST mengembalikan 400 `SELF_CHECKIN_<REASON>`.
+- **Kapan bisa:** self check-in hanya bisa dilakukan di hari ibadah sesuai jadwal (WEEKLY, BIWEEKLY, MONTHLY, atau ONCE) dan pada occurrence yang tidak dibatalkan. Jendelanya dibuka **15 menit sebelum jamMulai sampai jamSelesai**, menurut waktu WIB. Di luar jendela itu, POST mengembalikan 400 `SELF_CHECKIN_<REASON>`.
 - **Siapa yang bisa di-check-in:** diri sendiri dan keluarga, dengan cakupan yang sama seperti menu Keluarga. Artinya relasi langsung, anak/orang tua/saudara dari pasangan, dan tanggungan. Kalau ada ID di luar keluarga, server menolak dengan 400.
 - **Ibadah anak** (`isKidsIbadah`) tidak bisa self check-in, karena check-in anak tetap dilakukan di meja CKids yang mengeluarkan kode jemput.
 - **Penyimpanan:** self check-in tercatat di tabel reservasi yang sama dengan scan QR petugas (status `JOIN`). Reservasi yang sudah ada diubah ke JOIN, dan kalau belum ada, reservasi baru dibuat.
@@ -36,3 +36,10 @@ Respons POST: `{ tanggal, results: [{ jemaatId, namaLengkap, result: "CHECKED_IN
 
 - **Tombol:** `app/ibadah/[id].tsx` punya tombol **Self Check-in** di sebelah **Tampilkan QR Saya**. Tombol ini hanya muncul saat `available`. Statusnya di-refetch tiap 60 detik, dan setelah semua check-in labelnya berubah menjadi "Sudah Check-in".
 - **Popup:** `src/components/ibadah/SelfCheckinModal.tsx` menampilkan pertanyaan "Apakah Anda sudah berada di ruang ibadah?" dan daftar saya & keluarga untuk dicentang. Nama yang sudah check-in ditandai hijau. Tombolnya **Tidak** dan **Ya, saya di lokasi ibadah**.
+
+## Sinkron jam HP ↔ server (update)
+
+- **Jendela:** sekarang **15 menit** sebelum jam mulai sampai jam selesai.
+- **`serverNow`:** GET sekarang mengirim `serverNow` (ISO UTC). Mobile (`src/utils/serverClock.ts`) menyimpan selisih jam HP terhadap server, dengan koreksi latensi. Buka/tutup tombol dihitung dari **jam server**, sehingga jam atau zona waktu HP yang salah tidak berpengaruh. Teks jam ditampilkan dalam WIB.
+- **Refetch:** status di-refetch tepat di batas buka/tutup, ditambah setiap 60 detik.
+- **Validasi akhir** tetap di server: POST ditolak di luar jendela.

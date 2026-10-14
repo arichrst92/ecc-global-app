@@ -1,7 +1,7 @@
 import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
@@ -23,6 +23,7 @@ import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
+import { selfCheckinOpenNow as selfCheckinOpen, serverNowMs, wibTime } from '@/utils/serverClock';
 import { formatDateWithDay } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 
@@ -57,6 +58,29 @@ export default function IbadahDetailScreen() {
   });
   const checkinMut = useMutation({ mutationFn: (ids: string[]) => postSelfCheckin(id, ids) });
   const [checkinOpen, setCheckinOpen] = useState(false);
+
+  // Jam acuan = jam server (bukan jam HP) → tombol muncul tepat 15 menit
+  // sebelum ibadah & hilang di jam selesai walau jam/zona HP berbeda.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setTick((x) => x + 1), 15_000);
+    return () => clearInterval(t);
+  }, []);
+  const sc = selfCheckin.data;
+  const checkinOpenNow = useMemo(() => selfCheckinOpen(sc), [sc, tick]);
+  // Refetch persis di batas buka/tutup supaya status server ikut segar.
+  useEffect(() => {
+    if (!sc?.opensAt || !sc?.closesAt) return;
+    const now = serverNowMs();
+    const next = [Date.parse(sc.opensAt), Date.parse(sc.closesAt) + 1000].find((x) => x > now);
+    if (!next || next - now > 6 * 60 * 60 * 1000) return;
+    const t = setTimeout(() => {
+      setTick((x) => x + 1);
+      selfCheckin.refetch();
+    }, next - now + 500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sc?.opensAt, sc?.closesAt, tick]);
   const allCheckedIn =
     !!selfCheckin.data && selfCheckin.data.members.length > 0 && selfCheckin.data.members.every((m) => m.status === 'JOIN');
 
@@ -252,13 +276,13 @@ export default function IbadahDetailScreen() {
               <Button
                 label={t('ibadah.show_my_qr')}
                 onPress={() => router.push('/qr-card')}
-                leftIcon={<QrCode size={16} color={selfCheckin.data?.available ? '#171717' : '#fff'} />}
-                variant={selfCheckin.data?.available ? 'secondary' : 'primary'}
+                leftIcon={<QrCode size={16} color={checkinOpenNow ? '#171717' : '#fff'} />}
+                variant={checkinOpenNow ? 'secondary' : 'primary'}
                 fullWidth
                 size="lg"
               />
             </View>
-            {selfCheckin.data?.available ? (
+            {checkinOpenNow ? (
               <View className="flex-1">
                 <Button
                   label={allCheckedIn ? t('ibadah.self_checkin_done_btn') : t('ibadah.self_checkin_btn')}
@@ -270,6 +294,11 @@ export default function IbadahDetailScreen() {
               </View>
             ) : null}
           </View>
+          {!checkinOpenNow && sc?.reason === 'TOO_EARLY' && sc.opensAt ? (
+            <Text className="text-xs text-neutral-500 text-center mt-2">
+              {t('ibadah.self_checkin_opens_at', { time: wibTime(sc.opensAt) })}
+            </Text>
+          ) : null}
         </SafeAreaView>
       </View>
 
