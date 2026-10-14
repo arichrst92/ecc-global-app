@@ -39,6 +39,8 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
   subtitle,
   confirmLabel,
   onCheckedIn,
+  allowAddGuest,
+  compact,
 }: {
   queryKey: readonly unknown[];
   fetcher: () => Promise<T>;
@@ -48,6 +50,10 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
   subtitle?: (d: T) => string;
   confirmLabel?: string;
   onCheckedIn?: () => void;
+  /** Tampilkan "+ Tambah tamu" di popup (ibadah). */
+  allowAddGuest?: boolean;
+  /** Mode kartu (beranda): tanpa margin bawah, diberi jarak atas. */
+  compact?: boolean;
 }) {
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
@@ -85,10 +91,11 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
   const allDone = d.members.length > 0 && d.members.every((m) => m.status === 'JOIN' || !!m.disabledReason);
 
   return (
-    <View>
+    <View className={compact && (isOpen || (d.reason === 'TOO_EARLY' && d.members.length > 0)) ? 'mt-3' : ''}>
       {!isOpen && d.reason === 'TOO_EARLY' && d.opensAt && d.members.length > 0 ? (
         <SelfCheckinCountdown
           opensAt={d.opensAt}
+          className={compact ? '' : 'mb-3'}
           onDone={() => {
             setTick((x) => x + 1);
             q.refetch();
@@ -96,14 +103,15 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
         />
       ) : null}
       {isOpen ? (
-        <View className="mb-3">
+        <View className={compact ? '' : 'mb-3'}>
           <Button
             label={allDone ? t('ibadah.self_checkin_done_btn') : t('ibadah.self_checkin_btn')}
             variant={allDone ? 'secondary' : 'primary'}
             onPress={() => setOpen(true)}
             leftIcon={<UserCheck size={16} color={allDone ? '#171717' : '#fff'} />}
             fullWidth
-            size="lg"
+            singleLine
+            size={compact ? 'md' : 'lg'}
           />
         </View>
       ) : null}
@@ -114,6 +122,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
         confirmLabel={confirmLabel}
         subtitle={subtitle ? subtitle(d) : undefined}
         loading={mut.isPending}
+        onGuestAdded={allowAddGuest ? () => q.refetch() : undefined}
         onClose={() => setOpen(false)}
         onConfirm={(ids) =>
           mut.mutate(ids, {

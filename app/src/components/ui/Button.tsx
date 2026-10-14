@@ -12,6 +12,8 @@ type ButtonProps = Omit<PressableProps, 'children'> & {
   fullWidth?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  /** Label 1 baris (dipotong "…" kalau tidak muat) — untuk tombol berdampingan. */
+  singleLine?: boolean;
 };
 
 const variantClasses: Record<Variant, { bg: string; text: string; pressed: string }> = {
@@ -36,6 +38,7 @@ export function Button({
   leftIcon,
   rightIcon,
   disabled,
+  singleLine,
   ...rest
 }: ButtonProps) {
   const v = variantClasses[variant];
@@ -60,7 +63,12 @@ export function Button({
       ) : (
         <>
           {leftIcon ? <View>{leftIcon}</View> : null}
-          <Text className={`${v.text} ${s.text} font-semibold`}>{label}</Text>
+          <Text
+            className={`${v.text} ${s.text} font-semibold ${singleLine ? 'flex-shrink' : ''}`}
+            numberOfLines={singleLine ? 1 : undefined}
+          >
+            {label}
+          </Text>
           {rightIcon ? <View>{rightIcon}</View> : null}
         </>
       )}

@@ -317,11 +317,12 @@ export default function IbadahDetailScreen() {
           <View className="flex-row gap-2">
             <View className="flex-1">
               <Button
-                label={t('ibadah.show_my_qr')}
+                label={checkinOpenNow ? t('ibadah.my_qr_short') : t('ibadah.show_my_qr')}
                 onPress={() => router.push('/qr-card')}
                 leftIcon={<QrCode size={16} color={checkinOpenNow ? '#171717' : '#fff'} />}
                 variant={checkinOpenNow ? 'secondary' : 'primary'}
                 fullWidth
+                singleLine
                 size="lg"
               />
             </View>
@@ -332,6 +333,7 @@ export default function IbadahDetailScreen() {
                   onPress={() => setCheckinOpen(true)}
                   leftIcon={<UserCheck size={16} color="#fff" />}
                   fullWidth
+                  singleLine
                   size="lg"
                 />
               </View>

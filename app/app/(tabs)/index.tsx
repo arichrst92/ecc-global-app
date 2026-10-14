@@ -18,10 +18,11 @@ import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
+import { SelfCheckinBar } from '@/components/checkin/SelfCheckinBar';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
 import { useMyMinistrySchedule } from '@/hooks/useMinistry';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getIbadahDetail } from '@/api/ibadah';
+import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import type { MyMinistryAssignment } from '@/types/ministrySchedule';
@@ -462,6 +463,15 @@ function TodayServiceCard({
             </Text>
           </View>
         ) : null}
+
+        {/* Self check-in: hitung mundur → tombol (hari & jam ibadah, sesuai radius) */}
+        <SelfCheckinBar
+          compact
+          allowAddGuest
+          queryKey={['ibadah', 'self-checkin', service.ibadahId]}
+          fetcher={() => getSelfCheckin(service.ibadahId)}
+          submit={(ids, coords) => postSelfCheckin(service.ibadahId, ids, coords)}
+        />
 
         {streamLink ? (
           <Pressable

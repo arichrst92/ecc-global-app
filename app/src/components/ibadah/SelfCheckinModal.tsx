@@ -154,18 +154,19 @@ export function SelfCheckinModal({
             <Text className="text-sm text-green-700 text-center mt-3">{t('ibadah.self_checkin_all_done')}</Text>
           ) : null}
 
-          <View className="flex-row gap-2 mt-5">
-            <View className="flex-1">
-              <Button label={t('ibadah.self_checkin_no')} variant="secondary" onPress={onClose} />
-            </View>
-            <View style={{ flex: 1.6 }}>
-              <Button
-                label={confirmLabel ?? t('ibadah.self_checkin_yes')}
-                loading={loading}
-                disabled={selected.length === 0}
-                onPress={() => onConfirm(selected)}
-              />
-            </View>
+          {/* Tombol bertumpuk (lebar penuh) supaya label panjang tidak terpotong / berantakan. */}
+          <View className="gap-2 mt-5">
+            <Button
+              label={confirmLabel ?? t('ibadah.self_checkin_yes')}
+              loading={loading}
+              disabled={selected.length === 0}
+              onPress={() => onConfirm(selected)}
+              leftIcon={<MapPin size={16} color="#fff" />}
+              fullWidth
+              singleLine
+              size="lg"
+            />
+            <Button label={t('ibadah.self_checkin_no')} variant="ghost" onPress={onClose} fullWidth singleLine />
           </View>
         </View>
       </View>

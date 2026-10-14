@@ -581,7 +581,8 @@
     "self_checkin_yes": "Ya, saya di lokasi ibadah",
     "self_checkin_success": "Check-in berhasil: {{names}}",
     "self_checkin_opens_at": "Dibuka pukul {{time}} WIB (15 menit sebelum mulai)",
-    "self_checkin_countdown": "Self check-in akan tersedia dalam"
+    "self_checkin_countdown": "Self check-in akan tersedia dalam",
+    "my_qr_short": "QR Saya"
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

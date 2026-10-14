@@ -20,7 +20,16 @@ export function formatCountdown(ms: number): string {
   return `${pad(h)}:${pad(m)}:${pad(s)}`;
 }
 
-export function SelfCheckinCountdown({ opensAt, onDone }: { opensAt: string; onDone: () => void }) {
+export function SelfCheckinCountdown({
+  opensAt,
+  onDone,
+  className = 'mb-3',
+}: {
+  opensAt: string;
+  onDone: () => void;
+  /** Margin luar (default mb-3). */
+  className?: string;
+}) {
   const { t } = useTranslation();
   const target = Date.parse(opensAt);
   const [left, setLeft] = useState(() => target - serverNowMs());
@@ -44,7 +53,7 @@ export function SelfCheckinCountdown({ opensAt, onDone }: { opensAt: string; onD
 
   if (left <= 0) return null;
   return (
-    <View className="flex-row items-center gap-3 bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3 mb-3">
+    <View className={`flex-row items-center gap-3 bg-brand-50 border border-brand-100 rounded-2xl px-4 py-3 ${className}`}>
       <Timer size={20} color="#EA580C" />
       <View className="flex-1">
         <Text className="text-xs text-brand-800">{t('ibadah.self_checkin_countdown')}</Text>
