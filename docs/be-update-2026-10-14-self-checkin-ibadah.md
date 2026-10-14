@@ -43,3 +43,9 @@ Respons POST: `{ tanggal, results: [{ jemaatId, namaLengkap, result: "CHECKED_IN
 - **`serverNow`:** GET sekarang mengirim `serverNow` (ISO UTC). Mobile (`src/utils/serverClock.ts`) menyimpan selisih jam HP terhadap server, dengan koreksi latensi. Buka/tutup tombol dihitung dari **jam server**, sehingga jam atau zona waktu HP yang salah tidak berpengaruh. Teks jam ditampilkan dalam WIB.
 - **Refetch:** status di-refetch tepat di batas buka/tutup, ditambah setiap 60 detik.
 - **Validasi akhir** tetap di server: POST ditolak di luar jendela.
+
+## Hitung mundur (update)
+
+- **Kapan tampil:** saat hari ini ada ibadah tetapi self check-in belum dibuka (`reason = TOO_EARLY`). Detail ibadah lalu menampilkan **"Self check-in akan tersedia dalam hh:mm:ss"** beserta jam bukanya dalam WIB. Komponennya ada di `src/components/ibadah/SelfCheckinCountdown.tsx`.
+- **Detik demi detik:** hitung mundur berjalan per detik memakai jam server (`serverNowMs`).
+- **Saat mencapai 00:00:00:** kotak hitung mundur hilang, tombol **Self Check-in** muncul, dan status di-refetch dari server.

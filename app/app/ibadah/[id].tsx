@@ -21,9 +21,10 @@ import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
+import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
-import { selfCheckinOpenNow as selfCheckinOpen, serverNowMs, wibTime } from '@/utils/serverClock';
+import { selfCheckinOpenNow as selfCheckinOpen, serverNowMs } from '@/utils/serverClock';
 import { formatDateWithDay } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 
@@ -271,6 +272,16 @@ export default function IbadahDetailScreen() {
       {/* Sticky bottom CTA — QR + Self check-in (hanya saat hari & jam ibadah) */}
       <View className="bg-white border-t border-neutral-100 px-5 py-3">
         <SafeAreaView edges={['bottom']}>
+          {/* Hitung mundur sampai self check-in dibuka (15 menit sebelum ibadah) */}
+          {!checkinOpenNow && sc?.reason === 'TOO_EARLY' && sc.opensAt ? (
+            <SelfCheckinCountdown
+              opensAt={sc.opensAt}
+              onDone={() => {
+                setTick((x) => x + 1);
+                selfCheckin.refetch();
+              }}
+            />
+          ) : null}
           <View className="flex-row gap-2">
             <View className="flex-1">
               <Button
@@ -294,11 +305,6 @@ export default function IbadahDetailScreen() {
               </View>
             ) : null}
           </View>
-          {!checkinOpenNow && sc?.reason === 'TOO_EARLY' && sc.opensAt ? (
-            <Text className="text-xs text-neutral-500 text-center mt-2">
-              {t('ibadah.self_checkin_opens_at', { time: wibTime(sc.opensAt) })}
-            </Text>
-          ) : null}
         </SafeAreaView>
       </View>
 

@@ -577,7 +577,8 @@
     "self_checkin_no": "Tidak",
     "self_checkin_yes": "Ya, saya di lokasi ibadah",
     "self_checkin_success": "Check-in berhasil: {{names}}",
-    "self_checkin_opens_at": "Self check-in dibuka pukul {{time}} WIB (15 menit sebelum ibadah)"
+    "self_checkin_opens_at": "Dibuka pukul {{time}} WIB (15 menit sebelum ibadah)",
+    "self_checkin_countdown": "Self check-in akan tersedia dalam"
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

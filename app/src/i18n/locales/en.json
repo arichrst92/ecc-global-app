@@ -577,7 +577,8 @@
     "self_checkin_no": "No",
     "self_checkin_yes": "Yes, I'm at the venue",
     "self_checkin_success": "Checked in: {{names}}",
-    "self_checkin_opens_at": "Self check-in opens at {{time}} WIB (15 minutes before service)"
+    "self_checkin_opens_at": "Opens at {{time}} WIB (15 minutes before service)",
+    "self_checkin_countdown": "Self check-in will be available in"
   },
   "error": {
     "network": "No internet connection. Please try again.",
