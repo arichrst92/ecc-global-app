@@ -234,14 +234,15 @@
     "today_devotional": "Today's Devotional",
     "upcoming_events": "Upcoming Events",
     "latest_news": "Latest News",
-    "no_news": "No news yet.",
+    "no_news": "No news yet",
     "streak_label": "Attendance Streak",
     "streak_weeks": "{{count}} weeks in a row",
     "show_qr": "Show QR",
     "detail": "Detail",
     "member_code": "Member Code",
     "full_name": "Full Name",
-    "role": "Role"
+    "role": "Role",
+    "no_devotional": "No devotional yet"
   },
   "profile": {
     "title": "My Profile",
@@ -1499,7 +1500,12 @@
     "last_days_ago_other": "{{count}} days ago",
     "last_never": "Never attended homecell",
     "last_meeting": "Last meeting: {{date}}",
-    "last_meeting_never": "No meeting recorded yet"
+    "last_meeting_never": "No meeting recorded yet",
+    "sum_title": "Members' last attendance",
+    "sum_ok": "≤ 7 days",
+    "sum_warn": "8–30 days",
+    "sum_bad": "> 30 days",
+    "sum_never": "Never"
   },
   "gc": {
     "tab_announcements": "Announcements",

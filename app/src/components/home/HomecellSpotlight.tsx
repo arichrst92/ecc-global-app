@@ -106,25 +106,28 @@ export function HomecellSpotlight() {
   // ---- Belum punya homecell ----
   const pending = pendingRequests[0];
   return (
-    <View className="mx-5 -mt-5 bg-neutral-900 rounded-3xl p-5 overflow-hidden">
+    <View
+      className="mx-5 -mt-5 bg-white rounded-3xl p-5 overflow-hidden border border-neutral-100"
+      style={{ shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}
+    >
       {/* aksen dekoratif */}
-      <View className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-brand-500/30" />
-      <View className="absolute right-10 -bottom-12 w-28 h-28 rounded-full bg-brand-500/20" />
+      <View className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-brand-100" />
+      <View className="absolute right-10 -bottom-12 w-28 h-28 rounded-full bg-brand-50" />
 
       <View className="w-11 h-11 rounded-2xl bg-brand-500 items-center justify-center mb-3">
         <Users size={22} color="#fff" />
       </View>
-      <Text className="text-lg font-bold text-white">{t('hcj.spot_none_title')}</Text>
-      <Text className="text-sm text-white/75 mt-1 leading-5">{t('hcj.spot_none_body')}</Text>
+      <Text className="text-lg font-bold text-neutral-900">{t('hcj.spot_none_title')}</Text>
+      <Text className="text-sm text-neutral-600 mt-1 leading-5">{t('hcj.spot_none_body')}</Text>
 
       {pending ? (
         <Pressable
           onPress={() => router.push(`/homecell/view/${pending.homecell.id}` as never)}
-          className="mt-4 flex-row items-center gap-2 bg-white/10 rounded-2xl p-3"
+          className="mt-4 flex-row items-center gap-2 bg-amber-50 border border-amber-100 rounded-2xl p-3"
         >
-          <Hourglass size={16} color="#FCD34D" />
-          <Text className="flex-1 text-xs text-white">{t('hcj.spot_pending', { name: pending.homecell.nama })}</Text>
-          <ChevronRight size={14} color="#fff" />
+          <Hourglass size={16} color="#B45309" />
+          <Text className="flex-1 text-xs text-amber-900">{t('hcj.spot_pending', { name: pending.homecell.nama })}</Text>
+          <ChevronRight size={14} color="#B45309" />
         </Pressable>
       ) : (
         <View className="flex-row gap-2 mt-4">
@@ -137,9 +140,9 @@ export function HomecellSpotlight() {
           </Pressable>
           <Pressable
             onPress={() => router.push('/homecell')}
-            className="px-4 items-center justify-center rounded-2xl border border-white/30"
+            className="px-4 items-center justify-center rounded-2xl border border-brand-200 bg-white"
           >
-            <Text className="text-sm font-semibold text-white">{t('hcj.spot_browse')}</Text>
+            <Text className="text-sm font-semibold text-brand-700">{t('hcj.spot_browse')}</Text>
           </Pressable>
         </View>
       )}

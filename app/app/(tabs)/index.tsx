@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake } from 'lucide-react-native';
+import { BookOpen, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -114,7 +114,7 @@ function HomeScreenAuthenticated() {
                 <View className="flex-1">
                   <Text className="text-white/80 text-xs">{t('home.greeting')}</Text>
                   <Text className="text-white font-semibold" numberOfLines={1}>
-                    {user.namaLengkap.split(' ')[0]}
+                    {user.namaLengkap}
                   </Text>
                 </View>
               </View>
@@ -210,7 +210,12 @@ function HomeScreenAuthenticated() {
             </Pressable>
           ) : renunganQuery.isPending ? (
             <SkeletonCard height={140} />
-          ) : null}
+          ) : (
+            <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
+              <BookOpen size={24} color="#A3A3A3" />
+              <Text className="text-sm text-neutral-500 mt-2">{t('home.no_devotional')}</Text>
+            </View>
+          )}
         </Section>
 
         {/* Upcoming Events — hide section entirely kalau ga ada event */}
@@ -283,7 +288,7 @@ function HomeScreenAuthenticated() {
           ) : news.length === 0 ? (
             <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
               <Newspaper size={24} color="#A3A3A3" />
-              <Text className="text-sm text-neutral-500 mt-2">Belum ada berita</Text>
+              <Text className="text-sm text-neutral-500 mt-2">{t('home.no_news')}</Text>
             </View>
           ) : (
             <View className="gap-2.5">

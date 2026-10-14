@@ -114,7 +114,6 @@ export default function AddGroupMemberScreen() {
         onClose={() => setManualOpen(false)}
         onSubmit={submitKode}
         loading={addMutation.isPending}
-        title={t('group.add_member_manual_title')}
       />
     </View>
   );

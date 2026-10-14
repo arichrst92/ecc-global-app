@@ -234,14 +234,15 @@
     "today_devotional": "Renungan Hari Ini",
     "upcoming_events": "Event Mendatang",
     "latest_news": "Kabar Terbaru",
-    "no_news": "Belum ada kabar terbaru.",
+    "no_news": "Belum ada berita",
     "streak_label": "Streak Hadir",
     "streak_weeks": "{{count}} minggu berturut-turut",
     "show_qr": "Tampilkan QR",
     "detail": "Detail",
     "member_code": "Kode Jemaat",
     "full_name": "Nama Lengkap",
-    "role": "Peran"
+    "role": "Peran",
+    "no_devotional": "Belum ada renungan"
   },
   "profile": {
     "title": "Profil Saya",
@@ -1498,7 +1499,12 @@
     "last_days_ago": "{{count}} hari lalu",
     "last_never": "Belum pernah hadir homecell",
     "last_meeting": "Terakhir homecell: {{date}}",
-    "last_meeting_never": "Belum ada pertemuan tercatat"
+    "last_meeting_never": "Belum ada pertemuan tercatat",
+    "sum_title": "Kehadiran terakhir anggota",
+    "sum_ok": "≤ 7 hari",
+    "sum_warn": "8–30 hari",
+    "sum_bad": "> 30 hari",
+    "sum_never": "Belum pernah"
   },
   "gc": {
     "tab_announcements": "Pengumuman",

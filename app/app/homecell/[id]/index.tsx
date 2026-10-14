@@ -332,6 +332,7 @@ export default function HomecellDetailScreen() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
           {t('homecell.members_section', { count: activeMembers.length })}
         </Text>
+        {activeMembers.length > 0 ? <AttendanceSummary members={activeMembers} /> : null}
         {activeMembers.length === 0 ? (
           <View className="bg-white rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
             <Users size={28} color="#A3A3A3" />
@@ -558,5 +559,42 @@ function ScheduleTableRow({
         </Text>
       </View>
     </Pressable>
+  );
+}
+
+/** Ringkasan kehadiran terakhir anggota aktif: ≤7 hari, 8–30 hari, >30 hari, belum pernah. */
+function AttendanceSummary({ members }: { members: HomecellMember[] }) {
+  const { t } = useTranslation();
+  let ok = 0;
+  let warn = 0;
+  let bad = 0;
+  let never = 0;
+  for (const m of members) {
+    const d = m.lastAttendedDaysAgo;
+    if (d == null) never++;
+    else if (d <= 7) ok++;
+    else if (d <= 30) warn++;
+    else bad++;
+  }
+  const chips = [
+    { n: ok, label: t('hcj.sum_ok'), cls: 'bg-green-50 border-green-100', txt: 'text-green-700' },
+    { n: warn, label: t('hcj.sum_warn'), cls: 'bg-amber-50 border-amber-100', txt: 'text-amber-700' },
+    { n: bad, label: t('hcj.sum_bad'), cls: 'bg-red-50 border-red-100', txt: 'text-red-600' },
+    { n: never, label: t('hcj.sum_never'), cls: 'bg-neutral-50 border-neutral-200', txt: 'text-neutral-500' },
+  ];
+  return (
+    <View className="bg-white rounded-2xl p-3 border border-neutral-100 mb-3">
+      <Text className="text-xs font-semibold text-neutral-700 mb-2">{t('hcj.sum_title')}</Text>
+      <View className="flex-row gap-2">
+        {chips.map((c) => (
+          <View key={c.label} className={`flex-1 rounded-xl border px-2 py-2 items-center ${c.cls}`}>
+            <Text className={`text-lg font-bold ${c.txt}`}>{c.n}</Text>
+            <Text className={`text-[10px] text-center ${c.txt}`} numberOfLines={2}>
+              {c.label}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
   );
 }
