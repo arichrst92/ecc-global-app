@@ -17,6 +17,7 @@ import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
 import { useMyMinistrySchedule } from '@/hooks/useMinistry';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -48,6 +49,8 @@ function HomeScreenAuthenticated() {
 
   const statsQuery = useMyStats();
   const todayQuery = useTodayServices();
+  // Cache dipersist → ambil ulang saat kembali ke beranda / app aktif lagi.
+  useRefetchOnFocus(() => todayQuery.refetch());
   const renunganQuery = useLatestRenungan();
   const newsQuery = useLatestNews();
   const eventsQuery = useHomeEvents();
@@ -407,9 +410,10 @@ function TodayServiceCard({
     nama: string;
     jamMulai: string;
     jamSelesai: string;
-    lokasi: string;
+    lokasi: string | null;
     isOnline: boolean;
     kategoriIbadah?: { nama: string } | null;
+    cabang?: { nama: string } | null;
   };
   router: ReturnType<typeof useRouter>;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -418,9 +422,12 @@ function TodayServiceCard({
     queryKey: ['ibadah', 'detail', 'v2', service.ibadahId, service.tanggal],
     queryFn: () => getIbadahDetail(service.ibadahId, service.tanggal),
     enabled: !!service.ibadahId,
-    staleTime: 10 * 60_000,
+    staleTime: 60_000,
   });
   const streamLink = getStreamLink(detailQuery.data) ?? getStreamLink(service);
+  // Lokasi: data detail terbaru → data kalender → nama cabang (kalau lokasi
+  // ibadah belum diisi admin).
+  const lokasi = detailQuery.data?.lokasi?.trim() || service.lokasi?.trim() || service.cabang?.nama || null;
 
   return (
     <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
@@ -447,12 +454,14 @@ function TodayServiceCard({
             {service.jamMulai} - {service.jamSelesai}
           </Text>
         </View>
-        <View className="flex-row items-center gap-2 mt-1">
-          <MapPin size={14} color="#737373" />
-          <Text className="text-sm text-neutral-500 flex-1" numberOfLines={1}>
-            {service.lokasi}
-          </Text>
-        </View>
+        {lokasi ? (
+          <View className="flex-row items-start gap-2 mt-1">
+            <MapPin size={14} color="#737373" style={{ marginTop: 2 }} />
+            <Text className="text-sm text-neutral-500 flex-1" numberOfLines={2}>
+              {lokasi}
+            </Text>
+          </View>
+        ) : null}
 
         {streamLink ? (
           <Pressable

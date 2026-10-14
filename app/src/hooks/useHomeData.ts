@@ -33,7 +33,10 @@ export function useTodayServices() {
     queryKey: ['ibadah', 'calendar', 'v2', today, today, viewingCabangId ?? 'all'],
     queryFn: () => getIbadahCalendar({ from: today, to: today, cabangId: viewingCabangId ?? undefined }),
     enabled: !isLoading, // wait until viewing branch resolved
-    staleTime: 10 * 60_000,
+    // Cache dipersist ke storage — selalu ambil ulang saat beranda dibuka supaya
+    // perubahan ibadah (lokasi, jam, ibadah baru) langsung terlihat.
+    staleTime: 60_000,
+    refetchOnMount: 'always',
     retry: 1,
   });
 }

@@ -216,7 +216,7 @@ export default function IbadahDetailScreen() {
                     </View>
                     <View className="flex-1">
                       <Text className="text-xs text-neutral-500">{t('ibadah.location')}</Text>
-                      <Text className="font-semibold text-neutral-900">{ibadah.lokasi}</Text>
+                      <Text className="font-semibold text-neutral-900">{ibadah.lokasi?.trim() || ibadah.cabang?.nama || '—'}</Text>
                       {/* Hide "Ibadah Online" indicator kalau link tidak
                           tersedia — supaya tidak misleading saat admin set
                           flag tapi belum masukkan URL. */}
