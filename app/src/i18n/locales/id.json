@@ -566,7 +566,17 @@
     "team_tba": "Petugas akan diumumkan",
     "every_day": "Setiap {{day}}",
     "show_my_qr": "Tampilkan QR Saya",
-    "my_reservations": "Reservasi Saya"
+    "my_reservations": "Reservasi Saya",
+    "self_checkin_btn": "Self Check-in",
+    "self_checkin_done_btn": "Sudah Check-in",
+    "self_checkin_question": "Apakah Anda sudah berada di ruang ibadah?",
+    "self_checkin_who": "Check-in juga",
+    "self_checkin_me": "saya",
+    "self_checkin_done": "Sudah check-in",
+    "self_checkin_all_done": "Semua sudah check-in.",
+    "self_checkin_no": "Tidak",
+    "self_checkin_yes": "Ya, saya di lokasi ibadah",
+    "self_checkin_success": "Check-in berhasil: {{names}}"
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

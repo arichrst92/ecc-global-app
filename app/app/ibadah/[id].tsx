@@ -1,7 +1,8 @@
 import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
@@ -10,6 +11,7 @@ import {
   FileText,
   MapPin,
   QrCode,
+  UserCheck,
   Ticket,
   Users,
   Video,
@@ -17,7 +19,10 @@ import {
 
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
-import { getIbadahDetail } from '@/api/ibadah';
+import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
+import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
+import { useToast } from '@/components/ui/Toast';
+import { ApiError } from '@/types/api';
 import { formatDateWithDay } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 
@@ -39,6 +44,21 @@ export default function IbadahDetailScreen() {
   });
 
   const ibadah = query.data;
+  const showToast = useToast((s) => s.show);
+
+  // Self check-in: status jendela (hari & jam ibadah) + saya & keluarga.
+  // Refetch tiap menit supaya tombol muncul/hilang tepat waktu.
+  const selfCheckin = useQuery({
+    queryKey: ['ibadah', 'self-checkin', id],
+    queryFn: () => getSelfCheckin(id),
+    enabled: !!id,
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+  const checkinMut = useMutation({ mutationFn: (ids: string[]) => postSelfCheckin(id, ids) });
+  const [checkinOpen, setCheckinOpen] = useState(false);
+  const allCheckedIn =
+    !!selfCheckin.data && selfCheckin.data.members.length > 0 && selfCheckin.data.members.every((m) => m.status === 'JOIN');
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -224,18 +244,58 @@ export default function IbadahDetailScreen() {
         ) : null}
       </ScrollView>
 
-      {/* Sticky bottom CTA */}
+      {/* Sticky bottom CTA — QR + Self check-in (hanya saat hari & jam ibadah) */}
       <View className="bg-white border-t border-neutral-100 px-5 py-3">
         <SafeAreaView edges={['bottom']}>
-          <Button
-            label={t('ibadah.show_my_qr')}
-            onPress={() => router.push('/qr-card')}
-            leftIcon={<QrCode size={16} color="#fff" />}
-            fullWidth
-            size="lg"
-          />
+          <View className="flex-row gap-2">
+            <View className="flex-1">
+              <Button
+                label={t('ibadah.show_my_qr')}
+                onPress={() => router.push('/qr-card')}
+                leftIcon={<QrCode size={16} color={selfCheckin.data?.available ? '#171717' : '#fff'} />}
+                variant={selfCheckin.data?.available ? 'secondary' : 'primary'}
+                fullWidth
+                size="lg"
+              />
+            </View>
+            {selfCheckin.data?.available ? (
+              <View className="flex-1">
+                <Button
+                  label={allCheckedIn ? t('ibadah.self_checkin_done_btn') : t('ibadah.self_checkin_btn')}
+                  onPress={() => setCheckinOpen(true)}
+                  leftIcon={<UserCheck size={16} color="#fff" />}
+                  fullWidth
+                  size="lg"
+                />
+              </View>
+            ) : null}
+          </View>
         </SafeAreaView>
       </View>
+
+      <SelfCheckinModal
+        visible={checkinOpen}
+        status={selfCheckin.data}
+        loading={checkinMut.isPending}
+        onClose={() => setCheckinOpen(false)}
+        onConfirm={(ids) =>
+          checkinMut.mutate(ids, {
+            onSuccess: (r) => {
+              setCheckinOpen(false);
+              const ok = r.results.filter((x) => x.result === 'CHECKED_IN').map((x) => x.namaLengkap);
+              showToast(
+                ok.length ? t('ibadah.self_checkin_success', { names: ok.join(', ') }) : t('ibadah.self_checkin_all_done'),
+                'success',
+              );
+              selfCheckin.refetch();
+            },
+            onError: (e) => {
+              showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error');
+              selfCheckin.refetch();
+            },
+          })
+        }
+      />
     </View>
   );
 }

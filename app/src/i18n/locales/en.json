@@ -566,7 +566,17 @@
     "team_tba": "Team to be announced",
     "every_day": "Every {{day}}",
     "show_my_qr": "Show My QR",
-    "my_reservations": "My Reservations"
+    "my_reservations": "My Reservations",
+    "self_checkin_btn": "Self Check-in",
+    "self_checkin_done_btn": "Checked In",
+    "self_checkin_question": "Are you already in the service room?",
+    "self_checkin_who": "Also check in",
+    "self_checkin_me": "me",
+    "self_checkin_done": "Checked in",
+    "self_checkin_all_done": "Everyone is checked in.",
+    "self_checkin_no": "No",
+    "self_checkin_yes": "Yes, I'm at the venue",
+    "self_checkin_success": "Checked in: {{names}}"
   },
   "error": {
     "network": "No internet connection. Please try again.",
