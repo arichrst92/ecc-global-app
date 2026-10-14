@@ -6,7 +6,8 @@
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Check, CheckCircle2, MapPin, UserPlus } from 'lucide-react-native';
+import { Check, CheckCircle2, LocateFixed, MapPin, UserPlus } from 'lucide-react-native';
+import { formatRadius } from '@/utils/selfCheckinLocation';
 import { AddTamuModal } from '@/components/tamu/AddTamuModal';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -25,7 +26,13 @@ export function SelfCheckinModal({
   onGuestAdded,
 }: {
   visible: boolean;
-  status: { members: SelfCheckinMember[]; ibadah?: { nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null } } | undefined;
+  status:
+    | {
+        members: SelfCheckinMember[];
+        ibadah?: { nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null };
+        venue?: { requiresLocation: boolean; radiusM: number | null };
+      }
+    | undefined;
   /** Default: "Apakah Anda sudah berada di ruang ibadah?" */
   question?: string;
   /** Default: nama · jam · lokasi ibadah */
@@ -70,6 +77,14 @@ export function SelfCheckinModal({
             {question ?? t('ibadah.self_checkin_question')}
           </Text>
           {sub ? <Text className="text-xs text-neutral-500 text-center mt-1">{sub}</Text> : null}
+          {status?.venue?.requiresLocation && status.venue.radiusM ? (
+            <View className="flex-row items-center justify-center gap-1.5 mt-2 bg-blue-50 rounded-full px-3 py-1 self-center">
+              <LocateFixed size={12} color="#1D4ED8" />
+              <Text className="text-[11px] text-blue-800">
+                {t('selfcheckin_geo.radius_note', { radius: formatRadius(status.venue.radiusM) })}
+              </Text>
+            </View>
+          ) : null}
 
           {members.length > 1 ? (
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-4 mb-2">

@@ -49,3 +49,15 @@ Respons POST: `{ tanggal, results: [{ jemaatId, namaLengkap, result: "CHECKED_IN
 - **Kapan tampil:** saat hari ini ada ibadah tetapi self check-in belum dibuka (`reason = TOO_EARLY`). Detail ibadah lalu menampilkan **"Self check-in akan tersedia dalam hh:mm:ss"** beserta jam bukanya dalam WIB. Komponennya ada di `src/components/ibadah/SelfCheckinCountdown.tsx`.
 - **Detik demi detik:** hitung mundur berjalan per detik memakai jam server (`serverNowMs`).
 - **Saat mencapai 00:00:00:** kotak hitung mundur hilang, tombol **Self Check-in** muncul, dan status di-refetch dari server.
+
+## Radius lokasi (update) — berlaku untuk ibadah & event
+
+- **Pengaturan di portal:** setiap ibadah dan event punya pilihan **Di mana saja** atau **Dalam radius N meter** (`selfCheckinRadiusM`; `null` = di mana saja). Titik lokasinya diambil dari `mapsUrl` ibadah/event. Kalau kosong, server memakai titik cabang. Radius tidak bisa disimpan tanpa titik lokasi.
+- **GET self check-in:** sekarang mengirim `venue: { requiresLocation, radiusM }`. Kalau `requiresLocation=true`, app wajib mengirim `lat` dan `lng` di POST.
+- **Error dari POST:**
+  - `SELF_CHECKIN_LOCATION_REQUIRED`: lokasi tidak dikirim.
+  - `SELF_CHECKIN_TOO_FAR`: di luar radius. `details: { distanceM, radiusM }` disertakan, dan pesannya sudah berisi arahan "cari usher untuk check-in dengan QR code".
+- **Implementasi mobile:**
+  - `src/utils/selfCheckinLocation.ts` mengambil GPS segar (maks. 60 detik).
+  - Kalau izin lokasi ditolak atau di luar radius, muncul popup dengan tombol **Tampilkan QR Saya** supaya jemaat bisa di-scan usher.
+  - Popup self check-in menampilkan info "Lokasi Anda dicek — maks. N m dari lokasi".

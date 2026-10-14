@@ -17,6 +17,8 @@ import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import type { SelfCheckinMember, SelfCheckinResult } from '@/api/ibadah';
 import { ApiError } from '@/types/api';
+import { useRouter } from 'expo-router';
+import { coordsForSelfCheckin, isRadiusError, SelfCheckinLocationError, showUsherFallback } from '@/utils/selfCheckinLocation';
 import { selfCheckinOpenNow, serverNowMs } from '@/utils/serverClock';
 
 export type SelfCheckinData = {
@@ -25,6 +27,7 @@ export type SelfCheckinData = {
   opensAt: string | null;
   closesAt: string | null;
   members: SelfCheckinMember[];
+  venue?: { requiresLocation: boolean; radiusM: number | null };
 };
 
 export function SelfCheckinBar<T extends SelfCheckinData>({
@@ -39,7 +42,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
 }: {
   queryKey: readonly unknown[];
   fetcher: () => Promise<T>;
-  submit: (jemaatIds: string[]) => Promise<SelfCheckinResult>;
+  submit: (jemaatIds: string[], coords: { lat: number; lng: number } | null) => Promise<SelfCheckinResult>;
   enabled?: boolean;
   question?: string;
   subtitle?: (d: T) => string;
@@ -49,7 +52,11 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
   const q = useQuery({ queryKey, queryFn: fetcher, enabled, refetchInterval: 60_000, staleTime: 30_000 });
-  const mut = useMutation({ mutationFn: submit });
+  const router = useRouter();
+  // Self check-in dengan radius → ambil GPS segar dulu; server cek radius.
+  const mut = useMutation({
+    mutationFn: async (ids: string[]) => submit(ids, await coordsForSelfCheckin(q.data?.venue)),
+  });
   const [open, setOpen] = useState(false);
   const [tick, setTick] = useState(0);
   const d = q.data;
@@ -121,7 +128,13 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
               onCheckedIn?.();
             },
             onError: (e) => {
-              showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error');
+              // Di luar radius / lokasi tidak didapat → arahkan ke usher (QR).
+              if (e instanceof SelfCheckinLocationError || isRadiusError(e)) {
+                setOpen(false);
+                showUsherFallback(e.message, () => router.push('/qr-card'));
+              } else {
+                showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error');
+              }
               q.refetch();
             },
           })

@@ -1649,5 +1649,12 @@
     "nominal_tetap": "Received by staff: Rp {{nominal}}",
     "quota_full": "Quota is full. Add this guest anyway?",
     "force_btn": "Add anyway"
+  },
+  "selfcheckin_geo": {
+    "title": "Too far from the venue",
+    "denied": "This self check-in only works within {{radius}} of the venue, so it needs location permission. Enable location, or find an usher to check in with your QR code.",
+    "unavailable": "We couldn't get your location. Make sure GPS is on and try again, or find an usher to check in with your QR code.",
+    "show_qr": "Show My QR",
+    "radius_note": "Your location is checked — within {{radius}} of the venue"
   }
 }

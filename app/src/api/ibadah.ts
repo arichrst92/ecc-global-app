@@ -82,6 +82,8 @@ export type SelfCheckinStatus = {
   serverNow?: string;
   ibadah: { id: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null };
   members: SelfCheckinMember[];
+  /** requiresLocation=true → kirim lat/lng; server cek radius (meter). */
+  venue?: { requiresLocation: boolean; radiusM: number | null };
 };
 
 export type SelfCheckinResult = {
@@ -96,5 +98,5 @@ export async function getSelfCheckin(ibadahId: string) {
   return data;
 }
 
-export const postSelfCheckin = (ibadahId: string, jemaatIds: string[]) =>
-  api.post<SelfCheckinResult>(`/admin/me/ibadah/${ibadahId}/self-checkin`, { jemaatIds });
+export const postSelfCheckin = (ibadahId: string, jemaatIds: string[], coords?: { lat: number; lng: number } | null) =>
+  api.post<SelfCheckinResult>(`/admin/me/ibadah/${ibadahId}/self-checkin`, { jemaatIds, ...(coords ?? {}) });

@@ -182,6 +182,7 @@ export type EventSelfCheckinStatus = {
   serverNow?: string;
   event: { id: string; judul: string; lokasi: string | null; jamMulai: string | null; jamSelesai: string | null };
   members: SelfCheckinMember[];
+  venue?: { requiresLocation: boolean; radiusM: number | null };
 };
 
 export async function getEventSelfCheckin(eventId: string) {
@@ -191,5 +192,5 @@ export async function getEventSelfCheckin(eventId: string) {
   return data;
 }
 
-export const postEventSelfCheckin = (eventId: string, jemaatIds: string[]) =>
-  api.post<SelfCheckinResult>(`/admin/me/event-checkin/${eventId}`, { jemaatIds });
+export const postEventSelfCheckin = (eventId: string, jemaatIds: string[], coords?: { lat: number; lng: number } | null) =>
+  api.post<SelfCheckinResult>(`/admin/me/event-checkin/${eventId}`, { jemaatIds, ...(coords ?? {}) });

@@ -20,7 +20,7 @@ export class LocationError extends Error {
   }
 }
 
-function webPosition(): Promise<Coords> {
+function webPosition(maxAgeMs = 5 * 60_000): Promise<Coords> {
   return new Promise((resolve, reject) => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
       reject(new LocationError('UNAVAILABLE', 'Browser tidak mendukung lokasi.'));
@@ -36,7 +36,7 @@ function webPosition(): Promise<Coords> {
               ? new LocationError('TIMEOUT', 'Lokasi tidak didapat (waktu habis).')
               : new LocationError('UNAVAILABLE', 'Lokasi tidak tersedia.'),
         ),
-      { enableHighAccuracy: false, timeout: 15000, maximumAge: 5 * 60_000 },
+      { enableHighAccuracy: maxAgeMs < 5 * 60_000, timeout: 15000, maximumAge: maxAgeMs },
     );
   });
 }
@@ -50,8 +50,14 @@ type ExpoLocation = {
   Accuracy?: { Balanced: number };
 };
 
-export async function getCurrentCoords(): Promise<Coords> {
-  if (Platform.OS === 'web') return webPosition();
+/**
+ * @param opts.maxAgeMs  umur maksimum posisi cache yang boleh dipakai.
+ *   Default 5 menit (cari homecell). Self check-in memakai 60 detik supaya
+ *   posisi lama (mis. dari rumah) tidak dipakai.
+ */
+export async function getCurrentCoords(opts: { maxAgeMs?: number } = {}): Promise<Coords> {
+  const maxAgeMs = opts.maxAgeMs ?? 5 * 60_000;
+  if (Platform.OS === 'web') return webPosition(maxAgeMs);
 
   let Location: ExpoLocation;
   try {
@@ -66,7 +72,7 @@ export async function getCurrentCoords(): Promise<Coords> {
     throw new LocationError('DENIED', 'Izin lokasi ditolak.');
   }
   // Posisi terakhir yang masih segar dulu (cepat), baru minta posisi baru.
-  const last = await Location.getLastKnownPositionAsync({ maxAge: 5 * 60_000 }).catch(() => null);
+  const last = await Location.getLastKnownPositionAsync({ maxAge: maxAgeMs }).catch(() => null);
   if (last) return { lat: last.coords.latitude, lng: last.coords.longitude };
   const pos = await Promise.race<Position>([
     Location.getCurrentPositionAsync({ accuracy: Location.Accuracy?.Balanced ?? 3 }),

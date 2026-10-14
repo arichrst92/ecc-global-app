@@ -1648,5 +1648,12 @@
     "nominal_tetap": "Diterima petugas: Rp {{nominal}}",
     "quota_full": "Kuota peserta penuh. Tetap masukkan tamu ini?",
     "force_btn": "Tetap masukkan"
+  },
+  "selfcheckin_geo": {
+    "title": "Lokasi terlalu jauh",
+    "denied": "Self check-in ini hanya bisa dalam radius {{radius}} dari lokasi, jadi butuh izin lokasi. Aktifkan izin lokasi, atau cari usher untuk check-in dengan QR code.",
+    "unavailable": "Lokasi Anda belum bisa didapat. Pastikan GPS aktif lalu coba lagi, atau cari usher untuk check-in dengan QR code.",
+    "show_qr": "Tampilkan QR Saya",
+    "radius_note": "Lokasi Anda dicek — maks. {{radius}} dari lokasi"
   }
 }

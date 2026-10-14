@@ -25,6 +25,7 @@ import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
+import { coordsForSelfCheckin, isRadiusError, SelfCheckinLocationError, showUsherFallback } from '@/utils/selfCheckinLocation';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { selfCheckinOpenNow as selfCheckinOpen, serverNowMs } from '@/utils/serverClock';
 import { formatDateWithDay } from '@/utils/date';
@@ -60,7 +61,10 @@ export default function IbadahDetailScreen() {
     refetchInterval: 60_000,
     staleTime: 30_000,
   });
-  const checkinMut = useMutation({ mutationFn: (ids: string[]) => postSelfCheckin(id, ids) });
+  const checkinMut = useMutation({
+    // Self check-in dengan radius → ambil GPS segar dulu; server cek radius.
+    mutationFn: async (ids: string[]) => postSelfCheckin(id, ids, await coordsForSelfCheckin(selfCheckin.data?.venue)),
+  });
   const [checkinOpen, setCheckinOpen] = useState(false);
 
   // Pull to refresh (native) / tombol refresh (web) + refetch saat kembali ke layar.
@@ -354,7 +358,13 @@ export default function IbadahDetailScreen() {
               selfCheckin.refetch();
             },
             onError: (e) => {
-              showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error');
+              // Di luar radius / lokasi tidak didapat → arahkan ke usher (QR).
+              if (e instanceof SelfCheckinLocationError || isRadiusError(e)) {
+                setCheckinOpen(false);
+                showUsherFallback(e.message, () => router.push('/qr-card'));
+              } else {
+                showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error');
+              }
               selfCheckin.refetch();
             },
           })

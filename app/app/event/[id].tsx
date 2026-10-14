@@ -458,7 +458,7 @@ export default function EventDetailScreen() {
               <SelfCheckinBar
                 queryKey={['event', 'self-checkin', event.id]}
                 fetcher={() => getEventSelfCheckin(event.id)}
-                submit={(ids) => postEventSelfCheckin(event.id, ids)}
+                submit={(ids, coords) => postEventSelfCheckin(event.id, ids, coords)}
                 question={t('event.self_checkin_question')}
                 confirmLabel={t('event.self_checkin_yes')}
                 subtitle={(d) =>
