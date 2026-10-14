@@ -19,6 +19,7 @@ import {
   Info,
   LogOut,
   Pencil,
+  Share2,
   ScanLine,
   Sparkles,
   Store,
@@ -35,6 +36,8 @@ import { Button } from '@/components/ui/Button';
 import { GuestProfileView } from '@/components/GuestProfileView';
 import { NotificationBell } from '@/components/NotificationBell';
 import { useAuthStore } from '@/stores/auth.store';
+import { useToast } from '@/components/ui/Toast';
+import { shareElsApp } from '@/utils/shareApp';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
@@ -56,6 +59,7 @@ export default function ProfileTab() {
 function ProfileTabAuthenticated() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
+  const showToast = useToast((s) => s.show);
   const router = useRouter();
   const logoutMutation = useLogout();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -222,6 +226,25 @@ function ProfileTabAuthenticated() {
             label={t('profile.my_business')}
             sub={t('profile.my_business_sub')}
             onPress={() => router.push('/profile/businesses' as never)}
+            isLast
+          />
+        </View>
+
+        {/* Share Els App — ajak keluarga & teman (link Android, iOS, web) */}
+        <View className="bg-white rounded-2xl border border-neutral-100 mb-6">
+          <MenuRow
+            icon={<Share2 size={18} color="#EA580C" />}
+            iconBg="bg-brand-50"
+            label={t('share_app.menu')}
+            sub={t('share_app.menu_sub')}
+            onPress={async () => {
+              try {
+                const r = await shareElsApp(user?.namaLengkap);
+                if (r === 'copied') showToast(t('share_app.copied'), 'success');
+              } catch {
+                showToast(t('error.generic'), 'error');
+              }
+            }}
             isLast
           />
         </View>
