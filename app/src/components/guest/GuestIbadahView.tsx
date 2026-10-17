@@ -13,6 +13,7 @@ import { usePublicIbadah } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
+import { formatVenueRange } from '@/utils/time';
 
 /**
  * Ibadah list untuk guest — read-only, no check-in button.
@@ -43,6 +44,8 @@ export function GuestIbadahView() {
   const effectiveCabangId =
     cabangId || (branchesQuery.data && branchesQuery.data[0]?.id) || '';
 
+  // Jam jadwal = jam dinding cabang terpilih → zona waktu HP.
+  const venueTz = (branchesQuery.data ?? []).find((b) => b.id === effectiveCabangId)?.timezone ?? null;
   const items = ibadahQuery.data?.data ?? [];
   const groupedMap = groupByDate(items);
   const grouped = Object.entries(groupedMap).sort(([a], [b]) => (a < b ? -1 : 1));
@@ -130,8 +133,7 @@ export function GuestIbadahView() {
                         {it.judul}
                       </Text>
                       <Text className="text-xs text-neutral-500 mt-0.5">
-                        {it.jam}
-                        {it.jamSelesai ? ` – ${it.jamSelesai}` : ''}
+                        {formatVenueRange(date, it.jam, it.jamSelesai, venueTz, ' – ')}
                       </Text>
                       <Text className="text-xs text-neutral-500 mt-0.5">
                         {it.cabang?.nama ?? t('event.synod_level')}

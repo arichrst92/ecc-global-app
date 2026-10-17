@@ -8,7 +8,8 @@ import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Timer } from 'lucide-react-native';
 
-import { serverNowMs, wibTime } from '@/utils/serverClock';
+import { serverNowMs } from '@/utils/serverClock';
+import { localTime } from '@/utils/time';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -57,7 +58,7 @@ export function SelfCheckinCountdown({
       <Timer size={20} color="#EA580C" />
       <View className="flex-1">
         <Text className="text-xs text-brand-800">{t('ibadah.self_checkin_countdown')}</Text>
-        <Text className="text-[11px] text-brand-700/70">{t('ibadah.self_checkin_opens_at', { time: wibTime(opensAt) })}</Text>
+        <Text className="text-[11px] text-brand-700/70">{t('ibadah.self_checkin_opens_at', { time: localTime(opensAt) })}</Text>
       </View>
       <Text className="text-xl font-bold text-brand-700" style={{ fontVariant: ['tabular-nums'] }}>
         {formatCountdown(left)}

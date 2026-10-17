@@ -23,6 +23,8 @@ import { useHomeEvents } from '@/hooks/useHomeEvents';
 import { useMyMinistrySchedule } from '@/hooks/useMinistry';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
+import { useVenueTz } from '@/hooks/useVenueTz';
+import { formatVenueRange, venueTimeHint } from '@/utils/time';
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import type { MyMinistryAssignment } from '@/types/ministrySchedule';
@@ -429,6 +431,9 @@ function TodayServiceCard({
   // Lokasi: data detail terbaru → data kalender → nama cabang (kalau lokasi
   // ibadah belum diisi admin).
   const lokasi = detailQuery.data?.lokasi?.trim() || service.lokasi?.trim() || service.cabang?.nama || null;
+  // Jam jadwal = jam dinding cabang → tampil di zona waktu HP.
+  const venueTz = useVenueTz(detailQuery.data?.cabang?.id);
+  const hint = venueTimeHint(service.tanggal, service.jamMulai, service.jamSelesai, venueTz, (p) => t('time.venue_hint', p));
 
   return (
     <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
@@ -452,9 +457,10 @@ function TodayServiceCard({
         <View className="flex-row items-center gap-2 mt-1.5">
           <Clock size={14} color="#737373" />
           <Text className="text-sm text-neutral-500">
-            {service.jamMulai} - {service.jamSelesai}
+            {formatVenueRange(service.tanggal, service.jamMulai, service.jamSelesai, venueTz)}
           </Text>
         </View>
+        {hint ? <Text className="text-[11px] text-neutral-400 mt-0.5 ml-6">{hint}</Text> : null}
         {lokasi ? (
           <View className="flex-row items-start gap-2 mt-1">
             <MapPin size={14} color="#737373" style={{ marginTop: 2 }} />

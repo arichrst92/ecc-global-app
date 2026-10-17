@@ -1,4 +1,5 @@
 import { FlatList, Pressable, Text, View } from 'react-native';
+import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +7,6 @@ import { ArrowLeft, Bookmark, X } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useBookmarksStore, type BookmarkItem } from '@/stores/bookmarks.store';
-import { formatDate } from '@/utils/date';
 
 export default function BookmarksScreen() {
   const insets = useSafeAreaInsets();
@@ -89,7 +89,7 @@ export default function BookmarksScreen() {
                 {item.ringkasan}
               </Text>
               <Text className="text-[10px] text-neutral-400 mt-1">
-                {formatDate(item.publishedAt, lang)}
+                {formatInstantDate(item.publishedAt, lang)}
               </Text>
             </View>
             <Pressable

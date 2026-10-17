@@ -580,7 +580,7 @@
     "self_checkin_no": "Tidak",
     "self_checkin_yes": "Ya, saya di lokasi ibadah",
     "self_checkin_success": "Check-in berhasil: {{names}}",
-    "self_checkin_opens_at": "Dibuka pukul {{time}} WIB (15 menit sebelum mulai)",
+    "self_checkin_opens_at": "Dibuka pukul {{time}} (15 menit sebelum mulai)",
     "self_checkin_countdown": "Self check-in akan tersedia dalam",
     "my_qr_short": "QR Saya"
   },
@@ -1737,5 +1737,8 @@
     "cancel_body": "Reservasi {{name}} akan dibatalkan.",
     "cancel_confirm": "Ya, batalkan",
     "cancelled": "Reservasi dibatalkan."
+  },
+  "time": {
+    "venue_hint": "Jam gereja: {{time}} (waktu {{city}})"
   }
 }

@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +9,6 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { SimpleMarkdown } from '@/components/ui/SimpleMarkdown';
 import { useNewsDetail } from '@/hooks/useContent';
 import { useBookmarksStore } from '@/stores/bookmarks.store';
-import { formatDate } from '@/utils/date';
 import { buildNewsShareUrl } from '@/utils/share';
 
 export default function NewsDetailScreen() {
@@ -41,7 +41,7 @@ export default function NewsDetailScreen() {
     try {
       // Format tanggal human-readable + Universal Link untuk buka di app
       const publishDate = item.publishedAt
-        ? formatDate(item.publishedAt, lang)
+        ? formatInstantDate(item.publishedAt, lang)
         : '';
       const parts: string[] = [item.judul];
       if (publishDate) parts.push(`📅 ${publishDate}`);
@@ -126,7 +126,7 @@ export default function NewsDetailScreen() {
                 <View className="flex-row items-center gap-2">
                   <Calendar size={14} color="#737373" />
                   <Text className="text-xs text-neutral-500">
-                    {formatDate(item.publishedAt, lang)}
+                    {formatInstantDate(item.publishedAt, lang)}
                   </Text>
                 </View>
                 {item.cabang ? (

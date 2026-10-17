@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -66,7 +67,7 @@ export default function RenunganDetailScreen() {
       const dateStr = item.tanggal
         ? formatDate(item.tanggal, lang)
         : item.publishedAt
-          ? formatDate(item.publishedAt, lang)
+          ? formatInstantDate(item.publishedAt, lang)
           : '';
       const parts: string[] = [];
       if (dateStr) parts.push(`📅 ${dateStr}`);

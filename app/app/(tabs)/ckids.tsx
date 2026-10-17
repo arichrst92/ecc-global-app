@@ -25,6 +25,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -49,7 +50,6 @@ import {
 } from '@/hooks/useCKids';
 import { useCKidsSelectionStore } from '@/stores/ckids-selection.store';
 import type { ChildGroupedBalance, HadiahKatalog, HadiahRedeem } from '@/types/ckids';
-import { formatDate } from '@/utils/date';
 import { env } from '@/config/env';
 
 export default function CKidsTabScreen() {
@@ -810,7 +810,7 @@ function RedeemRow({ item, lang }: { item: HadiahRedeem; lang: string }) {
           {item.hadiahNama}
         </Text>
         <Text className="text-xs text-neutral-500">
-          {formatDate(item.processedAt, lang)}
+          {formatInstantDate(item.processedAt, lang)}
           {item.processedBy ? ` · ${item.processedBy.namaLengkap}` : ''}
         </Text>
       </View>

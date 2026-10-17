@@ -24,6 +24,8 @@ import { Avatar } from '@/components/ui/Avatar';
 import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import { ReservasiModal } from '@/components/ibadah/ReservasiModal';
+import { useVenueTz } from '@/hooks/useVenueTz';
+import { formatVenueRange, venueTimeHint } from '@/utils/time';
 import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
@@ -52,6 +54,11 @@ export default function IbadahDetailScreen() {
   });
 
   const ibadah = query.data;
+  // Jam jadwal = jam dinding cabang → tampil di zona waktu HP.
+  const venueTz = useVenueTz(ibadah?.cabang?.id);
+  const timeHint = ibadah
+    ? venueTimeHint(tanggal ?? null, ibadah.jamMulai, ibadah.jamSelesai, venueTz, (p) => t('time.venue_hint', p))
+    : null;
   const showToast = useToast((s) => s.show);
 
   // Self check-in: status jendela (hari & jam ibadah) + saya & keluarga.
@@ -200,7 +207,7 @@ export default function IbadahDetailScreen() {
               <InfoCard
                 icon={<Clock size={18} color="#EA580C" />}
                 label={t('ibadah.time')}
-                value={`${ibadah.jamMulai} - ${ibadah.jamSelesai}`}
+                value={formatVenueRange(tanggal ?? null, ibadah.jamMulai, ibadah.jamSelesai, venueTz)}
               />
               <InfoCard
                 icon={<Calendar size={18} color="#EA580C" />}
@@ -212,6 +219,7 @@ export default function IbadahDetailScreen() {
                 }
               />
             </View>
+            {timeHint ? <Text className="text-[11px] text-neutral-500 -mt-1 mb-3">{timeHint}</Text> : null}
 
             {/* Location */}
             {(() => {

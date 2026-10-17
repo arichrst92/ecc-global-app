@@ -10,6 +10,8 @@ import { useEventList } from '@/hooks/useEvents';
 import { useMyFamily } from '@/hooks/useFamily';
 import { listEvents } from '@/api/event';
 import { getIbadahCalendar } from '@/api/ibadah';
+import { useVenueTz } from '@/hooks/useVenueTz';
+import { formatVenueRange } from '@/utils/time';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
 
@@ -43,6 +45,8 @@ export default function CalendarScreen() {
 
   const familyQuery = useMyFamily();
   const { viewingCabangId, branch } = useViewingBranch();
+  // Jam ibadah = jam dinding cabang → zona waktu HP.
+  const venueTz = useVenueTz();
   const qc = useQueryClient();
 
   // Window per-bulan yang sedang dilihat — dipakai untuk scope event + ibadah
@@ -174,7 +178,7 @@ export default function CalendarScreen() {
           id: o.ibadahId,
           title: o.nama,
           date: o.tanggal,
-          time: o.jamMulai,
+          time: formatVenueRange(o.tanggal, o.jamMulai, null, venueTz),
           kategori: o.kategoriIbadah?.nama,
         });
       }

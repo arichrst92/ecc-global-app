@@ -15,7 +15,7 @@ import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Baby, Info } from 'lucide-react-native';
 
-import { wibTime } from '@/utils/serverClock';
+import { localTime } from '@/utils/time';
 
 export function PickupCodeCard({
   pickupCode,
@@ -44,7 +44,7 @@ export function PickupCodeCard({
             </Text>
             {pickedUpAt ? (
               <Text className="text-xs text-emerald-700 mt-0.5">
-                {t('kids.pickup_completed_at', { time: wibTime(pickedUpAt) })}
+                {t('kids.pickup_completed_at', { time: localTime(pickedUpAt) })}
               </Text>
             ) : null}
           </View>

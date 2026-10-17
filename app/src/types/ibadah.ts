@@ -147,6 +147,8 @@ export type MyReservasi = {
     requiresCheckout?: boolean;
     lokasi?: string | null;
     cabang?: { id: string; nama: string } | null;
+    /** Zona waktu cabang (IANA) — jamMulai/jamSelesai = jam dinding di zona ini. */
+    timezone?: string | null;
   };
 };
 

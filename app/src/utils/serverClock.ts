@@ -21,14 +21,8 @@ export function syncServerClock(serverNowIso: string | null | undefined, request
 export const serverNowMs = () => Date.now() + offsetMs;
 export const serverOffsetMs = () => offsetMs;
 
-/** "HH:mm" jam dinding WIB (UTC+7) dari ISO — tidak bergantung zona waktu HP. */
-export function wibTime(iso: string | null | undefined): string {
-  if (!iso) return '';
-  const d = new Date(Date.parse(iso) + 7 * 60 * 60 * 1000);
-  const hh = String(d.getUTCHours()).padStart(2, '0');
-  const mm = String(d.getUTCMinutes()).padStart(2, '0');
-  return `${hh}:${mm}`;
-}
+/** @deprecated pakai `localTime` (zona waktu HP) dari '@/utils/time'. */
+export { localTime as wibTime } from './time';
 
 /**
  * Status self check-in "sekarang" menurut jam server. Hanya alasan berbasis

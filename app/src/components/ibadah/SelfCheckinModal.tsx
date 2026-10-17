@@ -8,6 +8,7 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Check, CheckCircle2, LocateFixed, MapPin, UserPlus } from 'lucide-react-native';
 import { formatRadius } from '@/utils/selfCheckinLocation';
+import { formatVenueRange } from '@/utils/time';
 import { AddTamuModal } from '@/components/tamu/AddTamuModal';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -31,6 +32,8 @@ export function SelfCheckinModal({
         members: SelfCheckinMember[];
         ibadah?: { nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null };
         venue?: { requiresLocation: boolean; radiusM: number | null };
+        tanggal?: string;
+        timezone?: string | null;
       }
     | undefined;
   /** Default: "Apakah Anda sudah berada di ruang ibadah?" */
@@ -63,7 +66,7 @@ export function SelfCheckinModal({
   const sub =
     subtitle ??
     (status?.ibadah
-      ? `${status.ibadah.nama} · ${status.ibadah.jamMulai}–${status.ibadah.jamSelesai}${status.ibadah.lokasi ? ` · ${status.ibadah.lokasi}` : ''}`
+      ? `${status.ibadah.nama} · ${formatVenueRange(status.tanggal ?? null, status.ibadah.jamMulai, status.ibadah.jamSelesai, status.timezone, '–')}${status.ibadah.lokasi ? ` · ${status.ibadah.lokasi}` : ''}`
       : '');
 
   return (

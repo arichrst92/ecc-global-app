@@ -15,6 +15,7 @@ import { useToast } from '@/components/ui/Toast';
 import { AddTamuModal } from '@/components/tamu/AddTamuModal';
 import { cancelReservasiFor, getReservasiOptions, postReservasi, type ReservasiMember } from '@/api/ibadah';
 import { formatDateWithDay } from '@/utils/date';
+import { formatVenueRange } from '@/utils/time';
 
 const errMsg = (e: unknown, fallback: string) => (e instanceof Error && e.message ? e.message : fallback);
 
@@ -106,7 +107,7 @@ export function ReservasiModal({
               <Text className="text-base font-bold text-neutral-900">{t('reservasi.title')}</Text>
               {d ? (
                 <Text className="text-xs text-neutral-500" numberOfLines={1}>
-                  {d.ibadah.nama} · {d.ibadah.jamMulai}–{d.ibadah.jamSelesai}
+                  {d.ibadah.nama} · {formatVenueRange(current?.tanggal ?? null, d.ibadah.jamMulai, d.ibadah.jamSelesai, d.timezone, '–')}
                 </Text>
               ) : null}
             </View>

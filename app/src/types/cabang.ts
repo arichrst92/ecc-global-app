@@ -7,6 +7,8 @@ export type Cabang = {
   alamat: string; // free text, mis. "Jl. Sudirman No.1, Jakarta Pusat"
   latitude: number | null;
   longitude: number | null;
+  /** Zona waktu IANA cabang (BE 2026-10-17), mis. "Asia/Jakarta". */
+  timezone?: string | null;
   isActive: boolean;
 };
 

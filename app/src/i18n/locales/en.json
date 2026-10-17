@@ -580,7 +580,7 @@
     "self_checkin_no": "No",
     "self_checkin_yes": "Yes, I'm at the venue",
     "self_checkin_success": "Checked in: {{names}}",
-    "self_checkin_opens_at": "Opens at {{time}} WIB (15 minutes before start)",
+    "self_checkin_opens_at": "Opens at {{time}} (15 minutes before start)",
     "self_checkin_countdown": "Self check-in will be available in",
     "my_qr_short": "My QR"
   },
@@ -1738,5 +1738,8 @@
     "cancel_body": "{{name}}'s reservation will be cancelled.",
     "cancel_confirm": "Yes, cancel",
     "cancelled": "Reservation cancelled."
+  },
+  "time": {
+    "venue_hint": "Church time: {{time}} ({{city}} time)"
   }
 }

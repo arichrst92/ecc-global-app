@@ -180,6 +180,8 @@ export type EventSelfCheckinStatus = {
   opensAt: string | null;
   closesAt: string | null;
   serverNow?: string;
+  /** Zona waktu cabang (IANA) — jamMulai/jamSelesai = jam dinding di zona ini. */
+  timezone?: string | null;
   event: { id: string; judul: string; lokasi: string | null; jamMulai: string | null; jamSelesai: string | null };
   members: SelfCheckinMember[];
   venue?: { requiresLocation: boolean; radiusM: number | null };

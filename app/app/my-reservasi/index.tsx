@@ -2,7 +2,8 @@
  * Reservasi Saya — kehadiran ibadah saya, anak, tanggungan, keluarga yang
  * saya self check-in-kan, dan tamu saya.
  *
- * - Tab Aktif  : ibadah hari ini & mendatang (WIB) + check-in < 24 jam
+ * - Tab Aktif  : ibadah hari ini & mendatang (zona cabang) + check-in < 24 jam
+ * - Jam jadwal dikonversi dari zona cabang ke zona HP; jam check-in dll. di zona HP.
  * - Tab Riwayat: 100 terbaru
  * - Ibadah anak yang belum dijemput: kode jemput besar di atas, auto-refresh
  *   tiap 20 detik sampai dijemput.
@@ -24,7 +25,7 @@ import { cancelMyReservasi } from '@/api/me';
 import { useToast } from '@/components/ui/Toast';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { formatDateWithDay } from '@/utils/date';
-import { wibTime } from '@/utils/serverClock';
+import { formatVenueRange, localTime } from '@/utils/time';
 import type { MyReservasi } from '@/types/ibadah';
 
 type Tab = 'active' | 'history';
@@ -168,8 +169,9 @@ function KidsReservasiCard({ reservasi }: { reservasi: MyReservasi }) {
           </View>
           <Text className="text-xs text-neutral-600">{reservasi.ibadah.nama}</Text>
           <Text className="text-[10px] text-neutral-500">
-            {formatDateWithDay(reservasi.tanggalIbadah, i18n.language)} · {reservasi.ibadah.jamMulai}
-            {reservasi.joinedAt ? ` · check-in ${wibTime(reservasi.joinedAt)}` : ''}
+            {formatDateWithDay(reservasi.tanggalIbadah, i18n.language)} ·{' '}
+            {formatVenueRange(reservasi.tanggalIbadah, reservasi.ibadah.jamMulai, null, reservasi.ibadah.timezone)}
+            {reservasi.joinedAt ? ` · check-in ${localTime(reservasi.joinedAt)}` : ''}
           </Text>
         </View>
       </View>
@@ -231,7 +233,8 @@ function ReservasiRow({ reservasi: r, onPress }: { reservasi: MyReservasi; onPre
         </Text>
         <View className="flex-row items-center gap-1.5 mt-0.5">
           <Text className="text-xs text-neutral-500 flex-shrink" numberOfLines={1}>
-            {r.jemaat.namaLengkap} · {formatDateWithDay(r.tanggalIbadah, i18n.language)} · {r.ibadah.jamMulai}
+            {r.jemaat.namaLengkap} · {formatDateWithDay(r.tanggalIbadah, i18n.language)} ·{' '}
+            {formatVenueRange(r.tanggalIbadah, r.ibadah.jamMulai, null, r.ibadah.timezone)}
           </Text>
           <RelationBadge r={r} />
         </View>
@@ -248,7 +251,7 @@ function ReservasiRow({ reservasi: r, onPress }: { reservasi: MyReservasi; onPre
             <View className="flex-row items-center gap-1">
               <Clock size={10} color="#737373" />
               <Text className="text-[10px] text-neutral-500">
-                {t('my_reservasi.checkin_at', { time: wibTime(r.joinedAt) })}
+                {t('my_reservasi.checkin_at', { time: localTime(r.joinedAt) })}
                 {method ? ` · ${t(`my_reservasi.method_${method}`)}` : ''}
               </Text>
             </View>
@@ -257,14 +260,14 @@ function ReservasiRow({ reservasi: r, onPress }: { reservasi: MyReservasi; onPre
             <View className="flex-row items-center gap-1">
               <CheckCircle2 size={10} color="#059669" />
               <Text className="text-[10px] text-emerald-700">
-                {t('my_reservasi.checkout_at', { time: wibTime(r.checkedOutAt) })}
+                {t('my_reservasi.checkout_at', { time: localTime(r.checkedOutAt) })}
               </Text>
             </View>
           ) : null}
           {r.ibadah.isKidsIbadah && r.pickedUpAt ? (
             <View className="flex-row items-center gap-1">
               <CheckCircle2 size={10} color="#059669" />
-              <Text className="text-[10px] text-emerald-700">{t('kids.pickup_completed_at', { time: wibTime(r.pickedUpAt) })}</Text>
+              <Text className="text-[10px] text-emerald-700">{t('kids.pickup_completed_at', { time: localTime(r.pickedUpAt) })}</Text>
             </View>
           ) : null}
         </View>

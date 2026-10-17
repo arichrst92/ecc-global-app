@@ -22,6 +22,8 @@ import {
 
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { formatDate, todayIso } from '@/utils/date';
+import { useVenueTz } from '@/hooks/useVenueTz';
+import { formatVenueRange } from '@/utils/time';
 
 export default function ScannerPickerScreen() {
   const insets = useSafeAreaInsets();
@@ -154,6 +156,7 @@ function IbadahCard({
     jamMulai: string;
     jamSelesai: string;
     lokasi: string;
+    cabangId?: string;
     pelayananNama: string;
     role: string;
     /** Flag Modul 27 — render badge 🧒 kalau true. */
@@ -163,6 +166,7 @@ function IbadahCard({
   };
   onPress: () => void;
 }) {
+  const venueTz = useVenueTz(item.cabangId);
   return (
     <Pressable
       onPress={onPress}
@@ -185,7 +189,7 @@ function IbadahCard({
         <View className="flex-row items-center gap-1.5 mt-1">
           <Clock size={12} color="#A3A3A3" />
           <Text className="text-xs text-neutral-500">
-            {item.jamMulai} - {item.jamSelesai}
+            {formatVenueRange(null, item.jamMulai, item.jamSelesai, venueTz)}
           </Text>
           <Text className="text-xs text-neutral-400">·</Text>
           <MapPin size={12} color="#A3A3A3" />

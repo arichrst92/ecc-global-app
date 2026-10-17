@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
+import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -202,7 +203,7 @@ function NewsCard({
       <HeroImage url={item.heroImageUrl} fallbackEmoji="📰" emojiSize={48} fitToWidth />
       <View className="p-4">
         <Text className="text-xs text-neutral-500 mb-1">
-          {formatDate(item.publishedAt, lang)}
+          {formatInstantDate(item.publishedAt, lang)}
           {item.cabang ? ` · ${item.cabang.nama}` : ''}
         </Text>
         <Text className="font-bold text-neutral-900 mb-1.5" numberOfLines={2}>

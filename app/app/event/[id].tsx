@@ -17,6 +17,8 @@ import { useNotificationsStore } from '@/stores/notifications.store';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
+import { useVenueTz } from '@/hooks/useVenueTz';
+import { formatVenueRange, tzCity } from '@/utils/time';
 import { buildEventShareUrl } from '@/utils/share';
 import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
 import { env } from '@/config/env';
@@ -31,6 +33,8 @@ export default function EventDetailScreen() {
 
   const query = useEventDetail(id);
   const event = query.data;
+  // Jam event = jam dinding cabang event → tampil di zona waktu HP.
+  const venueTz = useVenueTz(event?.cabang?.id);
 
   // Family multi-participation list per BE update 2026-08-31.
   // Include self + JemaatRelasi direct + spouse-transitive. Skip BATAL.
@@ -49,8 +53,9 @@ export default function EventDetailScreen() {
           ? ` - ${formatDate(event.tanggalSelesai, lang)}`
           : '';
       // Include jam kalau ada — BE patch 2026-05-22a
+      // Jam dikirim apa adanya + nama kota cabang (penerima bisa di zona lain).
       const jam = event.jamMulai
-        ? ` · ${event.jamMulai}${event.jamSelesai ? `-${event.jamSelesai}` : ''} WIB`
+        ? ` · ${event.jamMulai}${event.jamSelesai ? `-${event.jamSelesai}` : ''} (${tzCity(venueTz)})`
         : '';
       lines.push(`📅 ${dateStr}${endStr}${jam}`);
     }
@@ -293,7 +298,7 @@ export default function EventDetailScreen() {
                 {/* Jam mulai - selesai — prefer BE jamMulai/jamSelesai (BE patch 2026-05-22a),
                     fallback ke parse dari ISO untuk event lama */}
                 {(() => {
-                  const range = formatTimeRange(event);
+                  const range = formatTimeRange(event, venueTz);
                   return range ? (
                     <MetaRow
                       icon={<Clock size={20} color="#EA580C" />}
@@ -462,7 +467,11 @@ export default function EventDetailScreen() {
                 question={t('event.self_checkin_question')}
                 confirmLabel={t('event.self_checkin_yes')}
                 subtitle={(d) =>
-                  [d.event.judul, d.event.jamMulai ? `${d.event.jamMulai}${d.event.jamSelesai ? `–${d.event.jamSelesai}` : ''}` : null, d.event.lokasi]
+                  [
+                    d.event.judul,
+                    d.event.jamMulai ? formatVenueRange(d.tanggal ?? null, d.event.jamMulai, d.event.jamSelesai, d.timezone, '–') : null,
+                    d.event.lokasi,
+                  ]
                     .filter(Boolean)
                     .join(' · ')
                 }
@@ -664,27 +673,28 @@ function MetaRow({
 
 /**
  * Format event time range. Per BE patch 2026-05-22a — pakai dedicated fields
- * `jamMulai` / `jamSelesai` (format "HH:mm" string, timezone-safe WIB).
+ * `jamMulai` / `jamSelesai` ("HH:mm", jam dinding zona waktu cabang) yang
+ * dikonversi ke zona waktu HP jemaat.
  *
  * Priority:
  * 1. Kalau BE fill `jamMulai` → pakai itu (preferred — eksplisit + timezone safe)
  * 2. Fallback: extract dari `tanggalMulai` ISO (untuk event lama yang belum punya
  *    jam fields populated). Kalau jam = 00:00 → date-only event, return null.
  *
- * Contoh output: "09:00 - 12:00 WIB", "Mulai 19:00 WIB", atau null.
+ * Contoh output: "09:00 - 12:00", "19:00", "21:00 - 23:00 (+1)", atau null.
  */
-function formatTimeRange(event: {
-  tanggalMulai: string;
-  tanggalSelesai?: string | null;
-  jamMulai?: string | null;
-  jamSelesai?: string | null;
-}): string | null {
-  // Path 1: BE jam fields (preferred)
+function formatTimeRange(
+  event: {
+    tanggalMulai: string;
+    tanggalSelesai?: string | null;
+    jamMulai?: string | null;
+    jamSelesai?: string | null;
+  },
+  venueTz?: string | null,
+): string | null {
+  // Path 1: BE jam fields (preferred) — jam dinding cabang → zona waktu HP.
   if (event.jamMulai) {
-    if (event.jamSelesai && event.jamSelesai !== event.jamMulai) {
-      return `${event.jamMulai} - ${event.jamSelesai} WIB`;
-    }
-    return `${event.jamMulai} WIB`;
+    return formatVenueRange(event.tanggalMulai, event.jamMulai, event.jamSelesai, venueTz);
   }
 
   // Path 2: legacy fallback — parse jam dari ISO
@@ -704,10 +714,11 @@ function formatTimeRange(event: {
     return `${hh}:${mm}`;
   }
 
+  // Instant → jam di zona waktu HP.
   if (start.getTime() === end.getTime()) {
-    return `${fmt(start)} WIB`;
+    return fmt(start);
   }
-  return `${fmt(start)} - ${fmt(end)} WIB`;
+  return `${fmt(start)} - ${fmt(end)}`;
 }
 
 /* ==============================================================

@@ -23,7 +23,7 @@ export type EventListItem = {
   tanggalMulai: string; // ISO datetime
   tanggalSelesai: string;
   /**
-   * Jam mulai event format "HH:mm" (24-hour, WIB). Nullable untuk event
+   * Jam mulai event format "HH:mm" (24-hour, jam dinding zona waktu cabang). Nullable untuk event
    * date-only (mis. festival 3 hari tanpa jam tertentu). Per BE patch
    * 2026-05-22a — separate dari tanggalMulai supaya timezone-safe.
    */

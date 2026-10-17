@@ -80,6 +80,8 @@ export type SelfCheckinStatus = {
   closesAt: string | null;
   /** Jam server (ISO UTC) untuk sinkron jam HP. */
   serverNow?: string;
+  /** Zona waktu cabang (IANA) — jamMulai/jamSelesai = jam dinding di zona ini. */
+  timezone?: string | null;
   ibadah: { id: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null };
   members: SelfCheckinMember[];
   /** requiresLocation=true → kirim lat/lng; server cek radius (meter). */
@@ -121,6 +123,8 @@ export type ReservasiMember = {
 };
 
 export type ReservasiOptions = {
+  /** Zona waktu cabang (IANA). */
+  timezone?: string | null;
   ibadah: { id: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null; isKidsIbadah: boolean };
   occurrences: ReservasiOccurrence[];
   selected: ReservasiOccurrence | null;

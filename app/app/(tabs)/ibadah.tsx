@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { useVenueTz } from '@/hooks/useVenueTz';
+import { formatVenueRange, venueToLocal } from '@/utils/time';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -155,6 +157,8 @@ function DateSection({
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const today = isToday(date);
+  // Jam jadwal (zona cabang yang dilihat) → zona waktu HP.
+  const venueTz = useVenueTz();
 
   return (
     <View className="mb-5">
@@ -165,17 +169,18 @@ function DateSection({
         <View className="flex-1 h-px bg-neutral-200" />
       </View>
       <View className="gap-2">
-        {items.map((item) => (
+        {items.map((item) => {
+          const start = venueToLocal(date, item.jamMulai, venueTz);
+          const [hh, mm] = (start?.time ?? item.jamMulai).split(':');
+          return (
           <Pressable
             key={`${item.ibadahId}-${date}`}
             onPress={() => onTapItem(item.ibadahId)}
             className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
           >
             <View className="w-12 h-12 rounded-xl bg-brand-50 items-center justify-center">
-              <Text className="text-xs text-brand-600 font-bold">
-                {item.jamMulai.split(':')[0]}
-              </Text>
-              <Text className="text-[10px] text-brand-500">{item.jamMulai.split(':')[1]}</Text>
+              <Text className="text-xs text-brand-600 font-bold">{hh}</Text>
+              <Text className="text-[10px] text-brand-500">{mm}</Text>
             </View>
             <View className="flex-1">
               <Text className="font-semibold text-neutral-900" numberOfLines={1}>
@@ -186,12 +191,13 @@ function DateSection({
                 {item.lokasi}
               </Text>
               <Text className="text-xs text-neutral-400 mt-1">
-                {item.jamMulai} - {item.jamSelesai}
+                {formatVenueRange(date, item.jamMulai, item.jamSelesai, venueTz)}
               </Text>
             </View>
             <ChevronRight size={16} color="#A3A3A3" />
           </Pressable>
-        ))}
+          );
+        })}
       </View>
     </View>
   );

@@ -5,7 +5,7 @@ import { listCabang } from '@/api/cabang';
 import { storage } from '@/utils/storage';
 import type { Cabang } from '@/types/cabang';
 
-const CACHE_KEY = 'ecc.branches';
+const CACHE_KEY = 'ecc.branches.v2'; // v2: + timezone
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 jam
 const QUERY_KEY = ['branches', 'active'] as const;
 
