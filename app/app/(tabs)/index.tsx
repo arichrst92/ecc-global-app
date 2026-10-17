@@ -16,7 +16,7 @@ import { HomecellSpotlight } from '@/components/home/HomecellSpotlight';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
-import { useMyStats, useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
+import { useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { SelfCheckinBar } from '@/components/checkin/SelfCheckinBar';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
@@ -50,7 +50,6 @@ function HomeScreenAuthenticated() {
   const user = useAuthStore((s) => s.user);
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
-  const statsQuery = useMyStats();
   const todayQuery = useTodayServices();
   // Cache dipersist → ambil ulang saat kembali ke beranda / app aktif lagi.
   useRefetchOnFocus(() => todayQuery.refetch());
@@ -64,7 +63,6 @@ function HomeScreenAuthenticated() {
   const lang = i18n.language;
 
   const isRefreshing =
-    statsQuery.isRefetching ||
     todayQuery.isRefetching ||
     renunganQuery.isRefetching ||
     newsQuery.isRefetching ||
@@ -73,7 +71,6 @@ function HomeScreenAuthenticated() {
 
   const queryClient = useQueryClient();
   function refresh() {
-    statsQuery.refetch();
     todayQuery.refetch();
     renunganQuery.refetch();
     newsQuery.refetch();
@@ -86,7 +83,6 @@ function HomeScreenAuthenticated() {
 
   if (!user) return null;
 
-  const streak = statsQuery.data?.streakWeeks ?? 0;
   const renungan = renunganQuery.data;
   const news = newsQuery.data ?? [];
   // Max 3 upcoming assignments, sorted by tanggal ASC (defensive — BE spec
@@ -136,20 +132,6 @@ function HomeScreenAuthenticated() {
               </View>
             </View>
 
-            {/* Streak banner */}
-            {streak > 0 ? (
-              <View className="mx-5 mt-1 bg-white/10 rounded-2xl p-3 flex-row items-center gap-3">
-                <View className="w-10 h-10 rounded-xl bg-amber-300 items-center justify-center">
-                  <Text className="text-lg">🔥</Text>
-                </View>
-                <View className="flex-1">
-                  <Text className="text-white/80 text-xs">{t('home.streak_label')}</Text>
-                  <Text className="text-white font-semibold">
-                    {t('home.streak_weeks', { count: streak })}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
 
             {/* Branch context chip — tap untuk switch view */}
             <View className="mx-5 mt-2">
