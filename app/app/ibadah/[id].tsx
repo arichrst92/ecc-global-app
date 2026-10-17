@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   Calendar,
+  CalendarPlus,
   Clock,
   FileText,
   MapPin,
@@ -22,6 +23,7 @@ import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
+import { ReservasiModal } from '@/components/ibadah/ReservasiModal';
 import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
@@ -67,6 +69,7 @@ export default function IbadahDetailScreen() {
     mutationFn: async (ids: string[]) => postSelfCheckin(id, ids, await coordsForSelfCheckin(selfCheckin.data?.venue)),
   });
   const [checkinOpen, setCheckinOpen] = useState(false);
+  const [reservasiOpen, setReservasiOpen] = useState(false);
 
   // Pull to refresh (native) / tombol refresh (web) + refetch saat kembali ke layar.
   const [refreshing, setRefreshing] = useState(false);
@@ -338,10 +341,24 @@ export default function IbadahDetailScreen() {
                   size="lg"
                 />
               </View>
-            ) : null}
+            ) : (
+              <View className="flex-1">
+                <Button
+                  label={t('reservasi.btn')}
+                  onPress={() => setReservasiOpen(true)}
+                  leftIcon={<CalendarPlus size={16} color="#171717" />}
+                  variant="secondary"
+                  fullWidth
+                  singleLine
+                  size="lg"
+                />
+              </View>
+            )}
           </View>
         </SafeAreaView>
       </View>
+
+      <ReservasiModal ibadahId={id} visible={reservasiOpen} onClose={() => setReservasiOpen(false)} />
 
       <SelfCheckinModal
         visible={checkinOpen}

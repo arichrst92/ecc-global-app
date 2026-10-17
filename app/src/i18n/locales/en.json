@@ -1405,7 +1405,7 @@
     "title": "My Reservations",
     "subtitle": "You, your kids, family & guests",
     "empty_title": "No active reservations",
-    "empty_body": "Today's & upcoming services and check-ins from the last 24 hours appear here — including kids, family you checked in, and your guests.",
+    "empty_body": "Upcoming reservations, check-ins from the last 24 hours, and kids pickup codes appear here. Reserve from a service's detail page.",
     "kids_section": "Kids Services — Pickup Codes",
     "other_section": "Services",
     "checkin_at": "Check-in {{time}}",
@@ -1717,5 +1717,26 @@
     "save": "Save",
     "saved": "Privacy settings saved.",
     "reset": "Reset"
+  },
+  "reservasi": {
+    "btn": "Reserve",
+    "title": "Service Reservation",
+    "pick_date": "Choose a date",
+    "who": "Who is coming?",
+    "date_cancelled": "Cancelled",
+    "no_schedule": "No services scheduled in the next 30 days.",
+    "status_reserved": "Reserved",
+    "status_joined": "Attended",
+    "kids_only": "Kids aged 13 and under only",
+    "submit": "Reserve",
+    "submit_n": "Reserve ({{count}} people)",
+    "note": "You can reserve or cancel until the service starts. When you arrive, still check in with your QR or self check-in.",
+    "success": "Reserved: {{names}}",
+    "already": "Everyone selected is already reserved.",
+    "cancel_btn": "Cancel",
+    "cancel_title": "Cancel reservation?",
+    "cancel_body": "{{name}}'s reservation will be cancelled.",
+    "cancel_confirm": "Yes, cancel",
+    "cancelled": "Reservation cancelled."
   }
 }

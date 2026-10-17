@@ -10,7 +10,7 @@
  * Endpoint: `GET /admin/me/reservasi` (update 2026-10-17).
  */
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,10 @@ import { ArrowLeft, Baby, CalendarCheck, CheckCircle2, ChevronRight, Church, Clo
 
 import { Avatar } from '@/components/ui/Avatar';
 import { PickupCodeCard } from '@/components/scanner/PickupCodeCard';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMyReservasi } from '@/hooks/useMyReservasi';
+import { cancelMyReservasi } from '@/api/me';
+import { useToast } from '@/components/ui/Toast';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { formatDateWithDay } from '@/utils/date';
 import { wibTime } from '@/utils/serverClock';
@@ -186,6 +189,22 @@ function KidsReservasiCard({ reservasi }: { reservasi: MyReservasi }) {
 /* ---------------------------------------------------------------- baris */
 function ReservasiRow({ reservasi: r, onPress }: { reservasi: MyReservasi; onPress: () => void }) {
   const { t, i18n } = useTranslation();
+  const qc = useQueryClient();
+  const showToast = useToast((s) => s.show);
+  const cancel = useMutation({
+    mutationFn: () => cancelMyReservasi(r.id),
+    onSuccess: () => {
+      showToast(t('reservasi.cancelled'), 'success');
+      void qc.invalidateQueries({ queryKey: ['my-reservasi'] });
+      void qc.invalidateQueries({ queryKey: ['reservasi-options'] });
+    },
+    onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
+  });
+  const askCancel = () =>
+    Alert.alert(t('reservasi.cancel_title'), t('reservasi.cancel_body', { name: r.jemaat.namaLengkap }), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('reservasi.cancel_confirm'), style: 'destructive', onPress: () => cancel.mutate() },
+    ]);
   const checkedOut = !!r.checkedOutAt;
   const statusKey = checkedOut ? 'CHECKOUT' : r.status;
   const statusCls =
@@ -249,6 +268,17 @@ function ReservasiRow({ reservasi: r, onPress }: { reservasi: MyReservasi; onPre
             </View>
           ) : null}
         </View>
+        {r.canCancel ? (
+          <Pressable
+            onPress={askCancel}
+            disabled={cancel.isPending}
+            className="self-start mt-2 px-3 py-1 rounded-full border border-red-200"
+          >
+            <Text className="text-[11px] font-semibold text-red-600">
+              {cancel.isPending ? '…' : t('reservasi.cancel_btn')}
+            </Text>
+          </Pressable>
+        ) : null}
         {needCheckout ? (
           <View className="flex-row items-center gap-1 mt-1.5">
             <LogOut size={10} color="#B45309" />

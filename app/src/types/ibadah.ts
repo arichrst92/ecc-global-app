@@ -129,6 +129,8 @@ export type MyReservasi = {
   pickedUpAt?: string | null;
   /** Hubungan pemilik reservasi dengan saya (BE 2026-10-17). */
   relation?: MyReservasiRelation;
+  /** RESERVE & belum lewat jam mulai → boleh dibatalkan. */
+  canCancel?: boolean;
   checkinMethod?: string | null;
   jemaat: {
     id: string;

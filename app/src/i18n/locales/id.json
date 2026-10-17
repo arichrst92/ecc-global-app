@@ -1405,7 +1405,7 @@
     "title": "Reservasi Saya",
     "subtitle": "Kehadiran Anda, anak, keluarga & tamu",
     "empty_title": "Belum ada reservasi aktif",
-    "empty_body": "Ibadah hari ini & mendatang serta check-in 24 jam terakhir akan muncul di sini — termasuk anak, keluarga yang Anda check-in-kan, dan tamu Anda.",
+    "empty_body": "Reservasi ibadah mendatang, check-in 24 jam terakhir, serta kode jemput anak akan muncul di sini. Buat reservasi dari halaman detail ibadah.",
     "kids_section": "Ibadah Anak — Kode Jemput",
     "other_section": "Ibadah",
     "checkin_at": "Check-in {{time}}",
@@ -1716,5 +1716,26 @@
     "save": "Simpan",
     "saved": "Pengaturan privasi disimpan.",
     "reset": "Atur ulang"
+  },
+  "reservasi": {
+    "btn": "Reservasi",
+    "title": "Reservasi Ibadah",
+    "pick_date": "Pilih tanggal",
+    "who": "Siapa yang ikut?",
+    "date_cancelled": "Dibatalkan",
+    "no_schedule": "Belum ada jadwal ibadah dalam 30 hari ke depan.",
+    "status_reserved": "Sudah terdaftar",
+    "status_joined": "Sudah hadir",
+    "kids_only": "Khusus anak usia 13 tahun ke bawah",
+    "submit": "Reservasi",
+    "submit_n": "Reservasi ({{count}} orang)",
+    "note": "Reservasi & pembatalan bisa dilakukan sampai jam mulai ibadah. Saat hadir, tetap check-in dengan QR atau self check-in.",
+    "success": "Reservasi berhasil: {{names}}",
+    "already": "Semua yang dipilih sudah terdaftar.",
+    "cancel_btn": "Batalkan",
+    "cancel_title": "Batalkan reservasi?",
+    "cancel_body": "Reservasi {{name}} akan dibatalkan.",
+    "cancel_confirm": "Ya, batalkan",
+    "cancelled": "Reservasi dibatalkan."
   }
 }

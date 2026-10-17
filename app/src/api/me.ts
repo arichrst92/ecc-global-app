@@ -133,3 +133,8 @@ export async function deleteMyAccount(payload: DeleteAccountPayload): Promise<De
   }
   return json.data;
 }
+
+/** POST /admin/me/reservasi/:id/cancel — batalkan reservasi (sebelum jam mulai). */
+export function cancelMyReservasi(id: string) {
+  return api.post<MyReservasi>(`/admin/me/reservasi/${id}/cancel`);
+}

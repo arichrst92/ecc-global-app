@@ -100,3 +100,45 @@ export async function getSelfCheckin(ibadahId: string) {
 
 export const postSelfCheckin = (ibadahId: string, jemaatIds: string[], coords?: { lat: number; lng: number } | null) =>
   api.post<SelfCheckinResult>(`/admin/me/ibadah/${ibadahId}/self-checkin`, { jemaatIds, ...(coords ?? {}) });
+
+// ------------------------------------------------------------------ reservasi mandiri
+// /admin/me/ibadah/:id/reservasi — reservasi pertemuan mendatang (≤ 30 hari)
+// untuk saya, keluarga & tamu saya. Ditutup saat jam mulai ibadah.
+
+export type ReservasiOccurrence = { tanggal: string; startsAt: string; cancelled: boolean; open: boolean };
+
+export type ReservasiMember = {
+  id: string;
+  namaLengkap: string;
+  fotoUrl: string | null;
+  isSelf: boolean;
+  isTamu: boolean;
+  relasi: string | null;
+  status: 'NONE' | 'RESERVE' | 'JOIN' | 'CANCEL';
+  reservasiId: string | null;
+  /** false = tidak memenuhi syarat (ibadah anak hanya ≤ 13 tahun). */
+  eligible: boolean;
+};
+
+export type ReservasiOptions = {
+  ibadah: { id: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string | null; isKidsIbadah: boolean };
+  occurrences: ReservasiOccurrence[];
+  selected: ReservasiOccurrence | null;
+  members: ReservasiMember[];
+};
+
+export type ReservasiResult = {
+  tanggal: string;
+  results: { jemaatId: string; namaLengkap: string; result: 'RESERVED' | 'ALREADY' | 'FAILED'; message?: string }[];
+};
+
+export const getReservasiOptions = (ibadahId: string, tanggal?: string | null) =>
+  api.get<ReservasiOptions>(
+    `/admin/me/ibadah/${ibadahId}/reservasi${tanggal ? `?tanggal=${encodeURIComponent(tanggal)}` : ''}`,
+  );
+
+export const postReservasi = (ibadahId: string, tanggal: string, jemaatIds: string[]) =>
+  api.post<ReservasiResult>(`/admin/me/ibadah/${ibadahId}/reservasi`, { tanggal, jemaatIds });
+
+export const cancelReservasiFor = (ibadahId: string, tanggal: string, jemaatIds: string[]) =>
+  api.post<{ tanggal: string; cancelled: number }>(`/admin/me/ibadah/${ibadahId}/reservasi/cancel`, { tanggal, jemaatIds });
