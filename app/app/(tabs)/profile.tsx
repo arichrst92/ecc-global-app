@@ -409,13 +409,13 @@ function MenuRow({
     <Pressable onPress={onPress} className="p-4 flex-row items-center gap-3">
       {icon ? (
         <View
-          className={`w-9 h-9 rounded-xl items-center justify-center ${iconBg ?? 'bg-neutral-100'}`}
+          className={`w-10 h-10 rounded-xl items-center justify-center ${iconBg ?? 'bg-neutral-100'}`}
         >
           {icon}
         </View>
       ) : null}
       <View className="flex-1">
-        <Text className="text-sm font-medium text-neutral-900">{label}</Text>
+        <Text className="text-sm font-semibold text-neutral-900">{label}</Text>
         {sub ? <Text className="text-xs text-neutral-500 mt-0.5">{sub}</Text> : null}
       </View>
       <ChevronRight size={16} color="#A3A3A3" />
@@ -444,14 +444,14 @@ function BranchCard({ onPress }: { onPress: () => void }) {
         className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
       >
         <View className="flex-row items-center gap-3 p-4">
-          <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center">
-            <Building2 size={22} color="#EA580C" />
+          <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+            <Building2 size={18} color="#EA580C" />
           </View>
           <View className="flex-1 min-w-0">
             <Text className="text-xs text-neutral-500 mb-0.5">
               {t('profile.branch_home_label')}
             </Text>
-            <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+            <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
               {cabang?.nama ?? '—'}
             </Text>
             {cabang?.kode ? (
@@ -492,17 +492,17 @@ function FamilyCard({ onPress }: { onPress: () => void }) {
         className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
       >
         <View className="flex-row items-center gap-3 p-4">
-          <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center">
+          <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
             {family.length > 0 ? (
-              <Users size={22} color="#EA580C" />
+              <Users size={18} color="#EA580C" />
             ) : (
-              <UserPlus size={22} color="#EA580C" />
+              <UserPlus size={18} color="#EA580C" />
             )}
           </View>
           <View className="flex-1 min-w-0">
             {family.length > 0 ? (
               <>
-                <Text className="text-sm font-bold text-neutral-900">
+                <Text className="text-sm font-semibold text-neutral-900">
                   {t('profile.family_count', { count: family.length })}
                 </Text>
                 <View className="flex-row items-center gap-1.5 mt-1.5">
@@ -516,8 +516,8 @@ function FamilyCard({ onPress }: { onPress: () => void }) {
                     />
                   ))}
                   {extraCount > 0 ? (
-                    <View className="-ml-2 w-[22px] h-[22px] rounded-full bg-pink-100 items-center justify-center border border-white">
-                      <Text className="text-[9px] font-bold text-pink-700">
+                    <View className="-ml-2 w-[22px] h-[22px] rounded-full bg-brand-100 items-center justify-center border border-white">
+                      <Text className="text-[9px] font-bold text-brand-700">
                         +{extraCount}
                       </Text>
                     </View>
@@ -526,7 +526,7 @@ function FamilyCard({ onPress }: { onPress: () => void }) {
               </>
             ) : (
               <>
-                <Text className="text-sm font-semibold text-neutral-700">
+                <Text className="text-sm font-semibold text-neutral-900">
                   {t('profile.family_empty')}
                 </Text>
                 <Text className="text-xs text-neutral-500 mt-0.5">
@@ -596,7 +596,7 @@ function SertifikatCard() {
                 {isPdf ? <FileText size={18} color="#059669" /> : <Award size={18} color="#059669" />}
               </View>
               <View className="flex-1 min-w-0">
-                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
                   {s.nama}
                 </Text>
                 <Text className="text-xs text-neutral-500 mt-0.5">{tanggal}</Text>
@@ -631,7 +631,7 @@ function HomecellProfileCard() {
             <Users size={18} color="#7C3AED" />
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-semibold text-neutral-700">
+            <Text className="text-sm font-semibold text-neutral-900">
               {q.isLoading ? t('common.loading') : t('hcj.profile_none')}
             </Text>
             <Text className="text-xs text-neutral-500 mt-0.5">{t('hcj.profile_none_sub')}</Text>
@@ -652,7 +652,7 @@ function HomecellProfileCard() {
                 <Users size={18} color="#7C3AED" />
               </View>
               <View className="flex-1 min-w-0">
-                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
                   {h.nama}
                 </Text>
                 <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
@@ -691,7 +691,7 @@ function MinistryCard() {
             <Sparkles size={18} color="#DB2777" />
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-semibold text-neutral-700">
+            <Text className="text-sm font-semibold text-neutral-900">
               {t('profile.ministry_empty')}
             </Text>
             <Text className="text-xs text-neutral-500 mt-0.5">
@@ -714,7 +714,7 @@ function MinistryCard() {
                 <HeartHandshake size={18} color="#DB2777" />
               </View>
               <View className="flex-1 min-w-0">
-                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
                   {m.nama}
                 </Text>
                 {m.posisi ? (

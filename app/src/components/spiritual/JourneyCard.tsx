@@ -43,7 +43,7 @@ export function JourneyCard() {
             <Footprints size={18} color="#059669" />
           </View>
           <View className="flex-1 min-w-0">
-            <Text className="text-sm font-bold text-neutral-900">
+            <Text className="text-sm font-semibold text-neutral-900">
               {hasSteps ? t('journey.progress', { done: d.achievedCount, total: d.total }) : t('journey.title')}
             </Text>
             {q.isPending ? (
