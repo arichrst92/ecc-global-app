@@ -32,6 +32,7 @@ import {
 } from '@/hooks/useScanner';
 import { ApiError } from '@/types/api';
 import { todayIso } from '@/utils/date';
+import { goBack } from '@/utils/nav';
 
 type ScannerMode = 'checkin' | 'checkout' | 'pickup';
 
@@ -215,7 +216,7 @@ export default function ScannerIbadahScreen() {
       <SafeAreaView edges={['top']} className="absolute top-0 left-0 right-0">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
           >
             <ArrowLeft size={20} color="#fff" />

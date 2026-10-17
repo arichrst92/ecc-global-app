@@ -10,6 +10,7 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { useNewsListInfinite, useRenunganListInfinite } from '@/hooks/useContent';
 import { formatDate } from '@/utils/date';
 import type { NewsItem, RenunganItem } from '@/types/content';
+import { goBack } from '@/utils/nav';
 
 type Tab = 'news' | 'renungan';
 
@@ -48,7 +49,7 @@ export default function ContentListScreen() {
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <ArrowLeft size={20} color="#171717" />

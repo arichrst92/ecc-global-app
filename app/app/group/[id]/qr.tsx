@@ -26,6 +26,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useGroupDetail, useRegenerateGroupCode } from '@/hooks/useGroup';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 export default function GroupQrScreen() {
   const { t } = useTranslation();
@@ -56,7 +57,7 @@ export default function GroupQrScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
         <View className="px-4 py-2">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
         </View>
@@ -112,7 +113,7 @@ export default function GroupQrScreen() {
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <View className="flex-1">

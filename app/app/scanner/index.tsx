@@ -24,6 +24,7 @@ import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { formatDate, todayIso } from '@/utils/date';
 import { useVenueTz } from '@/hooks/useVenueTz';
 import { formatVenueRange } from '@/utils/time';
+import { goBack } from '@/utils/nav';
 
 export default function ScannerPickerScreen() {
   const insets = useSafeAreaInsets();
@@ -59,7 +60,7 @@ export default function ScannerPickerScreen() {
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <ArrowLeft size={20} color="#171717" />

@@ -30,6 +30,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { GROUP_JENIS_LABELS } from '@/types/group';
 import type { GroupJenis } from '@/types/group';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 const HARI_OPTIONS = [
   { value: '', label: '—' },
@@ -91,7 +92,7 @@ export default function EditGroupScreen() {
     if (query.isPending || !hydrated) return;
     if (!isPIC) {
       showToast(t('group.edit_forbidden'), 'error');
-      router.back();
+      goBack(router);
     }
   }, [isPIC, hydrated, query.isPending, router, showToast, t]);
 
@@ -130,7 +131,7 @@ export default function EditGroupScreen() {
           if (!updated.isPublic && !group?.isPublic === false) {
             router.replace(`/group/${id}/qr` as never);
           } else {
-            router.back();
+            goBack(router);
           }
         },
         onError: (err) => {
@@ -155,7 +156,7 @@ export default function EditGroupScreen() {
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <View className="flex-1">

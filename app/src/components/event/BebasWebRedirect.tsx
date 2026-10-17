@@ -16,6 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, HandHeart } from 'lucide-react-native';
 
 import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
+import { goBack } from '@/utils/nav';
 
 export function BebasWebRedirect({ eventId }: { eventId: string }) {
   const { t } = useTranslation();
@@ -40,7 +41,7 @@ export function BebasWebRedirect({ eventId }: { eventId: string }) {
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="px-4 py-2">
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => goBack(router)}
           className="w-10 h-10 items-center justify-center"
         >
           <ArrowLeft size={20} color="#171717" />

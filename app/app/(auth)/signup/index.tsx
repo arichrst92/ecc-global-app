@@ -21,6 +21,7 @@ import { requestOtp } from '@/api/auth';
 import { useSignupStore } from '@/stores/signup.store';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 export default function SignupPhoneScreen() {
   const { t, i18n } = useTranslation();
@@ -66,7 +67,7 @@ export default function SignupPhoneScreen() {
 
   function handleBack() {
     reset();
-    router.back();
+    goBack(router);
   }
 
   return (

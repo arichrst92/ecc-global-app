@@ -24,6 +24,7 @@ import { ManualInputModal } from '@/components/scanner/ManualInputModal';
 import { useToast } from '@/components/ui/Toast';
 import { useJoinGroupByCode } from '@/hooks/useGroup';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 /** Extract 8-char code dari raw QR data.
  *  Support: plain code "A3F7K9M2", deeplink URL "ecc://group/join?code=A3F7K9M2" */
@@ -54,7 +55,7 @@ export default function GroupScanScreen() {
         if (data.status === 'PENDING') {
           // Butuh persetujuan PIC — group private belum bisa dibuka sebelum diterima.
           showToast(t('group.join_pending', { nama: data.groupNama }), 'success');
-          router.back();
+          goBack(router);
           return;
         }
         showToast(
@@ -125,7 +126,7 @@ export default function GroupScanScreen() {
       >
         <View className="flex-row items-center gap-2 px-4 py-2">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center rounded-full bg-black/50"
             hitSlop={8}
           >

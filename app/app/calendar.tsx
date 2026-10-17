@@ -14,6 +14,7 @@ import { useVenueTz } from '@/hooks/useVenueTz';
 import { formatVenueRange } from '@/utils/time';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
+import { goBack } from '@/utils/nav';
 
 /**
  * Calendar screen — unified view dari Event + Ibadah + Birthday family
@@ -252,7 +253,7 @@ export default function CalendarScreen() {
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <ArrowLeft size={20} color="#171717" />

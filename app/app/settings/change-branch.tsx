@@ -14,6 +14,7 @@ import { updateMyProfile } from '@/api/me';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 import type { Cabang } from '@/types/cabang';
+import { goBack } from '@/utils/nav';
 
 /**
  * Change Branch — direct update (no approval flow).
@@ -68,7 +69,7 @@ export default function ChangeBranchScreen() {
       }
       showToast(t('branch_change.success'), 'success');
       setConfirmOpen(false);
-      router.back();
+      goBack(router);
     },
     onError: (err) => {
       const msg = err instanceof ApiError ? err.message : t('error.network');
@@ -81,7 +82,7 @@ export default function ChangeBranchScreen() {
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <ArrowLeft size={20} color="#171717" />

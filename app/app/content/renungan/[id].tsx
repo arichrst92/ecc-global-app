@@ -12,6 +12,7 @@ import { useRenunganDetail, useRenunganList } from '@/hooks/useContent';
 import { useBookmarksStore } from '@/stores/bookmarks.store';
 import { formatDate } from '@/utils/date';
 import { buildRenunganShareUrl } from '@/utils/share';
+import { goBack } from '@/utils/nav';
 
 export default function RenunganDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -97,7 +98,7 @@ export default function RenunganDetailScreen() {
           <SafeAreaView edges={['top']}>
             <View className="px-4 py-2 flex-row items-center justify-between">
               <Pressable
-                onPress={() => router.back()}
+                onPress={() => goBack(router)}
                 className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
               >
                 <ArrowLeft size={20} color="#fff" />

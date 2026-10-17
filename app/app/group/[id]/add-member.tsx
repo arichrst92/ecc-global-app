@@ -26,6 +26,7 @@ import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import { useToast } from '@/components/ui/Toast';
 import { useAddGroupMemberByKode } from '@/hooks/useGroup';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 export default function AddGroupMemberScreen() {
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ export default function AddGroupMemberScreen() {
                 }),
             'success',
           );
-          router.back();
+          goBack(router);
         },
         onError: (err) => {
           setPaused(false);
@@ -95,7 +96,7 @@ export default function AddGroupMemberScreen() {
       >
         <View className="flex-row items-center gap-2 px-4 py-2">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center rounded-full bg-black/50"
             hitSlop={8}
           >

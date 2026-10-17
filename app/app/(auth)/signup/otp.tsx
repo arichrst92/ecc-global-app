@@ -13,6 +13,7 @@ import { requestOtp, verifyOtpEnrollment } from '@/api/auth';
 import { useSignupStore } from '@/stores/signup.store';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -72,7 +73,7 @@ export default function SignupOtpScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="px-4 py-2">
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+        <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
           <ArrowLeft size={20} color="#171717" />
         </Pressable>
       </View>

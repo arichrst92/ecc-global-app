@@ -21,6 +21,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useRegisterNewFamily } from '@/hooks/useFamily';
 import { ApiError } from '@/types/api';
 import type { TipeRelasi } from '@/types/tipeRelasi';
+import { goBack } from '@/utils/nav';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -78,7 +79,7 @@ export default function FamilyAddNewScreen() {
       >
         <View className="px-4 py-2 flex-row items-center border-b border-neutral-100">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <ArrowLeft size={20} color="#171717" />

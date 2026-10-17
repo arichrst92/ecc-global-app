@@ -19,6 +19,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyFamily } from '@/hooks/useFamily';
 import { getMyProfile } from '@/api/me';
+import { goBack } from '@/utils/nav';
 
 const BLUR_AFTER_SEC = 30;
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -119,7 +120,7 @@ export default function QrCardScreen() {
       <SafeAreaView edges={['top', 'bottom']} className="flex-1">
         <View className="px-5 pt-2 pb-2 flex-row items-center gap-3">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <X size={24} color="#fff" />

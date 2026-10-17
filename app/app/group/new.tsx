@@ -33,6 +33,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { GROUP_JENIS_LABELS } from '@/types/group';
 import type { GroupJenis } from '@/types/group';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 const JENIS_OPTIONS: GroupJenis[] = [
   'FAMILY',
@@ -146,7 +147,7 @@ export default function CreateGroupScreen() {
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <View className="flex-1">

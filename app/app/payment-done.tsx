@@ -11,13 +11,13 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { goBack } from '@/utils/nav';
 
 export default function PaymentDoneSink() {
   const router = useRouter();
 
   useEffect(() => {
-    if (router.canGoBack()) router.back();
-    else router.replace('/');
+    goBack(router, '/');
   }, [router]);
 
   return <View style={{ flex: 1, backgroundColor: '#fff' }} />;

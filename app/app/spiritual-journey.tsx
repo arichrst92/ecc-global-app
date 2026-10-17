@@ -14,6 +14,7 @@ import { getMyJourney, type JourneyStep } from '@/api/spiritualJourney';
 import { MY_JOURNEY_KEY } from '@/components/spiritual/JourneyCard';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { formatDateWithDay } from '@/utils/date';
+import { goBack } from '@/utils/nav';
 
 export default function SpiritualJourneyScreen() {
   const insets = useSafeAreaInsets();
@@ -27,7 +28,7 @@ export default function SpiritualJourneyScreen() {
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">{t('journey.title')}</Text>

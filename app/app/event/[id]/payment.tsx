@@ -17,6 +17,7 @@ import { useNotificationsStore } from '@/stores/notifications.store';
 import { uploadBukti } from '@/api/event';
 import { env } from '@/config/env';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 type PickedImage = {
   uri: string;
@@ -210,7 +211,7 @@ export default function EventPaymentScreen() {
               {t('event.payment_target_not_found_body')}
             </Text>
             <Pressable
-              onPress={() => router.back()}
+              onPress={() => goBack(router)}
               className="bg-brand-500 rounded-xl px-4 py-2"
             >
               <Text className="text-white text-sm font-semibold">
@@ -235,7 +236,7 @@ export default function EventPaymentScreen() {
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">

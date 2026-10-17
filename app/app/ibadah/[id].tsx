@@ -34,6 +34,7 @@ import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { selfCheckinOpenNow as selfCheckinOpen, serverNowMs } from '@/utils/serverClock';
 import { formatDateWithDay } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
+import { goBack } from '@/utils/nav';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -125,7 +126,7 @@ export default function IbadahDetailScreen() {
         <SafeAreaView edges={['top']}>
           <View className="flex-row items-center px-4 pt-2">
             <Pressable
-              onPress={() => router.back()}
+              onPress={() => goBack(router)}
               className="w-10 h-10 rounded-full bg-white/15 items-center justify-center"
             >
               <ArrowLeft size={20} color="#fff" />

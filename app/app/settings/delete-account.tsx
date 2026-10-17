@@ -33,6 +33,7 @@ import { useToast } from '@/components/ui/Toast';
 import { deleteMyAccount } from '@/api/me';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 const CONFIRM_PHRASE = 'HAPUS AKUN SAYA';
 
@@ -66,7 +67,7 @@ export default function DeleteAccountScreen() {
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <ArrowLeft size={20} color="#171717" />

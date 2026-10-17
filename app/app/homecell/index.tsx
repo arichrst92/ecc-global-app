@@ -38,6 +38,7 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { getCurrentCoords, LocationError, type Coords } from '@/utils/location';
 import { ApiError } from '@/types/api';
 import type { HomecellNearestResponse } from '@/types/homecell';
+import { goBack } from '@/utils/nav';
 
 export default function HomecellHubScreen() {
   const insets = useSafeAreaInsets();
@@ -132,7 +133,7 @@ export default function HomecellHubScreen() {
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <View className="flex-1">

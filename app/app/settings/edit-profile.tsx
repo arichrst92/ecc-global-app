@@ -30,6 +30,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { env } from '@/config/env';
 import { invalidPhoneMessage, formatPhoneDisplay, normalizePhone } from '@/utils/phone';
+import { goBack } from '@/utils/nav';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -166,7 +167,7 @@ export default function EditProfileScreen() {
       const successKey =
         profile.noHpAdded ? 'edit_profile.dependent_promoted' : 'edit_profile.success';
       showToast(t(successKey, { name: profile.namaLengkap }), 'success');
-      router.back();
+      goBack(router);
     },
     onError: (err) => {
       if (err instanceof ApiError) {
@@ -226,7 +227,7 @@ export default function EditProfileScreen() {
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <ArrowLeft size={20} color="#171717" />

@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/Toast';
 import { getMyFeedback, replyMyFeedback } from '@/api/feedback';
 import { FeedbackStatusBadge, FeedbackTipeBadge, fmtFeedbackDate } from '@/components/feedback/FeedbackBits';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 export default function FeedbackDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -45,7 +46,7 @@ export default function FeedbackDetailScreen() {
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color="#171717" />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">{t('feedback.detail_title')}</Text>

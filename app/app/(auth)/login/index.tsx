@@ -25,6 +25,7 @@ import { PhoneInput } from '@/components/ui/PhoneInput';
 import { requestOtp } from '@/api/auth';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
+import { goBack } from '@/utils/nav';
 
 export default function LoginPhoneScreen() {
   const { t, i18n } = useTranslation();
@@ -72,7 +73,7 @@ export default function LoginPhoneScreen() {
         {/* App bar */}
         <View className="px-4 py-2">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
             <ArrowLeft size={20} color="#171717" />

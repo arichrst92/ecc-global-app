@@ -27,6 +27,7 @@ import {
 import { getVerseOfDay } from '@/data/bible-verses-of-day';
 import { BIBLE_VERSION_BY_CODE, getVerse, preloadVersion } from '@/data/bible';
 import type { BibleBook, Testament } from '@/types/bible';
+import { goBack } from '@/utils/nav';
 
 /**
  * Bible home — verse of day + continue reading + browse OT/NT + bookmarks.
@@ -93,7 +94,7 @@ export default function BibleHomeScreen() {
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
-              onPress={() => router.back()}
+              onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
               <ArrowLeft size={20} color="#fff" />
