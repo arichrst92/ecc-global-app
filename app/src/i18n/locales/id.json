@@ -1359,7 +1359,8 @@
     "my_card_public": "Publik",
     "my_card_private": "Privat",
     "my_card_pic": "PIC",
-    "my_card_members": "Anggota"
+    "my_card_members": "Anggota",
+    "my_card_schedule": "Jadwal"
   },
   "ckids": {
     "tab_title": "CKids — Point & Hadiah Anak",

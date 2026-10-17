@@ -15,7 +15,6 @@
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -26,25 +25,16 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  ArrowLeft,
-  ChevronRight,
-  MapPin,
-  Plus,
-  QrCode,
-  Search,
-  Users,
-} from 'lucide-react-native';
+import { ArrowLeft, Plus, QrCode, Search } from 'lucide-react-native';
 
 import { Picker } from '@/components/ui/Picker';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useGroups } from '@/hooks/useGroup';
-import { groupImageHref } from '@/components/group/GroupHero';
 import { useBranches } from '@/hooks/useBranches';
 import { useAuthStore } from '@/stores/auth.store';
-import { GROUP_JENIS_LABELS } from '@/types/group';
 import type { Group, GroupJenis } from '@/types/group';
 import { goBack } from '@/utils/nav';
+import { GroupListCard } from '@/components/group/GroupListCard';
 
 const JENIS_FILTER_OPTIONS: Array<{ value: '' | GroupJenis; labelKey: string }> = [
   { value: '', labelKey: 'group.filter_all' },
@@ -56,8 +46,7 @@ const JENIS_FILTER_OPTIONS: Array<{ value: '' | GroupJenis; labelKey: string }> 
 
 export default function GroupListScreen() {
   const insets = useSafeAreaInsets();
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language as 'id' | 'en';
+  const { t } = useTranslation();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
@@ -209,102 +198,16 @@ export default function GroupListScreen() {
             </Text>
           </View>
         ) : (
-          <View className="gap-2.5">
-            <Text className="text-xs text-neutral-500 mb-1">
+          <View className="gap-4">
+            <Text className="text-xs text-neutral-500 -mb-2">
               {t('group.result_count', { count: groups.length })}
             </Text>
             {groups.map((group) => (
-              <GroupCard key={group.id} group={group} lang={lang} onPress={() => handleGroupPress(group)} />
+              <GroupListCard key={group.id} group={group} onPress={() => handleGroupPress(group)} />
             ))}
           </View>
         )}
       </ScrollView>
     </View>
-  );
-}
-
-/* ==============================================================
- * GROUP CARD
- * ============================================================== */
-function GroupCard({
-  group,
-  lang,
-  onPress,
-}: {
-  group: Group;
-  lang: 'id' | 'en';
-  onPress: () => void;
-}) {
-  const { t } = useTranslation();
-  const jenisInfo = GROUP_JENIS_LABELS[group.jenis];
-
-  return (
-    <Pressable
-      onPress={onPress}
-      className="bg-white rounded-2xl p-4 border border-neutral-100 active:bg-neutral-50"
-    >
-      <View className="flex-row items-start gap-3">
-        {group.heroImageUrl ? (
-          <Image
-            source={{ uri: groupImageHref(group.heroImageUrl) }}
-            style={{ width: 44, height: 44, borderRadius: 12 }}
-            resizeMode="cover"
-          />
-        ) : (
-          <View className="w-11 h-11 rounded-xl bg-brand-50 items-center justify-center">
-            <Text className="text-lg">{jenisInfo.emoji}</Text>
-          </View>
-        )}
-        <View className="flex-1 min-w-0">
-          <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-            {group.nama}
-          </Text>
-          <View className="flex-row items-center gap-1.5 mt-0.5">
-            <Text className="text-xs text-neutral-500">
-              {lang === 'id' ? jenisInfo.id : jenisInfo.en}
-            </Text>
-            <Text className="text-xs text-neutral-300">·</Text>
-            <Text className="text-xs text-neutral-500" numberOfLines={1}>
-              {group.cabang.nama}
-            </Text>
-          </View>
-
-          {group.hari || group.jam ? (
-            <View className="flex-row items-center gap-1 mt-1.5">
-              <Text className="text-xs text-neutral-600">
-                {[group.hari, group.jam].filter(Boolean).join(' · ')}
-              </Text>
-            </View>
-          ) : null}
-
-          {group.alamat ? (
-            <View className="flex-row items-center gap-1 mt-1">
-              <MapPin size={11} color="#737373" />
-              <Text className="text-xs text-neutral-600 flex-1" numberOfLines={1}>
-                {group.alamat}
-              </Text>
-            </View>
-          ) : null}
-
-          <View className="flex-row items-center gap-3 mt-2">
-            <View className="flex-row items-center gap-1">
-              <Users size={11} color="#737373" />
-              <Text className="text-xs text-neutral-500">
-                {t('group.members_count', { count: group.memberCount })}
-              </Text>
-            </View>
-            {group.picJemaat ? (
-              <>
-                <Text className="text-xs text-neutral-300">·</Text>
-                <Text className="text-xs text-neutral-500" numberOfLines={1}>
-                  {t('group.pic_prefix')}: {group.picJemaat.namaLengkap}
-                </Text>
-              </>
-            ) : null}
-          </View>
-        </View>
-        <ChevronRight size={16} color="#A3A3A3" />
-      </View>
-    </Pressable>
   );
 }

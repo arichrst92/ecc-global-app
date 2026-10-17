@@ -1359,7 +1359,8 @@
     "my_card_public": "Public",
     "my_card_private": "Private",
     "my_card_pic": "PIC",
-    "my_card_members": "Members"
+    "my_card_members": "Members",
+    "my_card_schedule": "Schedule"
   },
   "ckids": {
     "tab_title": "CKids — Kids Points & Rewards",
