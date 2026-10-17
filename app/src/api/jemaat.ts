@@ -35,8 +35,11 @@ export type JemaatSearchResult = {
  * GET /admin/jemaat-public/search?q= — cocok dengan kode jemaat, nama, atau
  * no HP. Hasil diurutkan: kode persis → cabang yang sama → nama.
  */
-export function searchJemaat(q: string, cabangId?: string | null) {
+export function searchJemaat(q: string, cabangId?: string | null, purpose?: 'checkin') {
   const qs = new URLSearchParams({ q, limit: '20' });
   if (cabangId) qs.append('cabangId', cabangId);
+  // Check-in/absensi oleh petugas: tetap bisa cari via no HP walau jemaat
+  // mematikan "bisa dicari lewat nomor HP" (server cek hak petugas).
+  if (purpose) qs.append('purpose', purpose);
   return api.get<JemaatSearchResult[]>(`/admin/jemaat-public/search?${qs}`);
 }

@@ -37,3 +37,18 @@
 
 - **Halaman Privasi:** `app/settings/privacy.tsx`, dibuka dari menu **Privasi** di Profil → Pengaturan.
 - **Profil jemaat:** `app/jemaat/[id].tsx` sekarang juga menampilkan email, pekerjaan, dan pernikahan kalau diizinkan.
+
+## Update audit (2026-10-17)
+
+- **Selalu boleh lihat semua (tambahan):** orang tua → anak, wali → tanggungan, dan pengundang → tamunya.
+- **Endpoint yang ikut di-gate:**
+  - `GET /admin/me/family`: `noHp` dan `tanggalLahir` anggota keluarga dewasa.
+  - `/admin/me/visits`: `lawan.noHp`.
+  - `GET /admin/homecell/:id` (halaman PIC): `noHp` anggota dan PIC. PIC homecell/area tetap melihat semua.
+- **Check-in tidak terganggu:**
+  - `GET /admin/jemaat-public/search?purpose=checkin` tetap bisa mencari lewat no HP untuk petugas (fulltimer, petugas scan ibadah/event, PIC homecell/area).
+  - Dipakai oleh `JemaatSearchModal purpose="checkin"` di scanner ibadah, scanner event, dan absensi homecell.
+  - Scan QR, check-in, dan checkout tetap memakai kode jemaat, sehingga tidak terpengaruh privasi.
+- **Sengaja tidak di-gate:**
+  - Permintaan bergabung homecell, group, atau pelayanan: pemohon membagikan kontaknya ke PIC/leader.
+  - Hasil scan untuk petugas.

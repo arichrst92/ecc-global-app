@@ -134,6 +134,7 @@ export default function ScannerEventScreen() {
       </SafeAreaView>
 
       <JemaatSearchModal
+        purpose="checkin"
         visible={manualOpen}
         onClose={() => setManualOpen(false)}
         onSubmit={(kode) => runCheckin(kode)}

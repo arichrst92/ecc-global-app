@@ -309,6 +309,7 @@ export default function ScannerIbadahScreen() {
       />
 
       <JemaatSearchModal
+        purpose="checkin"
         visible={manualOpen}
         onClose={() => setManualOpen(false)}
         onSubmit={(kode) =>

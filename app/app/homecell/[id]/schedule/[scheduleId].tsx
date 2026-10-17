@@ -672,6 +672,7 @@ export default function ScheduleDetailScreen() {
           {/* Input kode manual (8 char) — untuk QR rusak / HP anggota mati.
               `inline` = overlay di dalam scanner Modal (nested Modal tidak tampil). */}
           <JemaatSearchModal
+            purpose="checkin"
             visible={manualOpen}
             onClose={() => setManualOpen(false)}
             onSubmit={(kode) => handleScan(kode, () => setManualOpen(false))}

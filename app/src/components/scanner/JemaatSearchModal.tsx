@@ -40,6 +40,7 @@ export function JemaatSearchModal({
   loading,
   title,
   inline,
+  purpose,
 }: {
   visible: boolean;
   onClose: () => void;
@@ -49,6 +50,8 @@ export function JemaatSearchModal({
   title?: string;
   /** Render overlay (bukan Modal) — wajib kalau dipakai di dalam Modal lain. */
   inline?: boolean;
+  /** 'checkin' = absensi ibadah/event/homecell oleh petugas. */
+  purpose?: 'checkin';
 }) {
   const { t } = useTranslation();
   const { viewingCabangId } = useViewingBranch();
@@ -58,8 +61,8 @@ export function JemaatSearchModal({
   const looksLikeKode = KODE_RE.test(upper);
 
   const results = useQuery({
-    queryKey: ['jemaat-search', q, viewingCabangId],
-    queryFn: () => searchJemaat(q, viewingCabangId),
+    queryKey: ['jemaat-search', q, viewingCabangId, purpose ?? null],
+    queryFn: () => searchJemaat(q, viewingCabangId, purpose),
     enabled: visible && q.length >= 2,
     staleTime: 30_000,
   });
