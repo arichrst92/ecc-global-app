@@ -55,7 +55,9 @@ export default function GroupScanScreen() {
         if (data.status === 'PENDING') {
           // Butuh persetujuan PIC — group private belum bisa dibuka sebelum diterima.
           showToast(t('group.join_pending', { nama: data.groupNama }), 'success');
-          goBack(router);
+          // Public → buka halaman group (status "menunggu" tampil di sana).
+          if (data.isPublic) router.replace(`/group/${data.groupId}` as never);
+          else goBack(router);
           return;
         }
         showToast(

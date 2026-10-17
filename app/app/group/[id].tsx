@@ -417,7 +417,7 @@ export default function GroupDetailScreen() {
         {isMember || isPIC ? <GroupContentSection groupId={id} canManage={isPIC} /> : null}
 
         {/* PIC-only: joinCode + QR */}
-        {isPIC && !group.isPublic && group.joinCode ? (
+        {isPIC && group.joinCode ? (
           <View className="bg-white mt-2 p-4">
             <View className="flex-row items-center justify-between mb-2">
               <Text className="text-xs font-bold text-neutral-500 uppercase">

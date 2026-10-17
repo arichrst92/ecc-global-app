@@ -205,6 +205,8 @@ export type AddMemberResponse = {
 export type JoinByCodeResponse = {
   groupId: string;
   groupNama: string;
+  /** Group public → halaman group bisa dibuka walau permintaan masih menunggu. */
+  isPublic?: boolean;
   alreadyMember?: boolean;
   /** MEMBER = langsung bergabung; PENDING = menunggu persetujuan PIC. */
   status?: 'MEMBER' | 'PENDING';
