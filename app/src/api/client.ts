@@ -107,8 +107,17 @@ async function parseResponse<T>(res: Response, suppressErrorReport?: boolean): P
     // Server returned non-JSON (HTML 502/504 dari nginx, etc). Report
     // — biasa indicate gateway misconfig atau upstream crash. Skip kalau
     // caller opt-out (mis. endpoint dengan local fallback).
+    // Pesan spesifik supaya mudah dibaca di Diagnostics (bukan "Invalid response").
+    const gateway: Record<number, string> = {
+      502: 'Bad gateway (502) — server API tidak merespons',
+      503: 'Service unavailable (503) — server API sedang tidak tersedia',
+      504: 'Gateway timeout (504) — server API terlalu lama merespons',
+    };
     const err = new ApiError(
-      { code: 'INTERNAL_ERROR', message: 'Invalid response' },
+      {
+        code: 'INTERNAL_ERROR',
+        message: gateway[res.status] ?? `Invalid response (HTTP ${res.status})`,
+      },
       res.status,
     );
     if (!suppressErrorReport) {
