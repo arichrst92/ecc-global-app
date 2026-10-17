@@ -371,8 +371,8 @@ export default function CKidsTabScreen() {
           </Text>
         </View>
 
-        {/* Katalog hadiah — list vertical row (bukan grid), item clickable
-            → detail modal. Fix M50 per user request. */}
+        {/* Katalog hadiah — grid 2 kolom (foto, poin, judul). Deskripsi &
+            stok hanya di detail modal saat item di-tap. */}
         <View className="bg-white mt-3 p-4">
           <View className="flex-row items-center gap-2 mb-3">
             <ShoppingBag size={16} color="#F97316" />
@@ -386,14 +386,22 @@ export default function CKidsTabScreen() {
             <FlatList
               data={katalogQuery.data}
               scrollEnabled={false}
+              numColumns={2}
               keyExtractor={(item) => item.id}
-              ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-              renderItem={({ item }) => (
-                <HadiahRow
+              columnWrapperStyle={{ gap: 10 }}
+              ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+              renderItem={({ item, index }) => (
+                <>
+                <HadiahTile
                   item={item}
                   currentBalance={primaryBalance?.balance ?? 0}
                   onPress={() => setHadiahDetail(item)}
                 />
+                {/* Item terakhir di baris ganjil → spacer agar lebarnya tetap setengah */}
+                {index === katalogQuery.data!.length - 1 && katalogQuery.data!.length % 2 === 1 ? (
+                  <View className="flex-1" />
+                ) : null}
+                </>
               )}
             />
           ) : (
@@ -564,9 +572,9 @@ export default function CKidsTabScreen() {
 }
 
 /* ==============================================================
- * HADIAH ROW — vertical list item, tap → detail modal.
+ * HADIAH TILE — kartu grid 2 kolom: foto, poin, judul. Tap → detail.
  * ============================================================== */
-function HadiahRow({
+function HadiahTile({
   item,
   currentBalance,
   onPress,
@@ -576,17 +584,16 @@ function HadiahRow({
   onPress: () => void;
 }) {
   const { t } = useTranslation();
-  const canAfford = currentBalance >= item.pointCost;
-  const inStock = item.stock > 0;
+  const available = currentBalance >= item.pointCost && item.stock > 0;
 
   return (
     <Pressable
       onPress={onPress}
-      className={`bg-white rounded-xl overflow-hidden border flex-row gap-3 p-3 active:bg-brand-50 ${
-        canAfford && inStock ? 'border-brand-200' : 'border-neutral-200'
+      className={`flex-1 bg-white rounded-xl overflow-hidden border active:opacity-80 ${
+        available ? 'border-brand-200' : 'border-neutral-200'
       }`}
     >
-      <View className="w-20 h-20 rounded-lg bg-neutral-100 items-center justify-center overflow-hidden">
+      <View className="aspect-square bg-neutral-100 items-center justify-center">
         {item.fotoUrl ? (
           <Image
             source={{
@@ -598,51 +605,23 @@ function HadiahRow({
             resizeMode="cover"
           />
         ) : (
-          <Gift size={28} color="#A3A3A3" />
+          <Gift size={32} color="#A3A3A3" />
         )}
       </View>
-      <View className="flex-1 min-w-0 justify-between py-0.5">
-        <View>
-          <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-            {item.nama}
+      <View className="px-2.5 py-2">
+        <View className="flex-row items-baseline gap-1">
+          <Text
+            className={`text-base font-bold ${
+              currentBalance >= item.pointCost ? 'text-brand-600' : 'text-neutral-500'
+            }`}
+          >
+            {item.pointCost}
           </Text>
-          {item.deskripsi ? (
-            <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={2}>
-              {item.deskripsi}
-            </Text>
-          ) : null}
+          <Text className="text-[11px] text-neutral-500">{t('ckids.points_unit')}</Text>
         </View>
-        <View className="flex-row items-center justify-between mt-1">
-          <View className="flex-row items-baseline gap-1">
-            <Text
-              className={`text-base font-bold ${
-                canAfford ? 'text-brand-600' : 'text-neutral-500'
-              }`}
-            >
-              {item.pointCost}
-            </Text>
-            <Text className="text-xs text-neutral-500">{t('ckids.points_unit')}</Text>
-          </View>
-          {!inStock ? (
-            <View className="bg-red-50 px-2 py-0.5 rounded">
-              <Text className="text-[10px] font-bold text-red-700">
-                {t('ckids.out_of_stock')}
-              </Text>
-            </View>
-          ) : item.stock < 5 ? (
-            <View className="bg-amber-50 px-2 py-0.5 rounded">
-              <Text className="text-[10px] font-bold text-amber-700">
-                {t('ckids.stock_left', { count: item.stock })}
-              </Text>
-            </View>
-          ) : (
-            <View className="bg-emerald-50 px-2 py-0.5 rounded">
-              <Text className="text-[10px] font-bold text-emerald-700">
-                {t('ckids.in_stock', { count: item.stock })}
-              </Text>
-            </View>
-          )}
-        </View>
+        <Text className="text-xs font-semibold text-neutral-900 mt-0.5" numberOfLines={2}>
+          {item.nama}
+        </Text>
       </View>
     </Pressable>
   );

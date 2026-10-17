@@ -121,7 +121,7 @@ export default function MyServiceScreen() {
                 <View className="gap-2">
                   {items.map((it) =>
                     it.kind === 'ibadah' ? (
-                      <IbadahDuty key={`i-${it.a.id}`} a={it.a} tz={venueTz} onPress={() => router.push(`/ministry/${it.a.ministryId}` as never)} />
+                      <IbadahDuty key={`i-${it.a.id}`} a={it.a} tz={venueTz} onPress={() => router.push(`/ibadah/${it.a.ibadahId}?tanggal=${String(it.a.tanggal).slice(0, 10)}` as never)} />
                     ) : (
                       <EventDuty key={`e-${it.e.id}`} e={it.e} onPress={() => router.push(`/event/${it.e.eventId}` as never)} />
                     ),
