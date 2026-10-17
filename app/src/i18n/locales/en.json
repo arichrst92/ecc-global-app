@@ -1779,11 +1779,15 @@
     "invited_on": "invited {{date}}",
     "attended_one": "Attended {{count}}× · last {{date}}",
     "attended_other": "Attended {{count}}× · last {{date}}",
-    "not_attended": "Not attended yet",
+    "not_attended": "Hasn't attended a service or event yet",
     "remove_title": "Remove guest?",
     "remove_body": "{{name}} will be removed from your guest list. Their attendance history stays with the church.",
     "remove_confirm": "Remove",
     "removed": "Guest removed from your list.",
-    "footnote": "Status is updated by the ECC team. Guests who attend become “Attended” automatically, and those who sign up to Els App become “Registered”."
+    "footnote": "Status is updated by the ECC team. Guests who attend become “Attended” automatically, and those who sign up to Els App become “Registered”.",
+    "last_ibadah": "Last service attended",
+    "last_event": "Last event attended",
+    "attended_total_one": "{{count}} attendance in total",
+    "attended_total_other": "{{count}} attendances in total"
   }
 }

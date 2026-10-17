@@ -19,6 +19,8 @@ export type Tamu = {
   statusLabel?: string;
   kehadiran?: number;
   terakhirHadir?: string | null;
+  /** Ibadah / event terakhir yang dihadiri. */
+  terakhirAcara?: { jenis: 'IBADAH' | 'EVENT'; id: string; nama: string; tanggal: string } | null;
 };
 
 export const listMyTamu = () => api.get<Tamu[]>('/admin/me/tamu');

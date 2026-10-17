@@ -1778,11 +1778,15 @@
     "invited_on": "diundang {{date}}",
     "attended_one": "Hadir {{count}}× · terakhir {{date}}",
     "attended_other": "Hadir {{count}}× · terakhir {{date}}",
-    "not_attended": "Belum hadir",
+    "not_attended": "Belum pernah hadir di ibadah atau event",
     "remove_title": "Hapus tamu?",
     "remove_body": "{{name}} akan dihapus dari daftar tamu Anda. Riwayat kehadirannya tetap tersimpan di gereja.",
     "remove_confirm": "Hapus",
     "removed": "Tamu dihapus dari daftar Anda.",
-    "footnote": "Status diperbarui oleh tim ECC. Tamu yang hadir otomatis menjadi “Sudah terlibat”, dan yang mendaftar Els App menjadi “Sudah terdaftar”."
+    "footnote": "Status diperbarui oleh tim ECC. Tamu yang hadir otomatis menjadi “Sudah terlibat”, dan yang mendaftar Els App menjadi “Sudah terdaftar”.",
+    "last_ibadah": "Ibadah terakhir yang dihadiri",
+    "last_event": "Event terakhir yang dihadiri",
+    "attended_total_one": "total {{count}}× hadir",
+    "attended_total_other": "total {{count}}× hadir"
   }
 }
