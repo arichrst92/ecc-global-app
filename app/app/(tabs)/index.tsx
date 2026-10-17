@@ -27,6 +27,7 @@ import { useVenueTz } from '@/hooks/useVenueTz';
 import { formatVenueRange, venueTimeHint } from '@/utils/time';
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
+import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
 import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
 
 function formatTime(hhmm: string): string {
@@ -465,6 +466,8 @@ function TodayServiceCard({
             </Text>
           </View>
         ) : null}
+
+        <OccupancyBar compact data={detailQuery.data?.okupansi} />
 
         {/* Self check-in: hitung mundur → tombol (hari & jam ibadah, sesuai radius) */}
         <SelfCheckinBar

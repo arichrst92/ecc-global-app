@@ -35,6 +35,7 @@ import { selfCheckinOpenNow as selfCheckinOpen, serverNowMs } from '@/utils/serv
 import { formatDateWithDay } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import { goBack } from '@/utils/nav';
+import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -264,6 +265,9 @@ export default function IbadahDetailScreen() {
                 </View>
               );
             })()}
+
+            {/* Okupansi kursi pertemuan ini (hanya kalau seat diisi admin) */}
+            <OccupancyBar data={ibadah.okupansi} />
 
             {/* Deskripsi — kalau BE provide */}
             {ibadah.deskripsi && ibadah.deskripsi.trim().length > 0 ? (

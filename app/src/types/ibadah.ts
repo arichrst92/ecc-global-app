@@ -62,10 +62,20 @@ export type IbadahOccurrence = {
 };
 
 /** Detail dari GET /admin/ibadah/:id — punya petugas + pelayanan */
+/** Okupansi seat pertemuan (?tanggal=) — pendataan saja, bisa > 100%. */
+export type IbadahOkupansi = {
+  tanggal: string;
+  seat: number | null;
+  hadir: number;
+  persen: number | null;
+};
+
 export type IbadahDetail = IbadahListItem & {
   // BE return additional fields: deskripsi, petugas list, dll
   deskripsi?: string | null;
   petugas?: IbadahPetugas[];
+  kapasitasSeat?: number | null;
+  okupansi?: IbadahOkupansi | null;
 };
 
 export type IbadahPetugas = {
