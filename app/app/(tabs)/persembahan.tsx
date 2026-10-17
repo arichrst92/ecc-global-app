@@ -1,26 +1,12 @@
 import { useEffect } from 'react';
-import { Linking, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
 import { HandHeart } from 'lucide-react-native';
 
 import { useViewingBranch } from '@/hooks/useViewingBranch';
-
-/**
- * Build persembahan web URL — pass cabangKode dari session/viewing branch
- * kalau ada supaya user langsung ke detail cabang mereka. Fallback ke index
- * (cabang selector) kalau kode tidak tersedia (guest, cabang missing).
- *
- * Per BE notice `backend-request-persembahan-per-cabang-url.md` (2026-08-31).
- */
-function buildPersembahanUrl(cabangKode: string | null | undefined): string {
-  const base = 'https://eccchurch.global/persembahan';
-  if (cabangKode && cabangKode.trim().length > 0) {
-    return `${base}/${encodeURIComponent(cabangKode.trim())}`;
-  }
-  return base;
-}
+import { buildGivingUrl, openGiving } from '@/utils/giving';
 
 /**
  * Persembahan tab — konsisten iOS + Android: redirect ke web page untuk
@@ -42,13 +28,11 @@ function PersembahanWebRedirect() {
   const { t } = useTranslation();
   // Pakai viewing branch supaya web page langsung tampil rekening cabang tsb.
   const { branch } = useViewingBranch();
-  const url = buildPersembahanUrl(branch?.kode);
+  const url = buildGivingUrl(branch?.kode);
 
   useEffect(() => {
-    // Auto-open Safari saat screen mount
-    Linking.openURL(url).catch(() => {
-      // Ignore — user bisa tap button manual di bawah
-    });
+    // Auto-open saat screen mount (iOS Safari / Android in-app browser)
+    void openGiving(branch?.kode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,7 +50,7 @@ function PersembahanWebRedirect() {
           {t('persembahan.ios_body')}
         </Text>
         <Pressable
-          onPress={() => Linking.openURL(url)}
+          onPress={() => void openGiving(branch?.kode)}
           className="bg-brand-500 rounded-2xl px-6 py-3.5 flex-row items-center gap-2"
         >
           <Text className="text-white font-bold text-sm">

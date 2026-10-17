@@ -1,4 +1,5 @@
-import { Linking, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { openGiving } from '@/utils/giving';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -81,7 +82,7 @@ export function QuickAccess() {
       onPress: () => router.push('/(tabs)/event'),
     },
     // Persembahan tile — konsisten di iOS + Android:
-    // Tap → Linking.openURL ke web per-cabang (Apple 3.2.2(iv) compliant,
+    // Tap → web per-cabang (Apple 3.2.2(iv) compliant: iOS Safari,
     // Android ikut pattern sama untuk konsistensi cross-platform).
     {
       key: 'persembahan',
@@ -89,15 +90,9 @@ export function QuickAccess() {
       iconColor: '#EA580C',
       iconBg: 'bg-brand-50',
       label: t('quickaccess.persembahan'),
-      onPress: () => {
-        const kode = viewingBranch?.kode;
-        const url = kode
-          ? `https://eccchurch.global/persembahan/${encodeURIComponent(kode)}`
-          : 'https://eccchurch.global/persembahan';
-        Linking.openURL(url).catch(() => {
-          // Silent fail — browser should always be available
-        });
-      },
+      // iOS: Safari; Android: in-app browser (tombol tutup) — halaman web
+      // punya tombol "Kembali ke Els App". Lihat utils/giving.ts.
+      onPress: () => void openGiving(viewingBranch?.kode),
     },
     {
       key: 'berita',
