@@ -51,6 +51,7 @@ import {
 import { useCKidsSelectionStore } from '@/stores/ckids-selection.store';
 import type { ChildGroupedBalance, HadiahKatalog, HadiahRedeem } from '@/types/ckids';
 import { env } from '@/config/env';
+import { ageInYears, CKIDS_MAX_AGE } from '@/utils/ckidsAge';
 
 export default function CKidsTabScreen() {
   const { t, i18n } = useTranslation();
@@ -58,6 +59,11 @@ export default function CKidsTabScreen() {
   const router = useRouter();
 
   const { children: myChildren, isPending: childrenPending, isEmpty } = useMyChildren();
+  /** "8 tahun" dari tanggal lahir; null kalau belum diisi. */
+  const ageText = (tgl: string | null | undefined) => {
+    const a = ageInYears(tgl);
+    return a === null ? null : t('ckids.age_years', { count: a });
+  };
   const balancesQuery = useMyChildrenGroupedBalances();
 
   const selectedAnakId = useCKidsSelectionStore((s) => s.selectedAnakId);
@@ -89,6 +95,7 @@ export default function CKidsTabScreen() {
           fotoUrl: rel.jemaat.fotoUrl,
           kode: rel.jemaat.kode,
           cabang: rel.jemaat.cabang,
+          tanggalLahir: rel.jemaat.tanggalLahir ?? null,
         },
         balance: balance ?? null, // null = anak belum earn point
       };
@@ -241,6 +248,12 @@ export default function CKidsTabScreen() {
           <RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />
         }
       >
+        {/* Info batas usia CKids */}
+        <View className="mx-4 mt-3 mb-1 flex-row items-start gap-2 bg-sky-50 border border-sky-100 rounded-xl px-3 py-2.5">
+          <Info size={14} color="#0369A1" style={{ marginTop: 2 }} />
+          <Text className="flex-1 text-xs text-sky-800 leading-4">{t('ckids.age_rule_info', { max: CKIDS_MAX_AGE })}</Text>
+        </View>
+
         {/* Anak selector — tampil kalau multi anak. Selector kini source
             dari useMyChildren (family list), bukan cuma anak yg punya balance. */}
         {anakSelectorList.length > 1 ? (
@@ -264,7 +277,7 @@ export default function CKidsTabScreen() {
                       {selectedEntry.anak.namaLengkap}
                     </Text>
                     <Text className="text-xs text-neutral-500">
-                      {selectedEntry.anak.cabang?.nama ?? '—'}
+                      {[ageText(selectedEntry.anak.tanggalLahir), selectedEntry.anak.cabang?.nama].filter(Boolean).join(' · ') || '—'}
                     </Text>
                   </View>
                 </>
@@ -324,6 +337,7 @@ export default function CKidsTabScreen() {
                 </View>
                 <Text className="text-xs text-white/70 mt-1">
                   {selectedEntry.anak.namaLengkap}
+                  {ageText(selectedEntry.anak.tanggalLahir) ? ` · ${ageText(selectedEntry.anak.tanggalLahir)}` : ''}
                   {primaryBalance ? ` · ${primaryBalance.cabang.nama}` : ''}
                 </Text>
                 {selected && selected.balances.length > 1 ? (
@@ -457,6 +471,7 @@ export default function CKidsTabScreen() {
                         {entry.anak.namaLengkap}
                       </Text>
                       <Text className="text-xs text-neutral-500">
+                        {ageText(entry.anak.tanggalLahir) ? `${ageText(entry.anak.tanggalLahir)} · ` : ''}
                         {total} {t('ckids.points_unit')}
                         {branchCount > 0
                           ? ` · ${branchCount} ${

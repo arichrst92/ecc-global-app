@@ -1360,7 +1360,7 @@
   "ckids": {
     "tab_title": "CKids — Kids Points & Rewards",
     "empty_title": "No children registered",
-    "empty_body": "Add your child to family relations to activate the CKids tab.",
+    "empty_body": "Add your children (aged 13 and under, with date of birth) in Family to activate CKids.",
     "add_child_cta": "Add Child",
     "selected_anak": "Active Child",
     "no_selection": "Choose a child…",
@@ -1399,7 +1399,10 @@
     "qr_instruction_body": "Visit the CKids stall during kids service. Show this QR to the admin. Admin scans → picks reward → points auto-deducted.",
     "qr_balance_breakdown": "Balance by Branch",
     "qr_no_child_title": "No child selected",
-    "qr_no_child_body": "Go back to CKids tab to select a child first."
+    "qr_no_child_body": "Go back to CKids tab to select a child first.",
+    "age_years_one": "{{count}} year old",
+    "age_years_other": "{{count}} years old",
+    "age_rule_info": "CKids only shows children aged {{max}} and under (based on the date of birth in Family)."
   },
   "my_reservasi": {
     "title": "My Reservations",
@@ -1757,5 +1760,26 @@
     "events": "Join this class / event",
     "card_empty": "Your spiritual journey steps will appear here once your church sets them up.",
     "card_tap": "View your spiritual journey"
+  },
+  "guests": {
+    "menu": "My Guests",
+    "menu_sub": "Friends you've invited & their status",
+    "title": "My Guests",
+    "subtitle": "Friends you've invited",
+    "empty_title": "No guests yet",
+    "empty_body": "Invite friends to a service or event — add them with the button below, when reserving, or during self check-in.",
+    "status_DIUNDANG": "Invited",
+    "status_TERLIBAT": "Attended a service / event",
+    "status_FOLLOWUP": "Being followed up by ECC",
+    "status_TERDAFTAR": "Registered at ECC",
+    "invited_on": "invited {{date}}",
+    "attended_one": "Attended {{count}}× · last {{date}}",
+    "attended_other": "Attended {{count}}× · last {{date}}",
+    "not_attended": "Not attended yet",
+    "remove_title": "Remove guest?",
+    "remove_body": "{{name}} will be removed from your guest list. Their attendance history stays with the church.",
+    "remove_confirm": "Remove",
+    "removed": "Guest removed from your list.",
+    "footnote": "Status is updated by the ECC team. Guests who attend become “Attended” automatically, and those who sign up to Els App become “Registered”."
   }
 }

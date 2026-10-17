@@ -4,7 +4,22 @@
  */
 import { api } from './client';
 
-export type Tamu = { id: string; namaLengkap: string; noHp: string | null; kode: string | null; isReturning?: boolean };
+export type TamuStatus = 'DIUNDANG' | 'TERLIBAT' | 'FOLLOWUP' | 'TERDAFTAR';
+
+export type Tamu = {
+  id: string;
+  namaLengkap: string;
+  noHp: string | null;
+  kode: string | null;
+  isReturning?: boolean;
+  /** BE 2026-10-17 — dari GET /admin/me/tamu. */
+  isTamu?: boolean;
+  addedAt?: string;
+  status?: TamuStatus;
+  statusLabel?: string;
+  kehadiran?: number;
+  terakhirHadir?: string | null;
+};
 
 export const listMyTamu = () => api.get<Tamu[]>('/admin/me/tamu');
 export const addMyTamu = (body: { nama: string; noHp: string }) => api.post<Tamu>('/admin/me/tamu', body);

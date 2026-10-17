@@ -1360,7 +1360,7 @@
   "ckids": {
     "tab_title": "CKids — Point & Hadiah Anak",
     "empty_title": "Belum ada anak terdaftar",
-    "empty_body": "Tambahkan anak Anda ke keluarga di menu Keluarga untuk aktivasi CKids Tab.",
+    "empty_body": "Tambahkan anak Anda (usia 13 tahun ke bawah, lengkap dengan tanggal lahir) di menu Keluarga untuk mengaktifkan CKids.",
     "add_child_cta": "Tambah Anak",
     "selected_anak": "Anak Aktif",
     "no_selection": "Pilih anak…",
@@ -1399,7 +1399,10 @@
     "qr_instruction_body": "Datang ke stall CKids saat ibadah anak. Tunjukkan QR ini ke admin. Admin scan → pilih hadiah → point terpotong otomatis.",
     "qr_balance_breakdown": "Balance per Cabang",
     "qr_no_child_title": "Belum ada anak dipilih",
-    "qr_no_child_body": "Kembali ke tab CKids untuk pilih anak dulu."
+    "qr_no_child_body": "Kembali ke tab CKids untuk pilih anak dulu.",
+    "age_years_one": "{{count}} tahun",
+    "age_years_other": "{{count}} tahun",
+    "age_rule_info": "Yang tampil di CKids hanya anak usia {{max}} tahun ke bawah (dihitung dari tanggal lahir di menu Keluarga)."
   },
   "my_reservasi": {
     "title": "Reservasi Saya",
@@ -1756,5 +1759,26 @@
     "events": "Ikuti kelas / event ini",
     "card_empty": "Tahap perjalanan rohani akan tampil di sini setelah diatur gereja.",
     "card_tap": "Lihat perjalanan rohani Anda"
+  },
+  "guests": {
+    "menu": "Tamu Saya",
+    "menu_sub": "Teman yang pernah Anda undang & statusnya",
+    "title": "Tamu Saya",
+    "subtitle": "Teman yang pernah Anda undang",
+    "empty_title": "Belum ada tamu",
+    "empty_body": "Ajak teman ke ibadah atau event — tambahkan lewat tombol di bawah, saat reservasi, atau saat self check-in.",
+    "status_DIUNDANG": "Diundang",
+    "status_TERLIBAT": "Sudah terlibat event / ibadah",
+    "status_FOLLOWUP": "Sedang di-follow-up ECC",
+    "status_TERDAFTAR": "Sudah terdaftar di ECC",
+    "invited_on": "diundang {{date}}",
+    "attended_one": "Hadir {{count}}× · terakhir {{date}}",
+    "attended_other": "Hadir {{count}}× · terakhir {{date}}",
+    "not_attended": "Belum hadir",
+    "remove_title": "Hapus tamu?",
+    "remove_body": "{{name}} akan dihapus dari daftar tamu Anda. Riwayat kehadirannya tetap tersimpan di gereja.",
+    "remove_confirm": "Hapus",
+    "removed": "Tamu dihapus dari daftar Anda.",
+    "footnote": "Status diperbarui oleh tim ECC. Tamu yang hadir otomatis menjadi “Sudah terlibat”, dan yang mendaftar Els App menjadi “Sudah terdaftar”."
   }
 }

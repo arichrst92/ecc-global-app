@@ -212,6 +212,13 @@ function ProfileTabAuthenticated() {
             onPress={() => router.push('/profile/my-groups' as never)}
           />
           <MenuRow
+            icon={<UserPlus size={18} color="#7C3AED" />}
+            iconBg="bg-violet-50"
+            label={t('guests.menu')}
+            sub={t('guests.menu_sub')}
+            onPress={() => router.push('/profile/my-guests' as never)}
+          />
+          <MenuRow
             icon={<CalendarCheck size={18} color="#EC4899" />}
             iconBg="bg-pink-50"
             label={t('profile.my_reservasi')}
