@@ -16,7 +16,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Image,
   Modal,
   Pressable,
@@ -383,27 +382,25 @@ export default function CKidsTabScreen() {
           {katalogQuery.isPending ? (
             <ActivityIndicator color="#F97316" style={{ marginVertical: 24 }} />
           ) : katalogQuery.data && katalogQuery.data.length > 0 ? (
-            <FlatList
-              data={katalogQuery.data}
-              scrollEnabled={false}
-              numColumns={2}
-              keyExtractor={(item) => item.id}
-              columnWrapperStyle={{ gap: 10 }}
-              ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-              renderItem={({ item, index }) => (
-                <>
-                <HadiahTile
-                  item={item}
-                  currentBalance={primaryBalance?.balance ?? 0}
-                  onPress={() => setHadiahDetail(item)}
-                />
-                {/* Item terakhir di baris ganjil → spacer agar lebarnya tetap setengah */}
-                {index === katalogQuery.data!.length - 1 && katalogQuery.data!.length % 2 === 1 ? (
-                  <View className="flex-1" />
-                ) : null}
-                </>
-              )}
-            />
+            // Grid 2 kolom pakai baris biasa (bukan FlatList numColumns):
+            // FlatList bersarang di ScrollView + numColumns tidak tampil di
+            // sebagian HP Android.
+            <View style={{ gap: 10 }}>
+              {chunkPairs(katalogQuery.data).map((pair) => (
+                <View key={pair[0]!.id} style={{ flexDirection: 'row', gap: 10 }}>
+                  {pair.map((item) => (
+                    <HadiahTile
+                      key={item.id}
+                      item={item}
+                      currentBalance={primaryBalance?.balance ?? 0}
+                      onPress={() => setHadiahDetail(item)}
+                    />
+                  ))}
+                  {/* Baris ganjil → spacer supaya lebar kartu tetap setengah */}
+                  {pair.length === 1 ? <View style={{ flex: 1 }} /> : null}
+                </View>
+              ))}
+            </View>
           ) : (
             <View className="items-center py-8">
               <Gift size={32} color="#D4D4D4" />
@@ -571,6 +568,13 @@ export default function CKidsTabScreen() {
   );
 }
 
+/** [a,b,c,d,e] → [[a,b],[c,d],[e]] */
+function chunkPairs<T>(arr: T[]): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += 2) out.push(arr.slice(i, i + 2));
+  return out;
+}
+
 /* ==============================================================
  * HADIAH TILE — kartu grid 2 kolom: foto, poin, judul. Tap → detail.
  * ============================================================== */
@@ -589,11 +593,12 @@ function HadiahTile({
   return (
     <Pressable
       onPress={onPress}
-      className={`flex-1 bg-white rounded-xl overflow-hidden border active:opacity-80 ${
+      style={{ flex: 1 }}
+      className={`bg-white rounded-xl overflow-hidden border active:opacity-80 ${
         available ? 'border-brand-200' : 'border-neutral-200'
       }`}
     >
-      <View className="aspect-square bg-neutral-100 items-center justify-center">
+      <View style={{ width: '100%', aspectRatio: 1 }} className="bg-neutral-100 items-center justify-center">
         {item.fotoUrl ? (
           <Image
             source={{
@@ -601,7 +606,7 @@ function HadiahTile({
                 ? item.fotoUrl
                 : `${env.apiBaseUrl}${item.fotoUrl}`,
             }}
-            className="w-full h-full"
+            style={{ width: '100%', height: '100%' }}
             resizeMode="cover"
           />
         ) : (
