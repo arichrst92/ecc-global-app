@@ -1740,5 +1740,19 @@
   },
   "time": {
     "venue_hint": "Jam gereja: {{time}} (waktu {{city}})"
+  },
+  "journey": {
+    "title": "Spiritual Journey",
+    "next_short": "Berikutnya: {{title}}",
+    "all_done": "Semua tahap sudah dicapai 🎉",
+    "progress": "{{done}} dari {{total}} tahap tercapai",
+    "empty": "Gereja belum mengatur tahap Spiritual Journey.",
+    "step_n": "TAHAP {{n}}",
+    "status_done": "Sudah",
+    "status_next": "Berikutnya",
+    "status_todo": "Belum",
+    "requirement": "Syarat",
+    "how": "Cara mendapatkan",
+    "events": "Ikuti kelas / event ini"
   }
 }

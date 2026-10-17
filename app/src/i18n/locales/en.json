@@ -1741,5 +1741,19 @@
   },
   "time": {
     "venue_hint": "Church time: {{time}} ({{city}} time)"
+  },
+  "journey": {
+    "title": "Spiritual Journey",
+    "next_short": "Next: {{title}}",
+    "all_done": "All steps completed 🎉",
+    "progress": "{{done}} of {{total}} steps completed",
+    "empty": "Your church hasn't set up the Spiritual Journey yet.",
+    "step_n": "STEP {{n}}",
+    "status_done": "Done",
+    "status_next": "Next",
+    "status_todo": "Not yet",
+    "requirement": "Requirement",
+    "how": "How to get it",
+    "events": "Join this class / event"
   }
 }

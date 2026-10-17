@@ -33,6 +33,7 @@ import {
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { JourneyCard } from '@/components/spiritual/JourneyCard';
 import { useMyFamily } from '@/hooks/useFamily';
 import { Button } from '@/components/ui/Button';
 import { GuestProfileView } from '@/components/GuestProfileView';
@@ -187,6 +188,9 @@ function ProfileTabAuthenticated() {
 
         {/* Ministry / pelayanan current user */}
         <MinistryCard />
+
+        {/* Spiritual Journey — progres tahap (diatur gereja di portal) */}
+        <JourneyCard />
 
         {/* Sertifikat (dikelola admin di portal) */}
         <SertifikatCard />
