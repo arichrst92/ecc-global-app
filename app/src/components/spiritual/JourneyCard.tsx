@@ -34,7 +34,6 @@ export function JourneyCard() {
 
   return (
     <View className="mb-4">
-      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('journey.title')}</Text>
       <Pressable
         onPress={() => router.push('/spiritual-journey' as never)}
         className="bg-white rounded-2xl border border-neutral-100 p-4 active:opacity-80"

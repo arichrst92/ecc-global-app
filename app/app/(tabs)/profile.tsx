@@ -156,19 +156,19 @@ function ProfileTabAuthenticated() {
       >
 
         {/* ============ 1. Akun & Keluarga ============ */}
-        <Cluster icon={<UserRound size={16} color="#EA580C" />} title={t('profile.cluster_account')} sub={t('profile.cluster_account_sub')}>
+        <Cluster bg="bg-brand-50" icon={<UserRound size={16} color="#EA580C" />} title={t('profile.cluster_account')} sub={t('profile.cluster_account_sub')}>
           <BranchCard onPress={() => router.push('/settings/change-branch')} />
           <FamilyCard onPress={() => router.push('/family' as never)} />
         </Cluster>
 
         {/* ============ 2. Pertumbuhan Rohani ============ */}
-        <Cluster icon={<Footprints size={16} color="#059669" />} title={t('profile.cluster_growth')} sub={t('profile.cluster_growth_sub')}>
+        <Cluster bg="bg-emerald-50" icon={<Footprints size={16} color="#059669" />} title={t('profile.cluster_growth')} sub={t('profile.cluster_growth_sub')}>
           <JourneyCard />
           <SertifikatCard />
         </Cluster>
 
         {/* ============ 3. Pelayanan ============ */}
-        <Cluster icon={<HeartHandshake size={16} color="#DB2777" />} title={t('profile.cluster_service')} sub={t('profile.cluster_service_sub')}>
+        <Cluster bg="bg-pink-50" icon={<HeartHandshake size={16} color="#DB2777" />} title={t('profile.cluster_service')} sub={t('profile.cluster_service_sub')}>
           <MinistryCard />
           <MenuBox>
             <MenuRow
@@ -181,8 +181,8 @@ function ProfileTabAuthenticated() {
             />
             {isScannerAuthorized ? (
               <MenuRow
-                icon={<ScanLine size={18} color="#EA580C" />}
-                iconBg="bg-brand-50"
+                icon={<ScanLine size={18} color="#DB2777" />}
+                iconBg="bg-pink-50"
                 label={t('profile.scanner_mode')}
                 sub={t('profile.scanner_mode_sub')}
                 onPress={() => router.push('/scanner')}
@@ -193,19 +193,19 @@ function ProfileTabAuthenticated() {
         </Cluster>
 
         {/* ============ 4. Komunitas ============ */}
-        <Cluster icon={<Users2 size={16} color="#7C3AED" />} title={t('profile.cluster_community')} sub={t('profile.cluster_community_sub')}>
+        <Cluster bg="bg-violet-50" icon={<Users2 size={16} color="#7C3AED" />} title={t('profile.cluster_community')} sub={t('profile.cluster_community_sub')}>
           <HomecellProfileCard />
           <MenuBox>
             <MenuRow
-              icon={<Users size={18} color="#3B82F6" />}
-              iconBg="bg-blue-50"
+              icon={<Users size={18} color="#7C3AED" />}
+              iconBg="bg-violet-50"
               label={t('profile.my_groups')}
               sub={t('profile.my_groups_sub')}
               onPress={() => router.push('/profile/my-groups' as never)}
             />
             <MenuRow
               icon={<Users2 size={18} color="#7C3AED" />}
-              iconBg="bg-purple-50"
+              iconBg="bg-violet-50"
               label={t('profile.group_browse')}
               sub={t('profile.group_browse_sub')}
               onPress={() => router.push('/group' as never)}
@@ -215,18 +215,18 @@ function ProfileTabAuthenticated() {
         </Cluster>
 
         {/* ============ 5. Ibadah & Kegiatan ============ */}
-        <Cluster icon={<CalendarCheck size={16} color="#0369A1" />} title={t('profile.cluster_activity')} sub={t('profile.cluster_activity_sub')}>
+        <Cluster bg="bg-sky-50" icon={<CalendarCheck size={16} color="#0369A1" />} title={t('profile.cluster_activity')} sub={t('profile.cluster_activity_sub')}>
           <MenuBox>
             <MenuRow
-              icon={<CalendarCheck size={18} color="#EC4899" />}
-              iconBg="bg-pink-50"
+              icon={<CalendarCheck size={18} color="#0369A1" />}
+              iconBg="bg-sky-50"
               label={t('profile.my_reservasi')}
               sub={t('profile.my_reservasi_sub')}
               onPress={() => router.push('/my-reservasi' as never)}
             />
             <MenuRow
-              icon={<UserPlus size={18} color="#7C3AED" />}
-              iconBg="bg-violet-50"
+              icon={<UserPlus size={18} color="#0369A1" />}
+              iconBg="bg-sky-50"
               label={t('guests.menu')}
               sub={t('guests.menu_sub')}
               onPress={() => router.push('/profile/my-guests' as never)}
@@ -236,25 +236,25 @@ function ProfileTabAuthenticated() {
         </Cluster>
 
         {/* ============ 6. Lainnya ============ */}
-        <Cluster icon={<Sparkles size={16} color="#CA8A04" />} title={t('profile.cluster_more')} sub={t('profile.cluster_more_sub')}>
+        <Cluster bg="bg-amber-50" icon={<Sparkles size={16} color="#CA8A04" />} title={t('profile.cluster_more')} sub={t('profile.cluster_more_sub')}>
           <MenuBox>
             <MenuRow
-              icon={<Store size={18} color="#EA580C" />}
-              iconBg="bg-brand-50"
+              icon={<Store size={18} color="#CA8A04" />}
+              iconBg="bg-amber-50"
               label={t('profile.my_business')}
               sub={t('profile.my_business_sub')}
               onPress={() => router.push('/profile/businesses' as never)}
             />
             <MenuRow
-              icon={<MessageSquareText size={18} color="#7C3AED" />}
-              iconBg="bg-violet-50"
+              icon={<MessageSquareText size={18} color="#CA8A04" />}
+              iconBg="bg-amber-50"
               label={t('feedback.menu')}
               sub={t('feedback.menu_sub')}
               onPress={() => router.push('/feedback' as never)}
             />
             <MenuRow
-              icon={<Share2 size={18} color="#EA580C" />}
-              iconBg="bg-brand-50"
+              icon={<Share2 size={18} color="#CA8A04" />}
+              iconBg="bg-amber-50"
               label={t('share_app.menu')}
               sub={t('share_app.menu_sub')}
               onPress={async () => {
@@ -271,18 +271,18 @@ function ProfileTabAuthenticated() {
         </Cluster>
 
         {/* ============ 7. Pengaturan ============ */}
-        <ClusterTitle icon={<Settings size={16} color="#525252" />} title={t('profile.settings_title')} sub={t('profile.cluster_settings_sub')} />
+        <ClusterTitle bg="bg-neutral-100" icon={<Settings size={16} color="#525252" />} title={t('profile.settings_title')} sub={t('profile.cluster_settings_sub')} />
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <MenuRow
-            icon={<ShieldCheck size={18} color="#4F46E5" />}
-            iconBg="bg-indigo-50"
+            icon={<ShieldCheck size={18} color="#525252" />}
+            iconBg="bg-neutral-100"
             label={t('privacy.menu')}
             sub={t('privacy.menu_sub')}
             onPress={() => router.push('/settings/privacy' as never)}
           />
           <MenuRow
-            icon={<Globe size={18} color="#0891B2" />}
-            iconBg="bg-cyan-50"
+            icon={<Globe size={18} color="#525252" />}
+            iconBg="bg-neutral-100"
             label={t('profile.language')}
             sub={languageLabel}
             onPress={() => router.push('/settings/language')}
@@ -290,16 +290,16 @@ function ProfileTabAuthenticated() {
           {/* Versi web selalu terbaru — menu cek update hanya untuk app store. */}
           {Platform.OS !== 'web' && (
             <MenuRow
-              icon={<Download size={18} color="#16A34A" />}
-              iconBg="bg-emerald-50"
+              icon={<Download size={18} color="#525252" />}
+              iconBg="bg-neutral-100"
               label={t('profile.check_update')}
               sub={t('profile.check_update_sub')}
               onPress={() => router.push('/settings/check-update' as never)}
             />
           )}
           <MenuRow
-            icon={<Info size={18} color="#0F766E" />}
-            iconBg="bg-teal-50"
+            icon={<Info size={18} color="#525252" />}
+            iconBg="bg-neutral-100"
             label={t('profile.about')}
             sub={`v${appVersion}`}
             onPress={() => router.push('/settings/about')}
@@ -439,9 +439,6 @@ function BranchCard({ onPress }: { onPress: () => void }) {
 
   return (
     <View className="mb-4">
-      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-        {t('profile.branch_section')}
-      </Text>
       <Pressable
         onPress={onPress}
         className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
@@ -490,19 +487,16 @@ function FamilyCard({ onPress }: { onPress: () => void }) {
 
   return (
     <View className="mb-4">
-      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-        {t('profile.family_section')}
-      </Text>
       <Pressable
         onPress={onPress}
         className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
       >
         <View className="flex-row items-center gap-3 p-4">
-          <View className="w-12 h-12 rounded-2xl bg-pink-50 items-center justify-center">
+          <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center">
             {family.length > 0 ? (
-              <Users size={22} color="#DB2777" />
+              <Users size={22} color="#EA580C" />
             ) : (
-              <UserPlus size={22} color="#DB2777" />
+              <UserPlus size={22} color="#EA580C" />
             )}
           </View>
           <View className="flex-1 min-w-0">
@@ -567,16 +561,13 @@ function SertifikatCard() {
 
   return (
     <View className="mb-4">
-      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-        {t('profile.certificate_section')}
-      </Text>
       {items.length === 0 ? (
         <Pressable
           onPress={() => q.isError && void q.refetch()}
           className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
         >
-          <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
-            <Award size={18} color="#D97706" />
+          <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
+            <Award size={18} color="#059669" />
           </View>
           <Text className="flex-1 text-sm text-neutral-600">
             {q.isLoading
@@ -601,8 +592,8 @@ function SertifikatCard() {
               onPress={() => s.fileUrl && void WebBrowser.openBrowserAsync(sertifikatFileUrl(s.fileUrl))}
               className={`flex-row items-center gap-3 p-4 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
             >
-              <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
-                {isPdf ? <FileText size={18} color="#D97706" /> : <Award size={18} color="#D97706" />}
+              <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
+                {isPdf ? <FileText size={18} color="#059669" /> : <Award size={18} color="#059669" />}
               </View>
               <View className="flex-1 min-w-0">
                 <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
@@ -631,16 +622,13 @@ function HomecellProfileCard() {
 
   return (
     <View className="mb-4">
-      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-        {t('hcj.profile_section')}
-      </Text>
       {rows.length === 0 ? (
         <Pressable
           onPress={() => router.push('/homecell')}
           className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
         >
-          <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-            <Users size={18} color="#EA580C" />
+          <View className="w-10 h-10 rounded-xl bg-violet-50 items-center justify-center">
+            <Users size={18} color="#7C3AED" />
           </View>
           <View className="flex-1">
             <Text className="text-sm font-semibold text-neutral-700">
@@ -660,8 +648,8 @@ function HomecellProfileCard() {
               }
               className={`flex-row items-center gap-3 p-4 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
             >
-              <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-                <Users size={18} color="#EA580C" />
+              <View className="w-10 h-10 rounded-xl bg-violet-50 items-center justify-center">
+                <Users size={18} color="#7C3AED" />
               </View>
               <View className="flex-1 min-w-0">
                 <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
@@ -694,16 +682,13 @@ function MinistryCard() {
 
   return (
     <View className="mb-4">
-      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-        {t('profile.ministry_section')}
-      </Text>
       {ministries.length === 0 ? (
         <Pressable
           onPress={() => router.push('/ministry' as never)}
           className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
         >
-          <View className="w-10 h-10 rounded-xl bg-rose-50 items-center justify-center">
-            <Sparkles size={18} color="#E11D48" />
+          <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
+            <Sparkles size={18} color="#DB2777" />
           </View>
           <View className="flex-1">
             <Text className="text-sm font-semibold text-neutral-700">
@@ -725,8 +710,8 @@ function MinistryCard() {
                 idx > 0 ? 'border-t border-neutral-100' : ''
               }`}
             >
-              <View className="w-10 h-10 rounded-xl bg-rose-50 items-center justify-center">
-                <HeartHandshake size={18} color="#E11D48" />
+              <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
+                <HeartHandshake size={18} color="#DB2777" />
               </View>
               <View className="flex-1 min-w-0">
                 <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
@@ -750,10 +735,10 @@ function MinistryCard() {
 /* ==============================================================
  * Cluster — pengelompokan menu Profil (judul ber-ikon + isi)
  * ============================================================== */
-function ClusterTitle({ icon, title, sub }: { icon: React.ReactNode; title: string; sub?: string }) {
+function ClusterTitle({ icon, title, sub, bg }: { icon: React.ReactNode; title: string; sub?: string; bg: string }) {
   return (
     <View className="flex-row items-center gap-2.5 mb-3 mt-2">
-      <View className="w-8 h-8 rounded-xl bg-white border border-neutral-100 items-center justify-center">{icon}</View>
+      <View className={`w-9 h-9 rounded-xl items-center justify-center ${bg}`}>{icon}</View>
       <View className="flex-1">
         <Text className="text-sm font-bold text-neutral-900">{title}</Text>
         {sub ? <Text className="text-[11px] text-neutral-500">{sub}</Text> : null}
@@ -766,16 +751,19 @@ function Cluster({
   icon,
   title,
   sub,
+  bg,
   children,
 }: {
   icon: React.ReactNode;
   title: string;
   sub?: string;
+  /** Latar ikon judul — sama dengan latar ikon menu di dalamnya. */
+  bg: string;
   children: React.ReactNode;
 }) {
   return (
     <View className="mb-5">
-      <ClusterTitle icon={icon} title={title} sub={sub} />
+      <ClusterTitle icon={icon} title={title} sub={sub} bg={bg} />
       {children}
     </View>
   );
