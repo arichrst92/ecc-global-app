@@ -31,6 +31,8 @@ import { ApiError } from '@/types/api';
 import { env } from '@/config/env';
 import { invalidPhoneMessage, formatPhoneDisplay, normalizePhone } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
+import { ChangePhoneModal } from '@/components/profile/ChangePhoneModal';
+import { PEKERJAAN_OPTIONS, PERNIKAHAN_OPTIONS } from '@/constants/profileOptions';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -76,6 +78,10 @@ export default function EditProfileScreen() {
             jenisKelamin: match.jemaat.jenisKelamin ?? null,
             fotoUrl: match.jemaat.fotoUrl ?? null,
             noHp: null as string | null,
+            statusPekerjaan: null as string | null,
+            namaKantor: null as string | null,
+            statusPernikahan: null as string | null,
+            tanggalPernikahan: null as string | null,
           }
         : null;
     }
@@ -89,6 +95,10 @@ export default function EditProfileScreen() {
           jenisKelamin: meQuery.data.jenisKelamin ?? null,
           fotoUrl: meQuery.data.fotoUrl ?? null,
           noHp: meQuery.data.noHp ?? null,
+          statusPekerjaan: meQuery.data.statusPekerjaan ?? null,
+          namaKantor: meQuery.data.namaKantor ?? null,
+          statusPernikahan: meQuery.data.statusPernikahan ?? null,
+          tanggalPernikahan: meQuery.data.tanggalPernikahan ?? null,
         }
       : null;
   }, [isDependent, dependentId, familyQuery.data, meQuery.data]);
@@ -100,6 +110,12 @@ export default function EditProfileScreen() {
   const [dob, setDob] = useState<Date | null>(null);
   const [jenisKelamin, setJenisKelamin] = useState<'L' | 'P' | ''>('');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [pekerjaan, setPekerjaan] = useState('');
+  const [namaKantor, setNamaKantor] = useState('');
+  const [pernikahan, setPernikahan] = useState('');
+  const [tglNikah, setTglNikah] = useState<Date | null>(null);
+  const [showNikahPicker, setShowNikahPicker] = useState(false);
+  const [phoneOpen, setPhoneOpen] = useState(false);
 
   useEffect(() => {
     if (sourceJemaat) {
@@ -109,6 +125,10 @@ export default function EditProfileScreen() {
       setNoHpInput(sourceJemaat.noHp ?? '');
       setDob(sourceJemaat.tanggalLahir ? new Date(sourceJemaat.tanggalLahir) : null);
       setJenisKelamin((sourceJemaat.jenisKelamin as 'L' | 'P' | null) ?? '');
+      setPekerjaan(sourceJemaat.statusPekerjaan ?? '');
+      setNamaKantor(sourceJemaat.namaKantor ?? '');
+      setPernikahan(sourceJemaat.statusPernikahan ?? '');
+      setTglNikah(sourceJemaat.tanggalPernikahan ? new Date(sourceJemaat.tanggalPernikahan) : null);
     }
   }, [sourceJemaat]);
 
@@ -153,6 +173,11 @@ export default function EditProfileScreen() {
         alamat: alamat.trim() || undefined,
         tanggalLahir,
         jenisKelamin: jenisKelamin || undefined,
+        // Kosong = hapus (null)
+        statusPekerjaan: pekerjaan.trim() || null,
+        namaKantor: namaKantor.trim() || null,
+        statusPernikahan: pernikahan || null,
+        tanggalPernikahan: pernikahan && pernikahan !== 'Single' && tglNikah ? tglNikah.toISOString().slice(0, 10) : null,
       });
       return { namaLengkap: r.namaLengkap };
     },
@@ -300,14 +325,19 @@ export default function EditProfileScreen() {
           {!isDependent ? (
             <>
               <Field label={t('edit_profile.phone')}>
-                <View className="bg-neutral-100 rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between">
+                <Pressable
+                  onPress={() => setPhoneOpen(true)}
+                  className="bg-neutral-100 rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between"
+                >
                   <Text className="text-base text-neutral-900">
                     {sourceJemaat?.noHp ? formatPhoneDisplay(sourceJemaat.noHp) : '—'}
                   </Text>
-                  <Text className="text-xs text-neutral-500">
-                    {t('edit_profile.phone_readonly')}
-                  </Text>
-                </View>
+                  <View className="flex-row items-center gap-1">
+                    <Pencil size={13} color="#EA580C" />
+                    <Text className="text-xs font-semibold text-brand-600">{t('change_phone.btn')}</Text>
+                  </View>
+                </Pressable>
+                <Text className="text-[10px] text-neutral-500 mt-1">{t('change_phone.field_hint')}</Text>
               </Field>
 
               <Field label={t('edit_profile.email')}>
@@ -405,6 +435,48 @@ export default function EditProfileScreen() {
               className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 min-h-[80px]"
             />
           </Field>
+
+          {!isDependent ? (
+            <>
+              <Field label={t('edit_profile.job')}>
+                <ChipSelect
+                  options={PEKERJAAN_OPTIONS}
+                  value={pekerjaan}
+                  onChange={setPekerjaan}
+                  labelFor={(v) => t(`edit_profile.job_opt.${v}`, { defaultValue: v })}
+                />
+                <TextInput
+                  value={namaKantor}
+                  onChangeText={setNamaKantor}
+                  placeholder={t('edit_profile.office_placeholder')}
+                  className="mt-2 bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                />
+              </Field>
+
+              <Field label={t('edit_profile.marriage')}>
+                <ChipSelect
+                  options={PERNIKAHAN_OPTIONS}
+                  value={pernikahan}
+                  onChange={setPernikahan}
+                  labelFor={(v) => t(`edit_profile.marriage_opt.${v}`, { defaultValue: v })}
+                />
+                {pernikahan && pernikahan !== 'Single' ? (
+                  <Pressable
+                    onPress={() => setShowNikahPicker(true)}
+                    className="mt-2 bg-white rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between"
+                  >
+                    <Text className={`text-base ${tglNikah ? 'text-neutral-900' : 'text-neutral-400'}`}>
+                      {tglNikah
+                        ? tglNikah.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+                        : t('edit_profile.marriage_date_placeholder')}
+                    </Text>
+                    <CalendarIcon size={18} color="#737373" />
+                  </Pressable>
+                ) : null}
+              </Field>
+              <Text className="text-[11px] text-neutral-500 -mt-1 mb-2">{t('edit_profile.privacy_hint')}</Text>
+            </>
+          ) : null}
         </ScrollView>
 
         {/* Save button — SafeAreaView bottom supaya tidak overlap home indicator */}
@@ -429,6 +501,58 @@ export default function EditProfileScreen() {
           onClose={() => setShowDatePicker(false)}
         />
       ) : null}
+      {showNikahPicker ? (
+        <DatePickerModal
+          value={tglNikah ?? new Date(2010, 0, 1)}
+          onChange={(d) => setTglNikah(d)}
+          onClose={() => setShowNikahPicker(false)}
+        />
+      ) : null}
+
+      {!isDependent ? (
+        <ChangePhoneModal
+          visible={phoneOpen}
+          currentNoHp={sourceJemaat?.noHp ?? null}
+          onClose={() => setPhoneOpen(false)}
+          onChanged={async (noHp) => {
+            setPhoneOpen(false);
+            if (user) await setUser({ ...user, noHp });
+            await qc.invalidateQueries({ queryKey: ['me'] });
+            showToast(t('change_phone.success'), 'success');
+          }}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+/** Pilihan berbentuk chip; nilai lama di luar daftar tetap tampil & terpilih. */
+function ChipSelect({
+  options,
+  value,
+  onChange,
+  labelFor,
+}: {
+  options: readonly string[];
+  value: string;
+  onChange: (v: string) => void;
+  labelFor: (v: string) => string;
+}) {
+  const all = value && !options.includes(value) ? [value, ...options] : options;
+  return (
+    <View className="flex-row flex-wrap gap-2">
+      {all.map((o) => {
+        const on = o === value;
+        return (
+          <Pressable
+            key={o}
+            onPress={() => onChange(on ? '' : o)}
+            className={`px-3 py-2 rounded-full border ${on ? 'bg-brand-50 border-brand-500' : 'bg-white border-neutral-200'}`}
+          >
+            <Text className={`text-xs font-semibold ${on ? 'text-brand-700' : 'text-neutral-700'}`}>{labelFor(o)}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }

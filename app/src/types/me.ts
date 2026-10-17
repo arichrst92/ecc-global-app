@@ -18,6 +18,10 @@ export type MeProfile = {
   jenisKelamin?: 'L' | 'P' | null;
   alamat?: string | null;
   fotoUrl?: string | null;
+  statusPekerjaan?: string | null;
+  namaKantor?: string | null;
+  statusPernikahan?: string | null;
+  tanggalPernikahan?: string | null;
   cabang: { id: string; nama: string; kode: string };
   jemaatRoles?: Array<{
     role: { nama: string };

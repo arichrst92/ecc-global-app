@@ -52,6 +52,11 @@ type UpdateProfilePayload = {
    *  BE wajib accept ini di PATCH /admin/me — kalau belum, see
    *  docs/backend-request-direct-branch-change.md */
   cabangId?: string;
+  /** null = kosongkan */
+  statusPekerjaan?: string | null;
+  namaKantor?: string | null;
+  statusPernikahan?: string | null;
+  tanggalPernikahan?: string | null;
 };
 
 /** PATCH /admin/me — edit limited fields */
@@ -137,4 +142,14 @@ export async function deleteMyAccount(payload: DeleteAccountPayload): Promise<De
 /** POST /admin/me/reservasi/:id/cancel — batalkan reservasi (sebelum jam mulai). */
 export function cancelMyReservasi(id: string) {
   return api.post<MyReservasi>(`/admin/me/reservasi/${id}/cancel`);
+}
+
+/** Ganti no HP sendiri — kirim OTP WhatsApp ke nomor BARU. */
+export function requestPhoneChangeOtp(noHp: string) {
+  return api.post<{ noHp: string }>('/admin/me/phone/request-otp', { noHp });
+}
+
+/** Verifikasi OTP nomor baru → no HP diganti. */
+export function verifyPhoneChange(noHp: string, kode: string) {
+  return api.post<{ id: string; noHp: string }>('/admin/me/phone/verify', { noHp, kode });
 }

@@ -38,6 +38,7 @@ import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { JourneyCard } from '@/components/spiritual/JourneyCard';
+import { PersonalDataCard } from '@/components/profile/PersonalDataCard';
 import { useMyFamily } from '@/hooks/useFamily';
 import { Button } from '@/components/ui/Button';
 import { GuestProfileView } from '@/components/GuestProfileView';
@@ -157,6 +158,7 @@ function ProfileTabAuthenticated() {
 
         {/* ============ 1. Akun & Keluarga ============ */}
         <Cluster bg="bg-brand-50" icon={<UserRound size={16} color="#EA580C" />} title={t('profile.cluster_account')} sub={t('profile.cluster_account_sub')}>
+          <PersonalDataCard />
           <BranchCard onPress={() => router.push('/settings/change-branch')} />
           <FamilyCard onPress={() => router.push('/family' as never)} />
         </Cluster>

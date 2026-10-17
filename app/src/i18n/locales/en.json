@@ -1219,7 +1219,31 @@
     "foto_uploaded": "Profile photo updated.",
     "foto_permission": "Gallery permission denied. Enable in Settings to pick a photo.",
     "notice": "To change profile photo, contact your branch admin. Change home branch via separate Settings menu.",
-    "success": "Profile updated."
+    "success": "Profile updated.",
+    "job": "Occupation",
+    "office_placeholder": "Company / business name (optional)",
+    "marriage": "Marital status",
+    "marriage_date_placeholder": "Wedding date (optional)",
+    "privacy_hint": "Who can see your occupation & marital status is set in Profile → Privacy.",
+    "job_opt": {
+      "Pelajar / Mahasiswa": "Student",
+      "Karyawan Swasta": "Private employee",
+      "PNS / ASN": "Civil servant",
+      "TNI / Polri": "Military / Police",
+      "Wiraswasta / Pengusaha": "Entrepreneur",
+      "Profesional": "Professional",
+      "Ibu Rumah Tangga": "Homemaker",
+      "Pensiunan": "Retired",
+      "Belum Bekerja": "Not working",
+      "Lainnya": "Other"
+    },
+    "marriage_opt": {
+      "Single": "Single",
+      "Menikah": "Married",
+      "Janda": "Widowed",
+      "Duda": "Widowed",
+      "Cerai": "Divorced"
+    }
   },
   "group": {
     "browse_title": "Groups",
@@ -1831,5 +1855,25 @@
     "with": "With",
     "scanner": "Assigned to scan attendance",
     "team_default": "Regular team"
+  },
+  "change_phone": {
+    "btn": "Change",
+    "field_hint": "This number is used to log in. Change it by verifying a WhatsApp code sent to the new number.",
+    "title": "Change Phone Number",
+    "current": "Current number: {{noHp}}",
+    "new_label": "New phone number",
+    "new_helper": "A verification code will be sent via WhatsApp to this number.",
+    "send_code": "Send verification code",
+    "otp_hint": "Enter the code sent via WhatsApp to {{noHp}}.",
+    "change_number": "Change number",
+    "resend": "Resend code",
+    "success": "Phone number changed. Use the new number for your next login."
+  },
+  "personal_data": {
+    "title": "Personal Data",
+    "edit": "Edit",
+    "empty": "Not set",
+    "visible_to": "Visible to: {{who}}",
+    "privacy_link": "Choose who can see your data"
   }
 }

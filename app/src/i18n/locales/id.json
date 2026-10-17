@@ -1219,7 +1219,31 @@
     "foto_uploaded": "Foto profil berhasil diperbarui.",
     "foto_permission": "Izin galeri ditolak. Aktifkan di Pengaturan untuk pilih foto.",
     "notice": "Untuk ganti foto profil, hubungi pengurus cabang. Ganti cabang home pakai menu terpisah di Pengaturan.",
-    "success": "Profil berhasil diperbarui."
+    "success": "Profil berhasil diperbarui.",
+    "job": "Pekerjaan",
+    "office_placeholder": "Nama kantor / usaha (opsional)",
+    "marriage": "Status pernikahan",
+    "marriage_date_placeholder": "Tanggal pernikahan (opsional)",
+    "privacy_hint": "Siapa yang bisa melihat pekerjaan & status pernikahan diatur di Profil → Privasi.",
+    "job_opt": {
+      "Pelajar / Mahasiswa": "Pelajar / Mahasiswa",
+      "Karyawan Swasta": "Karyawan Swasta",
+      "PNS / ASN": "PNS / ASN",
+      "TNI / Polri": "TNI / Polri",
+      "Wiraswasta / Pengusaha": "Wiraswasta / Pengusaha",
+      "Profesional": "Profesional",
+      "Ibu Rumah Tangga": "Ibu Rumah Tangga",
+      "Pensiunan": "Pensiunan",
+      "Belum Bekerja": "Belum Bekerja",
+      "Lainnya": "Lainnya"
+    },
+    "marriage_opt": {
+      "Single": "Single",
+      "Menikah": "Menikah",
+      "Janda": "Janda",
+      "Duda": "Duda",
+      "Cerai": "Cerai"
+    }
   },
   "group": {
     "browse_title": "Group",
@@ -1830,5 +1854,25 @@
     "with": "Bersama",
     "scanner": "Bertugas scan kehadiran",
     "team_default": "Petugas tetap"
+  },
+  "change_phone": {
+    "btn": "Ganti",
+    "field_hint": "Nomor ini dipakai untuk login. Ganti nomor dengan verifikasi kode WhatsApp ke nomor baru.",
+    "title": "Ganti Nomor HP",
+    "current": "Nomor saat ini: {{noHp}}",
+    "new_label": "Nomor HP baru",
+    "new_helper": "Kode verifikasi akan dikirim via WhatsApp ke nomor ini.",
+    "send_code": "Kirim kode verifikasi",
+    "otp_hint": "Masukkan kode yang dikirim via WhatsApp ke {{noHp}}.",
+    "change_number": "Ubah nomor",
+    "resend": "Kirim ulang kode",
+    "success": "Nomor HP berhasil diganti. Gunakan nomor baru untuk login berikutnya."
+  },
+  "personal_data": {
+    "title": "Data Diri",
+    "edit": "Ubah",
+    "empty": "Belum diisi",
+    "visible_to": "Terlihat oleh: {{who}}",
+    "privacy_link": "Atur siapa yang bisa melihat data Anda"
   }
 }
