@@ -7,7 +7,7 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { UserCheck } from 'lucide-react-native';
 
@@ -57,6 +57,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
 }) {
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
+  const queryClient = useQueryClient();
   const q = useQuery({ queryKey, queryFn: fetcher, enabled, refetchInterval: 60_000, staleTime: 30_000 });
   const router = useRouter();
   // Self check-in dengan radius → ambil GPS segar dulu; server cek radius.
@@ -134,6 +135,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
               else if (failed.length) showToast(failed.map((f) => `${f.namaLengkap}: ${f.message ?? ''}`).join('\n'), 'error');
               else showToast(t('ibadah.self_checkin_all_done'), 'info');
               q.refetch();
+              void queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
               onCheckedIn?.();
             },
             onError: (e) => {

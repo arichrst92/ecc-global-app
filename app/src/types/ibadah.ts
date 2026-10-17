@@ -84,7 +84,7 @@ export type IbadahPetugas = {
  * (kids pickup). Ini shape untuk consumer mobile — detail schema BE di
  * backend-notice-checkout-ibadah.md + backend-notice-kids-ibadah-pickup.md.
  */
-export type ReservasiStatus = 'RESERVE' | 'JOIN' | 'COMPLETED' | 'CANCEL';
+export type ReservasiStatus = 'RESERVE' | 'JOIN' | 'CANCEL';
 
 export type Reservasi = {
   id: string;
@@ -127,6 +127,9 @@ export type MyReservasi = {
   checkedInBy?: string | null;
   pickupCode?: string | null;
   pickedUpAt?: string | null;
+  /** Hubungan pemilik reservasi dengan saya (BE 2026-10-17). */
+  relation?: MyReservasiRelation;
+  checkinMethod?: string | null;
   jemaat: {
     id: string;
     namaLengkap: string;
@@ -140,8 +143,12 @@ export type MyReservasi = {
     jamSelesai: string;
     isKidsIbadah?: boolean;
     requiresCheckout?: boolean;
+    lokasi?: string | null;
+    cabang?: { id: string; nama: string } | null;
   };
 };
+
+export type MyReservasiRelation = 'SELF' | 'ANAK' | 'TANGGUNGAN' | 'TAMU' | 'KELUARGA';
 
 /** Query params untuk `GET /admin/me/reservasi`. */
 export type ListMyReservasiParams = {

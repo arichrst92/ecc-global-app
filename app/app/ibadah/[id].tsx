@@ -2,7 +2,7 @@ import { ActivityIndicator, Linking, Platform, Pressable, RefreshControl, Scroll
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
@@ -61,6 +61,7 @@ export default function IbadahDetailScreen() {
     refetchInterval: 60_000,
     staleTime: 30_000,
   });
+  const queryClient = useQueryClient();
   const checkinMut = useMutation({
     // Self check-in dengan radius → ambil GPS segar dulu; server cek radius.
     mutationFn: async (ids: string[]) => postSelfCheckin(id, ids, await coordsForSelfCheckin(selfCheckin.data?.venue)),
@@ -358,6 +359,7 @@ export default function IbadahDetailScreen() {
                 'success',
               );
               selfCheckin.refetch();
+              void queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
             },
             onError: (e) => {
               // Di luar radius / lokasi tidak didapat → arahkan ke usher (QR).

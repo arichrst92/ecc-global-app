@@ -18,7 +18,12 @@ import type { InAppNotification, InAppNotifType } from '@/types/notification';
 export function resolveNotifRoute(
   notif: InAppNotification,
 ): string | null {
-  if (notif.actionUrl) return notif.actionUrl;
+  if (notif.actionUrl) {
+    // URL lama dari BE (rute ini tidak ada di app) → arahkan ke layar yang benar.
+    if (notif.actionUrl.startsWith('/ckids/reservasi')) return '/my-reservasi';
+    if (notif.actionUrl.startsWith('/ckids/anak')) return '/ckids';
+    return notif.actionUrl;
+  }
 
   const meta = notif.metadata ?? {};
   const anakId = pickString(meta, 'anakId');
