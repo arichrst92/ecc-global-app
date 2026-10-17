@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { useEffect } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { Animated, Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRef } from 'react';
 
@@ -43,7 +43,8 @@ export function ToastContainer() {
     Animated.timing(opacity, {
       toValue: message ? 1 : 0,
       duration: 200,
-      useNativeDriver: true,
+      // Web tidak punya native animated module → pakai JS (tanpa warning).
+      useNativeDriver: Platform.OS !== 'web',
     }).start();
   }, [message, opacity]);
 
