@@ -180,17 +180,14 @@ function ProfileTabAuthenticated() {
         {/* Keluarga — quick preview + link ke /family */}
         <FamilyCard onPress={() => router.push('/family' as never)} />
 
-        {/* Role / peran current user */}
-        <RoleCard />
+        {/* Spiritual Journey — progres tahap (menggantikan section "Your Current Role") */}
+        <JourneyCard />
 
         {/* Homecell current user (anggota / pemimpin / belum punya) */}
         <HomecellProfileCard />
 
         {/* Ministry / pelayanan current user */}
         <MinistryCard />
-
-        {/* Spiritual Journey — progres tahap (diatur gereja di portal) */}
-        <JourneyCard />
 
         {/* Sertifikat (dikelola admin di portal) */}
         <SertifikatCard />
@@ -538,73 +535,6 @@ function FamilyCard({ onPress }: { onPress: () => void }) {
           <ChevronRight size={14} color="#A3A3A3" />
         </View>
       </Pressable>
-    </View>
-  );
-}
-
-/**
- * RoleCard — tampil daftar peran current user di gereja (jemaatRoles dari
- * /admin/me). Termasuk role + subRole + status. Misal:
- * "Volunteer · Worship Team · Aktif"
- *
- * Visual: tiap role di-render sebagai mini-card dengan icon Award, nama role
- * bold, subRole + status di subtitle. Layout list dengan separator.
- */
-function RoleCard() {
-  const { t } = useTranslation();
-  const meQuery = useQuery({
-    queryKey: ['me', 'profile-tab'],
-    queryFn: getMyProfile,
-    staleTime: 5 * 60_000,
-  });
-  const roles = meQuery.data?.jemaatRoles ?? [];
-
-  if (roles.length === 0) {
-    return null; // Hide kalau user belum punya role apapun
-  }
-
-  return (
-    <View className="mb-4">
-      <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-        {t('profile.role_section')}
-      </Text>
-      <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
-        {roles.map((r, idx) => {
-          const roleName = r.role?.nama ?? '—';
-          // Sub-role di tampil sebagai sub-info; sub-role STATUS hanya tampil
-          // sebagai badge di kanan (tidak duplicate di teks)
-          const subName = r.subRole?.nama;
-          return (
-            <View
-              key={idx}
-              className={`flex-row items-center gap-3 p-4 ${
-                idx > 0 ? 'border-t border-neutral-100' : ''
-              }`}
-            >
-              <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
-                <Award size={18} color="#D97706" />
-              </View>
-              <View className="flex-1 min-w-0">
-                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-                  {roleName}
-                </Text>
-                {subName ? (
-                  <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-                    {subName}
-                  </Text>
-                ) : null}
-              </View>
-              {r.subRoleStatus?.nama ? (
-                <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
-                  <Text className="text-[10px] font-bold text-emerald-700">
-                    {r.subRoleStatus.nama.toUpperCase()}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
     </View>
   );
 }

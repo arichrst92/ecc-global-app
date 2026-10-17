@@ -1754,6 +1754,8 @@
     "status_todo": "Not yet",
     "requirement": "Requirement",
     "how": "How to get it",
-    "events": "Join this class / event"
+    "events": "Join this class / event",
+    "card_empty": "Your spiritual journey steps will appear here once your church sets them up.",
+    "card_tap": "View your spiritual journey"
   }
 }

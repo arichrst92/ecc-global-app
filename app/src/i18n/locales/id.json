@@ -1753,6 +1753,8 @@
     "status_todo": "Belum",
     "requirement": "Syarat",
     "how": "Cara mendapatkan",
-    "events": "Ikuti kelas / event ini"
+    "events": "Ikuti kelas / event ini",
+    "card_empty": "Tahap perjalanan rohani akan tampil di sini setelah diatur gereja.",
+    "card_tap": "Lihat perjalanan rohani Anda"
   }
 }
