@@ -22,6 +22,7 @@ import {
   Pencil,
   Share2,
   ScanLine,
+  ShieldCheck,
   Sparkles,
   Store,
   Trash2,
@@ -262,6 +263,13 @@ function ProfileTabAuthenticated() {
           {t('profile.settings_title')}
         </Text>
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
+          <MenuRow
+            icon={<ShieldCheck size={18} color="#4F46E5" />}
+            iconBg="bg-indigo-50"
+            label={t('privacy.menu')}
+            sub={t('privacy.menu_sub')}
+            onPress={() => router.push('/settings/privacy' as never)}
+          />
           <MenuRow
             icon={<Globe size={18} color="#0891B2" />}
             iconBg="bg-cyan-50"

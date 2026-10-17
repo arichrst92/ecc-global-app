@@ -2,6 +2,8 @@
 // Endpoint: GET /admin/jemaat-public/:id (BUKAN /admin/jemaat/:id yang admin CRUD)
 
 export type JemaatVisibilityReason =
+  | 'self'
+  | 'pastoral'
   | 'same-cabang'
   | 'family'
   | 'homecell-co-member'
@@ -64,10 +66,15 @@ export type JemaatPublicProfile = {
   tanggalLahir: string | null;
   alamat: string | null;
   family: JemaatPublicFamily[] | null;
+  /** Mengikuti pengaturan privasi target (BE 2026-10-17). */
+  email?: string | null;
+  pekerjaan?: { statusPekerjaan: string | null; namaKantor: string | null } | null;
+  pernikahan?: { statusPernikahan: string | null; tanggalPernikahan: string | null } | null;
 
   /** Helper untuk UI — explain kenapa tier-2 fields populated/null */
   visibility: {
     isCloseRelation: boolean;
     reason: JemaatVisibilityReason;
+    relations?: string[];
   };
 };

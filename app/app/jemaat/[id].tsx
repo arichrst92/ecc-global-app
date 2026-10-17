@@ -15,10 +15,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   Award,
+  Briefcase,
   Cake,
   Calendar,
+  Heart,
   HeartHandshake,
   Home,
+  Mail,
   MapPin,
   MessageCircle,
   Phone,
@@ -295,6 +298,34 @@ function FullProfile({
         </View>
       ) : null}
 
+      {/* Email / pekerjaan / pernikahan — sesuai pengaturan privasi */}
+      {profile.email ? (
+        <InfoCard icon={<Mail size={18} color="#2563EB" />} bg="bg-blue-50" label={t('jemaat.email_label')} value={profile.email} />
+      ) : null}
+      {profile.pekerjaan && (profile.pekerjaan.statusPekerjaan || profile.pekerjaan.namaKantor) ? (
+        <InfoCard
+          icon={<Briefcase size={18} color="#7C3AED" />}
+          bg="bg-violet-50"
+          label={t('jemaat.job_label')}
+          value={[profile.pekerjaan.statusPekerjaan, profile.pekerjaan.namaKantor].filter(Boolean).join(' · ')}
+        />
+      ) : null}
+      {profile.pernikahan?.statusPernikahan ? (
+        <InfoCard
+          icon={<Heart size={18} color="#DB2777" />}
+          bg="bg-pink-50"
+          label={t('jemaat.marriage_label')}
+          value={[
+            profile.pernikahan.statusPernikahan,
+            profile.pernikahan.tanggalPernikahan
+              ? new Date(profile.pernikahan.tanggalPernikahan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+              : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+        />
+      ) : null}
+
       {/* Homecell */}
       {profile.homecell ? (
         <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3">
@@ -498,4 +529,16 @@ function formatBirthMonthDay(mmdd: string): string {
   if (!mm || !dd) return mmdd;
   const tmp = new Date(2000, mm - 1, dd);
   return tmp.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
+}
+
+function InfoCard({ icon, bg, label, value }: { icon: React.ReactNode; bg: string; label: string; value: string }) {
+  return (
+    <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-start gap-3">
+      <View className={`w-10 h-10 rounded-xl ${bg} items-center justify-center`}>{icon}</View>
+      <View className="flex-1">
+        <Text className="text-xs text-neutral-500">{label}</Text>
+        <Text className="text-sm text-neutral-900 leading-relaxed">{value}</Text>
+      </View>
+    </View>
+  );
 }
