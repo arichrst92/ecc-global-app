@@ -3,7 +3,14 @@ import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import {
+  ErrorBoundary as RouterErrorBoundary,
+  Stack,
+  usePathname,
+  useRouter,
+  useSegments,
+  type ErrorBoundaryProps,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -26,7 +33,9 @@ import { prefetchMaintenance, useMaintenanceMode } from '@/hooks/useMaintenanceM
 import { prefetchAppVersion, useAppVersion } from '@/hooks/useAppVersion';
 import { prefetchAppConfig, useAppConfig } from '@/hooks/useAppConfig';
 import {
+  addBreadcrumb,
   initErrorReporting,
+  reportError,
   setReportingUser,
 } from '@/services/errorReporting';
 import {
@@ -36,7 +45,16 @@ import {
 } from '@/lib/retryPolicy';
 import { createQueryPersister, persistOptions } from '@/lib/queryPersistence';
 
-export { ErrorBoundary } from 'expo-router';
+/**
+ * ErrorBoundary root: laporkan crash render ke Diagnostics, lalu tampilkan
+ * layar error bawaan expo-router (tombol coba lagi).
+ */
+export function ErrorBoundary(props: ErrorBoundaryProps) {
+  useEffect(() => {
+    reportError(props.error, { source: 'ErrorBoundary' });
+  }, [props.error]);
+  return <RouterErrorBoundary {...props} />;
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -161,6 +179,12 @@ function AppEffects() {
   useEffect(() => {
     setReportingUser(authUser ? { noHp: authUser.noHp } : null);
   }, [authUser]);
+
+  // Breadcrumb navigasi — supaya laporan error menunjukkan layar sebelumnya.
+  const pathname = usePathname();
+  useEffect(() => {
+    if (pathname) addBreadcrumb(pathname, 'navigation');
+  }, [pathname]);
 
   // Pre-warm /public/app-config — meskipun field-nya (faceMatchThreshold,
   // lowConfidenceWarnThreshold) sudah dormant pasca face login removal,

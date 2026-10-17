@@ -68,6 +68,7 @@ function getDeviceMeta() {
 export async function initErrorReporting(): Promise<void> {
   if (initialized) return;
   initialized = true;
+  installGlobalHandlers();
   if (__DEV__) {
     // eslint-disable-next-line no-console
     console.log('[errorReporting] initialized — endpoint:', ENDPOINT_PATH);
@@ -126,6 +127,49 @@ export function reportMessage(msg: string, context?: Record<string, unknown>): v
     console.log('[errorReporting] reportMessage:', msg, context);
   }
   sendEvent('message', { message: msg, context });
+}
+
+// ============ Global handlers (crash yang tidak tertangkap) ============
+
+/**
+ * Tangkap error JS yang tidak ditangani:
+ *  - Native (iOS/Android): ErrorUtils global handler (crash JS / red screen).
+ *  - Web: window 'error' + 'unhandledrejection'.
+ * Handler bawaan tetap dipanggil supaya perilaku app tidak berubah.
+ */
+function installGlobalHandlers(): void {
+  try {
+    const g = globalThis as unknown as {
+      ErrorUtils?: {
+        getGlobalHandler: () => (error: unknown, isFatal?: boolean) => void;
+        setGlobalHandler: (h: (error: unknown, isFatal?: boolean) => void) => void;
+      };
+      addEventListener?: (type: string, cb: (e: unknown) => void) => void;
+    };
+    if (g.ErrorUtils?.setGlobalHandler) {
+      const prev = g.ErrorUtils.getGlobalHandler();
+      g.ErrorUtils.setGlobalHandler((error, isFatal) => {
+        reportError(error, { source: 'global', isFatal: !!isFatal });
+        prev?.(error, isFatal);
+      });
+    }
+    if (Platform.OS === 'web' && typeof g.addEventListener === 'function') {
+      g.addEventListener('error', (e) => {
+        const ev = e as { error?: unknown; message?: string; filename?: string; lineno?: number };
+        reportError(ev.error ?? new Error(ev.message ?? 'Unknown error'), {
+          source: 'window.onerror',
+          file: ev.filename,
+          line: ev.lineno,
+        });
+      });
+      g.addEventListener('unhandledrejection', (e) => {
+        const reason = (e as { reason?: unknown }).reason;
+        reportError(reason instanceof Error ? reason : new Error(String(reason)), { source: 'unhandledrejection' });
+      });
+    }
+  } catch {
+    // Defensive — jangan pernah gagal karena reporter.
+  }
 }
 
 // ============ Internal: HTTP transport ============
