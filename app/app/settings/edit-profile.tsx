@@ -33,6 +33,7 @@ import { invalidPhoneMessage, formatPhoneDisplay, normalizePhone } from '@/utils
 import { goBack } from '@/utils/nav';
 import { ChangePhoneModal } from '@/components/profile/ChangePhoneModal';
 import { PEKERJAAN_OPTIONS, PERNIKAHAN_OPTIONS } from '@/constants/profileOptions';
+import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -594,10 +595,8 @@ function DatePickerModal({
   }> | null>(null);
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
-      onClose();
-      return;
-    }
+    // Web: ditangani WebDatePickerModal (input tanggal browser).
+    if (Platform.OS === 'web') return;
     (async () => {
       try {
         const mod = (await import('@react-native-community/datetimepicker')) as unknown as {
@@ -619,6 +618,9 @@ function DatePickerModal({
     })();
   }, [onClose]);
 
+  if (Platform.OS === 'web') {
+    return <WebDatePickerModal value={value} onChange={onChange} onClose={onClose} />;
+  }
   if (!DateTimePicker) return null;
 
   if (Platform.OS === 'android') {

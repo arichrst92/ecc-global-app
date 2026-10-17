@@ -22,6 +22,7 @@ import { useRegisterNewFamily } from '@/hooks/useFamily';
 import { ApiError } from '@/types/api';
 import type { TipeRelasi } from '@/types/tipeRelasi';
 import { goBack } from '@/utils/nav';
+import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -242,10 +243,8 @@ function DatePickerModal({
   }> | null>(null);
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
-      onClose();
-      return;
-    }
+    // Web: ditangani WebDatePickerModal (input tanggal browser).
+    if (Platform.OS === 'web') return;
     (async () => {
       try {
         const mod = (await import('@react-native-community/datetimepicker')) as unknown as {
@@ -267,6 +266,9 @@ function DatePickerModal({
     })();
   }, [onClose]);
 
+  if (Platform.OS === 'web') {
+    return <WebDatePickerModal value={value} onChange={onChange} onClose={onClose} />;
+  }
   if (!DateTimePicker) return null;
 
   if (Platform.OS === 'android') {
