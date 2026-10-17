@@ -5,7 +5,7 @@ import {
   cancelMyJoinRequest,
   getMinistryDetail,
   getMinistrySchedule,
-  getMyMinistrySchedule,
+  getMyServiceSchedule,
   joinMinistry,
   listJoinRequests,
   listMinistries,
@@ -145,11 +145,12 @@ export function useMinistrySchedule(id: string | undefined) {
 export function useMyMinistrySchedule() {
   const isGuest = useAuthStore((s) => s.isGuest);
   return useQuery({
-    queryKey: [...MINISTRY_KEYS.all, 'my-schedule'],
+    queryKey: [...MINISTRY_KEYS.all, 'my-schedule', 'v2'],
     queryFn: async () => {
       const from = todayIso();
       const to = addDaysIso(28);
-      return getMyMinistrySchedule(from, to);
+      // Tugas ibadah (roster + tim ibadah) + tugas event.
+      return getMyServiceSchedule(from, to);
     },
     enabled: !isGuest,
     staleTime: 5 * 60_000,

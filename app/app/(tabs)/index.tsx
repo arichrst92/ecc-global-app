@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { BookOpen, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake } from 'lucide-react-native';
+import { BookOpen, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake, Ticket } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -27,7 +27,7 @@ import { useVenueTz } from '@/hooks/useVenueTz';
 import { formatVenueRange, venueTimeHint } from '@/utils/time';
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
-import type { MyMinistryAssignment } from '@/types/ministrySchedule';
+import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -87,8 +87,22 @@ function HomeScreenAuthenticated() {
   const news = newsQuery.data ?? [];
   // Max 3 upcoming assignments, sorted by tanggal ASC (defensive — BE spec
   // tidak eksplisit guarantee order untuk endpoint cross-ministry ini).
-  const myUpcomingSchedule = [...(myScheduleQuery.data ?? [])]
-    .sort((a, b) => a.tanggal.localeCompare(b.tanggal))
+  // Gabungan tugas ibadah + event, urut tanggal; tap → halaman ibadah / event.
+  const myUpcomingSchedule: ScheduleItem[] = [
+    ...(myScheduleQuery.data?.assignments ?? []).map((a) => ({
+      kind: 'ibadah' as const,
+      key: `i-${a.id}`,
+      sort: `${a.tanggal.slice(0, 10)} ${a.ibadahJamMulai ?? ''}`,
+      a,
+    })),
+    ...(myScheduleQuery.data?.events ?? []).map((e) => ({
+      kind: 'event' as const,
+      key: `e-${e.id}`,
+      sort: `${e.tanggalMulai.slice(0, 10)} ${e.jamMulai ?? ''}`,
+      e,
+    })),
+  ]
+    .sort((x, y) => x.sort.localeCompare(y.sort))
     .slice(0, 3);
 
   return (
@@ -325,7 +339,7 @@ function HomeScreenAuthenticated() {
               </View>
               {myUpcomingSchedule.map((item, idx) => (
                 <MyScheduleRow
-                  key={item.id}
+                  key={item.key}
                   item={item}
                   isFirst={idx === 0}
                   lang={lang}
@@ -494,44 +508,62 @@ function TodayServiceCard({
   );
 }
 
+type ScheduleItem =
+  | { kind: 'ibadah'; key: string; sort: string; a: MyMinistryAssignment }
+  | { kind: 'event'; key: string; sort: string; e: MyEventDuty };
+
 /**
- * Satu baris upcoming assignment di widget "Pelayanan Saya" home tab.
- * Tap → route ke ministry detail (full schedule ministry tsb, per UX plan
- * di docs/backend-request-ministry-schedule-roster.md).
+ * Satu baris tugas di widget "Pelayanan Saya" home tab.
+ * Tap → halaman ibadah (tanggal tugas) atau event yang bersangkutan.
  */
 function MyScheduleRow({
   item,
   isFirst,
   lang,
   router,
-  t,
+  t: _t,
 }: {
-  item: MyMinistryAssignment;
+  item: ScheduleItem;
   isFirst: boolean;
   lang: string;
   router: ReturnType<typeof useRouter>;
   t: (key: string, options?: Record<string, unknown>) => string;
 }) {
+  const isEvent = item.kind === 'event';
+  const href =
+    item.kind === 'ibadah'
+      ? `/ibadah/${item.a.ibadahId}?tanggal=${item.a.tanggal.slice(0, 10)}`
+      : `/event/${item.e.eventId}`;
+  const meta =
+    item.kind === 'ibadah'
+      ? `${formatDate(item.a.tanggal, lang)} · ${item.a.ibadahJamMulai}${
+          item.a.ibadahJamSelesai ? `-${item.a.ibadahJamSelesai}` : ''
+        } · ${item.a.ibadahNama}`
+      : `${formatDate(item.e.tanggalMulai, lang)}${item.e.jamMulai ? ` · ${item.e.jamMulai}` : ''}${
+          item.e.jamSelesai ? `-${item.e.jamSelesai}` : ''
+        } · ${item.e.judul}`;
+  const posisi = item.kind === 'ibadah' ? item.a.posisi : item.e.posisi;
+  const ministry = item.kind === 'ibadah' ? item.a.ministryNama : item.e.ministryNama;
+
   return (
     <Pressable
-      onPress={() => router.push(`/ministry/${item.ministryId}` as never)}
+      onPress={() => router.push(href as never)}
       className={`px-3.5 py-3 flex-row items-center gap-3 ${
         isFirst ? '' : 'border-t border-neutral-100'
       }`}
     >
-      <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-        <HeartHandshake size={18} color="#EA580C" />
+      <View className={`w-10 h-10 rounded-xl items-center justify-center ${isEvent ? 'bg-violet-50' : 'bg-brand-50'}`}>
+        {isEvent ? <Ticket size={18} color="#7C3AED" /> : <HeartHandshake size={18} color="#EA580C" />}
       </View>
       <View className="flex-1 min-w-0">
         <Text className="text-xs text-neutral-500" numberOfLines={1}>
-          {formatDate(item.tanggal, lang)} · {item.ibadahJamMulai}
-          {item.ibadahJamSelesai ? `-${item.ibadahJamSelesai}` : ''} · {item.ibadahNama}
+          {meta}
         </Text>
         <Text className="text-sm font-semibold text-neutral-900 mt-0.5" numberOfLines={1}>
-          {item.posisi}
+          {posisi}
         </Text>
         <Text className="text-xs text-brand-600 mt-0.5" numberOfLines={1}>
-          {item.ministryNama}
+          {ministry}
         </Text>
       </View>
       <ChevronRight size={16} color="#A3A3A3" />
