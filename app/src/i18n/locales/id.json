@@ -1196,7 +1196,12 @@
     "force_body": "Versi aplikasi Anda tidak didukung lagi. Silakan perbarui ke versi terbaru ({{latest}}) untuk melanjutkan.",
     "release_notes": "Apa yang baru",
     "cta_update": "Perbarui Sekarang",
-    "no_download_url": "Silakan buka App Store / Play Store untuk perbarui aplikasi."
+    "no_download_url": "Silakan buka App Store / Play Store untuk perbarui aplikasi.",
+    "soft_title": "Versi baru tersedia",
+    "soft_versions": "Versi Anda {{current}} → terbaru {{latest}}",
+    "soft_body": "Perbarui aplikasi untuk mendapatkan fitur terbaru dan perbaikan.",
+    "soft_later": "Nanti",
+    "soft_update": "Update"
   },
   "edit_profile": {
     "title_dependent": "Edit Profil — {{name}}",

@@ -27,6 +27,7 @@ import { useNotificationsStore } from '@/stores/notifications.store';
 import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { ForceUpdateModal } from '@/components/ForceUpdateModal';
+import { SoftUpdatePrompt } from '@/components/SoftUpdatePrompt';
 import { MaintenanceModal } from '@/components/MaintenanceModal';
 import { prefetchBranches } from '@/hooks/useBranches';
 import { prefetchMaintenance, useMaintenanceMode } from '@/hooks/useMaintenanceMode';
@@ -158,6 +159,8 @@ export default function RootLayout() {
         <MaintenanceGate>
           <ForceUpdateGate>
             <RootLayoutNav />
+            {/* Update tidak wajib → popup sekali per versi (Nanti / Update) */}
+            <SoftUpdatePrompt />
           </ForceUpdateGate>
         </MaintenanceGate>
         <ToastContainer />

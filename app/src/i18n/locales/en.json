@@ -1196,7 +1196,12 @@
     "force_body": "Your app version is no longer supported. Please update to the latest version ({{latest}}) to continue.",
     "release_notes": "What's new",
     "cta_update": "Update Now",
-    "no_download_url": "Please open App Store / Play Store to update the app."
+    "no_download_url": "Please open App Store / Play Store to update the app.",
+    "soft_title": "New version available",
+    "soft_versions": "Your version {{current}} → latest {{latest}}",
+    "soft_body": "Update the app to get the latest features and fixes.",
+    "soft_later": "Later",
+    "soft_update": "Update"
   },
   "edit_profile": {
     "title_dependent": "Edit Profile — {{name}}",
