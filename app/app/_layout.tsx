@@ -28,6 +28,7 @@ import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { ForceUpdateModal } from '@/components/ForceUpdateModal';
 import { SoftUpdatePrompt } from '@/components/SoftUpdatePrompt';
+import { installChunkReloadHandler } from '@/utils/chunkReload';
 import { MaintenanceModal } from '@/components/MaintenanceModal';
 import { prefetchBranches } from '@/hooks/useBranches';
 import { prefetchMaintenance, useMaintenanceMode } from '@/hooks/useMaintenanceMode';
@@ -45,6 +46,8 @@ import {
   shouldRetryQuery,
 } from '@/lib/retryPolicy';
 import { createQueryPersister, persistOptions } from '@/lib/queryPersistence';
+// Web: chunk lama 404 setelah deploy baru → reload sekali ke versi terbaru.
+installChunkReloadHandler();
 
 /**
  * ErrorBoundary root: laporkan crash render ke Diagnostics, lalu tampilkan

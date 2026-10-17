@@ -13,6 +13,7 @@
  * menanggung ~10MB payload di memory. Hasil load di-cache di module-level
  * Map supaya subsequent calls tidak re-load / re-parse.
  */
+import { isChunkLoadError, reloadForNewVersion } from '@/utils/chunkReload';
 import type {
   BibleBook,
   BibleChapter,
@@ -74,6 +75,10 @@ async function loadVersion(
   pending.set(versionCode, promise);
   try {
     return await promise;
+  } catch (e) {
+    // Web: file Alkitab versi lama sudah diganti deploy baru → muat ulang halaman.
+    if (isChunkLoadError(e)) reloadForNewVersion();
+    throw e;
   } finally {
     pending.delete(versionCode);
   }
@@ -85,7 +90,9 @@ async function loadVersion(
  * tap chapter pertama kali.
  */
 export function preloadVersion(versionCode: BibleVersionCode): void {
-  void loadVersion(versionCode);
+  loadVersion(versionCode).catch(() => {
+    // Preload best-effort — error ditangani saat versi benar-benar dibuka.
+  });
 }
 
 /** Metadata semua versi (untuk UI picker). */

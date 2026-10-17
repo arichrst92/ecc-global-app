@@ -21,6 +21,7 @@
 
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import { isChunkLoadError } from '@/utils/chunkReload';
 
 import { env } from '@/config/env';
 
@@ -156,6 +157,7 @@ function installGlobalHandlers(): void {
     if (Platform.OS === 'web' && typeof g.addEventListener === 'function') {
       g.addEventListener('error', (e) => {
         const ev = e as { error?: unknown; message?: string; filename?: string; lineno?: number };
+        if (isChunkLoadError(ev.error ?? ev.message)) return;
         reportError(ev.error ?? new Error(ev.message ?? 'Unknown error'), {
           source: 'window.onerror',
           file: ev.filename,
@@ -164,6 +166,8 @@ function installGlobalHandlers(): void {
       });
       g.addEventListener('unhandledrejection', (e) => {
         const reason = (e as { reason?: unknown }).reason;
+        // Chunk lama hilang setelah deploy → ditangani chunkReload (reload), bukan crash.
+        if (isChunkLoadError(reason)) return;
         reportError(reason instanceof Error ? reason : new Error(String(reason)), { source: 'unhandledrejection' });
       });
     }
