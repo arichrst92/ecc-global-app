@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react-native';
 
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
+import { useBookNames } from '@/utils/bibleNames';
 import { goBack } from '@/utils/nav';
 
 /** Book detail — grid pasal 1..totalBab. Semua pasal sekarang available
@@ -15,6 +16,7 @@ export default function BibleBookScreen() {
   const router = useRouter();
   const { bookId } = useLocalSearchParams<{ bookId: string }>();
   const book = BIBLE_BOOK_BY_ID.get(Number(bookId));
+  const names = useBookNames();
 
   if (!book) {
     return (
@@ -38,7 +40,7 @@ export default function BibleBookScreen() {
               <ArrowLeft size={20} color="#fff" />
             </Pressable>
             <View className="flex-1">
-              <Text className="text-base font-bold text-white">{book.nama}</Text>
+              <Text className="text-base font-bold text-white">{names.name(book)}</Text>
               <Text className="text-xs text-white/80">
                 {t('bible.chapters_count', { count: book.totalBab })} ·{' '}
                 {book.testament === 'OT' ? t('bible.ot_short') : t('bible.nt_short')}
@@ -47,8 +49,13 @@ export default function BibleBookScreen() {
           </View>
           <View className="px-5 pb-4">
             <Text className="text-2xl font-bold text-white">
-              {book.nama}{' '}
-              <Text className="text-white/70 text-base font-normal">({book.namaEn})</Text>
+              {names.name(book)}{' '}
+              {/* Nama dalam bahasa lain sebagai keterangan */}
+              {names.name(book) !== (names.name(book) === book.nama ? book.namaEn : book.nama) ? (
+                <Text className="text-white/70 text-base font-normal">
+                  ({names.name(book) === book.nama ? book.namaEn : book.nama})
+                </Text>
+              ) : null}
             </Text>
           </View>
         </SafeAreaView>

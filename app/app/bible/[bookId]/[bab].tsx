@@ -15,18 +15,16 @@ import {
   ArrowLeft,
   Bookmark,
   BookmarkCheck,
-  Check,
   ChevronLeft,
   ChevronRight,
-  Languages,
   Share2,
   Type,
 } from 'lucide-react-native';
 
 import { useToast } from '@/components/ui/Toast';
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
+import { bookName } from '@/utils/bibleNames';
 import {
-  BIBLE_VERSIONS,
   BIBLE_VERSION_BY_CODE,
   getChapter,
 } from '@/data/bible';
@@ -66,11 +64,9 @@ export default function BibleChapterScreen() {
   const removeBookmark = useBibleStore((s) => s.removeBookmark);
   const isBookmarked = useBibleStore((s) => s.isBookmarked);
   const selectedVersionCode = useBibleStore((s) => s.selectedVersionCode);
-  const setSelectedVersion = useBibleStore((s) => s.setSelectedVersion);
 
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [showFontModal, setShowFontModal] = useState(false);
-  const [showVersionModal, setShowVersionModal] = useState(false);
 
   const ref = book ? `${book.singkatan.toUpperCase()} ${bab}` : '';
   const versionMeta = BIBLE_VERSION_BY_CODE.get(selectedVersionCode);
@@ -160,7 +156,7 @@ export default function BibleChapterScreen() {
   function shareVerse(verse: BibleVerse) {
     const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
     Share.share({
-      message: `"${verse.teks}"\n\n— ${book!.nama} ${bab}:${verse.nomor} (${versionLabel})\n\n${t('common.share_signature')}`,
+      message: `"${verse.teks}"\n\n— ${bookName(book!, selectedVersionCode)} ${bab}:${verse.nomor} (${versionLabel})\n\n${t('common.share_signature')}`,
     });
   }
 
@@ -200,19 +196,13 @@ export default function BibleChapterScreen() {
             </Pressable>
             <View className="flex-1">
               <Text className="text-base font-bold text-white">
-                {book.nama} {bab}
+                {bookName(book, selectedVersionCode)} {bab}
               </Text>
               <Text className="text-xs text-white/80">
                 {versionMeta?.shortName ?? selectedVersionCode} ·{' '}
                 {versionMeta?.fullName ?? ''}
               </Text>
             </View>
-            <Pressable
-              onPress={() => setShowVersionModal(true)}
-              className="w-10 h-10 items-center justify-center"
-            >
-              <Languages size={18} color="#fff" />
-            </Pressable>
             <Pressable
               onPress={() => setShowFontModal(true)}
               className="w-10 h-10 items-center justify-center"
@@ -336,56 +326,6 @@ export default function BibleChapterScreen() {
         </View>
       </SafeAreaView>
 
-      {/* Version picker modal */}
-      <Modal
-        visible={showVersionModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowVersionModal(false)}
-      >
-        <Pressable
-          onPress={() => setShowVersionModal(false)}
-          className="flex-1 bg-black/50 items-center justify-center px-6"
-        >
-          <Pressable
-            onPress={() => {}}
-            className="bg-white rounded-2xl p-5 w-full max-w-sm"
-          >
-            <Text className="text-lg font-bold text-neutral-900 mb-3">
-              {t('bible.choose_version')}
-            </Text>
-            <View className="gap-2">
-              {BIBLE_VERSIONS.map((v) => {
-                const isActive = selectedVersionCode === v.code;
-                return (
-                  <Pressable
-                    key={v.code}
-                    onPress={() => {
-                      setSelectedVersion(v.code);
-                      setShowVersionModal(false);
-                    }}
-                    className={`flex-row items-center justify-between p-3 rounded-xl border ${
-                      isActive
-                        ? 'bg-brand-50 border-brand-300'
-                        : 'bg-white border-neutral-200'
-                    }`}
-                  >
-                    <View className="flex-1">
-                      <Text className="text-sm font-bold text-neutral-900">
-                        {v.shortName} · {v.fullName}
-                      </Text>
-                      <Text className="text-xs text-neutral-500 mt-0.5">
-                        {v.copyright}
-                      </Text>
-                    </View>
-                    {isActive ? <Check size={18} color="#EA580C" /> : null}
-                  </Pressable>
-                );
-              })}
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
 
       {/* Font size modal */}
       <Modal

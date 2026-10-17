@@ -6,6 +6,7 @@ import { ArrowLeft, Bookmark, Trash2 } from 'lucide-react-native';
 
 import { useBibleStore } from '@/stores/bible.store';
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
+import { bookName } from '@/utils/bibleNames';
 import { goBack } from '@/utils/nav';
 
 export default function BibleBookmarksScreen() {
@@ -14,6 +15,7 @@ export default function BibleBookmarksScreen() {
   const router = useRouter();
   const bookmarks = useBibleStore((s) => s.bookmarks);
   const removeBookmark = useBibleStore((s) => s.removeBookmark);
+  const selectedVersionCode = useBibleStore((s) => s.selectedVersionCode);
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -57,7 +59,7 @@ export default function BibleBookmarksScreen() {
             {bookmarks.map((b, idx) => {
               const book = BIBLE_BOOK_BY_ID.get(b.bookId);
               const label = book
-                ? `${book.nama} ${b.bab}${b.ayat ? `:${b.ayat}` : ''}`
+                ? `${bookName(book, selectedVersionCode)} ${b.bab}${b.ayat ? `:${b.ayat}` : ''}`
                 : b.ref;
               return (
                 <View

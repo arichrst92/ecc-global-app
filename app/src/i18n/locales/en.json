@@ -1355,7 +1355,11 @@
     "reject_placeholder": "Reason (optional) — sent to the member",
     "via_code": "via invite code",
     "via_public": "public join",
-    "join_request_btn": "Request to join"
+    "join_request_btn": "Request to join",
+    "my_card_public": "Public",
+    "my_card_private": "Private",
+    "my_card_pic": "PIC",
+    "my_card_members": "Members"
   },
   "ckids": {
     "tab_title": "CKids — Kids Points & Rewards",

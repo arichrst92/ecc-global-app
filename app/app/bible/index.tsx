@@ -13,7 +13,9 @@ import {
   ArrowLeft,
   Bookmark,
   BookOpen,
+  Check,
   ChevronRight,
+  Languages,
   Share2,
   Sparkles,
 } from 'lucide-react-native';
@@ -25,7 +27,8 @@ import {
   OT_BOOKS,
 } from '@/data/bible-books';
 import { getVerseOfDay } from '@/data/bible-verses-of-day';
-import { BIBLE_VERSION_BY_CODE, getVerse, preloadVersion } from '@/data/bible';
+import { BIBLE_VERSIONS, BIBLE_VERSION_BY_CODE, getVerse, preloadVersion } from '@/data/bible';
+import { useBookNames } from '@/utils/bibleNames';
 import type { BibleBook, Testament } from '@/types/bible';
 import { goBack } from '@/utils/nav';
 
@@ -43,7 +46,9 @@ export default function BibleHomeScreen() {
   const lastRead = useBibleStore((s) => s.lastRead);
   const bookmarks = useBibleStore((s) => s.bookmarks);
   const selectedVersionCode = useBibleStore((s) => s.selectedVersionCode);
+  const setSelectedVersion = useBibleStore((s) => s.setSelectedVersion);
   const versionMeta = BIBLE_VERSION_BY_CODE.get(selectedVersionCode);
+  const names = useBookNames();
 
   // Preload versi terpilih di background supaya UX tidak lag saat user tap
   // chapter pertama kali (versi JSON di-lazy-load — lihat src/data/bible/index.ts).
@@ -82,7 +87,7 @@ export default function BibleHomeScreen() {
     if (!book) return;
     const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
     Share.share({
-      message: `"${verseOfDay.teks}"\n\n— ${book.nama} ${verseOfDay.bab}:${verseOfDay.ayat} (${versionLabel})\n\n${t('common.share_signature')}`,
+      message: `"${verseOfDay.teks}"\n\n— ${names.name(book)} ${verseOfDay.bab}:${verseOfDay.ayat} (${versionLabel})\n\n${t('common.share_signature')}`,
     });
   }
 
@@ -111,6 +116,37 @@ export default function BibleHomeScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
+        {/* Versi Alkitab — dipilih di sini (berlaku untuk semua bacaan) */}
+        <View className="bg-white rounded-2xl p-3 border border-neutral-100 mb-4">
+          <View className="flex-row items-center gap-2 mb-2 px-1">
+            <Languages size={14} color="#EA580C" />
+            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('bible.choose_version')}</Text>
+          </View>
+          <View className="flex-row gap-2">
+            {BIBLE_VERSIONS.map((v) => {
+              const active = v.code === selectedVersionCode;
+              return (
+                <Pressable
+                  key={v.code}
+                  onPress={() => setSelectedVersion(v.code)}
+                  className={`flex-1 rounded-xl px-3 py-2.5 border ${active ? 'bg-brand-50 border-brand-400' : 'bg-white border-neutral-200'}`}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <Text className={`text-sm font-bold ${active ? 'text-brand-700' : 'text-neutral-800'}`}>{v.shortName}</Text>
+                    {active ? <Check size={16} color="#EA580C" /> : null}
+                  </View>
+                  <Text className="text-[11px] text-neutral-500 mt-0.5" numberOfLines={1}>
+                    {v.fullName}
+                  </Text>
+                  <Text className="text-[10px] text-neutral-400 mt-0.5">
+                    {v.language === 'en' ? 'English' : 'Bahasa Indonesia'}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
         {/* Verse of day */}
         <View className="bg-white rounded-2xl p-5 border border-brand-100 mb-4">
           <View className="flex-row items-center gap-2 mb-3">
@@ -130,7 +166,7 @@ export default function BibleHomeScreen() {
               }}
             >
               <Text className="text-sm font-bold text-brand-700">
-                {BIBLE_BOOK_BY_ID.get(verseOfDay.bookId)?.nama} {verseOfDay.bab}:
+                {(() => { const b = BIBLE_BOOK_BY_ID.get(verseOfDay.bookId); return b ? names.name(b) : ''; })()} {verseOfDay.bab}:
                 {verseOfDay.ayat}
               </Text>
             </Pressable>
@@ -155,7 +191,7 @@ export default function BibleHomeScreen() {
             <View className="flex-1">
               <Text className="text-xs text-white/80">{t('bible.continue_reading')}</Text>
               <Text className="text-base font-bold text-white">
-                {lastReadBook.nama} {lastRead.bab}
+                {names.name(lastReadBook)} {lastRead.bab}
               </Text>
             </View>
             <ChevronRight size={20} color="#fff" />
@@ -232,16 +268,17 @@ export default function BibleHomeScreen() {
 
 function BookRow({ book, onPress }: { book: BibleBook; onPress: () => void }) {
   const { t } = useTranslation();
+  const names = useBookNames();
   return (
     <Pressable
       onPress={onPress}
       className="bg-white rounded-xl px-4 py-3 flex-row items-center gap-3 border border-neutral-100"
     >
       <View className="w-9 h-9 rounded-lg bg-brand-50 items-center justify-center">
-        <Text className="text-xs font-bold text-brand-700">{book.singkatan}</Text>
+        <Text className="text-[10px] font-bold text-brand-700" numberOfLines={1}>{names.abbr(book)}</Text>
       </View>
       <View className="flex-1">
-        <Text className="text-sm font-semibold text-neutral-900">{book.nama}</Text>
+        <Text className="text-sm font-semibold text-neutral-900">{names.name(book)}</Text>
         <Text className="text-xs text-neutral-500 mt-0.5">
           {t('bible.chapters_count', { count: book.totalBab })}
         </Text>

@@ -1355,7 +1355,11 @@
     "reject_placeholder": "Alasan (opsional) — dikirim ke jemaat",
     "via_code": "via kode undangan",
     "via_public": "join publik",
-    "join_request_btn": "Minta bergabung"
+    "join_request_btn": "Minta bergabung",
+    "my_card_public": "Publik",
+    "my_card_private": "Privat",
+    "my_card_pic": "PIC",
+    "my_card_members": "Anggota"
   },
   "ckids": {
     "tab_title": "CKids — Point & Hadiah Anak",
