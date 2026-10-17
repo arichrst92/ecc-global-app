@@ -1818,6 +1818,7 @@
     "kind_ibadah": "Ibadah",
     "kind_event": "Event",
     "with": "Bersama",
-    "scanner": "Bertugas scan kehadiran"
+    "scanner": "Bertugas scan kehadiran",
+    "team_default": "Petugas tetap"
   }
 }

@@ -167,7 +167,10 @@ function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; o
           <Church size={18} color="#EA580C" />
         </View>
         <View className="flex-1 min-w-0">
-          <Text className="text-[11px] text-neutral-500">{t('service.kind_ibadah')}</Text>
+          <Text className="text-[11px] text-neutral-500">
+            {t('service.kind_ibadah')}
+            {a.source === 'TIM_IBADAH' ? ` · ${t('service.team_default')}` : ''}
+          </Text>
           <Text className="text-sm font-bold text-neutral-900">{a.ibadahNama}</Text>
         </View>
       </View>

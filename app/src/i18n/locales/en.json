@@ -1819,6 +1819,7 @@
     "kind_ibadah": "Service",
     "kind_event": "Event",
     "with": "With",
-    "scanner": "Assigned to scan attendance"
+    "scanner": "Assigned to scan attendance",
+    "team_default": "Regular team"
   }
 }

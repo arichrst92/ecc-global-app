@@ -48,6 +48,8 @@ export type MyMinistryAssignment = {
   posisi: string;
   posisiLevel: number;
   notes: string | null;
+  /** ROSTER = dijadwalkan leader; TIM_IBADAH = petugas tetap ibadah (BE 2026-10-17). */
+  source?: 'ROSTER' | 'TIM_IBADAH';
   coServants: Array<{
     jemaatId: string;
     namaLengkap: string;
