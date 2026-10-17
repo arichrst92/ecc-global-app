@@ -13,6 +13,7 @@ import {
   getChildRedeemHistory,
 } from '@/api/ckids';
 import { listFamily } from '@/api/family';
+import { isCkidsAge } from '@/utils/ckidsAge';
 import type { ChildGroupedBalance } from '@/types/ckids';
 import type { FamilyRelation } from '@/types/family';
 
@@ -53,9 +54,10 @@ export function useMyChildren() {
   const children = useMemo(
     () =>
       (query.data ?? []).filter((f: FamilyRelation) => {
-        if (f.role === 'CHILD') return true;
         const tipeNama = f.tipeRelasi?.nama?.toLowerCase() ?? '';
-        return tipeNama.includes('anak');
+        const isChild = f.role === 'CHILD' || tipeNama.includes('anak');
+        // CKids hanya untuk anak 13 tahun ke bawah — anak dewasa tidak tampil.
+        return isChild && isCkidsAge(f.jemaat);
       }),
     [query.data],
   );

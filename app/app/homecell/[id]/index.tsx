@@ -326,7 +326,7 @@ export default function HomecellDetailScreen() {
         ) : null}
 
         {/* Pengumuman & voting homecell (PIC kelola) */}
-        <HomecellBoardSection homecellId={id} canManage className="mb-4" />
+        {canRemove ? <HomecellBoardSection homecellId={id} canManage className="mb-4" /> : null}
 
         {/* Active members */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">

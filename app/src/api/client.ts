@@ -50,7 +50,9 @@ async function tryRefresh(): Promise<string | null> {
 
 async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
   const { body, headers, skipAuth, isMultipart, suppressErrorReport, ...rest } = opts;
-  const reqHeaders: Record<string, string> = { ...((headers as Record<string, string>) ?? {}) };
+  // X-Client: mobile → server membedakan app jemaat dari portal admin
+  // (mis. konten group/homecell hanya untuk anggota & PIC di app).
+  const reqHeaders: Record<string, string> = { 'X-Client': 'mobile', ...((headers as Record<string, string>) ?? {}) };
 
   if (!skipAuth) {
     const { accessToken } = useAuthStore.getState();

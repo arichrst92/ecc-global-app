@@ -47,7 +47,6 @@ import {
   useSetHomecellLokasi,
 } from '@/hooks/useHomecell';
 import { ApiError } from '@/types/api';
-import { useAuthStore } from '@/stores/auth.store';
 
 export default function HomecellViewScreen() {
   const insets = useSafeAreaInsets();
@@ -55,7 +54,6 @@ export default function HomecellViewScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const showToast = useToast((s) => s.show);
-  const user = useAuthStore((s) => s.user);
 
   const q = useHomecellPublic(id);
   const hc = q.data;
@@ -316,10 +314,10 @@ export default function HomecellViewScreen() {
           ) : null}
 
           {/* Pengumuman & voting homecell (anggota / pemimpin) */}
-          {hc.myStatus === 'MEMBER' || hc.myStatus === 'LEADER' || user?.isFulltimer ? (
+          {hc.myStatus === 'MEMBER' || hc.myStatus === 'LEADER' ? (
             <HomecellBoardSection
               homecellId={hc.id}
-              canManage={hc.myStatus === 'LEADER' || !!user?.isFulltimer}
+              canManage={hc.myStatus === 'LEADER'}
               className=""
             />
           ) : null}

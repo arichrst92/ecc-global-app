@@ -412,7 +412,8 @@ export default function GroupDetailScreen() {
         ) : null}
 
         {/* Pengumuman, voting, file — anggota & PIC/admin */}
-        {isMember || canManageJoin ? <GroupContentSection groupId={id} canManage={canManageJoin} /> : null}
+        {/* Pengumuman, voting & file: hanya anggota dan PIC (bukan non-anggota, termasuk fulltimer). */}
+        {isMember || isPIC ? <GroupContentSection groupId={id} canManage={isPIC} /> : null}
 
         {/* PIC-only: joinCode + QR */}
         {isPIC && !group.isPublic && group.joinCode ? (
