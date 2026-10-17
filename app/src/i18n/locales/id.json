@@ -1076,7 +1076,12 @@
     "not_in_cache": "Detail jemaat ini belum tersedia di aplikasi. Hubungi pengurus cabang untuk info lengkap.",
     "email_label": "Email",
     "job_label": "Pekerjaan",
-    "marriage_label": "Pernikahan"
+    "marriage_label": "Pernikahan",
+    "journey_section": "Spiritual Journey",
+    "journey_next": "Berikutnya",
+    "homecell_area": "Area {{area}}",
+    "homecell_members": "{{count}} anggota",
+    "homecell_pic": "PIC: {{name}}"
   },
   "area": {
     "title": "Area Homecell",

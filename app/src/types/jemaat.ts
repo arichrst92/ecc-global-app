@@ -54,7 +54,23 @@ export type JemaatPublicProfile = {
   cabang: { id: string; nama: string };
   roles: JemaatPublicRole[];
   ministries: JemaatPublicMinistry[];
-  homecell: { id: string; nama: string } | null;
+  homecell: {
+    id: string;
+    nama: string;
+    hari?: string | null;
+    jam?: string | null;
+    area?: { id: string; nama: string } | null;
+    picJemaat?: { id: string; namaLengkap: string; fotoUrl: string | null } | null;
+    memberCount?: number;
+    tanggalBergabung?: string | null;
+  } | null;
+  /** Progres Spiritual Journey (tahap aktif berurutan). Server lama: undefined. */
+  spiritualJourney?: {
+    total: number;
+    achievedCount: number;
+    nextIndex: number | null;
+    steps: { id: string; urutan: number; judul: string; ikon: string | null; achieved: boolean; isNext: boolean }[];
+  };
   /** Masked format "+628****8446" — selalu tersedia. */
   noHpMasked: string | null;
   /** Format "MM-DD" — selalu tersedia (privacy: no tahun). */

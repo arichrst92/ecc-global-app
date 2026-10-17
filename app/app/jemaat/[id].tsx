@@ -14,8 +14,10 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
-  Award,
   Briefcase,
+  Check,
+  ChevronRight,
+  Footprints,
   Cake,
   Calendar,
   Heart,
@@ -327,63 +329,126 @@ function FullProfile({
         />
       ) : null}
 
-      {/* Homecell */}
-      {profile.homecell ? (
-        <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3">
-          <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-            <UsersIcon size={18} color="#EA580C" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-xs text-neutral-500">{t('jemaat.homecell_label')}</Text>
-            <Text className="text-sm font-semibold text-neutral-900">
-              {profile.homecell.nama}
-            </Text>
-          </View>
-        </View>
-      ) : null}
-
-      {/* Roles — pakai layout sama dengan profile.tsx RoleCard: Award icon
-          amber, role nama bold, subRole sebagai subtitle, status badge di kanan */}
-      {profile.roles.length > 0 ? (
+      {/* Spiritual Journey — pengganti "Peran di Gereja" */}
+      {profile.spiritualJourney && profile.spiritualJourney.total > 0 ? (
         <>
           <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-3 mb-2">
-            {t('jemaat.roles_section')}
+            {t('jemaat.journey_section')}
           </Text>
-          <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden mb-3">
-            {profile.roles.map((r, idx) => {
-              const roleName = r.role?.nama ?? '—';
-              const subName = r.subRole?.nama;
-              return (
+          <View className="bg-white rounded-2xl border border-neutral-100 p-4 mb-3">
+            <View className="flex-row items-center gap-3 mb-3">
+              <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
+                <Footprints size={18} color="#059669" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-sm font-semibold text-neutral-900">
+                  {t('journey.progress', {
+                    done: profile.spiritualJourney.achievedCount,
+                    total: profile.spiritualJourney.total,
+                  })}
+                </Text>
+                <View className="h-2 bg-neutral-100 rounded-full mt-1.5 overflow-hidden">
+                  <View
+                    className="h-full bg-emerald-500 rounded-full"
+                    style={{
+                      width: `${Math.round(
+                        (profile.spiritualJourney.achievedCount / profile.spiritualJourney.total) * 100,
+                      )}%`,
+                    }}
+                  />
+                </View>
+              </View>
+            </View>
+            {profile.spiritualJourney.steps.map((st) => (
+              <View key={st.id} className="flex-row items-center gap-3 py-1.5">
                 <View
-                  key={idx}
-                  className={`flex-row items-center gap-3 p-4 ${
-                    idx > 0 ? 'border-t border-neutral-100' : ''
+                  className={`w-6 h-6 rounded-full items-center justify-center ${
+                    st.achieved ? 'bg-emerald-500' : st.isNext ? 'bg-amber-100 border border-amber-400' : 'bg-neutral-100'
                   }`}
                 >
-                  <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
-                    <Award size={18} color="#D97706" />
-                  </View>
-                  <View className="flex-1 min-w-0">
-                    <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-                      {roleName}
+                  {st.achieved ? (
+                    <Check size={13} color="#fff" />
+                  ) : (
+                    <Text className={`text-[10px] font-bold ${st.isNext ? 'text-amber-700' : 'text-neutral-400'}`}>
+                      {st.urutan}
                     </Text>
-                    {subName ? (
-                      <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-                        {subName}
-                      </Text>
-                    ) : null}
-                  </View>
-                  {r.subRoleStatus?.nama ? (
-                    <View className="bg-emerald-50 px-2 py-0.5 rounded-full">
-                      <Text className="text-[10px] font-bold text-emerald-700">
-                        {r.subRoleStatus.nama.toUpperCase()}
-                      </Text>
-                    </View>
-                  ) : null}
+                  )}
                 </View>
-              );
-            })}
+                <Text
+                  className={`flex-1 text-sm ${
+                    st.achieved ? 'text-neutral-900 font-medium' : st.isNext ? 'text-amber-800 font-medium' : 'text-neutral-400'
+                  }`}
+                  numberOfLines={1}
+                >
+                  {st.ikon ? `${st.ikon} ` : ''}
+                  {st.judul}
+                </Text>
+                {st.isNext ? (
+                  <View className="bg-amber-50 px-2 py-0.5 rounded-full">
+                    <Text className="text-[10px] font-bold text-amber-700">{t('jemaat.journey_next')}</Text>
+                  </View>
+                ) : null}
+              </View>
+            ))}
           </View>
+        </>
+      ) : null}
+
+      {/* Homecell — section sendiri, tap → detail homecell */}
+      {profile.homecell ? (
+        <>
+          <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-3 mb-2">
+            {t('jemaat.homecell_label')}
+          </Text>
+          <Pressable
+            onPress={() => router.push(`/homecell/view/${profile.homecell!.id}` as never)}
+            className="bg-white rounded-2xl border border-neutral-100 p-4 mb-3 active:opacity-80"
+          >
+            <View className="flex-row items-center gap-3">
+              <View className="w-10 h-10 rounded-xl bg-violet-50 items-center justify-center">
+                <Home size={18} color="#7C3AED" />
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                  {profile.homecell.nama}
+                </Text>
+                {profile.homecell.area?.nama ? (
+                  <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                    {t('jemaat.homecell_area', { area: profile.homecell.area.nama })}
+                  </Text>
+                ) : null}
+              </View>
+              <ChevronRight size={16} color="#A3A3A3" />
+            </View>
+            <View className="flex-row flex-wrap gap-x-4 gap-y-1.5 mt-3">
+              {profile.homecell.hari || profile.homecell.jam ? (
+                <View className="flex-row items-center gap-1.5">
+                  <Calendar size={13} color="#737373" />
+                  <Text className="text-xs text-neutral-600">
+                    {[profile.homecell.hari ? titleCase(profile.homecell.hari) : null, profile.homecell.jam]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </Text>
+                </View>
+              ) : null}
+              {typeof profile.homecell.memberCount === 'number' ? (
+                <View className="flex-row items-center gap-1.5">
+                  <UsersIcon size={13} color="#737373" />
+                  <Text className="text-xs text-neutral-600">
+                    {t('jemaat.homecell_members', { count: profile.homecell.memberCount })}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+            {profile.homecell.picJemaat ? (
+              <View className="flex-row items-center gap-2 mt-3 pt-3 border-t border-neutral-100">
+                <Avatar name={profile.homecell.picJemaat.namaLengkap} fotoUrl={profile.homecell.picJemaat.fotoUrl ?? undefined} size={24} />
+                <Text className="text-xs text-neutral-600 flex-1" numberOfLines={1}>
+                  {t('jemaat.homecell_pic', { name: profile.homecell.picJemaat.namaLengkap })}
+                </Text>
+              </View>
+            ) : null}
+          </Pressable>
         </>
       ) : null}
 
@@ -542,4 +607,9 @@ function InfoCard({ icon, bg, label, value }: { icon: React.ReactNode; bg: strin
       </View>
     </View>
   );
+}
+
+/** "MINGGU" → "Minggu" */
+function titleCase(v: string): string {
+  return v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
 }

@@ -1076,7 +1076,12 @@
     "not_in_cache": "This member's details aren't loaded in the app. Contact your branch admin for more info.",
     "email_label": "Email",
     "job_label": "Occupation",
-    "marriage_label": "Marriage"
+    "marriage_label": "Marriage",
+    "journey_section": "Spiritual Journey",
+    "journey_next": "Next",
+    "homecell_area": "{{area}} area",
+    "homecell_members": "{{count}} members",
+    "homecell_pic": "PIC: {{name}}"
   },
   "area": {
     "title": "Homecell Areas",
