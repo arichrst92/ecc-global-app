@@ -1081,7 +1081,11 @@
     "journey_next": "Berikutnya",
     "homecell_area": "Area {{area}}",
     "homecell_members": "{{count}} anggota",
-    "homecell_pic": "PIC: {{name}}"
+    "homecell_pic": "PIC: {{name}}",
+    "cluster_contact": "Kontak & Data Diri",
+    "cluster_contact_sub": "Sesuai pengaturan privasi pemilik profil",
+    "chat": "Chat",
+    "family_count": "{{count}} anggota keluarga"
   },
   "area": {
     "title": "Area Homecell",

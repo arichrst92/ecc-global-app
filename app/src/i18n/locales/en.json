@@ -1081,7 +1081,11 @@
     "journey_next": "Next",
     "homecell_area": "{{area}} area",
     "homecell_members": "{{count}} members",
-    "homecell_pic": "PIC: {{name}}"
+    "homecell_pic": "PIC: {{name}}",
+    "cluster_contact": "Contact & Personal Info",
+    "cluster_contact_sub": "Based on this member's privacy settings",
+    "chat": "Chat",
+    "family_count": "{{count}} family members"
   },
   "area": {
     "title": "Homecell Areas",
