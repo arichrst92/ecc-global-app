@@ -45,7 +45,8 @@ export type JemaatPublicFamily = {
 export type JemaatPublicProfile = {
   // Always populated (public tier)
   id: string;
-  kode: string;
+  /** null kalau bukan diri sendiri / keluarga / PIC homecell (privasi QR). */
+  kode: string | null;
   namaLengkap: string;
   fotoUrl?: string | null;
   jenisKelamin?: 'L' | 'P' | null;
