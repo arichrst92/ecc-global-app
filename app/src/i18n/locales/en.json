@@ -288,8 +288,8 @@
     "delete_account_sub": "Permanently deactivate your account",
     "cluster_account": "Account & Family",
     "cluster_account_sub": "Your branch and family members",
-    "cluster_growth": "Spiritual Growth",
-    "cluster_growth_sub": "Spiritual Journey & certificates",
+    "cluster_growth": "Spiritual Journey",
+    "cluster_growth_sub": "Growth steps & certificates",
     "cluster_service": "Ministry",
     "cluster_service_sub": "Your teams & serving schedule",
     "cluster_community": "Community",
@@ -1085,7 +1085,8 @@
     "cluster_contact": "Contact & Personal Info",
     "cluster_contact_sub": "Based on this member's privacy settings",
     "chat": "Chat",
-    "family_count": "{{count}} family members"
+    "family_count": "{{count}} family members",
+    "journey_sub": "Spiritual growth steps"
   },
   "area": {
     "title": "Homecell Areas",

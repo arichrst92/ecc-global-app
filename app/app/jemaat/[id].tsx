@@ -313,7 +313,7 @@ function FullProfile({
           bg="bg-emerald-50"
           icon={<Footprints size={16} color="#059669" />}
           title={t('profile.cluster_growth')}
-          sub={t('jemaat.journey_section')}
+          sub={t('jemaat.journey_sub')}
         >
           <View className="bg-white rounded-2xl border border-neutral-100 p-4">
             <View className="flex-row items-center justify-between mb-1.5">

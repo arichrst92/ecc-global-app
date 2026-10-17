@@ -288,8 +288,8 @@
     "delete_account_sub": "Nonaktifkan akun Anda secara permanen",
     "cluster_account": "Akun & Keluarga",
     "cluster_account_sub": "Cabang dan anggota keluarga Anda",
-    "cluster_growth": "Pertumbuhan Rohani",
-    "cluster_growth_sub": "Spiritual Journey & sertifikat",
+    "cluster_growth": "Spiritual Journey",
+    "cluster_growth_sub": "Tahap pertumbuhan rohani & sertifikat",
     "cluster_service": "Pelayanan",
     "cluster_service_sub": "Tim pelayanan & jadwal Anda melayani",
     "cluster_community": "Komunitas",
@@ -1085,7 +1085,8 @@
     "cluster_contact": "Kontak & Data Diri",
     "cluster_contact_sub": "Sesuai pengaturan privasi pemilik profil",
     "chat": "Chat",
-    "family_count": "{{count}} anggota keluarga"
+    "family_count": "{{count}} anggota keluarga",
+    "journey_sub": "Tahap pertumbuhan rohani"
   },
   "area": {
     "title": "Area Homecell",
