@@ -2,6 +2,8 @@
  * Nama & singkatan kitab mengikuti BAHASA versi Alkitab yang dipilih:
  * KJV (en) → "Matthew", "Matt"; BIMK (id) → "Matius", "Mat".
  */
+import { useTranslation } from 'react-i18next';
+
 import { BIBLE_VERSION_BY_CODE } from '@/data/bible';
 import { useBibleStore } from '@/stores/bible.store';
 import type { BibleBook, BibleVersionCode } from '@/types/bible';
@@ -25,11 +27,19 @@ export function bookAbbr(book: Pick<BibleBook, 'id' | 'singkatan'>, code: BibleV
   return isEnglishVersion(code) ? ABBR_EN[book.id - 1] ?? book.singkatan : book.singkatan;
 }
 
-/** Hook: nama/singkatan kitab sesuai versi yang sedang dipilih. */
+/**
+ * Hook: nama/singkatan kitab + label konten Alkitab (Perjanjian Lama/Baru,
+ * jumlah pasal, dst.) dalam bahasa versi yang sedang dipilih.
+ */
 export function useBookNames() {
   const code = useBibleStore((s) => s.selectedVersionCode);
+  const { t } = useTranslation();
+  const lng = isEnglishVersion(code) ? 'en' : 'id';
   return {
     code,
+    lng,
+    /** Terjemahan label konten mengikuti bahasa versi Alkitab (bukan bahasa app). */
+    tc: (key: string, opts?: Record<string, unknown>) => t(key, { ...opts, lng }),
     name: (b: Pick<BibleBook, 'nama' | 'namaEn'>) => bookName(b, code),
     abbr: (b: Pick<BibleBook, 'id' | 'singkatan'>) => bookAbbr(b, code),
   };

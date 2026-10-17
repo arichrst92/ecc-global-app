@@ -42,8 +42,8 @@ export default function BibleBookScreen() {
             <View className="flex-1">
               <Text className="text-base font-bold text-white">{names.name(book)}</Text>
               <Text className="text-xs text-white/80">
-                {t('bible.chapters_count', { count: book.totalBab })} ·{' '}
-                {book.testament === 'OT' ? t('bible.ot_short') : t('bible.nt_short')}
+                {names.tc('bible.chapters_count', { count: book.totalBab })} ·{' '}
+                {book.testament === 'OT' ? names.tc('bible.ot_short') : names.tc('bible.nt_short')}
               </Text>
             </View>
           </View>
@@ -66,7 +66,7 @@ export default function BibleBookScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
-          {t('bible.select_chapter')}
+          {names.tc('bible.select_chapter')}
         </Text>
 
         <View className="flex-row flex-wrap" style={{ marginHorizontal: -4 }}>

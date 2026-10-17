@@ -23,7 +23,7 @@ import {
 
 import { useToast } from '@/components/ui/Toast';
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
-import { bookName } from '@/utils/bibleNames';
+import { bookName, useBookNames } from '@/utils/bibleNames';
 import {
   BIBLE_VERSION_BY_CODE,
   getChapter,
@@ -54,6 +54,7 @@ export default function BibleChapterScreen() {
   const bookId = Number(params.bookId);
   const bab = Number(params.bab);
   const book = BIBLE_BOOK_BY_ID.get(bookId);
+  const names = useBookNames();
   const showToast = useToast((s) => s.show);
   const isGuest = useAuthStore((s) => s.isGuest);
 
@@ -293,7 +294,7 @@ export default function BibleChapterScreen() {
         ) : (
           <View className="bg-white rounded-2xl p-6 border border-neutral-200 items-center">
             <Text className="text-sm text-neutral-500 text-center">
-              {t('bible.chapter_not_found')}
+              {names.tc('bible.chapter_not_found')}
             </Text>
           </View>
         )}
@@ -309,7 +310,7 @@ export default function BibleChapterScreen() {
           >
             <ChevronLeft size={16} color="#525252" />
             <Text className="text-sm font-semibold text-neutral-700">
-              {t('bible.prev_chapter')}
+              {names.tc('bible.prev_chapter')}
             </Text>
           </Pressable>
           <View style={{ width: 8 }} />
@@ -319,7 +320,7 @@ export default function BibleChapterScreen() {
             className="flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-xl bg-brand-500"
           >
             <Text className="text-sm font-semibold text-white">
-              {t('bible.next_chapter')}
+              {names.tc('bible.next_chapter')}
             </Text>
             <ChevronRight size={16} color="#fff" />
           </Pressable>

@@ -232,7 +232,7 @@ export default function BibleHomeScreen() {
                 tab === 'OT' ? 'text-white' : 'text-neutral-600'
               }`}
             >
-              {t('bible.browse_ot')} · {OT_BOOKS.length}
+              {names.tc('bible.browse_ot')} · {OT_BOOKS.length}
             </Text>
           </Pressable>
           <Pressable
@@ -246,7 +246,7 @@ export default function BibleHomeScreen() {
                 tab === 'NT' ? 'text-white' : 'text-neutral-600'
               }`}
             >
-              {t('bible.browse_nt')} · {NT_BOOKS.length}
+              {names.tc('bible.browse_nt')} · {NT_BOOKS.length}
             </Text>
           </Pressable>
         </View>
@@ -280,7 +280,7 @@ function BookRow({ book, onPress }: { book: BibleBook; onPress: () => void }) {
       <View className="flex-1">
         <Text className="text-sm font-semibold text-neutral-900">{names.name(book)}</Text>
         <Text className="text-xs text-neutral-500 mt-0.5">
-          {t('bible.chapters_count', { count: book.totalBab })}
+          {names.tc('bible.chapters_count', { count: book.totalBab })}
         </Text>
       </View>
       <ChevronRight size={14} color="#A3A3A3" />
