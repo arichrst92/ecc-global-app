@@ -15,6 +15,7 @@ import type {
 } from '@/types/ministry';
 import type {
   MinistrySchedule,
+  MyEventDuty,
   MyMinistryAssignment,
 } from '@/types/ministrySchedule';
 
@@ -150,4 +151,18 @@ export async function getMyMinistrySchedule(
     if (err instanceof ApiError && err.status === 404) return [];
     throw err;
   }
+}
+
+/**
+ * Jadwal pelayanan lengkap saya: roster ibadah (`assignments`) + petugas
+ * event (`events`) dalam rentang tanggal. Untuk layar "Jadwal Pelayanan Saya".
+ */
+export async function getMyServiceSchedule(
+  from: string,
+  to: string,
+): Promise<{ assignments: MyMinistryAssignment[]; events: MyEventDuty[] }> {
+  const r = await api.get<{ assignments: MyMinistryAssignment[]; events?: MyEventDuty[] }>(
+    `/admin/me/ministry-schedule?from=${from}&to=${to}`,
+  );
+  return { assignments: r.assignments ?? [], events: r.events ?? [] };
 }

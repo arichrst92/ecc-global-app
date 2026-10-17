@@ -55,3 +55,22 @@ export type MyMinistryAssignment = {
     posisi: string;
   }>;
 };
+
+/** Dari GET /admin/me/ministry-schedule (`events`) — saya petugas di event. */
+export type MyEventDuty = {
+  id: string;
+  eventId: string;
+  judul: string;
+  tanggalMulai: string;
+  tanggalSelesai: string | null;
+  jamMulai: string | null;
+  jamSelesai: string | null;
+  lokasi: string | null;
+  cabang: { id: string; nama: string; timezone?: string | null } | null;
+  ministryId: string;
+  ministryNama: string;
+  posisi: string;
+  posisiLevel: number;
+  canScanAttendance: boolean;
+  catatan: string | null;
+};

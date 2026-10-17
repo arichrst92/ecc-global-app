@@ -285,7 +285,20 @@
     "check_update_sub": "See the latest version available",
     "danger_zone": "Danger Zone",
     "delete_account": "Delete Account",
-    "delete_account_sub": "Permanently deactivate your account"
+    "delete_account_sub": "Permanently deactivate your account",
+    "cluster_account": "Account & Family",
+    "cluster_account_sub": "Your branch and family members",
+    "cluster_growth": "Spiritual Growth",
+    "cluster_growth_sub": "Spiritual Journey & certificates",
+    "cluster_service": "Ministry",
+    "cluster_service_sub": "Your teams & serving schedule",
+    "cluster_community": "Community",
+    "cluster_community_sub": "Your homecell & groups",
+    "cluster_activity": "Services & Activities",
+    "cluster_activity_sub": "Reservations and friends you invite",
+    "cluster_more": "More",
+    "cluster_more_sub": "Business, feedback & share the app",
+    "cluster_settings_sub": "Privacy, language & app info"
   },
   "family": {
     "title": "My Family",
@@ -1790,5 +1803,22 @@
     "last_event": "Last event attended",
     "attended_total_one": "{{count}} attendance in total",
     "attended_total_other": "{{count}} attendances in total"
+  },
+  "service": {
+    "menu": "My Serving Schedule",
+    "menu_sub": "When & as what you serve",
+    "title": "My Serving Schedule",
+    "subtitle": "Your serving schedule and roles",
+    "tab_upcoming": "Upcoming",
+    "tab_history": "History",
+    "empty_title": "No serving schedule yet",
+    "empty_history": "No serving history yet",
+    "empty_body": "Your schedule appears here once a ministry leader assigns you to a service or event.",
+    "count_one": "{{count}} schedule",
+    "count_other": "{{count}} schedules",
+    "kind_ibadah": "Service",
+    "kind_event": "Event",
+    "with": "With",
+    "scanner": "Assigned to scan attendance"
   }
 }

@@ -285,7 +285,20 @@
     "check_update_sub": "Lihat versi terbaru yang tersedia",
     "danger_zone": "Zona Berbahaya",
     "delete_account": "Hapus Akun",
-    "delete_account_sub": "Nonaktifkan akun Anda secara permanen"
+    "delete_account_sub": "Nonaktifkan akun Anda secara permanen",
+    "cluster_account": "Akun & Keluarga",
+    "cluster_account_sub": "Cabang dan anggota keluarga Anda",
+    "cluster_growth": "Pertumbuhan Rohani",
+    "cluster_growth_sub": "Spiritual Journey & sertifikat",
+    "cluster_service": "Pelayanan",
+    "cluster_service_sub": "Tim pelayanan & jadwal Anda melayani",
+    "cluster_community": "Komunitas",
+    "cluster_community_sub": "Homecell & group Anda",
+    "cluster_activity": "Ibadah & Kegiatan",
+    "cluster_activity_sub": "Reservasi dan teman yang Anda ajak",
+    "cluster_more": "Lainnya",
+    "cluster_more_sub": "Bisnis, masukan & bagikan aplikasi",
+    "cluster_settings_sub": "Privasi, bahasa & informasi aplikasi"
   },
   "family": {
     "title": "Keluarga Saya",
@@ -1789,5 +1802,22 @@
     "last_event": "Event terakhir yang dihadiri",
     "attended_total_one": "total {{count}}× hadir",
     "attended_total_other": "total {{count}}× hadir"
+  },
+  "service": {
+    "menu": "Jadwal Pelayanan Saya",
+    "menu_sub": "Kapan & sebagai apa Anda melayani",
+    "title": "Jadwal Pelayanan Saya",
+    "subtitle": "Jadwal Anda melayani beserta perannya",
+    "tab_upcoming": "Mendatang",
+    "tab_history": "Riwayat",
+    "empty_title": "Belum ada jadwal pelayanan",
+    "empty_history": "Belum ada riwayat pelayanan",
+    "empty_body": "Jadwal muncul di sini setelah leader pelayanan menjadwalkan Anda di ibadah atau event.",
+    "count_one": "{{count}} jadwal",
+    "count_other": "{{count}} jadwal",
+    "kind_ibadah": "Ibadah",
+    "kind_event": "Event",
+    "with": "Bersama",
+    "scanner": "Bertugas scan kehadiran"
   }
 }

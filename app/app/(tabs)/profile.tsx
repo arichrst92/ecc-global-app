@@ -29,6 +29,10 @@ import {
   Users,
   Users2,
   UserPlus,
+  UserRound,
+  Footprints,
+  CalendarClock,
+  Settings,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -151,125 +155,123 @@ function ProfileTabAuthenticated() {
         }
       >
 
-        {/* Quick Access dipindah ke Dashboard. Scanner Mode tetap di sini
-            karena merupakan akses penting volunteer. */}
+        {/* ============ 1. Akun & Keluarga ============ */}
+        <Cluster icon={<UserRound size={16} color="#EA580C" />} title={t('profile.cluster_account')} sub={t('profile.cluster_account_sub')}>
+          <BranchCard onPress={() => router.push('/settings/change-branch')} />
+          <FamilyCard onPress={() => router.push('/family' as never)} />
+        </Cluster>
 
-        {/* Scanner Mode — only show kalau user authorized */}
-        {isScannerAuthorized ? (
-          <Pressable
-            onPress={() => router.push('/scanner')}
-            className="bg-brand-500 rounded-2xl p-4 flex-row items-center gap-3 mb-4"
-          >
-            <View className="w-12 h-12 rounded-xl bg-white/20 items-center justify-center">
-              <ScanLine size={22} color="#fff" />
-            </View>
-            <View className="flex-1">
-              <Text className="font-bold text-white">{t('profile.scanner_mode')}</Text>
-              <Text className="text-xs text-white/80 mt-0.5">
-                {t('profile.scanner_mode_sub')}
-              </Text>
-            </View>
-            <ChevronRight size={18} color="#fff" />
-          </Pressable>
-        ) : null}
+        {/* ============ 2. Pertumbuhan Rohani ============ */}
+        <Cluster icon={<Footprints size={16} color="#059669" />} title={t('profile.cluster_growth')} sub={t('profile.cluster_growth_sub')}>
+          <JourneyCard />
+          <SertifikatCard />
+        </Cluster>
 
-        {/* Cabang Home — section sendiri, dipisah dari pengaturan supaya
-            data cabang aktif lebih prominent */}
-        <BranchCard onPress={() => router.push('/settings/change-branch')} />
+        {/* ============ 3. Pelayanan ============ */}
+        <Cluster icon={<HeartHandshake size={16} color="#DB2777" />} title={t('profile.cluster_service')} sub={t('profile.cluster_service_sub')}>
+          <MinistryCard />
+          <MenuBox>
+            <MenuRow
+              icon={<CalendarClock size={18} color="#DB2777" />}
+              iconBg="bg-pink-50"
+              label={t('service.menu')}
+              sub={t('service.menu_sub')}
+              onPress={() => router.push('/profile/my-service' as never)}
+              isLast={!isScannerAuthorized}
+            />
+            {isScannerAuthorized ? (
+              <MenuRow
+                icon={<ScanLine size={18} color="#EA580C" />}
+                iconBg="bg-brand-50"
+                label={t('profile.scanner_mode')}
+                sub={t('profile.scanner_mode_sub')}
+                onPress={() => router.push('/scanner')}
+                isLast
+              />
+            ) : null}
+          </MenuBox>
+        </Cluster>
 
-        {/* Keluarga — quick preview + link ke /family */}
-        <FamilyCard onPress={() => router.push('/family' as never)} />
+        {/* ============ 4. Komunitas ============ */}
+        <Cluster icon={<Users2 size={16} color="#7C3AED" />} title={t('profile.cluster_community')} sub={t('profile.cluster_community_sub')}>
+          <HomecellProfileCard />
+          <MenuBox>
+            <MenuRow
+              icon={<Users size={18} color="#3B82F6" />}
+              iconBg="bg-blue-50"
+              label={t('profile.my_groups')}
+              sub={t('profile.my_groups_sub')}
+              onPress={() => router.push('/profile/my-groups' as never)}
+            />
+            <MenuRow
+              icon={<Users2 size={18} color="#7C3AED" />}
+              iconBg="bg-purple-50"
+              label={t('profile.group_browse')}
+              sub={t('profile.group_browse_sub')}
+              onPress={() => router.push('/group' as never)}
+              isLast
+            />
+          </MenuBox>
+        </Cluster>
 
-        {/* Spiritual Journey — progres tahap (menggantikan section "Your Current Role") */}
-        <JourneyCard />
+        {/* ============ 5. Ibadah & Kegiatan ============ */}
+        <Cluster icon={<CalendarCheck size={16} color="#0369A1" />} title={t('profile.cluster_activity')} sub={t('profile.cluster_activity_sub')}>
+          <MenuBox>
+            <MenuRow
+              icon={<CalendarCheck size={18} color="#EC4899" />}
+              iconBg="bg-pink-50"
+              label={t('profile.my_reservasi')}
+              sub={t('profile.my_reservasi_sub')}
+              onPress={() => router.push('/my-reservasi' as never)}
+            />
+            <MenuRow
+              icon={<UserPlus size={18} color="#7C3AED" />}
+              iconBg="bg-violet-50"
+              label={t('guests.menu')}
+              sub={t('guests.menu_sub')}
+              onPress={() => router.push('/profile/my-guests' as never)}
+              isLast
+            />
+          </MenuBox>
+        </Cluster>
 
-        {/* Homecell current user (anggota / pemimpin / belum punya) */}
-        <HomecellProfileCard />
+        {/* ============ 6. Lainnya ============ */}
+        <Cluster icon={<Sparkles size={16} color="#CA8A04" />} title={t('profile.cluster_more')} sub={t('profile.cluster_more_sub')}>
+          <MenuBox>
+            <MenuRow
+              icon={<Store size={18} color="#EA580C" />}
+              iconBg="bg-brand-50"
+              label={t('profile.my_business')}
+              sub={t('profile.my_business_sub')}
+              onPress={() => router.push('/profile/businesses' as never)}
+            />
+            <MenuRow
+              icon={<MessageSquareText size={18} color="#7C3AED" />}
+              iconBg="bg-violet-50"
+              label={t('feedback.menu')}
+              sub={t('feedback.menu_sub')}
+              onPress={() => router.push('/feedback' as never)}
+            />
+            <MenuRow
+              icon={<Share2 size={18} color="#EA580C" />}
+              iconBg="bg-brand-50"
+              label={t('share_app.menu')}
+              sub={t('share_app.menu_sub')}
+              onPress={async () => {
+                try {
+                  const r = await shareElsApp(user?.namaLengkap);
+                  if (r === 'copied') showToast(t('share_app.copied'), 'success');
+                } catch {
+                  showToast(t('error.generic'), 'error');
+                }
+              }}
+              isLast
+            />
+          </MenuBox>
+        </Cluster>
 
-        {/* Ministry / pelayanan current user */}
-        <MinistryCard />
-
-        {/* Sertifikat (dikelola admin di portal) */}
-        <SertifikatCard />
-
-        {/* Aktivitas & komunitas — M40 (Group) + M41 (My Reservasi) */}
-        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-          {t('profile.section_community')}
-        </Text>
-        <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100 mb-4">
-          <MenuRow
-            icon={<Users2 size={18} color="#7C3AED" />}
-            iconBg="bg-purple-50"
-            label={t('profile.group_browse')}
-            sub={t('profile.group_browse_sub')}
-            onPress={() => router.push('/group' as never)}
-          />
-          <MenuRow
-            icon={<Users size={18} color="#3B82F6" />}
-            iconBg="bg-blue-50"
-            label={t('profile.my_groups')}
-            sub={t('profile.my_groups_sub')}
-            onPress={() => router.push('/profile/my-groups' as never)}
-          />
-          <MenuRow
-            icon={<UserPlus size={18} color="#7C3AED" />}
-            iconBg="bg-violet-50"
-            label={t('guests.menu')}
-            sub={t('guests.menu_sub')}
-            onPress={() => router.push('/profile/my-guests' as never)}
-          />
-          <MenuRow
-            icon={<CalendarCheck size={18} color="#EC4899" />}
-            iconBg="bg-pink-50"
-            label={t('profile.my_reservasi')}
-            sub={t('profile.my_reservasi_sub')}
-            onPress={() => router.push('/my-reservasi' as never)}
-            isLast
-          />
-        </View>
-
-        {/* Bisnis saya — Local Market owner entry */}
-        <View className="bg-white rounded-2xl border border-neutral-100 mb-4">
-          <MenuRow
-            icon={<Store size={18} color="#EA580C" />}
-            iconBg="bg-brand-50"
-            label={t('profile.my_business')}
-            sub={t('profile.my_business_sub')}
-            onPress={() => router.push('/profile/businesses' as never)}
-            isLast
-          />
-        </View>
-
-        {/* Share Els App — ajak keluarga & teman (link Android, iOS, web) */}
-        <View className="bg-white rounded-2xl border border-neutral-100 mb-6">
-          <MenuRow
-            icon={<MessageSquareText size={18} color="#7C3AED" />}
-            iconBg="bg-violet-50"
-            label={t('feedback.menu')}
-            sub={t('feedback.menu_sub')}
-            onPress={() => router.push('/feedback' as never)}
-          />
-          <MenuRow
-            icon={<Share2 size={18} color="#EA580C" />}
-            iconBg="bg-brand-50"
-            label={t('share_app.menu')}
-            sub={t('share_app.menu_sub')}
-            onPress={async () => {
-              try {
-                const r = await shareElsApp(user?.namaLengkap);
-                if (r === 'copied') showToast(t('share_app.copied'), 'success');
-              } catch {
-                showToast(t('error.generic'), 'error');
-              }
-            }}
-            isLast
-          />
-        </View>
-
-        {/* Settings menu — change_branch dipindah ke BranchCard di atas */}
-        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-          {t('profile.settings_title')}
-        </Text>
+        {/* ============ 7. Pengaturan ============ */}
+        <ClusterTitle icon={<Settings size={16} color="#525252" />} title={t('profile.settings_title')} sub={t('profile.cluster_settings_sub')} />
         <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <MenuRow
             icon={<ShieldCheck size={18} color="#4F46E5" />}
@@ -743,4 +745,42 @@ function MinistryCard() {
       )}
     </View>
   );
+}
+
+/* ==============================================================
+ * Cluster — pengelompokan menu Profil (judul ber-ikon + isi)
+ * ============================================================== */
+function ClusterTitle({ icon, title, sub }: { icon: React.ReactNode; title: string; sub?: string }) {
+  return (
+    <View className="flex-row items-center gap-2.5 mb-3 mt-2">
+      <View className="w-8 h-8 rounded-xl bg-white border border-neutral-100 items-center justify-center">{icon}</View>
+      <View className="flex-1">
+        <Text className="text-sm font-bold text-neutral-900">{title}</Text>
+        {sub ? <Text className="text-[11px] text-neutral-500">{sub}</Text> : null}
+      </View>
+    </View>
+  );
+}
+
+function Cluster({
+  icon,
+  title,
+  sub,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  sub?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View className="mb-5">
+      <ClusterTitle icon={icon} title={title} sub={sub} />
+      {children}
+    </View>
+  );
+}
+
+function MenuBox({ children }: { children: React.ReactNode }) {
+  return <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100 mb-4">{children}</View>;
 }
