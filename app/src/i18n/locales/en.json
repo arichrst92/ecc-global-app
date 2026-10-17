@@ -1802,7 +1802,9 @@
     "last_ibadah": "Last service attended",
     "last_event": "Last event attended",
     "attended_total_one": "{{count}} attendance in total",
-    "attended_total_other": "{{count}} attendances in total"
+    "attended_total_other": "{{count}} attendances in total",
+    "followup_by": "Followed up by {{name}}",
+    "since": "since {{date}}"
   },
   "service": {
     "menu": "My Serving Schedule",

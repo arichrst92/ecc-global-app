@@ -10,7 +10,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Church, Phone, Ticket, Trash2, UserPlus, Users } from 'lucide-react-native';
+import { ArrowLeft, Church, Phone, Ticket, Trash2, UserCheck, UserPlus, Users } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -138,6 +138,15 @@ export default function MyGuestsScreen() {
                         <View className={`self-start px-2 py-0.5 rounded-full mt-2 ${STATUS_STYLE[st].bg}`}>
                           <Text className={`text-[11px] font-bold ${STATUS_STYLE[st].fg}`}>{t(`guests.status_${st}`)}</Text>
                         </View>
+                        {g.followupBy ? (
+                          <View className="flex-row items-start gap-1.5 mt-2">
+                            <UserCheck size={12} color="#B45309" style={{ marginTop: 2 }} />
+                            <Text className="flex-1 text-xs text-amber-800">
+                              {t('guests.followup_by', { name: g.followupBy.namaLengkap })}
+                              {g.followupSejak ? ` · ${t('guests.since', { date: formatInstantDate(g.followupSejak, i18n.language) })}` : ''}
+                            </Text>
+                          </View>
+                        ) : null}
                       </View>
                       <Pressable
                         onPress={() => askRemove(g)}

@@ -1801,7 +1801,9 @@
     "last_ibadah": "Ibadah terakhir yang dihadiri",
     "last_event": "Event terakhir yang dihadiri",
     "attended_total_one": "total {{count}}× hadir",
-    "attended_total_other": "total {{count}}× hadir"
+    "attended_total_other": "total {{count}}× hadir",
+    "followup_by": "Difollow-up oleh {{name}}",
+    "since": "sejak {{date}}"
   },
   "service": {
     "menu": "Jadwal Pelayanan Saya",

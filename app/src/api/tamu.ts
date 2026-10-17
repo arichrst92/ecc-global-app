@@ -21,6 +21,9 @@ export type Tamu = {
   terakhirHadir?: string | null;
   /** Ibadah / event terakhir yang dihadiri. */
   terakhirAcara?: { jenis: 'IBADAH' | 'EVENT'; id: string; nama: string; tanggal: string } | null;
+  /** Petugas ECC yang mem-follow-up tamu ini (diatur admin). */
+  followupBy?: { id: string; namaLengkap: string } | null;
+  followupSejak?: string | null;
 };
 
 export const listMyTamu = () => api.get<Tamu[]>('/admin/me/tamu');
