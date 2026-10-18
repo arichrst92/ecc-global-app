@@ -13,6 +13,7 @@ Pembaruan Els App 2.3.1:
 • Profil sesama jemaat tampil baru: Spiritual Journey, homecell, pelayanan & keluarga
 • Tombol kembali ke aplikasi dari halaman persembahan
 • Katalog hadiah CKids kini tampil di semua HP Android
+• Tanggal lahir & pernikahan tersimpan sesuai tanggal yang dipilih
 • Perbaikan privasi & berbagai perbaikan lainnya
 ```
 
@@ -25,6 +26,7 @@ Els App 2.3.1 update:
 • Redesigned member profiles: Spiritual Journey, homecell, ministry & family
 • Back-to-app button from the giving page
 • CKids gift catalog now shows on all Android phones
+• Birth & wedding dates are saved exactly as selected
 • Privacy improvements & other fixes
 ```
 
@@ -47,4 +49,7 @@ Pengguna v2.3.0 akan mendapat popup "Versi baru tersedia" setelah row ini dipubl
 - Buka profil jemaat lain (dari homecell / keluarga): grouping, Spiritual Journey, homecell
 - Beranda → Beri → browser dalam app → tombol "Kembali ke Els App" / X
 - Tab CKids → katalog hadiah 2 kolom tampil, ketuk → detail & stok
+- Edit Profil: pilih tanggal lahir & tanggal pernikahan → simpan → tanggal yang tampil sama (tidak mundur 1 hari)
+- Tambah anggota keluarga: tanggal lahir tersimpan sesuai pilihan
+- Profil jemaat lain & detail homecell: tanggal pernikahan, jadwal pertemuan, "anggota sejak" tampil benar
 - Popup versi baru (setelah row App Versions dipublish)
