@@ -26,7 +26,10 @@ export function buildEventPaymentWebUrl(
 ) {
   // String builder (bukan URL.searchParams — belum lengkap di Hermes) supaya
   // URL native identik dengan sebelumnya.
-  const base = `https://eccchurch.global/event/${encodeURIComponent(eventId)}/pembayaran`;
+  // /bayar/event/{id} (bukan /event/{id}/pembayaran): path /event/* di Android
+  // ditangkap App Link app sendiri → browser pembayaran kembali ke app dan
+  // tampil "Unmatched Route". /bayar/* bukan App Link / Universal Link.
+  const base = `https://eccchurch.global/bayar/event/${encodeURIComponent(eventId)}`;
   const params: string[] = [];
   if (token) params.push(`wt=${encodeURIComponent(token)}`);
   // Hanya Els App web: landing menampilkan tombol kembali ke URL ini
