@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -36,7 +37,10 @@ type QuickAccessTile = {
 };
 
 const ICON_COLOR = '#EA580C';
-const COLS = 4;
+/** Minimal 4 kolom (HP); layar lebih lebar (tablet/web) → lebih banyak kolom. */
+const MIN_COLS = 4;
+/** Lebar minimum satu tile (ikon 56 + label) termasuk padding. */
+const MIN_TILE_WIDTH = 84;
 
 /**
  * Quick Access grid di dashboard (grid 4 kolom, dikelompokkan per tema):
@@ -44,8 +48,9 @@ const COLS = 4;
  *   2. Renungan, Alkitab, Doa, Resolusi
  *   3. Keluarga, Tamu, Group, Homecell
  *   4. Ministry, (Area — PIC area), Visit, Local Market
- * Baris terakhir yang kurang dari 4 diisi placeholder (kotak garis putus,
- * non-interaktif). Scanner → ikon di header Home; Kalender → header Profil.
+ * Jumlah kolom menyesuaikan lebar layar (min 4); tile mengalir ke kanan
+ * lalu turun, baris terakhir dibiarkan apa adanya (tanpa placeholder).
+ * Scanner → ikon di header Home; Kalender → header Profil.
  * Tamu (guest mode) memakai GuestHomeView, jadi grid ini hanya untuk login.
  */
 export function QuickAccess() {
@@ -93,25 +98,21 @@ export function QuickAccess() {
     { key: 'market', icon: Store, label: t('quickaccess.market'), onPress: go('/market') },
   ];
 
-  const placeholders = (COLS - (tiles.length % COLS)) % COLS;
+  // Lebar grid diukur langsung (bukan lebar window) supaya tetap benar di
+  // web yang kontennya dibatasi max-width.
+  const [gridWidth, setGridWidth] = useState(0);
+  const cols = Math.max(MIN_COLS, Math.floor(gridWidth / MIN_TILE_WIDTH) || MIN_COLS);
 
   return (
     <View className="px-5 mt-4">
-      <View className="flex-row flex-wrap" style={{ marginHorizontal: -4, rowGap: 12 }}>
+      <View
+        className="flex-row flex-wrap"
+        style={{ marginHorizontal: -4, rowGap: 12 }}
+        onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
+      >
         {tiles.map((tile) => (
-          <View key={tile.key} style={{ width: `${100 / COLS}%`, paddingHorizontal: 4 }}>
+          <View key={tile.key} style={{ width: `${100 / cols}%`, paddingHorizontal: 4 }}>
             <Tile tile={tile} />
-          </View>
-        ))}
-        {Array.from({ length: placeholders }, (_, i) => (
-          <View
-            key={`ph-${i}`}
-            style={{ width: `${100 / COLS}%`, paddingHorizontal: 4 }}
-            className="items-center"
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          >
-            <View className="w-14 h-14 rounded-2xl border-[1.5px] border-dashed border-neutral-300" />
           </View>
         ))}
       </View>
