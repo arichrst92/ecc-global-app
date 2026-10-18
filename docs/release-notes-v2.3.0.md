@@ -37,6 +37,8 @@ A big new update!
 
 ### App Store — "What's New"
 
+> Jangan sebut Android / Google Play di teks App Store (Apple Guideline 2.3.10 — ditolak 17 Okt 2026).
+
 **Bahasa Indonesia**
 
 ```
@@ -71,7 +73,7 @@ PROFIL & LAINNYA
 PERBAIKAN
 • Reservasi Saya lebih lengkap (anak, keluarga, tab Riwayat)
 • Pembayaran event kembali ke aplikasi dengan lancar
-• Tampilan rapi di layar penuh (Android 15) dan berbagai perbaikan lainnya
+• Tampilan lebih rapi di iPhone dan iPad, serta berbagai perbaikan lainnya
 ```
 
 **English**
@@ -108,7 +110,7 @@ PROFILE & MORE
 FIXES
 • My Reservations now complete (children, family, History tab)
 • Event payment returns to the app smoothly
-• Edge-to-edge layout fixes (Android 15) and many other improvements
+• Cleaner layout on iPhone and iPad, plus many other improvements
 ```
 
 ---
