@@ -552,7 +552,11 @@
     "give_again_cta": "Give again",
     "total_given_label": "Total given",
     "donasi_tambahan_info": "Includes {{count}} additional gifts",
-    "donasi_tambahan_pending": "{{count}} awaiting verification"
+    "donasi_tambahan_pending": "{{count}} awaiting verification",
+    "donasi_count_info": "Given {{count}} times",
+    "riwayat_pemberian": "Giving history",
+    "donasi_batal": "Cancelled",
+    "lihat_bukti": "view proof"
   },
   "branch": {
     "active_label": "Active branch",

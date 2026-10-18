@@ -768,7 +768,8 @@ function ParticipationStatusCard({
   const status = participation.status;
   const registeredAt = new Date(participation.registeredAt).getTime();
   const donasi = participation.donasiTambahan;
-  const hasDonasi = !!donasi && donasi.count > 0;
+  // Lebih dari satu pemberian → tampilkan total akumulasi.
+  const hasDonasi = (participation.jumlahPemberian ?? 0) > 1 || (!!donasi && donasi.count > 0);
   // Event sukarela dengan donasi tambahan → tampilkan total yang diberikan.
   const nominalBayar = hasDonasi
     ? (participation.totalDiberikan ?? null)
@@ -916,8 +917,8 @@ function ParticipationStatusCard({
 
           {hasDonasi ? (
             <Text className={`text-[11px] ${cfg.bodyColor} mt-2`}>
-              {t('event.donasi_tambahan_info', { count: donasi!.count })}
-              {donasi!.pending > 0 ? ` · ${t('event.donasi_tambahan_pending', { count: donasi!.pending })}` : ''}
+              {t('event.donasi_count_info', { count: participation.jumlahPemberian ?? (donasi?.count ?? 0) + 1 })}
+              {donasi && donasi.pending > 0 ? ` · ${t('event.donasi_tambahan_pending', { count: donasi.pending })}` : ''}
             </Text>
           ) : null}
           {onPress ? (
@@ -1127,13 +1128,64 @@ function ParticipationDetailModal({
               />
             ) : null}
 
-            {/* Nominal */}
-            {!isFree && nominalNum > 0 ? (
+            {/* Nominal / total pemberian */}
+            {!isFree && (participation.riwayatPemberian?.length ?? 0) > 1 ? (
+              <DetailRow
+                icon={<Receipt size={18} color="#EA580C" />}
+                label={t('event.total_given_label')}
+                value={`Rp ${(participation.totalDiberikan ?? nominalNum).toLocaleString('id-ID')}`}
+              />
+            ) : !isFree && nominalNum > 0 ? (
               <DetailRow
                 icon={<Receipt size={18} color="#EA580C" />}
                 label={t('event.detail_nominal_label')}
                 value={`Rp ${nominalNum.toLocaleString('id-ID')}`}
               />
+            ) : null}
+
+            {/* Riwayat pemberian (event sukarela — bisa berkali-kali) */}
+            {!isFree && (participation.riwayatPemberian?.length ?? 0) > 1 ? (
+              <View className="mt-3">
+                <Text className="text-sm font-bold text-neutral-900 mb-2">{t('event.riwayat_pemberian')}</Text>
+                <View className="border border-neutral-100 rounded-xl overflow-hidden">
+                  {participation.riwayatPemberian!.map((d, i) => {
+                    const url = d.buktiTransferUrl
+                      ? d.buktiTransferUrl.startsWith('http')
+                        ? d.buktiTransferUrl
+                        : `${env.apiBaseUrl}${d.buktiTransferUrl}`
+                      : null;
+                    const st =
+                      d.status === 'BAYAR'
+                        ? { cls: 'bg-emerald-100', txt: 'text-emerald-800', label: t('event.status_bayar') }
+                        : d.status === 'BATAL'
+                          ? { cls: 'bg-neutral-100', txt: 'text-neutral-500', label: t('event.donasi_batal') }
+                          : d.status === 'MENUNGGU_VERIFIKASI'
+                            ? { cls: 'bg-amber-100', txt: 'text-amber-800', label: t('event.status_menunggu') }
+                            : { cls: 'bg-amber-100', txt: 'text-amber-800', label: t('event.status_daftar') };
+                    return (
+                      <Pressable
+                        key={d.id}
+                        disabled={!url}
+                        onPress={() => url && setZoomedUrl(url)}
+                        className={`flex-row items-center gap-3 px-3 py-2.5 ${i > 0 ? 'border-t border-neutral-100' : ''}`}
+                      >
+                        <View className="flex-1 min-w-0">
+                          <Text className={`text-sm font-semibold ${d.status === 'BATAL' ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
+                            Rp {Number(d.nominalBayar).toLocaleString('id-ID')}
+                          </Text>
+                          <Text className="text-[11px] text-neutral-500">
+                            {formatDateTime(new Date(d.createdAt).getTime(), lang)}
+                            {url ? ` · ${t('event.lihat_bukti')}` : ''}
+                          </Text>
+                        </View>
+                        <View className={`px-2 py-0.5 rounded-full ${st.cls}`}>
+                          <Text className={`text-[10px] font-bold ${st.txt}`}>{st.label}</Text>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
             ) : null}
 
             {/* Bukti transfer — hanya untuk berbayar */}

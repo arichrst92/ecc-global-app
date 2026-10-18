@@ -552,7 +552,11 @@
     "give_again_cta": "Beri lagi",
     "total_given_label": "Total diberikan",
     "donasi_tambahan_info": "Termasuk {{count}} donasi tambahan",
-    "donasi_tambahan_pending": "{{count}} menunggu verifikasi"
+    "donasi_tambahan_pending": "{{count}} menunggu verifikasi",
+    "donasi_count_info": "{{count}} kali memberi",
+    "riwayat_pemberian": "Riwayat pemberian",
+    "donasi_batal": "Dibatalkan",
+    "lihat_bukti": "lihat bukti"
   },
   "branch": {
     "active_label": "Cabang aktif",

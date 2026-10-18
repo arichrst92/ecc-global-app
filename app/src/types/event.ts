@@ -98,8 +98,20 @@ export type EventParticipation = {
   relationLabel?: string;
   /** Event sukarela: donasi tambahan (berkali-kali dari web), non-batal. */
   donasiTambahan?: { count: number; total: number; totalConfirmed: number; pending: number };
-  /** Pembayaran pertama + donasi tambahan non-batal. */
+  /** Semua pemberian non-batal (pembayaran pertama + donasi tambahan). */
   totalDiberikan?: number;
+  /** Jumlah pemberian non-batal. */
+  jumlahPemberian?: number;
+  /** Riwayat pemberian (urut lama → baru). */
+  riwayatPemberian?: {
+    id: string;
+    nominalBayar: string;
+    status: 'DAFTAR' | 'MENUNGGU_VERIFIKASI' | 'BAYAR' | 'BATAL';
+    tambahan: boolean;
+    buktiTransferUrl: string | null;
+    createdAt: string;
+    paidAt: string | null;
+  }[];
 };
 
 /** Response GET /admin/event/:idOrSlug/peserta/mine-and-family — per BE update
