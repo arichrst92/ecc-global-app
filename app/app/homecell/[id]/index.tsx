@@ -39,6 +39,7 @@ import { ApiError } from '@/types/api';
 import type { HomecellMember } from '@/types/homecell';
 import type { HomecellSchedule } from '@/types/homecellSchedule';
 import { goBack } from '@/utils/nav';
+import { parseLocalDate } from '@/utils/date';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -476,7 +477,7 @@ function MemberRow({
           <Text className="text-[10px] text-red-600 mt-0.5 font-semibold">
             {t('homecell.member_inactive')}
             {member.tanggalKeluar
-              ? ` · ${new Date(member.tanggalKeluar).toLocaleDateString('id-ID')}`
+              ? ` · ${parseLocalDate(member.tanggalKeluar).toLocaleDateString('id-ID')}`
               : ''}
           </Text>
         ) : null}
@@ -528,7 +529,7 @@ function ScheduleTableRow({
   const { i18n } = useTranslation();
   const lang = i18n.language;
   // Short date format: "Jum, 24 Mei" / "Fri, 24 May"
-  const d = new Date(schedule.tanggal);
+  const d = parseLocalDate(schedule.tanggal);
   const dayShort = d.toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-US', {
     weekday: 'short',
   });

@@ -41,6 +41,7 @@ import type { HomecellDetail } from '@/types/homecell';
 import type { FamilyRelation } from '@/types/family';
 import type { JemaatPublicProfile } from '@/types/jemaat';
 import { goBack } from '@/utils/nav';
+import { parseLocalDate } from '@/utils/date';
 
 type CacheFallback = {
   source: 'family' | 'homecell';
@@ -238,7 +239,7 @@ function FullProfile({
     ? [
         profile.pernikahan.statusPernikahan,
         profile.pernikahan.tanggalPernikahan
-          ? new Date(profile.pernikahan.tanggalPernikahan).toLocaleDateString('id-ID', {
+          ? parseLocalDate(profile.pernikahan.tanggalPernikahan).toLocaleDateString('id-ID', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
@@ -291,7 +292,7 @@ function FullProfile({
               bg="bg-pink-50"
               label={t('jemaat.birthday_label')}
               value={`${formatBirthMonthDay(profile.ulangTahunBulanTgl)}${
-                profile.tanggalLahir ? ` · ${new Date(profile.tanggalLahir).getFullYear()}` : ''
+                profile.tanggalLahir ? ` · ${parseLocalDate(profile.tanggalLahir).getFullYear()}` : ''
               }`}
             />
           ) : null}

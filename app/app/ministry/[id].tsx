@@ -52,7 +52,7 @@ import {
 import { useAuthStore } from '@/stores/auth.store';
 import type { MinistryJoinRequest, MinistryMember, MinistryRole } from '@/types/ministry';
 import { ApiError } from '@/types/api';
-import { formatDateWithDay } from '@/utils/date';
+import { formatDateWithDay, parseLocalDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 
 export default function MinistryDetailScreen() {
@@ -307,7 +307,7 @@ export default function MinistryDetailScreen() {
                 {ministry.myMembership.posisi || '—'}
                 {' · '}
                 {t('ministry.since_label')}{' '}
-                {new Date(ministry.myMembership.sinceDate).toLocaleDateString('id-ID')}
+                {parseLocalDate(ministry.myMembership.sinceDate).toLocaleDateString('id-ID')}
               </Text>
             </View>
           </View>
