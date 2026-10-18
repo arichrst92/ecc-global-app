@@ -9,10 +9,11 @@ Rilis produksi **Android**. Versi sebelumnya: v2.3.0.
 ```
 Pembaruan Els App 2.3.1:
 • Data Diri di Profil: lengkapi pekerjaan & status pernikahan
-• Ganti nomor HP sendiri dengan verifikasi WhatsApp ke nomor baru
-• Profil sesama jemaat tampil baru: Spiritual Journey, homecell, pelayanan & keluarga
+• Ganti nomor HP sendiri dengan verifikasi WhatsApp
+• Tampilan baru profil sesama jemaat
 • Tombol kembali ke aplikasi dari halaman persembahan
-• Katalog hadiah CKids kini tampil di semua HP Android
+• Katalog hadiah CKids kini tampil untuk semua orang tua
+• Pembayaran event sukarela kini terbuka dengan benar
 • Tanggal lahir & pernikahan tersimpan sesuai tanggal yang dipilih
 • Perbaikan privasi & berbagai perbaikan lainnya
 ```
@@ -25,7 +26,8 @@ Els App 2.3.1 update:
 • Change your own phone number with WhatsApp verification to the new number
 • Redesigned member profiles: Spiritual Journey, homecell, ministry & family
 • Back-to-app button from the giving page
-• CKids gift catalog now shows on all Android phones
+• CKids gift catalog now shows for all parents
+• Voluntary event payment page now opens correctly
 • Birth & wedding dates are saved exactly as selected
 • Privacy improvements & other fixes
 ```
@@ -52,4 +54,5 @@ Pengguna v2.3.0 akan mendapat popup "Versi baru tersedia" setelah row ini dipubl
 - Edit Profil: pilih tanggal lahir & tanggal pernikahan → simpan → tanggal yang tampil sama (tidak mundur 1 hari)
 - Tambah anggota keluarga: tanggal lahir tersimpan sesuai pilihan
 - Profil jemaat lain & detail homecell: tanggal pernikahan, jadwal pertemuan, "anggota sejak" tampil benar
+- Event sukarela: Daftar/Bayar → halaman pembayaran terbuka di browser (bukan "Unmatched Route") → Kembali ke Els App
 - Popup versi baru (setelah row App Versions dipublish)
