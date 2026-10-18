@@ -1462,7 +1462,8 @@
     "qr_no_child_body": "Kembali ke tab CKids untuk pilih anak dulu.",
     "age_years_one": "{{count}} tahun",
     "age_years_other": "{{count}} tahun",
-    "age_rule_info": "Yang tampil di CKids hanya anak usia {{max}} tahun ke bawah (dihitung dari tanggal lahir di menu Keluarga)."
+    "age_rule_info": "Yang tampil di CKids hanya anak usia {{max}} tahun ke bawah (dihitung dari tanggal lahir di menu Keluarga).",
+    "katalog_error": "Katalog hadiah gagal dimuat. Coba lagi."
   },
   "my_reservasi": {
     "title": "Reservasi Saya",

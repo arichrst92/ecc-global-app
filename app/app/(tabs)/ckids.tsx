@@ -379,8 +379,17 @@ export default function CKidsTabScreen() {
               {t('ckids.katalog_title')}
             </Text>
           </View>
-          {katalogQuery.isPending ? (
+          {katalogQuery.isPending && !!cabangId ? (
             <ActivityIndicator color="#F97316" style={{ marginVertical: 24 }} />
+          ) : katalogQuery.isError ? (
+            // Jangan tampil "katalog kosong" kalau sebenarnya gagal dimuat.
+            <View className="items-center py-8">
+              <Gift size={32} color="#FCA5A5" />
+              <Text className="text-xs text-neutral-500 mt-2 text-center">{t('ckids.katalog_error')}</Text>
+              <Pressable onPress={() => katalogQuery.refetch()} className="mt-3 px-4 py-2 bg-brand-500 rounded-lg">
+                <Text className="text-white font-semibold text-xs">{t('common.retry')}</Text>
+              </Pressable>
+            </View>
           ) : katalogQuery.data && katalogQuery.data.length > 0 ? (
             // Grid 2 kolom pakai baris biasa (bukan FlatList numColumns):
             // FlatList bersarang di ScrollView + numColumns tidak tampil di

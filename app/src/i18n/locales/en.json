@@ -1462,7 +1462,8 @@
     "qr_no_child_body": "Go back to CKids tab to select a child first.",
     "age_years_one": "{{count}} year old",
     "age_years_other": "{{count}} years old",
-    "age_rule_info": "CKids only shows children aged {{max}} and under (based on the date of birth in Family)."
+    "age_rule_info": "CKids only shows children aged {{max}} and under (based on the date of birth in Family).",
+    "katalog_error": "Couldn't load the gift catalog. Please try again."
   },
   "my_reservasi": {
     "title": "My Reservations",
