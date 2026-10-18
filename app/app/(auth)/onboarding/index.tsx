@@ -55,6 +55,7 @@ import { useBranches } from '@/hooks/useBranches';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
+import { parseLocalDate, toIsoDate } from '@/utils/date';
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -792,9 +793,9 @@ function ProfileStep({
 
       {showDatePicker ? (
         <DatePickerModal
-          value={values.tanggalLahir ? new Date(values.tanggalLahir) : new Date(1990, 0, 1)}
+          value={values.tanggalLahir ? parseLocalDate(values.tanggalLahir) : new Date(1990, 0, 1)}
           onChange={(d) => {
-            const iso = d.toISOString().slice(0, 10);
+            const iso = toIsoDate(d);
             setField('tanggalLahir', iso);
             setErrors((e) => ({ ...e, tanggalLahir: undefined }));
           }}

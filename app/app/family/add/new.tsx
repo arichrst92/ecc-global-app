@@ -23,6 +23,7 @@ import { ApiError } from '@/types/api';
 import type { TipeRelasi } from '@/types/tipeRelasi';
 import { goBack } from '@/utils/nav';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
+import { parseLocalDate, toIsoDate } from '@/utils/date';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -206,8 +207,8 @@ export default function FamilyAddNewScreen() {
 
       {showDatePicker ? (
         <DatePickerModal
-          value={tanggalLahir ? new Date(tanggalLahir) : new Date(2010, 0, 1)}
-          onChange={(d) => setTanggalLahir(d.toISOString().slice(0, 10))}
+          value={tanggalLahir ? parseLocalDate(tanggalLahir) : new Date(2010, 0, 1)}
+          onChange={(d) => setTanggalLahir(toIsoDate(d))}
           onClose={() => setShowDatePicker(false)}
         />
       ) : null}

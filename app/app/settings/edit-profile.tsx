@@ -34,6 +34,7 @@ import { goBack } from '@/utils/nav';
 import { ChangePhoneModal } from '@/components/profile/ChangePhoneModal';
 import { PEKERJAAN_OPTIONS, PERNIKAHAN_OPTIONS } from '@/constants/profileOptions';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
+import { parseLocalDate, toIsoDate } from '@/utils/date';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -124,12 +125,12 @@ export default function EditProfileScreen() {
       setEmail(sourceJemaat.email ?? '');
       setAlamat(sourceJemaat.alamat ?? '');
       setNoHpInput(sourceJemaat.noHp ?? '');
-      setDob(sourceJemaat.tanggalLahir ? new Date(sourceJemaat.tanggalLahir) : null);
+      setDob(sourceJemaat.tanggalLahir ? parseLocalDate(sourceJemaat.tanggalLahir) : null);
       setJenisKelamin((sourceJemaat.jenisKelamin as 'L' | 'P' | null) ?? '');
       setPekerjaan(sourceJemaat.statusPekerjaan ?? '');
       setNamaKantor(sourceJemaat.namaKantor ?? '');
       setPernikahan(sourceJemaat.statusPernikahan ?? '');
-      setTglNikah(sourceJemaat.tanggalPernikahan ? new Date(sourceJemaat.tanggalPernikahan) : null);
+      setTglNikah(sourceJemaat.tanggalPernikahan ? parseLocalDate(sourceJemaat.tanggalPernikahan) : null);
     }
   }, [sourceJemaat]);
 
@@ -137,7 +138,7 @@ export default function EditProfileScreen() {
 
   const updateMutation = useMutation<{ namaLengkap: string; noHpAdded?: boolean }>({
     mutationFn: async () => {
-      const tanggalLahir = dob ? dob.toISOString().slice(0, 10) : undefined;
+      const tanggalLahir = dob ? toIsoDate(dob) : undefined;
       if (isDependent) {
         // Normalize phone: kalau user kosongin → null (clear), kalau diisi →
         // normalize ke E.164 atau throw kalau format invalid.
@@ -178,7 +179,7 @@ export default function EditProfileScreen() {
         statusPekerjaan: pekerjaan.trim() || null,
         namaKantor: namaKantor.trim() || null,
         statusPernikahan: pernikahan || null,
-        tanggalPernikahan: pernikahan && pernikahan !== 'Single' && tglNikah ? tglNikah.toISOString().slice(0, 10) : null,
+        tanggalPernikahan: pernikahan && pernikahan !== 'Single' && tglNikah ? toIsoDate(tglNikah) : null,
       });
       return { namaLengkap: r.namaLengkap };
     },
