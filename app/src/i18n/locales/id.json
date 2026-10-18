@@ -556,7 +556,9 @@
     "donasi_count_info": "{{count}} kali memberi",
     "riwayat_pemberian": "Riwayat pemberian",
     "donasi_batal": "Dibatalkan",
-    "lihat_bukti": "lihat bukti"
+    "lihat_bukti": "lihat bukti",
+    "not_found_title": "Event tidak tersedia",
+    "not_found_body": "Event ini sudah dihapus atau tidak lagi dipublikasikan."
   },
   "branch": {
     "active_label": "Cabang aktif",

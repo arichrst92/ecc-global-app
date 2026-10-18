@@ -52,6 +52,15 @@ export default function EventDetailScreen() {
   };
   useRefetchOnFocus(() => void refreshAll(), !!event);
 
+  // Event dihapus (404) → buang dari daftar event yang ter-cache.
+  const notFound = query.error instanceof ApiError && query.error.code === 'NOT_FOUND';
+  const qcForList = useQueryClient();
+  useEffect(() => {
+    if (!notFound) return;
+    void qcForList.invalidateQueries({ queryKey: ['event', 'list'] });
+    void qcForList.invalidateQueries({ queryKey: ['event', 'home-preview'] });
+  }, [notFound, qcForList]);
+
   function handleShare() {
     if (!event) return;
     const lines: string[] = [event.judul];
@@ -264,6 +273,15 @@ export default function EventDetailScreen() {
         {query.isPending ? (
           <View className="h-72 items-center justify-center">
             <ActivityIndicator color="#F97316" />
+          </View>
+        ) : query.error instanceof ApiError && query.error.code === 'NOT_FOUND' ? (
+          // Event sudah dihapus/tidak dipublikasi — jangan tampilkan cache lama.
+          <View className="items-center py-28 px-8">
+            <Text className="text-base font-bold text-neutral-900 text-center">{t('event.not_found_title')}</Text>
+            <Text className="text-sm text-neutral-500 text-center mt-1 mb-4">{t('event.not_found_body')}</Text>
+            <Pressable onPress={() => goBack(router)} className="px-4 py-2 bg-brand-500 rounded-lg">
+              <Text className="text-white font-semibold text-sm">{t('common.back')}</Text>
+            </Pressable>
           </View>
         ) : query.isError ? (
           <View className="items-center py-20 px-8">

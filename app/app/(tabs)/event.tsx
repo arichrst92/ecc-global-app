@@ -19,6 +19,7 @@ import { GuestEventView } from '@/components/guest/GuestEventView';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useAuthStore } from '@/stores/auth.store';
 import { useEventList } from '@/hooks/useEvents';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { EventListItem, TipeBayar } from '@/types/event';
 import { formatDate } from '@/utils/date';
@@ -63,6 +64,8 @@ function EventListAuthenticated() {
   const [filter, setFilter] = useState<Filter>('all');
 
   const query = useEventList();
+  // Tab tetap ter-mount → ambil ulang saat tab dibuka lagi / app aktif lagi.
+  useRefetchOnFocus(() => query.refetch());
 
   const filtered = useMemo(() => {
     const all = query.data ?? [];

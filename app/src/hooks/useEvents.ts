@@ -70,7 +70,10 @@ export function useEventList(
         limit: effectiveFrom && effectiveTo ? undefined : 200,
       }),
     enabled: !isLoading,
-    staleTime: 5 * 60_000,
+    staleTime: 60_000,
+    // Cache dipersist ke storage → selalu ambil ulang saat layar dibuka
+    // (data cache tampil dulu) supaya event yang dihapus/diubah admin hilang.
+    refetchOnMount: 'always',
     select: (data): EventListItem[] => {
       if (!cabangId) return data; // belum login / branch belum resolved → show all
       return data.filter((e) => {

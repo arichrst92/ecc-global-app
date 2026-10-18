@@ -556,7 +556,9 @@
     "donasi_count_info": "Given {{count}} times",
     "riwayat_pemberian": "Giving history",
     "donasi_batal": "Cancelled",
-    "lihat_bukti": "view proof"
+    "lihat_bukti": "view proof",
+    "not_found_title": "Event not available",
+    "not_found_body": "This event has been removed or is no longer published."
   },
   "branch": {
     "active_label": "Active branch",

@@ -23,7 +23,8 @@ export function useHomeEvents() {
     // Fetch lebih banyak untuk room filtering, lalu slice ke 3 di select
     queryFn: () => listEvents({ from, to, isPublished: true, limit: 20 }),
     enabled: !isLoading,
-    staleTime: 5 * 60_000,
+    staleTime: 60_000,
+    refetchOnMount: 'always',
     select: (data): EventListItem[] => {
       // Scope ke cabang, lalu top 3.
       const filtered = !cabangId

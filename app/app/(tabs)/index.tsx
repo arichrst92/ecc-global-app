@@ -58,6 +58,7 @@ function HomeScreenAuthenticated() {
   const renunganQuery = useLatestRenungan();
   const newsQuery = useLatestNews();
   const eventsQuery = useHomeEvents();
+  useRefetchOnFocus(() => eventsQuery.refetch());
   // "Pelayanan Saya" widget — BE endpoint mungkin belum di-deploy, hook
   // gracefully fallback ke [] (lihat useMinistry.ts / api/ministry.ts).
   // Widget silently hide kalau data kosong, tidak show error state.
