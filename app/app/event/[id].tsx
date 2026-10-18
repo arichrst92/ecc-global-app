@@ -211,22 +211,9 @@ export default function EventDetailScreen() {
   const priceLabel = (() => {
     if (!event) return '';
     if (event.tipeBayar === 'GRATIS') return t('event.free');
-    if (event.tipeBayar === 'NOMINAL_BEBAS') {
-      // Kalau user sudah daftar dengan nominal tertentu, tampil amount-nya.
-      // Otherwise tampil generic "Persembahan" untuk user yang belum daftar.
-      // Donasi berkali-kali → tampil total yang sudah diberikan.
-      const selfTracker = familyParticipations.find((p) => p.isSelf);
-      const userNominal =
-        selfTracker?.totalDiberikan
-          ? selfTracker.totalDiberikan
-          : event.myParticipation?.nominalBayar
-            ? Number(event.myParticipation.nominalBayar)
-            : participation?.nominalBayar ?? null;
-      if (userNominal && userNominal > 0) {
-        return `Rp ${userNominal.toLocaleString('id-ID')}`;
-      }
-      return t('event.free_amount');
-    }
+    // Sukarela: selalu "Nominal sukarela" — jumlah yang sudah diberikan
+    // tampil di kartu peserta (Total diberikan), bukan sebagai biaya event.
+    if (event.tipeBayar === 'NOMINAL_BEBAS') return t('event.free_amount');
     const num = Number(event.nominal);
     return `Rp ${num.toLocaleString('id-ID')}`;
   })();
