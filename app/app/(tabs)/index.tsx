@@ -12,6 +12,7 @@ import { BranchChip } from '@/components/branch/BranchChip';
 import { GuestHomeView } from '@/components/GuestHomeView';
 import { NotificationBell } from '@/components/NotificationBell';
 import { QuickAccess } from '@/components/home/QuickAccess';
+import { ScannerHeaderButton } from '@/components/home/ScannerHeaderButton';
 import { HomecellSpotlight } from '@/components/home/HomecellSpotlight';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
@@ -136,6 +137,7 @@ function HomeScreenAuthenticated() {
                 </View>
               </View>
               <View className="flex-row items-center gap-2">
+                <ScannerHeaderButton />
                 <Pressable
                   onPress={() => router.push('/qr-card')}
                   className="bg-white/15 rounded-full p-2"

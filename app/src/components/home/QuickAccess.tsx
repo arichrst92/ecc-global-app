@@ -1,215 +1,117 @@
 import { Pressable, Text, View } from 'react-native';
-import { openGiving } from '@/utils/giving';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-
-import { useViewingBranch } from '@/hooks/useViewingBranch';
 import {
   BookOpen,
-  Calendar,
   CalendarDays,
   Church,
   HandHeart,
+  HandHelping,
   Handshake,
   HeartHandshake,
+  House,
   MapPinned,
   Newspaper,
-  ScanLine,
   Sparkles,
   Store,
+  Target,
+  UserPlus,
   Users,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react-native';
 
-import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
+import { openGiving } from '@/utils/giving';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useManagedAreas } from '@/hooks/useHomecell';
+import { getPrayerSummary } from '@/api/prayer';
 
 type QuickAccessTile = {
   key: string;
   icon: LucideIcon;
-  iconColor: string;
-  iconBg: string;
   label: string;
   onPress: () => void;
-  disabled?: boolean;
-  badge?: string; // mis. "BARU", "SOON"
-  badgeBg?: string;
-  badgeText?: string;
+  badge?: string;
 };
 
+const ICON_COLOR = '#EA580C';
+const COLS = 4;
+
 /**
- * Quick Access grid di dashboard.
- * Tiles tampil sesuai otoritas user:
- * - Selalu: Alkitab, Keluarga, Ibadah, Event, Berita, Persembahan, Marketplace (soon)
- * - Kalau authorized scanner: Scanner
- * - Homecell (semua jemaat — anggota, calon anggota, & PIC)
- * - Kalau PIC area: Area
+ * Quick Access grid di dashboard (grid 4 kolom, dikelompokkan per tema):
+ *   1. Ibadah, Event, Beri, Berita
+ *   2. Renungan, Alkitab, Doa, Resolusi
+ *   3. Keluarga, Tamu, Group, Homecell
+ *   4. Ministry, (Area — PIC area), Visit, Local Market
+ * Baris terakhir yang kurang dari 4 diisi placeholder (kotak garis putus,
+ * non-interaktif). Scanner → ikon di header Home; Kalender → header Profil.
+ * Tamu (guest mode) memakai GuestHomeView, jadi grid ini hanya untuk login.
  */
 export function QuickAccess() {
   const { t } = useTranslation();
   const router = useRouter();
-
-  const scannerEventsQuery = useScannerEvents();
-  const scannerIbadahQuery = useScannerIbadah();
-  // Untuk iOS persembahan tile — direct open web per-cabang.
   const { branch: viewingBranch } = useViewingBranch();
-  const isScannerAuthorized =
-    (scannerEventsQuery.data?.length ?? 0) > 0 ||
-    (scannerIbadahQuery.data?.length ?? 0) > 0;
 
-  // Cek PIC homecell/area dari list yang BE return — kalau ada minimal 1,
-  // user PIC di kategori itu.
   const areasQuery = useManagedAreas();
   const isPicArea = (areasQuery.data?.length ?? 0) > 0;
 
-  // Brand orange theme — semua tile pakai warna sama supaya visual coherent.
-  // Common — semua user
+  // Badge jumlah doa yang belum didoakan untuk petugas doa.
+  const prayerQ = useQuery({ queryKey: ['prayer', 'summary'], queryFn: getPrayerSummary, staleTime: 60_000 });
+  const pendingDoa = prayerQ.data?.isPetugas ? prayerQ.data.assignedPending : 0;
+
+  const go = (href: string) => () => router.push(href as never);
+
   const tiles: QuickAccessTile[] = [
+    { key: 'ibadah', icon: Church, label: t('quickaccess.ibadah'), onPress: go('/(tabs)/ibadah') },
+    { key: 'event', icon: CalendarDays, label: t('quickaccess.event'), onPress: go('/(tabs)/event') },
+    // Persembahan: web per-cabang (iOS Safari; Android in-app browser) —
+    // halaman web punya tombol "Kembali ke Els App". Lihat utils/giving.ts.
+    { key: 'persembahan', icon: HandHeart, label: t('quickaccess.persembahan'), onPress: () => void openGiving(viewingBranch?.kode) },
+    { key: 'berita', icon: Newspaper, label: t('quickaccess.berita'), onPress: go('/content?tab=news') },
+
+    { key: 'renungan', icon: BookOpen, label: t('quickaccess.renungan'), onPress: go('/content?tab=renungan') },
+    { key: 'bible', icon: Sparkles, label: t('quickaccess.bible'), onPress: go('/bible') },
     {
-      key: 'ibadah',
-      icon: Church,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.ibadah'),
-      onPress: () => router.push('/(tabs)/ibadah'),
+      key: 'doa',
+      icon: HandHelping,
+      label: t('quickaccess.doa'),
+      onPress: go(pendingDoa > 0 ? '/doa?tab=assigned' : '/doa'),
+      badge: pendingDoa > 0 ? (pendingDoa > 99 ? '99+' : String(pendingDoa)) : undefined,
     },
-    {
-      key: 'event',
-      icon: CalendarDays,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.event'),
-      onPress: () => router.push('/(tabs)/event'),
-    },
-    // Persembahan tile — konsisten di iOS + Android:
-    // Tap → web per-cabang (Apple 3.2.2(iv) compliant: iOS Safari,
-    // Android ikut pattern sama untuk konsistensi cross-platform).
-    {
-      key: 'persembahan',
-      icon: HandHeart,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.persembahan'),
-      // iOS: Safari; Android: in-app browser (tombol tutup) — halaman web
-      // punya tombol "Kembali ke Els App". Lihat utils/giving.ts.
-      onPress: () => void openGiving(viewingBranch?.kode),
-    },
-    {
-      key: 'berita',
-      icon: Newspaper,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.berita'),
-      onPress: () => router.push('/content?tab=news'),
-    },
-    {
-      key: 'renungan',
-      icon: BookOpen,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.renungan'),
-      onPress: () => router.push('/content?tab=renungan'),
-    },
-    {
-      key: 'family',
-      icon: Users,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.family'),
-      onPress: () => router.push('/family'),
-    },
-    {
-      key: 'bible',
-      icon: Sparkles,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.bible'),
-      onPress: () => router.push('/bible'),
-    },
-    {
-      key: 'calendar',
-      icon: Calendar,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.calendar'),
-      onPress: () => router.push('/calendar' as never),
-    },
-    {
-      key: 'ministry',
-      icon: HeartHandshake,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.ministry'),
-      onPress: () => router.push('/ministry' as never),
-    },
+    { key: 'resolusi', icon: Target, label: t('quickaccess.resolusi'), onPress: go('/resolusi') },
+
+    { key: 'family', icon: Users, label: t('quickaccess.family'), onPress: go('/family') },
+    { key: 'tamu', icon: UserPlus, label: t('quickaccess.tamu'), onPress: go('/profile/my-guests') },
+    { key: 'group', icon: UsersRound, label: t('quickaccess.group'), onPress: go('/profile/my-groups') },
+    // Homecell — untuk SEMUA jemaat (anggota: lihat; belum punya: cari & minta bergabung; PIC: kelola).
+    { key: 'homecell', icon: House, label: t('quickaccess.homecell'), onPress: go('/homecell') },
+
+    { key: 'ministry', icon: HeartHandshake, label: t('quickaccess.ministry'), onPress: go('/ministry') },
+    ...(isPicArea ? [{ key: 'area', icon: MapPinned, label: t('quickaccess.area'), onPress: go('/area') }] : []),
+    { key: 'visit', icon: Handshake, label: t('quickaccess.visit'), onPress: go('/visit') },
+    { key: 'market', icon: Store, label: t('quickaccess.market'), onPress: go('/market') },
   ];
 
-  // Conditional tiles berdasarkan otoritas — pakai filled brand-500 untuk
-  // distinguish dari tile common (volunteer/PIC role visual cue)
-  if (isScannerAuthorized) {
-    tiles.unshift({
-      key: 'scanner',
-      icon: ScanLine,
-      iconColor: '#fff',
-      iconBg: 'bg-brand-500',
-      label: t('quickaccess.scanner'),
-      onPress: () => router.push('/scanner'),
-    });
-  }
-
-  // Homecell — untuk SEMUA jemaat (anggota: lihat homecell-nya; belum punya:
-  // cari & minta bergabung; PIC: kelola + approve). Area tetap khusus PIC area.
-  {
-    tiles.push({
-      key: 'homecell',
-      icon: Users,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.homecell'),
-      onPress: () => router.push('/homecell'),
-    });
-  }
-
-  if (isPicArea) {
-    tiles.push({
-      key: 'area',
-      icon: MapPinned,
-      iconColor: '#EA580C',
-      iconBg: 'bg-brand-50',
-      label: t('quickaccess.area'),
-      onPress: () => router.push('/area'),
-    });
-  }
-
-  // Visit — pendataan jemaat yang bertemu jemaat lain (M14, BE patch 22b)
-  tiles.push({
-    key: 'visit',
-    icon: Handshake,
-    iconColor: '#EA580C',
-    iconBg: 'bg-brand-50',
-    label: t('quickaccess.visit'),
-    onPress: () => router.push('/visit' as never),
-  });
-
-  // Local Market — direktori UMKM jemaat (M15, BE patch 22b rev a)
-  tiles.push({
-    key: 'market',
-    icon: Store,
-    iconColor: '#EA580C',
-    iconBg: 'bg-brand-50',
-    label: t('quickaccess.market'),
-    onPress: () => router.push('/market' as never),
-  });
+  const placeholders = (COLS - (tiles.length % COLS)) % COLS;
 
   return (
     <View className="px-5 mt-4">
-      {/* Grid 4 kolom, wrap ke row baru kalau tiles > 4.
-          Pakai flexBasis "25%" - gap supaya tiles auto-fit responsive.
-          Title "Akses Cepat" sengaja di-hide — grid sudah self-evident. */}
       <View className="flex-row flex-wrap" style={{ marginHorizontal: -4, rowGap: 12 }}>
         {tiles.map((tile) => (
-          <View key={tile.key} style={{ width: '25%', paddingHorizontal: 4 }}>
+          <View key={tile.key} style={{ width: `${100 / COLS}%`, paddingHorizontal: 4 }}>
             <Tile tile={tile} />
+          </View>
+        ))}
+        {Array.from({ length: placeholders }, (_, i) => (
+          <View
+            key={`ph-${i}`}
+            style={{ width: `${100 / COLS}%`, paddingHorizontal: 4 }}
+            className="items-center"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <View className="w-14 h-14 rounded-2xl border-[1.5px] border-dashed border-neutral-300" />
           </View>
         ))}
       </View>
@@ -220,31 +122,16 @@ export function QuickAccess() {
 function Tile({ tile }: { tile: QuickAccessTile }) {
   const Icon = tile.icon;
   return (
-    <Pressable onPress={tile.onPress} className="items-center">
-      <View
-        className={`w-14 h-14 rounded-2xl ${tile.iconBg} items-center justify-center relative ${
-          tile.disabled ? 'opacity-60' : ''
-        }`}
-      >
-        <Icon size={22} color={tile.iconColor} />
+    <Pressable onPress={tile.onPress} className="items-center" accessibilityRole="button" accessibilityLabel={tile.label}>
+      <View className="w-14 h-14 rounded-2xl bg-brand-50 items-center justify-center relative">
+        <Icon size={22} color={ICON_COLOR} />
         {tile.badge ? (
-          <View
-            className={`absolute -top-1 -right-1 px-1 py-0.5 rounded-full ${
-              tile.badgeBg ?? 'bg-red-500'
-            }`}
-          >
-            <Text
-              className={`text-[8px] font-bold ${tile.badgeText ?? 'text-white'}`}
-            >
-              {tile.badge}
-            </Text>
+          <View className="absolute -top-1 -right-1 px-1 py-0.5 rounded-full bg-red-500 min-w-[16px] items-center">
+            <Text className="text-[8px] font-bold text-white">{tile.badge}</Text>
           </View>
         ) : null}
       </View>
-      <Text
-        className="text-[10px] font-semibold text-neutral-700 text-center mt-1.5"
-        numberOfLines={2}
-      >
+      <Text className="text-[10px] font-semibold text-neutral-700 text-center mt-1.5" numberOfLines={2}>
         {tile.label}
       </Text>
     </Pressable>

@@ -97,6 +97,15 @@ export function resolveNotifRoute(
       return fid ? `/feedback/${fid}` : '/feedback';
     }
 
+    case 'PRAYER_ASSIGNED': {
+      const pid = pickString(meta, 'prayerId');
+      return pid ? `/doa/assigned/${pid}` : '/doa?tab=assigned';
+    }
+    case 'PRAYER_PRAYED': {
+      const pid = pickString(meta, 'prayerId');
+      return pid ? `/doa/${pid}` : '/doa';
+    }
+
     default:
       return null;
   }
@@ -178,6 +187,10 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'family';
     case 'GROUP_JOIN_REJECTED':
       return 'group-remove';
+    case 'PRAYER_ASSIGNED':
+      return 'group-add';
+    case 'PRAYER_PRAYED':
+      return 'home-check';
     default:
       return 'bell';
   }

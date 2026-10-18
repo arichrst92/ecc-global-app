@@ -10,11 +10,13 @@ import {
   Award,
   Baby,
   Building2,
+  Calendar,
   CalendarCheck,
   ChevronRight,
   Download,
   FileText,
   Globe,
+  HandHelping,
   HeartHandshake,
   Info,
   LogOut,
@@ -25,6 +27,7 @@ import {
   ShieldCheck,
   Sparkles,
   Store,
+  Target,
   Trash2,
   Users,
   Users2,
@@ -114,7 +117,16 @@ function ProfileTabAuthenticated() {
           <View className="px-5 pt-4 pb-8">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-white text-lg font-bold">{t('profile.title')}</Text>
-              <NotificationBell variant="light" badgeBorderColor="#F97316" />
+              <View className="flex-row items-center gap-2">
+                <Pressable
+                  onPress={() => router.push('/calendar' as never)}
+                  className="bg-white/15 rounded-full p-2"
+                  accessibilityLabel={t('profile.calendar')}
+                >
+                  <Calendar size={20} color="#fff" />
+                </Pressable>
+                <NotificationBell variant="light" badgeBorderColor="#F97316" />
+              </View>
             </View>
             <View className="flex-row items-center gap-4">
               <Avatar
@@ -167,6 +179,23 @@ function ProfileTabAuthenticated() {
         <Cluster bg="bg-emerald-50" icon={<Footprints size={16} color="#059669" />} title={t('profile.cluster_growth')} sub={t('profile.cluster_growth_sub')}>
           <JourneyCard />
           <SertifikatCard />
+          <MenuBox>
+            <MenuRow
+              icon={<HandHelping size={18} color="#059669" />}
+              iconBg="bg-emerald-50"
+              label={t('profile.prayer_menu')}
+              sub={t('profile.prayer_menu_sub')}
+              onPress={() => router.push('/doa' as never)}
+            />
+            <MenuRow
+              icon={<Target size={18} color="#059669" />}
+              iconBg="bg-emerald-50"
+              label={t('profile.resolusi_menu')}
+              sub={t('profile.resolusi_menu_sub')}
+              onPress={() => router.push('/resolusi' as never)}
+              isLast
+            />
+          </MenuBox>
         </Cluster>
 
         {/* ============ 3. Pelayanan ============ */}

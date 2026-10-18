@@ -7,7 +7,7 @@ const ROUTES = [
   '/feedback', '/feedback/[id]', '/group', '/group/[id]', '/homecell', '/homecell/[id]', '/homecell/requests',
   '/ibadah', '/ibadah/[id]', '/market', '/market/[id]', '/ministry', '/ministry/[id]', '/my-reservasi',
   '/notifications', '/profile', '/profile/businesses', '/profile/my-groups', '/scanner', '/visit',
-  '/visit/[id]', '/spiritual-journey',
+  '/visit/[id]', '/spiritual-journey', '/doa', '/doa/[id]', '/resolusi',
 ];
 
 /** Induk yang bukan rute sendiri → arahkan ke layar yang masuk akal. */
@@ -24,6 +24,7 @@ const ALIAS: Record<string, string> = {
   '/content/news': '/content',
   '/content/renungan': '/content',
   '/homecell/[id]/schedule': '',
+  '/doa/assigned': '/doa?tab=assigned',
 };
 
 const matches = (pattern: string, segs: string[]) => {
