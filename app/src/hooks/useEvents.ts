@@ -97,6 +97,9 @@ export function useEventDetail(idOrSlug: string | undefined) {
         : getEventDetail(idOrSlug!),
     enabled: !!idOrSlug,
     staleTime: 5 * 60_000,
+    // Cache dipersist → selalu ambil ulang saat layar dibuka (tetap tampil
+    // data cache dulu), supaya status bayar/donasi terbaru langsung muncul.
+    refetchOnMount: 'always',
   });
 }
 
@@ -123,6 +126,7 @@ export function useMyEventParticipations(idOrSlug: string | undefined) {
     },
     enabled: !!idOrSlug && !isGuest,
     staleTime: 60_000, // 1 menit — sama kayak my-participation
+    refetchOnMount: 'always',
   });
 }
 

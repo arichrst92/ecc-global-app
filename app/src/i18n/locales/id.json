@@ -548,7 +548,11 @@
     "register_multi_success_title": "Pendaftaran Berhasil",
     "register_multi_success_body": "{{count}} peserta berhasil didaftarkan. Silakan buka setiap tracker di halaman event untuk upload bukti pembayaran.",
     "self_checkin_question": "Apakah Anda sudah berada di lokasi event?",
-    "self_checkin_yes": "Ya, saya di lokasi event"
+    "self_checkin_yes": "Ya, saya di lokasi event",
+    "give_again_cta": "Beri lagi",
+    "total_given_label": "Total diberikan",
+    "donasi_tambahan_info": "Termasuk {{count}} donasi tambahan",
+    "donasi_tambahan_pending": "{{count}} menunggu verifikasi"
   },
   "branch": {
     "active_label": "Cabang aktif",

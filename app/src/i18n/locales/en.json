@@ -548,7 +548,11 @@
     "register_multi_success_title": "Registration Success",
     "register_multi_success_body": "{{count}} participants registered. Open each tracker on the event page to upload payment proof.",
     "self_checkin_question": "Are you already at the event venue?",
-    "self_checkin_yes": "Yes, I'm at the venue"
+    "self_checkin_yes": "Yes, I'm at the venue",
+    "give_again_cta": "Give again",
+    "total_given_label": "Total given",
+    "donasi_tambahan_info": "Includes {{count}} additional gifts",
+    "donasi_tambahan_pending": "{{count}} awaiting verification"
   },
   "branch": {
     "active_label": "Active branch",

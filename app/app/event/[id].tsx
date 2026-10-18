@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Modal, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Modal, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -18,6 +18,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
 import { useVenueTz } from '@/hooks/useVenueTz';
+import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { formatVenueRange, tzCity } from '@/utils/time';
 import { buildEventShareUrl } from '@/utils/share';
 import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
@@ -42,6 +43,14 @@ export default function EventDetailScreen() {
   // Untuk guest → hook gated → returns empty.
   const familyQuery = useMyEventParticipations(id);
   const familyParticipations: EventParticipation[] = familyQuery.data ?? [];
+
+  // Cache react-query dipersist ke storage → tanpa ini, kembali dari halaman
+  // pembayaran web (atau dari background) masih menampilkan data lama.
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshAll = async () => {
+    await Promise.all([query.refetch(), isGuest ? null : familyQuery.refetch()]);
+  };
+  useRefetchOnFocus(() => void refreshAll(), !!event);
 
   function handleShare() {
     if (!event) return;
@@ -205,10 +214,14 @@ export default function EventDetailScreen() {
     if (event.tipeBayar === 'NOMINAL_BEBAS') {
       // Kalau user sudah daftar dengan nominal tertentu, tampil amount-nya.
       // Otherwise tampil generic "Persembahan" untuk user yang belum daftar.
+      // Donasi berkali-kali → tampil total yang sudah diberikan.
+      const selfTracker = familyParticipations.find((p) => p.isSelf);
       const userNominal =
-        event.myParticipation?.nominalBayar
-          ? Number(event.myParticipation.nominalBayar)
-          : participation?.nominalBayar ?? null;
+        selfTracker?.totalDiberikan
+          ? selfTracker.totalDiberikan
+          : event.myParticipation?.nominalBayar
+            ? Number(event.myParticipation.nominalBayar)
+            : participation?.nominalBayar ?? null;
       if (userNominal && userNominal > 0) {
         return `Rp ${userNominal.toLocaleString('id-ID')}`;
       }
@@ -224,6 +237,21 @@ export default function EventDetailScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
         stickyHeaderIndices={[]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={async () => {
+              setRefreshing(true);
+              try {
+                await refreshAll();
+              } finally {
+                setRefreshing(false);
+              }
+            }}
+            tintColor="#F97316"
+            colors={['#F97316']}
+          />
+        }
       >
         {/* Floating header */}
         <View className="absolute top-0 left-0 right-0 z-10" pointerEvents="box-none">
@@ -496,7 +524,7 @@ export default function EventDetailScreen() {
                 </View>
                 <View className="flex-1">
                   <Button
-                    label={t('event.open_web_cta')}
+                    label={familyParticipations.length > 0 ? t('event.give_again_cta') : t('event.open_web_cta')}
                     onPress={async () => {
                       // Opsi A: daftar + upload bukti BEBAS di web dengan web
                       // action token (fallback read-only kalau token gagal).
@@ -739,9 +767,14 @@ function ParticipationStatusCard({
   const { t } = useTranslation();
   const status = participation.status;
   const registeredAt = new Date(participation.registeredAt).getTime();
-  const nominalBayar = participation.nominalBayar
-    ? Number(participation.nominalBayar)
-    : null;
+  const donasi = participation.donasiTambahan;
+  const hasDonasi = !!donasi && donasi.count > 0;
+  // Event sukarela dengan donasi tambahan → tampilkan total yang diberikan.
+  const nominalBayar = hasDonasi
+    ? (participation.totalDiberikan ?? null)
+    : participation.nominalBayar
+      ? Number(participation.nominalBayar)
+      : null;
   const namaPeserta = participation.jemaat?.namaLengkap;
   const relationLabel = participation.relationLabel;
 
@@ -870,7 +903,7 @@ function ParticipationStatusCard({
                 <Text
                   className={`text-[10px] ${cfg.bodyColor} uppercase font-bold`}
                 >
-                  {t('event.nominal_label')}
+                  {hasDonasi ? t('event.total_given_label') : t('event.nominal_label')}
                 </Text>
                 <Text
                   className={`text-xs ${cfg.titleColor} font-semibold mt-0.5`}
@@ -881,6 +914,12 @@ function ParticipationStatusCard({
             ) : null}
           </View>
 
+          {hasDonasi ? (
+            <Text className={`text-[11px] ${cfg.bodyColor} mt-2`}>
+              {t('event.donasi_tambahan_info', { count: donasi!.count })}
+              {donasi!.pending > 0 ? ` · ${t('event.donasi_tambahan_pending', { count: donasi!.pending })}` : ''}
+            </Text>
+          ) : null}
           {onPress ? (
             <Text className={`text-[10px] ${cfg.bodyColor} mt-2 italic`}>
               {t('event.detail_tap_hint')}
