@@ -28,6 +28,7 @@ import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { ForceUpdateModal } from '@/components/ForceUpdateModal';
 import { SoftUpdatePrompt } from '@/components/SoftUpdatePrompt';
+import { MiniPlayer } from '@/components/worship/MiniPlayer';
 import { installChunkReloadHandler } from '@/utils/chunkReload';
 import { MaintenanceModal } from '@/components/MaintenanceModal';
 import { prefetchBranches } from '@/hooks/useBranches';
@@ -162,6 +163,8 @@ export default function RootLayout() {
         <MaintenanceGate>
           <ForceUpdateGate>
             <RootLayoutNav />
+            {/* ECC Worship — mini-player global */}
+            <MiniPlayer />
             {/* Update tidak wajib → popup sekali per versi (Nanti / Update) */}
             <SoftUpdatePrompt />
           </ForceUpdateGate>

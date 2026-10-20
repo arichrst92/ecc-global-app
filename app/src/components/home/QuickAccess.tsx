@@ -20,6 +20,7 @@ import {
   UserPlus,
   Users,
   UsersRound,
+  Music,
   type LucideIcon,
 } from 'lucide-react-native';
 
@@ -27,6 +28,7 @@ import { openGiving } from '@/utils/giving';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useManagedAreas } from '@/hooks/useHomecell';
 import { getPrayerSummary } from '@/api/prayer';
+import { useWorshipSummary } from '@/hooks/useWorship';
 
 type QuickAccessTile = {
   key: string;
@@ -65,6 +67,10 @@ export function QuickAccess() {
   const prayerQ = useQuery({ queryKey: ['prayer', 'summary'], queryFn: getPrayerSummary, staleTime: 60_000 });
   const pendingDoa = prayerQ.data?.isPetugas ? prayerQ.data.assignedPending : 0;
 
+  // ECC Worship — tile hanya tampil bila sudah ada lagu terpublikasi (atau pengelola: draft).
+  const worshipQ = useWorshipSummary();
+  const showWorship = !!worshipQ.data?.hasSongs;
+
   const go = (href: string) => () => router.push(href as never);
 
   const tiles: QuickAccessTile[] = [
@@ -85,6 +91,7 @@ export function QuickAccess() {
       badge: pendingDoa > 0 ? (pendingDoa > 99 ? '99+' : String(pendingDoa)) : undefined,
     },
     { key: 'resolusi', icon: Target, label: t('quickaccess.resolusi'), onPress: go('/resolusi') },
+    ...(showWorship ? [{ key: 'worship', icon: Music, label: t('quickaccess.worship'), onPress: go('/worship') }] : []),
 
     { key: 'family', icon: Users, label: t('quickaccess.family'), onPress: go('/family') },
     { key: 'tamu', icon: UserPlus, label: t('quickaccess.tamu'), onPress: go('/profile/my-guests') },

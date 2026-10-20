@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { logout as apiLogout } from '@/api/auth';
+import { useWorshipPlayer } from '@/stores/worship-player.store';
 import { useAuthStore } from '@/stores/auth.store';
 import { useBranchStore } from '@/stores/branch.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
@@ -41,6 +42,8 @@ export function useLogout() {
       }
 
       // 2) Clear seluruh React Query cache untuk prevent stale data
+      // Hentikan lagu ECC Worship yang sedang diputar.
+      useWorshipPlayer.getState().close();
       queryClient.clear();
 
       // 3) Reset branch viewing context (kalau user re-login dengan akun beda,

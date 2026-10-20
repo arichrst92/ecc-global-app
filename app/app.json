@@ -25,6 +25,9 @@
               "ecc"
             ]
           }
+        ],
+        "UIBackgroundModes": [
+          "audio"
         ]
       },
       "associatedDomains": [
@@ -41,7 +44,9 @@
       "predictiveBackGestureEnabled": false,
       "edgeToEdgeEnabled": true,
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ],
       "intentFilters": [
         {
@@ -159,6 +164,13 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "Els App menggunakan lokasi Anda untuk mencari homecell terdekat dan memastikan Anda berada di lokasi ibadah atau event saat self check-in."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false
         }
       ]
     ],

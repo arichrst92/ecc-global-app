@@ -13,6 +13,7 @@ import { GuestHomeView } from '@/components/GuestHomeView';
 import { NotificationBell } from '@/components/NotificationBell';
 import { QuickAccess } from '@/components/home/QuickAccess';
 import { ScannerHeaderButton } from '@/components/home/ScannerHeaderButton';
+import { NowPlayingCard } from '@/components/worship/NowPlayingCard';
 import { HomecellSpotlight } from '@/components/home/HomecellSpotlight';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
@@ -163,6 +164,9 @@ function HomeScreenAuthenticated() {
         <HomecellSpotlight />
 
         {/* Quick Access — visible sesuai otoritas */}
+        {/* ECC Worship — hanya tampil saat ada lagu aktif */}
+        <NowPlayingCard />
+
         <QuickAccess />
 
         {/* Today's Services — render SEMUA occurrence hari ini (bukan cuma
