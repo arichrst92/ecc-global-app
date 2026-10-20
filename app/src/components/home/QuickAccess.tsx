@@ -29,6 +29,7 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useManagedAreas } from '@/hooks/useHomecell';
 import { getPrayerSummary } from '@/api/prayer';
 import { useWorshipSummary } from '@/hooks/useWorship';
+import { FEATURES } from '@/config/features';
 
 type QuickAccessTile = {
   key: string;
@@ -90,7 +91,7 @@ export function QuickAccess() {
       onPress: go(pendingDoa > 0 ? '/doa?tab=assigned' : '/doa'),
       badge: pendingDoa > 0 ? (pendingDoa > 99 ? '99+' : String(pendingDoa)) : undefined,
     },
-    { key: 'resolusi', icon: Target, label: t('quickaccess.resolusi'), onPress: go('/resolusi') },
+    ...(FEATURES.RESOLUSI ? [{ key: 'resolusi', icon: Target, label: t('quickaccess.resolusi'), onPress: go('/resolusi') }] : []),
     ...(showWorship ? [{ key: 'worship', icon: Music, label: t('quickaccess.worship'), onPress: go('/worship') }] : []),
 
     { key: 'family', icon: Users, label: t('quickaccess.family'), onPress: go('/family') },

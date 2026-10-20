@@ -51,6 +51,7 @@ import { useToast } from '@/components/ui/Toast';
 import { shareElsApp } from '@/utils/shareApp';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
+import { FEATURES } from '@/config/features';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { getMyProfile, getMySertifikat, sertifikatFileUrl } from '@/api/me';
 import { useMyHomecellOverview } from '@/hooks/useHomecell';
@@ -186,15 +187,18 @@ function ProfileTabAuthenticated() {
               label={t('profile.prayer_menu')}
               sub={t('profile.prayer_menu_sub')}
               onPress={() => router.push('/doa' as never)}
+              isLast={!FEATURES.RESOLUSI}
             />
-            <MenuRow
-              icon={<Target size={18} color="#059669" />}
-              iconBg="bg-emerald-50"
-              label={t('profile.resolusi_menu')}
-              sub={t('profile.resolusi_menu_sub')}
-              onPress={() => router.push('/resolusi' as never)}
-              isLast
-            />
+            {FEATURES.RESOLUSI ? (
+              <MenuRow
+                icon={<Target size={18} color="#059669" />}
+                iconBg="bg-emerald-50"
+                label={t('profile.resolusi_menu')}
+                sub={t('profile.resolusi_menu_sub')}
+                onPress={() => router.push('/resolusi' as never)}
+                isLast
+              />
+            ) : null}
           </MenuBox>
         </Cluster>
 

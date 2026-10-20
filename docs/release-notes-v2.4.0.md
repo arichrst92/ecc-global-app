@@ -8,8 +8,8 @@ Build baru wajib (modul audio native `expo-audio`, izin background audio) — **
 ## Isi rilis (ringkas)
 - **ECC Worship** — album & single lagu original ECC: putar (background + lock screen), lirik (tersinkron bila tersedia), mode karaoke, Disukai, unduh offline, bagikan, kartu "Sedang diputar" di Beranda & mini-player. Tile muncul otomatis setelah ada lagu terpublikasi.
 - **Doa (Prayer Request)** — kirim pokok doa (bisa anonim), dapat notifikasi + catatan saat sudah didoakan, tandai terjawab + kesaksian. Petugas doa: tab "Ditugaskan ke Saya".
-- **Resolusi Tahunan** — per tahun, kategori, centang Done, progress.
-- **Beranda baru** — Akses Cepat dikelompokkan per tema, kolom menyesuaikan layar; Scanner pindah ke header Beranda, Kalender ke header Profil; tile Doa, Resolusi, Tamu, Group.
+- **Resolusi Tahunan** — *disembunyikan di 2.4.0* (`FEATURES.RESOLUSI = false` di `src/config/features.ts`; layar & API tetap ada).
+- **Beranda baru** — Akses Cepat dikelompokkan per tema, kolom menyesuaikan layar; Scanner pindah ke header Beranda, Kalender ke header Profil; tile Doa, Tamu, Group.
 - **Event sukarela** — memberi berkali-kali (tombol "Beri lagi"), total & riwayat pemberian di kartu peserta; label biaya tetap "Nominal sukarela".
 - **Event** — tarik untuk refresh, data selalu terbaru, event yang dihapus tidak tampil lagi.
 - **Popup update** (wajib) bisa di-scroll; laporan error pemutar ke Diagnostics.
@@ -18,24 +18,22 @@ Build baru wajib (modul audio native `expo-audio`, izin background audio) — **
 
 ## Google Play — "Yang baru" (maks. 500 karakter)
 
-**Bahasa Indonesia (id-ID)** — 425 karakter
+**Bahasa Indonesia (id-ID)** — 372 karakter
 ```
 Els App 2.4.0:
 • ECC Worship: dengar lagu original ECC, lirik & mode karaoke, unduh offline
 • Doa: kirim pokok doa & dapat kabar saat sudah didoakan
-• Resolusi Tahunan: catat & centang target tahun ini
 • Beranda baru: akses cepat lebih rapi, Scanner di atas
 • Event sukarela: bisa memberi berkali-kali, total & riwayat tampil
 • Info event selalu terbaru & tarik untuk refresh
 • Popup update bisa di-scroll & perbaikan lainnya
 ```
 
-**English (en-US)** — 402 karakter
+**English (en-US)** — 351 karakter
 ```
 Els App 2.4.0:
 • ECC Worship: listen to ECC original songs, lyrics & karaoke, offline downloads
 • Prayer: send prayer requests & get notified when prayed for
-• Yearly Resolutions: write & check off your goals
 • New home: tidier quick access, Scanner on top
 • Voluntary events: give more than once, see total & history
 • Always up-to-date events & pull to refresh
@@ -55,10 +53,9 @@ ECC WORSHIP (BARU)
 • Unduh lagu untuk didengar tanpa internet
 • Bagikan lagu ke teman
 
-DOA & RESOLUSI (BARU)
+DOA (BARU)
 • Kirim pokok doa ke tim ECC (bisa anonim) dan dapat kabar saat sudah didoakan
 • Tandai doa yang sudah terjawab dan tulis kesaksian singkat
-• Resolusi Tahunan: catat target per tahun dan centang saat tercapai
 
 BERANDA BARU
 • Akses Cepat dikelompokkan per tema dan menyesuaikan lebar layar
@@ -85,10 +82,9 @@ ECC WORSHIP (NEW)
 • Download songs to listen offline
 • Share songs with friends
 
-PRAYER & RESOLUTIONS (NEW)
+PRAYER (NEW)
 • Send prayer requests to the ECC team (anonymously if you like) and get notified when prayed for
 • Mark answered prayers and share a short testimony
-• Yearly Resolutions: write your goals and check them off
 
 NEW HOME
 • Quick Access grouped by theme and adapts to your screen
@@ -128,7 +124,7 @@ Dan di KEY FLOWS:
 Saran release notes singkat untuk popup:
 ```
 • ECC Worship: lagu original ECC, lirik & karaoke
-• Doa & Resolusi Tahunan
+• Doa: kirim pokok doa & dapat kabar saat didoakan
 • Beranda baru & event sukarela bisa memberi berkali-kali
 ```
 
@@ -145,7 +141,7 @@ Saran release notes singkat untuk popup:
 - Unduh lagu → mode pesawat → masih bisa diputar
 - Kartu "Sedang diputar" di Beranda muncul saat memutar, hilang saat ditutup (X)
 - Doa: kirim (anonim) → portal assign → petugas tandai didoakan → notifikasi + WA ke jemaat
-- Resolusi: tambah, centang Done, ubah urutan, ganti tahun
+- Menu Resolusi **tidak** tampil (Beranda & Profil)
 - Event sukarela: Beri lagi via web → kartu peserta menampilkan total & riwayat; label biaya "Nominal sukarela"
 - Event dihapus di portal → tidak tampil lagi di app (buka ulang / tarik refresh)
 - Popup force update: catatan panjang bisa di-scroll, tombol Update terlihat
