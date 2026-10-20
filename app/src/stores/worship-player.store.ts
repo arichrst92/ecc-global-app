@@ -13,6 +13,7 @@ import { create } from 'zustand';
 
 import { getWorshipPlayUrl, reportWorshipPlayed, type WorshipMode, type WorshipTrack } from '@/api/worship';
 import { localUriOf } from '@/lib/worshipDownloads';
+import { addBreadcrumb, reportError } from '@/services/errorReporting';
 
 const PLAY_COUNT_AFTER_SEC = 30;
 
@@ -116,6 +117,7 @@ export const useWorshipPlayer = create<State>((set, get) => {
     const track = queue[order[pos]!];
     if (!track) return;
     const mode = get().mode === 'KARAOKE' && !track.hasKaraoke ? 'VOKAL' : get().mode;
+    addBreadcrumb(`worship play ${track.id} ${mode}`, 'worship');
     set({ pos, mode, loading: true, error: null, currentTime: startAt, duration: (mode === 'KARAOKE' ? track.karaokeDurasi : track.durasi) ?? 0 });
     countedFor = startAt >= PLAY_COUNT_AFTER_SEC ? `${track.id}:${pos}` : null;
     try {
@@ -130,8 +132,10 @@ export const useWorshipPlayer = create<State>((set, get) => {
       );
       if (autoplay) p.play();
       set({ loading: false });
-    } catch {
+    } catch (e) {
       set({ loading: false, error: 'Lagu tidak bisa diputar. Periksa koneksi internet.' });
+      // Masuk ke Diagnostics portal (kecuali error jaringan yang sudah dicatat api client).
+      reportError(e, { source: 'worship-player', songId: track.id, mode, offline: !!localUriOf(track.id, mode) });
     }
   };
 

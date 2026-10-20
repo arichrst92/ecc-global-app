@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system/legacy';
 import { create } from 'zustand';
 
+import { reportError } from '@/services/errorReporting';
 import { getWorshipPlayUrl, reportWorshipDownloaded, type WorshipMode, type WorshipTrack } from '@/api/worship';
 
 const KEY = 'ecc.worship.downloads.v1';
@@ -96,6 +97,9 @@ export const useWorshipDownloads = create<State>((set, get) => ({
       set({ entries });
       await persist(entries);
       void reportWorshipDownloaded(track.id, mode).catch(() => {});
+    } catch (e) {
+      reportError(e, { source: 'worship-download', songId: track.id, mode });
+      throw e;
     } finally {
       set((s) => {
         const p = { ...s.progress };
