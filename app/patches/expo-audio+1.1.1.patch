@@ -1,0 +1,64 @@
+diff --git a/node_modules/expo-audio/android/src/main/java/expo/modules/audio/service/AudioControlsService.kt b/node_modules/expo-audio/android/src/main/java/expo/modules/audio/service/AudioControlsService.kt
+index 04486e2..40b87a6 100644
+--- a/node_modules/expo-audio/android/src/main/java/expo/modules/audio/service/AudioControlsService.kt
++++ b/node_modules/expo-audio/android/src/main/java/expo/modules/audio/service/AudioControlsService.kt
+@@ -17,6 +17,8 @@ import android.os.IBinder
+ import android.os.Looper
+ import androidx.annotation.OptIn
+ import androidx.core.app.NotificationCompat
++import android.net.Uri
++import androidx.media3.common.MediaMetadata
+ import androidx.media3.common.Player
+ import androidx.media3.common.util.UnstableApi
+ import androidx.media3.session.CommandButton
+@@ -229,6 +231,10 @@ class AudioControlsService : MediaSessionService() {
+       addSession(session)
+       mediaSession = session
+ 
++      // ECC patch: isi metadata sesi (judul/artis/album/cover) — Android 13+
++      // membaca kontrol media dari MediaSession, bukan dari teks notifikasi.
++      applySessionMetadata(player, metadata)
++
+       // Set initial custom layout
+       updateSessionCustomLayout(player.ref.isPlaying)
+ 
+@@ -259,6 +265,7 @@ class AudioControlsService : MediaSessionService() {
+       return
+     }
+     currentMetadata = metadata
++    applySessionMetadata(player, metadata)
+     currentMetadata?.artworkUrl?.let {
+       loadArtworkFromUrl(it) { bitmap ->
+         currentArtwork = bitmap
+@@ -267,6 +274,31 @@ class AudioControlsService : MediaSessionService() {
+     } ?: postOrStartForegroundNotification(startInForeground = false)
+   }
+ 
++  /**
++   * ECC patch: tulis metadata ke MediaItem yang sedang diputar supaya
++   * MediaSession (kontrol media sistem / layar kunci) menampilkan judul lagu,
++   * bukan nama aplikasi. replaceMediaItem dengan URI yang sama tidak
++   * memuat ulang audio.
++   */
++  private fun applySessionMetadata(player: AudioPlayer, metadata: Metadata?) {
++    if (metadata == null) return
++    try {
++      val exo = player.ref
++      val item = exo.currentMediaItem ?: return
++      val md = MediaMetadata.Builder()
++        .setTitle(metadata.title)
++        .setDisplayTitle(metadata.title)
++        .setArtist(metadata.artist)
++        .setAlbumTitle(metadata.albumTitle)
++        .setArtworkUri(metadata.artworkUrl?.let { Uri.parse(it.toString()) })
++        .build()
++      if (item.mediaMetadata == md) return
++      exo.replaceMediaItem(exo.currentMediaItemIndex, item.buildUpon().setMediaMetadata(md).build())
++    } catch (_: Throwable) {
++      // Abaikan — notifikasi tetap tampil dengan teks dari currentMetadata.
++    }
++  }
++
+   private fun clearSessionInternal() {
+     currentPlayer?.isActiveForLockScreen = false
+     playbackListener?.let { listener ->

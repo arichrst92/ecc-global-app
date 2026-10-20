@@ -54,6 +54,40 @@ let player: AudioPlayer | null = null;
 let countedFor: string | null = null;
 let pendingSeek: number | null = null;
 let urlCache: Record<string, { url: string; exp: number }> = {};
+/** Kontrol layar kunci sudah diaktifkan (setActiveForLockScreen) untuk player ini. */
+let lockActive = false;
+/** Metadata layar kunci sudah dipasang ulang setelah lagu ter-load (key lagu:mode:pos). */
+let lockMetaFor: string | null = null;
+
+/**
+ * Metadata layar kunci / kontrol media sistem.
+ * iOS hanya menampilkan judul + "artis", jadi nama album diletakkan di baris
+ * artis supaya terlihat ("Nama Album · Karaoke").
+ */
+function lockScreenMeta(track: WorshipTrack, mode: WorshipMode) {
+  const album = track.albumTipe === 'SINGLE' ? 'ECC Worship · Single' : track.albumJudul || 'ECC Worship';
+  return {
+    title: track.judul,
+    artist: mode === 'KARAOKE' ? `${album} · Karaoke` : album,
+    albumTitle: track.albumTipe === 'SINGLE' ? 'ECC Worship' : track.albumJudul || 'ECC Worship',
+    ...(track.coverUrl ? { artworkUrl: track.coverUrl } : {}),
+  };
+}
+
+function applyLockScreen(p: AudioPlayer, track: WorshipTrack, mode: WorshipMode) {
+  const meta = lockScreenMeta(track, mode);
+  try {
+    if (!lockActive) {
+      p.setActiveForLockScreen(true, meta, { showSeekBackward: true, showSeekForward: true });
+      lockActive = true;
+    } else {
+      p.updateLockScreenMetadata(meta);
+    }
+  } catch (e) {
+    // Jangan sampai gagal pasang metadata menghentikan pemutaran.
+    reportError(e, { source: 'worship-lockscreen', songId: track.id, mode });
+  }
+}
 
 function shuffled(n: number, first: number): number[] {
   const rest = [...Array(n).keys()].filter((i) => i !== first);
@@ -92,6 +126,15 @@ export const useWorshipPlayer = create<State>((set, get) => {
     }
     set({ playing: st.playing, buffering: st.isBuffering, currentTime: st.currentTime, duration: st.duration || get().duration });
     const cur = get().current();
+    // Pasang ulang judul/album setelah audio ter-load — native kadang
+    // menimpa info layar kunci saat item baru disiapkan.
+    if (cur && player && st.isLoaded) {
+      const key = `${cur.id}:${get().mode}:${get().pos}`;
+      if (lockMetaFor !== key) {
+        lockMetaFor = key;
+        applyLockScreen(player, cur, get().mode);
+      }
+    }
     if (cur && countedFor !== `${cur.id}:${get().pos}` && st.currentTime >= PLAY_COUNT_AFTER_SEC) {
       countedFor = `${cur.id}:${get().pos}`;
       void reportWorshipPlayed(cur.id, get().mode).catch(() => {});
@@ -125,11 +168,8 @@ export const useWorshipPlayer = create<State>((set, get) => {
       const p = ensurePlayer();
       p.replace({ uri });
       pendingSeek = startAt > 0 ? startAt : null;
-      p.setActiveForLockScreen(
-        true,
-        { title: track.judul, artist: track.ciptaan ?? 'ECC Worship', albumTitle: track.albumJudul, artworkUrl: track.coverUrl ?? undefined },
-        { showSeekBackward: true, showSeekForward: true },
-      );
+      lockMetaFor = null;
+      applyLockScreen(p, track, mode);
       if (autoplay) p.play();
       set({ loading: false });
     } catch (e) {
@@ -233,8 +273,14 @@ export const useWorshipPlayer = create<State>((set, get) => {
     close: () => {
       if (player) {
         player.pause();
-        player.clearLockScreenControls();
+        try {
+          player.clearLockScreenControls();
+        } catch {
+          /* abaikan */
+        }
       }
+      lockActive = false;
+      lockMetaFor = null;
       countedFor = null;
       urlCache = {};
       set({ queue: [], order: [], pos: 0, playing: false, currentTime: 0, duration: 0, sourceLabel: '', error: null });
