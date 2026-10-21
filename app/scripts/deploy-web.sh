@@ -17,6 +17,15 @@ npx expo export -p web --clear
 
 test -f dist/index.html || { echo "✗ dist/index.html tidak ada — export gagal"; exit 1; }
 
+# Ikon web: favicon pakai ?v=<versi app> (browser menyimpan favicon sangat lama),
+# + apple-touch-icon & manifest (ikon saat "Add to Home Screen").
+# File ikonnya dari folder public/ (ikut tersalin ke dist/ saat export).
+APP_VER=$(node -p "require('./app.json').expo.version")
+sed -i.bak \
+  -e "s#<link rel=\"icon\" href=\"/favicon.ico\" />#<link rel=\"icon\" href=\"/favicon.ico?v=$APP_VER\" /><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png?v=$APP_VER\" /><link rel=\"manifest\" href=\"/manifest.webmanifest?v=$APP_VER\" /><meta name=\"theme-color\" content=\"\#F97316\" />#" \
+  dist/index.html && rm -f dist/index.html.bak
+grep -q "apple-touch-icon" dist/index.html || echo "⚠ link ikon tidak tersisip ke index.html (cek format <link rel=icon>)"
+
 # Satu koneksi SSH dipakai bersama (ControlMaster) → password / passphrase
 # cukup diminta SEKALI untuk semua perintah ssh & rsync di bawah.
 # (Lebih baik lagi: pasang SSH key — lihat docs, maka tidak ditanya sama sekali.)
