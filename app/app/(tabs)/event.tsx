@@ -24,6 +24,7 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { EventListItem, TipeBayar } from '@/types/event';
 import { formatDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Filter = 'all' | 'GRATIS' | 'PAID';
 
@@ -80,9 +81,9 @@ function EventListAuthenticated() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-5 py-3 flex-row items-center gap-3">
-          <CalendarDays size={20} color="#171717" />
+          <CalendarDays size={20} color={nc('#171717')} />
           <View className="flex-1">
             <Text className="text-lg font-bold text-neutral-900">{t('event.title')}</Text>
             {branch ? (
@@ -204,7 +205,7 @@ function EventCard({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
+      className="bg-card rounded-2xl overflow-hidden border border-neutral-100"
     >
       {/* Hero block — fit-to-width, tinggi proporsional sesuai aspect rasio image */}
       <View className="relative">
@@ -239,7 +240,7 @@ function EventCard({
 
         {event.lokasi && event.lokasi.trim().length > 0 ? (
           <View className="flex-row items-center gap-1 mt-2">
-            <MapPin size={12} color="#A3A3A3" />
+            <MapPin size={12} color={nc('#A3A3A3')} />
             <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
               {event.lokasi}
             </Text>
@@ -261,7 +262,7 @@ function EventCard({
           </View>
         ) : (
           <View className="flex-row items-center gap-1 mt-2">
-            <Users size={12} color="#A3A3A3" />
+            <Users size={12} color={nc('#A3A3A3')} />
             <Text className="text-xs text-brand-600 font-semibold">
               {t('event.participants_count', { count: event.pesertaCount })}
             </Text>
@@ -277,7 +278,7 @@ function EmptyState({ filtered }: { filtered: boolean }) {
   return (
     <View className="items-center py-20 px-8">
       <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-        <CalendarDays size={28} color="#A3A3A3" />
+        <CalendarDays size={28} color={nc('#A3A3A3')} />
       </View>
       <Text className="text-lg font-semibold text-neutral-700">
         {filtered ? t('event.empty_filter_title') : t('event.empty_title')}

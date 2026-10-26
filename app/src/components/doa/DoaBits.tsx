@@ -5,6 +5,7 @@ import { CircleCheck, Circle } from 'lucide-react-native';
 
 import type { PrayerDisplayStatus, PrayerTarget } from '@/api/prayer';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 const STATUS_CLS: Record<PrayerDisplayStatus, { bg: string; text: string }> = {
   BARU: { bg: 'bg-amber-100', text: 'text-amber-800' },
@@ -36,7 +37,7 @@ export function PillOption({ label, on, onPress }: { label: string; on: boolean;
   return (
     <Pressable
       onPress={onPress}
-      {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
+      {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-300'}`)}
     >
       <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>{label}</Text>
     </Pressable>
@@ -83,7 +84,7 @@ export const fmtDate = (iso: string, lang: string, withTime = false) =>
 export function TimelineStep({ done, label, sub }: { done: boolean; label: string; sub?: string | null }) {
   return (
     <View className="flex-row items-start gap-2">
-      {done ? <CircleCheck size={16} color="#16A34A" /> : <Circle size={16} color="#D4D4D4" />}
+      {done ? <CircleCheck size={16} color="#16A34A" /> : <Circle size={16} color={nc('#D4D4D4')} />}
       <View className="flex-1">
         <Text className={`text-sm ${done ? 'text-neutral-800' : 'text-neutral-400'}`}>{label}</Text>
         {sub ? <Text className="text-[11px] text-neutral-400">{sub}</Text> : null}

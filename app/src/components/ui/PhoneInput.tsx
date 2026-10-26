@@ -3,6 +3,7 @@ import { FlatList, Modal, Platform, Pressable, Text, TextInput, View } from 'rea
 import { ChevronDown, X } from 'lucide-react-native';
 
 import { COUNTRIES, DEFAULT_COUNTRY, countryFromE164, type Country } from '@/utils/phone';
+import { nc } from '@/theme/ThemeRoot';
 
 type Props = {
   value: string;
@@ -70,7 +71,7 @@ export function PhoneInput({
         <Text className="text-sm font-medium text-neutral-700 mb-2">{label}</Text>
       ) : null}
       <View
-        className="flex-row items-center border border-neutral-300 rounded-xl bg-white"
+        className="flex-row items-center border border-neutral-300 rounded-xl bg-card"
         style={{ height: 52 }}
       >
         <Pressable
@@ -79,9 +80,9 @@ export function PhoneInput({
           accessibilityLabel={`Kode negara ${country.name} ${country.dial}`}
           className="flex-row items-center gap-1.5 px-3 border-r border-neutral-200 h-full"
         >
-          <Text style={{ fontSize: 18, lineHeight: 22 }}>{country.flag}</Text>
+          <Text className="text-neutral-900" style={{ fontSize: 18, lineHeight: 22 }}>{country.flag}</Text>
           <Text className="text-sm font-medium text-neutral-700">{country.dial}</Text>
-          <ChevronDown size={14} color="#A3A3A3" />
+          <ChevronDown size={14} color={nc('#A3A3A3')} />
         </Pressable>
         <TextInput
           value={local}
@@ -101,7 +102,7 @@ export function PhoneInput({
             ...(Platform.OS === 'ios' ? { paddingTop: 0, paddingBottom: 0 } : {}),
             ...(Platform.OS === 'android' ? { includeFontPadding: false } : {}),
           }}
-          placeholderTextColor="#A3A3A3"
+          placeholderTextColor={nc('#A3A3A3')}
         />
       </View>
       {error ? (
@@ -117,11 +118,11 @@ export function PhoneInput({
         onRequestClose={() => setPickerOpen(false)}
       >
         <Pressable className="flex-1 bg-black/40" onPress={() => setPickerOpen(false)} />
-        <View className="bg-white rounded-t-2xl pb-6" style={{ maxHeight: '70%' }}>
+        <View className="bg-card rounded-t-2xl pb-6" style={{ maxHeight: '70%' }}>
           <View className="flex-row items-center justify-between px-5 py-4 border-b border-neutral-100">
             <Text className="text-base font-bold text-neutral-900">Pilih kode negara</Text>
             <Pressable onPress={() => setPickerOpen(false)} hitSlop={10}>
-              <X size={20} color="#525252" />
+              <X size={20} color={nc('#525252')} />
             </Pressable>
           </View>
           <FlatList
@@ -138,7 +139,7 @@ export function PhoneInput({
                   item.iso === country.iso ? 'bg-brand-50' : ''
                 }`}
               >
-                <Text style={{ fontSize: 20 }}>{item.flag}</Text>
+                <Text className="text-neutral-900" style={{ fontSize: 20 }}>{item.flag}</Text>
                 <Text className="flex-1 text-sm text-neutral-900">{item.name}</Text>
                 <Text className="text-sm font-medium text-neutral-500">{item.dial}</Text>
               </Pressable>

@@ -16,6 +16,7 @@ import { SongRow } from '@/components/worship/SongRow';
 import { SongActionSheet } from '@/components/worship/SongActionSheet';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function WorshipAlbumScreen() {
   const { t } = useTranslation();
@@ -48,10 +49,10 @@ export default function WorshipAlbumScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white">
+      <SafeAreaView edges={['top']} className="bg-card">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1" />
           <Pressable
@@ -61,14 +62,14 @@ export default function WorshipAlbumScreen() {
             }}
             className="w-10 h-10 items-center justify-center"
           >
-            {selecting ? <X size={20} color="#171717" /> : <ListChecks size={20} color="#171717" />}
+            {selecting ? <X size={20} color={nc('#171717')} /> : <ListChecks size={20} color={nc('#171717')} />}
           </Pressable>
           {tracks[0] ? (
             <Pressable
               onPress={() => Share.share({ message: `${album.judul} — ECC Worship\n${shareUrlOf(tracks[0]!.id)}` })}
               className="w-10 h-10 items-center justify-center"
             >
-              <Share2 size={20} color="#171717" />
+              <Share2 size={20} color={nc('#171717')} />
             </Pressable>
           ) : null}
         </View>
@@ -91,17 +92,17 @@ export default function WorshipAlbumScreen() {
             </Pressable>
             <Pressable
               onPress={() => playTracks(tracks, -1, { source: album.judul, shuffle: true, mode: 'VOKAL' })}
-              className="flex-row items-center gap-1.5 bg-white border border-neutral-300 rounded-full px-4 py-2.5"
+              className="flex-row items-center gap-1.5 bg-card border border-neutral-300 rounded-full px-4 py-2.5"
             >
-              <Shuffle size={16} color="#171717" />
+              <Shuffle size={16} color={nc('#171717')} />
               <Text className="text-neutral-900 font-semibold text-sm">{t('worship.shuffle')}</Text>
             </Pressable>
             {karaokeTracks.length ? (
               <Pressable
                 onPress={() => playTracks(karaokeTracks, 0, { source: `${album.judul} · Karaoke`, mode: 'KARAOKE' })}
-                className="flex-row items-center gap-1.5 bg-white border border-neutral-300 rounded-full px-4 py-2.5"
+                className="flex-row items-center gap-1.5 bg-card border border-neutral-300 rounded-full px-4 py-2.5"
               >
-                <MicVocal size={16} color="#171717" />
+                <MicVocal size={16} color={nc('#171717')} />
                 <Text className="text-neutral-900 font-semibold text-sm">{t('worship.karaoke_all')}</Text>
               </Pressable>
             ) : null}
@@ -116,9 +117,9 @@ export default function WorshipAlbumScreen() {
                     showToast(t('worship.download_failed'), 'error');
                   }
                 }}
-                className="w-10 h-10 rounded-full bg-white border border-neutral-300 items-center justify-center"
+                className="w-10 h-10 rounded-full bg-card border border-neutral-300 items-center justify-center"
               >
-                <Download size={16} color="#171717" />
+                <Download size={16} color={nc('#171717')} />
               </Pressable>
             ) : null}
           </View>
@@ -142,15 +143,15 @@ export default function WorshipAlbumScreen() {
                 showToast(t('worship.added_to_queue'), 'success');
                 setSelecting(false);
               }}
-              className="flex-row items-center gap-1.5 bg-white border border-neutral-300 rounded-full px-4 py-2.5"
+              className="flex-row items-center gap-1.5 bg-card border border-neutral-300 rounded-full px-4 py-2.5"
             >
-              <ListPlus size={16} color="#171717" />
+              <ListPlus size={16} color={nc('#171717')} />
               <Text className="text-neutral-900 font-semibold text-sm">{t('worship.add_to_queue')}</Text>
             </Pressable>
           </View>
         )}
 
-        <View className="mt-4 bg-white rounded-2xl px-3 border border-neutral-100">
+        <View className="mt-4 bg-card rounded-2xl px-3 border border-neutral-100">
           {tracks.map((x, i) => (
             <SongRow
               key={x.id}

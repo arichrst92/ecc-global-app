@@ -38,7 +38,7 @@ export function ForceUpdateModal({ data }: Props) {
   return (
     <Modal visible animationType="fade" transparent={false} statusBarTranslucent onRequestClose={() => {}}>
       <SafeAreaProvider>
-        <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-white">
+        <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-card">
           <View className="flex-1 w-full max-w-md self-center">
             <ScrollView
               style={{ flex: 1 }}

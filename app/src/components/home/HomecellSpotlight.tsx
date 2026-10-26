@@ -17,6 +17,7 @@ import { jadwalLabel } from '@/components/homecell/HomecellListCard';
 import { useMyHomecellOverview } from '@/hooks/useHomecell';
 import type { HomecellListItem, HomecellNextSchedule } from '@/types/homecell';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export function HomecellSpotlight() {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export function HomecellSpotlight() {
 
   if (q.isPending) {
     return (
-      <View className="mx-5 -mt-5 bg-white rounded-3xl p-6 items-center border border-neutral-100">
+      <View className="mx-5 -mt-5 bg-card rounded-3xl p-6 items-center border border-neutral-100">
         <ActivityIndicator color="#F97316" />
       </View>
     );
@@ -51,7 +52,7 @@ export function HomecellSpotlight() {
                 onPress={() => router.push('/homecell/requests' as never)}
                 className="flex-row items-center gap-1.5 bg-amber-100 px-3 py-1.5 rounded-full"
               >
-                <Bell size={13} color="#B45309" />
+                <Bell size={13} color={nc('#B45309')} />
                 <Text className="text-xs font-bold text-amber-800">{t('hcj.spot_requests', { count: totalReq })}</Text>
               </Pressable>
             ) : null}
@@ -108,7 +109,7 @@ export function HomecellSpotlight() {
   const pending = pendingRequests[0];
   return (
     <View
-      className="mx-5 -mt-5 bg-white rounded-3xl p-5 overflow-hidden border border-neutral-100"
+      className="mx-5 -mt-5 bg-card rounded-3xl p-5 overflow-hidden border border-neutral-100"
       style={{ shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}
     >
       {/* aksen dekoratif */}
@@ -126,9 +127,9 @@ export function HomecellSpotlight() {
           onPress={() => router.push(`/homecell/view/${pending.homecell.id}` as never)}
           className="mt-4 flex-row items-center gap-2 bg-amber-50 border border-amber-100 rounded-2xl p-3"
         >
-          <Hourglass size={16} color="#B45309" />
+          <Hourglass size={16} color={nc('#B45309')} />
           <Text className="flex-1 text-xs text-amber-900">{t('hcj.spot_pending', { name: pending.homecell.nama })}</Text>
-          <ChevronRight size={14} color="#B45309" />
+          <ChevronRight size={14} color={nc('#B45309')} />
         </Pressable>
       ) : (
         <View className="flex-row gap-2 mt-4">
@@ -141,7 +142,7 @@ export function HomecellSpotlight() {
           </Pressable>
           <Pressable
             onPress={() => router.push('/homecell')}
-            className="px-4 items-center justify-center rounded-2xl border border-brand-200 bg-white"
+            className="px-4 items-center justify-center rounded-2xl border border-brand-200 bg-card"
           >
             <Text className="text-sm font-semibold text-brand-700">{t('hcj.spot_browse')}</Text>
           </Pressable>
@@ -176,7 +177,7 @@ function SpotCard({
   return (
     <Pressable
       onPress={onPress}
-      className="mx-5 -mt-5 bg-white rounded-3xl p-5 border border-neutral-100"
+      className="mx-5 -mt-5 bg-card rounded-3xl p-5 border border-neutral-100"
       style={{ shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}
     >
       <View className="flex-row items-center gap-3">
@@ -190,7 +191,7 @@ function SpotCard({
           </Text>
           <LastAttendanceText variant="homecell" date={item.lastMeetingAt} daysAgo={item.lastMeetingDaysAgo} />
         </View>
-        <ChevronRight size={18} color="#A3A3A3" />
+        <ChevronRight size={18} color={nc('#A3A3A3')} />
       </View>
 
       <View className="mt-4 bg-brand-50 rounded-2xl p-3.5 flex-row gap-3">
@@ -204,7 +205,7 @@ function SpotCard({
                 {item.jam ? ` · ${item.jam}` : ''}
               </Text>
               <View className="flex-row items-center gap-1 mt-0.5">
-                <MapPin size={11} color="#737373" />
+                <MapPin size={11} color={nc('#737373')} />
                 <Text className="text-xs text-neutral-600 flex-1" numberOfLines={1}>
                   {next.lokasi}
                 </Text>

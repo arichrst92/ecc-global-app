@@ -47,7 +47,7 @@ export default function SignupSuccessScreen() {
 
         {/* Member code card */}
         {user ? (
-          <View className="bg-white rounded-2xl p-4 mt-8 w-full max-w-xs border border-neutral-100">
+          <View className="bg-card rounded-2xl p-4 mt-8 w-full max-w-xs border border-neutral-100">
             <Text className="text-xs text-neutral-500">{t('home.member_code')}</Text>
             <Text className="text-2xl font-bold tracking-widest text-brand-600 mt-1">
               {user.kode}

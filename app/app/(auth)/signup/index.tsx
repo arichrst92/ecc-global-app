@@ -22,6 +22,7 @@ import { useSignupStore } from '@/stores/signup.store';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function SignupPhoneScreen() {
   const { t, i18n } = useTranslation();
@@ -71,7 +72,7 @@ export default function SignupPhoneScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
@@ -79,7 +80,7 @@ export default function SignupPhoneScreen() {
       >
         <View className="px-4 py-2">
           <Pressable onPress={handleBack} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
         </View>
 
@@ -112,7 +113,7 @@ export default function SignupPhoneScreen() {
           />
         </ScrollView>
 
-        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+        <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">
           <Button
             label={t('auth.send_otp')}
             onPress={submit}

@@ -7,6 +7,7 @@ import { ArrowLeft, Check, Globe } from 'lucide-react-native';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Lang = {
   code: 'id' | 'en';
@@ -29,13 +30,13 @@ export default function LanguageScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('settings.language_title')}
@@ -68,11 +69,11 @@ export default function LanguageScreen() {
               <Pressable
                 key={lang.code}
                 onPress={() => setLanguage(lang.code)}
-                className={`bg-white rounded-2xl p-4 flex-row items-center gap-3 border-2 ${
+                className={`bg-card rounded-2xl p-4 flex-row items-center gap-3 border-2 ${
                   active ? 'border-brand-500' : 'border-neutral-100'
                 }`}
               >
-                <Text style={{ fontSize: 28 }}>{lang.flag}</Text>
+                <Text className="text-neutral-900" style={{ fontSize: 28 }}>{lang.flag}</Text>
                 <View className="flex-1">
                   <Text className="font-semibold text-neutral-900">{lang.label}</Text>
                   <Text className="text-xs text-neutral-500 mt-0.5">{lang.sublabel}</Text>

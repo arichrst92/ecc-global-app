@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { goBack } from '@/utils/nav';
+import { isDark } from '@/theme/ThemeRoot';
 
 export default function PaymentDoneSink() {
   const router = useRouter();
@@ -20,5 +21,5 @@ export default function PaymentDoneSink() {
     goBack(router, '/');
   }, [router]);
 
-  return <View style={{ flex: 1, backgroundColor: '#fff' }} />;
+  return <View style={{ flex: 1, backgroundColor: isDark() ? '#0F0F10' : '#fff' }} />;
 }

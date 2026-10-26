@@ -32,6 +32,7 @@ import { Cover } from '@/components/worship/Cover';
 import { LyricsView } from '@/components/worship/LyricsView';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 const KEEP_AWAKE_TAG = 'ecc-worship-karaoke';
 
@@ -66,8 +67,8 @@ export default function WorshipPlayerScreen() {
   const liked = lib.data?.favorites.includes(track.id) ?? false;
   const dur = s.duration || track.durasi || 0;
   const pct = dur ? Math.min(1, s.currentTime / dur) : 0;
-  const fg = karaoke ? '#FFFFFF' : '#171717';
-  const sub = karaoke ? 'rgba(255,255,255,0.7)' : '#737373';
+  const fg = karaoke ? '#FFFFFF' : nc('#171717');
+  const sub = karaoke ? 'rgba(255,255,255,0.7)' : nc('#737373');
   const cover = Math.min(width - 64, 320);
 
   return (
@@ -96,7 +97,7 @@ export default function WorshipPlayerScreen() {
 
       {/* Toggle Vokal / Karaoke */}
       {track.hasKaraoke ? (
-        <View className="mx-6 flex-row rounded-full overflow-hidden border" style={{ borderColor: karaoke ? 'rgba(255,255,255,0.3)' : '#E5E5E5' }}>
+        <View className="mx-6 flex-row rounded-full overflow-hidden border" style={{ borderColor: karaoke ? 'rgba(255,255,255,0.3)' : nc('#E5E5E5') }}>
           {(['VOKAL', 'KARAOKE'] as const).map((m) => (
             <Pressable key={m} onPress={() => void s.setMode(m)} {...gx(`flex-1 py-2 items-center ${s.mode === m ? 'bg-brand-500' : ''}`)}>
               <Text className="text-xs font-semibold" style={{ color: s.mode === m ? '#fff' : sub }}>
@@ -138,7 +139,7 @@ export default function WorshipPlayerScreen() {
           onPress={(e) => dur && s.seek((e.nativeEvent.locationX / barW) * dur)}
           className="mt-4 py-2"
         >
-          <View className="h-1 rounded-full" style={{ backgroundColor: karaoke ? 'rgba(255,255,255,0.25)' : '#E5E5E5' }}>
+          <View className="h-1 rounded-full" style={{ backgroundColor: karaoke ? 'rgba(255,255,255,0.25)' : nc('#E5E5E5') }}>
             <View {...gx('h-1 rounded-full bg-brand-500', { width: `${pct * 100}%` })}  />
           </View>
         </Pressable>
@@ -179,7 +180,7 @@ export default function WorshipPlayerScreen() {
           <Pressable
             onPress={() => setQueueOpen(true)}
             className="flex-row items-center gap-1.5 px-4 py-2 rounded-full border"
-            style={{ borderColor: karaoke ? 'rgba(255,255,255,0.3)' : '#D4D4D4' }}
+            style={{ borderColor: karaoke ? 'rgba(255,255,255,0.3)' : nc('#D4D4D4') }}
           >
             <ListMusic size={14} color={fg} />
             <Text className="text-xs font-semibold" style={{ color: fg }}>
@@ -191,7 +192,7 @@ export default function WorshipPlayerScreen() {
 
       <Modal visible={queueOpen} transparent animationType="slide" onRequestClose={() => setQueueOpen(false)}>
         <Pressable className="flex-1 bg-black/40" onPress={() => setQueueOpen(false)} />
-        <View className="bg-white rounded-t-3xl px-5 pt-4" style={{ maxHeight: '70%', paddingBottom: insets.bottom + 12 }}>
+        <View className="bg-card rounded-t-3xl px-5 pt-4" style={{ maxHeight: '70%', paddingBottom: insets.bottom + 12 }}>
           <Text className="text-base font-bold text-neutral-900 mb-2">{t('worship.queue')}</Text>
           <ScrollView>
             {s.order.map((qi, i) => {

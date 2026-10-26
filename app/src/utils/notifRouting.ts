@@ -8,6 +8,7 @@
  */
 
 import type { InAppNotification, InAppNotifType } from '@/types/notification';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Resolve deep-link target dari notif. Priority:
@@ -212,27 +213,27 @@ export function notifIconColors(key: NotifIconKey): {
     case 'star':
       return { bgClass: 'bg-amber-50', fg: '#D97706' };
     case 'sliders':
-      return { bgClass: 'bg-neutral-100', fg: '#525252' };
+      return { bgClass: 'bg-neutral-100', fg: nc('#525252') };
     case 'family':
       return { bgClass: 'bg-emerald-50', fg: '#059669' };
     case 'group-add':
     case 'group-remove':
     case 'archive':
-      return { bgClass: 'bg-blue-50', fg: '#1d4ed8' };
+      return { bgClass: 'bg-blue-50', fg: nc('#1d4ed8') };
     case 'ticket-plus':
     case 'ticket-check':
     case 'ticket-qr':
       return { bgClass: 'bg-purple-50', fg: '#7c3aed' };
     case 'home-check':
-      return { bgClass: 'bg-orange-50', fg: '#9a3412' };
+      return { bgClass: 'bg-orange-50', fg: nc('#9a3412') };
     case 'user-eye':
-      return { bgClass: 'bg-cyan-50', fg: '#0e7490' };
+      return { bgClass: 'bg-cyan-50', fg: nc('#0e7490') };
     case 'map-check':
       return { bgClass: 'bg-green-50', fg: '#16a34a' };
     case 'map-x':
-      return { bgClass: 'bg-red-50', fg: '#b91c1c' };
+      return { bgClass: 'bg-red-50', fg: nc('#b91c1c') };
     default:
-      return { bgClass: 'bg-neutral-100', fg: '#525252' };
+      return { bgClass: 'bg-neutral-100', fg: nc('#525252') };
   }
 }
 

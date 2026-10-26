@@ -14,6 +14,7 @@ import { FEEDBACK_KATEGORI, sendFeedback, type FeedbackKategori, type FeedbackTi
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function NewFeedbackScreen() {
   const { t } = useTranslation();
@@ -49,10 +50,10 @@ export default function NewFeedbackScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">{t('feedback.new_title')}</Text>
         </View>
@@ -70,10 +71,10 @@ export default function NewFeedbackScreen() {
                   key={key}
                   onPress={() => setTipe(key)}
                   className={`flex-1 flex-row items-center justify-center gap-2 py-3 rounded-2xl border ${
-                    on ? 'bg-brand-50 border-brand-400' : 'bg-white border-neutral-200'
+                    on ? 'bg-brand-50 border-brand-400' : 'bg-card border-neutral-200'
                   }`}
                 >
-                  <Icon size={18} color={on ? '#EA580C' : '#737373'} />
+                  <Icon size={18} color={on ? '#EA580C' : nc('#737373')} />
                   <Text className={`text-sm font-semibold ${on ? 'text-brand-700' : 'text-neutral-700'}`}>{t(`feedback.tipe_${key}`)}</Text>
                 </Pressable>
               );
@@ -88,7 +89,7 @@ export default function NewFeedbackScreen() {
                 <Pressable
                   key={k}
                   onPress={() => setKategori(k)}
-                  {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
+                  {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-300'}`)}
                 >
                   <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>{t(`feedback.kategori_${k}`)}</Text>
                 </Pressable>
@@ -103,8 +104,8 @@ export default function NewFeedbackScreen() {
             multiline
             maxLength={3000}
             placeholder={tipe === 'KRITIK' ? t('feedback.isi_ph_kritik') : t('feedback.isi_ph_saran')}
-            placeholderTextColor="#A3A3A3"
-            className="bg-white rounded-2xl px-4 py-3 text-sm text-neutral-900 border border-neutral-200"
+            placeholderTextColor={nc('#A3A3A3')}
+            className="bg-card rounded-2xl px-4 py-3 text-sm text-neutral-900 border border-neutral-200"
             style={{ minHeight: 160, textAlignVertical: 'top' }}
           />
           <Text className="text-[11px] text-neutral-400 -mt-2 text-right">{isi.length}/3000</Text>

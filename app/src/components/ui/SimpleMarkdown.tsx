@@ -166,7 +166,7 @@ function renderInline(text: string): React.ReactNode {
         </Text>
       );
     }
-    return <Text key={i}>{renderItalic(part)}</Text>;
+    return <Text className="text-neutral-900" key={i}>{renderItalic(part)}</Text>;
   });
 }
 
@@ -175,7 +175,7 @@ function renderItalic(text: string): React.ReactNode {
   return parts.map((part, i) => {
     if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
       return (
-        <Text key={i} className="italic">
+        <Text key={i} className="text-neutral-900 italic">
           {part.slice(1, -1)}
         </Text>
       );

@@ -22,6 +22,7 @@ import { formatInstantDate } from '@/utils/time';
 import { formatDateWithDay } from '@/utils/date';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 const STATUS_STYLE: Record<TamuStatus, { bg: string; fg: string }> = {
   DIUNDANG: { bg: 'bg-neutral-100', fg: 'text-neutral-700' },
@@ -63,10 +64,10 @@ export default function MyGuestsScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('guests.title')}</Text>
@@ -116,20 +117,20 @@ export default function MyGuestsScreen() {
               {rows.map((g) => {
                 const st = g.status ?? 'DIUNDANG';
                 return (
-                  <View key={g.id} className="bg-white rounded-2xl border border-neutral-100 p-4">
+                  <View key={g.id} className="bg-card rounded-2xl border border-neutral-100 p-4">
                     <View className="flex-row gap-3">
                       <Avatar size={40} name={g.namaLengkap} />
                       <View className="flex-1 min-w-0">
                         <Text className="text-sm font-bold text-neutral-900">{g.namaLengkap}</Text>
                         {g.noHp ? (
                           <View className="flex-row items-center gap-1.5 mt-1">
-                            <Phone size={12} color="#737373" />
+                            <Phone size={12} color={nc('#737373')} />
                             <Text className="text-xs text-neutral-600">{formatPhoneDisplay(g.noHp)}</Text>
                           </View>
                         ) : null}
                         {g.addedAt ? (
                           <View className="flex-row items-center gap-1.5 mt-1">
-                            <UserPlus size={12} color="#737373" />
+                            <UserPlus size={12} color={nc('#737373')} />
                             <Text className="text-xs text-neutral-600">
                               {t('guests.invited_on', { date: formatInstantDate(g.addedAt, i18n.language) })}
                             </Text>
@@ -140,7 +141,7 @@ export default function MyGuestsScreen() {
                         </View>
                         {g.followupBy ? (
                           <View className="flex-row items-start gap-1.5 mt-2">
-                            <UserCheck size={12} color="#B45309" style={{ marginTop: 2 }} />
+                            <UserCheck size={12} color={nc('#B45309')} style={{ marginTop: 2 }} />
                             <Text className="flex-1 text-xs text-amber-800">
                               {t('guests.followup_by', { name: g.followupBy.namaLengkap })}
                               {g.followupSejak ? ` · ${t('guests.since', { date: formatInstantDate(g.followupSejak, i18n.language) })}` : ''}
@@ -164,7 +165,7 @@ export default function MyGuestsScreen() {
                       {g.terakhirAcara?.jenis === 'EVENT' ? (
                         <Ticket size={16} color="#7C3AED" style={{ marginTop: 1 }} />
                       ) : (
-                        <Church size={16} color={g.terakhirAcara ? '#EA580C' : '#A3A3A3'} style={{ marginTop: 1 }} />
+                        <Church size={16} color={g.terakhirAcara ? '#EA580C' : nc('#A3A3A3')} style={{ marginTop: 1 }} />
                       )}
                       <View className="flex-1 min-w-0">
                         {g.terakhirAcara ? (
@@ -194,7 +195,7 @@ export default function MyGuestsScreen() {
         )}
       </ScrollView>
 
-      <View className="absolute left-0 right-0 bottom-0 bg-white border-t border-neutral-100 px-4 pt-3" style={{ paddingBottom: insets.bottom + 12 }}>
+      <View className="absolute left-0 right-0 bottom-0 bg-card border-t border-neutral-100 px-4 pt-3" style={{ paddingBottom: insets.bottom + 12 }}>
         <Button label={t('tamu.add_btn_long')} onPress={() => setAdding(true)} leftIcon={<UserPlus size={16} color="#fff" />} fullWidth />
       </View>
 

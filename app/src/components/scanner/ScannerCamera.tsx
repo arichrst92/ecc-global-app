@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Camera as CameraIcon, Keyboard, UserPlus } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Reusable scanner camera dengan frame overlay + scan-line UI.
@@ -60,7 +61,7 @@ export function ScannerCamera({
 
   if (!permission.granted) {
     return (
-      <View className="flex-1 bg-neutral-900 items-center justify-center px-8">
+      <View className="flex-1 bg-black items-center justify-center px-8">
         <View className="w-20 h-20 rounded-2xl bg-white/10 items-center justify-center mb-4">
           <CameraIcon size={32} color="#F97316" />
         </View>
@@ -117,7 +118,7 @@ export function ScannerCamera({
             onPress={onManualInput}
             className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg"
           >
-            <Keyboard size={16} color="#171717" />
+            <Keyboard size={16} color={nc('#171717')} />
             <Text className="text-sm font-semibold text-neutral-900">
               {t('scanner.manual_input')}
             </Text>

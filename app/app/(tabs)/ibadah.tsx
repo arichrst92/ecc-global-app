@@ -18,6 +18,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { todayIso, addDaysIso, formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 
@@ -65,9 +66,9 @@ function IbadahListAuthenticated() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-5 py-3 flex-row items-center gap-3">
-          <Calendar size={20} color="#171717" />
+          <Calendar size={20} color={nc('#171717')} />
           <View className="flex-1">
             <Text className="text-lg font-bold text-neutral-900">{t('ibadah.title')}</Text>
             {branch ? (
@@ -177,7 +178,7 @@ function DateSection({
           <Pressable
             key={`${item.ibadahId}-${date}`}
             onPress={() => onTapItem(item.ibadahId)}
-            className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
+            className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
           >
             <View className="w-12 h-12 rounded-xl bg-brand-50 items-center justify-center">
               <Text className="text-xs text-brand-600 font-bold">{hh}</Text>
@@ -195,7 +196,7 @@ function DateSection({
                 {formatVenueRange(date, item.jamMulai, item.jamSelesai, venueTz)}
               </Text>
             </View>
-            <ChevronRight size={16} color="#A3A3A3" />
+            <ChevronRight size={16} color={nc('#A3A3A3')} />
           </Pressable>
           );
         })}
@@ -209,7 +210,7 @@ function EmptyState() {
   return (
     <View className="items-center py-20 px-8">
       <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-        <Church size={28} color="#A3A3A3" />
+        <Church size={28} color={nc('#A3A3A3')} />
       </View>
       <Text className="text-lg font-semibold text-neutral-700">{t('ibadah.empty_title')}</Text>
       <Text className="text-sm text-neutral-500 text-center mt-1">{t('ibadah.empty_msg')}</Text>

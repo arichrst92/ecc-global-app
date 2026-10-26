@@ -12,6 +12,7 @@ import { MarkdownView } from '@/components/ui/MarkdownView';
 import { useLegalDocument } from '@/hooks/useLegal';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function PrivacyScreen() {
   const insets = useSafeAreaInsets();
@@ -22,13 +23,13 @@ export default function PrivacyScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {doc?.title ?? t('legal.privacy_title')}
@@ -40,7 +41,7 @@ export default function PrivacyScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
-        <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center mb-4">
+        <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center mb-4">
           <View className="w-14 h-14 rounded-2xl bg-blue-50 items-center justify-center mb-2">
             <Shield size={28} color="#2563EB" />
           </View>
@@ -78,7 +79,7 @@ export default function PrivacyScreen() {
           </View>
         ) : doc ? (
           <>
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100">
               <MarkdownView content={doc.content} />
             </View>
             <Text className="text-xs text-neutral-400 text-center mt-4">

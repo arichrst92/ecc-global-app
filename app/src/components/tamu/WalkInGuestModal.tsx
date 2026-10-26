@@ -16,6 +16,7 @@ import { walkInGuestEvent, walkInGuestIbadah, type WalkInBayar } from '@/api/tam
 import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Target =
   | { kind: 'event'; eventId: string; tipeBayar: 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS'; nominal?: string | number | null }
@@ -85,14 +86,14 @@ export function WalkInGuestModal({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={close} />
-        <View className="bg-white rounded-t-3xl p-5 gap-3">
+        <View className="bg-card rounded-t-3xl p-5 gap-3">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-2">
               <UserPlus size={18} color="#7C3AED" />
               <Text className="text-lg font-bold text-neutral-900">{t('tamu.walkin_title')}</Text>
             </View>
             <Pressable onPress={close} hitSlop={10}>
-              <X size={18} color="#737373" />
+              <X size={18} color={nc('#737373')} />
             </Pressable>
           </View>
           <Text className="text-xs text-neutral-500 leading-5">{t('tamu.walkin_hint')}</Text>
@@ -101,7 +102,7 @@ export function WalkInGuestModal({
             value={nama}
             onChangeText={setNama}
             placeholder={t('tamu.nama_ph')}
-            placeholderTextColor="#A3A3A3"
+            placeholderTextColor={nc('#A3A3A3')}
             maxLength={255}
             className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
           />
@@ -116,7 +117,7 @@ export function WalkInGuestModal({
                     <Pressable
                       key={b}
                       onPress={() => setBayar(b)}
-                      {...gx(`flex-1 items-center py-2 rounded-xl border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
+                      {...gx(`flex-1 items-center py-2 rounded-xl border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-300'}`)}
                     >
                       <Text className={`text-xs font-bold ${on ? 'text-white' : 'text-neutral-700'}`}>{t(`tamu.bayar_${b}`)}</Text>
                     </Pressable>
@@ -129,7 +130,7 @@ export function WalkInGuestModal({
                   onChangeText={(v) => setNominal(v.replace(/\D/g, ''))}
                   keyboardType="number-pad"
                   placeholder={t('tamu.nominal_ph')}
-                  placeholderTextColor="#A3A3A3"
+                  placeholderTextColor={nc('#A3A3A3')}
                   className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
                 />
               ) : nominalTetap > 0 && bayar !== 'GRATIS' ? (

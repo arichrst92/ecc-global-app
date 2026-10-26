@@ -21,6 +21,8 @@ import {
   Info,
   LogOut,
   MessageSquareText,
+  Moon,
+  Sun,
   Pencil,
   Share2,
   ScanLine,
@@ -57,6 +59,7 @@ import { useMyHomecellOverview } from '@/hooks/useHomecell';
 import * as WebBrowser from 'expo-web-browser';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function ProfileTab() {
   // Guard di luar — supaya rules-of-hooks tidak violated. Guest path tidak
@@ -77,6 +80,7 @@ function ProfileTabAuthenticated() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const language = usePreferencesStore((s) => s.language);
   const languageLabel = language === 'id' ? 'Bahasa Indonesia' : 'English';
+  const darkMode = usePreferencesStore((s) => s.darkMode);
   // Family + Scanner mode visible kalau user authorized untuk minimal 1 event/ibadah
   const familyQuery = useMyFamily();
   const scannerEventsQuery = useScannerEvents();
@@ -249,17 +253,17 @@ function ProfileTabAuthenticated() {
         </Cluster>
 
         {/* ============ 5. Ibadah & Kegiatan ============ */}
-        <Cluster bg="bg-sky-50" icon={<CalendarCheck size={16} color="#0369A1" />} title={t('profile.cluster_activity')} sub={t('profile.cluster_activity_sub')}>
+        <Cluster bg="bg-sky-50" icon={<CalendarCheck size={16} color={nc('#0369A1')} />} title={t('profile.cluster_activity')} sub={t('profile.cluster_activity_sub')}>
           <MenuBox>
             <MenuRow
-              icon={<CalendarCheck size={18} color="#0369A1" />}
+              icon={<CalendarCheck size={18} color={nc('#0369A1')} />}
               iconBg="bg-sky-50"
               label={t('profile.my_reservasi')}
               sub={t('profile.my_reservasi_sub')}
               onPress={() => router.push('/my-reservasi' as never)}
             />
             <MenuRow
-              icon={<UserPlus size={18} color="#0369A1" />}
+              icon={<UserPlus size={18} color={nc('#0369A1')} />}
               iconBg="bg-sky-50"
               label={t('guests.menu')}
               sub={t('guests.menu_sub')}
@@ -305,26 +309,33 @@ function ProfileTabAuthenticated() {
         </Cluster>
 
         {/* ============ 7. Pengaturan ============ */}
-        <ClusterTitle bg="bg-neutral-100" icon={<Settings size={16} color="#525252" />} title={t('profile.settings_title')} sub={t('profile.cluster_settings_sub')} />
-        <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
+        <ClusterTitle bg="bg-neutral-100" icon={<Settings size={16} color={nc('#525252')} />} title={t('profile.settings_title')} sub={t('profile.cluster_settings_sub')} />
+        <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <MenuRow
-            icon={<ShieldCheck size={18} color="#525252" />}
+            icon={<ShieldCheck size={18} color={nc('#525252')} />}
             iconBg="bg-neutral-100"
             label={t('privacy.menu')}
             sub={t('privacy.menu_sub')}
             onPress={() => router.push('/settings/privacy' as never)}
           />
           <MenuRow
-            icon={<Globe size={18} color="#525252" />}
+            icon={<Globe size={18} color={nc('#525252')} />}
             iconBg="bg-neutral-100"
             label={t('profile.language')}
             sub={languageLabel}
             onPress={() => router.push('/settings/language')}
           />
+          <MenuRow
+            icon={darkMode ? <Moon size={18} color={nc('#525252')} /> : <Sun size={18} color={nc('#525252')} />}
+            iconBg="bg-neutral-100"
+            label={t('appearance.title')}
+            sub={darkMode ? t('appearance.dark') : t('appearance.light')}
+            onPress={() => router.push('/settings/appearance' as never)}
+          />
           {/* Versi web selalu terbaru — menu cek update hanya untuk app store. */}
           {Platform.OS !== 'web' && (
             <MenuRow
-              icon={<Download size={18} color="#525252" />}
+              icon={<Download size={18} color={nc('#525252')} />}
               iconBg="bg-neutral-100"
               label={t('profile.check_update')}
               sub={t('profile.check_update_sub')}
@@ -332,7 +343,7 @@ function ProfileTabAuthenticated() {
             />
           )}
           <MenuRow
-            icon={<Info size={18} color="#525252" />}
+            icon={<Info size={18} color={nc('#525252')} />}
             iconBg="bg-neutral-100"
             label={t('profile.about')}
             sub={`v${appVersion}`}
@@ -356,7 +367,7 @@ function ProfileTabAuthenticated() {
         <Text className="text-xs font-bold text-red-500 uppercase tracking-wider mt-8 mb-2">
           {t('profile.danger_zone')}
         </Text>
-        <View className="bg-white rounded-2xl border border-red-100 mb-4">
+        <View className="bg-card rounded-2xl border border-red-100 mb-4">
           <MenuRow
             icon={<Trash2 size={18} color="#DC2626" />}
             iconBg="bg-red-50"
@@ -385,7 +396,7 @@ function ProfileTabAuthenticated() {
         >
           <Pressable
             onPress={() => {}}
-            className="bg-white rounded-2xl p-5 w-full max-w-sm"
+            className="bg-card rounded-2xl p-5 w-full max-w-sm"
           >
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <AlertTriangle size={24} color="#DC2626" />
@@ -452,7 +463,7 @@ function MenuRow({
         <Text className="text-sm font-semibold text-neutral-900">{label}</Text>
         {sub ? <Text className="text-xs text-neutral-500 mt-0.5">{sub}</Text> : null}
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
+      <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }
@@ -475,7 +486,7 @@ function BranchCard({ onPress }: { onPress: () => void }) {
     <View className="mb-4">
       <Pressable
         onPress={onPress}
-        className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+        className="bg-card rounded-2xl border border-neutral-100 overflow-hidden"
       >
         <View className="flex-row items-center gap-3 p-4">
           <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
@@ -523,7 +534,7 @@ function FamilyCard({ onPress }: { onPress: () => void }) {
     <View className="mb-4">
       <Pressable
         onPress={onPress}
-        className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+        className="bg-card rounded-2xl border border-neutral-100 overflow-hidden"
       >
         <View className="flex-row items-center gap-3 p-4">
           <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
@@ -569,7 +580,7 @@ function FamilyCard({ onPress }: { onPress: () => void }) {
               </>
             )}
           </View>
-          <ChevronRight size={14} color="#A3A3A3" />
+          <ChevronRight size={14} color={nc('#A3A3A3')} />
         </View>
       </Pressable>
     </View>
@@ -598,7 +609,7 @@ function SertifikatCard() {
       {items.length === 0 ? (
         <Pressable
           onPress={() => q.isError && void q.refetch()}
-          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+          className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
         >
           <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
             <Award size={18} color="#059669" />
@@ -612,7 +623,7 @@ function SertifikatCard() {
           </Text>
         </Pressable>
       ) : (
-      <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+      <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
         {items.map((s, idx) => {
           const isPdf = s.fileMime === 'application/pdf';
           const tanggal = new Date(s.tanggal.slice(0, 10) + 'T00:00:00').toLocaleDateString(
@@ -635,7 +646,7 @@ function SertifikatCard() {
                 </Text>
                 <Text className="text-xs text-neutral-500 mt-0.5">{tanggal}</Text>
               </View>
-              {s.fileUrl ? <ChevronRight size={14} color="#A3A3A3" /> : null}
+              {s.fileUrl ? <ChevronRight size={14} color={nc('#A3A3A3')} /> : null}
             </Pressable>
           );
         })}
@@ -659,7 +670,7 @@ function HomecellProfileCard() {
       {rows.length === 0 ? (
         <Pressable
           onPress={() => router.push('/homecell')}
-          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+          className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
         >
           <View className="w-10 h-10 rounded-xl bg-violet-50 items-center justify-center">
             <Users size={18} color="#7C3AED" />
@@ -670,10 +681,10 @@ function HomecellProfileCard() {
             </Text>
             <Text className="text-xs text-neutral-500 mt-0.5">{t('hcj.profile_none_sub')}</Text>
           </View>
-          <ChevronRight size={16} color="#A3A3A3" />
+          <ChevronRight size={16} color={nc('#A3A3A3')} />
         </Pressable>
       ) : (
-        <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+        <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
           {rows.map(({ h, role }, idx) => (
             <Pressable
               key={`${role}-${h.id}`}
@@ -695,7 +706,7 @@ function HomecellProfileCard() {
                   {t('hcj.members', { count: h.memberCount })}
                 </Text>
               </View>
-              <ChevronRight size={14} color="#A3A3A3" />
+              <ChevronRight size={14} color={nc('#A3A3A3')} />
             </Pressable>
           ))}
         </View>
@@ -719,7 +730,7 @@ function MinistryCard() {
       {ministries.length === 0 ? (
         <Pressable
           onPress={() => router.push('/ministry' as never)}
-          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+          className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
         >
           <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
             <Sparkles size={18} color="#DB2777" />
@@ -732,10 +743,10 @@ function MinistryCard() {
               {t('profile.ministry_explore_sub')}
             </Text>
           </View>
-          <ChevronRight size={16} color="#A3A3A3" />
+          <ChevronRight size={16} color={nc('#A3A3A3')} />
         </Pressable>
       ) : (
-        <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+        <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
           {ministries.map((m, idx) => (
             <Pressable
               key={m.id}
@@ -757,7 +768,7 @@ function MinistryCard() {
                   </Text>
                 ) : null}
               </View>
-              <ChevronRight size={14} color="#A3A3A3" />
+              <ChevronRight size={14} color={nc('#A3A3A3')} />
             </Pressable>
           ))}
         </View>
@@ -804,5 +815,5 @@ function Cluster({
 }
 
 function MenuBox({ children }: { children: React.ReactNode }) {
-  return <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100 mb-4">{children}</View>;
+  return <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100 mb-4">{children}</View>;
 }

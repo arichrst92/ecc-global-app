@@ -38,6 +38,7 @@ import type {
 } from '@/types/bible';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Chapter reader.
@@ -234,7 +235,7 @@ export default function BibleChapterScreen() {
             <ActivityIndicator color="#EA580C" />
           </View>
         ) : chapter ? (
-          <View className="bg-white rounded-2xl p-5 border border-neutral-100">
+          <View className="bg-card rounded-2xl p-5 border border-neutral-100">
             {chapter.ayat.map((verse) => {
               const isSelected = selectedVerse === verse.nomor;
               const isVerseBookmarked = isBookmarked(ref, verse.nomor);
@@ -293,7 +294,7 @@ export default function BibleChapterScreen() {
             })}
           </View>
         ) : (
-          <View className="bg-white rounded-2xl p-6 border border-neutral-200 items-center">
+          <View className="bg-card rounded-2xl p-6 border border-neutral-200 items-center">
             <Text className="text-sm text-neutral-500 text-center">
               {names.tc('bible.chapter_not_found')}
             </Text>
@@ -302,14 +303,14 @@ export default function BibleChapterScreen() {
       </ScrollView>
 
       {/* Bottom prev/next nav */}
-      <SafeAreaView edges={['bottom']} className="absolute left-0 right-0 bottom-0 bg-white border-t border-neutral-200">
+      <SafeAreaView edges={['bottom']} className="absolute left-0 right-0 bottom-0 bg-card border-t border-neutral-200">
         <View className="flex-row px-4 py-2">
           <Pressable
             onPress={goPrev}
             disabled={bab === 1 && book.id === 1}
             className="flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-xl bg-neutral-100"
           >
-            <ChevronLeft size={16} color="#525252" />
+            <ChevronLeft size={16} color={nc('#525252')} />
             <Text className="text-sm font-semibold text-neutral-700">
               {names.tc('bible.prev_chapter')}
             </Text>
@@ -342,7 +343,7 @@ export default function BibleChapterScreen() {
         >
           <Pressable
             onPress={() => {}}
-            className="bg-white rounded-2xl p-5 w-full max-w-sm"
+            className="bg-card rounded-2xl p-5 w-full max-w-sm"
           >
             <Text className="text-lg font-bold text-neutral-900 mb-3">
               {t('bible.font_size')}
@@ -358,7 +359,7 @@ export default function BibleChapterScreen() {
                   className={`flex-row items-center justify-between p-3 rounded-xl border ${
                     fontSize === size
                       ? 'bg-brand-50 border-brand-300'
-                      : 'bg-white border-neutral-200'
+                      : 'bg-card border-neutral-200'
                   }`}
                 >
                   <Text className={`${FONT_SIZE_MAP[size]} text-neutral-900`}>

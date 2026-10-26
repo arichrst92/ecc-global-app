@@ -16,6 +16,7 @@ import { ApiError } from '@/types/api';
 import type { Cabang } from '@/types/cabang';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Change Branch — direct update (no approval flow).
@@ -80,13 +81,13 @@ export default function ChangeBranchScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">
             {t('branch_change.title')}
@@ -101,7 +102,7 @@ export default function ChangeBranchScreen() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
           {t('branch_change.current_home')}
         </Text>
-        <View className="bg-white rounded-2xl p-4 border border-brand-200 flex-row items-center gap-3 mb-4">
+        <View className="bg-card rounded-2xl p-4 border border-brand-200 flex-row items-center gap-3 mb-4">
           <View className="w-12 h-12 rounded-xl bg-brand-50 items-center justify-center">
             <Church size={22} color="#EA580C" />
           </View>
@@ -140,12 +141,12 @@ export default function ChangeBranchScreen() {
         navigationBarTranslucent
       >
         <View className="flex-1 bg-neutral-50" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
-          <View className="bg-white border-b border-neutral-100 px-4 py-3 flex-row items-center">
+          <View className="bg-card border-b border-neutral-100 px-4 py-3 flex-row items-center">
             <Pressable
               onPress={() => setPickerOpen(false)}
               className="w-10 h-10 items-center justify-center"
             >
-              <X size={20} color="#171717" />
+              <X size={20} color={nc('#171717')} />
             </Pressable>
             <Text className="text-base font-bold text-neutral-900 flex-1">
               {t('branch_change.picker_title')}
@@ -161,7 +162,7 @@ export default function ChangeBranchScreen() {
                     setPickerOpen(false);
                     setConfirmOpen(true);
                   }}
-                  className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
+                  className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
                 >
                   <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
                     <Church size={18} color="#EA580C" />
@@ -191,7 +192,7 @@ export default function ChangeBranchScreen() {
         onRequestClose={() => setConfirmOpen(false)}
       >
         <View className="flex-1 bg-black/50 items-center justify-center px-6">
-          <View className="bg-white rounded-2xl p-5 w-full max-w-sm">
+          <View className="bg-card rounded-2xl p-5 w-full max-w-sm">
             <View className="items-center mb-3">
               <View className="w-14 h-14 rounded-2xl bg-brand-50 items-center justify-center mb-2">
                 <CheckCircle2 size={28} color="#EA580C" />

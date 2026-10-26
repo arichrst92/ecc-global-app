@@ -4,6 +4,7 @@ import { LastAttendanceText } from '@/components/homecell/LastAttendanceText';
 import { ChevronRight, Clock, MapPin, Navigation, User, Users } from 'lucide-react-native';
 
 import type { HomecellListItem } from '@/types/homecell';
+import { nc } from '@/theme/ThemeRoot';
 
 /** "SENIN" → "Senin" */
 export function hariLabel(hari: string | null): string | null {
@@ -39,7 +40,7 @@ export function HomecellListCard({ item, onPress }: { item: HomecellListItem; on
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
+      className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
     >
       <View className="w-12 h-12 rounded-xl bg-brand-100 items-center justify-center">
         <Users size={20} color="#EA580C" />
@@ -53,7 +54,7 @@ export function HomecellListCard({ item, onPress }: { item: HomecellListItem; on
         </View>
         <LastAttendanceText variant="homecell" date={item.lastMeetingAt} daysAgo={item.lastMeetingDaysAgo} />
         <View className="flex-row items-center gap-1 mt-1">
-          <MapPin size={11} color="#A3A3A3" />
+          <MapPin size={11} color={nc('#A3A3A3')} />
           <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
             {item.area.nama}
             {item.alamat ? ` · ${item.alamat}` : ''}
@@ -70,7 +71,7 @@ export function HomecellListCard({ item, onPress }: { item: HomecellListItem; on
           ) : null}
           {jadwal ? (
             <View className="flex-row items-center gap-1">
-              <Clock size={11} color="#A3A3A3" />
+              <Clock size={11} color={nc('#A3A3A3')} />
               <Text className="text-xs text-neutral-500">{jadwal}</Text>
             </View>
           ) : null}
@@ -81,14 +82,14 @@ export function HomecellListCard({ item, onPress }: { item: HomecellListItem; on
         </View>
         {item.picJemaat ? (
           <View className="flex-row items-center gap-1 mt-1">
-            <User size={11} color="#A3A3A3" />
+            <User size={11} color={nc('#A3A3A3')} />
             <Text className="text-xs text-neutral-500" numberOfLines={1}>
               {t('hcj.leader', { name: item.picJemaat.namaLengkap })}
             </Text>
           </View>
         ) : null}
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
+      <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }

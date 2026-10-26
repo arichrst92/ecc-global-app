@@ -8,6 +8,7 @@ import { useBranchStore } from '@/stores/branch.store';
 import { useViewingBranch, useHomeBranch } from '@/hooks/useViewingBranch';
 import type { Cabang } from '@/types/cabang';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Props = {
   visible: boolean;
@@ -46,7 +47,7 @@ export function BranchSwitcherSheet({ visible, onClose }: Props) {
       <Pressable onPress={onClose} className="flex-1 bg-black/50 justify-end">
         <Pressable
           onPress={() => {}}
-          className="bg-white rounded-t-3xl"
+          className="bg-card rounded-t-3xl"
           // minHeight supaya sheet tidak collapse ke title saja di iOS,
           // maxHeight 85% biar gak full-screen nutupin status bar
           style={{ minHeight: 420, maxHeight: '85%' }}
@@ -61,7 +62,7 @@ export function BranchSwitcherSheet({ visible, onClose }: Props) {
                 <Text className="text-xs text-neutral-500 mt-0.5">{t('branch.switcher_sub')}</Text>
               </View>
               <Pressable onPress={onClose} className="w-8 h-8 items-center justify-center -mt-1">
-                <X size={18} color="#737373" />
+                <X size={18} color={nc('#737373')} />
               </Pressable>
             </View>
 
@@ -108,7 +109,7 @@ export function BranchSwitcherSheet({ visible, onClose }: Props) {
 
               {/* Info notice */}
               <View className="mt-4 mb-2 p-3 bg-blue-50 border border-blue-100 rounded-xl flex-row gap-2">
-                <Info size={14} color="#1d4ed8" style={{ marginTop: 2 }} />
+                <Info size={14} color={nc('#1d4ed8')} style={{ marginTop: 2 }} />
                 <Text className="text-xs text-blue-800 flex-1">
                   {t('branch.switcher_notice')}
                 </Text>
@@ -140,7 +141,7 @@ function BranchOption({
           ? isHome
             ? 'border-brand-500 bg-brand-50'
             : 'border-amber-500 bg-amber-50'
-          : 'border-neutral-200 bg-white'
+          : 'border-neutral-200 bg-card'
       }`}
     >
       <View
@@ -148,7 +149,7 @@ function BranchOption({
           isHome ? 'bg-brand-100' : 'bg-neutral-100'
         }`}
       >
-        {isHome ? <Church size={18} color="#EA580C" /> : <MapPin size={18} color="#525252" />}
+        {isHome ? <Church size={18} color="#EA580C" /> : <MapPin size={18} color={nc('#525252')} />}
       </View>
       <View className="flex-1 min-w-0">
         <View className="flex-row items-center gap-2">

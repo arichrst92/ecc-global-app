@@ -27,6 +27,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useCreateSchedule } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 function toYmd(d: Date): string {
   const y = d.getFullYear();
@@ -89,13 +90,13 @@ export default function NewScheduleScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('homecell.schedule_form_title')}
@@ -119,7 +120,7 @@ export default function NewScheduleScreen() {
           </Text>
           <Pressable
             onPress={() => setShowPicker(true)}
-            className="bg-white rounded-2xl p-4 border border-neutral-200 flex-row items-center gap-3 mb-5"
+            className="bg-card rounded-2xl p-4 border border-neutral-200 flex-row items-center gap-3 mb-5"
           >
             <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
               <CalendarPlus size={20} color="#EA580C" />
@@ -166,13 +167,13 @@ export default function NewScheduleScreen() {
           <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-3">
             {t('homecell.schedule_field_lokasi')}
           </Text>
-          <View className="bg-white rounded-2xl border border-neutral-200 px-3 py-2 flex-row items-start gap-2 mb-5">
-            <MapPin size={18} color="#737373" style={{ marginTop: 4 }} />
+          <View className="bg-card rounded-2xl border border-neutral-200 px-3 py-2 flex-row items-start gap-2 mb-5">
+            <MapPin size={18} color={nc('#737373')} style={{ marginTop: 4 }} />
             <TextInput
               value={lokasi}
               onChangeText={setLokasi}
               placeholder={t('homecell.schedule_field_lokasi_placeholder')}
-              placeholderTextColor="#A3A3A3"
+              placeholderTextColor={nc('#A3A3A3')}
               multiline
               className="flex-1 text-sm text-neutral-900 py-1.5"
               style={{ minHeight: 40 }}
@@ -184,12 +185,12 @@ export default function NewScheduleScreen() {
           <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
             {t('homecell.schedule_field_catatan')}
           </Text>
-          <View className="bg-white rounded-2xl border border-neutral-200 px-3 py-2 mb-6">
+          <View className="bg-card rounded-2xl border border-neutral-200 px-3 py-2 mb-6">
             <TextInput
               value={catatan}
               onChangeText={setCatatan}
               placeholder={t('homecell.schedule_field_catatan_placeholder')}
-              placeholderTextColor="#A3A3A3"
+              placeholderTextColor={nc('#A3A3A3')}
               multiline
               className="text-sm text-neutral-900 py-1.5"
               style={{ minHeight: 60, textAlignVertical: 'top' }}
@@ -198,7 +199,7 @@ export default function NewScheduleScreen() {
           </View>
         </ScrollView>
 
-        <View className="px-5 pb-4 pt-3 bg-white border-t border-neutral-100">
+        <View className="px-5 pb-4 pt-3 bg-card border-t border-neutral-100">
           <SafeAreaView edges={['bottom']}>
             <Button
               label={t('homecell.schedule_save_btn')}

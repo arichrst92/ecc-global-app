@@ -19,6 +19,7 @@ import {
 import { Avatar } from '@/components/ui/Avatar';
 import { env } from '@/config/env';
 import type { LocalBusiness } from '@/types/localBusiness';
+import { nc } from '@/theme/ThemeRoot';
 
 type Props = {
   business: LocalBusiness;
@@ -42,7 +43,7 @@ export function BusinessRow({ business, onPress, variant = 'public' }: Props) {
   return (
     <Pressable
       onPress={onPress}
-      className={`bg-white rounded-2xl border border-neutral-100 p-3 flex-row gap-3 ${
+      className={`bg-card rounded-2xl border border-neutral-100 p-3 flex-row gap-3 ${
         isInactive ? 'opacity-60' : ''
       }`}
     >
@@ -87,7 +88,7 @@ export function BusinessRow({ business, onPress, variant = 'public' }: Props) {
         {/* Middle: lokasi (kalau ada) */}
         {business.lokasi ? (
           <View className="flex-row items-center gap-1 mt-1">
-            <MapPin size={11} color="#A3A3A3" />
+            <MapPin size={11} color={nc('#A3A3A3')} />
             <Text className="text-[11px] text-neutral-500 flex-1" numberOfLines={1}>
               {business.lokasi}
             </Text>
@@ -123,7 +124,7 @@ export function BusinessRow({ business, onPress, variant = 'public' }: Props) {
                 {business.isOnline ? (
                   <Wifi size={9} color="#2563EB" />
                 ) : (
-                  <WifiOff size={9} color="#737373" />
+                  <WifiOff size={9} color={nc('#737373')} />
                 )}
                 <Text
                   className={`text-[9px] font-semibold ${
@@ -152,7 +153,7 @@ export function BusinessRow({ business, onPress, variant = 'public' }: Props) {
                 {business.isOnline ? (
                   <Wifi size={9} color="#059669" />
                 ) : (
-                  <WifiOff size={9} color="#737373" />
+                  <WifiOff size={9} color={nc('#737373')} />
                 )}
                 <Text
                   className={`text-[9px] font-semibold ${
@@ -169,7 +170,7 @@ export function BusinessRow({ business, onPress, variant = 'public' }: Props) {
 
       {/* Right chevron — di align center vertical */}
       <View className="justify-center">
-        <ChevronRight size={16} color="#A3A3A3" />
+        <ChevronRight size={16} color={nc('#A3A3A3')} />
       </View>
     </Pressable>
   );

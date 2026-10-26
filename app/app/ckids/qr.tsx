@@ -19,6 +19,7 @@ import { useMyChildrenWithBalances } from '@/hooks/useCKids';
 import { useCKidsSelectionStore } from '@/stores/ckids-selection.store';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function CKidsQrScreen() {
   const { t } = useTranslation();
@@ -37,7 +38,7 @@ export default function CKidsQrScreen() {
 
   if (!selected && childrenQuery.isPending) {
     return (
-      <View className="flex-1 bg-white items-center justify-center">
+      <View className="flex-1 bg-card items-center justify-center">
         <ActivityIndicator color="#F97316" />
       </View>
     );
@@ -45,13 +46,13 @@ export default function CKidsQrScreen() {
 
   if (!selected) {
     return (
-      <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
         <View className="px-4 py-2">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
         </View>
         <View className="flex-1 items-center justify-center px-8">
@@ -108,8 +109,8 @@ export default function CKidsQrScreen() {
         </View>
 
         {/* QR card */}
-        <View className="bg-white rounded-3xl p-6 items-center" style={{ elevation: 12 }}>
-          <QRCode value={kode} size={240} color="#0A0A0A" backgroundColor="#FFFFFF" />
+        <View className="bg-card rounded-3xl p-6 items-center" style={{ elevation: 12 }}>
+          <QRCode value={kode} size={240} color="#0A0A0A" backgroundColor="#FFFFFF" quietZone={10} />
           <Text className="text-2xl font-bold tracking-widest text-neutral-900 mt-5">
             {kode}
           </Text>

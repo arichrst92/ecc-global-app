@@ -10,6 +10,7 @@ import { dlKey, downloadsSupported, useWorshipDownloads } from '@/lib/worshipDow
 import { useWorshipPlayer } from '@/stores/worship-player.store';
 import { useToast } from '@/components/ui/Toast';
 import { Cover } from './Cover';
+import { nc } from '@/theme/ThemeRoot';
 
 export function SongActionSheet({ track, onClose }: { track: WorshipTrack | null; onClose: () => void }) {
   const { t } = useTranslation();
@@ -52,7 +53,7 @@ export function SongActionSheet({ track, onClose }: { track: WorshipTrack | null
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
       <Pressable className="flex-1 bg-black/40" onPress={onClose} />
-      <View className="bg-white rounded-t-3xl px-5 pt-4" style={{ paddingBottom: insets.bottom + 12 }}>
+      <View className="bg-card rounded-t-3xl px-5 pt-4" style={{ paddingBottom: insets.bottom + 12 }}>
         <View className="flex-row items-center gap-3 pb-3 border-b border-neutral-100">
           <Cover url={track.coverUrl} size={44} />
           <View className="flex-1 min-w-0">
@@ -64,10 +65,10 @@ export function SongActionSheet({ track, onClose }: { track: WorshipTrack | null
             </Text>
           </View>
         </View>
-        <Row icon={<Play size={20} color="#404040" />} label={t('worship.play_only_this')} onPress={run(() => playTracks([track], 0, { source: track.judul }))} />
-        <Row icon={<ListPlus size={20} color="#404040" />} label={t('worship.add_to_queue')} onPress={run(() => { addToQueue([track]); showToast(t('worship.added_to_queue'), 'success'); })} />
+        <Row icon={<Play size={20} color={nc('#404040')} />} label={t('worship.play_only_this')} onPress={run(() => playTracks([track], 0, { source: track.judul }))} />
+        <Row icon={<ListPlus size={20} color={nc('#404040')} />} label={t('worship.add_to_queue')} onPress={run(() => { addToQueue([track]); showToast(t('worship.added_to_queue'), 'success'); })} />
         <Row
-          icon={<Heart size={20} color={liked ? '#EA580C' : '#404040'} fill={liked ? '#EA580C' : 'transparent'} />}
+          icon={<Heart size={20} color={liked ? '#EA580C' : nc('#404040')} fill={liked ? '#EA580C' : 'transparent'} />}
           label={liked ? t('worship.unlike') : t('worship.like')}
           onPress={run(() => fav.mutate({ songId: track.id, like: !liked }))}
         />
@@ -76,18 +77,18 @@ export function SongActionSheet({ track, onClose }: { track: WorshipTrack | null
             <Row icon={<Trash2 size={20} color="#DC2626" />} label={t('worship.remove_download')} danger onPress={run(() => remove(track.id))} />
           ) : (
             <>
-              <Row icon={<Download size={20} color="#404040" />} label={t('worship.download_vokal')} onPress={dl(['VOKAL'])} />
+              <Row icon={<Download size={20} color={nc('#404040')} />} label={t('worship.download_vokal')} onPress={dl(['VOKAL'])} />
               {track.hasKaraoke ? (
                 <>
-                  <Row icon={<Music size={20} color="#404040" />} label={t('worship.download_karaoke')} onPress={dl(['KARAOKE'])} />
-                  <Row icon={<MicVocal size={20} color="#404040" />} label={t('worship.download_both')} onPress={dl(['VOKAL', 'KARAOKE'])} />
+                  <Row icon={<Music size={20} color={nc('#404040')} />} label={t('worship.download_karaoke')} onPress={dl(['KARAOKE'])} />
+                  <Row icon={<MicVocal size={20} color={nc('#404040')} />} label={t('worship.download_both')} onPress={dl(['VOKAL', 'KARAOKE'])} />
                 </>
               ) : null}
             </>
           )
         ) : null}
         <Row
-          icon={<Share2 size={20} color="#404040" />}
+          icon={<Share2 size={20} color={nc('#404040')} />}
           label={t('worship.share')}
           onPress={run(() => Share.share({ message: `${track.judul} — ECC Worship\n${shareUrlOf(track.id)}` }))}
         />

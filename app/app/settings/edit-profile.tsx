@@ -36,6 +36,7 @@ import { PEKERJAAN_OPTIONS, PERNIKAHAN_OPTIONS } from '@/constants/profileOption
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -252,13 +253,13 @@ export default function EditProfileScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">
             {isDependent
@@ -316,7 +317,7 @@ export default function EditProfileScreen() {
               value={namaLengkap}
               onChangeText={setNamaLengkap}
               placeholder={t('signup.full_name_placeholder')}
-              className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+              className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
             />
           </Field>
 
@@ -350,7 +351,7 @@ export default function EditProfileScreen() {
                   placeholder="nama@email.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                  className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
                 />
               </Field>
             </>
@@ -363,7 +364,7 @@ export default function EditProfileScreen() {
                   placeholder="0821xxx atau +65 9123xxxx"
                   keyboardType="phone-pad"
                   autoCapitalize="none"
-                  className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                  className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
                 />
                 <Text className="text-[10px] text-neutral-500 mt-1 leading-relaxed">
                   {sourceJemaat?.noHp
@@ -379,7 +380,7 @@ export default function EditProfileScreen() {
                   placeholder="nama@email.com (opsional)"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                  className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
                 />
               </Field>
             </>
@@ -394,7 +395,7 @@ export default function EditProfileScreen() {
                   className={`flex-1 py-3 rounded-xl border items-center ${
                     jenisKelamin === g
                       ? 'bg-brand-50 border-brand-500'
-                      : 'bg-white border-neutral-200'
+                      : 'bg-card border-neutral-200'
                   }`}
                 >
                   <Text
@@ -412,7 +413,7 @@ export default function EditProfileScreen() {
           <Field label={t('edit_profile.dob')}>
             <Pressable
               onPress={() => setShowDatePicker(true)}
-              className="bg-white rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between"
+              className="bg-card rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between"
             >
               <Text
                 className={`text-base ${dob ? 'text-neutral-900' : 'text-neutral-400'}`}
@@ -423,7 +424,7 @@ export default function EditProfileScreen() {
                   year: 'numeric',
                 }) : t('edit_profile.dob_placeholder')}
               </Text>
-              <CalendarIcon size={18} color="#737373" />
+              <CalendarIcon size={18} color={nc('#737373')} />
             </Pressable>
           </Field>
 
@@ -435,7 +436,7 @@ export default function EditProfileScreen() {
               multiline
               numberOfLines={3}
               textAlignVertical="top"
-              className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 min-h-[80px]"
+              className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 min-h-[80px]"
             />
           </Field>
 
@@ -452,7 +453,7 @@ export default function EditProfileScreen() {
                   value={namaKantor}
                   onChangeText={setNamaKantor}
                   placeholder={t('edit_profile.office_placeholder')}
-                  className="mt-2 bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                  className="mt-2 bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
                 />
               </Field>
 
@@ -466,14 +467,14 @@ export default function EditProfileScreen() {
                 {pernikahan && pernikahan !== 'Single' ? (
                   <Pressable
                     onPress={() => setShowNikahPicker(true)}
-                    className="mt-2 bg-white rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between"
+                    className="mt-2 bg-card rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between"
                   >
                     <Text className={`text-base ${tglNikah ? 'text-neutral-900' : 'text-neutral-400'}`}>
                       {tglNikah
                         ? tglNikah.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
                         : t('edit_profile.marriage_date_placeholder')}
                     </Text>
-                    <CalendarIcon size={18} color="#737373" />
+                    <CalendarIcon size={18} color={nc('#737373')} />
                   </Pressable>
                 ) : null}
               </Field>
@@ -483,7 +484,7 @@ export default function EditProfileScreen() {
         </ScrollView>
 
         {/* Save button — SafeAreaView bottom supaya tidak overlap home indicator */}
-        <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
+        <SafeAreaView edges={['bottom']} className="bg-card border-t border-neutral-100">
           <View className="px-5 pt-3 pb-3">
             <Button
               label={t('common.save')}
@@ -550,7 +551,7 @@ function ChipSelect({
           <Pressable
             key={o}
             onPress={() => onChange(on ? '' : o)}
-            className={`px-3 py-2 rounded-full border ${on ? 'bg-brand-50 border-brand-500' : 'bg-white border-neutral-200'}`}
+            className={`px-3 py-2 rounded-full border ${on ? 'bg-brand-50 border-brand-500' : 'bg-card border-neutral-200'}`}
           >
             <Text className={`text-xs font-semibold ${on ? 'text-brand-700' : 'text-neutral-700'}`}>{labelFor(o)}</Text>
           </Pressable>
@@ -650,7 +651,7 @@ function DatePickerModal({
       >
         <Pressable
           onPress={() => {}}
-          className="bg-white w-full rounded-t-3xl pt-4 pb-8 px-4"
+          className="bg-card w-full rounded-t-3xl pt-4 pb-8 px-4"
         >
           <View className="flex-row items-center justify-between mb-2">
             <Pressable onPress={onClose}>
@@ -666,7 +667,7 @@ function DatePickerModal({
             display="spinner"
             maximumDate={new Date()}
             minimumDate={new Date(1900, 0, 1)}
-            textColor="#171717"
+            textColor={nc('#171717')}
             themeVariant="light"
             onChange={(_e, d) => {
               if (d) onChange(d);

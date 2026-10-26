@@ -2110,5 +2110,14 @@
     "radius_note": "Lokasi Anda dicek (maks. {{radius}} dari lokasi)",
     "not_found": "Tiket tidak ditemukan.",
     "pickup_done": "Anak sudah dijemput · {{time}}"
+  },
+  "appearance": {
+    "title": "Tampilan",
+    "light": "Terang",
+    "dark": "Gelap",
+    "light_sub": "Latar terang, cocok di siang hari",
+    "dark_sub": "Latar gelap, nyaman di ruangan redup",
+    "info_title": "Tema aplikasi",
+    "info_sub": "Pilihan ini berlaku untuk Els App saja, tidak mengikuti pengaturan HP."
   }
 }

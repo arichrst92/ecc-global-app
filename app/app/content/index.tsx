@@ -12,6 +12,7 @@ import { formatDate } from '@/utils/date';
 import type { NewsItem, RenunganItem } from '@/types/content';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Tab = 'news' | 'renungan';
 
@@ -47,13 +48,13 @@ export default function ContentListScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('content.title')}
@@ -63,7 +64,7 @@ export default function ContentListScreen() {
             accessibilityLabel={t('content.bookmarks_tab')}
             className="w-10 h-10 items-center justify-center"
           >
-            <Bookmark size={20} color="#171717" />
+            <Bookmark size={20} color={nc('#171717')} />
           </Pressable>
         </View>
 
@@ -71,13 +72,13 @@ export default function ContentListScreen() {
         <View className="flex-row px-4 pb-2 gap-2">
           <TabChip
             label={t('content.tab_news')}
-            icon={<Newspaper size={14} color={activeTab === 'news' ? '#fff' : '#525252'} />}
+            icon={<Newspaper size={14} color={activeTab === 'news' ? '#fff' : nc('#525252')} />}
             active={activeTab === 'news'}
             onPress={() => setActiveTab('news')}
           />
           <TabChip
             label={t('content.tab_renungan')}
-            icon={<BookOpen size={14} color={activeTab === 'renungan' ? '#fff' : '#525252'} />}
+            icon={<BookOpen size={14} color={activeTab === 'renungan' ? '#fff' : nc('#525252')} />}
             active={activeTab === 'renungan'}
             onPress={() => setActiveTab('renungan')}
           />
@@ -199,7 +200,7 @@ function NewsCard({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
+      className="bg-card rounded-2xl overflow-hidden border border-neutral-100"
     >
       {/* Fit-to-width: tinggi proporsional sesuai aspect rasio asli image */}
       <HeroImage url={item.heroImageUrl} fallbackEmoji="📰" emojiSize={48} fitToWidth />
@@ -231,7 +232,7 @@ function RenunganCard({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
+      className="bg-card rounded-2xl overflow-hidden border border-neutral-100"
     >
       {/* Vertical layout (sama dengan NewsCard) — fit-to-width image di atas, text di bawah */}
       <HeroImage url={item.heroImageUrl} fallbackEmoji="📖" emojiSize={48} fitToWidth />
@@ -259,9 +260,9 @@ function EmptyState({ type }: { type: Tab }) {
     <View className="items-center py-20 px-8">
       <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
         {type === 'news' ? (
-          <Newspaper size={28} color="#A3A3A3" />
+          <Newspaper size={28} color={nc('#A3A3A3')} />
         ) : (
-          <BookOpen size={28} color="#A3A3A3" />
+          <BookOpen size={28} color={nc('#A3A3A3')} />
         )}
       </View>
       <Text className="text-lg font-semibold text-neutral-700">

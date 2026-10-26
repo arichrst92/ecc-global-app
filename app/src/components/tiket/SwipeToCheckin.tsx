@@ -10,6 +10,7 @@ import { useRef, useState } from 'react';
 import { ActivityIndicator, Animated, PanResponder, Text, View, type LayoutChangeEvent } from 'react-native';
 import { CheckCircle2, ChevronsRight, Lock } from 'lucide-react-native';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 const KNOB = 34;
 const PAD = 3;
@@ -118,7 +119,7 @@ export function SwipeToCheckin({
           width: knobSize,
           height: knobSize,
           borderRadius: knobSize / 2,
-          backgroundColor: locked ? '#E5E5E5' : '#fff',
+          backgroundColor: locked ? nc('#E5E5E5') : '#fff',
           alignItems: 'center',
           justifyContent: 'center',
           transform: [{ translateX: x }],
@@ -127,7 +128,7 @@ export function SwipeToCheckin({
         {state === 'BUSY' ? (
           <ActivityIndicator size="small" color="#EA580C" />
         ) : locked ? (
-          <Lock size={15} color="#A3A3A3" />
+          <Lock size={15} color={nc('#A3A3A3')} />
         ) : (
           <ChevronsRight size={18} color="#EA580C" />
         )}

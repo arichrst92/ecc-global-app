@@ -60,6 +60,7 @@ import { INDUSTRI_SUGGESTIONS } from '@/types/localBusiness';
 import type { SocialLink, TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function OwnerBusinessDetailScreen() {
   const { t } = useTranslation();
@@ -293,10 +294,10 @@ export default function OwnerBusinessDetailScreen() {
   if (!biz) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
           </View>
         </SafeAreaView>
@@ -311,10 +312,10 @@ export default function OwnerBusinessDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1" numberOfLines={1}>
             {biz.nama}
@@ -371,7 +372,7 @@ export default function OwnerBusinessDetailScreen() {
             {/* Logo overlay */}
             <Pressable
               onPress={() => pickAndUploadImage('logo')}
-              className="absolute -bottom-6 left-5 w-16 h-16 rounded-2xl bg-white border-4 border-white overflow-hidden items-center justify-center"
+              className="absolute -bottom-6 left-5 w-16 h-16 rounded-2xl bg-card border-4 border-white overflow-hidden items-center justify-center"
             >
               {biz.logoUrl ? (
                 <Image
@@ -384,7 +385,7 @@ export default function OwnerBusinessDetailScreen() {
                   resizeMode="cover"
                 />
               ) : (
-                <ImageIcon size={20} color="#737373" />
+                <ImageIcon size={20} color={nc('#737373')} />
               )}
             </Pressable>
             {biz.logoUrl ? (
@@ -407,7 +408,7 @@ export default function OwnerBusinessDetailScreen() {
                 value={nama}
                 onChangeText={setNama}
                 maxLength={255}
-                className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
               />
             </Field>
 
@@ -420,7 +421,7 @@ export default function OwnerBusinessDetailScreen() {
                 numberOfLines={3}
                 maxLength={2000}
                 textAlignVertical="top"
-                className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 min-h-[80px]"
+                className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 min-h-[80px]"
               />
             </Field>
 
@@ -433,7 +434,7 @@ export default function OwnerBusinessDetailScreen() {
                     className={`flex-1 py-3 rounded-xl border items-center ${
                       tipeBisnis === opt
                         ? 'bg-brand-50 border-brand-500'
-                        : 'bg-white border-neutral-200'
+                        : 'bg-card border-neutral-200'
                     }`}
                   >
                     <Text
@@ -454,7 +455,7 @@ export default function OwnerBusinessDetailScreen() {
                 onChangeText={setIndustri}
                 placeholder={t('my_business.industri_placeholder')}
                 maxLength={100}
-                className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 mb-2"
+                className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 mb-2"
               />
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View className="flex-row gap-2">
@@ -484,7 +485,7 @@ export default function OwnerBusinessDetailScreen() {
                 <Pressable
                   onPress={() => setIsOnline(false)}
                   className={`flex-1 py-3 rounded-xl border items-center ${
-                    !isOnline ? 'bg-brand-50 border-brand-500' : 'bg-white border-neutral-200'
+                    !isOnline ? 'bg-brand-50 border-brand-500' : 'bg-card border-neutral-200'
                   }`}
                 >
                   <Text
@@ -498,7 +499,7 @@ export default function OwnerBusinessDetailScreen() {
                 <Pressable
                   onPress={() => setIsOnline(true)}
                   className={`flex-1 py-3 rounded-xl border items-center ${
-                    isOnline ? 'bg-brand-50 border-brand-500' : 'bg-white border-neutral-200'
+                    isOnline ? 'bg-brand-50 border-brand-500' : 'bg-card border-neutral-200'
                   }`}
                 >
                   <Text
@@ -518,7 +519,7 @@ export default function OwnerBusinessDetailScreen() {
                 onChangeText={setLokasi}
                 placeholder={t('my_business.lokasi_placeholder')}
                 maxLength={500}
-                className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
               />
             </Field>
 
@@ -529,7 +530,7 @@ export default function OwnerBusinessDetailScreen() {
                 placeholder="https://..."
                 autoCapitalize="none"
                 keyboardType="url"
-                className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
               />
             </Field>
 
@@ -540,7 +541,7 @@ export default function OwnerBusinessDetailScreen() {
                 placeholder="https://wa.me/628..."
                 autoCapitalize="none"
                 keyboardType="url"
-                className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+                className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
               />
               <Text className="text-[10px] text-neutral-400 mt-1">
                 {t('my_business.whatsapp_hint')}
@@ -564,13 +565,13 @@ export default function OwnerBusinessDetailScreen() {
                 </Pressable>
               </View>
               {socialLinks.length === 0 ? (
-                <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
+                <View className="bg-card rounded-2xl p-4 border border-neutral-100 items-center">
                   <Text className="text-xs text-neutral-400 text-center">
                     {t('my_business.social_empty')}
                   </Text>
                 </View>
               ) : (
-                <View className="bg-white rounded-2xl border border-neutral-100">
+                <View className="bg-card rounded-2xl border border-neutral-100">
                   {socialLinks.map((s, idx) => (
                     <View
                       key={`${s.platform}-${idx}`}
@@ -579,7 +580,7 @@ export default function OwnerBusinessDetailScreen() {
                       }`}
                     >
                       <View className="w-9 h-9 rounded-xl bg-neutral-100 items-center justify-center">
-                        <ExternalLink size={14} color="#525252" />
+                        <ExternalLink size={14} color={nc('#525252')} />
                       </View>
                       <View className="flex-1 min-w-0">
                         <Text className="text-sm font-semibold text-neutral-900">
@@ -604,7 +605,7 @@ export default function OwnerBusinessDetailScreen() {
             {/* PDF profile */}
             <Field label={t('my_business.pdf_label')}>
               {biz.companyProfileUrl ? (
-                <View className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3">
+                <View className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3">
                   <View className="w-10 h-10 rounded-xl bg-red-50 items-center justify-center">
                     <FileText size={18} color="#DC2626" />
                   </View>
@@ -637,7 +638,7 @@ export default function OwnerBusinessDetailScreen() {
                 <Pressable
                   onPress={pickAndUploadPdf}
                   disabled={pdfUploadMutation.isPending}
-                  className="bg-white rounded-2xl p-4 border border-dashed border-neutral-300 flex-row items-center gap-3"
+                  className="bg-card rounded-2xl p-4 border border-dashed border-neutral-300 flex-row items-center gap-3"
                 >
                   <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
                     {pdfUploadMutation.isPending ? (
@@ -689,7 +690,7 @@ export default function OwnerBusinessDetailScreen() {
                     isActive ? 'bg-emerald-500 items-end' : 'bg-neutral-300 items-start'
                   }`}
                 >
-                  <View className="w-5 h-5 rounded-full bg-white" />
+                  <View className="w-5 h-5 rounded-full bg-card" />
                 </View>
               </Pressable>
             </Field>
@@ -697,7 +698,7 @@ export default function OwnerBusinessDetailScreen() {
             {/* Delete */}
             <Pressable
               onPress={() => setConfirmDeleteOpen(true)}
-              className="mt-4 mb-2 bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+              className="mt-4 mb-2 bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
             >
               <View className="w-10 h-10 rounded-xl bg-red-50 items-center justify-center">
                 <Trash2 size={18} color="#DC2626" />
@@ -714,7 +715,7 @@ export default function OwnerBusinessDetailScreen() {
           </View>
         </ScrollView>
 
-        <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
+        <SafeAreaView edges={['bottom']} className="bg-card border-t border-neutral-100">
           <View className="px-5 pt-3 pb-3">
             <Button
               label={t('common.save')}
@@ -742,7 +743,7 @@ export default function OwnerBusinessDetailScreen() {
             onPress={() => setAddSocialOpen(false)}
             className="flex-1 bg-black/50 justify-end"
           >
-            <Pressable onPress={() => {}} className="bg-white rounded-t-3xl p-5 pb-8">
+            <Pressable onPress={() => {}} className="bg-card rounded-t-3xl p-5 pb-8">
               <Text className="text-lg font-bold text-neutral-900 mb-3">
                 {t('my_business.social_modal_title')}
               </Text>
@@ -789,7 +790,7 @@ export default function OwnerBusinessDetailScreen() {
           onPress={() => setConfirmDeleteOpen(false)}
           className="flex-1 bg-black/50 items-center justify-center px-6"
         >
-          <Pressable onPress={() => {}} className="bg-white rounded-2xl p-5 w-full max-w-sm">
+          <Pressable onPress={() => {}} className="bg-card rounded-2xl p-5 w-full max-w-sm">
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <Trash2 size={24} color="#DC2626" />
             </View>

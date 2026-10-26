@@ -41,6 +41,7 @@ import type { HomecellSchedule } from '@/types/homecellSchedule';
 import { goBack } from '@/utils/nav';
 import { parseLocalDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -96,13 +97,13 @@ export default function HomecellDetailScreen() {
   if (detailQuery.isError || !homecell) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
           </View>
         </SafeAreaView>
@@ -171,7 +172,7 @@ export default function HomecellDetailScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         {/* Stat + schedule */}
-        <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4">
+        <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
           <View className="flex-row items-center gap-3 mb-3">
             <View className="w-12 h-12 rounded-xl bg-brand-100 items-center justify-center">
               <Users size={22} color="#EA580C" />
@@ -187,7 +188,7 @@ export default function HomecellDetailScreen() {
           </View>
           {homecell.hari ? (
             <View className="flex-row items-center gap-2 pt-3 border-t border-neutral-100">
-              <Clock size={14} color="#737373" />
+              <Clock size={14} color={nc('#737373')} />
               <Text className="text-sm text-neutral-700">
                 {homecell.hari}
                 {homecell.jam ? ` · ${homecell.jam}` : ''}
@@ -196,7 +197,7 @@ export default function HomecellDetailScreen() {
           ) : null}
           {homecell.alamat ? (
             <View className="flex-row items-center gap-2 mt-1">
-              <MapPin size={14} color="#737373" />
+              <MapPin size={14} color={nc('#737373')} />
               <Text className="text-sm text-neutral-700" numberOfLines={2}>
                 {homecell.alamat}
               </Text>
@@ -216,7 +217,7 @@ export default function HomecellDetailScreen() {
                   `/jemaat/${picMember.jemaat.id ?? picMember.jemaatId}` as never,
                 )
               }
-              className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+              className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
             >
               <View className="relative">
                 <Avatar
@@ -292,7 +293,7 @@ export default function HomecellDetailScreen() {
               </Pressable>
             </View>
             {schedulesQuery.data && schedulesQuery.data.length > 0 ? (
-              <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+              <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
                 {/* Table header */}
                 <View className="flex-row items-center px-3 py-2 bg-neutral-50 border-b border-neutral-100">
                   <Text className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider flex-[35]">
@@ -318,8 +319,8 @@ export default function HomecellDetailScreen() {
                 ))}
               </View>
             ) : (
-              <View className="bg-white rounded-2xl p-5 border border-dashed border-neutral-300 items-center">
-                <CalendarIcon size={28} color="#A3A3A3" />
+              <View className="bg-card rounded-2xl p-5 border border-dashed border-neutral-300 items-center">
+                <CalendarIcon size={28} color={nc('#A3A3A3')} />
                 <Text className="text-sm text-neutral-500 text-center mt-2">
                   {t('homecell.schedules_empty')}
                 </Text>
@@ -337,8 +338,8 @@ export default function HomecellDetailScreen() {
         </Text>
         {activeMembers.length > 0 ? <AttendanceSummary members={activeMembers} /> : null}
         {activeMembers.length === 0 ? (
-          <View className="bg-white rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
-            <Users size={28} color="#A3A3A3" />
+          <View className="bg-card rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
+            <Users size={28} color={nc('#A3A3A3')} />
             <Text className="text-sm text-neutral-500 text-center mt-2">
               {t('homecell.members_empty')}
             </Text>
@@ -390,7 +391,7 @@ export default function HomecellDetailScreen() {
         >
           <Pressable
             onPress={() => {}}
-            className="bg-white rounded-2xl p-5 w-full max-w-sm"
+            className="bg-card rounded-2xl p-5 w-full max-w-sm"
           >
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <AlertTriangle size={24} color="#DC2626" />
@@ -455,7 +456,7 @@ function MemberRow({
   return (
     <Pressable
       onPress={onPress}
-      className={`bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 ${
+      className={`bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 ${
         isInactive ? 'opacity-60' : ''
       }`}
     >
@@ -586,7 +587,7 @@ function AttendanceSummary({ members }: { members: HomecellMember[] }) {
     { n: never, label: t('hcj.sum_never'), cls: 'bg-neutral-50 border-neutral-200', txt: 'text-neutral-500' },
   ];
   return (
-    <View className="bg-white rounded-2xl p-3 border border-neutral-100 mb-3">
+    <View className="bg-card rounded-2xl p-3 border border-neutral-100 mb-3">
       <Text className="text-xs font-semibold text-neutral-700 mb-2">{t('hcj.sum_title')}</Text>
       <View className="flex-row gap-2">
         {chips.map((c) => (

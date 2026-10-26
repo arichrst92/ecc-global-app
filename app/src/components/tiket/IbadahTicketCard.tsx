@@ -21,6 +21,7 @@ import { TicketShell } from './TicketShell';
 import { SwipeToCheckin } from './SwipeToCheckin';
 import { HadirStamp, Hint, InfoCell, InfoLine, InlineError, RelasiBadge, StatusPill, TicketQR } from './parts';
 import { useOpensLabel, useTicketCheckin, useTicketWindow } from './useTicketCheckin';
+import { nc } from '@/theme/ThemeRoot';
 
 function statusOf(r: MyReservasi): { key: string; tone: 'green' | 'solidGreen' | 'blue' | 'red' } {
   if (r.status === 'CANCEL') return { key: 'st_BATAL', tone: 'red' };
@@ -98,10 +99,10 @@ export function IbadahTicketCard({
     </View>
   ) : (
     <View>
-      <InfoLine icon={<CalendarDays size={11} color="#737373" />}>
+      <InfoLine icon={<CalendarDays size={11} color={nc('#737373')} />}>
         {formatDateWithDay(r.tanggalIbadah, i18n.language)} · {ibadahTimeText(r)}
       </InfoLine>
-      {r.ibadah.lokasi ? <InfoLine icon={<MapPin size={11} color="#737373" />}>{r.ibadah.lokasi}</InfoLine> : null}
+      {r.ibadah.lokasi ? <InfoLine icon={<MapPin size={11} color={nc('#737373')} />}>{r.ibadah.lokasi}</InfoLine> : null}
     </View>
   );
 
@@ -175,7 +176,7 @@ export function IbadahTicketCard({
         <SwipeToCheckin state="DONE" label={t('tiket.done', { time: localTime(r.joinedAt) })} onConfirm={() => {}} />
         {needCheckout ? (
           <View className="flex-row items-center gap-1 mt-1.5">
-            <LogOut size={11} color="#B45309" />
+            <LogOut size={11} color={nc('#B45309')} />
             <Text className="text-[11px] text-amber-700">{t('my_reservasi.checkout_needed')}</Text>
           </View>
         ) : null}

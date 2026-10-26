@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronRight, Footprints } from 'lucide-react-native';
 
 import { getMyJourney } from '@/api/spiritualJourney';
+import { nc } from '@/theme/ThemeRoot';
 
 export const MY_JOURNEY_KEY = ['me', 'spiritual-journey'] as const;
 
@@ -36,7 +37,7 @@ export function JourneyCard() {
     <View className="mb-4">
       <Pressable
         onPress={() => router.push('/spiritual-journey' as never)}
-        className="bg-white rounded-2xl border border-neutral-100 p-4 active:opacity-80"
+        className="bg-card rounded-2xl border border-neutral-100 p-4 active:opacity-80"
       >
         <View className="flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
@@ -47,14 +48,14 @@ export function JourneyCard() {
               {hasSteps ? t('journey.progress', { done: d.achievedCount, total: d.total }) : t('journey.title')}
             </Text>
             {q.isPending ? (
-              <ActivityIndicator size="small" color="#A3A3A3" style={{ alignSelf: 'flex-start', marginTop: 2 }} />
+              <ActivityIndicator size="small" color={nc('#A3A3A3')} style={{ alignSelf: 'flex-start', marginTop: 2 }} />
             ) : (
               <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={2}>
                 {subtitle}
               </Text>
             )}
           </View>
-          <ChevronRight size={16} color="#A3A3A3" />
+          <ChevronRight size={16} color={nc('#A3A3A3')} />
         </View>
         {hasSteps ? (
           <View className="h-2 bg-neutral-100 rounded-full mt-3 overflow-hidden">

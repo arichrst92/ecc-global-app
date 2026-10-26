@@ -2111,5 +2111,14 @@
     "radius_note": "Your location is checked (max. {{radius}} from the venue)",
     "not_found": "Ticket not found.",
     "pickup_done": "Child picked up · {{time}}"
+  },
+  "appearance": {
+    "title": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "light_sub": "Light background, great in daylight",
+    "dark_sub": "Dark background, easy on the eyes in dim rooms",
+    "info_title": "App theme",
+    "info_sub": "Applies to Els App only — it does not follow your phone setting."
   }
 }

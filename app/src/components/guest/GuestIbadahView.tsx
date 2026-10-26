@@ -15,6 +15,7 @@ import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import { formatVenueRange } from '@/utils/time';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Ibadah list untuk guest — read-only, no check-in button.
@@ -81,7 +82,7 @@ export function GuestIbadahView() {
         <GuestModeBanner compact />
 
         {/* Cabang picker */}
-        <View className="bg-white rounded-2xl p-3 border border-neutral-100 mb-3">
+        <View className="bg-card rounded-2xl p-3 border border-neutral-100 mb-3">
           <Picker
             label={t('signup.branch')}
             placeholder={
@@ -106,7 +107,7 @@ export function GuestIbadahView() {
 
         {items.length === 0 && !ibadahQuery.isPending ? (
           <View className="items-center py-12">
-            <Calendar size={36} color="#A3A3A3" />
+            <Calendar size={36} color={nc('#A3A3A3')} />
             <Text className="text-sm text-neutral-500 mt-3">{t('ibadah.empty_msg')}</Text>
           </View>
         ) : null}
@@ -122,7 +123,7 @@ export function GuestIbadahView() {
               {formatDateWithDay(date)}
               {isToday(date) ? ` · ${t('common.today')}` : ''}
             </Text>
-            <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
+            <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
               {dayItems.map((it) => (
                 <View key={it.id} className="p-4">
                   <View className="flex-row items-start gap-3">
@@ -141,7 +142,7 @@ export function GuestIbadahView() {
                       </Text>
                       {it.lokasi ? (
                         <View className="flex-row items-center gap-1 mt-1">
-                          <MapPin size={11} color="#737373" />
+                          <MapPin size={11} color={nc('#737373')} />
                           <Text className="text-[11px] text-neutral-500">{it.lokasi}</Text>
                         </View>
                       ) : null}

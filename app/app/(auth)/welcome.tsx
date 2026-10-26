@@ -12,6 +12,7 @@ import { ChevronRight, Eye, Mail, MessageCircleMore, UserPlus } from 'lucide-rea
 
 import { useAuthStore } from '@/stores/auth.store';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Option = {
   label: string;
@@ -47,7 +48,7 @@ export default function WelcomeScreen() {
       // sebagai fallback kalau HP hilang. Per BE notice magic-link 2026-07-28.
       label: t('auth.signin_email'),
       sub: IS_WEB ? t('auth.signin_email_mobile_only') : t('auth.signin_email_sub'),
-      icon: <Mail size={20} color={IS_WEB ? '#A3A3A3' : '#EA580C'} />,
+      icon: <Mail size={20} color={IS_WEB ? nc('#A3A3A3') : '#EA580C'} />,
       iconBg: IS_WEB ? 'bg-neutral-100' : 'bg-brand-50',
       variant: 'secondary',
       disabled: IS_WEB,
@@ -67,7 +68,7 @@ export default function WelcomeScreen() {
     {
       label: t('auth.guest'),
       sub: t('auth.guest_sub'),
-      icon: <Eye size={20} color="#525252" />,
+      icon: <Eye size={20} color={nc('#525252')} />,
       iconBg: 'bg-neutral-100',
       variant: 'secondary',
       onPress: async () => {
@@ -79,7 +80,7 @@ export default function WelcomeScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <View className="flex-1 px-6">
         {/* Hero */}
         <View className="items-center mt-6 mb-8">
@@ -158,7 +159,7 @@ function OptionCard({ option }: { option: Option }) {
       disabled={option.disabled}
       accessibilityState={{ disabled: !!option.disabled }}
       {...gx(`rounded-2xl p-4 flex-row items-center gap-3 ${
-        isPrimary ? 'bg-brand-500' : 'bg-white border border-neutral-200'
+        isPrimary ? 'bg-brand-500' : 'bg-card border border-neutral-200'
       } ${option.disabled ? 'opacity-60' : ''}`)}
     >
       <View
@@ -178,7 +179,7 @@ function OptionCard({ option }: { option: Option }) {
           {option.sub}
         </Text>
       </View>
-      {!option.disabled && <ChevronRight size={18} color={isPrimary ? '#fff' : '#A3A3A3'} />}
+      {!option.disabled && <ChevronRight size={18} color={isPrimary ? '#fff' : nc('#A3A3A3')} />}
     </Pressable>
   );
 }

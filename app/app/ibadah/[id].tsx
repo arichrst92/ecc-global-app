@@ -39,6 +39,7 @@ import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
 import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
 import { useMyReservasi } from '@/hooks/useMyReservasi';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -197,7 +198,7 @@ export default function IbadahDetailScreen() {
                 tanggal occurrence di URL param. Lebih informatif dari hari
                 generic dari ibadah master schedule. */}
             {tanggal ? (
-              <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3">
+              <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3">
                 <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
                   <Calendar size={18} color="#EA580C" />
                 </View>
@@ -233,7 +234,7 @@ export default function IbadahDetailScreen() {
             {(() => {
               const streamLink = getStreamLink(ibadah);
               return (
-                <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3">
+                <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3">
                   <View className="flex-row items-center gap-3">
                     <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
                       <MapPin size={18} color="#EA580C" />
@@ -293,9 +294,9 @@ export default function IbadahDetailScreen() {
 
             {/* Deskripsi — kalau BE provide */}
             {ibadah.deskripsi && ibadah.deskripsi.trim().length > 0 ? (
-              <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3">
+              <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3">
                 <View className="flex-row items-center gap-2 mb-2">
-                  <FileText size={16} color="#525252" />
+                  <FileText size={16} color={nc('#525252')} />
                   <Text className="text-sm font-semibold text-neutral-700">
                     {t('ibadah.description')}
                   </Text>
@@ -308,9 +309,9 @@ export default function IbadahDetailScreen() {
 
             {/* Petugas — per BE patch 23a tap nama → /jemaat/[id] view-only profile */}
             {ibadah.petugas && ibadah.petugas.length > 0 ? (
-              <View className="bg-white rounded-2xl p-4 border border-neutral-100">
+              <View className="bg-card rounded-2xl p-4 border border-neutral-100">
                 <View className="flex-row items-center gap-2 mb-3">
-                  <Users size={16} color="#525252" />
+                  <Users size={16} color={nc('#525252')} />
                   <Text className="text-sm font-semibold text-neutral-700">{t('ibadah.team')}</Text>
                 </View>
                 <View className="gap-2.5">
@@ -341,7 +342,7 @@ export default function IbadahDetailScreen() {
       </ScrollView>
 
       {/* Sticky bottom CTA — QR + Self check-in (hanya saat hari & jam ibadah) */}
-      <View className="bg-white border-t border-neutral-100 px-5 py-3">
+      <View className="bg-card border-t border-neutral-100 px-5 py-3">
         <SafeAreaView edges={['bottom']}>
           {/* Hitung mundur sampai self check-in dibuka (15 menit sebelum ibadah) */}
           {!checkinOpenNow && sc?.reason === 'TOO_EARLY' && sc.opensAt ? (
@@ -358,7 +359,7 @@ export default function IbadahDetailScreen() {
               <Button
                 label={checkinOpenNow ? t('ibadah.my_qr_short') : t('ibadah.show_my_qr')}
                 onPress={() => router.push('/qr-card')}
-                leftIcon={<QrCode size={16} color={checkinOpenNow ? '#171717' : '#fff'} />}
+                leftIcon={<QrCode size={16} color={checkinOpenNow ? nc('#171717') : '#fff'} />}
                 variant={checkinOpenNow ? 'secondary' : 'primary'}
                 fullWidth
                 singleLine
@@ -381,7 +382,7 @@ export default function IbadahDetailScreen() {
                 <Button
                   label={t('reservasi.btn')}
                   onPress={() => setReservasiOpen(true)}
-                  leftIcon={<CalendarPlus size={16} color="#171717" />}
+                  leftIcon={<CalendarPlus size={16} color={nc('#171717')} />}
                   variant="secondary"
                   fullWidth
                   singleLine
@@ -440,7 +441,7 @@ function InfoCard({
   value: string;
 }) {
   return (
-    <View className="flex-1 bg-white rounded-xl p-3 border border-neutral-100">
+    <View className="flex-1 bg-card rounded-xl p-3 border border-neutral-100">
       <View className="flex-row items-center gap-1.5">
         {icon}
         <Text className="text-xs text-neutral-500">{label}</Text>

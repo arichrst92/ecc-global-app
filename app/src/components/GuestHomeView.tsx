@@ -19,6 +19,7 @@ import { SafeImage } from '@/components/ui/SafeImage';
 import { usePublicEvents, usePublicNews, usePublicRenungan } from '@/hooks/usePublicGuest';
 import { formatDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Home tab UI khusus guest mode.
@@ -63,7 +64,7 @@ export function GuestHomeView() {
         <GuestModeBanner />
 
         {/* About ECC */}
-        <View className="bg-white rounded-2xl p-5 border border-neutral-100 mt-2">
+        <View className="bg-card rounded-2xl p-5 border border-neutral-100 mt-2">
           <View className="flex-row items-center gap-2 mb-3">
             <View className="w-8 h-8 rounded-xl bg-brand-50 items-center justify-center">
               <Heart size={16} color="#EA580C" />
@@ -81,7 +82,7 @@ export function GuestHomeView() {
         {latestRenungan ? (
           <Pressable
             onPress={() => router.push(`/content/renungan/${latestRenungan.slug}` as never)}
-            className="bg-white rounded-2xl p-4 border border-neutral-100 mt-3"
+            className="bg-card rounded-2xl p-4 border border-neutral-100 mt-3"
           >
             <View className="flex-row items-center gap-2 mb-2">
               <View className="w-8 h-8 rounded-xl bg-amber-50 items-center justify-center">
@@ -90,7 +91,7 @@ export function GuestHomeView() {
               <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider flex-1">
                 {t('home.today_devotional')}
               </Text>
-              <ChevronRight size={14} color="#A3A3A3" />
+              <ChevronRight size={14} color={nc('#A3A3A3')} />
             </View>
             <Text className="text-base font-bold text-neutral-900" numberOfLines={2}>
               {latestRenungan.judul}
@@ -128,7 +129,7 @@ export function GuestHomeView() {
                 <Pressable
                   key={n.id}
                   onPress={() => router.push(`/content/news/${n.slug}` as never)}
-                  className="bg-white rounded-2xl border border-neutral-100 overflow-hidden flex-row"
+                  className="bg-card rounded-2xl border border-neutral-100 overflow-hidden flex-row"
                 >
                   <SafeImage
                     uri={n.heroImageUrl}
@@ -143,7 +144,7 @@ export function GuestHomeView() {
                       {n.judul}
                     </Text>
                     <View className="flex-row items-center gap-1 mt-1">
-                      <Newspaper size={11} color="#737373" />
+                      <Newspaper size={11} color={nc('#737373')} />
                       <Text className="text-[11px] text-neutral-500">
                         {formatDate(n.tanggal, i18n.language)}
                       </Text>
@@ -177,7 +178,7 @@ export function GuestHomeView() {
                 <Pressable
                   key={ev.id}
                   onPress={() => router.push(`/event/${ev.slug}` as never)}
-                  className="bg-white rounded-2xl border border-neutral-100 overflow-hidden flex-row"
+                  className="bg-card rounded-2xl border border-neutral-100 overflow-hidden flex-row"
                 >
                   <SafeImage
                     uri={ev.heroImageUrl}
@@ -192,7 +193,7 @@ export function GuestHomeView() {
                       {ev.judul}
                     </Text>
                     <View className="flex-row items-center gap-1 mt-1">
-                      <CalendarDays size={11} color="#737373" />
+                      <CalendarDays size={11} color={nc('#737373')} />
                       <Text className="text-[11px] text-neutral-500">
                         {formatDate(ev.tanggalMulai, i18n.language)}
                       </Text>
@@ -208,7 +209,7 @@ export function GuestHomeView() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-5 mb-2">
           {t('guest.links_title')}
         </Text>
-        <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
+        <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <Pressable
             onPress={() => router.push('/bible' as never)}
             className="p-4 flex-row items-center gap-3"
@@ -244,7 +245,7 @@ export function GuestHomeView() {
             className="p-4 flex-row items-center gap-3"
           >
             <View className="w-10 h-10 rounded-xl bg-neutral-50 items-center justify-center">
-              <Globe size={18} color="#737373" />
+              <Globe size={18} color={nc('#737373')} />
             </View>
             <View className="flex-1">
               <Text className="text-sm font-medium text-neutral-900">Website</Text>

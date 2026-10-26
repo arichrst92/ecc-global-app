@@ -6,6 +6,7 @@ import { ArrowLeft, Building2, MapPin } from 'lucide-react-native';
 
 import { useBranches } from '@/hooks/useBranches';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Branch list screen — public, accessible untuk guest mode.
@@ -23,13 +24,13 @@ export default function BranchListScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('branch_list.title')}
@@ -64,7 +65,7 @@ export default function BranchListScreen() {
 
         <View className="gap-2">
           {(branchesQuery.data ?? []).map((b) => (
-            <View key={b.id} className="bg-white rounded-2xl p-4 border border-neutral-100">
+            <View key={b.id} className="bg-card rounded-2xl p-4 border border-neutral-100">
               <View className="flex-row items-start gap-3 mb-2">
                 <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
                   <Building2 size={20} color="#EA580C" />
@@ -77,7 +78,7 @@ export default function BranchListScreen() {
 
               {b.alamat ? (
                 <View className="flex-row items-start gap-2 mt-2">
-                  <MapPin size={14} color="#737373" style={{ marginTop: 2 }} />
+                  <MapPin size={14} color={nc('#737373')} style={{ marginTop: 2 }} />
                   <Text className="text-xs text-neutral-700 flex-1 leading-relaxed">
                     {b.alamat}
                   </Text>

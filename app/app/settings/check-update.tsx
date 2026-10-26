@@ -22,6 +22,7 @@ import { checkAppVersion } from '@/api/appVersion';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type CheckResult =
   | { status: 'idle' }
@@ -80,13 +81,13 @@ export default function CheckUpdateScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('check_update.title')}
@@ -99,7 +100,7 @@ export default function CheckUpdateScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         {/* Current version card */}
-        <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center mb-4">
+        <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center mb-4">
           <View className="w-16 h-16 rounded-2xl bg-brand-50 items-center justify-center mb-3">
             <Download size={32} color="#EA580C" />
           </View>

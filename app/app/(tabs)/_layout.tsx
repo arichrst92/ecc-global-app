@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMyChildren } from '@/hooks/useCKids';
+import { isDark, nc } from '@/theme/ThemeRoot';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -23,11 +24,11 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#F97316',
-        tabBarInactiveTintColor: '#737373',
+        tabBarInactiveTintColor: nc('#737373'),
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: isDark() ? '#1C1C1E' : '#FFFFFF',
           borderTopWidth: 1,
-          borderTopColor: '#E5E5E5',
+          borderTopColor: nc('#E5E5E5'),
           paddingTop: 6,
           paddingBottom: bottomInset > 0 ? bottomInset : 8,
           height: 64 + bottomInset,

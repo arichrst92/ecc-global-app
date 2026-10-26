@@ -32,6 +32,7 @@ import { getStreamLink } from '@/utils/ibadahOnline';
 import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
 import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -197,7 +198,7 @@ function HomeScreenAuthenticated() {
         >
           {renungan ? (
             <Pressable
-              className="bg-white rounded-2xl overflow-hidden border border-neutral-100"
+              className="bg-card rounded-2xl overflow-hidden border border-neutral-100"
               onPress={() => router.push(`/content/renungan/${renungan.slug || renungan.id}`)}
             >
               {/* Fit-to-width: tinggi proporsional sesuai aspect rasio asli image */}
@@ -222,8 +223,8 @@ function HomeScreenAuthenticated() {
           ) : renunganQuery.isPending ? (
             <SkeletonCard height={140} />
           ) : (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
-              <BookOpen size={24} color="#A3A3A3" />
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 items-center">
+              <BookOpen size={24} color={nc('#A3A3A3')} />
               <Text className="text-sm text-neutral-500 mt-2">{t('home.no_devotional')}</Text>
             </View>
           )}
@@ -262,7 +263,7 @@ function HomeScreenAuthenticated() {
                   <Pressable
                     key={e.id}
                     onPress={() => router.push(`/event/${e.slug || e.id}`)}
-                    className="w-56 bg-white rounded-2xl overflow-hidden border border-neutral-100"
+                    className="w-56 bg-card rounded-2xl overflow-hidden border border-neutral-100"
                   >
                     {/* Fit-to-width: tinggi proporsional sesuai aspect rasio asli image */}
                     <HeroImage
@@ -297,8 +298,8 @@ function HomeScreenAuthenticated() {
           {newsQuery.isPending ? (
             <SkeletonCard height={80} />
           ) : news.length === 0 ? (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
-              <Newspaper size={24} color="#A3A3A3" />
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 items-center">
+              <Newspaper size={24} color={nc('#A3A3A3')} />
               <Text className="text-sm text-neutral-500 mt-2">{t('home.no_news')}</Text>
             </View>
           ) : (
@@ -306,7 +307,7 @@ function HomeScreenAuthenticated() {
               {news.map((n) => (
                 <Pressable
                   key={n.id}
-                  className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+                  className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
                   onPress={() => router.push(`/content/news/${n.slug || n.id}`)}
                 >
                   <HeroImage
@@ -335,7 +336,7 @@ function HomeScreenAuthenticated() {
             404, jadi widget hide entirely (silent) sampai BE ready. */}
         {myUpcomingSchedule.length > 0 ? (
           <Section title={t('ministry.my_schedule_title')}>
-            <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+            <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
               <View className="px-3.5 pt-3 pb-1 flex-row items-center justify-between">
                 <Text className="text-xs text-neutral-500">
                   {t('ministry.my_schedule_subtitle')}
@@ -441,7 +442,7 @@ function TodayServiceCard({
   const hint = venueTimeHint(service.tanggal, service.jamMulai, service.jamSelesai, venueTz, (p) => t('time.venue_hint', p));
 
   return (
-    <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
+    <View className="bg-card rounded-2xl overflow-hidden border border-neutral-100">
       <View className="p-4">
         <View className="flex-row items-start justify-between gap-2 mb-2">
           <View className="flex-row items-center gap-2 flex-1">
@@ -460,7 +461,7 @@ function TodayServiceCard({
         </View>
         <Text className="text-lg font-bold text-neutral-900">{service.nama}</Text>
         <View className="flex-row items-center gap-2 mt-1.5">
-          <Clock size={14} color="#737373" />
+          <Clock size={14} color={nc('#737373')} />
           <Text className="text-sm text-neutral-500">
             {formatVenueRange(service.tanggal, service.jamMulai, service.jamSelesai, venueTz)}
           </Text>
@@ -468,7 +469,7 @@ function TodayServiceCard({
         {hint ? <Text className="text-[11px] text-neutral-400 mt-0.5 ml-6">{hint}</Text> : null}
         {lokasi ? (
           <View className="flex-row items-start gap-2 mt-1">
-            <MapPin size={14} color="#737373" style={{ marginTop: 2 }} />
+            <MapPin size={14} color={nc('#737373')} style={{ marginTop: 2 }} />
             <Text className="text-sm text-neutral-500 flex-1" numberOfLines={2}>
               {lokasi}
             </Text>
@@ -503,7 +504,7 @@ function TodayServiceCard({
           className="flex-1 py-3 flex-row items-center justify-center gap-2"
           onPress={() => router.push(`/ibadah/${service.ibadahId}?tanggal=${service.tanggal}` as never)}
         >
-          <Church size={16} color="#525252" />
+          <Church size={16} color={nc('#525252')} />
           <Text className="text-sm font-medium text-neutral-700">{t('home.detail')}</Text>
         </Pressable>
         <View className="w-px bg-neutral-100" />
@@ -577,7 +578,7 @@ function MyScheduleRow({
           {ministry}
         </Text>
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
+      <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }

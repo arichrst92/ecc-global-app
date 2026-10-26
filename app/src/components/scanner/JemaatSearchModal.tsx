@@ -30,6 +30,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { searchJemaat, type JemaatSearchResult } from '@/api/jemaat';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
+import { nc } from '@/theme/ThemeRoot';
 
 const KODE_RE = /^[A-Z0-9]{8}$/;
 
@@ -88,28 +89,28 @@ export function JemaatSearchModal({
       className="flex-1 bg-black/60 justify-end"
     >
       <Pressable onPress={close} className="flex-1" />
-      <View className="bg-white rounded-t-3xl p-5" style={{ maxHeight: '85%' }}>
+      <View className="bg-card rounded-t-3xl p-5" style={{ maxHeight: '85%' }}>
         <View className="items-center mb-2">
           <View className="w-10 h-1 bg-neutral-300 rounded-full" />
         </View>
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center gap-2">
-            <Search size={18} color="#525252" />
+            <Search size={18} color={nc('#525252')} />
             <Text className="text-lg font-bold text-neutral-900">{title ?? t('scanner.search_title')}</Text>
           </View>
           <Pressable onPress={close} className="w-8 h-8 items-center justify-center">
-            <X size={18} color="#737373" />
+            <X size={18} color={nc('#737373')} />
           </Pressable>
         </View>
         <Text className="text-xs text-neutral-500 mb-3 leading-relaxed">{t('scanner.search_hint')}</Text>
 
         <View className="flex-row items-center border-2 border-neutral-200 rounded-xl px-3">
-          <Search size={16} color="#A3A3A3" />
+          <Search size={16} color={nc('#A3A3A3')} />
           <TextInput
             value={text}
             onChangeText={setText}
             placeholder={t('scanner.search_placeholder')}
-            placeholderTextColor="#A3A3A3"
+            placeholderTextColor={nc('#A3A3A3')}
             autoCorrect={false}
             autoFocus
             editable={!loading}
@@ -137,7 +138,7 @@ export function JemaatSearchModal({
             <Text className="text-sm font-semibold text-brand-800">
               {t('scanner.search_use_kode', { kode: upper })}
             </Text>
-            <ChevronRight size={16} color="#C2410C" />
+            <ChevronRight size={16} color={nc('#C2410C')} />
           </Pressable>
         ) : null}
 
@@ -169,7 +170,7 @@ export function JemaatSearchModal({
                       {[j.isTamu ? t('tamu.label') : null, j.kode, j.noHpMasked, j.cabang?.nama].filter(Boolean).join(' · ')}
                     </Text>
                   </View>
-                  <ChevronRight size={16} color="#A3A3A3" />
+                  <ChevronRight size={16} color={nc('#A3A3A3')} />
                 </Pressable>
               )}
             />

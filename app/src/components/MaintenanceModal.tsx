@@ -63,7 +63,7 @@ export function MaintenanceModal({ data, onRetry }: Props) {
         </Text>
 
         {remaining ? (
-          <View className="mt-6 bg-white rounded-2xl px-5 py-4 border border-amber-200 items-center">
+          <View className="mt-6 bg-card rounded-2xl px-5 py-4 border border-amber-200 items-center">
             <Text className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">
               {t('maintenance.countdown_label')}
             </Text>

@@ -12,6 +12,7 @@ import { useBookmarksStore } from '@/stores/bookmarks.store';
 import { buildNewsShareUrl } from '@/utils/share';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function NewsDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -63,7 +64,7 @@ export default function NewsDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-card">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}>
         {/* Floating header */}
         <View className="absolute top-0 left-0 right-0 z-10" pointerEvents="box-none">
@@ -126,20 +127,20 @@ export default function NewsDetailScreen() {
               {/* Meta */}
               <View className="gap-1.5 mb-4">
                 <View className="flex-row items-center gap-2">
-                  <Calendar size={14} color="#737373" />
+                  <Calendar size={14} color={nc('#737373')} />
                   <Text className="text-xs text-neutral-500">
                     {formatInstantDate(item.publishedAt, lang)}
                   </Text>
                 </View>
                 {item.cabang ? (
                   <View className="flex-row items-center gap-2">
-                    <MapPin size={14} color="#737373" />
+                    <MapPin size={14} color={nc('#737373')} />
                     <Text className="text-xs text-neutral-500">{item.cabang.nama}</Text>
                   </View>
                 ) : null}
                 {item.author ? (
                   <View className="flex-row items-center gap-2">
-                    <User size={14} color="#737373" />
+                    <User size={14} color={nc('#737373')} />
                     <Text className="text-xs text-neutral-500">
                       {item.author.jemaat.namaLengkap}
                     </Text>

@@ -23,6 +23,7 @@ import { formatDate } from '@/utils/date';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function EventRegisterScreen() {
   const { t, i18n } = useTranslation();
@@ -270,10 +271,10 @@ export default function EventRegisterScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('event.register_title')}
@@ -284,7 +285,7 @@ export default function EventRegisterScreen() {
       <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16 }}>
         {/* Event summary */}
         {event ? (
-          <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4 flex-row gap-3">
+          <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4 flex-row gap-3">
             <View className="w-14 h-14 rounded-xl bg-brand-300 items-center justify-center">
               <Text style={{ fontSize: 28 }}>🎉</Text>
             </View>
@@ -318,7 +319,7 @@ export default function EventRegisterScreen() {
         {/* Multi-select peserta */}
         <View className="mb-4">
           <View className="flex-row items-center gap-2 mb-2">
-            <Users size={16} color="#171717" />
+            <Users size={16} color={nc('#171717')} />
             <Text className="text-sm font-bold text-neutral-900">
               {t('event.register_select_participants')}
             </Text>
@@ -423,7 +424,7 @@ export default function EventRegisterScreen() {
         {isBebas ? (
           <View className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4">
             <View className="flex-row items-center gap-2 mb-2">
-              <HandHeart size={16} color="#1d4ed8" />
+              <HandHeart size={16} color={nc('#1d4ed8')} />
               <Text className="text-sm font-semibold text-blue-900">
                 {t('event.nominal_bebas_label')} / {t('event.per_person')}
               </Text>
@@ -432,7 +433,7 @@ export default function EventRegisterScreen() {
               {t('event.nominal_bebas_hint')}
             </Text>
             <View
-              className={`flex-row items-center bg-white border rounded-xl ${
+              className={`flex-row items-center bg-card border rounded-xl ${
                 bebasError ? 'border-red-400' : 'border-neutral-200'
               }`}
               style={{ height: 48 }}
@@ -444,7 +445,7 @@ export default function EventRegisterScreen() {
                 onChangeText={handleBebasChange}
                 keyboardType="numeric"
                 editable={!batchMutation.isPending}
-                placeholderTextColor="#A3A3A3"
+                placeholderTextColor={nc('#A3A3A3')}
                 className="flex-1 px-2 text-base font-semibold text-neutral-900"
                 style={{
                   height: '100%',
@@ -467,7 +468,7 @@ export default function EventRegisterScreen() {
                 <Pressable
                   key={preset}
                   onPress={() => handleBebasChange(String(preset))}
-                  className="px-3 py-1.5 bg-white border border-blue-200 rounded-full"
+                  className="px-3 py-1.5 bg-card border border-blue-200 rounded-full"
                 >
                   <Text className="text-xs font-semibold text-blue-700">
                     {preset >= 1000 ? `${preset / 1000}rb` : preset}
@@ -491,14 +492,14 @@ export default function EventRegisterScreen() {
 
         {/* Notice */}
         <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-          <Info size={16} color="#92400e" />
+          <Info size={16} color={nc('#92400e')} />
           <Text className="text-xs text-amber-800 flex-1">
             {isFree ? t('event.after_register_free_notice') : t('event.after_register_notice')}
           </Text>
         </View>
       </ScrollView>
 
-      <View className="bg-white border-t border-neutral-100 px-5 py-3">
+      <View className="bg-card border-t border-neutral-100 px-5 py-3">
         <SafeAreaView edges={['bottom']}>
           {/* Total ringkasan */}
           {!isFree && selectedCount > 0 && totalNominal > 0 ? (
@@ -556,7 +557,7 @@ function ParticipantRow({
     <Pressable
       onPress={onToggle}
       disabled={disabled}
-      className={`bg-white rounded-2xl p-3 border flex-row items-center gap-3 active:opacity-80 ${
+      className={`bg-card rounded-2xl p-3 border flex-row items-center gap-3 active:opacity-80 ${
         disabled
           ? 'border-neutral-100 opacity-60'
           : selected
@@ -571,7 +572,7 @@ function ParticipantRow({
             ? 'border-neutral-300 bg-neutral-100'
             : selected
               ? 'border-brand-500 bg-brand-500'
-              : 'border-neutral-300 bg-white'
+              : 'border-neutral-300 bg-card'
         }`)}
       >
         {selected && !disabled ? <Check size={14} color="#fff" /> : null}

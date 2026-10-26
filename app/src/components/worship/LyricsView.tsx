@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { WorshipTrack } from '@/api/worship';
 import { useWorshipPlayer } from '@/stores/worship-player.store';
+import { nc } from '@/theme/ThemeRoot';
 
 export function LyricsView({ track, big = false, dark = false, fontScale = 1 }: { track: WorshipTrack; big?: boolean; dark?: boolean; fontScale?: number }) {
   const { t } = useTranslation();
@@ -75,7 +76,7 @@ export function LyricsView({ track, big = false, dark = false, fontScale = 1 }: 
                 lineHeight: base * 1.6,
                 fontWeight: isActive ? '700' : big ? '600' : '500',
                 textAlign: big ? 'center' : 'left',
-                color: dark ? (isActive ? '#FDBA74' : muted ? 'rgba(255,255,255,0.45)' : '#FFFFFF') : isActive ? '#EA580C' : muted ? '#A3A3A3' : '#262626',
+                color: dark ? (isActive ? '#FDBA74' : muted ? 'rgba(255,255,255,0.45)' : '#FFFFFF') : isActive ? '#EA580C' : muted ? nc('#A3A3A3') : nc('#262626'),
               }}
             >
               {l.line}

@@ -36,6 +36,7 @@ import { useCreateVisit } from '@/hooks/useVisit';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function VisitScanScreen() {
   const { t } = useTranslation();
@@ -117,13 +118,13 @@ export default function VisitScanScreen() {
   if (!permission.granted) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
             <Text className="flex-1 text-base font-bold text-neutral-900">
               {t('visit.scan_title')}
@@ -186,7 +187,7 @@ export default function VisitScanScreen() {
           onPress={() => setSearchOpen(true)}
           className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2"
         >
-          <Search size={16} color="#171717" />
+          <Search size={16} color={nc('#171717')} />
           <Text className="text-sm font-semibold text-neutral-900">{t('scanner.search_title')}</Text>
         </Pressable>
       </View>
@@ -216,7 +217,7 @@ export default function VisitScanScreen() {
           >
             <Pressable
               onPress={() => {}}
-              className="bg-white w-full rounded-t-3xl p-5 pb-8"
+              className="bg-card w-full rounded-t-3xl p-5 pb-8"
             >
               <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center mb-3 self-start">
                 <Handshake size={24} color="#EA580C" />
@@ -244,7 +245,7 @@ export default function VisitScanScreen() {
                 {t('visit.lokasi_label')}
               </Text>
               <View className="bg-neutral-50 rounded-xl border border-neutral-200 flex-row items-center px-3 mb-4">
-                <MapPin size={16} color="#737373" />
+                <MapPin size={16} color={nc('#737373')} />
                 <TextInput
                   value={lokasi}
                   onChangeText={setLokasi}

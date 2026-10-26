@@ -34,6 +34,7 @@ import { GROUP_JENIS_LABELS } from '@/types/group';
 import type { GroupJenis } from '@/types/group';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 const JENIS_OPTIONS: GroupJenis[] = [
   'FAMILY',
@@ -145,10 +146,10 @@ export default function CreateGroupScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">
@@ -169,7 +170,7 @@ export default function CreateGroupScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Section: Basic */}
-          <View className="bg-white rounded-2xl p-4 gap-3 border border-neutral-100">
+          <View className="bg-card rounded-2xl p-4 gap-3 border border-neutral-100">
             <TextField
               label={t('group.field_nama') + ' *'}
               placeholder={t('group.field_nama_placeholder')}
@@ -220,7 +221,7 @@ export default function CreateGroupScreen() {
           </View>
 
           {/* Section: Schedule + location */}
-          <View className="bg-white rounded-2xl p-4 mt-3 gap-3 border border-neutral-100">
+          <View className="bg-card rounded-2xl p-4 mt-3 gap-3 border border-neutral-100">
             <Text className="text-xs font-bold text-neutral-500 uppercase">
               {t('group.section_schedule')}
             </Text>
@@ -256,7 +257,7 @@ export default function CreateGroupScreen() {
           </View>
 
           {/* Section: Visibility */}
-          <View className="bg-white rounded-2xl p-4 mt-3 border border-neutral-100">
+          <View className="bg-card rounded-2xl p-4 mt-3 border border-neutral-100">
             <View className="flex-row items-start justify-between">
               <View className="flex-1 pr-3">
                 <Text className="text-sm font-semibold text-neutral-900">
@@ -272,12 +273,12 @@ export default function CreateGroupScreen() {
                 value={isPublic}
                 onValueChange={setIsPublic}
                 thumbColor={isPublic ? '#EA580C' : '#f4f3f4'}
-                trackColor={{ true: '#FFEDD5', false: '#e5e5e5' }}
+                trackColor={{ true: nc('#FFEDD5'), false: nc('#e5e5e5') }}
               />
             </View>
             {!isPublic ? (
               <View className="mt-3 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-                <Info size={14} color="#92400e" style={{ marginTop: 1 }} />
+                <Info size={14} color={nc('#92400e')} style={{ marginTop: 1 }} />
                 <Text className="text-xs text-amber-800 flex-1">
                   {t('group.private_create_hint')}
                 </Text>
@@ -294,7 +295,7 @@ export default function CreateGroupScreen() {
         </ScrollView>
 
         <View
-          className="px-4 pt-3 bg-white border-t border-neutral-100"
+          className="px-4 pt-3 bg-card border-t border-neutral-100"
           style={{ paddingBottom: insets.bottom + 12 }}
         >
           <Button

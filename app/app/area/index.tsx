@@ -22,6 +22,7 @@ import { useAreaHomecells, useManagedAreas } from '@/hooks/useHomecell';
 import type { AreaHomecellRow, PicArea } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Area list — flatten + grouped by area.
@@ -53,13 +54,13 @@ export default function AreaListScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">
@@ -94,7 +95,7 @@ export default function AreaListScreen() {
         ) : areas.length === 0 ? (
           <View className="items-center py-16 px-8">
             <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              <MapPinned size={32} color="#A3A3A3" />
+              <MapPinned size={32} color={nc('#A3A3A3')} />
             </View>
             <Text className="text-lg font-semibold text-neutral-700 text-center">
               {t('area.empty_title')}
@@ -147,11 +148,11 @@ function AreaSection({
 
       {/* Homecells in area */}
       {query.isPending ? (
-        <View className="bg-white rounded-2xl p-6 items-center">
+        <View className="bg-card rounded-2xl p-6 items-center">
           <ActivityIndicator color="#F97316" />
         </View>
       ) : homecells.length === 0 ? (
-        <View className="bg-white rounded-2xl p-4 border border-dashed border-neutral-300 items-center">
+        <View className="bg-card rounded-2xl p-4 border border-dashed border-neutral-300 items-center">
           <Text className="text-xs text-neutral-500 text-center">
             {t('area.no_homecells_in_area')}
           </Text>
@@ -183,7 +184,7 @@ function HomecellRow({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+      className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
     >
       <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
         <Users size={18} color="#EA580C" />
@@ -193,7 +194,7 @@ function HomecellRow({
           {homecell.nama}
         </Text>
         <View className="flex-row items-center gap-1 mt-0.5">
-          <UserCog size={11} color="#737373" />
+          <UserCog size={11} color={nc('#737373')} />
           <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
             {t('area.pic_label')}: {picName}
           </Text>
@@ -207,7 +208,7 @@ function HomecellRow({
           </View>
           {homecell.hari ? (
             <View className="flex-row items-center gap-1">
-              <Clock size={11} color="#A3A3A3" />
+              <Clock size={11} color={nc('#A3A3A3')} />
               <Text className="text-xs text-neutral-500">
                 {homecell.hari}
                 {homecell.jam ? ` · ${homecell.jam}` : ''}
@@ -216,7 +217,7 @@ function HomecellRow({
           ) : null}
         </View>
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
+      <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }

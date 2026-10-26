@@ -22,6 +22,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { formatDate } from '@/utils/date';
 import type { PublicEventItem } from '@/types/publicGuest';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 function priceLabel(e: PublicEventItem, t: (k: string) => string, lang: string): string {
   if (e.tipeBayar === 'GRATIS') return t('event.free');
@@ -85,7 +86,7 @@ export function GuestEventView() {
       >
         <GuestModeBanner compact />
 
-        <View className="bg-white rounded-2xl p-3 border border-neutral-100 mb-3">
+        <View className="bg-card rounded-2xl p-3 border border-neutral-100 mb-3">
           <Picker
             label={t('signup.branch')}
             placeholder={
@@ -104,7 +105,7 @@ export function GuestEventView() {
 
         {items.length === 0 && !eventsQuery.isPending ? (
           <View className="items-center py-12">
-            <CalendarDays size={36} color="#A3A3A3" />
+            <CalendarDays size={36} color={nc('#A3A3A3')} />
             <Text className="text-sm text-neutral-500 mt-3">{t('event.empty_msg')}</Text>
           </View>
         ) : null}
@@ -114,7 +115,7 @@ export function GuestEventView() {
             <Pressable
               key={ev.id}
               onPress={() => router.push(`/event/${ev.slug}` as never)}
-              className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+              className="bg-card rounded-2xl border border-neutral-100 overflow-hidden"
             >
               <SafeImage
                 uri={ev.heroImageUrl}
@@ -132,19 +133,19 @@ export function GuestEventView() {
                 ) : null}
                 <View className="flex-row flex-wrap gap-2 mt-3">
                   <View className="flex-row items-center gap-1">
-                    <CalendarDays size={12} color="#737373" />
+                    <CalendarDays size={12} color={nc('#737373')} />
                     <Text className="text-xs text-neutral-700">
                       {formatDate(ev.tanggalMulai, lang)}
                     </Text>
                   </View>
                   {ev.lokasi ? (
                     <View className="flex-row items-center gap-1">
-                      <MapPin size={12} color="#737373" />
+                      <MapPin size={12} color={nc('#737373')} />
                       <Text className="text-xs text-neutral-700">{ev.lokasi}</Text>
                     </View>
                   ) : null}
                   <View className="flex-row items-center gap-1">
-                    <Tag size={12} color="#737373" />
+                    <Tag size={12} color={nc('#737373')} />
                     <Text className="text-xs text-neutral-700">{priceLabel(ev, t, lang)}</Text>
                   </View>
                 </View>

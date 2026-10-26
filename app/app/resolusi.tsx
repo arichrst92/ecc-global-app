@@ -40,6 +40,7 @@ import { Chip, PillOption, fmtDate } from '@/components/doa/DoaBits';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Sheet = { mode: 'add' } | { mode: 'edit'; item: Resolusi } | null;
 
@@ -94,10 +95,10 @@ export default function ResolusiScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('resolusi.title')}</Text>
@@ -119,7 +120,7 @@ export default function ResolusiScreen() {
             }}
             className="px-3 py-1.5 rounded-full border border-dashed border-neutral-300 flex-row items-center gap-1"
           >
-            <Plus size={12} color="#737373" />
+            <Plus size={12} color={nc('#737373')} />
             <Text className="text-xs font-semibold text-neutral-500">{t('resolusi.add_year')}</Text>
           </Pressable>
         </ScrollView>
@@ -143,7 +144,7 @@ export default function ResolusiScreen() {
           </View>
         ) : (
           <>
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-2">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-2">
               <View className="flex-row items-center justify-between">
                 <Text className="text-sm text-neutral-600">{t('resolusi.progress', { tahun })}</Text>
                 <Text className="text-sm font-bold text-neutral-900">
@@ -154,7 +155,7 @@ export default function ResolusiScreen() {
                 <View {...gx('h-2 bg-brand-500 rounded-full', { width: `${pct}%` })}  />
               </View>
             </View>
-            <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+            <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
               {items.map((r, idx) => (
                 <View key={r.id} className={`flex-row items-center gap-3 px-4 py-3 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}>
                   <Pressable
@@ -187,7 +188,7 @@ export default function ResolusiScreen() {
             <Button
               label={t('resolusi.add')}
               variant="secondary"
-              leftIcon={<Plus size={16} color="#171717" />}
+              leftIcon={<Plus size={16} color={nc('#171717')} />}
               onPress={() => setSheet({ mode: 'add' })}
             />
           </>
@@ -273,7 +274,7 @@ function ResolusiSheet({
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={onClose} />
-        <View className="bg-white rounded-t-3xl" style={{ maxHeight: '90%' }}>
+        <View className="bg-card rounded-t-3xl" style={{ maxHeight: '90%' }}>
           <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 20, gap: 12 }} keyboardShouldPersistTaps="handled">
             <View className="w-10 h-1 rounded-full bg-neutral-300 self-center" />
             <View className="flex-row items-center justify-between">
@@ -281,7 +282,7 @@ function ResolusiSheet({
                 {editItem ? t('resolusi.edit_title') : t('resolusi.add_title')} · {tahun}
               </Text>
               <Pressable onPress={onClose} hitSlop={10}>
-                <X size={18} color="#737373" />
+                <X size={18} color={nc('#737373')} />
               </Pressable>
             </View>
             <Text className="text-sm font-semibold text-neutral-800">{t('resolusi.judul_label')}</Text>
@@ -290,7 +291,7 @@ function ResolusiSheet({
               onChangeText={setJudul}
               maxLength={200}
               placeholder={t('resolusi.judul_ph')}
-              placeholderTextColor="#A3A3A3"
+              placeholderTextColor={nc('#A3A3A3')}
               className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
             />
             <Text className="text-sm font-semibold text-neutral-800">{t('resolusi.kategori_label')}</Text>
@@ -306,13 +307,13 @@ function ResolusiSheet({
               multiline
               maxLength={2000}
               placeholder={t('resolusi.catatan_ph')}
-              placeholderTextColor="#A3A3A3"
+              placeholderTextColor={nc('#A3A3A3')}
               className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
               style={{ minHeight: 70, textAlignVertical: 'top' }}
             />
             <View className="flex-row items-center justify-between">
               <Text className="text-sm font-semibold text-neutral-800">{t('resolusi.done_label')}</Text>
-              <Switch value={isDone} onValueChange={setIsDone} trackColor={{ true: '#16A34A', false: '#D4D4D4' }} thumbColor="#fff" />
+              <Switch value={isDone} onValueChange={setIsDone} trackColor={{ true: '#16A34A', false: nc('#D4D4D4') }} thumbColor="#fff" />
             </View>
             {editItem && items.length > 1 ? (
               <View className="flex-row gap-2">
@@ -321,7 +322,7 @@ function ResolusiSheet({
                   onPress={() => moveMut.mutate(-1)}
                   className={`flex-1 flex-row items-center justify-center gap-1.5 py-2.5 rounded-xl border border-neutral-200 ${idx <= 0 ? 'opacity-40' : ''}`}
                 >
-                  <ArrowUp size={15} color="#404040" />
+                  <ArrowUp size={15} color={nc('#404040')} />
                   <Text className="text-sm text-neutral-700">{t('resolusi.move_up')}</Text>
                 </Pressable>
                 <Pressable
@@ -331,7 +332,7 @@ function ResolusiSheet({
                     idx >= items.length - 1 ? 'opacity-40' : ''
                   }`}
                 >
-                  <ArrowDown size={15} color="#404040" />
+                  <ArrowDown size={15} color={nc('#404040')} />
                   <Text className="text-sm text-neutral-700">{t('resolusi.move_down')}</Text>
                 </Pressable>
               </View>

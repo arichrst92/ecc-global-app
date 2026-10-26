@@ -34,6 +34,7 @@ import { deleteMyAccount } from '@/api/me';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 const CONFIRM_PHRASE = 'HAPUS AKUN SAYA';
 
@@ -64,13 +65,13 @@ export default function DeleteAccountScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('delete_account.title')}
@@ -110,7 +111,7 @@ export default function DeleteAccountScreen() {
           <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
             {t('delete_account.what_happens')}
           </Text>
-          <View className="bg-white rounded-2xl border border-neutral-100 mb-4">
+          <View className="bg-card rounded-2xl border border-neutral-100 mb-4">
             <DisclosureRow
               icon={<X size={14} color="#DC2626" />}
               iconBg="bg-red-50"
@@ -164,7 +165,7 @@ export default function DeleteAccountScreen() {
             numberOfLines={3}
             maxLength={500}
             textAlignVertical="top"
-            className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-sm text-neutral-900 mb-4 min-h-[80px]"
+            className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-sm text-neutral-900 mb-4 min-h-[80px]"
           />
 
           {/* Confirm text input */}
@@ -180,14 +181,14 @@ export default function DeleteAccountScreen() {
             placeholder={CONFIRM_PHRASE}
             autoCapitalize="characters"
             autoCorrect={false}
-            className={`bg-white rounded-xl px-4 py-3 border text-base font-mono tracking-wider text-neutral-900 ${
+            className={`bg-card rounded-xl px-4 py-3 border text-base font-mono tracking-wider text-neutral-900 ${
               isMatch ? 'border-red-500' : 'border-neutral-200'
             }`}
           />
         </ScrollView>
 
         {/* Submit btn — sticky, dengan bottom safe area */}
-        <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
+        <SafeAreaView edges={['bottom']} className="bg-card border-t border-neutral-100">
           <View className="px-5 pt-3 pb-3">
           <Button
             label={t('delete_account.submit_btn')}

@@ -24,6 +24,7 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { useLocalMarketDetail } from '@/hooks/useLocalBusiness';
 import { env } from '@/config/env';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function LocalMarketDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -48,13 +49,13 @@ export default function LocalMarketDetailScreen() {
   if (!biz) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
           </View>
         </SafeAreaView>
@@ -99,7 +100,7 @@ export default function LocalMarketDetailScreen() {
           </SafeAreaView>
           {/* Logo overlay bottom-left */}
           {biz.logoUrl ? (
-            <View className="absolute -bottom-6 left-5 w-16 h-16 rounded-2xl bg-white border-4 border-white overflow-hidden">
+            <View className="absolute -bottom-6 left-5 w-16 h-16 rounded-2xl bg-card border-4 border-white overflow-hidden">
               <Image
                 source={{
                   uri: biz.logoUrl.startsWith('http')
@@ -141,7 +142,7 @@ export default function LocalMarketDetailScreen() {
 
           {/* Deskripsi */}
           {biz.deskripsi ? (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3">
               <Text className="text-sm text-neutral-700 leading-relaxed">
                 {biz.deskripsi}
               </Text>
@@ -150,7 +151,7 @@ export default function LocalMarketDetailScreen() {
 
           {/* Lokasi */}
           {biz.lokasi ? (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-start gap-3">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-start gap-3">
               <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
                 <MapPin size={18} color="#EA580C" />
               </View>
@@ -169,7 +170,7 @@ export default function LocalMarketDetailScreen() {
           {biz.whatsappUrl ? (
             <Pressable
               onPress={() => openUrl(biz.whatsappUrl!)}
-              className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
+              className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
             >
               <View className="w-10 h-10 rounded-xl bg-green-50 items-center justify-center">
                 <MessageCircle size={18} color="#16A34A" />
@@ -182,7 +183,7 @@ export default function LocalMarketDetailScreen() {
                   {biz.whatsappUrl}
                 </Text>
               </View>
-              <ChevronRight size={16} color="#A3A3A3" />
+              <ChevronRight size={16} color={nc('#A3A3A3')} />
             </Pressable>
           ) : null}
 
@@ -190,7 +191,7 @@ export default function LocalMarketDetailScreen() {
           {biz.websiteUrl ? (
             <Pressable
               onPress={() => openUrl(biz.websiteUrl!)}
-              className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
+              className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
             >
               <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center">
                 <Globe size={18} color="#2563EB" />
@@ -203,7 +204,7 @@ export default function LocalMarketDetailScreen() {
                   {biz.websiteUrl}
                 </Text>
               </View>
-              <ExternalLink size={14} color="#A3A3A3" />
+              <ExternalLink size={14} color={nc('#A3A3A3')} />
             </Pressable>
           ) : null}
 
@@ -217,7 +218,7 @@ export default function LocalMarketDetailScreen() {
                     : `${env.apiBaseUrl}${biz.companyProfileUrl}`,
                 )
               }
-              className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
+              className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
             >
               <View className="w-10 h-10 rounded-xl bg-red-50 items-center justify-center">
                 <FileText size={18} color="#DC2626" />
@@ -230,7 +231,7 @@ export default function LocalMarketDetailScreen() {
                   {t('market.profile_pdf_sub')}
                 </Text>
               </View>
-              <ExternalLink size={14} color="#A3A3A3" />
+              <ExternalLink size={14} color={nc('#A3A3A3')} />
             </Pressable>
           ) : null}
 
@@ -240,7 +241,7 @@ export default function LocalMarketDetailScreen() {
               <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-2 mb-2">
                 {t('market.social_section')}
               </Text>
-              <View className="bg-white rounded-2xl border border-neutral-100 mb-3">
+              <View className="bg-card rounded-2xl border border-neutral-100 mb-3">
                 {biz.socialLinks.map((s, idx) => (
                   <Pressable
                     key={`${s.platform}-${idx}`}
@@ -250,7 +251,7 @@ export default function LocalMarketDetailScreen() {
                     }`}
                   >
                     <View className="w-9 h-9 rounded-xl bg-neutral-100 items-center justify-center">
-                      <ExternalLink size={14} color="#525252" />
+                      <ExternalLink size={14} color={nc('#525252')} />
                     </View>
                     <View className="flex-1 min-w-0">
                       <Text className="text-sm font-semibold text-neutral-900">
@@ -260,7 +261,7 @@ export default function LocalMarketDetailScreen() {
                         {s.url}
                       </Text>
                     </View>
-                    <ChevronRight size={14} color="#A3A3A3" />
+                    <ChevronRight size={14} color={nc('#A3A3A3')} />
                   </Pressable>
                 ))}
               </View>
@@ -273,7 +274,7 @@ export default function LocalMarketDetailScreen() {
           </Text>
           <Pressable
             onPress={() => router.push(`/jemaat/${biz.owner.id}` as never)}
-            className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+            className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
           >
             <Avatar
               name={biz.owner.namaLengkap}
@@ -290,7 +291,7 @@ export default function LocalMarketDetailScreen() {
                 </Text>
               ) : null}
             </View>
-            <ChevronRight size={14} color="#A3A3A3" />
+            <ChevronRight size={14} color={nc('#A3A3A3')} />
           </Pressable>
         </View>
       </ScrollView>

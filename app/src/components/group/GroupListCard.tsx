@@ -12,6 +12,7 @@ import { groupImageHref } from '@/components/group/GroupHero';
 import { GROUP_JENIS_LABELS, type GroupJenis } from '@/types/group';
 import { formatDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export type GroupListCardData = {
   nama: string;
@@ -45,7 +46,7 @@ export function GroupListCard({
   const jadwal = [group.hari, group.jam].filter(Boolean).join(' · ');
 
   return (
-    <Pressable onPress={onPress} className="bg-white rounded-2xl border border-neutral-100 overflow-hidden active:opacity-90">
+    <Pressable onPress={onPress} className="bg-card rounded-2xl border border-neutral-100 overflow-hidden active:opacity-90">
       {/* Hero */}
       <View style={{ aspectRatio: 16 / 7 }} className="bg-brand-100">
         {group.heroImageUrl ? (
@@ -56,12 +57,12 @@ export function GroupListCard({
           />
         ) : (
           <View className="absolute inset-0 items-center justify-center">
-            <Text style={{ fontSize: 44 }}>{jenisInfo.emoji}</Text>
+            <Text className="text-neutral-900" style={{ fontSize: 44 }}>{jenisInfo.emoji}</Text>
           </View>
         )}
         <View className="absolute top-2.5 left-2.5 right-2.5 flex-row items-center gap-1.5">
           <View className="flex-row items-center gap-1 bg-white/95 px-2 py-1 rounded-full">
-            <Tag size={11} color="#C2410C" />
+            <Tag size={11} color={nc('#C2410C')} />
             <Text className="text-[11px] font-semibold text-brand-700">{lang === 'id' ? jenisInfo.id : jenisInfo.en}</Text>
           </View>
           <View className="flex-1" />
@@ -86,15 +87,15 @@ export function GroupListCard({
           <Text className="flex-1 text-base font-bold text-neutral-900" numberOfLines={2}>
             {group.nama}
           </Text>
-          <ChevronRight size={18} color="#A3A3A3" style={{ marginTop: 2 }} />
+          <ChevronRight size={18} color={nc('#A3A3A3')} style={{ marginTop: 2 }} />
         </View>
 
         <View className="mt-3 gap-2">
-          <Detail icon={<Building2 size={14} color="#737373" />} text={group.cabang.nama} />
+          <Detail icon={<Building2 size={14} color={nc('#737373')} />} text={group.cabang.nama} />
           {group.picJemaat ? (
-            <Detail icon={<Crown size={14} color="#737373" />} text={`${t('group.my_card_pic')}: ${group.picJemaat.namaLengkap}`} />
+            <Detail icon={<Crown size={14} color={nc('#737373')} />} text={`${t('group.my_card_pic')}: ${group.picJemaat.namaLengkap}`} />
           ) : null}
-          {group.alamat ? <Detail icon={<MapPin size={14} color="#737373" />} text={group.alamat} /> : null}
+          {group.alamat ? <Detail icon={<MapPin size={14} color={nc('#737373')} />} text={group.alamat} /> : null}
         </View>
 
         <View className="flex-row mt-3 pt-3 border-t border-neutral-100">
@@ -112,7 +113,7 @@ export function GroupListCard({
               label={t('group.joined_at')}
             />
           ) : jadwal ? (
-            <Stat icon={<Clock size={15} color="#0369A1" />} bg="bg-sky-50" value={jadwal} label={t('group.my_card_schedule')} />
+            <Stat icon={<Clock size={15} color={nc('#0369A1')} />} bg="bg-sky-50" value={jadwal} label={t('group.my_card_schedule')} />
           ) : null}
         </View>
       </View>

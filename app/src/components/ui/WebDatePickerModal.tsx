@@ -38,7 +38,7 @@ export function WebDatePickerModal({
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <Pressable onPress={onClose} className="flex-1 bg-black/50 items-center justify-center px-6">
-        <Pressable onPress={() => {}} className="bg-white w-full max-w-sm rounded-2xl p-5">
+        <Pressable onPress={() => {}} className="bg-card w-full max-w-sm rounded-2xl p-5">
           {createElement('input', {
             type: 'date',
             value: v,

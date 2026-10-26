@@ -15,6 +15,7 @@ import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 import type { TipeRelasi } from '@/types/tipeRelasi';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function FamilyScanScreen() {
   const { t } = useTranslation();
@@ -84,13 +85,13 @@ export default function FamilyScanScreen() {
   if (!permission.granted) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
             <Text className="flex-1 text-base font-bold text-neutral-900">
               {t('family.scan_title')}
@@ -122,13 +123,13 @@ export default function FamilyScanScreen() {
   if (scannedKode) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
             <Text className="flex-1 text-base font-bold text-neutral-900">
               {t('family.scan_review_title')}
@@ -137,7 +138,7 @@ export default function FamilyScanScreen() {
         </SafeAreaView>
 
         <View className="flex-1 px-5 pt-5">
-          <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4">
+          <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
             <Text className="text-xs text-neutral-500 mb-1">{t('family.kode_label')}</Text>
             <Text className="text-2xl font-mono font-bold text-neutral-900 tracking-widest">
               {scannedKode}
@@ -154,14 +155,14 @@ export default function FamilyScanScreen() {
             onPress={() => setScannedKode(null)}
             className="mt-4 p-3 border border-neutral-200 rounded-xl flex-row items-center justify-center gap-2"
           >
-            <RefreshCw size={14} color="#525252" />
+            <RefreshCw size={14} color={nc('#525252')} />
             <Text className="text-sm font-medium text-neutral-700">
               {t('family.scan_again')}
             </Text>
           </Pressable>
         </View>
 
-        <View className="bg-white border-t border-neutral-100 px-5 py-3">
+        <View className="bg-card border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
             <Button
               label={t('family.link_member')}
@@ -215,7 +216,7 @@ export default function FamilyScanScreen() {
           onPress={() => setSearchOpen(true)}
           className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2"
         >
-          <Search size={16} color="#171717" />
+          <Search size={16} color={nc('#171717')} />
           <Text className="text-sm font-semibold text-neutral-900">{t('scanner.search_title')}</Text>
         </Pressable>
       </View>

@@ -116,7 +116,7 @@ function renderInline(text: string): React.ReactNode[] {
     const token = match[0];
     if (token.startsWith('**')) {
       result.push(
-        <Text key={key++} className="font-bold">
+        <Text key={key++} className="text-neutral-900 font-bold">
           {token.slice(2, -2)}
         </Text>,
       );

@@ -24,7 +24,7 @@ export const useToast = create<ToastState>((set) => ({
 }));
 
 const typeStyles: Record<ToastType, string> = {
-  info: 'bg-neutral-900',
+  info: 'bg-[#262626]',
   success: 'bg-emerald-600',
   error: 'bg-red-600',
   warning: 'bg-amber-600',

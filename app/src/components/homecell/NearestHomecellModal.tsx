@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { StatusBadge, jadwalLabel } from '@/components/homecell/HomecellListCard';
 import type { HomecellNearestResponse } from '@/types/homecell';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Props = {
   visible: boolean;
@@ -36,21 +37,21 @@ export function NearestHomecellModal({ visible, data, joiningId, hasPending, onC
             <Text className="text-lg font-bold text-neutral-900">{t('hcj.nearest_title')}</Text>
             <Text className="text-xs text-neutral-500">{t('hcj.nearest_sub')}</Text>
           </View>
-          <Pressable onPress={onClose} hitSlop={10} className="w-9 h-9 rounded-full bg-white items-center justify-center">
-            <X size={18} color="#525252" />
+          <Pressable onPress={onClose} hitSlop={10} className="w-9 h-9 rounded-full bg-card items-center justify-center">
+            <X size={18} color={nc('#525252')} />
           </Pressable>
         </View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, gap: 12 }}>
           {items.length === 0 ? (
-            <View className="bg-white rounded-2xl p-5 border border-neutral-100">
+            <View className="bg-card rounded-2xl p-5 border border-neutral-100">
               <Text className="text-sm text-neutral-600 text-center">{t('hcj.nearest_empty')}</Text>
             </View>
           ) : (
             items.map((h, i) => {
               const jadwal = jadwalLabel(h);
               return (
-                <View key={h.id} className="bg-white rounded-2xl p-4 border border-neutral-100">
+                <View key={h.id} className="bg-card rounded-2xl p-4 border border-neutral-100">
                   <View className="flex-row items-start gap-3">
                     <View {...gx('w-9 h-9 rounded-full bg-brand-500 items-center justify-center')}>
                       <Text className="text-white font-bold">{i + 1}</Text>
@@ -78,13 +79,13 @@ export function NearestHomecellModal({ visible, data, joiningId, hasPending, onC
 
                   <View className="mt-3 gap-1.5">
                     {jadwal ? (
-                      <Row icon={<Clock size={13} color="#737373" />} text={`${t('hcj.schedule_label')}: ${jadwal}`} />
+                      <Row icon={<Clock size={13} color={nc('#737373')} />} text={`${t('hcj.schedule_label')}: ${jadwal}`} />
                     ) : null}
-                    {h.alamat ? <Row icon={<MapPin size={13} color="#737373" />} text={h.alamat} /> : null}
+                    {h.alamat ? <Row icon={<MapPin size={13} color={nc('#737373')} />} text={h.alamat} /> : null}
                     {h.picJemaat ? (
-                      <Row icon={<User size={13} color="#737373" />} text={t('hcj.leader', { name: h.picJemaat.namaLengkap })} />
+                      <Row icon={<User size={13} color={nc('#737373')} />} text={t('hcj.leader', { name: h.picJemaat.namaLengkap })} />
                     ) : null}
-                    <Row icon={<Users size={13} color="#737373" />} text={t('hcj.members', { count: h.memberCount })} />
+                    <Row icon={<Users size={13} color={nc('#737373')} />} text={t('hcj.members', { count: h.memberCount })} />
                     {h.deskripsi ? (
                       <Text className="text-xs text-neutral-600 mt-1" numberOfLines={3}>
                         {h.deskripsi}

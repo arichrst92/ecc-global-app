@@ -23,6 +23,7 @@ import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
 import { EventTicketCard } from '@/components/tiket/EventTicketCard';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Seg = 'ibadah' | 'event';
 type Tab = 'active' | 'history';
@@ -65,10 +66,10 @@ export default function MyReservasiScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('my_reservasi.title')}</Text>
@@ -84,12 +85,12 @@ export default function MyReservasiScreen() {
                 setSeg(k);
                 setTab('active');
               }}
-              className={`flex-1 flex-row items-center justify-center gap-1.5 py-1.5 rounded-lg ${seg === k ? 'bg-white' : ''}`}
+              className={`flex-1 flex-row items-center justify-center gap-1.5 py-1.5 rounded-lg ${seg === k ? 'bg-card' : ''}`}
             >
               {k === 'ibadah' ? (
-                <Church size={14} color={seg === k ? '#EA580C' : '#525252'} />
+                <Church size={14} color={seg === k ? '#EA580C' : nc('#525252')} />
               ) : (
-                <Ticket size={14} color={seg === k ? '#EA580C' : '#525252'} />
+                <Ticket size={14} color={seg === k ? '#EA580C' : nc('#525252')} />
               )}
               <Text className={`text-xs font-semibold ${seg === k ? 'text-brand-600' : 'text-neutral-600'}`}>
                 {t(k === 'ibadah' ? 'tiket.seg_ibadah' : 'tiket.seg_event')}
@@ -129,7 +130,7 @@ export default function MyReservasiScreen() {
         ) : empty ? (
           <View className="items-center py-16 px-8">
             <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              {seg === 'ibadah' ? <CalendarCheck size={28} color="#A3A3A3" /> : <Ticket size={28} color="#A3A3A3" />}
+              {seg === 'ibadah' ? <CalendarCheck size={28} color={nc('#A3A3A3')} /> : <Ticket size={28} color={nc('#A3A3A3')} />}
             </View>
             <Text className="text-sm font-bold text-neutral-900 text-center mb-1">
               {seg === 'ibadah'

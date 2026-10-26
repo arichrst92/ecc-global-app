@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { requestPhoneChangeOtp, verifyPhoneChange } from '@/api/me';
 import { ApiError } from '@/types/api';
 import { formatPhoneDisplay, invalidPhoneMessage, normalizePhone } from '@/utils/phone';
+import { nc } from '@/theme/ThemeRoot';
 
 export function ChangePhoneModal({
   visible,
@@ -83,7 +84,7 @@ export function ChangePhoneModal({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <Pressable onPress={close} className="flex-1 bg-black/50 justify-end">
-          <Pressable onPress={() => {}} className="bg-white rounded-t-3xl px-5 pt-4 pb-8">
+          <Pressable onPress={() => {}} className="bg-card rounded-t-3xl px-5 pt-4 pb-8">
             <View className="flex-row items-center mb-4">
               <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center mr-3">
                 <Phone size={18} color="#EA580C" />
@@ -95,7 +96,7 @@ export function ChangePhoneModal({
                 </Text>
               </View>
               <Pressable onPress={close} hitSlop={8} className="p-1">
-                <X size={20} color="#737373" />
+                <X size={20} color={nc('#737373')} />
               </Pressable>
             </View>
 

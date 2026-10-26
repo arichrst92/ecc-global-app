@@ -28,6 +28,7 @@ import { env } from '@/config/env';
 import type { EventParticipation } from '@/types/event';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function EventDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -515,7 +516,7 @@ export default function EventDetailScreen() {
           Hidden untuk guest mode — event read-only, hanya teaser video
           tetap interactive di scrollable content. */}
       {event && !isGuest ? (
-        <View className="bg-white border-t border-neutral-100 px-5 py-3">
+        <View className="bg-card border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
             {/* Self check-in (kalau event mengizinkan): countdown → tombol → popup */}
             {/* Sudah ada tiket → check-in lewat geser di tiket masing-masing. */}
@@ -584,7 +585,7 @@ export default function EventDetailScreen() {
                 // anggota keluarga yang memenuhi syarat masih bisa didaftarkan;
                 // backend menolak per orang dengan pesan yang sama.
                 <View className="flex-row items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3">
-                  <ShieldAlert size={16} color="#B45309" />
+                  <ShieldAlert size={16} color={nc('#B45309')} />
                   <Text className="flex-1 text-xs text-amber-900 leading-5">{event.eligibilityMessage}</Text>
                 </View>
               ) : null}
@@ -661,7 +662,7 @@ export default function EventDetailScreen() {
         >
           <Pressable
             onPress={() => {}}
-            className="bg-white rounded-2xl p-5 w-full max-w-sm"
+            className="bg-card rounded-2xl p-5 w-full max-w-sm"
           >
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <AlertTriangle size={24} color="#DC2626" />
@@ -1044,7 +1045,7 @@ function ParticipationDetailModal({
         <Pressable style={{ flex: 1 }} onPress={onClose} />
         {/* Modal sheet — fixed height 85% supaya ScrollView bisa flex-1 */}
         <View
-          className="bg-white rounded-t-3xl overflow-hidden"
+          className="bg-card rounded-t-3xl overflow-hidden"
           style={{ height: '85%' }}
         >
           {/* Zoom overlay — absolute inside SAME modal (bukan nested Modal).
@@ -1106,7 +1107,7 @@ function ParticipationDetailModal({
               className="w-9 h-9 rounded-full bg-neutral-100 items-center justify-center"
               accessibilityLabel={t('common.close') ?? 'Close'}
             >
-              <X size={18} color="#171717" />
+              <X size={18} color={nc('#171717')} />
             </Pressable>
           </View>
 

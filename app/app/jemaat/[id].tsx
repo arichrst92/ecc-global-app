@@ -43,6 +43,7 @@ import type { JemaatPublicProfile } from '@/types/jemaat';
 import { goBack } from '@/utils/nav';
 import { parseLocalDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type CacheFallback = {
   source: 'family' | 'homecell';
@@ -183,7 +184,7 @@ export default function JemaatViewScreen() {
               </Text>
             </View>
           ) : beQuery.isError ? (
-            <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center">
+            <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
               <Text className="text-sm text-neutral-700 text-center leading-relaxed mb-3">
                 {t('jemaat.load_failed')}
               </Text>
@@ -202,7 +203,7 @@ export default function JemaatViewScreen() {
               </Pressable>
             </View>
           ) : (
-            <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center">
+            <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
               <Text className="text-sm text-neutral-700 text-center leading-relaxed">
                 {t('jemaat.not_found')}
               </Text>
@@ -277,7 +278,7 @@ function FullProfile({
             />
           ) : profile.noHpMasked ? (
             <Row
-              icon={<Phone size={16} color="#737373" />}
+              icon={<Phone size={16} color={nc('#737373')} />}
               bg="bg-neutral-100"
               label={t('jemaat.phone_masked_label')}
               value={profile.noHpMasked}
@@ -301,7 +302,7 @@ function FullProfile({
             <Row icon={<Home size={16} color="#059669" />} bg="bg-emerald-50" label={t('jemaat.address_label')} value={profile.alamat} />
           ) : null}
           {pekerjaan ? (
-            <Row icon={<Briefcase size={16} color="#B45309" />} bg="bg-amber-50" label={t('jemaat.job_label')} value={pekerjaan} />
+            <Row icon={<Briefcase size={16} color={nc('#B45309')} />} bg="bg-amber-50" label={t('jemaat.job_label')} value={pekerjaan} />
           ) : null}
           {pernikahan ? (
             <Row icon={<Heart size={16} color="#E11D48" />} bg="bg-rose-50" label={t('jemaat.marriage_label')} value={pernikahan} />
@@ -317,7 +318,7 @@ function FullProfile({
           title={t('profile.cluster_growth')}
           sub={t('jemaat.journey_sub')}
         >
-          <View className="bg-white rounded-2xl border border-neutral-100 p-4">
+          <View className="bg-card rounded-2xl border border-neutral-100 p-4">
             <View className="flex-row items-center justify-between mb-1.5">
               <Text className="text-sm font-semibold text-neutral-900">
                 {t('journey.progress', { done: journey.achievedCount, total: journey.total })}
@@ -388,7 +389,7 @@ function FullProfile({
         >
           <Pressable
             onPress={() => router.push(`/homecell/view/${hc.id}` as never)}
-            className="bg-white rounded-2xl border border-neutral-100 overflow-hidden active:opacity-80"
+            className="bg-card rounded-2xl border border-neutral-100 overflow-hidden active:opacity-80"
           >
             <View className="bg-violet-500 px-4 py-3 flex-row items-center gap-3">
               <View className="w-9 h-9 rounded-xl bg-white/20 items-center justify-center">
@@ -483,7 +484,7 @@ function FullProfile({
                     {f.tipeRelasi?.nama ?? (f.role ? t(`family.role_${f.role.toLowerCase()}`) : t('family.role_generic'))}
                   </Text>
                 </View>
-                <ChevronRight size={16} color="#A3A3A3" />
+                <ChevronRight size={16} color={nc('#A3A3A3')} />
               </Pressable>
             ))}
           </Box>
@@ -493,7 +494,7 @@ function FullProfile({
       {/* Info privasi — kalau bukan relasi dekat */}
       {!profile.visibility.isCloseRelation ? (
         <View className="bg-neutral-100 rounded-2xl p-3 flex-row gap-2">
-          <ShieldCheck size={14} color="#737373" style={{ marginTop: 1 }} />
+          <ShieldCheck size={14} color={nc('#737373')} style={{ marginTop: 1 }} />
           <Text className="text-xs text-neutral-600 leading-relaxed flex-1">{t('jemaat.public_only_notice')}</Text>
         </View>
       ) : null}
@@ -532,7 +533,7 @@ function Cluster({
 }
 
 function Box({ children }: { children: React.ReactNode }) {
-  return <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100 overflow-hidden">{children}</View>;
+  return <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100 overflow-hidden">{children}</View>;
 }
 
 function Row({
@@ -574,7 +575,7 @@ function Row({
         {hint ? <Text className="text-[10px] text-neutral-400 mt-0.5">{hint}</Text> : null}
       </View>
       {action}
-      {chevron ? <ChevronRight size={16} color="#A3A3A3" /> : null}
+      {chevron ? <ChevronRight size={16} color={nc('#A3A3A3')} /> : null}
     </>
   );
   return onPress ? (
@@ -598,7 +599,7 @@ function FallbackProfile({
   return (
     <>
       {fallback.data.cabang ? (
-        <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3">
+        <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
             <MapPin size={18} color="#EA580C" />
           </View>
@@ -614,7 +615,7 @@ function FallbackProfile({
       {fallback.data.noHp ? (
         <Pressable
           onPress={() => onWhatsApp(fallback.data.noHp!)}
-          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-3"
+          className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-3"
         >
           <View className="w-10 h-10 rounded-xl bg-green-50 items-center justify-center">
             <MessageCircle size={18} color="#16A34A" />

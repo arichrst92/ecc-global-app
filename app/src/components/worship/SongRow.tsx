@@ -6,6 +6,7 @@ import { fmtDur, type WorshipTrack } from '@/api/worship';
 import { dlKey, useWorshipDownloads } from '@/lib/worshipDownloads';
 import { useCurrentTrack, useWorshipPlayer } from '@/stores/worship-player.store';
 import { Cover } from './Cover';
+import { nc } from '@/theme/ThemeRoot';
 
 export function SongRow({
   track,
@@ -34,7 +35,7 @@ export function SongRow({
 
   return (
     <Pressable onPress={onPress} onLongPress={onMenu} className="flex-row items-center gap-3 py-2.5 active:opacity-70">
-      {selecting ? selected ? <SquareCheck size={22} color="#EA580C" /> : <Square size={22} color="#A3A3A3" /> : null}
+      {selecting ? selected ? <SquareCheck size={22} color="#EA580C" /> : <Square size={22} color={nc('#A3A3A3')} /> : null}
       {showCover ? (
         <Cover url={track.coverUrl} size={44} radius={8} />
       ) : index !== undefined ? (
@@ -66,7 +67,7 @@ export function SongRow({
       <Text className="text-xs text-neutral-400">{fmtDur(track.durasi)}</Text>
       {!selecting ? (
         <Pressable onPress={onMenu} hitSlop={10} className="pl-1">
-          <EllipsisVertical size={18} color="#737373" />
+          <EllipsisVertical size={18} color={nc('#737373')} />
         </Pressable>
       ) : null}
     </Pressable>

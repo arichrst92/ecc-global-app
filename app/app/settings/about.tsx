@@ -7,6 +7,7 @@ import * as Linking from 'expo-linking';
 
 import Constants from 'expo-constants';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function AboutScreen() {
   const insets = useSafeAreaInsets();
@@ -16,13 +17,13 @@ export default function AboutScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('settings.about_title')}
@@ -46,7 +47,7 @@ export default function AboutScreen() {
           <Text className="text-sm text-neutral-500 mt-1">v{version}</Text>
         </View>
 
-        <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3">
+        <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3">
           <Text className="text-sm text-neutral-700 leading-relaxed text-center">
             {t('settings.about_description')}
           </Text>
@@ -55,19 +56,19 @@ export default function AboutScreen() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-4">
           {t('settings.about_contact')}
         </Text>
-        <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
+        <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <Pressable
             onPress={() => Linking.openURL('mailto:hello@eccchurch.global')}
             className="p-4 flex-row items-center gap-3"
           >
             <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center">
-              <Mail size={18} color="#1d4ed8" />
+              <Mail size={18} color={nc('#1d4ed8')} />
             </View>
             <View className="flex-1">
               <Text className="text-sm font-medium text-neutral-900">Email</Text>
               <Text className="text-xs text-neutral-500">hello@eccchurch.global</Text>
             </View>
-            <ExternalLink size={14} color="#A3A3A3" />
+            <ExternalLink size={14} color={nc('#A3A3A3')} />
           </Pressable>
           <Pressable
             onPress={() => Linking.openURL('https://eccchurch.global')}
@@ -80,7 +81,7 @@ export default function AboutScreen() {
               <Text className="text-sm font-medium text-neutral-900">Website</Text>
               <Text className="text-xs text-neutral-500">eccchurch.global</Text>
             </View>
-            <ExternalLink size={14} color="#A3A3A3" />
+            <ExternalLink size={14} color={nc('#A3A3A3')} />
           </Pressable>
         </View>
 
@@ -88,7 +89,7 @@ export default function AboutScreen() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-4">
           {t('legal.terms_title')}
         </Text>
-        <View className="bg-white rounded-2xl border border-neutral-100 mb-3">
+        <View className="bg-card rounded-2xl border border-neutral-100 mb-3">
           <Pressable
             onPress={() => router.push('/legal/terms' as never)}
             className="p-4 flex-row items-center gap-3 border-b border-neutral-100"
@@ -99,7 +100,7 @@ export default function AboutScreen() {
             <Text className="text-sm font-medium text-neutral-900 flex-1">
               {t('legal.terms_title')}
             </Text>
-            <ChevronRight size={14} color="#A3A3A3" />
+            <ChevronRight size={14} color={nc('#A3A3A3')} />
           </Pressable>
           <Pressable
             onPress={() => router.push('/legal/privacy' as never)}
@@ -111,7 +112,7 @@ export default function AboutScreen() {
             <Text className="text-sm font-medium text-neutral-900 flex-1">
               {t('legal.privacy_title')}
             </Text>
-            <ChevronRight size={14} color="#A3A3A3" />
+            <ChevronRight size={14} color={nc('#A3A3A3')} />
           </Pressable>
         </View>
 
@@ -119,7 +120,7 @@ export default function AboutScreen() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-4">
           {t('settings.about_developer')}
         </Text>
-        <View className="bg-white rounded-2xl border border-neutral-100">
+        <View className="bg-card rounded-2xl border border-neutral-100">
           <Pressable
             onPress={() => Linking.openURL('https://ide.asia')}
             className="p-4 flex-row items-center gap-3"
@@ -135,7 +136,7 @@ export default function AboutScreen() {
               <Text className="text-sm font-semibold text-neutral-900">IDE Asia</Text>
               <Text className="text-xs text-neutral-500">ide.asia</Text>
             </View>
-            <ExternalLink size={14} color="#A3A3A3" />
+            <ExternalLink size={14} color={nc('#A3A3A3')} />
           </Pressable>
         </View>
 

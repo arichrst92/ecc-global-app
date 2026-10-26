@@ -30,7 +30,7 @@ export default function WorshipSongLink() {
   }, [q.data, id, playTracks, router]);
 
   return (
-    <View className="flex-1 items-center justify-center bg-white">
+    <View className="flex-1 items-center justify-center bg-card">
       {q.isError ? <Text className="text-neutral-500">{t('worship.not_found')}</Text> : <ActivityIndicator color="#F97316" />}
     </View>
   );

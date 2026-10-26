@@ -32,6 +32,7 @@ import { PillOption } from '@/components/doa/DoaBits';
 import { useMyFamily } from '@/hooks/useFamily';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function DoaFormScreen() {
   const { t } = useTranslation();
@@ -90,10 +91,10 @@ export default function DoaFormScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">
             {editing ? t('doa.edit_title') : t('doa.new_title')}
@@ -159,8 +160,8 @@ export default function DoaFormScreen() {
                 }}
                 maxLength={150}
                 placeholder={untuk === 'ORANG_LAIN' ? t('doa.untuk_nama_ph') : t('doa.untuk_nama_opt')}
-                placeholderTextColor="#A3A3A3"
-                className="bg-white rounded-xl px-4 py-3 text-sm text-neutral-900 border border-neutral-200"
+                placeholderTextColor={nc('#A3A3A3')}
+                className="bg-card rounded-xl px-4 py-3 text-sm text-neutral-900 border border-neutral-200"
               />
             ) : null}
 
@@ -171,19 +172,19 @@ export default function DoaFormScreen() {
               multiline
               maxLength={3000}
               placeholder={t('doa.isi_ph')}
-              placeholderTextColor="#A3A3A3"
-              className="bg-white rounded-2xl px-4 py-3 text-sm text-neutral-900 border border-neutral-200"
+              placeholderTextColor={nc('#A3A3A3')}
+              className="bg-card rounded-2xl px-4 py-3 text-sm text-neutral-900 border border-neutral-200"
               style={{ minHeight: 150, textAlignVertical: 'top' }}
             />
             <Text className="text-[11px] text-neutral-400 -mt-2 text-right">{isi.length}/3000</Text>
 
-            <View className="bg-white rounded-2xl border border-neutral-200 px-4 py-3 gap-1">
+            <View className="bg-card rounded-2xl border border-neutral-200 px-4 py-3 gap-1">
               <View className="flex-row items-center justify-between">
                 <Text className="text-sm font-semibold text-neutral-800">{t('doa.anonim_label')}</Text>
                 <Switch
                   value={isAnonim}
                   onValueChange={setIsAnonim}
-                  trackColor={{ true: '#F97316', false: '#D4D4D4' }}
+                  trackColor={{ true: '#F97316', false: nc('#D4D4D4') }}
                   thumbColor="#fff"
                 />
               </View>

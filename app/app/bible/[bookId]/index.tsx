@@ -78,7 +78,7 @@ export default function BibleBookScreen() {
             >
               <Pressable
                 onPress={() => router.push(`/bible/${book.id}/${bab}`)}
-                className="aspect-square rounded-xl items-center justify-center bg-white border border-neutral-200 active:bg-brand-50"
+                className="aspect-square rounded-xl items-center justify-center bg-card border border-neutral-200 active:bg-brand-50"
               >
                 <Text className="text-base font-bold text-neutral-700">
                   {bab}

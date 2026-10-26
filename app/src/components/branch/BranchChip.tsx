@@ -3,6 +3,7 @@ import { Church, ChevronsUpDown, MapPin } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
 import { useViewingBranch } from '@/hooks/useViewingBranch';
+import { nc } from '@/theme/ThemeRoot';
 
 type Props = {
   /** Variant: 'header' (white text on brand bg, untuk Home), 'inline' (dark text untuk tab headers) */
@@ -26,7 +27,7 @@ export function BranchChip({ variant = 'header', onPress }: Props) {
     <Pressable
       onPress={onPress}
       className={`flex-row items-center gap-2 rounded-xl px-3 py-2.5 ${
-        isHeader ? 'bg-white/10' : 'bg-white border border-neutral-200'
+        isHeader ? 'bg-white/10' : 'bg-card border border-neutral-200'
       } ${!isHome ? (isHeader ? 'border border-amber-300' : 'border-amber-400') : ''}`}
     >
       <View
@@ -62,7 +63,7 @@ export function BranchChip({ variant = 'header', onPress }: Props) {
           ) : null}
         </View>
       </View>
-      <ChevronsUpDown size={16} color={isHeader ? 'rgba(255,255,255,0.7)' : '#737373'} />
+      <ChevronsUpDown size={16} color={isHeader ? 'rgba(255,255,255,0.7)' : nc('#737373')} />
     </Pressable>
   );
 }

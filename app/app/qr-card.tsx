@@ -21,6 +21,7 @@ import { useMyFamily } from '@/hooks/useFamily';
 import { getMyProfile } from '@/api/me';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 const BLUR_AFTER_SEC = 30;
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -221,14 +222,14 @@ function QrCardItem({
       </View>
 
       {/* QR Card */}
-      <View className="bg-white rounded-3xl p-5" style={{ elevation: 8 }}>
+      <View className="bg-card rounded-3xl p-5" style={{ elevation: 8 }}>
         {hasKode ? (
           <View style={{ opacity: revealed ? 1 : 0.25 }}>
             <QRCode
               value={card.kode}
               size={220}
               color="#0A0A0A"
-              backgroundColor="#FFFFFF"
+              backgroundColor="#FFFFFF" quietZone={10}
             />
           </View>
         ) : (

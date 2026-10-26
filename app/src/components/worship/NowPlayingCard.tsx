@@ -7,6 +7,7 @@ import { Music, Pause, Play, SkipForward, X } from 'lucide-react-native';
 import { useCurrentTrack, useWorshipPlayer } from '@/stores/worship-player.store';
 import { Cover } from './Cover';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export function NowPlayingCard() {
   const { t } = useTranslation();
@@ -25,12 +26,12 @@ export function NowPlayingCard() {
 
   return (
     <View className="px-5 mt-4">
-      <Pressable onPress={() => router.push('/worship/player' as never)} className="bg-white rounded-2xl border border-neutral-100 p-3 gap-2">
+      <Pressable onPress={() => router.push('/worship/player' as never)} className="bg-card rounded-2xl border border-neutral-100 p-3 gap-2">
         <View className="flex-row items-center gap-1.5">
-          <Music size={12} color="#C2410C" />
+          <Music size={12} color={nc('#C2410C')} />
           <Text className="text-[10px] font-bold text-brand-700 flex-1">{t('worship.now_playing')}</Text>
           <Pressable onPress={close} hitSlop={10}>
-            <X size={16} color="#A3A3A3" />
+            <X size={16} color={nc('#A3A3A3')} />
           </Pressable>
         </View>
         <View className="flex-row items-center gap-3">
@@ -54,7 +55,7 @@ export function NowPlayingCard() {
             {loading ? <ActivityIndicator size="small" color="#fff" /> : playing ? <Pause size={18} color="#fff" /> : <Play size={18} color="#fff" />}
           </Pressable>
           <Pressable onPress={() => void next()} hitSlop={8}>
-            <SkipForward size={20} color="#404040" />
+            <SkipForward size={20} color={nc('#404040')} />
           </Pressable>
         </View>
         <View className="h-[3px] bg-neutral-100 rounded-full overflow-hidden">

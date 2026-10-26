@@ -20,7 +20,7 @@ export function ViewingBanner() {
     <View className="bg-amber-500 px-4 py-2 flex-row items-center gap-2">
       <MapPin size={14} color="#fff" />
       <Text className="text-xs text-white flex-1" numberOfLines={1}>
-        <Text className="font-bold">{t('branch.viewing_label')}:</Text> {branch.nama}
+        <Text className="text-neutral-900 font-bold">{t('branch.viewing_label')}:</Text> {branch.nama}
       </Text>
       <Pressable onPress={() => resetToHome()} className="bg-white/20 px-2 py-1 rounded-md">
         <Text className="text-xs text-white font-semibold">{t('branch.back_home')}</Text>

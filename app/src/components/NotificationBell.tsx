@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { Bell } from 'lucide-react-native';
 
 import { useNotificationBadge } from '@/hooks/useNotifications';
+import { nc } from '@/theme/ThemeRoot';
 
 type Variant = 'light' | 'dark';
 
@@ -41,9 +42,9 @@ export function NotificationBell({
   const displayCount = count > 99 ? '99+' : String(count);
   const isLight = variant === 'light';
 
-  const iconColor = isLight ? '#fff' : '#171717';
+  const iconColor = isLight ? '#fff' : nc('#171717');
   const bgClass = isLight ? 'bg-white/15' : 'bg-neutral-100';
-  const defaultBadgeBorder = isLight ? '#F97316' : '#F5F5F5';
+  const defaultBadgeBorder = isLight ? '#F97316' : nc('#F5F5F5');
   const borderColor = badgeBorderColor ?? defaultBadgeBorder;
 
   return (

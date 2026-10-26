@@ -8,6 +8,7 @@ import { HandHeart } from 'lucide-react-native';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { buildGivingUrl, openGiving } from '@/utils/giving';
 import { gx } from '@/theme/gradient';
+import { sb } from '@/theme/ThemeRoot';
 
 /**
  * Persembahan tab — konsisten iOS + Android: redirect ke web page untuk
@@ -38,8 +39,8 @@ function PersembahanWebRedirect() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-      <StatusBar style="dark" />
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
+      <StatusBar style={sb()} />
       <View className="flex-1 items-center justify-center px-8">
         <View className="w-20 h-20 rounded-3xl bg-brand-50 items-center justify-center mb-6">
           <HandHeart size={40} color="#EA580C" />

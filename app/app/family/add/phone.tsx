@@ -22,6 +22,7 @@ import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import type { TipeRelasi } from '@/types/tipeRelasi';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function FamilyAddPhoneScreen() {
   const { t, i18n } = useTranslation();
@@ -72,7 +73,7 @@ export default function FamilyAddPhoneScreen() {
   const submitDisabled = !tipe || phone.length < 8;
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
@@ -82,7 +83,7 @@ export default function FamilyAddPhoneScreen() {
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('family.add_via_phone')}
@@ -112,7 +113,7 @@ export default function FamilyAddPhoneScreen() {
           />
 
           <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-            <Info size={16} color="#92400e" />
+            <Info size={16} color={nc('#92400e')} />
             <Text className="text-xs text-amber-800 flex-1">{t('family.phone_notice')}</Text>
           </View>
 
@@ -125,7 +126,7 @@ export default function FamilyAddPhoneScreen() {
           </View>
         </ScrollView>
 
-        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+        <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">
           <Button
             label={t('family.link_member')}
             onPress={handleSubmit}

@@ -40,6 +40,7 @@ import { ApiError } from '@/types/api';
 import type { HomecellNearestResponse } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function HomecellHubScreen() {
   const insets = useSafeAreaInsets();
@@ -132,10 +133,10 @@ export default function HomecellHubScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('hcj.title')}</Text>
@@ -181,11 +182,11 @@ export default function HomecellHubScreen() {
                     onPress={() => router.push('/homecell/requests' as never)}
                     className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 flex-row items-center gap-3 mb-2"
                   >
-                    <Bell size={18} color="#B45309" />
+                    <Bell size={18} color={nc('#B45309')} />
                     <Text className="flex-1 text-sm font-semibold text-amber-900">
                       {t('hcj.requests_banner', { count: pendingJoinTotal })}
                     </Text>
-                    <ChevronRight size={16} color="#B45309" />
+                    <ChevronRight size={16} color={nc('#B45309')} />
                   </Pressable>
                 ) : null}
                 <View className="gap-2">
@@ -231,7 +232,7 @@ export default function HomecellHubScreen() {
                     key={p.id}
                     className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-3 flex-row items-center gap-3"
                   >
-                    <Hourglass size={18} color="#B45309" />
+                    <Hourglass size={18} color={nc('#B45309')} />
                     <Pressable
                       className="flex-1"
                       onPress={() => router.push(`/homecell/view/${p.homecell.id}` as never)}
@@ -262,13 +263,13 @@ export default function HomecellHubScreen() {
                     }
                   />
                 </View>
-                <View className="flex-row items-center bg-white border border-neutral-200 rounded-xl px-3 mb-3">
-                  <Search size={16} color="#A3A3A3" />
+                <View className="flex-row items-center bg-card border border-neutral-200 rounded-xl px-3 mb-3">
+                  <Search size={16} color={nc('#A3A3A3')} />
                   <TextInput
                     value={search}
                     onChangeText={setSearch}
                     placeholder={t('hcj.search_placeholder')}
-                    placeholderTextColor="#A3A3A3"
+                    placeholderTextColor={nc('#A3A3A3')}
                     className="flex-1 px-2 py-3 text-sm text-neutral-900"
                   />
                 </View>
@@ -279,7 +280,7 @@ export default function HomecellHubScreen() {
                   </View>
                 ) : (browse.data ?? []).length === 0 ? (
                   <View className="items-center py-10 px-6">
-                    <MapPin size={28} color="#A3A3A3" />
+                    <MapPin size={28} color={nc('#A3A3A3')} />
                     <Text className="text-sm text-neutral-500 text-center mt-2">{t('hcj.list_empty')}</Text>
                   </View>
                 ) : (

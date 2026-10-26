@@ -25,6 +25,7 @@ import { goBack } from '@/utils/nav';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -75,7 +76,7 @@ export default function FamilyAddNewScreen() {
   const submitDisabled = !nama.trim() || !tipe;
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
@@ -85,7 +86,7 @@ export default function FamilyAddNewScreen() {
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('family.add_via_new')}
@@ -136,7 +137,7 @@ export default function FamilyAddNewScreen() {
                     key={g}
                     onPress={() => setGender(g)}
                     {...gx(`flex-1 py-3 rounded-xl border ${
-                      active ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-200'
+                      active ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'
                     }`)}
                   >
                     <Text
@@ -170,7 +171,7 @@ export default function FamilyAddNewScreen() {
               >
                 {tanggalLahir || t('family.dob_placeholder')}
               </Text>
-              <CalendarIcon size={18} color="#737373" />
+              <CalendarIcon size={18} color={nc('#737373')} />
             </Pressable>
             <Text className="text-xs text-neutral-500 mt-1">
               {t('family.dob_helper')}
@@ -186,14 +187,14 @@ export default function FamilyAddNewScreen() {
           </View>
 
           <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-            <Info size={16} color="#92400e" />
+            <Info size={16} color={nc('#92400e')} />
             <Text className="text-xs text-amber-800 flex-1">
               {t('family.dependent_notice')}
             </Text>
           </View>
         </ScrollView>
 
-        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+        <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">
           <Button
             label={t('family.register_new_btn')}
             onPress={handleSubmit}
@@ -294,7 +295,7 @@ function DatePickerModal({
       <Pressable onPress={onClose} className="flex-1 bg-black/50 items-center justify-end">
         <Pressable
           onPress={() => {}}
-          className="bg-white w-full rounded-t-3xl pt-4 pb-8 px-4"
+          className="bg-card w-full rounded-t-3xl pt-4 pb-8 px-4"
         >
           <View className="flex-row items-center justify-between mb-2">
             <Pressable onPress={onClose}>
@@ -312,7 +313,7 @@ function DatePickerModal({
             display="spinner"
             maximumDate={new Date()}
             minimumDate={new Date(1900, 0, 1)}
-            textColor="#171717"
+            textColor={nc('#171717')}
             themeVariant="light"
             onChange={(_e, d) => {
               if (d) onChange(d);

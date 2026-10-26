@@ -43,6 +43,7 @@ import type { GroupAnnouncement, GroupPoll } from '@/types/groupContent';
 import { groupRoot, homecellRoot } from '@/api/groupContent';
 import { ApiError } from '@/types/api';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Tab = 'announcements' | 'polls' | 'files';
 
@@ -92,7 +93,7 @@ export function ContentBoard({
     ...(showFiles ? [{ key: 'files' as Tab, label: t('gc.tab_files'), Icon: Paperclip }] : []),
   ];
   return (
-    <View className={`${className} bg-white rounded-2xl border border-neutral-100 p-4`}>
+    <View className={`${className} bg-card rounded-2xl border border-neutral-100 p-4`}>
       <View className="flex-row bg-neutral-100 rounded-xl p-1 mb-3">
         {tabs.map(({ key, label, Icon }) => {
           const active = tab === key;
@@ -100,9 +101,9 @@ export function ContentBoard({
             <Pressable
               key={key}
               onPress={() => setTab(key)}
-              className={`flex-1 flex-row items-center justify-center gap-1.5 py-2 rounded-lg ${active ? 'bg-white' : ''}`}
+              className={`flex-1 flex-row items-center justify-center gap-1.5 py-2 rounded-lg ${active ? 'bg-card' : ''}`}
             >
-              <Icon size={14} color={active ? '#EA580C' : '#737373'} />
+              <Icon size={14} color={active ? '#EA580C' : nc('#737373')} />
               <Text className={`text-xs font-bold ${active ? 'text-brand-600' : 'text-neutral-500'}`}>{label}</Text>
             </Pressable>
           );
@@ -162,7 +163,7 @@ function AnnouncementsTab({ root, canManage }: { root: string; canManage: boolea
           {rows.map((a: GroupAnnouncement) => (
             <View key={a.id} className={`rounded-xl p-3 border ${a.isPinned ? 'bg-amber-50 border-amber-200' : 'bg-neutral-50 border-neutral-100'}`}>
               <View className="flex-row items-start gap-2">
-                {a.isPinned ? <Pin size={14} color="#B45309" style={{ marginTop: 2 }} /> : null}
+                {a.isPinned ? <Pin size={14} color={nc('#B45309')} style={{ marginTop: 2 }} /> : null}
                 <Text className="flex-1 text-sm font-bold text-neutral-900">{a.judul}</Text>
                 {canManage ? (
                   <View className="flex-row gap-3">
@@ -172,7 +173,7 @@ function AnnouncementsTab({ root, canManage }: { root: string; canManage: boolea
                         updateMut.mutate({ id: a.id, body: { isPinned: !a.isPinned } }, { onError: (e) => showToast(errMsg(e), 'error') })
                       }
                     >
-                      {a.isPinned ? <PinOff size={15} color="#737373" /> : <Pin size={15} color="#737373" />}
+                      {a.isPinned ? <PinOff size={15} color={nc('#737373')} /> : <Pin size={15} color={nc('#737373')} />}
                     </Pressable>
                     <Pressable
                       hitSlop={8}
@@ -205,11 +206,11 @@ function Sheet({ visible, title, onClose, children }: { visible: boolean; title:
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={onClose} />
-        <View className="bg-white rounded-t-3xl p-5" style={{ maxHeight: '88%' }}>
+        <View className="bg-card rounded-t-3xl p-5" style={{ maxHeight: '88%' }}>
           <View className="flex-row items-center justify-between mb-3">
             <Text className="text-lg font-bold text-neutral-900">{title}</Text>
             <Pressable onPress={onClose} hitSlop={10}>
-              <X size={18} color="#737373" />
+              <X size={18} color={nc('#737373')} />
             </Pressable>
           </View>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 12, paddingBottom: 8 }}>
@@ -227,7 +228,7 @@ function ToggleRow({ label, value, onChange }: { label: string; value: boolean; 
   return (
     <View className="flex-row items-center justify-between">
       <Text className="text-sm text-neutral-800 flex-1 pr-3">{label}</Text>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: '#F97316', false: '#D4D4D4' }} />
+      <Switch value={value} onValueChange={onChange} trackColor={{ true: '#F97316', false: nc('#D4D4D4') }} />
     </View>
   );
 }
@@ -251,14 +252,14 @@ function CreateAnnouncementModal({ root, visible, onClose }: { root: string; vis
   return (
     <Sheet visible={visible} title={t('gc.ann_create')} onClose={close}>
       <Text className="text-sm font-semibold text-neutral-800">{t('gc.ann_title')}</Text>
-      <TextInput value={judul} onChangeText={setJudul} maxLength={200} placeholder={t('gc.ann_title_ph')} placeholderTextColor="#A3A3A3" className={inputCls} />
+      <TextInput value={judul} onChangeText={setJudul} maxLength={200} placeholder={t('gc.ann_title_ph')} placeholderTextColor={nc('#A3A3A3')} className={inputCls} />
       <Text className="text-sm font-semibold text-neutral-800">{t('gc.ann_body')}</Text>
       <TextInput
         value={isi}
         onChangeText={setIsi}
         maxLength={5000}
         multiline
-        placeholderTextColor="#A3A3A3"
+        placeholderTextColor={nc('#A3A3A3')}
         className={inputCls}
         style={{ minHeight: 110, textAlignVertical: 'top' }}
       />
@@ -356,7 +357,7 @@ function PollCard({ root, poll, canManage }: { root: string; poll: GroupPoll; ca
         {canManage ? (
           <View className="flex-row gap-3">
             <Pressable hitSlop={8} onPress={showVoters}>
-              <Users size={15} color="#737373" />
+              <Users size={15} color={nc('#737373')} />
             </Pressable>
             <Pressable
               hitSlop={8}
@@ -364,7 +365,7 @@ function PollCard({ root, poll, canManage }: { root: string; poll: GroupPoll; ca
                 updateMut.mutate({ id: poll.id, isClosed: !poll.isClosed }, { onError: (e) => showToast(errMsg(e), 'error') })
               }
             >
-              {poll.isClosed ? <Unlock size={15} color="#737373" /> : <Lock size={15} color="#737373" />}
+              {poll.isClosed ? <Unlock size={15} color={nc('#737373')} /> : <Lock size={15} color={nc('#737373')} />}
             </Pressable>
             <Pressable
               hitSlop={8}
@@ -402,7 +403,7 @@ function PollCard({ root, poll, canManage }: { root: string; poll: GroupPoll; ca
               <Pressable
                 key={o.id}
                 onPress={() => toggle(o.id)}
-                className={`flex-row items-center gap-2 px-3 py-2.5 rounded-xl border ${on ? 'border-brand-500 bg-brand-50' : 'border-neutral-200 bg-white'}`}
+                className={`flex-row items-center gap-2 px-3 py-2.5 rounded-xl border ${on ? 'border-brand-500 bg-brand-50' : 'border-neutral-200 bg-card'}`}
               >
                 <View
                   {...gx(`w-5 h-5 items-center justify-center border-2 ${poll.multiple ? 'rounded-md' : 'rounded-full'} ${on ? 'border-brand-500 bg-brand-500' : 'border-neutral-300'}`)}
@@ -493,7 +494,7 @@ function CreatePollModal({ root, visible, onClose }: { root: string; visible: bo
   return (
     <Sheet visible={visible} title={t('gc.poll_create')} onClose={close}>
       <Text className="text-sm font-semibold text-neutral-800">{t('gc.poll_question')}</Text>
-      <TextInput value={pertanyaan} onChangeText={setPertanyaan} maxLength={300} placeholder={t('gc.poll_question_ph')} placeholderTextColor="#A3A3A3" className={inputCls} />
+      <TextInput value={pertanyaan} onChangeText={setPertanyaan} maxLength={300} placeholder={t('gc.poll_question_ph')} placeholderTextColor={nc('#A3A3A3')} className={inputCls} />
       <Text className="text-sm font-semibold text-neutral-800">{t('gc.poll_desc')}</Text>
       <TextInput value={deskripsi} onChangeText={setDeskripsi} maxLength={2000} multiline className={inputCls} style={{ minHeight: 60, textAlignVertical: 'top' }} />
       <Text className="text-sm font-semibold text-neutral-800">{t('gc.poll_options')}</Text>
@@ -504,12 +505,12 @@ function CreatePollModal({ root, visible, onClose }: { root: string; visible: bo
             onChangeText={(v) => setOptions(options.map((x, j) => (j === i ? v : x)))}
             maxLength={200}
             placeholder={t('gc.option_n', { n: i + 1 })}
-            placeholderTextColor="#A3A3A3"
+            placeholderTextColor={nc('#A3A3A3')}
             className={`flex-1 ${inputCls}`}
           />
           {options.length > 2 ? (
             <Pressable hitSlop={8} onPress={() => setOptions(options.filter((_, j) => j !== i))}>
-              <X size={16} color="#A3A3A3" />
+              <X size={16} color={nc('#A3A3A3')} />
             </Pressable>
           ) : null}
         </View>
@@ -529,7 +530,7 @@ function CreatePollModal({ root, visible, onClose }: { root: string; visible: bo
             <Pressable
               key={d.key}
               onPress={() => setDays(d.days)}
-              {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
+              {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-300'}`)}
             >
               <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>{t(d.key)}</Text>
             </Pressable>

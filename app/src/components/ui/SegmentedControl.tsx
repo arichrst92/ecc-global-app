@@ -31,7 +31,7 @@ export function SegmentedControl<T extends string>({ value, options, onChange, l
               {...gx(`flex-1 py-2.5 rounded-lg border items-center ${
                 selected
                   ? 'bg-brand-500 border-brand-500'
-                  : 'bg-white border-neutral-200'
+                  : 'bg-card border-neutral-200'
               }`)}
             >
               <Text

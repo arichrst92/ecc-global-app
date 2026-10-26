@@ -10,6 +10,7 @@ import {
 import { ImageOff } from 'lucide-react-native';
 
 import { env } from '@/config/env';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Image wrapper dengan graceful fallback kalau:
@@ -43,7 +44,7 @@ function normalizeUri(uri: string): string {
   return `${base}${path}`;
 }
 
-export function SafeImage({ uri, containerStyle, placeholderBg = '#F5F5F5', style, ...rest }: Props) {
+export function SafeImage({ uri, containerStyle, placeholderBg = nc('#F5F5F5'), style, ...rest }: Props) {
   const [failed, setFailed] = useState(false);
 
   const hasUri = !!uri && uri.trim().length > 0;
@@ -58,7 +59,7 @@ export function SafeImage({ uri, containerStyle, placeholderBg = '#F5F5F5', styl
           style as object,
         ]}
       >
-        <ImageOff size={32} color="#A3A3A3" />
+        <ImageOff size={32} color={nc('#A3A3A3')} />
       </View>
     );
   }

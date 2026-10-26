@@ -51,6 +51,7 @@ import {
 import type { InAppNotification } from '@/types/notification';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /* ==============================================================
  * ICON RENDERER
@@ -177,14 +178,14 @@ export default function NotificationsScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
             accessibilityLabel={t('common.back')}
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('notifications.title')}
@@ -281,7 +282,7 @@ function NotifRow({
       className={`p-3 rounded-2xl flex-row items-start gap-3 ${
         isUnread
           ? 'bg-brand-50 border border-brand-100'
-          : 'bg-white border border-neutral-100'
+          : 'bg-card border border-neutral-100'
       }`}
     >
       <View
@@ -327,7 +328,7 @@ function EmptyState() {
   return (
     <View className="flex-1 items-center justify-center px-8">
       <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-4">
-        <Bell size={32} color="#A3A3A3" />
+        <Bell size={32} color={nc('#A3A3A3')} />
       </View>
       <Text className="text-lg font-semibold text-neutral-700">
         {t('notifications.empty_title')}

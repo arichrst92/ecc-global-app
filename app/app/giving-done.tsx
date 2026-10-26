@@ -8,6 +8,7 @@ import { Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { goBack } from '@/utils/nav';
+import { isDark } from '@/theme/ThemeRoot';
 
 export default function GivingDoneSink() {
   const router = useRouter();
@@ -22,5 +23,5 @@ export default function GivingDoneSink() {
     goBack(router, '/');
   }, [router]);
 
-  return <View style={{ flex: 1, backgroundColor: '#fff' }} />;
+  return <View style={{ flex: 1, backgroundColor: isDark() ? '#0F0F10' : '#fff' }} />;
 }

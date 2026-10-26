@@ -49,6 +49,7 @@ import {
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function VisitDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -168,13 +169,13 @@ export default function VisitDetailScreen() {
   if (!visit) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
           </View>
         </SafeAreaView>
@@ -258,7 +259,7 @@ export default function VisitDetailScreen() {
         </Text>
         <Pressable
           onPress={() => router.push(`/jemaat/${visit.lawan.id}` as never)}
-          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-4"
+          className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-4"
         >
           <Avatar
             name={visit.lawan.namaLengkap}
@@ -285,7 +286,7 @@ export default function VisitDetailScreen() {
               <MessageCircle size={16} color="#16A34A" />
             </Pressable>
           ) : null}
-          <ChevronRight size={16} color="#A3A3A3" />
+          <ChevronRight size={16} color={nc('#A3A3A3')} />
         </Pressable>
 
         {/* My note */}
@@ -294,7 +295,7 @@ export default function VisitDetailScreen() {
         </Text>
         <Pressable
           onPress={() => setEditNoteOpen(true)}
-          className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4"
+          className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4"
         >
           {visit.myNote ? (
             <Text className="text-sm text-neutral-700 leading-relaxed">
@@ -302,7 +303,7 @@ export default function VisitDetailScreen() {
             </Text>
           ) : (
             <View className="flex-row items-center gap-2">
-              <MessageSquare size={16} color="#A3A3A3" />
+              <MessageSquare size={16} color={nc('#A3A3A3')} />
               <Text className="text-sm text-neutral-400 italic flex-1">
                 {t('visit.my_note_empty')}
               </Text>
@@ -320,14 +321,14 @@ export default function VisitDetailScreen() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
           {t('visit.lawan_note_section', { name: visit.lawan.namaLengkap.split(' ')[0] })}
         </Text>
-        <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4">
+        <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
           {visit.noteLawan ? (
             <Text className="text-sm text-neutral-700 leading-relaxed">
               {visit.noteLawan}
             </Text>
           ) : (
             <View className="flex-row items-center gap-2">
-              <MessageSquare size={16} color="#A3A3A3" />
+              <MessageSquare size={16} color={nc('#A3A3A3')} />
               <Text className="text-sm text-neutral-400 italic flex-1">
                 {t('visit.lawan_note_empty')}
               </Text>
@@ -339,7 +340,7 @@ export default function VisitDetailScreen() {
         {canCancel ? (
           <Pressable
             onPress={() => setConfirmDeleteOpen(true)}
-            className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+            className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
           >
             <View className="w-10 h-10 rounded-xl bg-red-50 items-center justify-center">
               <Trash2 size={18} color="#DC2626" />
@@ -373,7 +374,7 @@ export default function VisitDetailScreen() {
           >
             <Pressable
               onPress={() => {}}
-              className="bg-white rounded-t-3xl p-5 pb-8"
+              className="bg-card rounded-t-3xl p-5 pb-8"
             >
               <View className="flex-row items-center mb-3">
                 <Text className="text-lg font-bold text-neutral-900 flex-1">
@@ -383,7 +384,7 @@ export default function VisitDetailScreen() {
                   onPress={() => setEditMetaOpen(false)}
                   className="w-8 h-8 items-center justify-center"
                 >
-                  <X size={18} color="#737373" />
+                  <X size={18} color={nc('#737373')} />
                 </Pressable>
               </View>
 
@@ -438,7 +439,7 @@ export default function VisitDetailScreen() {
           >
             <Pressable
               onPress={() => {}}
-              className="bg-white rounded-t-3xl p-5 pb-8"
+              className="bg-card rounded-t-3xl p-5 pb-8"
             >
               <View className="flex-row items-center mb-3">
                 <Text className="text-lg font-bold text-neutral-900 flex-1">
@@ -448,7 +449,7 @@ export default function VisitDetailScreen() {
                   onPress={() => setEditNoteOpen(false)}
                   className="w-8 h-8 items-center justify-center"
                 >
-                  <X size={18} color="#737373" />
+                  <X size={18} color={nc('#737373')} />
                 </Pressable>
               </View>
 
@@ -494,7 +495,7 @@ export default function VisitDetailScreen() {
         >
           <Pressable
             onPress={() => {}}
-            className="bg-white rounded-2xl p-5 w-full max-w-sm"
+            className="bg-card rounded-2xl p-5 w-full max-w-sm"
           >
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <Trash2 size={24} color="#DC2626" />

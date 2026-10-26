@@ -23,6 +23,7 @@ import {
 import { Chip, FilterTabs, PrayerStatusBadge, fmtDate, untukLabel } from '@/components/doa/DoaBits';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 type MainTab = 'mine' | 'assigned';
 
@@ -39,10 +40,10 @@ export default function DoaScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('doa.title')}</Text>
@@ -155,7 +156,7 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
               key={p.id}
               onPress={() => router.push(`/doa/${p.id}` as never)}
               onLongPress={() => confirmDelete(p)}
-              className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+              className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
             >
               <View className="flex-1 min-w-0 gap-1">
                 <View className="flex-row items-center gap-2">
@@ -170,10 +171,10 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
                   <Text className="text-[11px] text-neutral-400">
                     {t('doa.for')}: {untukLabel(t, p.untuk, p.untukNama)} · {fmtDate(p.createdAt, i18n.language)}
                   </Text>
-                  {p.isAnonim ? <EyeOff size={11} color="#A3A3A3" /> : null}
+                  {p.isAnonim ? <EyeOff size={11} color={nc('#A3A3A3')} /> : null}
                 </View>
               </View>
-              <ChevronRight size={16} color="#A3A3A3" />
+              <ChevronRight size={16} color={nc('#A3A3A3')} />
             </Pressable>
           ))}
           <View className="mt-2">
@@ -228,7 +229,7 @@ function AssignedList() {
           <Pressable
             key={p.id}
             onPress={() => router.push(`/doa/assigned/${p.id}` as never)}
-            className="bg-white rounded-2xl p-4 border border-neutral-100 gap-1.5"
+            className="bg-card rounded-2xl p-4 border border-neutral-100 gap-1.5"
           >
             <View className="flex-row items-center gap-2">
               <Text className="text-sm font-semibold text-neutral-900 flex-1" numberOfLines={1}>

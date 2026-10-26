@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Platform, TextInput, View } from 'react-native';
+import { nc } from '@/theme/ThemeRoot';
 
 type Props = {
   length?: number;
@@ -71,7 +72,7 @@ export function OtpInput({
             height: 56,
             fontSize: 22,
             fontWeight: '600',
-            color: '#171717',
+            color: nc('#171717'),
             textAlign: 'center',
             // Android: hilangkan font padding extra yang bikin off-center
             ...(Platform.OS === 'android' ? { includeFontPadding: false, paddingVertical: 0 } : {}),
@@ -79,7 +80,7 @@ export function OtpInput({
             ...(Platform.OS === 'ios' ? { paddingTop: 0, paddingBottom: 0 } : {}),
           }}
           className={`rounded-xl border ${
-            d ? 'border-brand-500 bg-brand-50' : 'border-neutral-300 bg-white'
+            d ? 'border-brand-500 bg-brand-50' : 'border-neutral-300 bg-card'
           }`}
         />
       ))}

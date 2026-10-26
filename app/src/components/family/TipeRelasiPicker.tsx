@@ -31,6 +31,7 @@ import {
 import { useTipeRelasiGrouped } from '@/hooks/useTipeRelasi';
 import type { TipeRelasi, TipeRelasiCategory } from '@/types/tipeRelasi';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Props = {
   value: TipeRelasi | null;
@@ -54,14 +55,14 @@ export function TipeRelasiPicker({ value, onChange, disabled }: Props) {
         className={`flex-row items-center justify-between border rounded-2xl px-4 py-3 ${
           value
             ? 'border-brand-500 bg-brand-50'
-            : 'border-neutral-200 bg-white'
+            : 'border-neutral-200 bg-card'
         } ${disabled ? 'opacity-50' : ''}`}
       >
         <View className="flex-row items-center gap-2 flex-1">
           {value ? (
             <UserCircle2 size={18} color="#EA580C" />
           ) : (
-            <Users size={18} color="#A3A3A3" />
+            <Users size={18} color={nc('#A3A3A3')} />
           )}
           <Text
             className={`text-sm ${
@@ -74,7 +75,7 @@ export function TipeRelasiPicker({ value, onChange, disabled }: Props) {
             {value ? value.nama : t('family.tipe_placeholder')}
           </Text>
         </View>
-        <ChevronDown size={18} color="#525252" />
+        <ChevronDown size={18} color={nc('#525252')} />
       </Pressable>
 
       <Modal
@@ -88,7 +89,7 @@ export function TipeRelasiPicker({ value, onChange, disabled }: Props) {
           onPress={() => setOpen(false)}
         >
           <Pressable
-            className="mt-auto bg-white rounded-t-3xl"
+            className="mt-auto bg-card rounded-t-3xl"
             style={{ maxHeight: '80%' }}
             onPress={(e) => e.stopPropagation()}
           >
@@ -102,7 +103,7 @@ export function TipeRelasiPicker({ value, onChange, disabled }: Props) {
                 className="w-9 h-9 items-center justify-center rounded-full bg-neutral-100"
                 accessibilityLabel={t('common.close')}
               >
-                <X size={16} color="#525252" />
+                <X size={16} color={nc('#525252')} />
               </Pressable>
             </View>
 
@@ -243,13 +244,13 @@ function categoryFgColor(kategori: TipeRelasiCategory): string {
     case 'anak':
       return '#059669';
     case 'saudara':
-      return '#1D4ED8';
+      return nc('#1D4ED8');
     case 'kakeknenek':
       return '#7C3AED';
     case 'cucu':
       return '#D97706';
     case 'walilain':
-      return '#525252';
+      return nc('#525252');
   }
 }
 

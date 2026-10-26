@@ -14,6 +14,7 @@ import { formatDate } from '@/utils/date';
 import { buildRenunganShareUrl } from '@/utils/share';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function RenunganDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -92,7 +93,7 @@ export default function RenunganDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-card">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Floating header */}
         <View className="absolute top-0 left-0 right-0 z-10" pointerEvents="box-none">
@@ -170,7 +171,7 @@ export default function RenunganDetailScreen() {
                 {item.judul}
               </Text>
               <View className="flex-row items-center gap-2 mb-4">
-                <Calendar size={14} color="#737373" />
+                <Calendar size={14} color={nc('#737373')} />
                 <Text className="text-xs text-neutral-500">
                   {formatDate(item.tanggal, lang)}
                 </Text>
@@ -192,7 +193,7 @@ export default function RenunganDetailScreen() {
 
       {/* Bottom prev/next nav */}
       {item ? (
-        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-neutral-100">
+        <View className="absolute bottom-0 left-0 right-0 bg-card border-t border-neutral-100">
           <SafeAreaView edges={['bottom']}>
             <View className="flex-row px-3 py-2 gap-2">
               <NavButton
@@ -234,13 +235,13 @@ function NavButton({
         disabled ? 'bg-neutral-100' : 'bg-brand-50 border border-brand-200'
       }`}
     >
-      {direction === 'prev' ? <Icon size={16} color={disabled ? '#A3A3A3' : '#EA580C'} /> : null}
+      {direction === 'prev' ? <Icon size={16} color={disabled ? nc('#A3A3A3') : '#EA580C'} /> : null}
       <Text
         className={`text-sm font-semibold ${disabled ? 'text-neutral-400' : 'text-brand-700'}`}
       >
         {label}
       </Text>
-      {direction === 'next' ? <Icon size={16} color={disabled ? '#A3A3A3' : '#EA580C'} /> : null}
+      {direction === 'next' ? <Icon size={16} color={disabled ? nc('#A3A3A3') : '#EA580C'} /> : null}
     </Pressable>
   );
 }

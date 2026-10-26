@@ -11,6 +11,7 @@ import { listMyFeedback } from '@/api/feedback';
 import { FeedbackStatusBadge, FeedbackTipeBadge, fmtFeedbackDate } from '@/components/feedback/FeedbackBits';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function MyFeedbackScreen() {
   const { t, i18n } = useTranslation();
@@ -21,10 +22,10 @@ export default function MyFeedbackScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('feedback.title')}</Text>
@@ -58,7 +59,7 @@ export default function MyFeedbackScreen() {
               <Pressable
                 key={f.id}
                 onPress={() => router.push(`/feedback/${f.id}` as never)}
-                className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+                className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
               >
                 <View className="flex-1 min-w-0">
                   <View className="flex-row items-center gap-2 mb-1">
@@ -81,7 +82,7 @@ export default function MyFeedbackScreen() {
                     ) : null}
                   </View>
                 </View>
-                <ChevronRight size={16} color="#A3A3A3" />
+                <ChevronRight size={16} color={nc('#A3A3A3')} />
               </Pressable>
             ))}
             <View className="mt-2">

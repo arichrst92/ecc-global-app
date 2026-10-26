@@ -17,6 +17,7 @@ import { cancelReservasiFor, getReservasiOptions, postReservasi, type ReservasiM
 import { formatDateWithDay } from '@/utils/date';
 import { formatVenueRange } from '@/utils/time';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 const errMsg = (e: unknown, fallback: string) => (e instanceof Error && e.message ? e.message : fallback);
 
@@ -99,7 +100,7 @@ export function ReservasiModal({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl px-5 pt-4 pb-8" style={{ maxHeight: '90%' }}>
+        <View className="bg-card rounded-t-3xl px-5 pt-4 pb-8" style={{ maxHeight: '90%' }}>
           <View className="flex-row items-center mb-1">
             <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center mr-3">
               <CalendarPlus size={20} color="#EA580C" />
@@ -113,7 +114,7 @@ export function ReservasiModal({
               ) : null}
             </View>
             <Pressable onPress={onClose} className="w-9 h-9 items-center justify-center">
-              <X size={20} color="#737373" />
+              <X size={20} color={nc('#737373')} />
             </Pressable>
           </View>
 
@@ -148,7 +149,7 @@ export function ReservasiModal({
                           ? 'bg-neutral-50 border-neutral-200 opacity-50'
                           : on
                             ? 'bg-brand-500 border-brand-500'
-                            : 'bg-white border-neutral-200'
+                            : 'bg-card border-neutral-200'
                       }`)}
                     >
                       <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-800'}`}>
@@ -183,7 +184,7 @@ export function ReservasiModal({
                             ? 'bg-neutral-50 border-neutral-200 opacity-60'
                             : on
                               ? 'bg-brand-50 border-brand-300'
-                              : 'bg-white border-neutral-200'
+                              : 'bg-card border-neutral-200'
                       }`}
                     >
                       <Avatar name={m.namaLengkap} fotoUrl={m.fotoUrl} size={36} />
@@ -209,7 +210,7 @@ export function ReservasiModal({
                         <Pressable
                           onPress={() => askCancel(m)}
                           disabled={cancel.isPending}
-                          className="px-2.5 py-1 rounded-full border border-red-200 bg-white"
+                          className="px-2.5 py-1 rounded-full border border-red-200 bg-card"
                         >
                           <Text className="text-[11px] font-semibold text-red-600">{t('reservasi.cancel_btn')}</Text>
                         </Pressable>

@@ -17,6 +17,7 @@ import { useSignupStore } from '@/stores/signup.store';
 import { useBranches } from '@/hooks/useBranches';
 import { ApiError } from '@/types/api';
 import type { JenisJemaat } from '@/types/auth';
+import { nc } from '@/theme/ThemeRoot';
 
 type FieldErrors = Partial<{
   namaLengkap: string;
@@ -147,9 +148,9 @@ export default function SignupDataScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-50" edges={['top', 'bottom']}>
-      <View className="px-4 py-2 bg-white">
+      <View className="px-4 py-2 bg-card">
         <Pressable onPress={handleBack} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={20} color="#171717" />
+          <ArrowLeft size={20} color={nc('#171717')} />
         </Pressable>
       </View>
 
@@ -168,7 +169,7 @@ export default function SignupDataScreen() {
                 : 'bg-neutral-50 border border-neutral-200'
             }`}
           >
-            <Clock size={14} color={secondsLeft < 120 ? '#D97706' : '#737373'} />
+            <Clock size={14} color={secondsLeft < 120 ? '#D97706' : nc('#737373')} />
             <Text
               className={`text-xs flex-1 ${
                 secondsLeft < 120 ? 'text-amber-800 font-medium' : 'text-neutral-600'
@@ -183,7 +184,7 @@ export default function SignupDataScreen() {
         ) : null}
 
         {/* Form fields — minimal: nama, gender, cabang */}
-        <View className="bg-white rounded-2xl p-4 gap-3 border border-neutral-100">
+        <View className="bg-card rounded-2xl p-4 gap-3 border border-neutral-100">
           <TextField
             label={t('signup.full_name')}
             placeholder={t('signup.full_name_placeholder')}
@@ -241,7 +242,7 @@ export default function SignupDataScreen() {
         </View>
 
         {/* Q1: Jenis Jemaat (Tetap vs New Comer) */}
-        <View className="bg-white rounded-2xl p-4 mt-3 gap-2 border border-neutral-100">
+        <View className="bg-card rounded-2xl p-4 mt-3 gap-2 border border-neutral-100">
           <Text className="text-sm font-semibold text-neutral-900">
             {t('signup.q_jenis_jemaat_title')}
           </Text>
@@ -265,7 +266,7 @@ export default function SignupDataScreen() {
         </View>
 
         <View className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl flex-row gap-2">
-          <Info size={16} color="#1d4ed8" />
+          <Info size={16} color={nc('#1d4ed8')} />
           <Text className="text-xs text-blue-800 flex-1">{t('signup.minimal_notice')}</Text>
         </View>
 
@@ -275,7 +276,7 @@ export default function SignupDataScreen() {
         </View>
       </ScrollView>
 
-      <View className="px-5 py-3 border-t bg-white border-neutral-100">
+      <View className="px-5 py-3 border-t bg-card border-neutral-100">
         <Button
           label={t('signup.submit')}
           onPress={submit}

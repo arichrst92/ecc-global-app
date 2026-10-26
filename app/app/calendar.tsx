@@ -16,6 +16,7 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Calendar screen — unified view dari Event + Ibadah + Birthday family
@@ -251,13 +252,13 @@ export default function CalendarScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">
             {t('calendar.title')}
@@ -297,18 +298,18 @@ export default function CalendarScreen() {
         <View className="flex-row items-center justify-between mb-4">
           <Pressable
             onPress={prevMonth}
-            className="w-10 h-10 rounded-full bg-white border border-neutral-200 items-center justify-center"
+            className="w-10 h-10 rounded-full bg-card border border-neutral-200 items-center justify-center"
           >
-            <ChevronLeft size={18} color="#525252" />
+            <ChevronLeft size={18} color={nc('#525252')} />
           </Pressable>
           <Text className="text-lg font-bold text-neutral-900 capitalize">
             {monthName}
           </Text>
           <Pressable
             onPress={nextMonth}
-            className="w-10 h-10 rounded-full bg-white border border-neutral-200 items-center justify-center"
+            className="w-10 h-10 rounded-full bg-card border border-neutral-200 items-center justify-center"
           >
-            <ChevronRight size={18} color="#525252" />
+            <ChevronRight size={18} color={nc('#525252')} />
           </Pressable>
         </View>
 
@@ -324,7 +325,7 @@ export default function CalendarScreen() {
         </View>
 
         {/* Grid */}
-        <View className="bg-white rounded-2xl p-2 border border-neutral-100">
+        <View className="bg-card rounded-2xl p-2 border border-neutral-100">
           <View className="flex-row flex-wrap">
             {cells.map((day, idx) => {
               if (day === null) {
@@ -416,7 +417,7 @@ export default function CalendarScreen() {
               {selectedDay} {monthName}
             </Text>
             {selectedItems.length === 0 ? (
-              <View className="bg-white rounded-2xl p-4 border border-neutral-100 items-center">
+              <View className="bg-card rounded-2xl p-4 border border-neutral-100 items-center">
                 <Text className="text-sm text-neutral-500">
                   {t('calendar.empty_day')}
                 </Text>
@@ -488,7 +489,7 @@ function ItemRow({
     return (
       <Pressable
         onPress={() => router.push(`/ibadah/${item.id}?tanggal=${item.date}` as never)}
-        className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+        className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
       >
         <View className="w-10 h-10 rounded-xl bg-amber-50 items-center justify-center">
           <Church size={18} color="#D97706" />
@@ -521,7 +522,7 @@ function ItemRow({
     return (
       <Pressable
         onPress={() => router.push(`/event/${item.id}`)}
-        className={`bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 ${
+        className={`bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 ${
           isPast ? 'opacity-60' : ''
         }`}
       >
@@ -545,7 +546,7 @@ function ItemRow({
   }
   // birthday
   return (
-    <View className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100">
+    <View className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100">
       <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
         <Cake size={18} color="#EC4899" />
       </View>

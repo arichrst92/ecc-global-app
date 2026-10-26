@@ -12,6 +12,7 @@ import { Pause, Play, SkipForward } from 'lucide-react-native';
 import { useCurrentTrack, useWorshipPlayer } from '@/stores/worship-player.store';
 import { Cover } from './Cover';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 const TAB_SCREENS = new Set(['ibadah', 'event', 'ckids', 'persembahan', 'profile']);
 
@@ -40,7 +41,7 @@ export function MiniPlayer() {
     <View pointerEvents="box-none" style={{ position: 'absolute', left: 10, right: 10, bottom }}>
       <Pressable
         onPress={() => router.push('/worship/player' as never)}
-        className="bg-white rounded-2xl border border-neutral-200 overflow-hidden"
+        className="bg-card rounded-2xl border border-neutral-200 overflow-hidden"
         style={{ shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 6 }}
       >
         <View className="flex-row items-center gap-3 px-3 py-2">
@@ -58,7 +59,7 @@ export function MiniPlayer() {
             {loading ? <ActivityIndicator size="small" color="#fff" /> : playing ? <Pause size={18} color="#fff" /> : <Play size={18} color="#fff" />}
           </Pressable>
           <Pressable onPress={() => void next()} hitSlop={8} className="w-8 h-9 items-center justify-center">
-            <SkipForward size={20} color="#404040" />
+            <SkipForward size={20} color={nc('#404040')} />
           </Pressable>
         </View>
         <View className="h-[3px] bg-neutral-100">

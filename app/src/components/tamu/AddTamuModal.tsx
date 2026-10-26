@@ -13,6 +13,7 @@ import { PhoneInput } from '@/components/ui/PhoneInput';
 import { addMyTamu, type Tamu } from '@/api/tamu';
 import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
+import { nc } from '@/theme/ThemeRoot';
 
 export function AddTamuModal({
   visible,
@@ -56,14 +57,14 @@ export function AddTamuModal({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={close} />
-        <View className="bg-white rounded-t-3xl p-5 gap-3">
+        <View className="bg-card rounded-t-3xl p-5 gap-3">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-2">
               <UserPlus size={18} color="#7C3AED" />
               <Text className="text-lg font-bold text-neutral-900">{t('tamu.add_title')}</Text>
             </View>
             <Pressable onPress={close} hitSlop={10}>
-              <X size={18} color="#737373" />
+              <X size={18} color={nc('#737373')} />
             </Pressable>
           </View>
           <Text className="text-xs text-neutral-500 leading-5">{t('tamu.add_hint')}</Text>
@@ -75,7 +76,7 @@ export function AddTamuModal({
               setErr(null);
             }}
             placeholder={t('tamu.nama_ph')}
-            placeholderTextColor="#A3A3A3"
+            placeholderTextColor={nc('#A3A3A3')}
             maxLength={255}
             className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
           />

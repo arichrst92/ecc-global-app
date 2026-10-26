@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { Baby, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
+import { nc } from '@/theme/ThemeRoot';
 
 export function PickupInputModal({
   visible,
@@ -76,7 +77,7 @@ export function PickupInputModal({
         className="flex-1 bg-black/60 justify-end"
       >
         <Pressable onPress={handleClose} className="flex-1" />
-        <View className="bg-white rounded-t-3xl p-5">
+        <View className="bg-card rounded-t-3xl p-5">
           <View className="items-center mb-2">
             <View className="w-10 h-1 bg-neutral-300 rounded-full" />
           </View>
@@ -88,7 +89,7 @@ export function PickupInputModal({
               </Text>
             </View>
             <Pressable onPress={handleClose} className="w-8 h-8 items-center justify-center">
-              <X size={18} color="#737373" />
+              <X size={18} color={nc('#737373')} />
             </Pressable>
           </View>
           <Text className="text-xs text-neutral-500 mb-3 leading-relaxed">
@@ -99,7 +100,7 @@ export function PickupInputModal({
             value={code}
             onChangeText={handleChange}
             placeholder="000000"
-            placeholderTextColor="#D4D4D4"
+            placeholderTextColor={nc('#D4D4D4')}
             keyboardType="number-pad"
             autoFocus
             maxLength={6}

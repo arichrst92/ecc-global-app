@@ -77,7 +77,7 @@ export function SoftUpdatePrompt() {
         />
 
         <View
-          className="bg-white rounded-t-3xl w-full max-w-md self-center"
+          className="bg-card rounded-t-3xl w-full max-w-md self-center"
           style={{ maxHeight: height * 0.85, paddingBottom: Math.max(insets.bottom, 16) + 8 }}
         >
           <View className="items-center pt-3 pb-2">

@@ -28,6 +28,7 @@ import { formatDateWithDay, parseLocalDate } from '@/utils/date';
 import type { VisitListItem } from '@/types/visit';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type RoleFilter = 'all' | 'initiator' | 'target';
 
@@ -79,13 +80,13 @@ export default function VisitListScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('visit.title')}
@@ -213,7 +214,7 @@ function VisitRow({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-4 border border-neutral-100 mb-2"
+      className="bg-card rounded-2xl p-4 border border-neutral-100 mb-2"
     >
       <View className="flex-row items-center gap-3 mb-2">
         <Avatar
@@ -251,7 +252,7 @@ function VisitRow({
         </Text>
         {visit.lokasi ? (
           <View className="flex-row items-center gap-1 mt-1">
-            <MapPin size={11} color="#737373" />
+            <MapPin size={11} color={nc('#737373')} />
             <Text className="text-[11px] text-neutral-500 flex-1" numberOfLines={1}>
               {visit.lokasi}
             </Text>
@@ -285,7 +286,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
         </Text>
       </Pressable>
       <View className="flex-row items-center gap-1 mt-6 px-4">
-        <Sparkles size={12} color="#A3A3A3" />
+        <Sparkles size={12} color={nc('#A3A3A3')} />
         <Text className="text-[11px] text-neutral-400 text-center flex-1">
           {t('visit.empty_hint')}
         </Text>

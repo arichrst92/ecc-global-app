@@ -32,6 +32,7 @@ import { useBookNames } from '@/utils/bibleNames';
 import type { BibleBook, Testament } from '@/types/bible';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Bible home — verse of day + continue reading + browse OT/NT + bookmarks.
@@ -118,7 +119,7 @@ export default function BibleHomeScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         {/* Versi Alkitab — dipilih di sini (berlaku untuk semua bacaan) */}
-        <View className="bg-white rounded-2xl p-3 border border-neutral-100 mb-4">
+        <View className="bg-card rounded-2xl p-3 border border-neutral-100 mb-4">
           <View className="flex-row items-center gap-2 mb-2 px-1">
             <Languages size={14} color="#EA580C" />
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('bible.choose_version')}</Text>
@@ -130,7 +131,7 @@ export default function BibleHomeScreen() {
                 <Pressable
                   key={v.code}
                   onPress={() => setSelectedVersion(v.code)}
-                  className={`flex-1 rounded-xl px-3 py-2.5 border ${active ? 'bg-brand-50 border-brand-400' : 'bg-white border-neutral-200'}`}
+                  className={`flex-1 rounded-xl px-3 py-2.5 border ${active ? 'bg-brand-50 border-brand-400' : 'bg-card border-neutral-200'}`}
                 >
                   <View className="flex-row items-center justify-between">
                     <Text className={`text-sm font-bold ${active ? 'text-brand-700' : 'text-neutral-800'}`}>{v.shortName}</Text>
@@ -149,7 +150,7 @@ export default function BibleHomeScreen() {
         </View>
 
         {/* Verse of day */}
-        <View className="bg-white rounded-2xl p-5 border border-brand-100 mb-4">
+        <View className="bg-card rounded-2xl p-5 border border-brand-100 mb-4">
           <View className="flex-row items-center gap-2 mb-3">
             <Sparkles size={16} color="#EA580C" />
             <Text className="text-xs font-bold text-brand-700 uppercase tracking-wider">
@@ -203,7 +204,7 @@ export default function BibleHomeScreen() {
         {bookmarks.length > 0 ? (
           <Pressable
             onPress={() => router.push('/bible/bookmarks')}
-            className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100 mb-4"
+            className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100 mb-4"
           >
             <View className="w-12 h-12 rounded-xl bg-amber-50 items-center justify-center">
               <Bookmark size={22} color="#D97706" />
@@ -216,12 +217,12 @@ export default function BibleHomeScreen() {
                 {bookmarks.length} {t('bible.bookmark').toLowerCase()}
               </Text>
             </View>
-            <ChevronRight size={16} color="#A3A3A3" />
+            <ChevronRight size={16} color={nc('#A3A3A3')} />
           </Pressable>
         ) : null}
 
         {/* OT/NT tabs */}
-        <View className="flex-row bg-white rounded-2xl p-1 border border-neutral-100 mb-3">
+        <View className="flex-row bg-card rounded-2xl p-1 border border-neutral-100 mb-3">
           <Pressable
             onPress={() => setTab('OT')}
             {...gx(`flex-1 py-2.5 items-center rounded-xl ${
@@ -273,7 +274,7 @@ function BookRow({ book, onPress }: { book: BibleBook; onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-xl px-4 py-3 flex-row items-center gap-3 border border-neutral-100"
+      className="bg-card rounded-xl px-4 py-3 flex-row items-center gap-3 border border-neutral-100"
     >
       <View className="w-9 h-9 rounded-lg bg-brand-50 items-center justify-center">
         <Text className="text-[10px] font-bold text-brand-700" numberOfLines={1}>{names.abbr(book)}</Text>
@@ -284,7 +285,7 @@ function BookRow({ book, onPress }: { book: BibleBook; onPress: () => void }) {
           {names.tc('bible.chapters_count', { count: book.totalBab })}
         </Text>
       </View>
-      <ChevronRight size={14} color="#A3A3A3" />
+      <ChevronRight size={14} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }

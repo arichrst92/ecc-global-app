@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { isDark } from '@/theme/ThemeRoot';
 
 export default function EventPembayaranSink() {
   const router = useRouter();
@@ -23,5 +24,5 @@ export default function EventPembayaranSink() {
     router.replace(id ? (`/event/${id}` as never) : ('/' as never));
   }, [id, router]);
 
-  return <View style={{ flex: 1, backgroundColor: '#fff' }} />;
+  return <View style={{ flex: 1, backgroundColor: isDark() ? '#0F0F10' : '#fff' }} />;
 }

@@ -19,6 +19,7 @@ import { TicketShell } from './TicketShell';
 import { SwipeToCheckin } from './SwipeToCheckin';
 import { HadirStamp, Hint, InfoCell, InfoLine, InlineError, RelasiBadge, StatusPill, TicketQR } from './parts';
 import { useOpensLabel, useTicketCheckin, useTicketWindow } from './useTicketCheckin';
+import { nc } from '@/theme/ThemeRoot';
 
 const HERO_ASPECT = 3 / 2;
 const rp = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`;
@@ -107,11 +108,11 @@ export function EventTicketCard({
       <Text className="text-sm font-bold text-neutral-900" numberOfLines={2}>
         {ev.judul}
       </Text>
-      <InfoLine icon={<CalendarDays size={11} color="#737373" />}>
+      <InfoLine icon={<CalendarDays size={11} color={nc('#737373')} />}>
         {eventDateText(ev, i18n.language)}
         {eventTimeText(ev) ? ` · ${eventTimeText(ev)}` : ''}
       </InfoLine>
-      {ev.lokasi ? <InfoLine icon={<MapPin size={11} color="#737373" />}>{ev.lokasi}</InfoLine> : null}
+      {ev.lokasi ? <InfoLine icon={<MapPin size={11} color={nc('#737373')} />}>{ev.lokasi}</InfoLine> : null}
     </View>
   );
 
@@ -171,7 +172,7 @@ export function EventTicketCard({
           onPress={() => router.push(`/event/${ev.id}` as never)}
           className="rounded-full border border-amber-300 bg-amber-50 py-2.5 flex-row items-center justify-center gap-1.5"
         >
-          <CreditCard size={14} color="#B45309" />
+          <CreditCard size={14} color={nc('#B45309')} />
           <Text className="text-xs font-bold text-amber-800">{t('tiket.pay_now')}</Text>
         </Pressable>
         <Hint tone="amber" text={t('tiket.waiting_verify')} />

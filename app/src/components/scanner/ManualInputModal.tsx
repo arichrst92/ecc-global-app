@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Keyboard, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
+import { nc } from '@/theme/ThemeRoot';
 
 export function ManualInputModal({
   visible,
@@ -61,19 +62,19 @@ export function ManualInputModal({
         className="flex-1 bg-black/60 justify-end"
       >
         <Pressable onPress={handleClose} className="flex-1" />
-        <View className="bg-white rounded-t-3xl p-5">
+        <View className="bg-card rounded-t-3xl p-5">
           <View className="items-center mb-2">
             <View className="w-10 h-1 bg-neutral-300 rounded-full" />
           </View>
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center gap-2">
-              <Keyboard size={18} color="#525252" />
+              <Keyboard size={18} color={nc('#525252')} />
               <Text className="text-lg font-bold text-neutral-900">
                 {title ?? t('scanner.manual_title')}
               </Text>
             </View>
             <Pressable onPress={handleClose} className="w-8 h-8 items-center justify-center">
-              <X size={18} color="#737373" />
+              <X size={18} color={nc('#737373')} />
             </Pressable>
           </View>
           <Text className="text-xs text-neutral-500 mb-3 leading-relaxed">
@@ -87,7 +88,7 @@ export function ManualInputModal({
               setError(null);
             }}
             placeholder={placeholder ?? 'ABC23XYZ'}
-            placeholderTextColor="#A3A3A3"
+            placeholderTextColor={nc('#A3A3A3')}
             autoCapitalize="characters"
             autoCorrect={false}
             maxLength={8}

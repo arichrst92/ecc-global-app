@@ -64,6 +64,7 @@ import { GROUP_JENIS_LABELS } from '@/types/group';
 import type { GroupMember } from '@/types/group';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function GroupDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -216,7 +217,7 @@ export default function GroupDetailScreen() {
 
   if (query.isPending) {
     return (
-      <View className="flex-1 bg-white items-center justify-center">
+      <View className="flex-1 bg-card items-center justify-center">
         <ActivityIndicator color="#F97316" />
       </View>
     );
@@ -224,10 +225,10 @@ export default function GroupDetailScreen() {
 
   if (query.isError || !group) {
     return (
-      <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
         <View className="px-4 py-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
         </View>
         <View className="flex-1 items-center justify-center px-8">
@@ -246,13 +247,13 @@ export default function GroupDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900" numberOfLines={1}>
@@ -270,7 +271,7 @@ export default function GroupDetailScreen() {
               className="w-10 h-10 items-center justify-center"
               hitSlop={8}
             >
-              <Settings size={20} color="#737373" />
+              <Settings size={20} color={nc('#737373')} />
             </Pressable>
           ) : null}
         </View>
@@ -298,14 +299,14 @@ export default function GroupDetailScreen() {
         />
 
         {/* Meta info */}
-        <View className="bg-white p-4 gap-3">
+        <View className="bg-card p-4 gap-3">
           <View className="flex-row items-center gap-3">
-            <MapPin size={16} color="#737373" />
+            <MapPin size={16} color={nc('#737373')} />
             <Text className="text-sm text-neutral-700 flex-1">{group.cabang.nama}</Text>
           </View>
           {group.hari || group.jam ? (
             <View className="flex-row items-center gap-3">
-              <Calendar size={16} color="#737373" />
+              <Calendar size={16} color={nc('#737373')} />
               <Text className="text-sm text-neutral-700 flex-1">
                 {[group.hari, group.jam].filter(Boolean).join(' · ')}
               </Text>
@@ -313,12 +314,12 @@ export default function GroupDetailScreen() {
           ) : null}
           {group.alamat ? (
             <View className="flex-row items-start gap-3">
-              <MapPin size={16} color="#737373" style={{ marginTop: 2 }} />
+              <MapPin size={16} color={nc('#737373')} style={{ marginTop: 2 }} />
               <Text className="text-sm text-neutral-700 flex-1">{group.alamat}</Text>
             </View>
           ) : null}
           <View className="flex-row items-center gap-3">
-            <Users size={16} color="#737373" />
+            <Users size={16} color={nc('#737373')} />
             <Text className="text-sm text-neutral-700">
               {t('group.members_count', { count: group.memberCount })}
             </Text>
@@ -327,7 +328,7 @@ export default function GroupDetailScreen() {
 
         {/* PIC card */}
         {group.picJemaat ? (
-          <View className="bg-white mt-2 p-4 flex-row items-center gap-3">
+          <View className="bg-card mt-2 p-4 flex-row items-center gap-3">
             <Avatar
               size={40}
               name={group.picJemaat.namaLengkap}
@@ -349,7 +350,7 @@ export default function GroupDetailScreen() {
 
         {/* Description */}
         {group.deskripsi ? (
-          <View className="bg-white mt-2 p-4">
+          <View className="bg-card mt-2 p-4">
             <Text className="text-xs font-bold text-neutral-500 uppercase mb-2">
               {t('group.about')}
             </Text>
@@ -359,7 +360,7 @@ export default function GroupDetailScreen() {
 
         {/* PIC/admin: permintaan bergabung */}
         {canManageJoin && (joinRequestsQuery.data?.length ?? 0) > 0 ? (
-          <View className="mx-4 mt-4 bg-white rounded-2xl border border-amber-200 p-4">
+          <View className="mx-4 mt-4 bg-card rounded-2xl border border-amber-200 p-4">
             <Text className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-3">
               {t('group.requests_section', { count: joinRequestsQuery.data?.length ?? 0 })}
             </Text>
@@ -418,7 +419,7 @@ export default function GroupDetailScreen() {
 
         {/* PIC-only: joinCode + QR */}
         {isPIC && group.joinCode ? (
-          <View className="bg-white mt-2 p-4">
+          <View className="bg-card mt-2 p-4">
             <View className="flex-row items-center justify-between mb-2">
               <Text className="text-xs font-bold text-neutral-500 uppercase">
                 {t('group.invitation_code')}
@@ -427,7 +428,7 @@ export default function GroupDetailScreen() {
                 onPress={() => router.push(`/group/${id}/qr` as never)}
                 className="flex-row items-center gap-1 px-2.5 py-1 bg-brand-50 rounded-full"
               >
-                <QrCode size={12} color="#C2410C" />
+                <QrCode size={12} color={nc('#C2410C')} />
                 <Text className="text-xs font-bold text-brand-700">
                   {t('group.show_qr')}
                 </Text>
@@ -443,7 +444,7 @@ export default function GroupDetailScreen() {
                 className="flex-row items-center gap-1 px-2 py-1"
                 hitSlop={8}
               >
-                <RefreshCw size={14} color="#737373" />
+                <RefreshCw size={14} color={nc('#737373')} />
                 <Text className="text-xs text-neutral-600">{t('group.regen_action')}</Text>
               </Pressable>
             </View>
@@ -452,7 +453,7 @@ export default function GroupDetailScreen() {
         ) : null}
 
         {/* Members list */}
-        <View className="bg-white mt-2 p-4">
+        <View className="bg-card mt-2 p-4">
           <View className="flex-row items-center justify-between mb-3">
             <Text className="text-xs font-bold text-neutral-500 uppercase">
               {t('group.members_title', { count: group.memberCount })}
@@ -462,7 +463,7 @@ export default function GroupDetailScreen() {
                 onPress={() => router.push(`/group/${id}/add-member` as never)}
                 className="flex-row items-center gap-1 px-2.5 py-1 bg-brand-50 rounded-full"
               >
-                <UserPlus size={12} color="#C2410C" />
+                <UserPlus size={12} color={nc('#C2410C')} />
                 <Text className="text-xs font-bold text-brand-700">{t('group.add_member')}</Text>
               </Pressable>
             ) : null}
@@ -488,7 +489,7 @@ export default function GroupDetailScreen() {
 
         {/* Children groups (kalau ada) */}
         {group.children.length > 0 ? (
-          <View className="bg-white mt-2 p-4">
+          <View className="bg-card mt-2 p-4">
             <Text className="text-xs font-bold text-neutral-500 uppercase mb-2">
               {t('group.subgroups', { count: group.children.length })}
             </Text>
@@ -512,7 +513,7 @@ export default function GroupDetailScreen() {
         {/* Bottom info kalau non-member private */}
         {!isMember && !group.isPublic && !isPIC ? (
           <View className="mx-4 mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-            <Info size={16} color="#92400e" />
+            <Info size={16} color={nc('#92400e')} />
             <Text className="text-xs text-amber-800 flex-1">
               {t('group.private_info')}
             </Text>
@@ -523,7 +524,7 @@ export default function GroupDetailScreen() {
       {/* Modal alasan tolak (PIC) */}
       <Modal visible={!!rejectingReq} transparent animationType="fade" onRequestClose={() => setRejectingReq(null)}>
         <View className="flex-1 bg-black/40 items-center justify-center px-6">
-          <View className="bg-white rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
+          <View className="bg-card rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
             <Text className="text-base font-bold text-neutral-900 mb-3">
               {t('group.reject_title', { nama: rejectingReq?.nama ?? '' })}
             </Text>
@@ -531,7 +532,7 @@ export default function GroupDetailScreen() {
               value={rejectReason}
               onChangeText={setRejectReason}
               placeholder={t('group.reject_placeholder')}
-              placeholderTextColor="#A3A3A3"
+              placeholderTextColor={nc('#A3A3A3')}
               multiline
               maxLength={300}
               className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
@@ -567,7 +568,7 @@ export default function GroupDetailScreen() {
       </Modal>
 
       {/* Sticky footer — Join / Leave / Dismiss */}
-      <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
+      <SafeAreaView edges={['bottom']} className="bg-card border-t border-neutral-100">
         <View className="px-4 py-3 gap-2">
           {isMember ? (
             <>
@@ -587,14 +588,14 @@ export default function GroupDetailScreen() {
                   loading={leaveMutation.isPending}
                   variant="secondary"
                   fullWidth
-                  leftIcon={<LogOut size={18} color="#171717" />}
+                  leftIcon={<LogOut size={18} color={nc('#171717')} />}
                 />
               )}
             </>
           ) : group.myJoinRequest ? (
             <>
               <View className="flex-row items-center gap-2 bg-amber-50 rounded-xl p-3">
-                <Info size={16} color="#92400e" />
+                <Info size={16} color={nc('#92400e')} />
                 <Text className="flex-1 text-xs text-amber-900">{t('group.pending_note')}</Text>
               </View>
               <Button

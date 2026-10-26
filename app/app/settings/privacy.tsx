@@ -24,6 +24,7 @@ import {
 } from '@/api/privacy';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 const KEY = ['me', 'privacy'] as const;
 
@@ -77,10 +78,10 @@ export default function PrivacyScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">{t('privacy.title')}</Text>
           {q.data?.defaults ? (
@@ -122,11 +123,11 @@ export default function PrivacyScreen() {
                       .map((a) => t(`privacy.aud_${a}`))
                       .join(', ');
               return (
-                <View key={f} className="bg-white rounded-2xl border border-neutral-100 p-4 mb-3">
+                <View key={f} className="bg-card rounded-2xl border border-neutral-100 p-4 mb-3">
                   <Text className="text-sm font-bold text-neutral-900">{t(`privacy.field_${f}`)}</Text>
                   <Text className="text-xs text-neutral-500 mt-0.5">{t(`privacy.field_${f}_sub`)}</Text>
                   <View className="flex-row items-center gap-1.5 mt-2">
-                    {sel.length === 0 ? <Lock size={12} color="#737373" /> : null}
+                    {sel.length === 0 ? <Lock size={12} color={nc('#737373')} /> : null}
                     <Text className="text-xs font-semibold text-neutral-700 flex-1" numberOfLines={2}>
                       {t('privacy.visible_to')}: {summary}
                     </Text>
@@ -141,7 +142,7 @@ export default function PrivacyScreen() {
                           onPress={() => toggle(f, a)}
                           disabled={implied}
                           {...gx(`flex-row items-center gap-1 px-3 py-1.5 rounded-full border ${
-                            on || implied ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-200'
+                            on || implied ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'
                           } ${implied ? 'opacity-50' : ''}`)}
                         >
                           {on || implied ? <Check size={12} color="#fff" /> : null}
@@ -156,7 +157,7 @@ export default function PrivacyScreen() {
               );
             })}
 
-            <View className="bg-white rounded-2xl border border-neutral-100 p-4 mb-3 flex-row items-center gap-3">
+            <View className="bg-card rounded-2xl border border-neutral-100 p-4 mb-3 flex-row items-center gap-3">
               <View className="flex-1">
                 <Text className="text-sm font-bold text-neutral-900">{t('privacy.discoverable')}</Text>
                 <Text className="text-xs text-neutral-500 mt-0.5">{t('privacy.discoverable_sub')}</Text>
@@ -164,7 +165,7 @@ export default function PrivacyScreen() {
               <Switch
                 value={discoverable}
                 onValueChange={setDiscoverable}
-                trackColor={{ true: '#F97316', false: '#D4D4D4' }}
+                trackColor={{ true: '#F97316', false: nc('#D4D4D4') }}
                 thumbColor="#fff"
               />
             </View>
@@ -173,7 +174,7 @@ export default function PrivacyScreen() {
           </ScrollView>
 
           <View
-            className="absolute left-0 right-0 bottom-0 bg-white border-t border-neutral-100 px-4 pt-3"
+            className="absolute left-0 right-0 bottom-0 bg-card border-t border-neutral-100 px-4 pt-3"
             style={{ paddingBottom: insets.bottom + 12 }}
           >
             <Button

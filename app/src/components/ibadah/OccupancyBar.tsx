@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Armchair } from 'lucide-react-native';
 
 import type { IbadahOkupansi } from '@/types/ibadah';
+import { nc } from '@/theme/ThemeRoot';
 
 export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi | null | undefined; compact?: boolean }) {
   const { t, i18n } = useTranslation();
@@ -30,12 +31,12 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
       <View className="mt-3">
         <View className="flex-row items-center justify-between mb-1">
           <View className="flex-row items-center gap-1.5 flex-shrink">
-            <Armchair size={13} color="#737373" />
+            <Armchair size={13} color={nc('#737373')} />
             <Text className="text-xs text-neutral-500" numberOfLines={1}>
               {t('ibadah.occupancy_count', { hadir: nf(data.hadir), seat: nf(data.seat) })}
             </Text>
           </View>
-          <Text className="text-xs font-bold ml-2" style={{ color: over ? '#DC2626' : '#404040' }}>
+          <Text className="text-xs font-bold ml-2" style={{ color: over ? '#DC2626' : nc('#404040') }}>
             {nf(pct)}%
           </Text>
         </View>
@@ -48,7 +49,7 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
   }
 
   return (
-    <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-3">
+    <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3">
       <View className="flex-row items-center gap-3 mb-3">
         <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
           <Armchair size={18} color="#059669" />
@@ -59,7 +60,7 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
             {t('ibadah.occupancy_count', { hadir: nf(data.hadir), seat: nf(data.seat) })}
           </Text>
         </View>
-        <Text className="text-lg font-bold" style={{ color: over ? '#DC2626' : '#171717' }}>
+        <Text className="text-lg font-bold" style={{ color: over ? '#DC2626' : nc('#171717') }}>
           {nf(pct)}%
         </Text>
       </View>

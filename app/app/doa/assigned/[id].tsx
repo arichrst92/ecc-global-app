@@ -14,6 +14,7 @@ import { getAssignedPrayer, markPrayed } from '@/api/prayer';
 import { Chip, PrayerStatusBadge, fmtDate, untukLabel } from '@/components/doa/DoaBits';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function AssignedPrayerScreen() {
   const { t, i18n } = useTranslation();
@@ -43,10 +44,10 @@ export default function AssignedPrayerScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">{t('doa.tab_assigned')}</Text>
         </View>
@@ -64,13 +65,13 @@ export default function AssignedPrayerScreen() {
             contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 14 }}
             keyboardShouldPersistTaps="handled"
           >
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-2.5">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-2.5">
               <View className="flex-row items-center gap-3">
                 {p.pengirim ? (
                   <Avatar name={p.pengirim.namaLengkap} fotoUrl={p.pengirim.fotoUrl} size={40} />
                 ) : (
                   <View className="w-10 h-10 rounded-full bg-neutral-100 items-center justify-center">
-                    <EyeOff size={18} color="#737373" />
+                    <EyeOff size={18} color={nc('#737373')} />
                   </View>
                 )}
                 <View className="flex-1 min-w-0">
@@ -95,7 +96,7 @@ export default function AssignedPrayerScreen() {
             {p.kesaksian ? (
               <View className="bg-green-50 rounded-2xl p-4 border border-green-100 gap-1">
                 <View className="flex-row items-center gap-1.5">
-                  <Sparkles size={15} color="#15803D" />
+                  <Sparkles size={15} color={nc('#15803D')} />
                   <Text className="text-xs font-semibold text-green-800">{t('doa.kesaksian_label')}</Text>
                 </View>
                 <Text className="text-sm text-green-900 leading-5">{p.kesaksian}</Text>
@@ -118,8 +119,8 @@ export default function AssignedPrayerScreen() {
               multiline
               maxLength={1000}
               placeholder={t('doa.catatan_ph')}
-              placeholderTextColor="#A3A3A3"
-              className="bg-white rounded-2xl px-4 py-3 text-sm text-neutral-900 border border-neutral-200"
+              placeholderTextColor={nc('#A3A3A3')}
+              className="bg-card rounded-2xl px-4 py-3 text-sm text-neutral-900 border border-neutral-200"
               style={{ minHeight: 110, textAlignVertical: 'top' }}
             />
             <Button

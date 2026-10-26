@@ -20,6 +20,7 @@ import { useAddHomecellMember, useManagedHomecells } from '@/hooks/useHomecell';
 import { ApiError } from '@/types/api';
 import type { HomecellMember } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 type AddResult =
   | { kind: 'success'; member: HomecellMember }
@@ -113,7 +114,7 @@ export default function HomecellAddMemberScreen() {
           onPress={dismissResult}
           className="flex-1 bg-black/60 items-center justify-center px-6"
         >
-          <Pressable onPress={() => {}} className="bg-white rounded-3xl p-5 w-full max-w-sm">
+          <Pressable onPress={() => {}} className="bg-card rounded-3xl p-5 w-full max-w-sm">
             {result?.kind === 'success' ? (
               <View className="items-center">
                 <View className="relative">
@@ -166,7 +167,7 @@ export default function HomecellAddMemberScreen() {
             ) : result?.kind === 'error' ? (
               <View className="items-center">
                 <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center">
-                  <AlertTriangle size={32} color="#737373" />
+                  <AlertTriangle size={32} color={nc('#737373')} />
                 </View>
                 <Text className="text-lg font-bold text-neutral-900 mt-3 text-center">
                   {t('error.generic')}

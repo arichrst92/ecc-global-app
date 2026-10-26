@@ -25,6 +25,7 @@ import { formatDate, todayIso } from '@/utils/date';
 import { useVenueTz } from '@/hooks/useVenueTz';
 import { formatVenueRange } from '@/utils/time';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function ScannerPickerScreen() {
   const insets = useSafeAreaInsets();
@@ -57,13 +58,13 @@ export default function ScannerPickerScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">
@@ -88,7 +89,7 @@ export default function ScannerPickerScreen() {
         ) : isEmpty ? (
           <View className="items-center py-16 px-8">
             <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              <ScanLine size={32} color="#A3A3A3" />
+              <ScanLine size={32} color={nc('#A3A3A3')} />
             </View>
             <Text className="text-lg font-semibold text-neutral-700 text-center">
               {t('scanner.empty_title')}
@@ -171,7 +172,7 @@ function IbadahCard({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
+      className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
     >
       <View className="w-12 h-12 rounded-xl bg-brand-100 items-center justify-center">
         <Church size={20} color="#EA580C" />
@@ -188,12 +189,12 @@ function IbadahCard({
           ) : null}
         </View>
         <View className="flex-row items-center gap-1.5 mt-1">
-          <Clock size={12} color="#A3A3A3" />
+          <Clock size={12} color={nc('#A3A3A3')} />
           <Text className="text-xs text-neutral-500">
             {formatVenueRange(null, item.jamMulai, item.jamSelesai, venueTz)}
           </Text>
           <Text className="text-xs text-neutral-400">·</Text>
-          <MapPin size={12} color="#A3A3A3" />
+          <MapPin size={12} color={nc('#A3A3A3')} />
           <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
             {item.lokasi}
           </Text>
@@ -211,7 +212,7 @@ function IbadahCard({
           ) : null}
         </View>
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
+      <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }
@@ -228,7 +229,7 @@ function EventCard({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
+      className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
     >
       <View className="w-12 h-12 rounded-xl bg-amber-100 items-center justify-center">
         <CalendarDays size={20} color="#D97706" />
@@ -238,12 +239,12 @@ function EventCard({
           {item.judul}
         </Text>
         <View className="flex-row items-center gap-1.5 mt-1">
-          <Clock size={12} color="#A3A3A3" />
+          <Clock size={12} color={nc('#A3A3A3')} />
           <Text className="text-xs text-neutral-500">
             {formatDate(item.tanggalMulai, lang)}
           </Text>
           <Text className="text-xs text-neutral-400">·</Text>
-          <MapPin size={12} color="#A3A3A3" />
+          <MapPin size={12} color={nc('#A3A3A3')} />
           <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
             {item.lokasi}
           </Text>
@@ -254,7 +255,7 @@ function EventCard({
           </Text>
         </View>
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
+      <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }

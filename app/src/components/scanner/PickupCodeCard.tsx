@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { Baby, Info } from 'lucide-react-native';
 
 import { localTime } from '@/utils/time';
+import { nc } from '@/theme/ThemeRoot';
 
 export function PickupCodeCard({
   pickupCode,
@@ -70,7 +71,7 @@ export function PickupCodeCard({
       ) : null}
 
       {/* Big 6-digit display */}
-      <View className="bg-white rounded-xl py-6 items-center border border-brand-200">
+      <View className="bg-card rounded-xl py-6 items-center border border-brand-200">
         <Text
           className="text-5xl font-bold tracking-widest text-brand-600"
           style={{ letterSpacing: 8 }}
@@ -80,7 +81,7 @@ export function PickupCodeCard({
       </View>
 
       <View className="flex-row items-start gap-2 mt-3">
-        <Info size={14} color="#C2410C" style={{ marginTop: 1 }} />
+        <Info size={14} color={nc('#C2410C')} style={{ marginTop: 1 }} />
         <Text className="text-xs text-brand-800 flex-1 leading-relaxed">
           {t('kids.pickup_code_instruction')}
         </Text>

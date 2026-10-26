@@ -28,6 +28,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function GroupQrScreen() {
   const { t } = useTranslation();
@@ -49,17 +50,17 @@ export default function GroupQrScreen() {
   // Access guard — hanya PIC / kode owner boleh lihat
   if (query.isPending) {
     return (
-      <View className="flex-1 bg-white items-center justify-center">
+      <View className="flex-1 bg-card items-center justify-center">
         <QrCode size={32} color="#F97316" />
       </View>
     );
   }
   if (!group || !group.joinCode || !isPIC) {
     return (
-      <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+      <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
         <View className="px-4 py-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
         </View>
         <View className="flex-1 items-center justify-center px-8">
@@ -112,10 +113,10 @@ export default function GroupQrScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900" numberOfLines={1}>
@@ -135,8 +136,8 @@ export default function GroupQrScreen() {
         </Text>
 
         {/* QR card */}
-        <View className="bg-white rounded-3xl p-6 items-center" style={{ elevation: 8 }}>
-          <QRCode value={qrValue} size={240} color="#0A0A0A" backgroundColor="#FFFFFF" />
+        <View className="bg-card rounded-3xl p-6 items-center" style={{ elevation: 8 }}>
+          <QRCode value={qrValue} size={240} color="#0A0A0A" backgroundColor="#FFFFFF" quietZone={10} />
           <Text className="text-3xl font-bold tracking-widest text-neutral-900 mt-6">
             {code}
           </Text>
@@ -151,7 +152,7 @@ export default function GroupQrScreen() {
               !useDeeplink ? 'bg-brand-500' : 'bg-neutral-200'
             }`)}
           >
-            <QrCode size={12} color={!useDeeplink ? '#fff' : '#525252'} />
+            <QrCode size={12} color={!useDeeplink ? '#fff' : nc('#525252')} />
             <Text
               className={`text-xs font-semibold ${
                 !useDeeplink ? 'text-white' : 'text-neutral-700'
@@ -166,7 +167,7 @@ export default function GroupQrScreen() {
               useDeeplink ? 'bg-brand-500' : 'bg-neutral-200'
             }`)}
           >
-            <Link2 size={12} color={useDeeplink ? '#fff' : '#525252'} />
+            <Link2 size={12} color={useDeeplink ? '#fff' : nc('#525252')} />
             <Text
               className={`text-xs font-semibold ${
                 useDeeplink ? 'text-white' : 'text-neutral-700'
@@ -185,7 +186,7 @@ export default function GroupQrScreen() {
             variant="secondary"
             fullWidth
             leftIcon={
-              copied ? <Check size={18} color="#059669" /> : <Copy size={18} color="#171717" />
+              copied ? <Check size={18} color="#059669" /> : <Copy size={18} color={nc('#171717')} />
             }
           />
           <Button

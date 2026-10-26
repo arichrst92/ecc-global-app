@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FlatList, Modal, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check, ChevronDown, X } from 'lucide-react-native';
+import { nc } from '@/theme/ThemeRoot';
 
 export type PickerOption = {
   value: string;
@@ -45,14 +46,14 @@ export function Picker({
       <Text className="text-xs font-medium text-neutral-600 mb-1">{label}</Text>
       <Pressable
         onPress={() => setVisible(true)}
-        className={`px-3 py-2.5 border rounded-lg bg-white flex-row items-center ${
+        className={`px-3 py-2.5 border rounded-lg bg-card flex-row items-center ${
           error ? 'border-red-400' : 'border-neutral-200'
         }`}
       >
         <Text className={`flex-1 text-sm ${selected ? 'text-neutral-900' : 'text-neutral-400'}`}>
           {selected?.label ?? placeholder}
         </Text>
-        <ChevronDown size={16} color="#737373" />
+        <ChevronDown size={16} color={nc('#737373')} />
       </Pressable>
       {error ? (
         <Text className="text-xs text-red-600 mt-1">{error}</Text>
@@ -64,11 +65,11 @@ export function Picker({
         statusBarTranslucent
         navigationBarTranslucent
       >
-        <View className="flex-1 bg-white" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+        <View className="flex-1 bg-card" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
           <View className="flex-row items-center px-5 py-3 border-b border-neutral-100">
             <Text className="flex-1 text-lg font-bold text-neutral-900">{modalTitle ?? label}</Text>
             <Pressable onPress={() => setVisible(false)} className="w-9 h-9 items-center justify-center">
-              <X size={20} color="#171717" />
+              <X size={20} color={nc('#171717')} />
             </Pressable>
           </View>
           <FlatList

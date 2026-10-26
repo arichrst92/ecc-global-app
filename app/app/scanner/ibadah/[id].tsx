@@ -34,6 +34,7 @@ import { ApiError } from '@/types/api';
 import { todayIso } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type ScannerMode = 'checkin' | 'checkout' | 'pickup';
 
@@ -275,7 +276,7 @@ export default function ScannerIbadahScreen() {
             <ModeChip
               active={mode === 'checkin'}
               activeColor="#3b82f6"
-              icon={<LogIn size={14} color={mode === 'checkin' ? '#fff' : '#a3a3a3'} />}
+              icon={<LogIn size={14} color={mode === 'checkin' ? '#fff' : nc('#a3a3a3')} />}
               label={t('scanner.mode_checkin')}
               onPress={() => setMode('checkin')}
             />
@@ -284,7 +285,7 @@ export default function ScannerIbadahScreen() {
                 active={mode === 'checkout'}
                 activeColor="#F59E0B"
                 icon={
-                  <LogOut size={14} color={mode === 'checkout' ? '#fff' : '#a3a3a3'} />
+                  <LogOut size={14} color={mode === 'checkout' ? '#fff' : nc('#a3a3a3')} />
                 }
                 label={t('scanner.mode_checkout')}
                 onPress={() => setMode('checkout')}
@@ -294,7 +295,7 @@ export default function ScannerIbadahScreen() {
               <ModeChip
                 active={mode === 'pickup'}
                 activeColor="#F97316"
-                icon={<Baby size={14} color={mode === 'pickup' ? '#fff' : '#a3a3a3'} />}
+                icon={<Baby size={14} color={mode === 'pickup' ? '#fff' : nc('#a3a3a3')} />}
                 label={t('scanner.mode_pickup')}
                 onPress={() => setMode('pickup')}
               />

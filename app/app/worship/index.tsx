@@ -18,6 +18,7 @@ import { SongRow } from '@/components/worship/SongRow';
 import { SongActionSheet } from '@/components/worship/SongActionSheet';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Tab = 'album' | 'single' | 'liked' | 'downloads';
 
@@ -66,16 +67,16 @@ export default function WorshipHome() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center gap-2">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           {search === null ? (
             <>
               <Text className="text-base font-bold text-neutral-900 flex-1">ECC Worship</Text>
               <Pressable onPress={() => setSearch('')} className="w-10 h-10 items-center justify-center">
-                <Search size={20} color="#171717" />
+                <Search size={20} color={nc('#171717')} />
               </Pressable>
             </>
           ) : (
@@ -85,11 +86,11 @@ export default function WorshipHome() {
                 value={search}
                 onChangeText={setSearch}
                 placeholder={t('worship.search_ph')}
-                placeholderTextColor="#A3A3A3"
+                placeholderTextColor={nc('#A3A3A3')}
                 className="flex-1 bg-neutral-100 rounded-xl px-3 py-2 text-sm text-neutral-900"
               />
               <Pressable onPress={() => setSearch(null)} className="w-10 h-10 items-center justify-center">
-                <X size={20} color="#171717" />
+                <X size={20} color={nc('#171717')} />
               </Pressable>
             </>
           )}
@@ -100,7 +101,7 @@ export default function WorshipHome() {
               <Pressable
                 key={x.k}
                 onPress={() => setTab(x.k)}
-                {...gx(`px-3.5 py-1.5 rounded-full border ${tab === x.k ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
+                {...gx(`px-3.5 py-1.5 rounded-full border ${tab === x.k ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-300'}`)}
               >
                 <Text className={`text-xs font-semibold ${tab === x.k ? 'text-white' : 'text-neutral-700'}`}>{x.label}</Text>
               </Pressable>
@@ -137,9 +138,9 @@ export default function WorshipHome() {
                 </Pressable>
                 <Pressable
                   onPress={() => playTracks(all, -1, { source: t('worship.all_songs'), shuffle: true })}
-                  className="flex-1 flex-row items-center justify-center gap-2 bg-white border border-neutral-300 rounded-full py-2.5"
+                  className="flex-1 flex-row items-center justify-center gap-2 bg-card border border-neutral-300 rounded-full py-2.5"
                 >
-                  <Shuffle size={16} color="#171717" />
+                  <Shuffle size={16} color={nc('#171717')} />
                   <Text className="text-neutral-900 font-semibold text-sm">{t('worship.shuffle_all')}</Text>
                 </Pressable>
               </View>
@@ -180,8 +181,8 @@ export default function WorshipHome() {
           ) : (
             <>
               {tab === 'downloads' && downloaded.length ? (
-                <View className="bg-white rounded-2xl border border-neutral-100 p-3 flex-row items-center gap-3 mb-3">
-                  <HardDrive size={20} color="#525252" />
+                <View className="bg-card rounded-2xl border border-neutral-100 p-3 flex-row items-center gap-3 mb-3">
+                  <HardDrive size={20} color={nc('#525252')} />
                   <View className="flex-1">
                     <Text className="text-sm font-semibold text-neutral-900">
                       {t('worship.n_songs', { count: downloaded.length })} · {(dlSize / 1024 / 1024).toFixed(0)} MB
@@ -209,9 +210,9 @@ export default function WorshipHome() {
                     </Pressable>
                     <Pressable
                       onPress={() => playTracks(list, -1, { source: listSource, shuffle: true })}
-                      className="flex-row items-center gap-1.5 bg-white border border-neutral-300 rounded-full px-4 py-2"
+                      className="flex-row items-center gap-1.5 bg-card border border-neutral-300 rounded-full px-4 py-2"
                     >
-                      <Shuffle size={14} color="#171717" />
+                      <Shuffle size={14} color={nc('#171717')} />
                       <Text className="text-neutral-900 font-semibold text-xs">{t('worship.shuffle')}</Text>
                     </Pressable>
                   </View>

@@ -55,6 +55,7 @@ import { ApiError } from '@/types/api';
 import { formatDateWithDay, parseLocalDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc, isDark } from '@/theme/ThemeRoot';
 
 export default function MinistryDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -210,13 +211,13 @@ export default function MinistryDetailScreen() {
   if (!ministry) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
           </View>
         </SafeAreaView>
@@ -284,7 +285,7 @@ export default function MinistryDetailScreen() {
       >
         {/* Deskripsi */}
         {ministry.deskripsi ? (
-          <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4">
+          <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
               {t('ministry.about_section')}
             </Text>
@@ -347,7 +348,7 @@ export default function MinistryDetailScreen() {
                 })
               }
               disabled={cancelRequestMutation.isPending}
-              className="mt-3 self-start px-3 py-1.5 rounded-lg bg-white border border-amber-200"
+              className="mt-3 self-start px-3 py-1.5 rounded-lg bg-card border border-amber-200"
             >
               <Text className="text-xs font-semibold text-amber-800">
                 {cancelRequestMutation.isPending ? t('common.loading') : t('ministry.pending_cancel')}
@@ -357,7 +358,7 @@ export default function MinistryDetailScreen() {
         ) : null}
         {!ministry.myMembership && myRequest?.status === 'REJECTED' ? (
           <View className="bg-neutral-100 rounded-2xl p-4 mb-4 flex-row gap-3">
-            <XCircle size={20} color="#737373" />
+            <XCircle size={20} color={nc('#737373')} />
             <View className="flex-1">
               <Text className="text-sm font-semibold text-neutral-800">
                 {t('ministry.rejected_title')}
@@ -380,7 +381,7 @@ export default function MinistryDetailScreen() {
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
               {t('ministry.requests_section', { count: joinRequests.length })}
             </Text>
-            <View className="bg-white rounded-2xl border border-amber-200">
+            <View className="bg-card rounded-2xl border border-amber-200">
               {joinRequests.map((r, idx) => (
                 <Pressable
                   key={r.id}
@@ -407,7 +408,7 @@ export default function MinistryDetailScreen() {
                     <Text className="text-[11px] font-semibold text-amber-700">
                       {t('ministry.requests_tap_hint')}
                     </Text>
-                    <ChevronRight size={14} color="#B45309" />
+                    <ChevronRight size={14} color={nc('#B45309')} />
                   </View>
                 </Pressable>
               ))}
@@ -432,7 +433,7 @@ export default function MinistryDetailScreen() {
               {schedules.map((s) => (
                 <View
                   key={s.id}
-                  className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+                  className="bg-card rounded-2xl border border-neutral-100 overflow-hidden"
                 >
                   <View className="p-3.5 border-b border-neutral-100">
                     <Text className="text-sm font-semibold text-neutral-900">
@@ -440,14 +441,14 @@ export default function MinistryDetailScreen() {
                     </Text>
                     <View className="flex-row items-center gap-3 mt-1.5">
                       <View className="flex-row items-center gap-1">
-                        <Clock size={12} color="#737373" />
+                        <Clock size={12} color={nc('#737373')} />
                         <Text className="text-xs text-neutral-500">
                           {s.ibadahJamMulai}
                           {s.ibadahJamSelesai ? ` - ${s.ibadahJamSelesai}` : ''}
                         </Text>
                       </View>
                       <View className="flex-row items-center gap-1 flex-1">
-                        <MapPin size={12} color="#737373" />
+                        <MapPin size={12} color={nc('#737373')} />
                         <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>
                           {s.ibadahLokasi}
                         </Text>
@@ -513,7 +514,7 @@ export default function MinistryDetailScreen() {
           {t('ministry.members_section', { count: ministry.memberCount })}
         </Text>
         {groupedMembers.length === 0 ? (
-          <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center">
+          <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
             <Text className="text-sm text-neutral-500 text-center">
               {t('ministry.members_empty')}
             </Text>
@@ -534,7 +535,7 @@ export default function MinistryDetailScreen() {
                   </View>
                   <View className="flex-1 h-px bg-neutral-200" />
                 </View>
-                <View className="bg-white rounded-2xl border border-neutral-100">
+                <View className="bg-card rounded-2xl border border-neutral-100">
                   {group.members.map((m, idx) => {
                     const isLeader = ministry.leader?.jemaat.id === m.jemaat.id;
                     return (
@@ -685,8 +686,8 @@ function JoinMinistryModal({
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
         {/* Tap backdrop untuk close */}
         <Pressable style={{ flex: 1 }} onPress={onClose} />
-        <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#fff' }}>
-          <View className="bg-white rounded-t-3xl overflow-hidden">
+        <SafeAreaView edges={['bottom']} style={{ backgroundColor: isDark() ? '#1C1C1E' : '#fff' }}>
+          <View className="bg-card rounded-t-3xl overflow-hidden">
             {/* Handle bar */}
             <View className="items-center pt-3 pb-1">
               <View className="w-10 h-1 rounded-full bg-neutral-300" />
@@ -702,7 +703,7 @@ function JoinMinistryModal({
                 className="w-9 h-9 rounded-full bg-neutral-100 items-center justify-center"
                 accessibilityLabel={t('common.close') ?? 'Close'}
               >
-                <X size={18} color="#171717" />
+                <X size={18} color={nc('#171717')} />
               </Pressable>
             </View>
 
@@ -714,7 +715,7 @@ function JoinMinistryModal({
               <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
                 {t('ministry.join_role_label')}
               </Text>
-              <View className="bg-white rounded-2xl border border-neutral-100 mb-1">
+              <View className="bg-card rounded-2xl border border-neutral-100 mb-1">
                 {roles.map((role, idx) => {
                   const isSelected = selectedRoleId === role.id;
                   return (
@@ -728,7 +729,7 @@ function JoinMinistryModal({
                       {isSelected ? (
                         <CheckCircle2 size={20} color="#F97316" />
                       ) : (
-                        <Circle size={20} color="#D4D4D4" />
+                        <Circle size={20} color={nc('#D4D4D4')} />
                       )}
                       <Text
                         className={`text-sm flex-1 ${
@@ -755,11 +756,11 @@ function JoinMinistryModal({
                 value={motivasi}
                 onChangeText={onChangeMotivasi}
                 placeholder={t('ministry.join_motivasi_placeholder') ?? ''}
-                placeholderTextColor="#A3A3A3"
+                placeholderTextColor={nc('#A3A3A3')}
                 multiline
                 numberOfLines={3}
                 textAlignVertical="top"
-                className="bg-white rounded-2xl border border-neutral-200 px-3 py-3 text-sm text-neutral-900 mb-4"
+                className="bg-card rounded-2xl border border-neutral-200 px-3 py-3 text-sm text-neutral-900 mb-4"
                 style={{ minHeight: 80 }}
               />
             </ScrollView>
@@ -868,8 +869,8 @@ function ReviewJoinRequestModal({
     <Modal visible transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
         <Pressable style={{ flex: 1 }} onPress={busy ? undefined : onClose} />
-        <SafeAreaView edges={['bottom']} style={{ backgroundColor: '#fff' }}>
-          <View className="bg-white rounded-t-3xl overflow-hidden">
+        <SafeAreaView edges={['bottom']} style={{ backgroundColor: isDark() ? '#1C1C1E' : '#fff' }}>
+          <View className="bg-card rounded-t-3xl overflow-hidden">
             <View className="items-center pt-3 pb-1">
               <View className="w-10 h-1 rounded-full bg-neutral-300" />
             </View>
@@ -883,7 +884,7 @@ function ReviewJoinRequestModal({
                 className="w-9 h-9 rounded-full bg-neutral-100 items-center justify-center"
                 accessibilityLabel={t('common.close') ?? 'Close'}
               >
-                <X size={18} color="#171717" />
+                <X size={18} color={nc('#171717')} />
               </Pressable>
             </View>
 
@@ -937,12 +938,12 @@ function ReviewJoinRequestModal({
                   value={reason}
                   onChangeText={setReason}
                   placeholder={t('ministry.review_reject_reason_placeholder') ?? ''}
-                  placeholderTextColor="#A3A3A3"
+                  placeholderTextColor={nc('#A3A3A3')}
                   multiline
                   maxLength={300}
                   textAlignVertical="top"
                   editable={!busy}
-                  className="bg-white rounded-2xl border border-neutral-200 px-3 py-3 text-sm text-neutral-900 mb-2"
+                  className="bg-card rounded-2xl border border-neutral-200 px-3 py-3 text-sm text-neutral-900 mb-2"
                   style={{ minHeight: 80 }}
                 />
               ) : (
@@ -953,7 +954,7 @@ function ReviewJoinRequestModal({
                   {sortedRoles.length === 0 ? (
                     <Text className="text-xs text-red-600 mb-2">{t('ministry.review_no_roles')}</Text>
                   ) : (
-                    <View className="bg-white rounded-2xl border border-neutral-100 mb-2">
+                    <View className="bg-card rounded-2xl border border-neutral-100 mb-2">
                       {sortedRoles.map((role, idx) => {
                         const selected = roleId === role.id;
                         const isRequested = request.requestedRole?.id === role.id;
@@ -969,7 +970,7 @@ function ReviewJoinRequestModal({
                             {selected ? (
                               <CheckCircle2 size={20} color="#F97316" />
                             ) : (
-                              <Circle size={20} color="#D4D4D4" />
+                              <Circle size={20} color={nc('#D4D4D4')} />
                             )}
                             <Text
                               className={`text-sm flex-1 ${

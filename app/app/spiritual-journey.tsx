@@ -17,6 +17,7 @@ import { formatDateWithDay } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 export default function SpiritualJourneyScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -27,10 +28,10 @@ export default function SpiritualJourneyScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">{t('journey.title')}</Text>
         </View>
@@ -54,7 +55,7 @@ export default function SpiritualJourneyScreen() {
           </View>
         ) : d.total === 0 ? (
           <View className="py-16 items-center px-8">
-            <Footprints size={32} color="#A3A3A3" />
+            <Footprints size={32} color={nc('#A3A3A3')} />
             <Text className="text-sm text-neutral-500 text-center mt-3">{t('journey.empty')}</Text>
           </View>
         ) : (
@@ -63,7 +64,7 @@ export default function SpiritualJourneyScreen() {
               <Text className="text-sm font-bold text-emerald-900">
                 {t('journey.progress', { done: d.achievedCount, total: d.total })}
               </Text>
-              <View className="h-2 bg-white rounded-full mt-2 overflow-hidden">
+              <View className="h-2 bg-card rounded-full mt-2 overflow-hidden">
                 <View
                   className="h-full bg-emerald-500 rounded-full"
                   style={{ width: `${Math.round((d.achievedCount / d.total) * 100)}%` }}
@@ -90,7 +91,7 @@ function StepItem({ step: s, last, onEvent }: { step: JourneyStep; last: boolean
     ? 'bg-emerald-500 border-emerald-500'
     : s.isNext
       ? 'bg-brand-500 border-brand-500'
-      : 'bg-white border-neutral-300';
+      : 'bg-card border-neutral-300';
   const syarat = [s.syarat.role, s.syarat.subRole, s.syarat.status].filter(Boolean).join(' › ');
 
   return (
@@ -101,11 +102,11 @@ function StepItem({ step: s, last, onEvent }: { step: JourneyStep; last: boolean
           {s.achieved ? (
             <Check size={16} color="#fff" />
           ) : s.ikon ? (
-            <Text className="text-sm">{s.ikon}</Text>
+            <Text className="text-neutral-900 text-sm">{s.ikon}</Text>
           ) : s.isNext ? (
             <Text className="text-xs font-bold text-white">{s.urutan}</Text>
           ) : (
-            <Lock size={13} color="#A3A3A3" />
+            <Lock size={13} color={nc('#A3A3A3')} />
           )}
         </View>
         {!last ? <View className={`w-0.5 flex-1 ${s.achieved ? 'bg-emerald-300' : 'bg-neutral-200'}`} /> : null}
@@ -113,7 +114,7 @@ function StepItem({ step: s, last, onEvent }: { step: JourneyStep; last: boolean
 
       <View
         className={`flex-1 mb-4 rounded-2xl p-4 border ${
-          s.isNext ? 'bg-white border-brand-200' : s.achieved ? 'bg-white border-emerald-100' : 'bg-white border-neutral-100'
+          s.isNext ? 'bg-card border-brand-200' : s.achieved ? 'bg-card border-emerald-100' : 'bg-card border-neutral-100'
         }`}
       >
         <View className="flex-row items-center gap-2">
@@ -164,7 +165,7 @@ function StepItem({ step: s, last, onEvent }: { step: JourneyStep; last: boolean
                     {e.cabang?.nama ? ` · ${e.cabang.nama}` : ''}
                   </Text>
                 </View>
-                <ChevronRight size={14} color="#A3A3A3" />
+                <ChevronRight size={14} color={nc('#A3A3A3')} />
               </Pressable>
             ))}
           </View>

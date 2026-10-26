@@ -124,7 +124,7 @@ export function HeroImage({
       className={`${className ?? ''} items-center justify-center bg-brand-300`}
       style={[style, fitToWidth ? { aspectRatio: fallbackAspect } : null]}
     >
-      <Text style={{ fontSize: emojiSize }}>{fallbackEmoji}</Text>
+      <Text className="text-neutral-900" style={{ fontSize: emojiSize }}>{fallbackEmoji}</Text>
     </View>
   );
 }

@@ -1,5 +1,6 @@
 import '../global.css';
-import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { ThemeRoot, isDark } from '@/theme/ThemeRoot';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useFonts } from 'expo-font';
@@ -99,6 +100,7 @@ export default function RootLayout() {
   });
 
   const [hydrated, setHydrated] = useState(false);
+  const darkMode = usePreferencesStore((s) => s.darkMode);
   const hydrateAuth = useAuthStore((s) => s.hydrate);
   const hydratePrefs = usePreferencesStore((s) => s.hydrate);
   const hydrateBranch = useBranchStore((s) => s.hydrate);
@@ -159,7 +161,9 @@ export default function RootLayout() {
         {/* Default StatusBar — 'auto' adapt ke system color scheme (light mode = dark icons).
             Individual screens dengan orange header pakai <StatusBar style="light" />
             untuk override (icons putih supaya visible di atas orange). */}
-        <StatusBar style="dark" translucent backgroundColor="transparent" />
+        <StatusBar style={darkMode ? 'light' : 'dark'} translucent backgroundColor="transparent" />
+        {/* Tema Terang/Gelap dari Profil → Tampilan (tidak mengikuti HP) */}
+        <ThemeRoot>
         <MaintenanceGate>
           <ForceUpdateGate>
             <RootLayoutNav />
@@ -170,6 +174,7 @@ export default function RootLayout() {
           </ForceUpdateGate>
         </MaintenanceGate>
         <ToastContainer />
+        </ThemeRoot>
       </PersistQueryClientProvider>
     </SafeAreaProvider>
   );
@@ -242,6 +247,11 @@ function ForceUpdateGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+const ELS_DARK_THEME = {
+  ...DarkTheme,
+  colors: { ...DarkTheme.colors, primary: '#F97316', background: '#0F0F10', card: '#1C1C1E', border: '#2A2A2D', text: '#F5F5F5' },
+};
+
 function RootLayoutNav() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const jemaatId = useAuthStore((s) => s.user?.jemaatId);
@@ -249,6 +259,21 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
   const rehydrateEventFlow = useEventFlowStore((s) => s.hydrate);
+
+  // Setelah ganti tema, UI di-mount ulang → buka lagi layar asal (mis. Tampilan).
+  const afterThemeRoute = usePreferencesStore((s) => s.afterThemeRoute);
+  const clearAfterThemeRoute = usePreferencesStore((s) => s.clearAfterThemeRoute);
+  useEffect(() => {
+    if (!afterThemeRoute || !isAuthenticated) return;
+    const route = afterThemeRoute;
+    clearAfterThemeRoute();
+    const id = setTimeout(() => {
+      router.push('/(tabs)/profile' as never);
+      if (route !== '/(tabs)/profile') router.push(route as never);
+    }, 50);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [afterThemeRoute, isAuthenticated]);
 
   // Auth-aware redirect logic.
   // Public routes yang allowed tanpa auth (T&C, Privacy linked dari welcome
@@ -295,8 +320,8 @@ function RootLayoutNav() {
   }, [jemaatId, rehydrateEventFlow, rehydrateNotifications]);
 
   return (
-    <ThemeProvider value={DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FFFFFF' } }}>
+    <ThemeProvider value={isDark() ? ELS_DARK_THEME : DefaultTheme}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: isDark() ? '#0F0F10' : '#FFFFFF' } }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         {/* Magic link deeplink handler (ecc://auth/email/verify?token=xxx).

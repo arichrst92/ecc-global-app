@@ -17,6 +17,7 @@ import type { FamilyRelation, FamilyRole } from '@/types/family';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 function roleLabel(role: FamilyRole, t: (k: string) => string): string {
   switch (role) {
@@ -76,13 +77,13 @@ export default function FamilyListScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">
@@ -143,7 +144,7 @@ export default function FamilyListScreen() {
         {family.length > 0 ? (
           <Pressable
             onPress={() => router.push('/family/add')}
-            className="mt-4 p-4 bg-white rounded-2xl border border-dashed border-brand-300 flex-row items-center justify-center gap-2"
+            className="mt-4 p-4 bg-card rounded-2xl border border-dashed border-brand-300 flex-row items-center justify-center gap-2"
           >
             <Plus size={18} color="#EA580C" />
             <Text className="text-sm font-semibold text-brand-600">
@@ -177,7 +178,7 @@ function FamilyCard({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+      className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
     >
       <Avatar name={jemaat.namaLengkap} fotoUrl={jemaat.fotoUrl ?? undefined} size={48} />
       <View className="flex-1 min-w-0">
@@ -217,7 +218,7 @@ function FamilyCard({
           </View>
         </View>
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
+      <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }
@@ -227,7 +228,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <View className="items-center py-16 px-8">
       <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-4">
-        <Users size={32} color="#A3A3A3" />
+        <Users size={32} color={nc('#A3A3A3')} />
       </View>
       <Text className="text-lg font-semibold text-neutral-700">
         {t('family.empty_title')}

@@ -52,6 +52,7 @@ import type { ChildGroupedBalance, HadiahKatalog, HadiahRedeem } from '@/types/c
 import { env } from '@/config/env';
 import { ageInYears, CKIDS_MAX_AGE } from '@/utils/ckidsAge';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function CKidsTabScreen() {
   const { t, i18n } = useTranslation();
@@ -200,7 +201,7 @@ export default function CKidsTabScreen() {
   // Empty state — user tidak punya anak (bisa via family relations)
   if (!childrenPending && isEmpty) {
     return (
-      <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-card" edges={['top']}>
         <View className="flex-1 items-center justify-center px-8">
           <View className="w-20 h-20 rounded-3xl bg-brand-50 items-center justify-center mb-4">
             <Baby size={40} color="#F97316" />
@@ -223,7 +224,7 @@ export default function CKidsTabScreen() {
 
   if (childrenPending || balancesQuery.isPending) {
     return (
-      <SafeAreaView className="flex-1 bg-white items-center justify-center" edges={['top']}>
+      <SafeAreaView className="flex-1 bg-card items-center justify-center" edges={['top']}>
         <ActivityIndicator color="#F97316" />
       </SafeAreaView>
     );
@@ -231,7 +232,7 @@ export default function CKidsTabScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-3 flex-row items-center gap-2">
           <Baby size={22} color="#F97316" />
           <Text className="text-lg font-bold text-neutral-900 flex-1">
@@ -250,14 +251,14 @@ export default function CKidsTabScreen() {
       >
         {/* Info batas usia CKids */}
         <View className="mx-4 mt-3 mb-1 flex-row items-start gap-2 bg-sky-50 border border-sky-100 rounded-xl px-3 py-2.5">
-          <Info size={14} color="#0369A1" style={{ marginTop: 2 }} />
+          <Info size={14} color={nc('#0369A1')} style={{ marginTop: 2 }} />
           <Text className="flex-1 text-xs text-sky-800 leading-4">{t('ckids.age_rule_info', { max: CKIDS_MAX_AGE })}</Text>
         </View>
 
         {/* Anak selector — tampil kalau multi anak. Selector kini source
             dari useMyChildren (family list), bukan cuma anak yg punya balance. */}
         {anakSelectorList.length > 1 ? (
-          <View className="bg-white px-4 py-3 border-b border-neutral-100">
+          <View className="bg-card px-4 py-3 border-b border-neutral-100">
             <Text className="text-xs font-bold text-neutral-500 uppercase mb-2">
               {t('ckids.selected_anak')}
             </Text>
@@ -286,7 +287,7 @@ export default function CKidsTabScreen() {
                   {t('ckids.no_selection')}
                 </Text>
               )}
-              <ChevronDown size={18} color="#737373" />
+              <ChevronDown size={18} color={nc('#737373')} />
             </Pressable>
           </View>
         ) : null}
@@ -294,7 +295,7 @@ export default function CKidsTabScreen() {
         {/* Cabang picker — tampil kalau anak punya balance di 2+ cabang,
             atau kalau cabang home berbeda dari cabang balance (multi-branch). */}
         {availableCabangList.length > 1 && activeCabangNama ? (
-          <View className="bg-white px-4 py-3 border-b border-neutral-100">
+          <View className="bg-card px-4 py-3 border-b border-neutral-100">
             <Text className="text-xs font-bold text-neutral-500 uppercase mb-2">
               {t('ckids.cabang_label')}
             </Text>
@@ -313,7 +314,7 @@ export default function CKidsTabScreen() {
                   {t('ckids.cabang_hint', { total: availableCabangList.length })}
                 </Text>
               </View>
-              <ChevronDown size={18} color="#737373" />
+              <ChevronDown size={18} color={nc('#737373')} />
             </Pressable>
           </View>
         ) : null}
@@ -321,7 +322,7 @@ export default function CKidsTabScreen() {
         {/* Point balance card — kalau anak punya balance, tampil pink card.
             Kalau belum earn point → empty state (anak baru add). */}
         {selectedEntry ? (
-          <View className="bg-white mt-2 p-5">
+          <View className="bg-card mt-2 p-5">
             <View className="rounded-3xl overflow-hidden">
               <View {...gx('bg-brand-500 p-5')}>
                 <Text className="text-xs font-bold text-white/80 uppercase">
@@ -352,7 +353,7 @@ export default function CKidsTabScreen() {
               </View>
               <Pressable
                 onPress={() => router.push('/ckids/qr' as never)}
-                className="bg-white flex-row items-center justify-center gap-2 py-4 border-t-2 border-brand-100 active:bg-brand-50"
+                className="bg-card flex-row items-center justify-center gap-2 py-4 border-t-2 border-brand-100 active:bg-brand-50"
               >
                 <QrCode size={20} color="#F97316" />
                 <Text className="text-sm font-bold text-brand-700">
@@ -365,7 +366,7 @@ export default function CKidsTabScreen() {
 
         {/* Info card: redeem hanya di stall */}
         <View className="mx-4 mt-3 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-          <Info size={14} color="#92400e" style={{ marginTop: 1 }} />
+          <Info size={14} color={nc('#92400e')} style={{ marginTop: 1 }} />
           <Text className="text-xs text-amber-800 flex-1 leading-relaxed">
             {t('ckids.stall_info')}
           </Text>
@@ -373,7 +374,7 @@ export default function CKidsTabScreen() {
 
         {/* Katalog hadiah — grid 2 kolom (foto, poin, judul). Deskripsi &
             stok hanya di detail modal saat item di-tap. */}
-        <View className="bg-white mt-3 p-4">
+        <View className="bg-card mt-3 p-4">
           <View className="flex-row items-center gap-2 mb-3">
             <ShoppingBag size={16} color="#F97316" />
             <Text className="text-sm font-bold text-neutral-900">
@@ -413,7 +414,7 @@ export default function CKidsTabScreen() {
             </View>
           ) : (
             <View className="items-center py-8">
-              <Gift size={32} color="#D4D4D4" />
+              <Gift size={32} color={nc('#D4D4D4')} />
               <Text className="text-xs text-neutral-500 mt-2">
                 {t('ckids.katalog_empty')}
               </Text>
@@ -422,7 +423,7 @@ export default function CKidsTabScreen() {
         </View>
 
         {/* History redeem */}
-        <View className="bg-white mt-3 p-4">
+        <View className="bg-card mt-3 p-4">
           <View className="flex-row items-center gap-2 mb-3">
             <History size={16} color="#F97316" />
             <Text className="text-sm font-bold text-neutral-900">
@@ -456,7 +457,7 @@ export default function CKidsTabScreen() {
           onPress={() => setSelectorOpen(false)}
           className="flex-1 bg-black/60 justify-end"
         >
-          <Pressable onPress={() => {}} className="bg-white rounded-t-3xl p-5">
+          <Pressable onPress={() => {}} className="bg-card rounded-t-3xl p-5">
             <View className="items-center mb-3">
               <View className="w-10 h-1 bg-neutral-300 rounded-full" />
             </View>
@@ -477,7 +478,7 @@ export default function CKidsTabScreen() {
                     className={`flex-row items-center gap-3 p-3 rounded-xl border ${
                       entry.anak.id === selectedAnakId
                         ? 'bg-brand-50 border-brand-300'
-                        : 'bg-white border-neutral-200'
+                        : 'bg-card border-neutral-200'
                     }`}
                   >
                     <Avatar size={40} name={entry.anak.namaLengkap} fotoUrl={entry.anak.fotoUrl} />
@@ -516,7 +517,7 @@ export default function CKidsTabScreen() {
           onPress={() => setCabangPickerOpen(false)}
           className="flex-1 bg-black/60 justify-end"
         >
-          <Pressable onPress={() => {}} className="bg-white rounded-t-3xl p-5">
+          <Pressable onPress={() => {}} className="bg-card rounded-t-3xl p-5">
             <View className="items-center mb-3">
               <View className="w-10 h-1 bg-neutral-300 rounded-full" />
             </View>
@@ -541,7 +542,7 @@ export default function CKidsTabScreen() {
                     className={`flex-row items-center gap-3 p-3 rounded-xl border ${
                       isSelected
                         ? 'bg-brand-50 border-brand-300'
-                        : 'bg-white border-neutral-200'
+                        : 'bg-card border-neutral-200'
                     }`}
                   >
                     <View className="w-9 h-9 rounded-lg bg-brand-100 items-center justify-center">
@@ -604,7 +605,7 @@ function HadiahTile({
     <Pressable
       onPress={onPress}
       style={{ flex: 1 }}
-      className={`bg-white rounded-xl overflow-hidden border active:opacity-80 ${
+      className={`bg-card rounded-xl overflow-hidden border active:opacity-80 ${
         available ? 'border-brand-200' : 'border-neutral-200'
       }`}
     >
@@ -620,7 +621,7 @@ function HadiahTile({
             resizeMode="cover"
           />
         ) : (
-          <Gift size={32} color="#A3A3A3" />
+          <Gift size={32} color={nc('#A3A3A3')} />
         )}
       </View>
       <View className="px-2.5 py-2">
@@ -668,7 +669,7 @@ function HadiahDetailModal({
       >
         <Pressable
           onPress={() => {}}
-          className="bg-white rounded-t-3xl"
+          className="bg-card rounded-t-3xl"
           style={{ maxHeight: '85%' }}
         >
           <View className="items-center pt-3 pb-2">
@@ -689,7 +690,7 @@ function HadiahDetailModal({
                   resizeMode="cover"
                 />
               ) : (
-                <Gift size={64} color="#D4D4D4" />
+                <Gift size={64} color={nc('#D4D4D4')} />
               )}
             </View>
 
@@ -772,7 +773,7 @@ function HadiahDetailModal({
 
             {/* Redeem info — di stall only */}
             <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
-              <Info size={14} color="#92400e" style={{ marginTop: 1 }} />
+              <Info size={14} color={nc('#92400e')} style={{ marginTop: 1 }} />
               <Text className="text-xs text-amber-800 flex-1 leading-relaxed">
                 {t('ckids.detail_redeem_stall')}
               </Text>
@@ -811,7 +812,7 @@ function RedeemRow({ item, lang }: { item: HadiahRedeem; lang: string }) {
             resizeMode="cover"
           />
         ) : (
-          <Gift size={16} color="#A3A3A3" />
+          <Gift size={16} color={nc('#A3A3A3')} />
         )}
       </View>
       <View className="flex-1 min-w-0">

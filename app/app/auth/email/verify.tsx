@@ -90,7 +90,7 @@ export default function EmailVerifyScreen() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <View className="flex-1 items-center justify-center px-6">
         {status === 'verifying' ? (
           <>

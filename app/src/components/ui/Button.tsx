@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import type { PressableProps } from 'react-native';
 
-import { brandGradientStyle } from '@/theme/gradient';
+import { brandGradient } from '@/theme/gradient';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
@@ -21,7 +21,7 @@ type ButtonProps = Omit<PressableProps, 'children'> & {
 
 const variantClasses: Record<Variant, { bg: string; text: string; pressed: string }> = {
   primary: { bg: 'bg-brand-500', text: 'text-white', pressed: 'opacity-80' },
-  secondary: { bg: 'bg-white border border-neutral-200', text: 'text-neutral-900', pressed: 'bg-neutral-50' },
+  secondary: { bg: 'bg-card border border-neutral-200', text: 'text-neutral-900', pressed: 'bg-neutral-50' },
   ghost: { bg: 'bg-transparent', text: 'text-brand-600', pressed: 'opacity-60' },
   danger: { bg: 'bg-red-500', text: 'text-white', pressed: 'opacity-80' },
 };
@@ -73,7 +73,7 @@ export function Button({
         isDisabled ? 'opacity-50' : '',
       ].join(' ')}
       // Primary: gradient oranye brand (sama dengan dock portal).
-      style={[variant === 'primary' ? brandGradientStyle : null, pressed && !isDisabled ? { opacity: 0.85 } : null]}
+      style={[variant === 'primary' ? brandGradient() : null, pressed && !isDisabled ? { opacity: 0.85 } : null]}
     >
       {loading ? (
         <ActivityIndicator size="small" color={variant === 'primary' || variant === 'danger' ? '#fff' : '#F97316'} />

@@ -11,6 +11,7 @@ import { env } from '@/config/env';
 import { useToast } from '@/components/ui/Toast';
 import { useDeleteGroupHero, useUploadGroupHero } from '@/hooks/useGroupContent';
 import { ApiError } from '@/types/api';
+import { nc } from '@/theme/ThemeRoot';
 
 export const groupImageHref = (u: string) => (u.startsWith('http') ? u : `${env.apiBaseUrl}${u}`);
 
@@ -77,7 +78,7 @@ export function GroupHero({
         <Image source={{ uri: groupImageHref(heroImageUrl) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
       ) : (
         <View className="flex-1 items-center justify-center">
-          <Text className="text-6xl">{emoji}</Text>
+          <Text className="text-neutral-900 text-6xl">{emoji}</Text>
         </View>
       )}
       {heroImageUrl ? <View className="absolute inset-0 bg-black/30" /> : null}
@@ -87,7 +88,7 @@ export function GroupHero({
         </Text>
         {!isPublic ? (
           <View className="flex-row items-center gap-1 mt-1 self-start bg-white/80 px-3 py-1 rounded-full">
-            <Lock size={12} color="#C2410C" />
+            <Lock size={12} color={nc('#C2410C')} />
             <Text className="text-xs font-semibold text-brand-700">{t('group.visibility_private')}</Text>
           </View>
         ) : null}

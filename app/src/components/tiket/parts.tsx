@@ -2,12 +2,19 @@
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import { nc } from '@/theme/ThemeRoot';
 
 export function TicketQR({ value, size }: { value: string | null | undefined; size: number }) {
   if (!value) {
     return <View style={{ width: size, height: size, borderRadius: 6 }} className="bg-neutral-100" />;
   }
-  return <QRCode value={value} size={size} backgroundColor="#FFFFFF" color="#171717" />;
+  // Kotak putih (quiet zone) — QR tetap mudah dipindai di mode gelap.
+  const pad = Math.max(3, Math.round(size * 0.06));
+  return (
+    <View style={{ backgroundColor: '#FFFFFF', padding: pad, borderRadius: 8 }}>
+      <QRCode value={value} size={size - pad * 2} backgroundColor="#FFFFFF" color="#171717" />
+    </View>
+  );
 }
 
 const PILL: Record<string, [string, string]> = {

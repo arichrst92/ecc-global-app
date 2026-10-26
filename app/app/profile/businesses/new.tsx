@@ -27,6 +27,7 @@ import { INDUSTRI_SUGGESTIONS } from '@/types/localBusiness';
 import type { TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function NewBusinessScreen() {
   const { t } = useTranslation();
@@ -71,13 +72,13 @@ export default function NewBusinessScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="text-base font-bold text-neutral-900 flex-1">
             {t('my_business.new_title')}
@@ -104,7 +105,7 @@ export default function NewBusinessScreen() {
               onChangeText={setNama}
               placeholder={t('my_business.nama_placeholder')}
               maxLength={255}
-              className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+              className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
             />
           </Field>
 
@@ -117,7 +118,7 @@ export default function NewBusinessScreen() {
               numberOfLines={3}
               maxLength={2000}
               textAlignVertical="top"
-              className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 min-h-[80px]"
+              className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 min-h-[80px]"
             />
           </Field>
 
@@ -130,7 +131,7 @@ export default function NewBusinessScreen() {
                   className={`flex-1 py-3 rounded-xl border items-center ${
                     tipeBisnis === opt
                       ? 'bg-brand-50 border-brand-500'
-                      : 'bg-white border-neutral-200'
+                      : 'bg-card border-neutral-200'
                   }`}
                 >
                   <Text
@@ -151,7 +152,7 @@ export default function NewBusinessScreen() {
               onChangeText={setIndustri}
               placeholder={t('my_business.industri_placeholder')}
               maxLength={100}
-              className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 mb-2"
+              className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 mb-2"
             />
             {/* Suggestions */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -184,10 +185,10 @@ export default function NewBusinessScreen() {
                 className={`flex-1 py-3 rounded-xl border flex-row items-center justify-center gap-1.5 ${
                   !isOnline
                     ? 'bg-brand-50 border-brand-500'
-                    : 'bg-white border-neutral-200'
+                    : 'bg-card border-neutral-200'
                 }`}
               >
-                <WifiOff size={14} color={!isOnline ? '#EA580C' : '#737373'} />
+                <WifiOff size={14} color={!isOnline ? '#EA580C' : nc('#737373')} />
                 <Text
                   className={`text-sm font-semibold ${
                     !isOnline ? 'text-brand-700' : 'text-neutral-700'
@@ -201,10 +202,10 @@ export default function NewBusinessScreen() {
                 className={`flex-1 py-3 rounded-xl border flex-row items-center justify-center gap-1.5 ${
                   isOnline
                     ? 'bg-brand-50 border-brand-500'
-                    : 'bg-white border-neutral-200'
+                    : 'bg-card border-neutral-200'
                 }`}
               >
-                <Wifi size={14} color={isOnline ? '#EA580C' : '#737373'} />
+                <Wifi size={14} color={isOnline ? '#EA580C' : nc('#737373')} />
                 <Text
                   className={`text-sm font-semibold ${
                     isOnline ? 'text-brand-700' : 'text-neutral-700'
@@ -222,7 +223,7 @@ export default function NewBusinessScreen() {
               onChangeText={setLokasi}
               placeholder={t('my_business.lokasi_placeholder')}
               maxLength={500}
-              className="bg-white rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+              className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
             />
           </Field>
 
@@ -231,7 +232,7 @@ export default function NewBusinessScreen() {
           </Text>
         </ScrollView>
 
-        <SafeAreaView edges={['bottom']} className="bg-white border-t border-neutral-100">
+        <SafeAreaView edges={['bottom']} className="bg-card border-t border-neutral-100">
           <View className="px-5 pt-3 pb-3">
             <Button
               label={t('my_business.create_btn')}

@@ -14,11 +14,19 @@
  */
 import { Platform, type ViewStyle } from 'react-native';
 
-export const BRAND_GRADIENT = 'linear-gradient(135deg, #F97316 0%, #C2410C 100%)';
+import { isDark } from './ThemeRoot';
 
-export const brandGradientStyle: ViewStyle = (
-  Platform.OS === 'web' ? { backgroundImage: BRAND_GRADIENT } : { experimental_backgroundImage: BRAND_GRADIENT }
-) as ViewStyle;
+export const BRAND_GRADIENT = 'linear-gradient(135deg, #F97316 0%, #C2410C 100%)';
+/** Mode gelap: nada sedikit lebih gelap supaya tidak menyilaukan. */
+export const BRAND_GRADIENT_DARK = 'linear-gradient(135deg, #EA580C 0%, #9A3412 100%)';
+
+const toStyle = (g: string): ViewStyle =>
+  (Platform.OS === 'web' ? { backgroundImage: g } : { experimental_backgroundImage: g }) as ViewStyle;
+const LIGHT_STYLE = toStyle(BRAND_GRADIENT);
+const DARK_STYLE = toStyle(BRAND_GRADIENT_DARK);
+
+/** Style gradient brand sesuai mode aktif (panggil saat render). */
+export const brandGradient = (): ViewStyle => (isDark() ? DARK_STYLE : LIGHT_STYLE);
 
 const HAS_BRAND_BG = /(^|\s)bg-brand-(500|600)(\s|$)/;
 
@@ -30,7 +38,8 @@ export function gx(className: string | false | null | undefined, style?: any): {
   if (typeof style === 'function') {
     // Pressable: style={({ pressed }) => ...}
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return { className: cls, style: (state: any) => [brandGradientStyle, style(state)] };
+    return { className: cls, style: (state: any) => [brandGradient(), style(state)] };
   }
-  return { className: cls, style: style ? [brandGradientStyle, style] : brandGradientStyle };
+  const g = brandGradient();
+  return { className: cls, style: style ? [g, style] : g };
 }

@@ -57,6 +57,7 @@ import { formatDateWithDay } from '@/utils/date';
 import type { HomecellAttendance } from '@/types/homecellSchedule';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function ScheduleDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -226,18 +227,18 @@ export default function ScheduleDetailScreen() {
   if (detailQuery.isError || !schedule) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
           </View>
         </SafeAreaView>
         <View className="flex-1 items-center justify-center px-8">
-          <AlertTriangle size={32} color="#A3A3A3" />
+          <AlertTriangle size={32} color={nc('#A3A3A3')} />
           <Text className="text-sm text-neutral-500 text-center mt-3">
             {detailQuery.error instanceof ApiError
               ? detailQuery.error.message
@@ -300,7 +301,7 @@ export default function ScheduleDetailScreen() {
               </View>
               <View className="h-1.5 bg-white/20 rounded-full overflow-hidden">
                 <View
-                  className="h-full bg-white rounded-full"
+                  className="h-full bg-card rounded-full"
                   style={{
                     width: `${totalMembers > 0 ? Math.min(100, (attendedCount / totalMembers) * 100) : 0}%`,
                   }}
@@ -334,8 +335,8 @@ export default function ScheduleDetailScreen() {
           {t('homecell.schedule_attendance_section', { count: attendedCount })}
         </Text>
         {schedule.attendances.length === 0 ? (
-          <View className="bg-white rounded-2xl p-5 border border-dashed border-neutral-300 items-center mb-5">
-            <CheckCircle2 size={24} color="#A3A3A3" />
+          <View className="bg-card rounded-2xl p-5 border border-dashed border-neutral-300 items-center mb-5">
+            <CheckCircle2 size={24} color={nc('#A3A3A3')} />
             <Text className="text-sm text-neutral-500 text-center mt-2">
               Belum ada yang hadir
             </Text>
@@ -346,7 +347,7 @@ export default function ScheduleDetailScreen() {
               <Pressable
                 key={a.id}
                 onPress={() => setConfirmDelete(a)}
-                className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+                className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
               >
                 <Avatar
                   name={a.jemaat.namaLengkap}
@@ -384,10 +385,10 @@ export default function ScheduleDetailScreen() {
               {schedule.missingMembers.map((m) => (
                 <View
                   key={m.jemaatId}
-                  className="bg-white rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+                  className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
                 >
                   <View className="w-10 h-10 rounded-full bg-neutral-100 items-center justify-center">
-                    <UserX size={18} color="#A3A3A3" />
+                    <UserX size={18} color={nc('#A3A3A3')} />
                   </View>
                   <View className="flex-1 min-w-0">
                     <Text className="text-sm font-medium text-neutral-700" numberOfLines={1}>
@@ -452,7 +453,7 @@ export default function ScheduleDetailScreen() {
         {schedule.missingMembers.length > 0 ? (
           <Pressable
             onPress={openBulkModal}
-            className="bg-white border border-brand-500 rounded-full px-4 py-3 flex-row items-center gap-2 shadow-md"
+            className="bg-card border border-brand-500 rounded-full px-4 py-3 flex-row items-center gap-2 shadow-md"
           >
             <ListChecks size={18} color="#EA580C" />
             <Text className="text-brand-600 font-bold text-sm">
@@ -484,14 +485,14 @@ export default function ScheduleDetailScreen() {
         navigationBarTranslucent
       >
         <View className="flex-1 bg-neutral-50">
-          <View className="bg-white border-b border-neutral-100" style={{ paddingTop: insets.top }}>
+          <View className="bg-card border-b border-neutral-100" style={{ paddingTop: insets.top }}>
             <View className="px-4 py-2 flex-row items-center">
               <Pressable
                 onPress={() => setBulkOpen(false)}
                 className="w-10 h-10 items-center justify-center"
                 disabled={bulkMutation.isPending}
               >
-                <X size={22} color="#171717" />
+                <X size={22} color={nc('#171717')} />
               </Pressable>
               <View className="flex-1">
                 <Text className="text-base font-bold text-neutral-900">
@@ -553,13 +554,13 @@ export default function ScheduleDetailScreen() {
                         className={`rounded-2xl p-3 flex-row items-center gap-3 border ${
                           checked
                             ? 'bg-brand-50 border-brand-300'
-                            : 'bg-white border-neutral-100'
+                            : 'bg-card border-neutral-100'
                         }`}
                       >
                         {checked ? (
                           <CheckSquare size={22} color="#EA580C" />
                         ) : (
-                          <Square size={22} color="#A3A3A3" />
+                          <Square size={22} color={nc('#A3A3A3')} />
                         )}
                         <View className="flex-1 min-w-0">
                           <Text
@@ -576,7 +577,7 @@ export default function ScheduleDetailScreen() {
                 </View>
               </>
             ) : (
-              <View className="bg-white rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
+              <View className="bg-card rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
                 <CheckCircle2 size={32} color="#10B981" />
                 <Text className="text-sm text-neutral-600 text-center mt-3">
                   {t('homecell.schedule_bulk_empty')}
@@ -620,7 +621,7 @@ export default function ScheduleDetailScreen() {
           {/* Submit footer */}
           {schedule.missingMembers.length > 0 ? (
             <View
-              className="bg-white border-t border-neutral-100 px-5 pt-3"
+              className="bg-card border-t border-neutral-100 px-5 pt-3"
               style={{ paddingBottom: insets.bottom + 12 }}
             >
               <Button
@@ -702,7 +703,7 @@ export default function ScheduleDetailScreen() {
           onPress={() => setConfirmDelete(null)}
           className="flex-1 bg-black/50 items-center justify-center px-6"
         >
-          <Pressable onPress={() => {}} className="bg-white rounded-2xl p-5 w-full max-w-sm">
+          <Pressable onPress={() => {}} className="bg-card rounded-2xl p-5 w-full max-w-sm">
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3">
               <AlertTriangle size={24} color="#DC2626" />
             </View>
@@ -746,7 +747,7 @@ export default function ScheduleDetailScreen() {
           onPress={() => setConfirmDeleteSchedule(false)}
           className="flex-1 bg-black/50 items-center justify-center px-6"
         >
-          <Pressable onPress={() => {}} className="bg-white rounded-2xl p-5 w-full max-w-sm">
+          <Pressable onPress={() => {}} className="bg-card rounded-2xl p-5 w-full max-w-sm">
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3">
               <AlertTriangle size={24} color="#DC2626" />
             </View>

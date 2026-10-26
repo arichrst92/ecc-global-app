@@ -14,6 +14,7 @@ import {
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { nc } from '@/theme/ThemeRoot';
 
 export type ScanResultKind =
   | { kind: 'success'; namaLengkap: string; fotoUrl?: string | null; walkIn?: boolean; alreadyCheckedIn?: boolean }
@@ -57,7 +58,7 @@ export function ScanResultModal({
         onPress={onDismiss}
         className="flex-1 bg-black/60 items-center justify-center px-6"
       >
-        <Pressable onPress={() => {}} className="bg-white rounded-3xl p-5 w-full max-w-sm">
+        <Pressable onPress={() => {}} className="bg-card rounded-3xl p-5 w-full max-w-sm">
           {result.kind === 'success' ? (
             <SuccessContent
               namaLengkap={result.namaLengkap}
@@ -164,7 +165,7 @@ function SuccessContent({
         )}
         {walkIn ? (
           <View className="bg-blue-100 px-3 py-1 rounded-full flex-row items-center gap-1">
-            <Zap size={12} color="#1d4ed8" />
+            <Zap size={12} color={nc('#1d4ed8')} />
             <Text className="text-xs font-bold text-blue-700">
               {t('scanner.badge_walkin')}
             </Text>
@@ -234,7 +235,7 @@ function ErrorContent({ message }: { message: string }) {
   return (
     <View className="items-center">
       <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center">
-        <AlertTriangle size={32} color="#737373" />
+        <AlertTriangle size={32} color={nc('#737373')} />
       </View>
       <Text className="text-lg font-bold text-neutral-900 mt-3 text-center">
         {t('scanner.error_generic_title')}

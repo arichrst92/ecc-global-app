@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ChevronRight, Phone, QrCode, UserPlus } from 'lucide-react-native';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function FamilyAddOptionsScreen() {
   const insets = useSafeAreaInsets();
@@ -13,7 +14,7 @@ export default function FamilyAddOptionsScreen() {
   const options = [
     {
       key: 'scan',
-      icon: <QrCode size={22} color="#1d4ed8" />,
+      icon: <QrCode size={22} color={nc('#1d4ed8')} />,
       iconBg: 'bg-blue-50',
       label: t('family.add_via_scan'),
       sub: t('family.add_via_scan_sub'),
@@ -39,13 +40,13 @@ export default function FamilyAddOptionsScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('family.add_title')}
@@ -66,7 +67,7 @@ export default function FamilyAddOptionsScreen() {
             <Pressable
               key={o.key}
               onPress={o.onPress}
-              className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
+              className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
             >
               <View className={`w-12 h-12 rounded-xl ${o.iconBg} items-center justify-center`}>
                 {o.icon}
@@ -75,7 +76,7 @@ export default function FamilyAddOptionsScreen() {
                 <Text className="font-semibold text-neutral-900">{o.label}</Text>
                 <Text className="text-xs text-neutral-500 mt-0.5">{o.sub}</Text>
               </View>
-              <ChevronRight size={18} color="#A3A3A3" />
+              <ChevronRight size={18} color={nc('#A3A3A3')} />
             </Pressable>
           ))}
         </View>

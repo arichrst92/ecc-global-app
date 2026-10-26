@@ -20,6 +20,7 @@ import { ApiError } from '@/types/api';
 import { useRouter } from 'expo-router';
 import { coordsForSelfCheckin, isRadiusError, SelfCheckinLocationError, showUsherFallback } from '@/utils/selfCheckinLocation';
 import { selfCheckinOpenNow, serverNowMs } from '@/utils/serverClock';
+import { nc } from '@/theme/ThemeRoot';
 
 export type SelfCheckinData = {
   available: boolean;
@@ -109,7 +110,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
             label={allDone ? t('ibadah.self_checkin_done_btn') : t('ibadah.self_checkin_btn')}
             variant={allDone ? 'secondary' : 'primary'}
             onPress={() => setOpen(true)}
-            leftIcon={<UserCheck size={16} color={allDone ? '#171717' : '#fff'} />}
+            leftIcon={<UserCheck size={16} color={allDone ? nc('#171717') : '#fff'} />}
             fullWidth
             singleLine
             size={compact ? 'md' : 'lg'}

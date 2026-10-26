@@ -19,6 +19,7 @@ import { ApiError } from '@/types/api';
 import type { TipeRelasi } from '@/types/tipeRelasi';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function FamilyDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -47,13 +48,13 @@ export default function FamilyDetailScreen() {
   if (!relation) {
     return (
       <View className="flex-1 bg-neutral-50">
-        <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+        <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
               onPress={() => goBack(router)}
               className="w-10 h-10 items-center justify-center"
             >
-              <ArrowLeft size={20} color="#171717" />
+              <ArrowLeft size={20} color={nc('#171717')} />
             </Pressable>
           </View>
         </SafeAreaView>
@@ -163,7 +164,7 @@ export default function FamilyDetailScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
         {/* Contact info */}
-        <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4 gap-3">
+        <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4 gap-3">
           {jemaat.noHp ? (
             <View className="flex-row items-center gap-3">
               <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
@@ -191,7 +192,7 @@ export default function FamilyDetailScreen() {
         </View>
 
         {/* Role editor — granular tipe relasi */}
-        <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4">
+        <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
           <TipeRelasiPicker
             value={currentTipe}
             onChange={setEditingTipe}
@@ -228,7 +229,7 @@ export default function FamilyDetailScreen() {
             onPress={() =>
               router.push(`/settings/edit-profile?dependent=${jemaat.id}` as never)
             }
-            className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-4"
+            className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-4"
           >
             <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
               <Pencil size={18} color="#EA580C" />
@@ -247,7 +248,7 @@ export default function FamilyDetailScreen() {
         {/* Unlink */}
         <Pressable
           onPress={() => setUnlinkOpen(true)}
-          className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+          className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
         >
           <View className="w-10 h-10 rounded-xl bg-red-50 items-center justify-center">
             <Trash2 size={18} color="#DC2626" />
@@ -276,7 +277,7 @@ export default function FamilyDetailScreen() {
         >
           <Pressable
             onPress={() => {}}
-            className="bg-white rounded-2xl p-5 w-full max-w-sm"
+            className="bg-card rounded-2xl p-5 w-full max-w-sm"
           >
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <AlertTriangle size={24} color="#DC2626" />

@@ -19,6 +19,7 @@ import { env } from '@/config/env';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type PickedImage = {
   uri: string;
@@ -235,10 +236,10 @@ export default function EventPaymentScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('event.payment_title')}
@@ -293,7 +294,7 @@ export default function EventPaymentScreen() {
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
               {t('event.transfer_to')}
             </Text>
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
               <View className="flex-row items-center gap-3">
                 <View className="w-12 h-12 rounded-xl bg-blue-50 items-center justify-center">
                   <Text className="font-bold text-blue-600 text-sm">{event.bankNama}</Text>
@@ -336,7 +337,7 @@ export default function EventPaymentScreen() {
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
               {t('event.or_qris')}
             </Text>
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 mb-4 items-center">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4 items-center">
               <Image
                 source={{ uri: `${env.apiBaseUrl}${event.qrisImageUrl}` }}
                 style={{ width: 200, height: 200 }}
@@ -378,7 +379,7 @@ export default function EventPaymentScreen() {
           </View>
         ) : pickedImage ? (
           // Image picked, belum submit — preview + actions
-          <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+          <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
             <Image
               source={{ uri: pickedImage.uri }}
               style={{ width: '100%', height: 280 }}
@@ -391,7 +392,7 @@ export default function EventPaymentScreen() {
                   variant="secondary"
                   onPress={pickImage}
                   loading={false}
-                  leftIcon={<RefreshCw size={14} color="#404040" />}
+                  leftIcon={<RefreshCw size={14} color={nc('#404040')} />}
                   size="md"
                   fullWidth
                   disabled={uploadMutation.isPending}
@@ -401,7 +402,7 @@ export default function EventPaymentScreen() {
           </View>
         ) : (
           // Belum pick image — show 2 options: gallery + camera
-          <View className="bg-white rounded-2xl border border-neutral-100 p-4 gap-2">
+          <View className="bg-card rounded-2xl border border-neutral-100 p-4 gap-2">
             <Pressable
               onPress={pickImage}
               className="p-4 border-2 border-dashed border-brand-300 rounded-xl items-center gap-2"
@@ -418,7 +419,7 @@ export default function EventPaymentScreen() {
               onPress={takePhoto}
               className="p-3 border border-neutral-200 rounded-xl flex-row items-center justify-center gap-2"
             >
-              <Camera size={16} color="#525252" />
+              <Camera size={16} color={nc('#525252')} />
               <Text className="text-sm font-medium text-neutral-700">
                 {t('event.take_photo')}
               </Text>
@@ -428,7 +429,7 @@ export default function EventPaymentScreen() {
       </ScrollView>
 
       {/* Sticky bottom action — submit button atau back home */}
-      <View className="bg-white border-t border-neutral-100 px-5 py-3">
+      <View className="bg-card border-t border-neutral-100 px-5 py-3">
         <SafeAreaView edges={['bottom']}>
           {isUploaded ? (
             <Button

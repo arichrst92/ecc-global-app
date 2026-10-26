@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { env } from '@/config/env';
 import type { HomecellScheduleFile } from '@/types/homecellSchedule';
 import type { PickedFile } from '@/api/homecellSchedule';
+import { nc } from '@/theme/ThemeRoot';
 
 const fileHref = (u: string) => (u.startsWith('http') ? u : `${env.apiBaseUrl}${u}`);
 const sizeLabel = (b: number | null) =>
@@ -118,14 +119,14 @@ export function UploadMaterialModal({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={close} />
-        <View className="bg-white rounded-t-3xl p-5 gap-3">
+        <View className="bg-card rounded-t-3xl p-5 gap-3">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-2">
               <Paperclip size={18} color="#EA580C" />
               <Text className="text-lg font-bold text-neutral-900">{t('hcj.materi_upload')}</Text>
             </View>
             <Pressable onPress={close} hitSlop={10}>
-              <X size={18} color="#737373" />
+              <X size={18} color={nc('#737373')} />
             </Pressable>
           </View>
 
@@ -133,7 +134,7 @@ export function UploadMaterialModal({
             onPress={pick}
             className="flex-row items-center justify-center gap-2 border-2 border-dashed border-neutral-300 rounded-xl py-4 px-3"
           >
-            <Upload size={18} color="#525252" />
+            <Upload size={18} color={nc('#525252')} />
             <Text className="text-sm text-neutral-700 flex-shrink" numberOfLines={1}>
               {file ? file.name : t('hcj.materi_pick')}
             </Text>
@@ -145,7 +146,7 @@ export function UploadMaterialModal({
             value={nama}
             onChangeText={setNama}
             placeholder={t('hcj.materi_name_placeholder')}
-            placeholderTextColor="#A3A3A3"
+            placeholderTextColor={nc('#A3A3A3')}
             maxLength={200}
             className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
           />
@@ -154,7 +155,7 @@ export function UploadMaterialModal({
             value={deskripsi}
             onChangeText={setDeskripsi}
             placeholder={t('hcj.materi_desc_placeholder')}
-            placeholderTextColor="#A3A3A3"
+            placeholderTextColor={nc('#A3A3A3')}
             multiline
             maxLength={2000}
             className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"

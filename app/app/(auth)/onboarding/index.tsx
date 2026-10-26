@@ -56,6 +56,7 @@ import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
+import { nc } from '@/theme/ThemeRoot';
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -266,7 +267,7 @@ function IntroStep({
   const totalSteps = (missingNoHp ? 1 : 0) + 1; // phone + profile
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
@@ -290,20 +291,20 @@ function IntroStep({
           </Text>
           {missingNoHp ? (
             <StepPreview
-              icon={<MessageCircleMore size={20} color="#C2410C" />}
+              icon={<MessageCircleMore size={20} color={nc('#C2410C')} />}
               title={t('auth.onboarding.step_phone_title')}
               body={t('auth.onboarding.step_phone_body')}
             />
           ) : null}
           <StepPreview
-            icon={<UserCircle size={20} color="#C2410C" />}
+            icon={<UserCircle size={20} color={nc('#C2410C')} />}
             title={t('auth.onboarding.step_profile_title')}
             body={t('auth.onboarding.step_profile_body', { count: missingProfileCount })}
           />
         </View>
       </ScrollView>
 
-      <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100 gap-2">
+      <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100 gap-2">
         <Button
           label={t('auth.onboarding.start')}
           onPress={onStart}
@@ -335,7 +336,7 @@ function StepPreview({
 }) {
   return (
     <View className="flex-row gap-3">
-      <View className="w-10 h-10 rounded-xl bg-white items-center justify-center">{icon}</View>
+      <View className="w-10 h-10 rounded-xl bg-card items-center justify-center">{icon}</View>
       <View className="flex-1">
         <Text className="text-sm font-semibold text-neutral-900">{title}</Text>
         <Text className="text-xs text-neutral-600 mt-0.5">{body}</Text>
@@ -391,14 +392,14 @@ function AddPhoneInputStep({
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
         <View className="px-4 py-2">
           <Pressable onPress={onBack} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
         </View>
 
@@ -432,7 +433,7 @@ function AddPhoneInputStep({
           />
         </ScrollView>
 
-        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+        <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">
           <Button
             label={t('auth.send_otp')}
             onPress={submit}
@@ -504,10 +505,10 @@ function AddPhoneOtpStep({
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <View className="px-4 py-2">
         <Pressable onPress={onBack} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={20} color="#171717" />
+          <ArrowLeft size={20} color={nc('#171717')} />
         </Pressable>
       </View>
 
@@ -647,7 +648,7 @@ function ProfileStep({
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+    <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
@@ -658,7 +659,7 @@ function ProfileStep({
             disabled={submitting}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
         </View>
 
@@ -730,7 +731,7 @@ function ProfileStep({
                 >
                   {values.tanggalLahir || t('auth.onboarding.dob_placeholder')}
                 </Text>
-                <CalendarIcon size={18} color="#737373" />
+                <CalendarIcon size={18} color={nc('#737373')} />
               </Pressable>
               {errors.tanggalLahir ? (
                 <Text className="text-xs text-red-600 mt-1">{errors.tanggalLahir}</Text>
@@ -779,7 +780,7 @@ function ProfileStep({
           </View>
         </ScrollView>
 
-        <View className="px-6 pt-3 pb-3 bg-white border-t border-neutral-100">
+        <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">
           <Button
             label={t('auth.onboarding.submit')}
             onPress={submit}
@@ -881,7 +882,7 @@ function DatePickerModal({
       <Pressable onPress={onClose} className="flex-1 bg-black/50 items-center justify-end">
         <Pressable
           onPress={() => {}}
-          className="bg-white w-full rounded-t-3xl pt-4 pb-8 px-4"
+          className="bg-card w-full rounded-t-3xl pt-4 pb-8 px-4"
         >
           <View className="flex-row items-center justify-between mb-2">
             <Pressable onPress={onClose}>
@@ -899,7 +900,7 @@ function DatePickerModal({
             display="spinner"
             maximumDate={new Date()}
             minimumDate={new Date(1900, 0, 1)}
-            textColor="#171717"
+            textColor={nc('#171717')}
             themeVariant="light"
             onChange={(_e, d) => {
               if (d) onChange(d);

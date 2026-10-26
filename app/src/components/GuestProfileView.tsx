@@ -16,6 +16,7 @@ import {
 
 import { useAuthStore } from '@/stores/auth.store';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 /**
  * Profile tab UI khusus untuk guest mode.
@@ -59,7 +60,7 @@ export function GuestProfileView() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32 }}
       >
         {/* Brand banner */}
-        <View className="bg-white rounded-2xl p-5 items-center border border-neutral-100">
+        <View className="bg-card rounded-2xl p-5 items-center border border-neutral-100">
           <Image
             source={require('../../assets/images/ecc-icon-circle.png')}
             style={{ width: 72, height: 72 }}
@@ -77,7 +78,7 @@ export function GuestProfileView() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-6 mb-2">
           {t('guest.explore_title')}
         </Text>
-        <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
+        <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <NavRow
             icon={<BookOpen size={20} color="#2563EB" />}
             label={t('guest.nav_bible')}
@@ -96,7 +97,7 @@ export function GuestProfileView() {
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-6 mb-2">
           {t('guest.unlock_title')}
         </Text>
-        <View className="bg-white rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
+        <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
           <Feature icon={<Church size={20} color="#EA580C" />} label={t('guest.feature_ibadah')} />
           <Feature icon={<HandHeart size={20} color="#059669" />} label={t('guest.feature_giving')} />
           <Feature icon={<Calendar size={20} color="#2563EB" />} label={t('guest.feature_event')} />
@@ -152,7 +153,7 @@ function NavRow({
         <Text className="text-sm font-semibold text-neutral-900">{label}</Text>
         <Text className="text-xs text-neutral-500 mt-0.5">{sub}</Text>
       </View>
-      <ChevronRight size={14} color="#A3A3A3" />
+      <ChevronRight size={14} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }

@@ -22,6 +22,7 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useAuthStore } from '@/stores/auth.store';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function MinistryListScreen() {
   const insets = useSafeAreaInsets();
@@ -42,13 +43,13 @@ export default function MinistryListScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('ministry.title')}</Text>
@@ -78,7 +79,7 @@ export default function MinistryListScreen() {
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
               {t('ministry.my_section')}
             </Text>
-            <View className="bg-white rounded-2xl border border-neutral-100 mb-6">
+            <View className="bg-card rounded-2xl border border-neutral-100 mb-6">
               {myMinistries.map((m, idx) => (
                 <Pressable
                   key={m.id}
@@ -100,7 +101,7 @@ export default function MinistryListScreen() {
                       </Text>
                     ) : null}
                   </View>
-                  <ChevronRight size={16} color="#A3A3A3" />
+                  <ChevronRight size={16} color={nc('#A3A3A3')} />
                 </Pressable>
               ))}
             </View>
@@ -116,7 +117,7 @@ export default function MinistryListScreen() {
             <ActivityIndicator color="#F97316" />
           </View>
         ) : ministryListQuery.isError ? (
-          <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center">
+          <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
             <Text className="text-sm text-red-600 text-center mb-3">
               {t('error.generic')}
             </Text>
@@ -128,9 +129,9 @@ export default function MinistryListScreen() {
             </Pressable>
           </View>
         ) : allMinistries.length === 0 ? (
-          <View className="bg-white rounded-2xl p-5 border border-neutral-100 items-center">
+          <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
             <View className="w-14 h-14 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              <HeartHandshake size={28} color="#A3A3A3" />
+              <HeartHandshake size={28} color={nc('#A3A3A3')} />
             </View>
             <Text className="text-sm font-semibold text-neutral-700 text-center">
               {t('ministry.empty_all_title')}
@@ -175,7 +176,7 @@ function MinistryRow({
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+      className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
     >
       <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center">
         <HeartHandshake size={22} color="#EA580C" />
@@ -191,7 +192,7 @@ function MinistryRow({
         ) : null}
         <View className="flex-row items-center gap-3 mt-1.5">
           <View className="flex-row items-center gap-1">
-            <Users size={11} color="#737373" />
+            <Users size={11} color={nc('#737373')} />
             <Text className="text-[11px] text-neutral-500">
               {ministry.memberCount} {t('ministry.member_label')}
             </Text>
@@ -213,7 +214,7 @@ function MinistryRow({
           ) : null}
         </View>
       </View>
-      <ChevronRight size={16} color="#A3A3A3" />
+      <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
   );
 }

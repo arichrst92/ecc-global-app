@@ -15,6 +15,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import type { SelfCheckinMember } from '@/api/ibadah';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 export function SelfCheckinModal({
   visible,
@@ -73,7 +74,7 @@ export function SelfCheckinModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 items-center justify-center px-6">
-        <View className="bg-white rounded-3xl p-5 w-full max-w-md" style={{ maxHeight: '85%' }}>
+        <View className="bg-card rounded-3xl p-5 w-full max-w-md" style={{ maxHeight: '85%' }}>
           <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center self-center mb-3">
             <MapPin size={24} color="#EA580C" />
           </View>
@@ -83,7 +84,7 @@ export function SelfCheckinModal({
           {sub ? <Text className="text-xs text-neutral-500 text-center mt-1">{sub}</Text> : null}
           {status?.venue?.requiresLocation && status.venue.radiusM ? (
             <View className="flex-row items-center justify-center gap-1.5 mt-2 bg-blue-50 rounded-full px-3 py-1 self-center">
-              <LocateFixed size={12} color="#1D4ED8" />
+              <LocateFixed size={12} color={nc('#1D4ED8')} />
               <Text className="text-[11px] text-blue-800">
                 {t('selfcheckin_geo.radius_note', { radius: formatRadius(status.venue.radiusM) })}
               </Text>
@@ -112,7 +113,7 @@ export function SelfCheckinModal({
                         ? 'bg-neutral-50 border-neutral-200 opacity-60'
                         : on
                           ? 'bg-brand-50 border-brand-300'
-                          : 'bg-white border-neutral-200'
+                          : 'bg-card border-neutral-200'
                   }`}
                 >
                   <Avatar name={m.namaLengkap} fotoUrl={m.fotoUrl} size={36} />

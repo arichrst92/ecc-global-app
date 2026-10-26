@@ -48,6 +48,7 @@ import {
 } from '@/hooks/useHomecell';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function HomecellViewScreen() {
   const insets = useSafeAreaInsets();
@@ -144,10 +145,10 @@ export default function HomecellViewScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900" numberOfLines={1}>
             {hc?.nama ?? t('hcj.title')}
@@ -169,7 +170,7 @@ export default function HomecellViewScreen() {
           contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 16 }}
         >
           {/* Info utama */}
-          <View className="bg-white rounded-2xl p-5 border border-neutral-100">
+          <View className="bg-card rounded-2xl p-5 border border-neutral-100">
             <Text className="text-xl font-bold text-neutral-900">{hc.nama}</Text>
             <LastAttendanceText variant="homecell" date={hc.lastMeetingAt} daysAgo={hc.lastMeetingDaysAgo} />
             <Text className="text-xs text-neutral-500 mt-0.5">
@@ -179,13 +180,13 @@ export default function HomecellViewScreen() {
 
             <View className="mt-4 gap-2.5">
               {jadwal ? (
-                <InfoRow icon={<Clock size={15} color="#737373" />} label={t('hcj.schedule_label')} value={jadwal} />
+                <InfoRow icon={<Clock size={15} color={nc('#737373')} />} label={t('hcj.schedule_label')} value={jadwal} />
               ) : null}
               {hc.alamat ? (
-                <InfoRow icon={<MapPin size={15} color="#737373" />} label={t('hcj.address_label')} value={hc.alamat} />
+                <InfoRow icon={<MapPin size={15} color={nc('#737373')} />} label={t('hcj.address_label')} value={hc.alamat} />
               ) : null}
               <InfoRow
-                icon={<Users size={15} color="#737373" />}
+                icon={<Users size={15} color={nc('#737373')} />}
                 label={t('homecell.members_count')}
                 value={t('hcj.members', { count: hc.memberCount })}
               />
@@ -204,7 +205,7 @@ export default function HomecellViewScreen() {
 
           {/* Pemimpin */}
           {hc.picJemaat ? (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3">
               <Avatar name={hc.picJemaat.namaLengkap} fotoUrl={hc.picJemaat.fotoUrl} size={44} />
               <View className="flex-1 min-w-0">
                 <Text className="text-xs text-neutral-500">{t('homecell.pic_role_label')}</Text>
@@ -228,7 +229,7 @@ export default function HomecellViewScreen() {
           {hc.myStatus === 'MEMBER' ? (
             <StatusNote icon={<CheckCircle2 size={18} color="#059669" />} tone="emerald" text={t('hcj.you_are_member')} />
           ) : hc.myStatus === 'LEADER' ? (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-3">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3">
               <StatusNote icon={<CheckCircle2 size={18} color="#EA580C" />} tone="brand" text={t('hcj.you_are_leader')} />
               <Text className="text-xs text-neutral-500">
                 {hc.hasLocation ? t('hcj.location_set') : t('hcj.location_not_set')}
@@ -246,17 +247,17 @@ export default function HomecellViewScreen() {
             </View>
           ) : hc.myStatus === 'PENDING' ? (
             <View className="gap-2">
-              <StatusNote icon={<Hourglass size={18} color="#B45309" />} tone="amber" text={t('hcj.waiting')} />
+              <StatusNote icon={<Hourglass size={18} color={nc('#B45309')} />} tone="amber" text={t('hcj.waiting')} />
               <Button label={t('hcj.cancel_request')} variant="danger" loading={cancelMut.isPending} onPress={cancel} />
             </View>
           ) : (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100 gap-3">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3">
               <Text className="text-sm font-semibold text-neutral-800">{t('hcj.join_message_label')}</Text>
               <TextInput
                 value={pesan}
                 onChangeText={setPesan}
                 placeholder={t('hcj.join_message_placeholder')}
-                placeholderTextColor="#A3A3A3"
+                placeholderTextColor={nc('#A3A3A3')}
                 multiline
                 maxLength={500}
                 className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
@@ -267,7 +268,7 @@ export default function HomecellViewScreen() {
           )}
 
           {/* Pertemuan berikutnya */}
-          <View className="bg-white rounded-2xl p-4 border border-neutral-100">
+          <View className="bg-card rounded-2xl p-4 border border-neutral-100">
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
               {t('hcj.upcoming_section')}
             </Text>
@@ -291,7 +292,7 @@ export default function HomecellViewScreen() {
 
           {/* Materi pertemuan (anggota / pemimpin) */}
           {hc.myStatus === 'MEMBER' || hc.myStatus === 'LEADER' ? (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100">
               <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
                 {t('hcj.materi_section')}
               </Text>
@@ -325,7 +326,7 @@ export default function HomecellViewScreen() {
 
           {/* Anggota (hanya untuk anggota / pemimpin) */}
           {hc.members.length > 0 ? (
-            <View className="bg-white rounded-2xl p-4 border border-neutral-100">
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100">
               <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">
                 {t('hcj.members_section', { count: hc.members.length })}
               </Text>
@@ -350,14 +351,14 @@ export default function HomecellViewScreen() {
       {/* Modal atur lokasi (pemimpin) */}
       <Modal visible={lokasiOpen} transparent animationType="fade" onRequestClose={() => setLokasiOpen(false)}>
         <View className="flex-1 bg-black/40 items-center justify-center px-6">
-          <View className="bg-white rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
+          <View className="bg-card rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
             <Text className="text-base font-bold text-neutral-900">{t('hcj.location_title')}</Text>
             <Text className="text-xs text-neutral-500 mt-1 mb-3">{t('hcj.location_help')}</Text>
             <TextInput
               value={lokasiInput}
               onChangeText={setLokasiInput}
               placeholder={t('hcj.location_placeholder')}
-              placeholderTextColor="#A3A3A3"
+              placeholderTextColor={nc('#A3A3A3')}
               autoCapitalize="none"
               autoCorrect={false}
               className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"

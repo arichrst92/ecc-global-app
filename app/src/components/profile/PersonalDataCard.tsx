@@ -12,6 +12,7 @@ import { Briefcase, Cake, ChevronRight, Eye, Heart, Mail, MapPin, Pencil, User }
 import { getMyProfile } from '@/api/me';
 import { getMyPrivacy, type PrivacyAudience, type PrivacyField } from '@/api/privacy';
 import { formatDate } from '@/utils/date';
+import { nc } from '@/theme/ThemeRoot';
 
 type Row = {
   key: string;
@@ -65,12 +66,12 @@ export function PersonalDataCard() {
       privacy: 'tanggalLahir',
     },
     { key: 'alamat', icon: <MapPin size={15} color="#059669" />, label: t('signup.address'), value: me?.alamat ?? null, privacy: 'alamat' },
-    { key: 'job', icon: <Briefcase size={15} color="#B45309" />, label: t('edit_profile.job'), value: pekerjaan || null, privacy: 'pekerjaan' },
+    { key: 'job', icon: <Briefcase size={15} color={nc('#B45309')} />, label: t('edit_profile.job'), value: pekerjaan || null, privacy: 'pekerjaan' },
     { key: 'marriage', icon: <Heart size={15} color="#E11D48" />, label: t('edit_profile.marriage'), value: pernikahan, privacy: 'pernikahan' },
   ];
 
   return (
-    <View className="bg-white rounded-2xl border border-neutral-100 mb-4 overflow-hidden">
+    <View className="bg-card rounded-2xl border border-neutral-100 mb-4 overflow-hidden">
       <Pressable
         onPress={() => router.push('/settings/edit-profile' as never)}
         className="flex-row items-center justify-between px-4 pt-4 pb-2 active:opacity-80"
@@ -93,7 +94,7 @@ export function PersonalDataCard() {
               </Text>
               {aud ? (
                 <View className="flex-row items-center gap-1 mt-0.5">
-                  <Eye size={11} color="#A3A3A3" />
+                  <Eye size={11} color={nc('#A3A3A3')} />
                   <Text className="text-[10px] text-neutral-400 flex-1" numberOfLines={2}>
                     {t('personal_data.visible_to', { who: aud })}
                   </Text>
@@ -108,7 +109,7 @@ export function PersonalDataCard() {
         className="flex-row items-center justify-between px-4 py-3 border-t border-neutral-100 active:bg-neutral-50"
       >
         <Text className="text-xs text-neutral-600">{t('personal_data.privacy_link')}</Text>
-        <ChevronRight size={14} color="#A3A3A3" />
+        <ChevronRight size={14} color={nc('#A3A3A3')} />
       </Pressable>
     </View>
   );

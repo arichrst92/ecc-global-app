@@ -27,6 +27,7 @@ import { formatPhoneDisplay } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import type { HomecellJoinRequestRow } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
+import { nc } from '@/theme/ThemeRoot';
 
 export default function HomecellRequestsScreen() {
   const insets = useSafeAreaInsets();
@@ -84,10 +85,10 @@ export default function HomecellRequestsScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">{t('hcj.requests_title')}</Text>
         </View>
@@ -103,12 +104,12 @@ export default function HomecellRequestsScreen() {
           </View>
         ) : rows.length === 0 ? (
           <View className="items-center py-16 px-8">
-            <Inbox size={32} color="#A3A3A3" />
+            <Inbox size={32} color={nc('#A3A3A3')} />
             <Text className="text-sm text-neutral-500 text-center mt-2">{t('hcj.requests_empty')}</Text>
           </View>
         ) : (
           rows.map((r) => (
-            <View key={r.id} className="bg-white rounded-2xl p-4 border border-neutral-100">
+            <View key={r.id} className="bg-card rounded-2xl p-4 border border-neutral-100">
               <View className="flex-row items-center gap-3">
                 <Avatar name={r.jemaat.namaLengkap} fotoUrl={r.jemaat.fotoUrl} size={44} />
                 <View className="flex-1 min-w-0">
@@ -123,11 +124,11 @@ export default function HomecellRequestsScreen() {
 
               <View className="mt-3 gap-1.5">
                 {r.jemaat.noHp ? (
-                  <Detail icon={<Phone size={13} color="#737373" />} text={formatPhoneDisplay(r.jemaat.noHp)} />
+                  <Detail icon={<Phone size={13} color={nc('#737373')} />} text={formatPhoneDisplay(r.jemaat.noHp)} />
                 ) : null}
-                {r.jemaat.alamat ? <Detail icon={<MapPin size={13} color="#737373" />} text={r.jemaat.alamat} /> : null}
+                {r.jemaat.alamat ? <Detail icon={<MapPin size={13} color={nc('#737373')} />} text={r.jemaat.alamat} /> : null}
                 {r.pesan ? (
-                  <Detail icon={<MessageSquareQuote size={13} color="#737373" />} text={`“${r.pesan}”`} />
+                  <Detail icon={<MessageSquareQuote size={13} color={nc('#737373')} />} text={`“${r.pesan}”`} />
                 ) : null}
               </View>
 
@@ -159,7 +160,7 @@ export default function HomecellRequestsScreen() {
 
       <Modal visible={!!rejecting} transparent animationType="fade" onRequestClose={() => setRejecting(null)}>
         <View className="flex-1 bg-black/40 items-center justify-center px-6">
-          <View className="bg-white rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
+          <View className="bg-card rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
             <Text className="text-base font-bold text-neutral-900 mb-3">
               {t('hcj.reject_title', { name: rejecting?.jemaat.namaLengkap ?? '' })}
             </Text>
@@ -167,7 +168,7 @@ export default function HomecellRequestsScreen() {
               value={reason}
               onChangeText={setReason}
               placeholder={t('hcj.reject_reason_placeholder')}
-              placeholderTextColor="#A3A3A3"
+              placeholderTextColor={nc('#A3A3A3')}
               multiline
               maxLength={300}
               className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"

@@ -20,6 +20,7 @@ import { addDaysIso, formatDateWithDay, todayIso } from '@/utils/date';
 import { formatVenueRange } from '@/utils/time';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type Tab = 'upcoming' | 'history';
 
@@ -56,10 +57,10 @@ export default function MyServiceScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('service.title')}</Text>
@@ -162,7 +163,7 @@ function Row({ icon, text }: { icon: React.ReactNode; text: string }) {
 function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; onPress: () => void }) {
   const { t } = useTranslation();
   return (
-    <Pressable onPress={onPress} className="bg-white rounded-2xl border border-neutral-100 p-4 active:opacity-90">
+    <Pressable onPress={onPress} className="bg-card rounded-2xl border border-neutral-100 p-4 active:opacity-90">
       <View className="flex-row items-center gap-2">
         <View className="w-9 h-9 rounded-xl bg-brand-50 items-center justify-center">
           <Church size={18} color="#EA580C" />
@@ -178,15 +179,15 @@ function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; o
       <RoleBadge posisi={a.posisi} ministry={a.ministryNama} />
       {a.ibadahJamMulai ? (
         <Row
-          icon={<Clock size={13} color="#737373" />}
+          icon={<Clock size={13} color={nc('#737373')} />}
           text={formatVenueRange(a.tanggal, a.ibadahJamMulai, a.ibadahJamSelesai, tz)}
         />
       ) : null}
-      {a.ibadahLokasi ? <Row icon={<MapPin size={13} color="#737373" />} text={a.ibadahLokasi} /> : null}
-      {a.notes ? <Row icon={<StickyNote size={13} color="#737373" />} text={a.notes} /> : null}
+      {a.ibadahLokasi ? <Row icon={<MapPin size={13} color={nc('#737373')} />} text={a.ibadahLokasi} /> : null}
+      {a.notes ? <Row icon={<StickyNote size={13} color={nc('#737373')} />} text={a.notes} /> : null}
       {a.coServants.length > 0 ? (
         <Row
-          icon={<Users size={13} color="#737373" />}
+          icon={<Users size={13} color={nc('#737373')} />}
           text={`${t('service.with')}: ${a.coServants.map((c) => `${c.namaLengkap} (${c.posisi})`).join(', ')}`}
         />
       ) : null}
@@ -198,7 +199,7 @@ function EventDuty({ e, onPress }: { e: MyEventDuty; onPress: () => void }) {
   const { t } = useTranslation();
   const tz = useVenueTz(e.cabang?.id, e.cabang?.timezone ?? null);
   return (
-    <Pressable onPress={onPress} className="bg-white rounded-2xl border border-neutral-100 p-4 active:opacity-90">
+    <Pressable onPress={onPress} className="bg-card rounded-2xl border border-neutral-100 p-4 active:opacity-90">
       <View className="flex-row items-center gap-2">
         <View className="w-9 h-9 rounded-xl bg-violet-50 items-center justify-center">
           <Ticket size={18} color="#7C3AED" />
@@ -210,11 +211,11 @@ function EventDuty({ e, onPress }: { e: MyEventDuty; onPress: () => void }) {
       </View>
       <RoleBadge posisi={e.posisi} ministry={e.ministryNama} />
       {e.jamMulai ? (
-        <Row icon={<Clock size={13} color="#737373" />} text={formatVenueRange(e.tanggalMulai, e.jamMulai, e.jamSelesai, tz)} />
+        <Row icon={<Clock size={13} color={nc('#737373')} />} text={formatVenueRange(e.tanggalMulai, e.jamMulai, e.jamSelesai, tz)} />
       ) : null}
-      {e.lokasi ? <Row icon={<MapPin size={13} color="#737373" />} text={e.lokasi} /> : null}
+      {e.lokasi ? <Row icon={<MapPin size={13} color={nc('#737373')} />} text={e.lokasi} /> : null}
       {e.canScanAttendance ? <Row icon={<ScanLine size={13} color="#059669" />} text={t('service.scanner')} /> : null}
-      {e.catatan ? <Row icon={<StickyNote size={13} color="#737373" />} text={e.catatan} /> : null}
+      {e.catatan ? <Row icon={<StickyNote size={13} color={nc('#737373')} />} text={e.catatan} /> : null}
     </Pressable>
   );
 }

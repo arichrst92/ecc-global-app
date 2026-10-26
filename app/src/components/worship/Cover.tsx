@@ -1,5 +1,6 @@
 import { Image, View } from 'react-native';
 import { Disc3 } from 'lucide-react-native';
+import { nc } from '@/theme/ThemeRoot';
 
 /** Cover album persegi dengan fallback ikon. */
 export function Cover({ url, size, radius = 10 }: { url: string | null | undefined; size: number; radius?: number }) {
@@ -10,5 +11,5 @@ export function Cover({ url, size, radius = 10 }: { url: string | null | undefin
       </View>
     );
   }
-  return <Image source={{ uri: url }} style={{ width: size, height: size, borderRadius: radius, backgroundColor: '#FFEDD5' }} />;
+  return <Image source={{ uri: url }} style={{ width: size, height: size, borderRadius: radius, backgroundColor: nc('#FFEDD5') }} />;
 }

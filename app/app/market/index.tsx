@@ -37,6 +37,7 @@ import { listCabang } from '@/api/cabang';
 import { INDUSTRI_SUGGESTIONS, type LocalBusiness, type TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
 
 type OnlineFilter = 'all' | 'online' | 'offline';
 
@@ -87,13 +88,13 @@ export default function LocalMarketScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-white border-b border-neutral-100">
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
             onPress={() => goBack(router)}
             className="w-10 h-10 items-center justify-center"
           >
-            <ArrowLeft size={20} color="#171717" />
+            <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
             {t('market.title')}
@@ -103,7 +104,7 @@ export default function LocalMarketScreen() {
         {/* Search bar + filter button */}
         <View className="px-4 pb-2 flex-row gap-2">
           <View className="flex-1 bg-neutral-100 rounded-xl flex-row items-center px-3 gap-2">
-            <Search size={16} color="#737373" />
+            <Search size={16} color={nc('#737373')} />
             <TextInput
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -113,7 +114,7 @@ export default function LocalMarketScreen() {
             />
             {searchQuery ? (
               <Pressable onPress={() => setSearchQuery('')} className="p-1">
-                <X size={14} color="#737373" />
+                <X size={14} color={nc('#737373')} />
               </Pressable>
             ) : null}
           </View>
@@ -125,10 +126,10 @@ export default function LocalMarketScreen() {
           >
             <SlidersHorizontal
               size={18}
-              color={activeFilterCount > 0 ? '#fff' : '#525252'}
+              color={activeFilterCount > 0 ? '#fff' : nc('#525252')}
             />
             {activeFilterCount > 0 ? (
-              <View className="absolute -top-1 -right-1 min-w-[16px] h-4 rounded-full bg-white border-2 border-brand-500 items-center justify-center px-1">
+              <View className="absolute -top-1 -right-1 min-w-[16px] h-4 rounded-full bg-card border-2 border-brand-500 items-center justify-center px-1">
                 <Text className="text-[9px] font-bold text-brand-700">
                   {activeFilterCount}
                 </Text>
@@ -290,7 +291,7 @@ function FilterModal({
       onRequestClose={onClose}
     >
       <Pressable onPress={onClose} className="flex-1 bg-black/50 justify-end">
-        <Pressable onPress={() => {}} className="bg-white rounded-t-3xl max-h-[85%]">
+        <Pressable onPress={() => {}} className="bg-card rounded-t-3xl max-h-[85%]">
           {/* Header */}
           <View className="flex-row items-center justify-between p-5 pb-3 border-b border-neutral-100">
             <Text className="text-lg font-bold text-neutral-900 flex-1">
@@ -478,7 +479,7 @@ function TipeChip({
     <Pressable
       onPress={onPress}
       className={`flex-1 py-3 rounded-xl border items-center ${
-        selected ? 'bg-brand-50 border-brand-500' : 'bg-white border-neutral-200'
+        selected ? 'bg-brand-50 border-brand-500' : 'bg-card border-neutral-200'
       }`}
     >
       <Text
@@ -521,7 +522,7 @@ function EmptyState({ onSeeAll }: { onSeeAll: () => void }) {
   return (
     <View className="flex-1 items-center justify-center px-8">
       <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-        <Store size={36} color="#A3A3A3" />
+        <Store size={36} color={nc('#A3A3A3')} />
       </View>
       <Text className="text-lg font-bold text-neutral-900 text-center">
         {t('market.empty_title')}
