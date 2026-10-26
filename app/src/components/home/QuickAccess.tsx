@@ -16,7 +16,6 @@ import {
   Newspaper,
   Sparkles,
   Store,
-  Target,
   UserPlus,
   Users,
   UsersRound,
@@ -29,7 +28,6 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useManagedAreas } from '@/hooks/useHomecell';
 import { getPrayerSummary } from '@/api/prayer';
 import { useWorshipSummary } from '@/hooks/useWorship';
-import { FEATURES } from '@/config/features';
 
 type QuickAccessTile = {
   key: string;
@@ -48,12 +46,12 @@ const MIN_TILE_WIDTH = 84;
 /**
  * Quick Access grid di dashboard (grid 4 kolom, dikelompokkan per tema):
  *   1. Ibadah, Event, Beri, Berita
- *   2. Renungan, Alkitab, Doa, Resolusi
+ *   2. Renungan, Alkitab, Doa, Worship
  *   3. Keluarga, Tamu, Group, Homecell
  *   4. Ministry, (Area — PIC area), Visit, Local Market
  * Jumlah kolom menyesuaikan lebar layar (min 4); tile mengalir ke kanan
  * lalu turun, baris terakhir dibiarkan apa adanya (tanpa placeholder).
- * Scanner → ikon di header Home; Kalender → header Profil.
+ * Scanner → ikon di header Home; Kalender & Resolusi → header Profil.
  * Tamu (guest mode) memakai GuestHomeView, jadi grid ini hanya untuk login.
  */
 export function QuickAccess() {
@@ -91,7 +89,6 @@ export function QuickAccess() {
       onPress: go(pendingDoa > 0 ? '/doa?tab=assigned' : '/doa'),
       badge: pendingDoa > 0 ? (pendingDoa > 99 ? '99+' : String(pendingDoa)) : undefined,
     },
-    ...(FEATURES.RESOLUSI ? [{ key: 'resolusi', icon: Target, label: t('quickaccess.resolusi'), onPress: go('/resolusi') }] : []),
     ...(showWorship ? [{ key: 'worship', icon: Music, label: t('quickaccess.worship'), onPress: go('/worship') }] : []),
 
     { key: 'family', icon: Users, label: t('quickaccess.family'), onPress: go('/family') },

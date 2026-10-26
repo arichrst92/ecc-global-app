@@ -51,7 +51,6 @@ import { useToast } from '@/components/ui/Toast';
 import { shareElsApp } from '@/utils/shareApp';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
-import { FEATURES } from '@/config/features';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { getMyProfile, getMySertifikat, sertifikatFileUrl } from '@/api/me';
 import { useMyHomecellOverview } from '@/hooks/useHomecell';
@@ -119,6 +118,15 @@ function ProfileTabAuthenticated() {
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-white text-lg font-bold">{t('profile.title')}</Text>
               <View className="flex-row items-center gap-2">
+                {/* Resolusi Tahunan — diakses dari header Profil (sebelah Kalender) */}
+                <Pressable
+                  onPress={() => router.push('/resolusi' as never)}
+                  className="bg-white/15 rounded-full p-2"
+                  accessibilityRole="button"
+                  accessibilityLabel={t('profile.resolusi_menu')}
+                >
+                  <Target size={20} color="#fff" />
+                </Pressable>
                 <Pressable
                   onPress={() => router.push('/calendar' as never)}
                   className="bg-white/15 rounded-full p-2"
@@ -187,18 +195,8 @@ function ProfileTabAuthenticated() {
               label={t('profile.prayer_menu')}
               sub={t('profile.prayer_menu_sub')}
               onPress={() => router.push('/doa' as never)}
-              isLast={!FEATURES.RESOLUSI}
+              isLast
             />
-            {FEATURES.RESOLUSI ? (
-              <MenuRow
-                icon={<Target size={18} color="#059669" />}
-                iconBg="bg-emerald-50"
-                label={t('profile.resolusi_menu')}
-                sub={t('profile.resolusi_menu_sub')}
-                onPress={() => router.push('/resolusi' as never)}
-                isLast
-              />
-            ) : null}
           </MenuBox>
         </Cluster>
 
