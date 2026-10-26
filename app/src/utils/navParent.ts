@@ -5,7 +5,7 @@ const ROUTES = [
   '/', '/area', '/bible', '/bible/[bookId]', '/bible/bookmarks', '/branch-list', '/calendar', '/ckids',
   '/content', '/content/bookmarks', '/event', '/event/[id]', '/family', '/family/[id]', '/family/add',
   '/feedback', '/feedback/[id]', '/group', '/group/[id]', '/homecell', '/homecell/[id]', '/homecell/requests',
-  '/ibadah', '/ibadah/[id]', '/market', '/market/[id]', '/ministry', '/ministry/[id]', '/my-reservasi',
+  '/ibadah', '/ibadah/[id]', '/market', '/market/[id]', '/ministry', '/ministry/[id]', '/my-reservasi', '/reservasi',
   '/notifications', '/profile', '/profile/businesses', '/profile/my-groups', '/scanner', '/visit',
   '/visit/[id]', '/spiritual-journey', '/doa', '/doa/[id]', '/resolusi', '/worship', '/worship/album/[id]',
 ];

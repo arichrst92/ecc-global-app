@@ -28,7 +28,8 @@
     "persembahan": "Beri",
     "profile": "Profil",
     "scanner": "Scanner",
-    "ckids": "CKids"
+    "ckids": "CKids",
+    "reservasi": "Reservasi"
   },
   "onboarding": {
     "slide1_title": "Selamat Datang di Keluarga ECC",
@@ -1512,7 +1513,9 @@
     "method_SCAN": "Scan usher",
     "method_WALK_IN": "Walk-in",
     "method_MANUAL": "Admin",
-    "checkout_needed": "Jangan lupa checkout saat keluar"
+    "checkout_needed": "Jangan lupa checkout saat keluar",
+    "cta_ibadah": "Lihat jadwal ibadah",
+    "cta_event": "Lihat event"
   },
   "hcj": {
     "title": "Homecell",

@@ -14,13 +14,14 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Baby, CalendarCheck, Church, Ticket } from 'lucide-react-native';
+import { ArrowLeft, Baby, CalendarCheck, CalendarDays, Church, Ticket } from 'lucide-react-native';
 
 import { useMyReservasi } from '@/hooks/useMyReservasi';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { listMyEventTickets, type TicketScope } from '@/api/tiket';
 import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
 import { EventTicketCard } from '@/components/tiket/EventTicketCard';
+import { NotificationBell } from '@/components/NotificationBell';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
@@ -29,6 +30,14 @@ type Seg = 'ibadah' | 'event';
 type Tab = 'active' | 'history';
 
 export default function MyReservasiScreen() {
+  return <MyReservasiView />;
+}
+
+/**
+ * inTab = tampil sebagai tab "Reservasi" di bottom nav: tanpa tombol kembali,
+ * dengan lonceng notifikasi; padding bawah ditangani tab bar.
+ */
+export function MyReservasiView({ inTab = false }: { inTab?: boolean }) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
@@ -67,14 +76,19 @@ export default function MyReservasiScreen() {
   return (
     <View className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
-        <View className="px-4 py-2 flex-row items-center">
-          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color={nc('#171717')} />
-          </Pressable>
+        <View className={`${inTab ? 'px-5 py-3 gap-3' : 'px-4 py-2'} flex-row items-center`}>
+          {inTab ? (
+            <Ticket size={20} color={nc('#171717')} />
+          ) : (
+            <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
+              <ArrowLeft size={20} color={nc('#171717')} />
+            </Pressable>
+          )}
           <View className="flex-1">
-            <Text className="text-base font-bold text-neutral-900">{t('my_reservasi.title')}</Text>
+            <Text className={`${inTab ? 'text-lg' : 'text-base'} font-bold text-neutral-900`}>{t('my_reservasi.title')}</Text>
             <Text className="text-xs text-neutral-500">{t('my_reservasi.subtitle')}</Text>
           </View>
+          {inTab ? <NotificationBell variant="dark" badgeBorderColor="#FFFFFF" /> : null}
         </View>
         {/* Segmen Ibadah | Event */}
         <View className="mx-4 flex-row bg-neutral-100 rounded-xl p-1">
@@ -113,7 +127,7 @@ export default function MyReservasiScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 32 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: inTab ? 32 : insets.bottom + 32 }}
         refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
       >
         {q.isPending ? (
@@ -146,6 +160,17 @@ export default function MyReservasiScreen() {
                   ? t('tiket.empty_event_body')
                   : ''}
             </Text>
+            {tab === 'active' ? (
+              <Pressable
+                onPress={() => router.push((seg === 'ibadah' ? '/(tabs)/ibadah' : '/(tabs)/event') as never)}
+                {...gx('mt-4 flex-row items-center gap-1.5 px-4 py-2.5 rounded-full bg-brand-500')}
+              >
+                {seg === 'ibadah' ? <CalendarDays size={14} color="#fff" /> : <Ticket size={14} color="#fff" />}
+                <Text className="text-xs font-bold text-white">
+                  {t(seg === 'ibadah' ? 'my_reservasi.cta_ibadah' : 'my_reservasi.cta_event')}
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
         ) : seg === 'ibadah' ? (
           <>

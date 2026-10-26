@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Baby, CalendarDays, Church, HandHeart, Home, UserRound } from 'lucide-react-native';
+import { Baby, CalendarDays, Church, HandHeart, Home, Ticket, UserRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -45,17 +45,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="ibadah"
-        options={{
-          title: t('nav.ibadah'),
-          tabBarIcon: ({ color, size }) => <Church color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
         name="event"
         options={{
           title: t('nav.event'),
           tabBarIcon: ({ color, size }) => <CalendarDays color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="reservasi"
+        options={{
+          title: t('nav.reservasi'),
+          tabBarIcon: ({ color, size }) => <Ticket color={color} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -68,6 +68,16 @@ export default function TabsLayout() {
           href: showCKidsTab ? undefined : null,
           // Custom pink accent kalau tampil (subtle differentiation)
           tabBarActiveTintColor: '#F97316',
+        }}
+      />
+      <Tabs.Screen
+        name="ibadah"
+        options={{
+          title: t('nav.ibadah'),
+          tabBarIcon: ({ color, size }) => <Church color={color} size={size} />,
+          // Tidak tampil di bottom nav (diganti tab Reservasi). Route tetap ada:
+          // Quick Access Beranda, tombol "Lihat jadwal ibadah", deeplink /ibadah.
+          href: null,
         }}
       />
       <Tabs.Screen

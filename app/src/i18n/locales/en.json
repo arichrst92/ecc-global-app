@@ -28,7 +28,8 @@
     "persembahan": "Give",
     "profile": "Profile",
     "scanner": "Scanner",
-    "ckids": "CKids"
+    "ckids": "CKids",
+    "reservasi": "Bookings"
   },
   "onboarding": {
     "slide1_title": "Welcome to the ECC Family",
@@ -1512,7 +1513,9 @@
     "method_SCAN": "Usher scan",
     "method_WALK_IN": "Walk-in",
     "method_MANUAL": "Admin",
-    "checkout_needed": "Remember to check out when leaving"
+    "checkout_needed": "Remember to check out when leaving",
+    "cta_ibadah": "See service schedule",
+    "cta_event": "See events"
   },
   "hcj": {
     "title": "Homecell",
