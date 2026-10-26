@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Modal, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, ChevronRight, Clock, FileText, HandHeart, MapPin, PlayCircle, Receipt, Share2, Upload, User, Users, X } from 'lucide-react-native';
 
@@ -11,6 +11,8 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { useToast } from '@/components/ui/Toast';
 import { getEventSelfCheckin, postEventSelfCheckin, selfCancelParticipation } from '@/api/event';
 import { SelfCheckinBar } from '@/components/checkin/SelfCheckinBar';
+import { EventTicketCard } from '@/components/tiket/EventTicketCard';
+import { listMyEventTickets } from '@/api/tiket';
 import { useEventDetail, useMyEventParticipations } from '@/hooks/useEvents';
 import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
@@ -43,12 +45,20 @@ export default function EventDetailScreen() {
   // Untuk guest → hook gated → returns empty.
   const familyQuery = useMyEventParticipations(id);
   const familyParticipations: EventParticipation[] = familyQuery.data ?? [];
+  // Tiket saya / keluarga / tamu di event ini (geser check-in per tiket).
+  const ticketsQuery = useQuery({
+    queryKey: ['event-tiket', 'upcoming', id ?? null],
+    queryFn: () => listMyEventTickets('upcoming', id),
+    enabled: !!id && !isGuest,
+    staleTime: 30_000,
+  });
+  const myTickets = ticketsQuery.data ?? [];
 
   // Cache react-query dipersist ke storage → tanpa ini, kembali dari halaman
   // pembayaran web (atau dari background) masih menampilkan data lama.
   const [refreshing, setRefreshing] = useState(false);
   const refreshAll = async () => {
-    await Promise.all([query.refetch(), isGuest ? null : familyQuery.refetch()]);
+    await Promise.all([query.refetch(), isGuest ? null : familyQuery.refetch(), isGuest ? null : ticketsQuery.refetch()]);
   };
   useRefetchOnFocus(() => void refreshAll(), !!event);
 
@@ -440,6 +450,20 @@ export default function EventDetailScreen() {
                 />
               ) : null}
 
+              {/* Tiket Saya — satu tiket per orang, ketuk untuk QR besar */}
+              {myTickets.length > 0 ? (
+                <View className="mt-5 gap-3">
+                  <Text className="text-lg font-bold text-neutral-900">{t('tiket.my_tickets')}</Text>
+                  {myTickets.map((tk) => (
+                    <EventTicketCard
+                      key={tk.id}
+                      ticket={tk}
+                      onPress={() => router.push(`/tiket?kind=event&id=${tk.id}&eventId=${tk.event.id}` as never)}
+                    />
+                  ))}
+                </View>
+              ) : null}
+
               {/* Deskripsi */}
               <View className="mt-5">
                 <Text className="text-lg font-bold text-neutral-900 mb-2">
@@ -493,7 +517,8 @@ export default function EventDetailScreen() {
         <View className="bg-white border-t border-neutral-100 px-5 py-3">
           <SafeAreaView edges={['bottom']}>
             {/* Self check-in (kalau event mengizinkan): countdown → tombol → popup */}
-            {event.allowSelfCheckin ? (
+            {/* Sudah ada tiket → check-in lewat geser di tiket masing-masing. */}
+            {event.allowSelfCheckin && myTickets.length === 0 ? (
               <SelfCheckinBar
                 queryKey={['event', 'self-checkin', event.id]}
                 fetcher={() => getEventSelfCheckin(event.id)}

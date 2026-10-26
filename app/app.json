@@ -172,6 +172,13 @@
           "microphonePermission": false,
           "recordAudioAndroid": false
         }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Els App membutuhkan akses kalender untuk menyimpan jadwal ibadah dan event dari tiket Anda.",
+          "remindersPermission": "Els App tidak menggunakan pengingat (Reminders)."
+        }
       ]
     ],
     "experiments": {

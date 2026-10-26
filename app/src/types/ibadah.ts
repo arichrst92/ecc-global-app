@@ -157,8 +157,18 @@ export type MyReservasi = {
     requiresCheckout?: boolean;
     lokasi?: string | null;
     cabang?: { id: string; nama: string } | null;
+    kategoriIbadah?: { nama: string } | null;
+    /** Titik venue (ibadah atau cabang) — Petunjuk arah. */
+    point?: { lat: number; lng: number } | null;
     /** Zona waktu cabang (IANA) — jamMulai/jamSelesai = jam dinding di zona ini. */
     timezone?: string | null;
+  };
+  /** Tiket: jendela self check-in untuk tanggal ini (BE 2026-10-26). DESK = ibadah anak (meja CKids). */
+  selfCheckin?: {
+    mode: 'SELF' | 'DESK';
+    opensAt: string;
+    closesAt: string;
+    venue?: { requiresLocation: boolean; radiusM: number | null };
   };
 };
 

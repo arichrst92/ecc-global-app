@@ -21,10 +21,11 @@ export const MY_RESERVASI_KEYS = {
  * Kids-focused UX: kalau reservasi punya `pickupCode` + `pickedUpAt=null`,
  * parent perlu tunjukkan kode ke admin saat jemput anak.
  */
-export function useMyReservasi(params: ListMyReservasiParams = { activeOnly: true }) {
+export function useMyReservasi(params: ListMyReservasiParams = { activeOnly: true }, opts: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: MY_RESERVASI_KEYS.list(params),
     queryFn: () => listMyReservasi(params),
     staleTime: 30_000,
+    enabled: opts.enabled ?? true,
   });
 }

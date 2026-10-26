@@ -36,6 +36,8 @@ import { formatDateWithDay } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import { goBack } from '@/utils/nav';
 import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
+import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
+import { useMyReservasi } from '@/hooks/useMyReservasi';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -56,6 +58,9 @@ export default function IbadahDetailScreen() {
   });
 
   const ibadah = query.data;
+  // Tiket reservasi saya / keluarga / tamu untuk ibadah ini (aktif).
+  const myTicketsQ = useMyReservasi({ ibadahId: id, activeOnly: true }, { enabled: !!id });
+  const myTickets = (myTicketsQ.data ?? []).filter((r) => r.status !== 'CANCEL');
   // Jam jadwal = jam dinding cabang → tampil di zona waktu HP.
   const venueTz = useVenueTz(ibadah?.cabang?.id);
   const timeHint = ibadah
@@ -265,6 +270,22 @@ export default function IbadahDetailScreen() {
                 </View>
               );
             })()}
+
+            {/* Tiket Saya — reservasi aktif ibadah ini, geser check-in per tiket */}
+            {myTickets.length > 0 ? (
+              <View className="mt-4 gap-3">
+                <Text className="text-base font-bold text-neutral-900">{t('tiket.my_tickets')}</Text>
+                {myTickets.map((r) => (
+                  <IbadahTicketCard
+                    key={r.id}
+                    reservasi={r}
+                    onPress={() =>
+                      router.push(`/tiket?kind=ibadah&id=${r.id}&ibadahId=${r.ibadah.id}&tanggal=${r.tanggalIbadah.slice(0, 10)}` as never)
+                    }
+                  />
+                ))}
+              </View>
+            ) : null}
 
             {/* Okupansi kursi pertemuan ini (hanya kalau seat diisi admin) */}
             <OccupancyBar data={ibadah.okupansi} />

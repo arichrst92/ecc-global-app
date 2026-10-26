@@ -1,51 +1,66 @@
 /**
- * Reservasi Saya — kehadiran ibadah saya, anak, tanggungan, keluarga yang
- * saya self check-in-kan, dan tamu saya.
+ * Reservasi Saya — tiket ibadah & event saya, anak, tanggungan, keluarga, dan tamu.
  *
- * - Tab Aktif  : ibadah hari ini & mendatang (zona cabang) + check-in < 24 jam
- * - Jam jadwal dikonversi dari zona cabang ke zona HP; jam check-in dll. di zona HP.
- * - Tab Riwayat: 100 terbaru
- * - Ibadah anak yang belum dijemput: kode jemput besar di atas, auto-refresh
- *   tiap 20 detik sampai dijemput.
- *
- * Endpoint: `GET /admin/me/reservasi` (update 2026-10-17).
+ * - Segmen Ibadah | Event.
+ * - Ibadah: tab Aktif (hari ini & mendatang + check-in < 24 jam) / Riwayat (100 terbaru).
+ *   Anak yang belum dijemput tampil paling atas (kode jemput), auto-refresh 20 detik.
+ * - Event : tab Mendatang / Riwayat (GET /admin/me/event-tiket).
+ * - Satu tiket = satu orang; geser untuk check-in per tiket (kalau diizinkan).
+ * - Ketuk tiket → tampilan penuh (/tiket) dengan QR besar.
  */
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Baby, CalendarCheck, CheckCircle2, ChevronRight, Church, Clock, LogOut } from 'lucide-react-native';
+import { ArrowLeft, Baby, CalendarCheck, Church, Ticket } from 'lucide-react-native';
 
-import { Avatar } from '@/components/ui/Avatar';
-import { PickupCodeCard } from '@/components/scanner/PickupCodeCard';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMyReservasi } from '@/hooks/useMyReservasi';
-import { cancelMyReservasi } from '@/api/me';
-import { useToast } from '@/components/ui/Toast';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
-import { formatDateWithDay } from '@/utils/date';
-import { formatVenueRange, localTime } from '@/utils/time';
-import type { MyReservasi } from '@/types/ibadah';
+import { listMyEventTickets, type TicketScope } from '@/api/tiket';
+import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
+import { EventTicketCard } from '@/components/tiket/EventTicketCard';
 import { goBack } from '@/utils/nav';
 
+type Seg = 'ibadah' | 'event';
 type Tab = 'active' | 'history';
 
 export default function MyReservasiScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
+  const params = useLocalSearchParams<{ seg?: string }>();
+  const [seg, setSeg] = useState<Seg>(params.seg === 'event' ? 'event' : 'ibadah');
   const [tab, setTab] = useState<Tab>('active');
 
-  const query = useMyReservasi({ activeOnly: tab === 'active' });
-  const reservasi = query.data ?? [];
-  const kidsPending = reservasi.filter((r) => r.ibadah.isKidsIbadah && r.pickupCode && !r.pickedUpAt);
+  // ---- Ibadah
+  const ibQ = useMyReservasi({ activeOnly: tab === 'active' }, { enabled: seg === 'ibadah' });
+  const reservasi = ibQ.data ?? [];
+  const kidsPending = reservasi.filter((r) => r.ibadah.isKidsIbadah && r.pickupCode && !r.pickedUpAt && r.status === 'JOIN');
   const others = reservasi.filter((r) => !kidsPending.includes(r));
+  // Aktif: urut dari yang paling dekat; riwayat: terbaru dulu (sudah dari server).
+  const othersSorted = tab === 'active' ? [...others].sort((a, b) => a.tanggalIbadah.localeCompare(b.tanggalIbadah)) : others;
 
-  // Selama ada anak yang belum dijemput, segarkan otomatis supaya status
-  // "sudah dijemput" langsung terlihat.
-  useMyReservasiPolling(tab === 'active' && kidsPending.length > 0, query.refetch);
-  useRefetchOnFocus(() => query.refetch());
+  // ---- Event
+  const scope: TicketScope = tab === 'active' ? 'upcoming' : 'history';
+  const evQ = useQuery({
+    queryKey: ['event-tiket', scope, null],
+    queryFn: () => listMyEventTickets(scope),
+    enabled: seg === 'event',
+    staleTime: 30_000,
+  });
+  const tickets = evQ.data ?? [];
+
+  const q = seg === 'ibadah' ? ibQ : evQ;
+  usePolling(seg === 'ibadah' && tab === 'active' && kidsPending.length > 0, ibQ.refetch);
+  useRefetchOnFocus(() => q.refetch());
+
+  const empty = seg === 'ibadah' ? reservasi.length === 0 : tickets.length === 0;
+  const tabLabel = (k: Tab) =>
+    seg === 'ibadah'
+      ? t(k === 'active' ? 'my_reservasi.tab_active' : 'my_reservasi.tab_history')
+      : t(k === 'active' ? 'tiket.tab_upcoming' : 'tiket.tab_history');
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -59,16 +74,36 @@ export default function MyReservasiScreen() {
             <Text className="text-xs text-neutral-500">{t('my_reservasi.subtitle')}</Text>
           </View>
         </View>
-        <View className="flex-row px-4 pb-2 gap-2">
+        {/* Segmen Ibadah | Event */}
+        <View className="mx-4 flex-row bg-neutral-100 rounded-xl p-1">
+          {(['ibadah', 'event'] as const).map((k) => (
+            <Pressable
+              key={k}
+              onPress={() => {
+                setSeg(k);
+                setTab('active');
+              }}
+              className={`flex-1 flex-row items-center justify-center gap-1.5 py-1.5 rounded-lg ${seg === k ? 'bg-white' : ''}`}
+            >
+              {k === 'ibadah' ? (
+                <Church size={14} color={seg === k ? '#EA580C' : '#525252'} />
+              ) : (
+                <Ticket size={14} color={seg === k ? '#EA580C' : '#525252'} />
+              )}
+              <Text className={`text-xs font-semibold ${seg === k ? 'text-brand-600' : 'text-neutral-600'}`}>
+                {t(k === 'ibadah' ? 'tiket.seg_ibadah' : 'tiket.seg_event')}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        <View className="flex-row px-4 py-2 gap-2">
           {(['active', 'history'] as const).map((k) => (
             <Pressable
               key={k}
               onPress={() => setTab(k)}
               className={`px-4 py-1.5 rounded-full ${tab === k ? 'bg-brand-500' : 'bg-neutral-100'}`}
             >
-              <Text className={`text-xs font-semibold ${tab === k ? 'text-white' : 'text-neutral-700'}`}>
-                {t(k === 'active' ? 'my_reservasi.tab_active' : 'my_reservasi.tab_history')}
-              </Text>
+              <Text className={`text-xs font-semibold ${tab === k ? 'text-white' : 'text-neutral-700'}`}>{tabLabel(k)}</Text>
             </Pressable>
           ))}
         </View>
@@ -77,34 +112,40 @@ export default function MyReservasiScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 32 }}
-        refreshControl={
-          <RefreshControl refreshing={query.isRefetching} onRefresh={() => query.refetch()} tintColor="#F97316" />
-        }
+        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
       >
-        {query.isPending ? (
+        {q.isPending ? (
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />
           </View>
-        ) : query.isError ? (
+        ) : q.isError ? (
           <View className="items-center py-16 px-8">
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
-            <Pressable onPress={() => query.refetch()}>
+            <Pressable onPress={() => q.refetch()}>
               <Text className="text-sm font-bold text-brand-600">{t('common.retry')}</Text>
             </Pressable>
           </View>
-        ) : reservasi.length === 0 ? (
+        ) : empty ? (
           <View className="items-center py-16 px-8">
             <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              <CalendarCheck size={28} color="#A3A3A3" />
+              {seg === 'ibadah' ? <CalendarCheck size={28} color="#A3A3A3" /> : <Ticket size={28} color="#A3A3A3" />}
             </View>
             <Text className="text-sm font-bold text-neutral-900 text-center mb-1">
-              {t(tab === 'active' ? 'my_reservasi.empty_title' : 'my_reservasi.empty_history_title')}
+              {seg === 'ibadah'
+                ? t(tab === 'active' ? 'my_reservasi.empty_title' : 'my_reservasi.empty_history_title')
+                : tab === 'active'
+                  ? t('tiket.empty_event_title')
+                  : t('tiket.empty_event_history')}
             </Text>
             <Text className="text-xs text-neutral-500 text-center">
-              {t(tab === 'active' ? 'my_reservasi.empty_body' : 'my_reservasi.empty_history_body')}
+              {seg === 'ibadah'
+                ? t(tab === 'active' ? 'my_reservasi.empty_body' : 'my_reservasi.empty_history_body')
+                : tab === 'active'
+                  ? t('tiket.empty_event_body')
+                  : ''}
             </Text>
           </View>
-        ) : (
+        ) : seg === 'ibadah' ? (
           <>
             {kidsPending.length > 0 ? (
               <View className="gap-3 mb-6">
@@ -113,27 +154,48 @@ export default function MyReservasiScreen() {
                   <Text className="text-xs font-bold text-brand-700 uppercase">{t('my_reservasi.kids_section')}</Text>
                 </View>
                 {kidsPending.map((r) => (
-                  <KidsReservasiCard key={r.id} reservasi={r} />
+                  <IbadahTicketCard
+                    key={r.id}
+                    reservasi={r}
+                    onPress={() =>
+                      router.push(`/tiket?kind=ibadah&id=${r.id}&ibadahId=${r.ibadah.id}&tanggal=${r.tanggalIbadah.slice(0, 10)}` as never)
+                    }
+                  />
                 ))}
               </View>
             ) : null}
-
-            {others.length > 0 ? (
-              <View className="gap-2">
+            {othersSorted.length > 0 ? (
+              <View className="gap-3">
                 <Text className="text-xs font-bold text-neutral-500 uppercase">{t('my_reservasi.other_section')}</Text>
-                {others.map((r) => (
-                  <ReservasiRow key={r.id} reservasi={r} onPress={() => router.push(`/ibadah/${r.ibadah.id}` as never)} />
+                {othersSorted.map((r) => (
+                  <IbadahTicketCard
+                    key={r.id}
+                    reservasi={r}
+                    onPress={() =>
+                      router.push(`/tiket?kind=ibadah&id=${r.id}&ibadahId=${r.ibadah.id}&tanggal=${r.tanggalIbadah.slice(0, 10)}` as never)
+                    }
+                  />
                 ))}
               </View>
             ) : null}
           </>
+        ) : (
+          <View className="gap-3">
+            {tickets.map((tk) => (
+              <EventTicketCard
+                key={tk.id}
+                ticket={tk}
+                onPress={() => router.push(`/tiket?kind=event&id=${tk.id}&eventId=${tk.event.id}&scope=${scope}` as never)}
+              />
+            ))}
+          </View>
         )}
       </ScrollView>
     </View>
   );
 }
 
-function useMyReservasiPolling(enabled: boolean, refetch: () => unknown) {
+function usePolling(enabled: boolean, refetch: () => unknown) {
   const ref = useRef(refetch);
   ref.current = refetch;
   useEffect(() => {
@@ -141,156 +203,4 @@ function useMyReservasiPolling(enabled: boolean, refetch: () => unknown) {
     const id = setInterval(() => ref.current(), 20_000);
     return () => clearInterval(id);
   }, [enabled]);
-}
-
-function RelationBadge({ r }: { r: MyReservasi }) {
-  const { t } = useTranslation();
-  if (!r.relation || r.relation === 'SELF') return null;
-  const cls = r.relation === 'TAMU' ? 'bg-violet-100 text-violet-700' : 'bg-sky-100 text-sky-700';
-  return (
-    <View className={`px-1.5 py-0.5 rounded ${cls.split(' ')[0]}`}>
-      <Text className={`text-[9px] font-bold ${cls.split(' ')[1]}`}>{t(`my_reservasi.rel_${r.relation}`)}</Text>
-    </View>
-  );
-}
-
-/* ---------------------------------------------------------------- anak */
-function KidsReservasiCard({ reservasi }: { reservasi: MyReservasi }) {
-  const { i18n } = useTranslation();
-  return (
-    <View className="bg-white rounded-2xl overflow-hidden border border-neutral-100">
-      <View className="p-4 flex-row items-center gap-3 bg-brand-50">
-        <Avatar size={44} name={reservasi.jemaat.namaLengkap} fotoUrl={reservasi.jemaat.fotoUrl} />
-        <View className="flex-1">
-          <View className="flex-row items-center gap-1.5">
-            <Text className="text-sm font-bold text-neutral-900 flex-shrink" numberOfLines={1}>
-              {reservasi.jemaat.namaLengkap}
-            </Text>
-            <RelationBadge r={reservasi} />
-          </View>
-          <Text className="text-xs text-neutral-600">{reservasi.ibadah.nama}</Text>
-          <Text className="text-[10px] text-neutral-500">
-            {formatDateWithDay(reservasi.tanggalIbadah, i18n.language)} ·{' '}
-            {formatVenueRange(reservasi.tanggalIbadah, reservasi.ibadah.jamMulai, null, reservasi.ibadah.timezone)}
-            {reservasi.joinedAt ? ` · check-in ${localTime(reservasi.joinedAt)}` : ''}
-          </Text>
-        </View>
-      </View>
-      <View className="p-4">
-        <PickupCodeCard
-          pickupCode={reservasi.pickupCode!}
-          anakNama={reservasi.jemaat.namaLengkap}
-          ibadahNama={reservasi.ibadah.nama}
-          isPickedUp={!!reservasi.pickedUpAt}
-          pickedUpAt={reservasi.pickedUpAt}
-        />
-      </View>
-    </View>
-  );
-}
-
-/* ---------------------------------------------------------------- baris */
-function ReservasiRow({ reservasi: r, onPress }: { reservasi: MyReservasi; onPress: () => void }) {
-  const { t, i18n } = useTranslation();
-  const qc = useQueryClient();
-  const showToast = useToast((s) => s.show);
-  const cancel = useMutation({
-    mutationFn: () => cancelMyReservasi(r.id),
-    onSuccess: () => {
-      showToast(t('reservasi.cancelled'), 'success');
-      void qc.invalidateQueries({ queryKey: ['my-reservasi'] });
-      void qc.invalidateQueries({ queryKey: ['reservasi-options'] });
-    },
-    onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
-  });
-  const askCancel = () =>
-    Alert.alert(t('reservasi.cancel_title'), t('reservasi.cancel_body', { name: r.jemaat.namaLengkap }), [
-      { text: t('common.cancel'), style: 'cancel' },
-      { text: t('reservasi.cancel_confirm'), style: 'destructive', onPress: () => cancel.mutate() },
-    ]);
-  const checkedOut = !!r.checkedOutAt;
-  const statusKey = checkedOut ? 'CHECKOUT' : r.status;
-  const statusCls =
-    statusKey === 'CHECKOUT' || statusKey === 'JOIN'
-      ? ['bg-emerald-100', 'text-emerald-700']
-      : statusKey === 'CANCEL'
-        ? ['bg-red-100', 'text-red-700']
-        : ['bg-blue-100', 'text-blue-700'];
-  const needCheckout = r.status === 'JOIN' && r.ibadah.requiresCheckout && !checkedOut;
-  const method = r.checkinMethod && ['SELF', 'SCAN', 'WALK_IN', 'MANUAL'].includes(r.checkinMethod) ? r.checkinMethod : null;
-
-  return (
-    <Pressable onPress={onPress} className="bg-white rounded-2xl p-4 border border-neutral-100 flex-row gap-3 active:opacity-80">
-      {r.relation && r.relation !== 'SELF' ? (
-        <Avatar size={40} name={r.jemaat.namaLengkap} fotoUrl={r.jemaat.fotoUrl} />
-      ) : (
-        <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-          {r.ibadah.isKidsIbadah ? <Baby size={18} color="#EA580C" /> : <Church size={18} color="#EA580C" />}
-        </View>
-      )}
-      <View className="flex-1 min-w-0">
-        <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-          {r.ibadah.nama}
-        </Text>
-        <View className="flex-row items-center gap-1.5 mt-0.5">
-          <Text className="text-xs text-neutral-500 flex-shrink" numberOfLines={1}>
-            {r.jemaat.namaLengkap} · {formatDateWithDay(r.tanggalIbadah, i18n.language)} ·{' '}
-            {formatVenueRange(r.tanggalIbadah, r.ibadah.jamMulai, null, r.ibadah.timezone)}
-          </Text>
-          <RelationBadge r={r} />
-        </View>
-        {r.ibadah.cabang?.nama || r.ibadah.lokasi ? (
-          <Text className="text-[11px] text-neutral-400 mt-0.5" numberOfLines={1}>
-            {[r.ibadah.cabang?.nama, r.ibadah.lokasi].filter(Boolean).join(' · ')}
-          </Text>
-        ) : null}
-        <View className="flex-row flex-wrap items-center gap-2 mt-2">
-          <View className={`px-2 py-0.5 rounded-full ${statusCls[0]}`}>
-            <Text className={`text-[10px] font-bold ${statusCls[1]}`}>{t(`my_reservasi.status_${statusKey}`)}</Text>
-          </View>
-          {r.joinedAt ? (
-            <View className="flex-row items-center gap-1">
-              <Clock size={10} color="#737373" />
-              <Text className="text-[10px] text-neutral-500">
-                {t('my_reservasi.checkin_at', { time: localTime(r.joinedAt) })}
-                {method ? ` · ${t(`my_reservasi.method_${method}`)}` : ''}
-              </Text>
-            </View>
-          ) : null}
-          {checkedOut ? (
-            <View className="flex-row items-center gap-1">
-              <CheckCircle2 size={10} color="#059669" />
-              <Text className="text-[10px] text-emerald-700">
-                {t('my_reservasi.checkout_at', { time: localTime(r.checkedOutAt) })}
-              </Text>
-            </View>
-          ) : null}
-          {r.ibadah.isKidsIbadah && r.pickedUpAt ? (
-            <View className="flex-row items-center gap-1">
-              <CheckCircle2 size={10} color="#059669" />
-              <Text className="text-[10px] text-emerald-700">{t('kids.pickup_completed_at', { time: localTime(r.pickedUpAt) })}</Text>
-            </View>
-          ) : null}
-        </View>
-        {r.canCancel ? (
-          <Pressable
-            onPress={askCancel}
-            disabled={cancel.isPending}
-            className="self-start mt-2 px-3 py-1 rounded-full border border-red-200"
-          >
-            <Text className="text-[11px] font-semibold text-red-600">
-              {cancel.isPending ? '…' : t('reservasi.cancel_btn')}
-            </Text>
-          </Pressable>
-        ) : null}
-        {needCheckout ? (
-          <View className="flex-row items-center gap-1 mt-1.5">
-            <LogOut size={10} color="#B45309" />
-            <Text className="text-[10px] text-amber-700">{t('my_reservasi.checkout_needed')}</Text>
-          </View>
-        ) : null}
-      </View>
-      <ChevronRight size={16} color="#A3A3A3" />
-    </Pressable>
-  );
 }
