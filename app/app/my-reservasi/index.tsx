@@ -166,7 +166,6 @@ export default function MyReservasiScreen() {
             ) : null}
             {othersSorted.length > 0 ? (
               <View className="gap-3">
-                <Text className="text-xs font-bold text-neutral-500 uppercase">{t('my_reservasi.other_section')}</Text>
                 {othersSorted.map((r) => (
                   <IbadahTicketCard
                     key={r.id}
