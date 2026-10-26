@@ -15,6 +15,12 @@ export type CalendarInput = {
 };
 
 export async function addTicketToCalendar(input: CalendarInput): Promise<void> {
+  // iOS < 17 mewajibkan izin kalender sebelum dialog dibuka; iOS 17+ & Android
+  // memakai dialog sistem tanpa izin (izin Android sengaja diblokir di app.json).
+  if (Platform.OS === 'ios' && parseInt(String(Platform.Version), 10) < 17) {
+    const { granted } = await Calendar.requestCalendarPermissionsAsync();
+    if (!granted) throw new Error('calendar permission denied');
+  }
   await Calendar.createEventInCalendarAsync({
     title: input.title,
     startDate: input.start,

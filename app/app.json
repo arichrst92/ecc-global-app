@@ -2,7 +2,7 @@
   "expo": {
     "name": "Els App",
     "slug": "ecc-mobile-app",
-    "version": "2.4.0",
+    "version": "2.4.1",
     "orientation": "portrait",
     "icon": "./assets/images/ecc-icon-ios.png",
     "scheme": "ecc",
@@ -47,6 +47,11 @@
         "android.permission.CAMERA",
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ],
+      "blockedPermissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.WRITE_SETTINGS"
       ],
       "intentFilters": [
         {
@@ -177,7 +182,7 @@
         "expo-calendar",
         {
           "calendarPermission": "Els App membutuhkan akses kalender untuk menyimpan jadwal ibadah dan event dari tiket Anda.",
-          "remindersPermission": "Els App tidak menggunakan pengingat (Reminders)."
+          "remindersPermission": false
         }
       ]
     ],

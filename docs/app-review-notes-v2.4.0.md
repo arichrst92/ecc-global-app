@@ -31,7 +31,7 @@ Els App is the official app of El Shaddai Creative Community (ECC), an Indonesia
 1. ECC Worship: Home → "Worship" tile → album → Play. Lock the screen to verify background playback. In the player, switch "Vokal / Karaoke" and open lyrics. Song menu (⋮) → Download.
 2. Prayer: Home → "Doa" → "Buat Prayer Request" → choose category, write request (optionally anonymous) → Send.
 3. Event: Home → any event → "Daftar" (Register). Paid: bank details → upload proof → admin verification.
-4. Service: Home → "Ibadah" → service → "Reservasi". The ticket appears in the "Reservasi" tab; swipe to self check-in from 15 minutes before start.
+4. Service: "Ibadah" tab → service → "Reservasi". "Self Check-in" appears 15 minutes before start.
 5. Bible: Home → "Alkitab" → pick BIMK or KJV → book/chapter.
 6. Delete Account: Profil tab → bottom → "Hapus Akun" → confirm → account deactivated and logged out.
 Worship and Prayer require login (not shown in Guest mode). The Worship tile appears once at least one song is published (songs are published for review).
