@@ -27,6 +27,7 @@ import { useMyVisits } from '@/hooks/useVisit';
 import { formatDateWithDay, parseLocalDate } from '@/utils/date';
 import type { VisitListItem } from '@/types/visit';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type RoleFilter = 'all' | 'initiator' | 'target';
 
@@ -91,7 +92,7 @@ export default function VisitListScreen() {
           </Text>
           <Pressable
             onPress={() => router.push('/visit/scan' as never)}
-            className="bg-brand-500 rounded-full px-3 py-2 flex-row items-center gap-1.5"
+            {...gx('bg-brand-500 rounded-full px-3 py-2 flex-row items-center gap-1.5')}
           >
             <Plus size={14} color="#fff" />
             <Text className="text-xs font-bold text-white">
@@ -185,7 +186,7 @@ function FilterChip({
   return (
     <Pressable
       onPress={onPress}
-      className={`px-3 py-1.5 rounded-full ${active ? 'bg-brand-500' : 'bg-neutral-100'}`}
+      {...gx(`px-3 py-1.5 rounded-full ${active ? 'bg-brand-500' : 'bg-neutral-100'}`)}
     >
       <Text
         className={`text-xs font-semibold ${active ? 'text-white' : 'text-neutral-600'}`}
@@ -276,7 +277,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
       </Text>
       <Pressable
         onPress={onNew}
-        className="bg-brand-500 rounded-full px-5 py-3 flex-row items-center gap-2"
+        {...gx('bg-brand-500 rounded-full px-5 py-3 flex-row items-center gap-2')}
       >
         <QrCode size={16} color="#fff" />
         <Text className="text-sm font-bold text-white">
@@ -300,7 +301,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
       <Text className="text-sm text-red-600 text-center mb-3">
         {t('error.generic')}
       </Text>
-      <Pressable onPress={onRetry} className="bg-brand-500 rounded-full px-4 py-2">
+      <Pressable onPress={onRetry} {...gx('bg-brand-500 rounded-full px-4 py-2')}>
         <Text className="text-sm font-bold text-white">{t('common.retry')}</Text>
       </Pressable>
     </View>

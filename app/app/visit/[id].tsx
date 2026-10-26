@@ -48,6 +48,7 @@ import {
 } from '@/hooks/useVisit';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function VisitDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -196,7 +197,7 @@ export default function VisitDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable

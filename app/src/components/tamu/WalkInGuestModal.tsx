@@ -15,6 +15,7 @@ import { useToast } from '@/components/ui/Toast';
 import { walkInGuestEvent, walkInGuestIbadah, type WalkInBayar } from '@/api/tamu';
 import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
+import { gx } from '@/theme/gradient';
 
 type Target =
   | { kind: 'event'; eventId: string; tipeBayar: 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS'; nominal?: string | number | null }
@@ -115,7 +116,7 @@ export function WalkInGuestModal({
                     <Pressable
                       key={b}
                       onPress={() => setBayar(b)}
-                      className={`flex-1 items-center py-2 rounded-xl border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`}
+                      {...gx(`flex-1 items-center py-2 rounded-xl border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
                     >
                       <Text className={`text-xs font-bold ${on ? 'text-white' : 'text-neutral-700'}`}>{t(`tamu.bayar_${b}`)}</Text>
                     </Pressable>

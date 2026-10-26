@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronRight, Eye, Mail, MessageCircleMore, UserPlus } from 'lucide-react-native';
 
 import { useAuthStore } from '@/stores/auth.store';
+import { gx } from '@/theme/gradient';
 
 type Option = {
   label: string;
@@ -156,9 +157,9 @@ function OptionCard({ option }: { option: Option }) {
       onPress={option.onPress}
       disabled={option.disabled}
       accessibilityState={{ disabled: !!option.disabled }}
-      className={`rounded-2xl p-4 flex-row items-center gap-3 ${
+      {...gx(`rounded-2xl p-4 flex-row items-center gap-3 ${
         isPrimary ? 'bg-brand-500' : 'bg-white border border-neutral-200'
-      } ${option.disabled ? 'opacity-60' : ''}`}
+      } ${option.disabled ? 'opacity-60' : ''}`)}
     >
       <View
         className={`w-10 h-10 rounded-xl items-center justify-center ${option.iconBg}`}

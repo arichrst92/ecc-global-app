@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/Toast';
 import { FEEDBACK_KATEGORI, sendFeedback, type FeedbackKategori, type FeedbackTipe } from '@/api/feedback';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function NewFeedbackScreen() {
   const { t } = useTranslation();
@@ -87,7 +88,7 @@ export default function NewFeedbackScreen() {
                 <Pressable
                   key={k}
                   onPress={() => setKategori(k)}
-                  className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`}
+                  {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
                 >
                   <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>{t(`feedback.kategori_${k}`)}</Text>
                 </Pressable>

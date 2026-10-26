@@ -17,6 +17,7 @@ import { ArrowLeft, HandHeart } from 'lucide-react-native';
 
 import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export function BebasWebRedirect({ eventId }: { eventId: string }) {
   const { t } = useTranslation();
@@ -59,7 +60,7 @@ export function BebasWebRedirect({ eventId }: { eventId: string }) {
         </Text>
         <Pressable
           onPress={() => void openWeb()}
-          className="bg-brand-500 rounded-2xl px-6 py-3.5"
+          {...gx('bg-brand-500 rounded-2xl px-6 py-3.5')}
         >
           <Text className="text-white font-bold text-sm">
             {t('event.bebas_web_open')}

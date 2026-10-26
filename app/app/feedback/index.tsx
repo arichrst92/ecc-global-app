@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { listMyFeedback } from '@/api/feedback';
 import { FeedbackStatusBadge, FeedbackTipeBadge, fmtFeedbackDate } from '@/components/feedback/FeedbackBits';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function MyFeedbackScreen() {
   const { t, i18n } = useTranslation();
@@ -72,7 +73,7 @@ export default function MyFeedbackScreen() {
                   <View className="flex-row items-center gap-2 mt-1">
                     <Text className="text-[11px] text-neutral-400">{fmtFeedbackDate(f.lastActivityAt, i18n.language)}</Text>
                     {f.unreadForUser ? (
-                      <View className="bg-brand-500 rounded-full px-2 py-0.5">
+                      <View {...gx('bg-brand-500 rounded-full px-2 py-0.5')}>
                         <Text className="text-[10px] font-bold text-white">{t('feedback.new_reply')}</Text>
                       </View>
                     ) : f.replyCount > 0 ? (

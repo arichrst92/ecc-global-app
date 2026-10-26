@@ -11,6 +11,7 @@ import { useNewsListInfinite, useRenunganListInfinite } from '@/hooks/useContent
 import { formatDate } from '@/utils/date';
 import type { NewsItem, RenunganItem } from '@/types/content';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type Tab = 'news' | 'renungan';
 
@@ -172,9 +173,9 @@ function TabChip({
   return (
     <Pressable
       onPress={onPress}
-      className={`flex-row items-center gap-1.5 px-3 py-1.5 rounded-full ${
+      {...gx(`flex-row items-center gap-1.5 px-3 py-1.5 rounded-full ${
         active ? 'bg-brand-500' : 'bg-neutral-100'
-      }`}
+      }`)}
     >
       {icon}
       <Text
@@ -278,7 +279,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <View className="flex-1 items-center py-20 px-8">
       <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
-      <Pressable onPress={onRetry} className="px-4 py-2 bg-brand-500 rounded-lg">
+      <Pressable onPress={onRetry} {...gx('px-4 py-2 bg-brand-500 rounded-lg')}>
         <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
       </Pressable>
     </View>

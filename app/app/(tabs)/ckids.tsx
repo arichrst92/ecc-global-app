@@ -51,6 +51,7 @@ import { useCKidsSelectionStore } from '@/stores/ckids-selection.store';
 import type { ChildGroupedBalance, HadiahKatalog, HadiahRedeem } from '@/types/ckids';
 import { env } from '@/config/env';
 import { ageInYears, CKIDS_MAX_AGE } from '@/utils/ckidsAge';
+import { gx } from '@/theme/gradient';
 
 export default function CKidsTabScreen() {
   const { t, i18n } = useTranslation();
@@ -322,7 +323,7 @@ export default function CKidsTabScreen() {
         {selectedEntry ? (
           <View className="bg-white mt-2 p-5">
             <View className="rounded-3xl overflow-hidden">
-              <View className="bg-brand-500 p-5">
+              <View {...gx('bg-brand-500 p-5')}>
                 <Text className="text-xs font-bold text-white/80 uppercase">
                   {t('ckids.balance_label')}
                 </Text>
@@ -386,7 +387,7 @@ export default function CKidsTabScreen() {
             <View className="items-center py-8">
               <Gift size={32} color="#FCA5A5" />
               <Text className="text-xs text-neutral-500 mt-2 text-center">{t('ckids.katalog_error')}</Text>
-              <Pressable onPress={() => katalogQuery.refetch()} className="mt-3 px-4 py-2 bg-brand-500 rounded-lg">
+              <Pressable onPress={() => katalogQuery.refetch()} {...gx('mt-3 px-4 py-2 bg-brand-500 rounded-lg')}>
                 <Text className="text-white font-semibold text-xs">{t('common.retry')}</Text>
               </Pressable>
             </View>
@@ -555,7 +556,7 @@ export default function CKidsTabScreen() {
                       </Text>
                     </View>
                     {isSelected ? (
-                      <View className="w-6 h-6 rounded-full bg-brand-500 items-center justify-center">
+                      <View {...gx('w-6 h-6 rounded-full bg-brand-500 items-center justify-center')}>
                         <Text className="text-white text-xs font-bold">✓</Text>
                       </View>
                     ) : null}

@@ -22,6 +22,7 @@ import { formatPhoneDisplay } from '@/utils/phone';
 import { formatDate } from '@/utils/date';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function EventRegisterScreen() {
   const { t, i18n } = useTranslation();
@@ -565,13 +566,13 @@ function ParticipantRow({
     >
       {/* Checkbox */}
       <View
-        className={`w-6 h-6 rounded border-2 items-center justify-center ${
+        {...gx(`w-6 h-6 rounded border-2 items-center justify-center ${
           disabled
             ? 'border-neutral-300 bg-neutral-100'
             : selected
               ? 'border-brand-500 bg-brand-500'
               : 'border-neutral-300 bg-white'
-        }`}
+        }`)}
       >
         {selected && !disabled ? <Check size={14} color="#fff" /> : null}
       </View>

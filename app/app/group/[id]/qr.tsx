@@ -27,6 +27,7 @@ import { useGroupDetail, useRegenerateGroupCode } from '@/hooks/useGroup';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function GroupQrScreen() {
   const { t } = useTranslation();
@@ -146,9 +147,9 @@ export default function GroupQrScreen() {
         <View className="flex-row items-center justify-center gap-2 mt-4">
           <Pressable
             onPress={() => setUseDeeplink(false)}
-            className={`flex-row items-center gap-1 px-3 py-1.5 rounded-full ${
+            {...gx(`flex-row items-center gap-1 px-3 py-1.5 rounded-full ${
               !useDeeplink ? 'bg-brand-500' : 'bg-neutral-200'
-            }`}
+            }`)}
           >
             <QrCode size={12} color={!useDeeplink ? '#fff' : '#525252'} />
             <Text
@@ -161,9 +162,9 @@ export default function GroupQrScreen() {
           </Pressable>
           <Pressable
             onPress={() => setUseDeeplink(true)}
-            className={`flex-row items-center gap-1 px-3 py-1.5 rounded-full ${
+            {...gx(`flex-row items-center gap-1 px-3 py-1.5 rounded-full ${
               useDeeplink ? 'bg-brand-500' : 'bg-neutral-200'
-            }`}
+            }`)}
           >
             <Link2 size={12} color={useDeeplink ? '#fff' : '#525252'} />
             <Text

@@ -17,6 +17,7 @@ import { getIbadahCalendar } from '@/api/ibadah';
 import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { todayIso, addDaysIso, formatDateWithDay, groupByDate, isToday } from '@/utils/date';
+import { gx } from '@/theme/gradient';
 
 const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 
@@ -221,7 +222,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <View className="items-center py-20 px-8">
       <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
-      <Pressable onPress={onRetry} className="px-4 py-2 bg-brand-500 rounded-lg">
+      <Pressable onPress={onRetry} {...gx('px-4 py-2 bg-brand-500 rounded-lg')}>
         <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
       </Pressable>
     </View>

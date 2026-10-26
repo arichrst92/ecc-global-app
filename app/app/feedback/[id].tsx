@@ -12,6 +12,7 @@ import { getMyFeedback, replyMyFeedback } from '@/api/feedback';
 import { FeedbackStatusBadge, FeedbackTipeBadge, fmtFeedbackDate } from '@/components/feedback/FeedbackBits';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function FeedbackDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -76,9 +77,9 @@ export default function FeedbackDetailScreen() {
             {f.replies.map((r) => (
               <View key={r.id} className={`flex-row ${r.fromAdmin ? 'justify-start' : 'justify-end'}`}>
                 <View
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
+                  {...gx(`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
                     r.fromAdmin ? 'bg-white border border-brand-100' : 'bg-brand-500'
-                  }`}
+                  }`)}
                 >
                   {r.fromAdmin ? <Text className="text-[11px] font-bold text-brand-700 mb-0.5">{t('feedback.church_team')}</Text> : null}
                   <Text className={`text-sm leading-5 ${r.fromAdmin ? 'text-neutral-800' : 'text-white'}`}>{r.isi}</Text>
@@ -105,7 +106,7 @@ export default function FeedbackDetailScreen() {
               <Pressable
                 onPress={() => mut.mutate()}
                 disabled={!isi.trim() || mut.isPending}
-                className={`w-11 h-11 rounded-full items-center justify-center ${isi.trim() ? 'bg-brand-500' : 'bg-neutral-200'}`}
+                {...gx(`w-11 h-11 rounded-full items-center justify-center ${isi.trim() ? 'bg-brand-500' : 'bg-neutral-200'}`)}
               >
                 {mut.isPending ? <ActivityIndicator color="#fff" size="small" /> : <Send size={18} color="#fff" />}
               </Pressable>

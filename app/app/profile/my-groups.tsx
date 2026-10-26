@@ -22,6 +22,7 @@ import { useMyGroupMemberships } from '@/hooks/useGroup';
 import type { GroupMembership } from '@/types/group';
 import { goBack } from '@/utils/nav';
 import { GroupListCard } from '@/components/group/GroupListCard';
+import { gx } from '@/theme/gradient';
 
 export default function MyGroupsScreen() {
   const insets = useSafeAreaInsets();
@@ -98,7 +99,7 @@ export default function MyGroupsScreen() {
             </Text>
             <Pressable
               onPress={() => router.push('/group' as never)}
-              className="bg-brand-500 px-5 py-3 rounded-xl"
+              {...gx('bg-brand-500 px-5 py-3 rounded-xl')}
             >
               <Text className="text-sm font-bold text-white">
                 {t('group.browse_cta')}

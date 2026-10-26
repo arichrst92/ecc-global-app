@@ -42,6 +42,7 @@ import type { FamilyRelation } from '@/types/family';
 import type { JemaatPublicProfile } from '@/types/jemaat';
 import { goBack } from '@/utils/nav';
 import { parseLocalDate } from '@/utils/date';
+import { gx } from '@/theme/gradient';
 
 type CacheFallback = {
   source: 'family' | 'homecell';
@@ -124,7 +125,7 @@ export default function JemaatViewScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -193,7 +194,7 @@ export default function JemaatViewScreen() {
               ) : null}
               <Pressable
                 onPress={() => beQuery.refetch()}
-                className="px-4 py-2 bg-brand-500 rounded-lg"
+                {...gx('px-4 py-2 bg-brand-500 rounded-lg')}
               >
                 <Text className="text-white font-semibold text-sm">
                   {t('common.retry')}

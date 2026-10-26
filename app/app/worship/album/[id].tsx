@@ -15,6 +15,7 @@ import { Cover } from '@/components/worship/Cover';
 import { SongRow } from '@/components/worship/SongRow';
 import { SongActionSheet } from '@/components/worship/SongActionSheet';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function WorshipAlbumScreen() {
   const { t } = useTranslation();
@@ -84,7 +85,7 @@ export default function WorshipAlbumScreen() {
 
         {!selecting ? (
           <View className="flex-row flex-wrap gap-2 mt-4 justify-center">
-            <Pressable onPress={() => playTracks(tracks, 0, { source: album.judul, mode: 'VOKAL' })} className="flex-row items-center gap-1.5 bg-brand-500 rounded-full px-5 py-2.5">
+            <Pressable onPress={() => playTracks(tracks, 0, { source: album.judul, mode: 'VOKAL' })} {...gx('flex-row items-center gap-1.5 bg-brand-500 rounded-full px-5 py-2.5')}>
               <Play size={16} color="#fff" fill="#fff" />
               <Text className="text-white font-semibold text-sm">{t('worship.play')}</Text>
             </Pressable>
@@ -129,7 +130,7 @@ export default function WorshipAlbumScreen() {
                 void playTracks(picked, 0, { source: t('worship.selection') });
                 setSelecting(false);
               }}
-              className={`flex-row items-center gap-1.5 rounded-full px-5 py-2.5 ${picked.length ? 'bg-brand-500' : 'bg-neutral-300'}`}
+              {...gx(`flex-row items-center gap-1.5 rounded-full px-5 py-2.5 ${picked.length ? 'bg-brand-500' : 'bg-neutral-300'}`)}
             >
               <Play size={16} color="#fff" fill="#fff" />
               <Text className="text-white font-semibold text-sm">{t('worship.play_selection', { count: picked.length })}</Text>

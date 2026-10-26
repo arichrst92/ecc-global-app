@@ -56,6 +56,7 @@ import { getMyProfile, getMySertifikat, sertifikatFileUrl } from '@/api/me';
 import { useMyHomecellOverview } from '@/hooks/useHomecell';
 import * as WebBrowser from 'expo-web-browser';
 import { formatPhoneDisplay } from '@/utils/phone';
+import { gx } from '@/theme/gradient';
 
 export default function ProfileTab() {
   // Guard di luar — supaya rules-of-hooks tidak violated. Guest path tidak
@@ -112,7 +113,7 @@ function ProfileTabAuthenticated() {
     <View className="flex-1 bg-neutral-50">
       <StatusBar style="light" />
       {/* Header */}
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-8">
             <View className="flex-row items-center justify-between mb-4">

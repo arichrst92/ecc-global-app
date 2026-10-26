@@ -11,6 +11,7 @@ import { Pause, Play, SkipForward } from 'lucide-react-native';
 
 import { useCurrentTrack, useWorshipPlayer } from '@/stores/worship-player.store';
 import { Cover } from './Cover';
+import { gx } from '@/theme/gradient';
 
 const TAB_SCREENS = new Set(['ibadah', 'event', 'ckids', 'persembahan', 'profile']);
 
@@ -53,7 +54,7 @@ export function MiniPlayer() {
               {track.albumTipe === 'SINGLE' ? 'Single' : track.albumJudul}
             </Text>
           </View>
-          <Pressable onPress={toggle} hitSlop={8} className="w-9 h-9 rounded-full bg-brand-500 items-center justify-center">
+          <Pressable onPress={toggle} hitSlop={8} {...gx('w-9 h-9 rounded-full bg-brand-500 items-center justify-center')}>
             {loading ? <ActivityIndicator size="small" color="#fff" /> : playing ? <Pause size={18} color="#fff" /> : <Play size={18} color="#fff" />}
           </Pressable>
           <Pressable onPress={() => void next()} hitSlop={8} className="w-8 h-9 items-center justify-center">
@@ -61,7 +62,7 @@ export function MiniPlayer() {
           </Pressable>
         </View>
         <View className="h-[3px] bg-neutral-100">
-          <View className="h-[3px] bg-brand-500" style={{ width: `${pct}%` }} />
+          <View {...gx('h-[3px] bg-brand-500', { width: `${pct}%` })}  />
         </View>
       </Pressable>
     </View>

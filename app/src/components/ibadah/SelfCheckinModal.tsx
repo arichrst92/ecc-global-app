@@ -14,6 +14,7 @@ import { AddTamuModal } from '@/components/tamu/AddTamuModal';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import type { SelfCheckinMember } from '@/api/ibadah';
+import { gx } from '@/theme/gradient';
 
 export function SelfCheckinModal({
   visible,
@@ -131,9 +132,9 @@ export function SelfCheckinModal({
                     <CheckCircle2 size={20} color="#16A34A" />
                   ) : blocked ? null : (
                     <View
-                      className={`w-6 h-6 rounded-md border-2 items-center justify-center ${
+                      {...gx(`w-6 h-6 rounded-md border-2 items-center justify-center ${
                         on ? 'bg-brand-500 border-brand-500' : 'border-neutral-300'
-                      }`}
+                      }`)}
                     >
                       {on ? <Check size={14} color="#fff" /> : null}
                     </View>

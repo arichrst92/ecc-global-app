@@ -14,6 +14,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import { formatVenueRange } from '@/utils/time';
+import { gx } from '@/theme/gradient';
 
 /**
  * Ibadah list untuk guest — read-only, no check-in button.
@@ -59,7 +60,7 @@ export function GuestIbadahView() {
     <View className="flex-1 bg-neutral-50">
       <StatusBar style="light" />
 
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-6">
             <Text className="text-white text-lg font-bold">{t('nav.ibadah')}</Text>

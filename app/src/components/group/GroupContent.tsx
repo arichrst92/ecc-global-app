@@ -42,6 +42,7 @@ import {
 import type { GroupAnnouncement, GroupPoll } from '@/types/groupContent';
 import { groupRoot, homecellRoot } from '@/api/groupContent';
 import { ApiError } from '@/types/api';
+import { gx } from '@/theme/gradient';
 
 type Tab = 'announcements' | 'polls' | 'files';
 
@@ -404,7 +405,7 @@ function PollCard({ root, poll, canManage }: { root: string; poll: GroupPoll; ca
                 className={`flex-row items-center gap-2 px-3 py-2.5 rounded-xl border ${on ? 'border-brand-500 bg-brand-50' : 'border-neutral-200 bg-white'}`}
               >
                 <View
-                  className={`w-5 h-5 items-center justify-center border-2 ${poll.multiple ? 'rounded-md' : 'rounded-full'} ${on ? 'border-brand-500 bg-brand-500' : 'border-neutral-300'}`}
+                  {...gx(`w-5 h-5 items-center justify-center border-2 ${poll.multiple ? 'rounded-md' : 'rounded-full'} ${on ? 'border-brand-500 bg-brand-500' : 'border-neutral-300'}`)}
                 >
                   {on ? <Check size={12} color="#fff" /> : null}
                 </View>
@@ -423,7 +424,7 @@ function PollCard({ root, poll, canManage }: { root: string; poll: GroupPoll; ca
                 <Text className="text-xs font-bold text-neutral-700">{o.count ?? '–'}</Text>
               </View>
               <View className="h-2 bg-neutral-200 rounded-full overflow-hidden mt-1">
-                <View className="h-full bg-brand-500 rounded-full" style={{ width: `${((o.count ?? 0) / max) * 100}%` }} />
+                <View {...gx('h-full bg-brand-500 rounded-full', { width: `${((o.count ?? 0) / max) * 100}%` })}  />
               </View>
             </View>
           );
@@ -528,7 +529,7 @@ function CreatePollModal({ root, visible, onClose }: { root: string; visible: bo
             <Pressable
               key={d.key}
               onPress={() => setDays(d.days)}
-              className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`}
+              {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
             >
               <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>{t(d.key)}</Text>
             </Pressable>

@@ -20,6 +20,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useMyFamily } from '@/hooks/useFamily';
 import { getMyProfile } from '@/api/me';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 const BLUR_AFTER_SEC = 30;
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -114,7 +115,7 @@ export default function QrCardScreen() {
   if (!user) return null;
 
   return (
-    <View className="flex-1 bg-brand-600">
+    <View {...gx('flex-1 bg-brand-600')}>
       {/* top + bottom: indikator halaman & peringatan blur di bawah tidak
           ketutup navigation bar (edge-to-edge). */}
       <SafeAreaView edges={['top', 'bottom']} className="flex-1">
@@ -243,7 +244,7 @@ function QrCardItem({
         {!revealed && hasKode ? (
           <Pressable
             onPress={onReveal}
-            className="mt-3 py-3 bg-brand-500 rounded-xl flex-row items-center justify-center gap-2"
+            {...gx('mt-3 py-3 bg-brand-500 rounded-xl flex-row items-center justify-center gap-2')}
           >
             <Eye size={16} color="#fff" />
             <Text className="text-white font-semibold text-sm">

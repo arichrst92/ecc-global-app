@@ -24,6 +24,7 @@ import type { TipeRelasi } from '@/types/tipeRelasi';
 import { goBack } from '@/utils/nav';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
+import { gx } from '@/theme/gradient';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -134,9 +135,9 @@ export default function FamilyAddNewScreen() {
                   <Pressable
                     key={g}
                     onPress={() => setGender(g)}
-                    className={`flex-1 py-3 rounded-xl border ${
+                    {...gx(`flex-1 py-3 rounded-xl border ${
                       active ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-200'
-                    }`}
+                    }`)}
                   >
                     <Text
                       className={`text-sm font-semibold text-center ${

@@ -26,6 +26,7 @@ import { ApiError } from '@/types/api';
 import { INDUSTRI_SUGGESTIONS } from '@/types/localBusiness';
 import type { TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function NewBusinessScreen() {
   const { t } = useTranslation();
@@ -159,9 +160,9 @@ export default function NewBusinessScreen() {
                   <Pressable
                     key={s}
                     onPress={() => setIndustri(s)}
-                    className={`px-3 py-1.5 rounded-full ${
+                    {...gx(`px-3 py-1.5 rounded-full ${
                       industri === s ? 'bg-brand-500' : 'bg-neutral-100'
-                    }`}
+                    }`)}
                   >
                     <Text
                       className={`text-xs font-semibold ${

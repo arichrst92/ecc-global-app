@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Eye, UserPlus } from 'lucide-react-native';
 
 import { useAuthStore } from '@/stores/auth.store';
+import { gx } from '@/theme/gradient';
 
 /**
  * GuestModeBanner — banner kecil ditampilkan di top screen yang relevan
@@ -64,7 +65,7 @@ export function GuestModeBanner({ compact = false }: Props) {
       </Text>
       <Pressable
         onPress={handleSignup}
-        className="bg-brand-500 py-2.5 px-4 rounded-xl flex-row items-center justify-center gap-2"
+        {...gx('bg-brand-500 py-2.5 px-4 rounded-xl flex-row items-center justify-center gap-2')}
       >
         <UserPlus size={16} color="#fff" />
         <Text className="text-white font-semibold text-sm">

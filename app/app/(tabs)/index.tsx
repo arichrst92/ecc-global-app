@@ -31,6 +31,7 @@ import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
 import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
+import { gx } from '@/theme/gradient';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -121,7 +122,7 @@ function HomeScreenAuthenticated() {
         <ViewingBanner />
 
         {/* Header gradient */}
-        <View className="bg-brand-500 pb-6 rounded-b-3xl">
+        <View {...gx('bg-brand-500 pb-6 rounded-b-3xl')}>
           <SafeAreaView edges={['top']}>
             <View className="flex-row items-center justify-between px-5 pt-4 pb-3">
               <View className="flex-row items-center gap-3 flex-1">

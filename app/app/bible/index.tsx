@@ -31,6 +31,7 @@ import { BIBLE_VERSIONS, BIBLE_VERSION_BY_CODE, getVerse, preloadVersion } from 
 import { useBookNames } from '@/utils/bibleNames';
 import type { BibleBook, Testament } from '@/types/bible';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 /**
  * Bible home — verse of day + continue reading + browse OT/NT + bookmarks.
@@ -95,7 +96,7 @@ export default function BibleHomeScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -183,7 +184,7 @@ export default function BibleHomeScreen() {
         {lastRead && lastReadBook ? (
           <Pressable
             onPress={() => router.push(`/bible/${lastRead.bookId}/${lastRead.bab}`)}
-            className="bg-brand-500 rounded-2xl p-4 flex-row items-center gap-3 mb-4"
+            {...gx('bg-brand-500 rounded-2xl p-4 flex-row items-center gap-3 mb-4')}
           >
             <View className="w-12 h-12 rounded-xl bg-white/20 items-center justify-center">
               <BookOpen size={22} color="#fff" />
@@ -223,9 +224,9 @@ export default function BibleHomeScreen() {
         <View className="flex-row bg-white rounded-2xl p-1 border border-neutral-100 mb-3">
           <Pressable
             onPress={() => setTab('OT')}
-            className={`flex-1 py-2.5 items-center rounded-xl ${
+            {...gx(`flex-1 py-2.5 items-center rounded-xl ${
               tab === 'OT' ? 'bg-brand-500' : ''
-            }`}
+            }`)}
           >
             <Text
               className={`text-sm font-bold ${
@@ -237,9 +238,9 @@ export default function BibleHomeScreen() {
           </Pressable>
           <Pressable
             onPress={() => setTab('NT')}
-            className={`flex-1 py-2.5 items-center rounded-xl ${
+            {...gx(`flex-1 py-2.5 items-center rounded-xl ${
               tab === 'NT' ? 'bg-brand-500' : ''
-            }`}
+            }`)}
           >
             <Text
               className={`text-sm font-bold ${

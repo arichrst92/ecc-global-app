@@ -11,6 +11,7 @@ import { ArrowLeft, Shield } from 'lucide-react-native';
 import { MarkdownView } from '@/components/ui/MarkdownView';
 import { useLegalDocument } from '@/hooks/useLegal';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function PrivacyScreen() {
   const insets = useSafeAreaInsets();
@@ -68,7 +69,7 @@ export default function PrivacyScreen() {
             </Text>
             <Pressable
               onPress={() => query.refetch()}
-              className="bg-brand-500 rounded-full px-4 py-2 self-start"
+              {...gx('bg-brand-500 rounded-full px-4 py-2 self-start')}
             >
               <Text className="text-xs font-bold text-white">
                 {t('common.retry')}

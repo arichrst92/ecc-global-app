@@ -9,6 +9,7 @@
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Animated, PanResponder, Text, View, type LayoutChangeEvent } from 'react-native';
 import { CheckCircle2, ChevronsRight, Lock } from 'lucide-react-native';
+import { gx } from '@/theme/gradient';
 
 const KNOB = 34;
 const PAD = 3;
@@ -86,8 +87,8 @@ export function SwipeToCheckin({
   return (
     <View
       onLayout={onLayout}
-      className={`rounded-full justify-center overflow-hidden ${locked ? 'bg-neutral-100' : 'bg-brand-500'}`}
-      style={{ height }}
+      {...gx(`rounded-full justify-center overflow-hidden ${locked ? 'bg-neutral-100' : 'bg-brand-500'}`, { height })}
+      
       accessibilityRole="adjustable"
       accessibilityLabel={label}
       accessibilityActions={state === 'READY' ? [{ name: 'activate', label }] : undefined}
@@ -98,7 +99,7 @@ export function SwipeToCheckin({
       {!locked ? (
         <Animated.View
           pointerEvents="none"
-          style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: fillWidth, backgroundColor: '#EA580C', borderRadius: 999 }}
+          style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: fillWidth, backgroundColor: 'rgba(154,52,18,0.28)', borderRadius: 999 }}
         />
       ) : null}
       <Text

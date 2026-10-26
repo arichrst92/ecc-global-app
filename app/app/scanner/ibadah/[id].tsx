@@ -33,6 +33,7 @@ import {
 import { ApiError } from '@/types/api';
 import { todayIso } from '@/utils/date';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type ScannerMode = 'checkin' | 'checkout' | 'pickup';
 
@@ -227,7 +228,7 @@ export default function ScannerIbadahScreen() {
                 {ibadahMeta?.nama ?? t('scanner.title')}
               </Text>
               {isKidsIbadah ? (
-                <View className="bg-brand-500/80 px-1.5 py-0.5 rounded">
+                <View {...gx('bg-brand-500/80 px-1.5 py-0.5 rounded')}>
                   <Text className="text-white text-[10px] font-bold">🧒 KIDS</Text>
                 </View>
               ) : null}
@@ -253,7 +254,7 @@ export default function ScannerIbadahScreen() {
           {mode === 'pickup' ? (
             <Pressable
               onPress={() => setPickupOpen(true)}
-              className="bg-brand-500 rounded-2xl p-4 mb-3 flex-row items-center gap-3 active:opacity-80"
+              {...gx('bg-brand-500 rounded-2xl p-4 mb-3 flex-row items-center gap-3 active:opacity-80')}
             >
               <View className="w-11 h-11 rounded-xl bg-white/20 items-center justify-center">
                 <Baby size={22} color="#fff" />

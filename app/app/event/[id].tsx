@@ -27,6 +27,7 @@ import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
 import { env } from '@/config/env';
 import type { EventParticipation } from '@/types/event';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function EventDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -289,14 +290,14 @@ export default function EventDetailScreen() {
           <View className="items-center py-28 px-8">
             <Text className="text-base font-bold text-neutral-900 text-center">{t('event.not_found_title')}</Text>
             <Text className="text-sm text-neutral-500 text-center mt-1 mb-4">{t('event.not_found_body')}</Text>
-            <Pressable onPress={() => goBack(router)} className="px-4 py-2 bg-brand-500 rounded-lg">
+            <Pressable onPress={() => goBack(router)} {...gx('px-4 py-2 bg-brand-500 rounded-lg')}>
               <Text className="text-white font-semibold text-sm">{t('common.back')}</Text>
             </Pressable>
           </View>
         ) : query.isError ? (
           <View className="items-center py-20 px-8">
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
-            <Pressable onPress={() => query.refetch()} className="px-4 py-2 bg-brand-500 rounded-lg">
+            <Pressable onPress={() => query.refetch()} {...gx('px-4 py-2 bg-brand-500 rounded-lg')}>
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>
           </View>
@@ -369,8 +370,8 @@ export default function EventDetailScreen() {
                       </Text>
                       <View className="mt-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                         <View
-                          className={`h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-brand-500'}`}
-                          style={{ width: `${Math.min(100, (event.pesertaCount / event.quotaPeserta) * 100)}%` }}
+                          {...gx(`h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-brand-500'}`, { width: `${Math.min(100, (event.pesertaCount / event.quotaPeserta) * 100)}%` })}
+                          
                         />
                       </View>
                     </View>
@@ -1287,7 +1288,7 @@ function ParticipationDetailModal({
                 {showContinuePayment ? (
                   <Pressable
                     onPress={onContinuePayment}
-                    className="bg-brand-500 rounded-xl py-3 items-center active:opacity-80 flex-row justify-center gap-2"
+                    {...gx('bg-brand-500 rounded-xl py-3 items-center active:opacity-80 flex-row justify-center gap-2')}
                   >
                     <Upload size={16} color="#fff" />
                     <Text className="text-sm font-semibold text-white">

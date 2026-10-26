@@ -23,6 +23,7 @@ import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { EventListItem, TipeBayar } from '@/types/event';
 import { formatDate } from '@/utils/date';
+import { gx } from '@/theme/gradient';
 
 type Filter = 'all' | 'GRATIS' | 'PAID';
 
@@ -122,9 +123,9 @@ function EventListAuthenticated() {
             <Pressable
               key={f.id}
               onPress={() => setFilter(f.id)}
-              className={`px-3 py-1.5 rounded-full ${
+              {...gx(`px-3 py-1.5 rounded-full ${
                 filter === f.id ? 'bg-brand-500' : 'bg-neutral-100'
-              }`}
+              }`)}
             >
               <Text
                 className={`text-xs font-medium ${
@@ -250,8 +251,8 @@ function EventCard({
           <View className="mt-3 flex-row items-center gap-2">
             <View className="flex-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
               <View
-                className={`h-full rounded-full ${quotaPercent > 80 ? 'bg-amber-500' : 'bg-brand-500'}`}
-                style={{ width: `${Math.min(100, quotaPercent)}%` }}
+                {...gx(`h-full rounded-full ${quotaPercent > 80 ? 'bg-amber-500' : 'bg-brand-500'}`, { width: `${Math.min(100, quotaPercent)}%` })}
+                
               />
             </View>
             <Text className="text-xs text-neutral-500 font-medium">
@@ -293,7 +294,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <View className="items-center py-20 px-8">
       <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
-      <Pressable onPress={onRetry} className="px-4 py-2 bg-brand-500 rounded-lg">
+      <Pressable onPress={onRetry} {...gx('px-4 py-2 bg-brand-500 rounded-lg')}>
         <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
       </Pressable>
     </View>

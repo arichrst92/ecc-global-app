@@ -21,6 +21,7 @@ import { usePublicEvents } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDate } from '@/utils/date';
 import type { PublicEventItem } from '@/types/publicGuest';
+import { gx } from '@/theme/gradient';
 
 function priceLabel(e: PublicEventItem, t: (k: string) => string, lang: string): string {
   if (e.tipeBayar === 'GRATIS') return t('event.free');
@@ -64,7 +65,7 @@ export function GuestEventView() {
     <View className="flex-1 bg-neutral-50">
       <StatusBar style="light" />
 
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-6">
             <Text className="text-white text-lg font-bold">{t('nav.event')}</Text>

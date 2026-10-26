@@ -16,6 +16,7 @@ import { useMyFamily } from '@/hooks/useFamily';
 import type { FamilyRelation, FamilyRole } from '@/types/family';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 function roleLabel(role: FamilyRole, t: (k: string) => string): string {
   switch (role) {
@@ -93,7 +94,7 @@ export default function FamilyListScreen() {
           </View>
           <Pressable
             onPress={() => router.push('/family/add')}
-            className="w-10 h-10 rounded-full bg-brand-500 items-center justify-center"
+            {...gx('w-10 h-10 rounded-full bg-brand-500 items-center justify-center')}
           >
             <Plus size={18} color="#fff" />
           </Pressable>
@@ -120,7 +121,7 @@ export default function FamilyListScreen() {
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
             <Pressable
               onPress={() => query.refetch()}
-              className="px-4 py-2 bg-brand-500 rounded-lg"
+              {...gx('px-4 py-2 bg-brand-500 rounded-lg')}
             >
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>
@@ -236,7 +237,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       </Text>
       <Pressable
         onPress={onAdd}
-        className="px-4 py-2.5 bg-brand-500 rounded-xl flex-row items-center gap-2"
+        {...gx('px-4 py-2.5 bg-brand-500 rounded-xl flex-row items-center gap-2')}
       >
         <Plus size={16} color="#fff" />
         <Text className="text-sm font-semibold text-white">

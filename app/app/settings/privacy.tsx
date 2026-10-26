@@ -23,6 +23,7 @@ import {
   type PrivacySettings,
 } from '@/api/privacy';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 const KEY = ['me', 'privacy'] as const;
 
@@ -101,7 +102,7 @@ export default function PrivacyScreen() {
             contentContainerStyle={{ paddingBottom: insets.bottom + 110, paddingHorizontal: 16, paddingTop: 16 }}
           >
             <View className="bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-4 flex-row gap-3">
-              <View className="w-10 h-10 rounded-xl bg-brand-500 items-center justify-center">
+              <View {...gx('w-10 h-10 rounded-xl bg-brand-500 items-center justify-center')}>
                 <ShieldCheck size={18} color="#fff" />
               </View>
               <View className="flex-1">
@@ -139,9 +140,9 @@ export default function PrivacyScreen() {
                           key={a}
                           onPress={() => toggle(f, a)}
                           disabled={implied}
-                          className={`flex-row items-center gap-1 px-3 py-1.5 rounded-full border ${
+                          {...gx(`flex-row items-center gap-1 px-3 py-1.5 rounded-full border ${
                             on || implied ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-200'
-                          } ${implied ? 'opacity-50' : ''}`}
+                          } ${implied ? 'opacity-50' : ''}`)}
                         >
                           {on || implied ? <Check size={12} color="#fff" /> : null}
                           <Text className={`text-xs font-semibold ${on || implied ? 'text-white' : 'text-neutral-700'}`}>

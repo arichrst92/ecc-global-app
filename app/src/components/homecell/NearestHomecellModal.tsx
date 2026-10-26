@@ -9,6 +9,7 @@ import { Clock, MapPin, Navigation, User, Users, X } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge, jadwalLabel } from '@/components/homecell/HomecellListCard';
 import type { HomecellNearestResponse } from '@/types/homecell';
+import { gx } from '@/theme/gradient';
 
 type Props = {
   visible: boolean;
@@ -51,7 +52,7 @@ export function NearestHomecellModal({ visible, data, joiningId, hasPending, onC
               return (
                 <View key={h.id} className="bg-white rounded-2xl p-4 border border-neutral-100">
                   <View className="flex-row items-start gap-3">
-                    <View className="w-9 h-9 rounded-full bg-brand-500 items-center justify-center">
+                    <View {...gx('w-9 h-9 rounded-full bg-brand-500 items-center justify-center')}>
                       <Text className="text-white font-bold">{i + 1}</Text>
                     </View>
                     <View className="flex-1 min-w-0">

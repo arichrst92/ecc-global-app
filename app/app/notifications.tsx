@@ -50,6 +50,7 @@ import {
 } from '@/utils/notifRouting';
 import type { InAppNotification } from '@/types/notification';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 /* ==============================================================
  * ICON RENDERER
@@ -312,7 +313,7 @@ function NotifRow({
         </Text>
       </View>
       {isUnread ? (
-        <View className="w-2 h-2 rounded-full bg-brand-500 mt-1" />
+        <View {...gx('w-2 h-2 rounded-full bg-brand-500 mt-1')} />
       ) : null}
     </Pressable>
   );

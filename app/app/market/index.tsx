@@ -36,6 +36,7 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { listCabang } from '@/api/cabang';
 import { INDUSTRI_SUGGESTIONS, type LocalBusiness, type TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type OnlineFilter = 'all' | 'online' | 'offline';
 
@@ -118,9 +119,9 @@ export default function LocalMarketScreen() {
           </View>
           <Pressable
             onPress={() => setFilterOpen(true)}
-            className={`px-3 rounded-xl items-center justify-center relative ${
+            {...gx(`px-3 rounded-xl items-center justify-center relative ${
               activeFilterCount > 0 ? 'bg-brand-500' : 'bg-neutral-100'
-            }`}
+            }`)}
           >
             <SlidersHorizontal
               size={18}
@@ -362,9 +363,9 @@ function FilterModal({
             <View className="flex-row flex-wrap gap-2 mb-5">
               <Pressable
                 onPress={() => setPendingIndustri(undefined)}
-                className={`px-3 py-1.5 rounded-full ${
+                {...gx(`px-3 py-1.5 rounded-full ${
                   !pendingIndustri ? 'bg-brand-500' : 'bg-neutral-100'
-                }`}
+                }`)}
               >
                 <Text
                   className={`text-xs font-semibold ${
@@ -378,9 +379,9 @@ function FilterModal({
                 <Pressable
                   key={s}
                   onPress={() => setPendingIndustri(pendingIndustri === s ? undefined : s)}
-                  className={`px-3 py-1.5 rounded-full ${
+                  {...gx(`px-3 py-1.5 rounded-full ${
                     pendingIndustri === s ? 'bg-brand-500' : 'bg-neutral-100'
-                  }`}
+                  }`)}
                 >
                   <Text
                     className={`text-xs font-semibold ${
@@ -410,7 +411,7 @@ function FilterModal({
           <View className="px-5 pt-3 pb-5 border-t border-neutral-100">
             <Pressable
               onPress={handleApply}
-              className="bg-brand-500 rounded-full py-3 items-center"
+              {...gx('bg-brand-500 rounded-full py-3 items-center')}
             >
               <Text className="text-sm font-bold text-white">
                 {t('market.filter_apply')}
@@ -454,7 +455,7 @@ function FilterRow({
         ) : null}
       </View>
       {selected ? (
-        <View className="w-6 h-6 rounded-full bg-brand-500 items-center justify-center">
+        <View {...gx('w-6 h-6 rounded-full bg-brand-500 items-center justify-center')}>
           <Check size={14} color="#fff" />
         </View>
       ) : (
@@ -503,7 +504,7 @@ function FilterChip({
   return (
     <Pressable
       onPress={onPress}
-      className={`px-3 py-1.5 rounded-full ${active ? 'bg-brand-500' : 'bg-neutral-100'}`}
+      {...gx(`px-3 py-1.5 rounded-full ${active ? 'bg-brand-500' : 'bg-neutral-100'}`)}
     >
       <Text
         className={`text-xs font-semibold ${active ? 'text-white' : 'text-neutral-600'}`}
@@ -528,7 +529,7 @@ function EmptyState({ onSeeAll }: { onSeeAll: () => void }) {
       <Text className="text-sm text-neutral-500 text-center mt-1 mb-4 leading-relaxed">
         {t('market.empty_msg')}
       </Text>
-      <Pressable onPress={onSeeAll} className="bg-brand-500 rounded-full px-4 py-2">
+      <Pressable onPress={onSeeAll} {...gx('bg-brand-500 rounded-full px-4 py-2')}>
         <Text className="text-sm font-bold text-white">{t('market.reset_filter')}</Text>
       </Pressable>
     </View>
@@ -542,7 +543,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
       <Text className="text-sm text-red-600 text-center mb-3">
         {t('error.generic')}
       </Text>
-      <Pressable onPress={onRetry} className="bg-brand-500 rounded-full px-4 py-2">
+      <Pressable onPress={onRetry} {...gx('bg-brand-500 rounded-full px-4 py-2')}>
         <Text className="text-sm font-bold text-white">{t('common.retry')}</Text>
       </Pressable>
     </View>

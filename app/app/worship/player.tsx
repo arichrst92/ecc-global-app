@@ -31,6 +31,7 @@ import { useCurrentTrack, useWorshipPlayer } from '@/stores/worship-player.store
 import { Cover } from '@/components/worship/Cover';
 import { LyricsView } from '@/components/worship/LyricsView';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 const KEEP_AWAKE_TAG = 'ecc-worship-karaoke';
 
@@ -97,7 +98,7 @@ export default function WorshipPlayerScreen() {
       {track.hasKaraoke ? (
         <View className="mx-6 flex-row rounded-full overflow-hidden border" style={{ borderColor: karaoke ? 'rgba(255,255,255,0.3)' : '#E5E5E5' }}>
           {(['VOKAL', 'KARAOKE'] as const).map((m) => (
-            <Pressable key={m} onPress={() => void s.setMode(m)} className={`flex-1 py-2 items-center ${s.mode === m ? 'bg-brand-500' : ''}`}>
+            <Pressable key={m} onPress={() => void s.setMode(m)} {...gx(`flex-1 py-2 items-center ${s.mode === m ? 'bg-brand-500' : ''}`)}>
               <Text className="text-xs font-semibold" style={{ color: s.mode === m ? '#fff' : sub }}>
                 {m === 'VOKAL' ? t('worship.vokal') : 'Karaoke'}
               </Text>
@@ -138,7 +139,7 @@ export default function WorshipPlayerScreen() {
           className="mt-4 py-2"
         >
           <View className="h-1 rounded-full" style={{ backgroundColor: karaoke ? 'rgba(255,255,255,0.25)' : '#E5E5E5' }}>
-            <View className="h-1 rounded-full bg-brand-500" style={{ width: `${pct * 100}%` }} />
+            <View {...gx('h-1 rounded-full bg-brand-500', { width: `${pct * 100}%` })}  />
           </View>
         </Pressable>
         <View className="flex-row justify-between">
@@ -157,7 +158,7 @@ export default function WorshipPlayerScreen() {
           <Pressable onPress={() => void s.prev()} hitSlop={10}>
             <SkipBack size={28} color={fg} fill={fg} />
           </Pressable>
-          <Pressable onPress={s.toggle} className="w-16 h-16 rounded-full bg-brand-500 items-center justify-center">
+          <Pressable onPress={s.toggle} {...gx('w-16 h-16 rounded-full bg-brand-500 items-center justify-center')}>
             {s.loading ? <ActivityIndicator color="#fff" /> : s.playing ? <Pause size={28} color="#fff" fill="#fff" /> : <Play size={28} color="#fff" fill="#fff" />}
           </Pressable>
           <Pressable onPress={() => void s.next()} hitSlop={10}>

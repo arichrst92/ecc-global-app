@@ -13,6 +13,7 @@ import { useBookmarksStore } from '@/stores/bookmarks.store';
 import { formatDate } from '@/utils/date';
 import { buildRenunganShareUrl } from '@/utils/share';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function RenunganDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -137,7 +138,7 @@ export default function RenunganDetailScreen() {
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
             <Pressable
               onPress={() => detailQuery.refetch()}
-              className="px-4 py-2 bg-brand-500 rounded-lg"
+              {...gx('px-4 py-2 bg-brand-500 rounded-lg')}
             >
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>
@@ -154,7 +155,7 @@ export default function RenunganDetailScreen() {
             <View className="px-5 pt-5 pb-3">
               {/* Ayat banner */}
               <View className="bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-4 flex-row items-center gap-3">
-                <View className="w-10 h-10 rounded-xl bg-brand-500 items-center justify-center">
+                <View {...gx('w-10 h-10 rounded-xl bg-brand-500 items-center justify-center')}>
                   <BookOpen size={18} color="#fff" />
                 </View>
                 <View className="flex-1">

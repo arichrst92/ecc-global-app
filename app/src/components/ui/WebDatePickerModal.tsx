@@ -6,6 +6,7 @@
 import { createElement, useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { gx } from '@/theme/gradient';
 
 const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -51,7 +52,7 @@ export function WebDatePickerModal({
             <Pressable onPress={onClose} className="px-4 py-2">
               <Text className="text-sm text-neutral-600">{t('common.cancel')}</Text>
             </Pressable>
-            <Pressable onPress={ok} className="px-4 py-2 bg-brand-500 rounded-lg">
+            <Pressable onPress={ok} {...gx('px-4 py-2 bg-brand-500 rounded-lg')}>
               <Text className="text-sm font-bold text-white">OK</Text>
             </Pressable>
           </View>

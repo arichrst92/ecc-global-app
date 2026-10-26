@@ -39,6 +39,7 @@ import {
 import { Chip, PillOption, fmtDate } from '@/components/doa/DoaBits';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type Sheet = { mode: 'add' } | { mode: 'edit'; item: Resolusi } | null;
 
@@ -150,7 +151,7 @@ export default function ResolusiScreen() {
                 </Text>
               </View>
               <View className="h-2 bg-neutral-100 rounded-full overflow-hidden">
-                <View className="h-2 bg-brand-500 rounded-full" style={{ width: `${pct}%` }} />
+                <View {...gx('h-2 bg-brand-500 rounded-full', { width: `${pct}%` })}  />
               </View>
             </View>
             <View className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">

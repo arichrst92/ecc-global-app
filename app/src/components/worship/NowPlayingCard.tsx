@@ -6,6 +6,7 @@ import { Music, Pause, Play, SkipForward, X } from 'lucide-react-native';
 
 import { useCurrentTrack, useWorshipPlayer } from '@/stores/worship-player.store';
 import { Cover } from './Cover';
+import { gx } from '@/theme/gradient';
 
 export function NowPlayingCard() {
   const { t } = useTranslation();
@@ -49,7 +50,7 @@ export function NowPlayingCard() {
               ) : null}
             </View>
           </View>
-          <Pressable onPress={toggle} hitSlop={8} className="w-10 h-10 rounded-full bg-brand-500 items-center justify-center">
+          <Pressable onPress={toggle} hitSlop={8} {...gx('w-10 h-10 rounded-full bg-brand-500 items-center justify-center')}>
             {loading ? <ActivityIndicator size="small" color="#fff" /> : playing ? <Pause size={18} color="#fff" /> : <Play size={18} color="#fff" />}
           </Pressable>
           <Pressable onPress={() => void next()} hitSlop={8}>
@@ -57,7 +58,7 @@ export function NowPlayingCard() {
           </Pressable>
         </View>
         <View className="h-[3px] bg-neutral-100 rounded-full overflow-hidden">
-          <View className="h-[3px] bg-brand-500" style={{ width: `${pct}%` }} />
+          <View {...gx('h-[3px] bg-brand-500', { width: `${pct}%` })}  />
         </View>
       </Pressable>
     </View>

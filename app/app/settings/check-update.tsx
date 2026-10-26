@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/Button';
 import { checkAppVersion } from '@/api/appVersion';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type CheckResult =
   | { status: 'idle' }
@@ -174,9 +175,9 @@ export default function CheckUpdateScreen() {
                 result.downloadUrl ? Linking.openURL(result.downloadUrl) : undefined
               }
               disabled={!result.downloadUrl}
-              className={`rounded-full py-2.5 flex-row items-center justify-center gap-2 ${
+              {...gx(`rounded-full py-2.5 flex-row items-center justify-center gap-2 ${
                 result.force ? 'bg-red-500' : 'bg-brand-500'
-              } ${!result.downloadUrl ? 'opacity-50' : ''}`}
+              } ${!result.downloadUrl ? 'opacity-50' : ''}`)}
             >
               <ExternalLink size={14} color="#fff" />
               <Text className="text-sm font-bold text-white">

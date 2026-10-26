@@ -1,6 +1,8 @@
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import type { PressableProps } from 'react-native';
 
+import { brandGradientStyle } from '@/theme/gradient';
+
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
@@ -56,7 +58,11 @@ export function Button({
         'flex-row items-center justify-center gap-2',
         isDisabled ? 'opacity-50' : '',
       ].join(' ')}
-      style={({ pressed }) => (pressed && !isDisabled ? { opacity: 0.85 } : undefined)}
+      // Primary: gradient oranye brand (sama dengan dock portal).
+      style={({ pressed }) => [
+        variant === 'primary' ? brandGradientStyle : null,
+        pressed && !isDisabled ? { opacity: 0.85 } : null,
+      ]}
     >
       {loading ? (
         <ActivityIndicator size="small" color={variant === 'primary' || variant === 'danger' ? '#fff' : '#F97316'} />

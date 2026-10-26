@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CircleCheck, Circle } from 'lucide-react-native';
 
 import type { PrayerDisplayStatus, PrayerTarget } from '@/api/prayer';
+import { gx } from '@/theme/gradient';
 
 const STATUS_CLS: Record<PrayerDisplayStatus, { bg: string; text: string }> = {
   BARU: { bg: 'bg-amber-100', text: 'text-amber-800' },
@@ -35,7 +36,7 @@ export function PillOption({ label, on, onPress }: { label: string; on: boolean;
   return (
     <Pressable
       onPress={onPress}
-      className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`}
+      {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
     >
       <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>{label}</Text>
     </Pressable>

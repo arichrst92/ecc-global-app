@@ -38,6 +38,7 @@ import { goBack } from '@/utils/nav';
 import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
 import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
 import { useMyReservasi } from '@/hooks/useMyReservasi';
+import { gx } from '@/theme/gradient';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -128,7 +129,7 @@ export default function IbadahDetailScreen() {
   return (
     <View className="flex-1 bg-neutral-50">
       {/* Hero header */}
-      <View className="bg-brand-500 pb-6 rounded-b-3xl">
+      <View {...gx('bg-brand-500 pb-6 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="flex-row items-center px-4 pt-2">
             <Pressable
@@ -186,7 +187,7 @@ export default function IbadahDetailScreen() {
         ) : query.isError ? (
           <View className="items-center py-20">
             <Text className="text-sm text-red-600">{t('error.generic')}</Text>
-            <Pressable onPress={() => query.refetch()} className="mt-3 px-4 py-2 bg-brand-500 rounded-lg">
+            <Pressable onPress={() => query.refetch()} {...gx('mt-3 px-4 py-2 bg-brand-500 rounded-lg')}>
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>
           </View>

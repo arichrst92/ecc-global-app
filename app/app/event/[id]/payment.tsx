@@ -18,6 +18,7 @@ import { uploadBukti } from '@/api/event';
 import { env } from '@/config/env';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type PickedImage = {
   uri: string;
@@ -212,7 +213,7 @@ export default function EventPaymentScreen() {
             </Text>
             <Pressable
               onPress={() => goBack(router)}
-              className="bg-brand-500 rounded-xl px-4 py-2"
+              {...gx('bg-brand-500 rounded-xl px-4 py-2')}
             >
               <Text className="text-white text-sm font-semibold">
                 {t('common.back')}
@@ -252,7 +253,7 @@ export default function EventPaymentScreen() {
         {/* Family peserta banner — kalau upload untuk family, tampil siapa */}
         {isForFamily && namaPeserta ? (
           <View className="bg-brand-50 border border-brand-100 rounded-2xl p-3 mb-3 flex-row items-center gap-3">
-            <View className="w-8 h-8 rounded-full bg-brand-500 items-center justify-center">
+            <View {...gx('w-8 h-8 rounded-full bg-brand-500 items-center justify-center')}>
               <Text className="text-white text-xs font-bold">
                 {namaPeserta.slice(0, 1).toUpperCase()}
               </Text>

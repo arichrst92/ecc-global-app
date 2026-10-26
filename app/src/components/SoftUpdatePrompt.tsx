@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowDownToLine } from 'lucide-react-native';
 
 import { useAppVersion } from '@/hooks/useAppVersion';
+import { gx } from '@/theme/gradient';
 
 const DISMISS_KEY = 'app-update.dismissed-version';
 const APP_ICON = require('../../assets/images/ecc-icon-ios.png');
@@ -126,7 +127,7 @@ export function SoftUpdatePrompt() {
               <Pressable
                 onPress={update}
                 accessibilityRole="button"
-                className="flex-1 py-3.5 rounded-2xl bg-brand-500 flex-row items-center justify-center gap-2"
+                {...gx('flex-1 py-3.5 rounded-2xl bg-brand-500 flex-row items-center justify-center gap-2')}
               >
                 <ArrowDownToLine size={18} color="#fff" />
                 <Text className="text-sm font-bold text-white">{t('update.soft_update')}</Text>

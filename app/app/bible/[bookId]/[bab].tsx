@@ -37,6 +37,7 @@ import type {
   BibleVersionCode,
 } from '@/types/bible';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 /**
  * Chapter reader.
@@ -186,7 +187,7 @@ export default function BibleChapterScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-brand-500">
+      <View {...gx('bg-brand-500')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -317,7 +318,7 @@ export default function BibleChapterScreen() {
           <Pressable
             onPress={goNext}
             disabled={bab === book.totalBab && book.id === 66}
-            className="flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-xl bg-brand-500"
+            {...gx('flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-xl bg-brand-500')}
           >
             <Text className="text-sm font-semibold text-white">
               {names.tc('bible.next_chapter')}

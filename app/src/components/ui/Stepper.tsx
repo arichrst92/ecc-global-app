@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 import { Check } from 'lucide-react-native';
+import { gx } from '@/theme/gradient';
 
 type Props = {
   current: number; // 1-indexed (1, 2, 3...)
@@ -23,9 +24,9 @@ export function Stepper({ current, total }: Props) {
             className={`flex-row items-center gap-2 ${isLast ? '' : 'flex-1'}`}
           >
             <View
-              className={`w-7 h-7 rounded-full items-center justify-center ${
+              {...gx(`w-7 h-7 rounded-full items-center justify-center ${
                 isDone || isActive ? 'bg-brand-500' : 'bg-neutral-100'
-              }`}
+              }`)}
             >
               {isDone ? (
                 <Check size={14} color="#fff" strokeWidth={3} />
@@ -41,9 +42,9 @@ export function Stepper({ current, total }: Props) {
             </View>
             {!isLast && (
               <View
-                className={`flex-1 h-1 rounded-full ${
+                {...gx(`flex-1 h-1 rounded-full ${
                   isDone ? 'bg-brand-500' : 'bg-neutral-100'
-                }`}
+                }`)}
               />
             )}
           </View>

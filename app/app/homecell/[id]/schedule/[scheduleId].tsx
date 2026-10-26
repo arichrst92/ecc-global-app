@@ -56,6 +56,7 @@ import { ApiError } from '@/types/api';
 import { formatDateWithDay } from '@/utils/date';
 import type { HomecellAttendance } from '@/types/homecellSchedule';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function ScheduleDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -252,7 +253,7 @@ export default function ScheduleDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -463,7 +464,7 @@ export default function ScheduleDetailScreen() {
         {/* Primary — Scan QR */}
         <Pressable
           onPress={() => setScannerOpen(true)}
-          className="bg-brand-500 rounded-full px-5 py-4 flex-row items-center gap-2 shadow-lg"
+          {...gx('bg-brand-500 rounded-full px-5 py-4 flex-row items-center gap-2 shadow-lg')}
         >
           <ScanLine size={20} color="#fff" />
           <Text className="text-white font-bold text-sm">

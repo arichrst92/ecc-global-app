@@ -7,6 +7,7 @@ import { HandHeart } from 'lucide-react-native';
 
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { buildGivingUrl, openGiving } from '@/utils/giving';
+import { gx } from '@/theme/gradient';
 
 /**
  * Persembahan tab — konsisten iOS + Android: redirect ke web page untuk
@@ -51,7 +52,7 @@ function PersembahanWebRedirect() {
         </Text>
         <Pressable
           onPress={() => void openGiving(branch?.kode)}
-          className="bg-brand-500 rounded-2xl px-6 py-3.5 flex-row items-center gap-2"
+          {...gx('bg-brand-500 rounded-2xl px-6 py-3.5 flex-row items-center gap-2')}
         >
           <Text className="text-white font-bold text-sm">
             {t('persembahan.ios_open_web')}

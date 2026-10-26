@@ -35,6 +35,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import type { Group, GroupJenis } from '@/types/group';
 import { goBack } from '@/utils/nav';
 import { GroupListCard } from '@/components/group/GroupListCard';
+import { gx } from '@/theme/gradient';
 
 const JENIS_FILTER_OPTIONS: Array<{ value: '' | GroupJenis; labelKey: string }> = [
   { value: '', labelKey: 'group.filter_all' },
@@ -140,11 +141,11 @@ export default function GroupListScreen() {
               <Pressable
                 key={opt.value || 'all'}
                 onPress={() => setSelectedJenis(opt.value)}
-                className={`px-4 py-1.5 rounded-full border ${
+                {...gx(`px-4 py-1.5 rounded-full border ${
                   selectedJenis === opt.value
                     ? 'bg-brand-500 border-brand-500'
                     : 'bg-white border-neutral-200'
-                }`}
+                }`)}
               >
                 <Text
                   className={`text-xs font-semibold ${

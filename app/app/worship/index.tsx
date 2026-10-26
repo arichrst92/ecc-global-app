@@ -17,6 +17,7 @@ import { Cover } from '@/components/worship/Cover';
 import { SongRow } from '@/components/worship/SongRow';
 import { SongActionSheet } from '@/components/worship/SongActionSheet';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type Tab = 'album' | 'single' | 'liked' | 'downloads';
 
@@ -99,7 +100,7 @@ export default function WorshipHome() {
               <Pressable
                 key={x.k}
                 onPress={() => setTab(x.k)}
-                className={`px-3.5 py-1.5 rounded-full border ${tab === x.k ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`}
+                {...gx(`px-3.5 py-1.5 rounded-full border ${tab === x.k ? 'bg-brand-500 border-brand-500' : 'bg-white border-neutral-300'}`)}
               >
                 <Text className={`text-xs font-semibold ${tab === x.k ? 'text-white' : 'text-neutral-700'}`}>{x.label}</Text>
               </Pressable>
@@ -129,7 +130,7 @@ export default function WorshipHome() {
               <View className="flex-row gap-2 mb-4">
                 <Pressable
                   onPress={() => playTracks(all, 0, { source: t('worship.all_songs') })}
-                  className="flex-1 flex-row items-center justify-center gap-2 bg-brand-500 rounded-full py-2.5"
+                  {...gx('flex-1 flex-row items-center justify-center gap-2 bg-brand-500 rounded-full py-2.5')}
                 >
                   <Play size={16} color="#fff" fill="#fff" />
                   <Text className="text-white font-semibold text-sm">{t('worship.play_all')}</Text>
@@ -202,7 +203,7 @@ export default function WorshipHome() {
               {list.length ? (
                 <>
                   <View className="flex-row gap-2 mb-2">
-                    <Pressable onPress={() => playTracks(list, 0, { source: listSource })} className="flex-row items-center gap-1.5 bg-brand-500 rounded-full px-4 py-2">
+                    <Pressable onPress={() => playTracks(list, 0, { source: listSource })} {...gx('flex-row items-center gap-1.5 bg-brand-500 rounded-full px-4 py-2')}>
                       <Play size={14} color="#fff" fill="#fff" />
                       <Text className="text-white font-semibold text-xs">{t('worship.play')}</Text>
                     </Pressable>

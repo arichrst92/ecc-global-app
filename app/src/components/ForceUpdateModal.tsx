@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowDownToLine } from 'lucide-react-native';
 
 import type { AppVersionInfo } from '@/types/appVersion';
+import { gx } from '@/theme/gradient';
 
 const APP_ICON = require('../../assets/images/ecc-icon-ios.png');
 
@@ -74,7 +75,7 @@ export function ForceUpdateModal({ data }: Props) {
                 <Pressable
                   onPress={openStore}
                   accessibilityRole="button"
-                  className="bg-brand-500 py-4 px-8 rounded-2xl flex-row items-center justify-center gap-2 w-full"
+                  {...gx('bg-brand-500 py-4 px-8 rounded-2xl flex-row items-center justify-center gap-2 w-full')}
                 >
                   <ArrowDownToLine size={20} color="#fff" />
                   <Text className="text-white font-bold text-base">{t('update.cta_update')}</Text>

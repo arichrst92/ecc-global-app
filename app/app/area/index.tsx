@@ -21,6 +21,7 @@ import {
 import { useAreaHomecells, useManagedAreas } from '@/hooks/useHomecell';
 import type { AreaHomecellRow, PicArea } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 /**
  * Area list — flatten + grouped by area.
@@ -85,7 +86,7 @@ export default function AreaListScreen() {
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
             <Pressable
               onPress={refresh}
-              className="px-4 py-2 bg-brand-500 rounded-lg"
+              {...gx('px-4 py-2 bg-brand-500 rounded-lg')}
             >
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>
@@ -132,7 +133,7 @@ function AreaSection({
   return (
     <View>
       {/* Area header */}
-      <View className="bg-brand-500 rounded-2xl p-4 mb-2 flex-row items-center gap-3">
+      <View {...gx('bg-brand-500 rounded-2xl p-4 mb-2 flex-row items-center gap-3')}>
         <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center">
           <MapPinned size={18} color="#fff" />
         </View>

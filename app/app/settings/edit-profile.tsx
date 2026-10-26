@@ -35,6 +35,7 @@ import { ChangePhoneModal } from '@/components/profile/ChangePhoneModal';
 import { PEKERJAAN_OPTIONS, PERNIKAHAN_OPTIONS } from '@/constants/profileOptions';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
+import { gx } from '@/theme/gradient';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -295,7 +296,7 @@ export default function EditProfileScreen() {
                   className="bg-brand-100"
                 />
               )}
-              <View className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-brand-500 items-center justify-center border-2 border-white">
+              <View {...gx('absolute bottom-0 right-0 w-8 h-8 rounded-full bg-brand-500 items-center justify-center border-2 border-white')}>
                 <Camera size={14} color="#fff" />
               </View>
             </Pressable>

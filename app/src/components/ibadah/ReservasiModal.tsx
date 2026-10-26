@@ -16,6 +16,7 @@ import { AddTamuModal } from '@/components/tamu/AddTamuModal';
 import { cancelReservasiFor, getReservasiOptions, postReservasi, type ReservasiMember } from '@/api/ibadah';
 import { formatDateWithDay } from '@/utils/date';
 import { formatVenueRange } from '@/utils/time';
+import { gx } from '@/theme/gradient';
 
 const errMsg = (e: unknown, fallback: string) => (e instanceof Error && e.message ? e.message : fallback);
 
@@ -142,13 +143,13 @@ export function ReservasiModal({
                       key={o.tanggal}
                       disabled={o.cancelled}
                       onPress={() => setTanggal(o.tanggal)}
-                      className={`px-3 py-2 rounded-xl border ${
+                      {...gx(`px-3 py-2 rounded-xl border ${
                         o.cancelled
                           ? 'bg-neutral-50 border-neutral-200 opacity-50'
                           : on
                             ? 'bg-brand-500 border-brand-500'
                             : 'bg-white border-neutral-200'
-                      }`}
+                      }`)}
                     >
                       <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-800'}`}>
                         {formatDateWithDay(o.tanggal, i18n.language)}
@@ -216,9 +217,9 @@ export function ReservasiModal({
                         <CheckCircle2 size={20} color="#16A34A" />
                       ) : blocked ? null : (
                         <View
-                          className={`w-6 h-6 rounded-md border-2 items-center justify-center ${
+                          {...gx(`w-6 h-6 rounded-md border-2 items-center justify-center ${
                             on ? 'bg-brand-500 border-brand-500' : 'border-neutral-300'
-                          }`}
+                          }`)}
                         >
                           {on ? <Check size={14} color="#fff" /> : null}
                         </View>

@@ -40,6 +40,7 @@ import type { HomecellMember } from '@/types/homecell';
 import type { HomecellSchedule } from '@/types/homecellSchedule';
 import { goBack } from '@/utils/nav';
 import { parseLocalDate } from '@/utils/date';
+import { gx } from '@/theme/gradient';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -111,7 +112,7 @@ export default function HomecellDetailScreen() {
           </Text>
           <Pressable
             onPress={() => detailQuery.refetch()}
-            className="px-4 py-2 bg-brand-500 rounded-lg"
+            {...gx('px-4 py-2 bg-brand-500 rounded-lg')}
           >
             <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
           </Pressable>
@@ -138,7 +139,7 @@ export default function HomecellDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -223,7 +224,7 @@ export default function HomecellDetailScreen() {
                   fotoUrl={picMember.jemaat.fotoUrl ?? undefined}
                   size={48}
                 />
-                <View className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-brand-500 items-center justify-center border-2 border-white">
+                <View {...gx('absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-brand-500 items-center justify-center border-2 border-white')}>
                   <Text className="text-[8px] font-bold text-white">PIC</Text>
                 </View>
               </View>
@@ -256,7 +257,7 @@ export default function HomecellDetailScreen() {
         {canRemove ? (
           <Pressable
             onPress={() => router.push(`/homecell/${id}/add-member`)}
-            className="bg-brand-500 rounded-2xl p-4 flex-row items-center gap-3 mb-4"
+            {...gx('bg-brand-500 rounded-2xl p-4 flex-row items-center gap-3 mb-4')}
           >
             <View className="w-12 h-12 rounded-xl bg-white/20 items-center justify-center">
               <UserPlus size={22} color="#fff" />

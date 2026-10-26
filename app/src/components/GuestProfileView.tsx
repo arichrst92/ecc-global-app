@@ -15,6 +15,7 @@ import {
 } from 'lucide-react-native';
 
 import { useAuthStore } from '@/stores/auth.store';
+import { gx } from '@/theme/gradient';
 
 /**
  * Profile tab UI khusus untuk guest mode.
@@ -37,7 +38,7 @@ export function GuestProfileView() {
       <StatusBar style="light" />
 
       {/* Header — branded orange seperti profile tab biasa, tapi tanpa user data */}
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-8 items-center">
             <View className="w-20 h-20 rounded-full bg-white/20 items-center justify-center mb-4">
@@ -104,7 +105,7 @@ export function GuestProfileView() {
         {/* CTA */}
         <Pressable
           onPress={goToWelcome}
-          className="mt-6 bg-brand-500 py-4 rounded-2xl flex-row items-center justify-center gap-2"
+          {...gx('mt-6 bg-brand-500 py-4 rounded-2xl flex-row items-center justify-center gap-2')}
         >
           <UserPlus size={20} color="#fff" />
           <Text className="text-white font-bold text-base">

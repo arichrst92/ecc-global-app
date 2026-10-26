@@ -21,6 +21,7 @@ import { useMinistryList } from '@/hooks/useMinistry';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useAuthStore } from '@/stores/auth.store';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function MinistryListScreen() {
   const insets = useSafeAreaInsets();
@@ -121,7 +122,7 @@ export default function MinistryListScreen() {
             </Text>
             <Pressable
               onPress={() => ministryListQuery.refetch()}
-              className="px-4 py-2 bg-brand-500 rounded-lg"
+              {...gx('px-4 py-2 bg-brand-500 rounded-lg')}
             >
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>

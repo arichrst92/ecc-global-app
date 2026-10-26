@@ -7,6 +7,7 @@ import { useBranches } from '@/hooks/useBranches';
 import { useBranchStore } from '@/stores/branch.store';
 import { useViewingBranch, useHomeBranch } from '@/hooks/useViewingBranch';
 import type { Cabang } from '@/types/cabang';
+import { gx } from '@/theme/gradient';
 
 type Props = {
   visible: boolean;
@@ -155,7 +156,7 @@ function BranchOption({
             {branch.nama}
           </Text>
           {isHome ? (
-            <View className="bg-brand-500 px-1.5 py-0.5 rounded-full">
+            <View {...gx('bg-brand-500 px-1.5 py-0.5 rounded-full')}>
               <Text className="text-[9px] font-bold text-white">HOME</Text>
             </View>
           ) : null}

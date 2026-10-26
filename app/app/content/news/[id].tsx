@@ -11,6 +11,7 @@ import { useNewsDetail } from '@/hooks/useContent';
 import { useBookmarksStore } from '@/stores/bookmarks.store';
 import { buildNewsShareUrl } from '@/utils/share';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function NewsDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -108,7 +109,7 @@ export default function NewsDetailScreen() {
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
             <Pressable
               onPress={() => query.refetch()}
-              className="px-4 py-2 bg-brand-500 rounded-lg"
+              {...gx('px-4 py-2 bg-brand-500 rounded-lg')}
             >
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>

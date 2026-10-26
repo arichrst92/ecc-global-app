@@ -30,6 +30,7 @@ import {
 
 import { useTipeRelasiGrouped } from '@/hooks/useTipeRelasi';
 import type { TipeRelasi, TipeRelasiCategory } from '@/types/tipeRelasi';
+import { gx } from '@/theme/gradient';
 
 type Props = {
   value: TipeRelasi | null;
@@ -173,7 +174,7 @@ export function TipeRelasiPicker({ value, onChange, disabled }: Props) {
                             ) : null}
                           </View>
                           {isActive ? (
-                            <View className="w-2 h-2 rounded-full bg-brand-500" />
+                            <View {...gx('w-2 h-2 rounded-full bg-brand-500')} />
                           ) : null}
                         </Pressable>
                       );

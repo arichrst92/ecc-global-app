@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { UserPlus } from 'lucide-react-native';
 
 import { useAuthStore } from '@/stores/auth.store';
+import { gx } from '@/theme/gradient';
 
 /**
  * Reusable placeholder UI untuk tab yang butuh auth (Ibadah, Event,
@@ -43,7 +44,7 @@ export function GuestPlaceholderView({ icon, title, description, readOnlyHint }:
       <StatusBar style="light" />
 
       {/* Header */}
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-6">
             <Text className="text-white text-lg font-bold">{title}</Text>
@@ -81,7 +82,7 @@ export function GuestPlaceholderView({ icon, title, description, readOnlyHint }:
 
         <Pressable
           onPress={goToWelcome}
-          className="bg-brand-500 py-4 px-8 rounded-2xl flex-row items-center gap-2 w-full justify-center"
+          {...gx('bg-brand-500 py-4 px-8 rounded-2xl flex-row items-center gap-2 w-full justify-center')}
         >
           <UserPlus size={20} color="#fff" />
           <Text className="text-white font-bold text-base">

@@ -1,4 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
+import { gx } from '@/theme/gradient';
 
 type Option<T extends string> = {
   value: T;
@@ -27,11 +28,11 @@ export function SegmentedControl<T extends string>({ value, options, onChange, l
             <Pressable
               key={opt.value}
               onPress={() => onChange(opt.value)}
-              className={`flex-1 py-2.5 rounded-lg border items-center ${
+              {...gx(`flex-1 py-2.5 rounded-lg border items-center ${
                 selected
                   ? 'bg-brand-500 border-brand-500'
                   : 'bg-white border-neutral-200'
-              }`}
+              }`)}
             >
               <Text
                 className={`text-sm font-medium ${

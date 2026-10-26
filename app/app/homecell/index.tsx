@@ -39,6 +39,7 @@ import { getCurrentCoords, LocationError, type Coords } from '@/utils/location';
 import { ApiError } from '@/types/api';
 import type { HomecellNearestResponse } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function HomecellHubScreen() {
   const insets = useSafeAreaInsets();
@@ -165,7 +166,7 @@ export default function HomecellHubScreen() {
         ) : overview.isError ? (
           <View className="items-center py-16 px-8">
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
-            <Pressable onPress={() => overview.refetch()} className="px-4 py-2 bg-brand-500 rounded-lg">
+            <Pressable onPress={() => overview.refetch()} {...gx('px-4 py-2 bg-brand-500 rounded-lg')}>
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>
           </View>

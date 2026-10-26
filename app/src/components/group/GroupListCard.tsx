@@ -11,6 +11,7 @@ import { Building2, CalendarCheck, Clock, Crown, Globe, Lock, MapPin, ChevronRig
 import { groupImageHref } from '@/components/group/GroupHero';
 import { GROUP_JENIS_LABELS, type GroupJenis } from '@/types/group';
 import { formatDate } from '@/utils/date';
+import { gx } from '@/theme/gradient';
 
 export type GroupListCardData = {
   nama: string;
@@ -65,7 +66,7 @@ export function GroupListCard({
           </View>
           <View className="flex-1" />
           {isPic ? (
-            <View className="flex-row items-center gap-1 bg-brand-500 px-2 py-1 rounded-full">
+            <View {...gx('flex-row items-center gap-1 bg-brand-500 px-2 py-1 rounded-full')}>
               <Crown size={11} color="#fff" />
               <Text className="text-[11px] font-bold text-white">PIC</Text>
             </View>

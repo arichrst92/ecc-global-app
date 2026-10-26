@@ -18,6 +18,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useMyChildrenWithBalances } from '@/hooks/useCKids';
 import { useCKidsSelectionStore } from '@/stores/ckids-selection.store';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function CKidsQrScreen() {
   const { t } = useTranslation();
@@ -70,7 +71,7 @@ export default function CKidsQrScreen() {
   const kode = selected.anak.kode;
 
   return (
-    <View className="flex-1 bg-brand-500">
+    <View {...gx('flex-1 bg-brand-500')}>
       <SafeAreaView edges={['top']}>
         <View className="px-4 py-2 flex-row items-center">
           <Pressable

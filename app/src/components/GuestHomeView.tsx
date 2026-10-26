@@ -18,6 +18,7 @@ import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { usePublicEvents, usePublicNews, usePublicRenungan } from '@/hooks/usePublicGuest';
 import { formatDate } from '@/utils/date';
+import { gx } from '@/theme/gradient';
 
 /**
  * Home tab UI khusus guest mode.
@@ -42,7 +43,7 @@ export function GuestHomeView() {
       <StatusBar style="light" />
 
       {/* Hero brand header */}
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-8 items-center">
             <Image

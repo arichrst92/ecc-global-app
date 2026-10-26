@@ -15,6 +15,7 @@ import { formatVenueRange } from '@/utils/time';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 /**
  * Calendar screen — unified view dari Event + Ibadah + Birthday family
@@ -343,13 +344,13 @@ export default function CalendarScreen() {
                   className="p-0.5"
                 >
                   <View
-                    className={`flex-1 items-center justify-center rounded-xl ${
+                    {...gx(`flex-1 items-center justify-center rounded-xl ${
                       isSelected
                         ? 'bg-brand-500'
                         : isToday
                           ? 'bg-brand-50 border border-brand-300'
                           : ''
-                    }`}
+                    }`)}
                   >
                     <Text
                       className={`text-sm font-semibold ${

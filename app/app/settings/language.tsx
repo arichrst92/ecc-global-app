@@ -6,6 +6,7 @@ import { ArrowLeft, Check, Globe } from 'lucide-react-native';
 
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type Lang = {
   code: 'id' | 'en';
@@ -47,7 +48,7 @@ export default function LanguageScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 24, paddingHorizontal: 20, paddingTop: 16 }}
       >
         <View className="bg-brand-50 border border-brand-100 rounded-2xl p-4 mb-4 flex-row items-center gap-3">
-          <View className="w-10 h-10 rounded-xl bg-brand-500 items-center justify-center">
+          <View {...gx('w-10 h-10 rounded-xl bg-brand-500 items-center justify-center')}>
             <Globe size={18} color="#fff" />
           </View>
           <View className="flex-1">

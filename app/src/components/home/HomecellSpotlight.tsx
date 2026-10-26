@@ -16,6 +16,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { jadwalLabel } from '@/components/homecell/HomecellListCard';
 import { useMyHomecellOverview } from '@/hooks/useHomecell';
 import type { HomecellListItem, HomecellNextSchedule } from '@/types/homecell';
+import { gx } from '@/theme/gradient';
 
 export function HomecellSpotlight() {
   const { t } = useTranslation();
@@ -57,7 +58,7 @@ export function HomecellSpotlight() {
             {!h.nextSchedule ? (
               <Pressable
                 onPress={() => router.push(`/homecell/${h.id}/schedule/new` as never)}
-                className="flex-row items-center gap-1.5 bg-brand-500 px-3 py-1.5 rounded-full"
+                {...gx('flex-row items-center gap-1.5 bg-brand-500 px-3 py-1.5 rounded-full')}
               >
                 <Plus size={13} color="#fff" />
                 <Text className="text-xs font-bold text-white">{t('hcj.spot_create_schedule')}</Text>
@@ -114,7 +115,7 @@ export function HomecellSpotlight() {
       <View className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-brand-100" />
       <View className="absolute right-10 -bottom-12 w-28 h-28 rounded-full bg-brand-50" />
 
-      <View className="w-11 h-11 rounded-2xl bg-brand-500 items-center justify-center mb-3">
+      <View {...gx('w-11 h-11 rounded-2xl bg-brand-500 items-center justify-center mb-3')}>
         <Users size={22} color="#fff" />
       </View>
       <Text className="text-lg font-bold text-neutral-900">{t('hcj.spot_none_title')}</Text>
@@ -133,7 +134,7 @@ export function HomecellSpotlight() {
         <View className="flex-row gap-2 mt-4">
           <Pressable
             onPress={() => router.push('/homecell?nearest=1' as never)}
-            className="flex-1 flex-row items-center justify-center gap-2 bg-brand-500 rounded-2xl py-3"
+            {...gx('flex-1 flex-row items-center justify-center gap-2 bg-brand-500 rounded-2xl py-3')}
           >
             <Locate size={16} color="#fff" />
             <Text className="text-sm font-bold text-white">{t('hcj.spot_find')}</Text>
@@ -179,7 +180,7 @@ function SpotCard({
       style={{ shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}
     >
       <View className="flex-row items-center gap-3">
-        <View className="w-11 h-11 rounded-2xl bg-brand-500 items-center justify-center">
+        <View {...gx('w-11 h-11 rounded-2xl bg-brand-500 items-center justify-center')}>
           <Users size={22} color="#fff" />
         </View>
         <View className="flex-1 min-w-0">

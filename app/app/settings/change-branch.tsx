@@ -15,6 +15,7 @@ import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 import type { Cabang } from '@/types/cabang';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 /**
  * Change Branch — direct update (no approval flow).
@@ -118,7 +119,7 @@ export default function ChangeBranchScreen() {
 
         <Pressable
           onPress={() => setPickerOpen(true)}
-          className="bg-brand-500 rounded-2xl py-3.5 items-center mb-3"
+          {...gx('bg-brand-500 rounded-2xl py-3.5 items-center mb-3')}
         >
           <Text className="text-white font-bold text-base">
             {t('branch_change.choose_new')}

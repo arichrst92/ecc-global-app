@@ -24,6 +24,7 @@ import { addTicketToCalendar, openDirections, ticketTimes } from '@/components/t
 import { useToast } from '@/components/ui/Toast';
 import type { MyReservasi } from '@/types/ibadah';
 import { goBack } from '@/utils/nav';
+import { brandGradientStyle } from '@/theme/gradient';
 
 const BG = '#EA580C';
 
@@ -110,7 +111,7 @@ export default function TiketScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: BG }}>
+    <View style={[{ flex: 1, backgroundColor: BG }, brandGradientStyle]}>
       <StatusBar style="light" />
       <SafeAreaView edges={['top']}>
         <View className="flex-row items-center justify-between px-4 py-2">

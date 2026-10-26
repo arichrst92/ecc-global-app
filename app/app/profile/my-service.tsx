@@ -19,6 +19,7 @@ import { useVenueTz } from '@/hooks/useVenueTz';
 import { addDaysIso, formatDateWithDay, todayIso } from '@/utils/date';
 import { formatVenueRange } from '@/utils/time';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type Tab = 'upcoming' | 'history';
 
@@ -70,7 +71,7 @@ export default function MyServiceScreen() {
             <Pressable
               key={k}
               onPress={() => setTab(k)}
-              className={`px-4 py-1.5 rounded-full ${tab === k ? 'bg-brand-500' : 'bg-neutral-100'}`}
+              {...gx(`px-4 py-1.5 rounded-full ${tab === k ? 'bg-brand-500' : 'bg-neutral-100'}`)}
             >
               <Text className={`text-xs font-semibold ${tab === k ? 'text-white' : 'text-neutral-700'}`}>
                 {t(k === 'upcoming' ? 'service.tab_upcoming' : 'service.tab_history')}
@@ -139,7 +140,7 @@ export default function MyServiceScreen() {
 function RoleBadge({ posisi, ministry }: { posisi: string; ministry: string }) {
   return (
     <View className="flex-row flex-wrap items-center gap-1.5 mt-2">
-      <View className="bg-brand-500 px-2.5 py-1 rounded-full">
+      <View {...gx('bg-brand-500 px-2.5 py-1 rounded-full')}>
         <Text className="text-[11px] font-bold text-white">{posisi}</Text>
       </View>
       <View className="bg-brand-50 px-2.5 py-1 rounded-full">

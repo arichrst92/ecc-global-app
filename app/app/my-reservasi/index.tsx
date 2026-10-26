@@ -22,6 +22,7 @@ import { listMyEventTickets, type TicketScope } from '@/api/tiket';
 import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
 import { EventTicketCard } from '@/components/tiket/EventTicketCard';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 type Seg = 'ibadah' | 'event';
 type Tab = 'active' | 'history';
@@ -101,7 +102,7 @@ export default function MyReservasiScreen() {
             <Pressable
               key={k}
               onPress={() => setTab(k)}
-              className={`px-4 py-1.5 rounded-full ${tab === k ? 'bg-brand-500' : 'bg-neutral-100'}`}
+              {...gx(`px-4 py-1.5 rounded-full ${tab === k ? 'bg-brand-500' : 'bg-neutral-100'}`)}
             >
               <Text className={`text-xs font-semibold ${tab === k ? 'text-white' : 'text-neutral-700'}`}>{tabLabel(k)}</Text>
             </Pressable>

@@ -54,6 +54,7 @@ import type { MinistryJoinRequest, MinistryMember, MinistryRole } from '@/types/
 import { ApiError } from '@/types/api';
 import { formatDateWithDay, parseLocalDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 export default function MinistryDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -230,7 +231,7 @@ export default function MinistryDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
@@ -296,7 +297,7 @@ export default function MinistryDetailScreen() {
         {/* My membership info */}
         {ministry.myMembership ? (
           <View className="bg-brand-50 rounded-2xl p-4 border border-brand-100 mb-4 flex-row items-center gap-3">
-            <View className="w-10 h-10 rounded-xl bg-brand-500 items-center justify-center">
+            <View {...gx('w-10 h-10 rounded-xl bg-brand-500 items-center justify-center')}>
               <CheckCircle2 size={20} color="#fff" />
             </View>
             <View className="flex-1">

@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react-native';
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
 import { useBookNames } from '@/utils/bibleNames';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 
 /** Book detail — grid pasal 1..totalBab. Semua pasal sekarang available
  * (bundle BIMK + KJV full). */
@@ -30,7 +31,7 @@ export default function BibleBookScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <View className="bg-brand-500 rounded-b-3xl">
+      <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
             <Pressable
