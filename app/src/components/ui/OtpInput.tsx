@@ -34,7 +34,11 @@ export function OtpInput({ length = 6, onComplete, onChange, autoFocus = true, d
   }, [autoFocus]);
 
   function handle(v: string) {
-    const next = v.replace(/[^0-9]/g, '').slice(0, length);
+    // Tempel seluruh pesan ("Kode OTP Anda 123456 ...") → ambil deret angka
+    // sepanjang `length`; selain itu buang non-angka. slice juga menangani bug
+    // iOS autofill yang kadang menyisipkan kode dua kali.
+    const run = v.length > length ? v.match(new RegExp(`\\d{${length}}`))?.[0] : undefined;
+    const next = (run ?? v.replace(/[^0-9]/g, '')).slice(0, length);
     setCode(next);
     onChange?.(next);
     if (next.length === length) {
@@ -56,12 +60,12 @@ export function OtpInput({ length = 6, onComplete, onChange, autoFocus = true, d
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       keyboardType="number-pad"
-      inputMode="numeric"
       textContentType="oneTimeCode"
       autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'}
       importantForAutofill="yes"
       autoCorrect={false}
-      maxLength={length}
+      // Tanpa maxLength: native memotong teks tempelan SEBELUM onChangeText,
+      // jadi "Kode 123456" terpotong jadi "Kode 1". Panjang dibatasi di handle().
       autoFocus={autoFocus}
       editable={!disabled}
       placeholder={'•'.repeat(length)}
