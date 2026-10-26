@@ -13,6 +13,7 @@ import { ChevronRight, Eye, Mail, MessageCircleMore, UserPlus } from 'lucide-rea
 import { useAuthStore } from '@/stores/auth.store';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { IdeaLogo } from '@/components/IdeaLogo';
 
 type Option = {
   label: string;
@@ -118,11 +119,7 @@ export default function WelcomeScreen() {
         <View className="items-center mt-6">
           <View className="flex-row items-center gap-2">
             <Text className="text-xs text-neutral-400">Powered by</Text>
-            <Image
-              source={require('../../assets/images/logo-idea.webp')}
-              style={{ width: 56, height: 20 }}
-              resizeMode="contain"
-            />
+            <IdeaLogo width={56} height={20} />
           </View>
         </View>
       </View>

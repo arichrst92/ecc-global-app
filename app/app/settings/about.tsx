@@ -7,7 +7,8 @@ import * as Linking from 'expo-linking';
 
 import Constants from 'expo-constants';
 import { goBack } from '@/utils/nav';
-import { nc } from '@/theme/ThemeRoot';
+import { nc, isDark } from '@/theme/ThemeRoot';
+import { IdeaLogo } from '@/components/IdeaLogo';
 
 export default function AboutScreen() {
   const insets = useSafeAreaInsets();
@@ -125,12 +126,12 @@ export default function AboutScreen() {
             onPress={() => Linking.openURL('https://ide.asia')}
             className="p-4 flex-row items-center gap-3"
           >
-            <View className="w-10 h-10 rounded-xl bg-neutral-100 items-center justify-center">
-              <Image
-                source={require('../../assets/images/logo-idea.webp')}
-                style={{ width: 28, height: 10 }}
-                resizeMode="contain"
-              />
+            {/* Kotak putih di mode gelap — logo IDEA hitam tidak terlihat di latar gelap */}
+            <View
+              className="w-10 h-10 rounded-xl items-center justify-center bg-neutral-100"
+              style={isDark() ? { backgroundColor: '#FFFFFF' } : undefined}
+            >
+              <IdeaLogo width={28} height={10} boxed />
             </View>
             <View className="flex-1">
               <Text className="text-sm font-semibold text-neutral-900">IDE Asia</Text>
@@ -144,11 +145,7 @@ export default function AboutScreen() {
         <View className="items-center mt-8 mb-2">
           <View className="flex-row items-center gap-2">
             <Text className="text-xs text-neutral-400">Powered by</Text>
-            <Image
-              source={require('../../assets/images/logo-idea.webp')}
-              style={{ width: 56, height: 20 }}
-              resizeMode="contain"
-            />
+            <IdeaLogo width={56} height={20} />
           </View>
         </View>
       </ScrollView>
