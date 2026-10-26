@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import type { PressableProps } from 'react-native';
 
@@ -46,10 +47,23 @@ export function Button({
   const v = variantClasses[variant];
   const s = sizeClasses[size];
   const isDisabled = disabled || loading;
+  // Catatan: style Pressable sengaja BUKAN fungsi ({ pressed }) — NativeWind
+  // menggabungkan className + style jadi array, dan style berbentuk fungsi di
+  // dalam array diabaikan (gradient & efek tekan hilang). Efek tekan memakai state.
+  const [pressed, setPressed] = useState(false);
+  const { onPressIn, onPressOut, style: _ignoredStyle, ...pressableRest } = rest;
   return (
     <Pressable
-      {...rest}
+      {...pressableRest}
       disabled={isDisabled}
+      onPressIn={(e) => {
+        setPressed(true);
+        onPressIn?.(e);
+      }}
+      onPressOut={(e) => {
+        setPressed(false);
+        onPressOut?.(e);
+      }}
       className={[
         v.bg,
         s.padding,
@@ -59,10 +73,7 @@ export function Button({
         isDisabled ? 'opacity-50' : '',
       ].join(' ')}
       // Primary: gradient oranye brand (sama dengan dock portal).
-      style={({ pressed }) => [
-        variant === 'primary' ? brandGradientStyle : null,
-        pressed && !isDisabled ? { opacity: 0.85 } : null,
-      ]}
+      style={[variant === 'primary' ? brandGradientStyle : null, pressed && !isDisabled ? { opacity: 0.85 } : null]}
     >
       {loading ? (
         <ActivityIndicator size="small" color={variant === 'primary' || variant === 'danger' ? '#fff' : '#F97316'} />

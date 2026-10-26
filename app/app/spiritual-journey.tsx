@@ -16,6 +16,7 @@ import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { formatDateWithDay } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 
+import { gx } from '@/theme/gradient';
 export default function SpiritualJourneyScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -96,7 +97,7 @@ function StepItem({ step: s, last, onEvent }: { step: JourneyStep; last: boolean
     <View className="flex-row gap-3">
       {/* Garis timeline */}
       <View className="items-center" style={{ width: 32 }}>
-        <View className={`w-8 h-8 rounded-full border-2 items-center justify-center ${dot}`}>
+        <View {...gx(`w-8 h-8 rounded-full border-2 items-center justify-center ${dot}`)}>
           {s.achieved ? (
             <Check size={16} color="#fff" />
           ) : s.ikon ? (
