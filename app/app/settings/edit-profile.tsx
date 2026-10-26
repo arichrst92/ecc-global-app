@@ -36,7 +36,7 @@ import { PEKERJAAN_OPTIONS, PERNIKAHAN_OPTIONS } from '@/constants/profileOption
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
-import { nc } from '@/theme/ThemeRoot';
+import { nc, isDark } from '@/theme/ThemeRoot';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -629,6 +629,7 @@ function DatePickerModal({
   if (Platform.OS === 'android') {
     return (
       <DateTimePicker
+                themeVariant={isDark() ? 'dark' : 'light'}
         value={value}
         mode="date"
         display="default"

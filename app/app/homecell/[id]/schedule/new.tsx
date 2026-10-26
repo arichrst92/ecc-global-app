@@ -27,7 +27,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useCreateSchedule } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
-import { nc } from '@/theme/ThemeRoot';
+import { nc, isDark } from '@/theme/ThemeRoot';
 
 function toYmd(d: Date): string {
   const y = d.getFullYear();
@@ -151,6 +151,7 @@ export default function NewScheduleScreen() {
             })
           ) : showPicker ? (
             <DateTimePicker
+                themeVariant={isDark() ? 'dark' : 'light'}
               value={tanggal}
               mode="date"
               display={Platform.OS === 'ios' ? 'inline' : 'default'}

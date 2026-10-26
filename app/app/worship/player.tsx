@@ -32,7 +32,7 @@ import { Cover } from '@/components/worship/Cover';
 import { LyricsView } from '@/components/worship/LyricsView';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
-import { nc } from '@/theme/ThemeRoot';
+import { nc, isDark } from '@/theme/ThemeRoot';
 
 const KEEP_AWAKE_TAG = 'ecc-worship-karaoke';
 
@@ -72,7 +72,7 @@ export default function WorshipPlayerScreen() {
   const cover = Math.min(width - 64, 320);
 
   return (
-    <View className="flex-1" style={{ backgroundColor: karaoke ? '#1C1410' : '#FFFFFF' }}>
+    <View className="flex-1" style={{ backgroundColor: karaoke ? '#1C1410' : isDark() ? '#0F0F10' : '#FFFFFF' }}>
       <StatusBar style={karaoke ? 'light' : 'dark'} />
       <SafeAreaView edges={['top']}>
         <View className="px-4 py-2 flex-row items-center gap-2">

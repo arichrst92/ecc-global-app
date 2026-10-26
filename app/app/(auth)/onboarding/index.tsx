@@ -56,7 +56,7 @@ import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
-import { nc } from '@/theme/ThemeRoot';
+import { nc, isDark } from '@/theme/ThemeRoot';
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -864,6 +864,7 @@ function DatePickerModal({
   if (Platform.OS === 'android') {
     return (
       <DateTimePicker
+                themeVariant={isDark() ? 'dark' : 'light'}
         value={value}
         mode="date"
         display="default"

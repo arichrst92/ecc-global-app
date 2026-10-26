@@ -25,7 +25,7 @@ import { goBack } from '@/utils/nav';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
-import { nc } from '@/theme/ThemeRoot';
+import { nc, isDark } from '@/theme/ThemeRoot';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -277,6 +277,7 @@ function DatePickerModal({
   if (Platform.OS === 'android') {
     return (
       <DateTimePicker
+                themeVariant={isDark() ? 'dark' : 'light'}
         value={value}
         mode="date"
         display="default"
