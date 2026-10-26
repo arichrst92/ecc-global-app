@@ -62,9 +62,9 @@ export function GuestProfileView() {
         {/* Brand banner */}
         <View className="bg-card rounded-2xl p-5 items-center border border-neutral-100">
           <Image
-            source={require('../../assets/images/ecc-icon-circle.png')}
-            style={{ width: 72, height: 72 }}
-            resizeMode="contain"
+            source={require('../../assets/images/ecc-icon-ios.png')}
+            style={{ width: 72, height: 72, borderRadius: 16 }}
+            resizeMode="cover"
           />
           <Text className="text-lg font-bold text-neutral-900 mt-3 text-center">
             Els App

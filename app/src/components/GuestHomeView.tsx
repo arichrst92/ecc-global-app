@@ -48,9 +48,9 @@ export function GuestHomeView() {
         <SafeAreaView edges={['top']}>
           <View className="px-5 pt-4 pb-8 items-center">
             <Image
-              source={require('../../assets/images/ecc-icon-circle.png')}
-              style={{ width: 64, height: 64 }}
-              resizeMode="contain"
+              source={require('../../assets/images/ecc-icon-ios.png')}
+              style={{ width: 64, height: 64, borderRadius: 14 }}
+              resizeMode="cover"
             />
             <Text className="text-white text-xl font-bold mt-3">Els App</Text>
           </View>

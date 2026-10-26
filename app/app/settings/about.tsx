@@ -38,9 +38,9 @@ export default function AboutScreen() {
       >
         <View className="items-center mb-6">
           <Image
-            source={require('../../assets/images/ecc-icon-circle.png')}
-            style={{ width: 96, height: 96 }}
-            resizeMode="contain"
+            source={require('../../assets/images/ecc-icon-ios.png')}
+            style={{ width: 96, height: 96, borderRadius: 22 }}
+            resizeMode="cover"
           />
           <Text className="text-2xl font-bold text-neutral-900 mt-4">
             Els App
