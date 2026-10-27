@@ -23,6 +23,8 @@ import type { AreaHomecellRow, PicArea } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { ATTENDANCE_TIERS, attendanceTier } from '@/utils/homecellSegmen';
+import { SegmenBadges } from '@/components/homecell/HomecellListCard';
 
 /**
  * Area list — flatten + grouped by area.
@@ -146,6 +148,18 @@ function AreaSection({
         </View>
       </View>
 
+      {/* Keterangan indikator rata² hadir */}
+      {homecells.length > 0 ? (
+        <View className="flex-row flex-wrap items-center gap-1.5 mb-2 px-1">
+          <Text className="text-[10px] text-neutral-500">{t('area.attendance_legend')}</Text>
+          {ATTENDANCE_TIERS.map((x) => (
+            <View key={x.key} className={`px-1.5 py-0.5 rounded-full ${x.bg}`}>
+              <Text className={`text-[10px] font-semibold ${x.fg}`}>{x.label}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
       {/* Homecells in area */}
       {query.isPending ? (
         <View className="bg-card rounded-2xl p-6 items-center">
@@ -172,6 +186,24 @@ function AreaSection({
   );
 }
 
+/** Badge rata² hadir berwarna; "—" bila belum ada data. */
+function AttendanceBadge({ pct }: { pct?: number | null }) {
+  if (pct == null) {
+    return (
+      <View className="px-2 py-0.5 rounded-full bg-neutral-100">
+        <Text className="text-[10px] font-semibold text-neutral-500">—</Text>
+      </View>
+    );
+  }
+  const tier = attendanceTier(pct);
+  return (
+    <View className={`flex-row items-center gap-1 px-2 py-0.5 rounded-full ${tier.bg}`}>
+      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: tier.dot }} />
+      <Text className={`text-[10px] font-bold ${tier.fg}`}>{pct}%</Text>
+    </View>
+  );
+}
+
 function HomecellRow({
   homecell,
   onPress,
@@ -190,9 +222,13 @@ function HomecellRow({
         <Users size={18} color="#EA580C" />
       </View>
       <View className="flex-1 min-w-0">
-        <Text className="font-semibold text-neutral-900" numberOfLines={1}>
-          {homecell.nama}
-        </Text>
+        <View className="flex-row items-center gap-2">
+          <Text className="font-semibold text-neutral-900 flex-shrink" numberOfLines={1}>
+            {homecell.nama}
+          </Text>
+          <AttendanceBadge pct={homecell.avgAttendancePercent} />
+        </View>
+        <SegmenBadges kategori={homecell.kategori} usiaMin={homecell.usiaMin} usiaMax={homecell.usiaMax} />
         <View className="flex-row items-center gap-1 mt-0.5">
           <UserCog size={11} color={nc('#737373')} />
           <Text className="text-xs text-neutral-500 flex-1" numberOfLines={1}>

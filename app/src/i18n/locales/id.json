@@ -1123,7 +1123,8 @@
     "pic_unassigned": "Belum ditunjuk",
     "no_managed_in_area": "Tidak ada homecell di area ini yang juga Anda PIC-kan langsung. Tap dari list Homecell untuk lihat detail per homecell.",
     "no_homecells_in_area": "Belum ada homecell aktif di area ini.",
-    "partial_list_notice": "Menampilkan {{visible}} dari {{total}} homecell di area ini — hanya homecell yang Anda PIC langsung. List lengkap perlu endpoint BE baru."
+    "partial_list_notice": "Menampilkan {{visible}} dari {{total}} homecell di area ini — hanya homecell yang Anda PIC langsung. List lengkap perlu endpoint BE baru.",
+    "attendance_legend": "Rata² hadir:"
   },
   "bible": {
     "title": "Alkitab",

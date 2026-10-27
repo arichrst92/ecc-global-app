@@ -73,6 +73,11 @@ export type AreaHomecellRow = {
     fotoUrl?: string | null;
   } | null;
   memberCount: number;
+  kategori?: 'SINGLE' | 'COUPLE' | null;
+  usiaMin?: number | null;
+  usiaMax?: number | null;
+  /** Rata² % kehadiran (0–100); null bila belum ada pertemuan/anggota. */
+  avgAttendancePercent?: number | null;
 };
 
 // ============================================================

@@ -1123,7 +1123,8 @@
     "pic_unassigned": "Not assigned",
     "no_managed_in_area": "No homecells in this area that you also directly PIC. Tap from Homecell list for per-homecell detail.",
     "no_homecells_in_area": "No active homecells in this area yet.",
-    "partial_list_notice": "Showing {{visible}} of {{total}} homecells in this area — only those you directly PIC. Full list needs a new BE endpoint."
+    "partial_list_notice": "Showing {{visible}} of {{total}} homecells in this area — only those you directly PIC. Full list needs a new BE endpoint.",
+    "attendance_legend": "Avg attendance:"
   },
   "bible": {
     "title": "Bible",
