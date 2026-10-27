@@ -1633,7 +1633,11 @@
     "sum_ok": "≤ 7 hari",
     "sum_warn": "8–30 hari",
     "sum_bad": "> 30 hari",
-    "sum_never": "Belum pernah"
+    "sum_never": "Belum pernah",
+    "years": "th",
+    "kategori_single": "Single",
+    "kategori_couple": "Couple",
+    "kategori_all": "Semua"
   },
   "gc": {
     "tab_announcements": "Pengumuman",

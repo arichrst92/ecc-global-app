@@ -93,6 +93,10 @@ export type HomecellListItem = {
   latitude: number | null;
   longitude: number | null;
   mapsUrl: string | null;
+  /** Segmen homecell — null = umum. */
+  kategori?: 'SINGLE' | 'COUPLE' | null;
+  usiaMin?: number | null;
+  usiaMax?: number | null;
   hasLocation: boolean;
   area: AreaRef;
   picJemaat: { id: string; namaLengkap: string; fotoUrl: string | null } | null;

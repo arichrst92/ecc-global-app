@@ -101,11 +101,11 @@ export function useMyHomecellOverview() {
 }
 
 export function useBrowseHomecells(
-  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number },
+  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | null },
   enabled = true,
 ) {
   return useQuery({
-    queryKey: [...ME_HC_KEY, 'browse', params.cabangId ?? null, params.q ?? '', params.lat ?? null, params.lng ?? null],
+    queryKey: [...ME_HC_KEY, 'browse', params.cabangId ?? null, params.q ?? '', params.lat ?? null, params.lng ?? null, params.kategori ?? null],
     queryFn: () => browseHomecells(params),
     enabled,
     staleTime: 60_000,

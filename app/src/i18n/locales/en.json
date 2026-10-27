@@ -1634,7 +1634,11 @@
     "sum_ok": "≤ 7 days",
     "sum_warn": "8–30 days",
     "sum_bad": "> 30 days",
-    "sum_never": "Never"
+    "sum_never": "Never",
+    "years": "yrs",
+    "kategori_single": "Single",
+    "kategori_couple": "Couple",
+    "kategori_all": "All"
   },
   "gc": {
     "tab_announcements": "Announcements",

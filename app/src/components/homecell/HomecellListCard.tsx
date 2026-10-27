@@ -5,6 +5,7 @@ import { ChevronRight, Clock, MapPin, Navigation, User, Users } from 'lucide-rea
 
 import type { HomecellListItem } from '@/types/homecell';
 import { nc } from '@/theme/ThemeRoot';
+import { homecellKategoriLabel, homecellUsiaLabel } from '@/utils/homecellSegmen';
 
 /** "SENIN" → "Senin" */
 export function hariLabel(hari: string | null): string | null {
@@ -34,6 +35,35 @@ export function StatusBadge({ status }: { status: HomecellListItem['myStatus'] }
 }
 
 /** Kartu homecell untuk daftar (browse / homecell saya). */
+/** Badge kategori (Single/Couple) + rentang usia — tidak tampil bila homecell umum. */
+export function SegmenBadges({
+  kategori,
+  usiaMin,
+  usiaMax,
+}: {
+  kategori?: 'SINGLE' | 'COUPLE' | null;
+  usiaMin?: number | null;
+  usiaMax?: number | null;
+}) {
+  const kat = homecellKategoriLabel(kategori);
+  const usia = homecellUsiaLabel(usiaMin, usiaMax);
+  if (!kat && !usia) return null;
+  return (
+    <View className="flex-row items-center gap-1.5 mt-1">
+      {kat ? (
+        <View className={`px-2 py-0.5 rounded-full ${kategori === 'COUPLE' ? 'bg-pink-100' : 'bg-sky-100'}`}>
+          <Text className={`text-[10px] font-bold ${kategori === 'COUPLE' ? 'text-pink-700' : 'text-sky-700'}`}>{kat}</Text>
+        </View>
+      ) : null}
+      {usia ? (
+        <View className="px-2 py-0.5 rounded-full bg-neutral-100">
+          <Text className="text-[10px] font-semibold text-neutral-600">{usia}</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 export function HomecellListCard({ item, onPress }: { item: HomecellListItem; onPress: () => void }) {
   const { t } = useTranslation();
   const jadwal = jadwalLabel(item);
@@ -52,6 +82,7 @@ export function HomecellListCard({ item, onPress }: { item: HomecellListItem; on
           </Text>
           <StatusBadge status={item.myStatus} />
         </View>
+        <SegmenBadges kategori={item.kategori} usiaMin={item.usiaMin} usiaMax={item.usiaMax} />
         <LastAttendanceText variant="homecell" date={item.lastMeetingAt} daysAgo={item.lastMeetingDaysAgo} />
         <View className="flex-row items-center gap-1 mt-1">
           <MapPin size={11} color={nc('#A3A3A3')} />

@@ -50,6 +50,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { jamRange } from '@/utils/jamRange';
+import { SegmenBadges } from '@/components/homecell/HomecellListCard';
 
 export default function HomecellViewScreen() {
   const insets = useSafeAreaInsets();
@@ -177,6 +178,7 @@ export default function HomecellViewScreen() {
             <Text className="text-xs text-neutral-500 mt-0.5">
               {hc.area.nama} · {hc.area.cabang.nama}
             </Text>
+            <SegmenBadges kategori={hc.kategori} usiaMin={hc.usiaMin} usiaMax={hc.usiaMax} />
             {hc.deskripsi ? <Text className="text-sm text-neutral-700 mt-3">{hc.deskripsi}</Text> : null}
 
             <View className="mt-4 gap-2.5">

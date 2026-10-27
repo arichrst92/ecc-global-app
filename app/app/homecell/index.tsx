@@ -56,12 +56,13 @@ export default function HomecellHubScreen() {
   const needsHomecell = !!data && managed.length === 0 && memberships.length === 0;
 
   const [search, setSearch] = useState('');
+  const [kategori, setKategori] = useState<'SINGLE' | 'COUPLE' | null>(null);
   const q = useDebounce(search.trim(), 300);
   const [coords, setCoords] = useState<Coords | null>(null);
   // Daftar & rekomendasi mengikuti cabang aktif yang dipilih di app.
   const { branch, viewingCabangId, isLoading: branchLoading } = useViewingBranch();
   const browse = useBrowseHomecells(
-    { cabangId: viewingCabangId, q, lat: coords?.lat, lng: coords?.lng },
+    { cabangId: viewingCabangId, q, lat: coords?.lat, lng: coords?.lng, kategori },
     needsHomecell && !branchLoading,
   );
 
@@ -272,6 +273,23 @@ export default function HomecellHubScreen() {
                     placeholderTextColor={nc('#A3A3A3')}
                     className="flex-1 px-2 py-3 text-sm text-neutral-900"
                   />
+                </View>
+                {/* Filter kategori homecell */}
+                <View className="flex-row gap-2 mb-3">
+                  {([null, 'SINGLE', 'COUPLE'] as const).map((k) => {
+                    const on = kategori === k;
+                    return (
+                      <Pressable
+                        key={k ?? 'all'}
+                        onPress={() => setKategori(k)}
+                        className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+                      >
+                        <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>
+                          {k === null ? t('hcj.kategori_all') : k === 'SINGLE' ? t('hcj.kategori_single') : t('hcj.kategori_couple')}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
                 </View>
 
                 {browse.isPending ? (

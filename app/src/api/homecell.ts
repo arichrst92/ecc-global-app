@@ -111,10 +111,11 @@ export function getMyHomecellOverview() {
 
 /** Daftar homecell di cabang saya (urut jarak kalau lat/lng dikirim). */
 export function browseHomecells(
-  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number } = {},
+  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | null } = {},
 ) {
   const qs = new URLSearchParams();
   if (params.cabangId) qs.append('cabangId', params.cabangId);
+  if (params.kategori) qs.append('kategori', params.kategori);
   if (params.q) qs.append('q', params.q);
   if (params.lat != null && params.lng != null) {
     qs.append('lat', String(params.lat));
