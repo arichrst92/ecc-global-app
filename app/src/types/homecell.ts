@@ -13,6 +13,9 @@ export type PicHomecell = {
   jam: string | null;
   area: AreaRef;
   memberCount: number;
+  kategori?: 'SINGLE' | 'COUPLE' | null;
+  usiaMin?: number | null;
+  usiaMax?: number | null;
 };
 
 /** Item dari GET /admin/me/homecell-area-managed */
@@ -38,6 +41,8 @@ export type HomecellMember = {
     fotoUrl?: string | null;
     noHp?: string | null;
     jenisKelamin?: 'L' | 'P' | null;
+    /** Usia (tahun) — hanya untuk pemimpin; null bila tanggal lahir kosong/privat. */
+    usia?: number | null;
   };
   /** Tanggal pertemuan terakhir yang dihadiri di homecell ini (YYYY-MM-DD). */
   lastAttendedAt?: string | null;
@@ -54,6 +59,9 @@ export type HomecellDetail = {
   jam: string | null;
   isActive: boolean;
   picJemaatId?: string | null;
+  kategori?: 'SINGLE' | 'COUPLE' | null;
+  usiaMin?: number | null;
+  usiaMax?: number | null;
   area: AreaRefWithPic;
   members: HomecellMember[];
 };

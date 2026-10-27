@@ -9,6 +9,7 @@ import {
   listAreaHomecells,
   getMyHomecellOverview,
   browseHomecells,
+  setHomecellSegmen,
   getHomecellPublic,
   requestJoinHomecell,
   cancelJoinHomecell,
@@ -161,6 +162,19 @@ export function useSetHomecellLokasi() {
   return useMutation({
     mutationFn: (v: { homecellId: string; mapsUrl: string | null }) => setHomecellLokasi(v.homecellId, v.mapsUrl),
     onSuccess: invalidate,
+  });
+}
+
+export function useSetHomecellSegmen() {
+  const invalidate = useInvalidateHomecell();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { homecellId: string; kategori: 'SINGLE' | 'COUPLE' | null; usiaMin: number | null; usiaMax: number | null }) =>
+      setHomecellSegmen(v.homecellId, { kategori: v.kategori, usiaMin: v.usiaMin, usiaMax: v.usiaMax }),
+    onSuccess: () => {
+      invalidate();
+      void qc.invalidateQueries({ queryKey: ['homecell'] });
+    },
   });
 }
 

@@ -167,6 +167,17 @@ export function rejectHomecellJoin(requestId: string, reason?: string) {
   );
 }
 
+/** [Leader] set kategori + rentang usia homecell. null = kosongkan. */
+export function setHomecellSegmen(
+  homecellId: string,
+  body: { kategori: 'SINGLE' | 'COUPLE' | null; usiaMin: number | null; usiaMax: number | null },
+) {
+  return api.patch<{ id: string; kategori: 'SINGLE' | 'COUPLE' | null; usiaMin: number | null; usiaMax: number | null }>(
+    `/admin/me/homecell/${homecellId}/segmen`,
+    body,
+  );
+}
+
 /** [Leader] set lokasi dari link / koordinat Google Maps. null = hapus. */
 export function setHomecellLokasi(homecellId: string, mapsUrl: string | null) {
   return api.patch<{ id: string; latitude: number | null; longitude: number | null; mapsUrl: string | null }>(

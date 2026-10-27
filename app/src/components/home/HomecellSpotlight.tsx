@@ -19,6 +19,7 @@ import type { HomecellListItem, HomecellNextSchedule } from '@/types/homecell';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { jamRange } from '@/utils/jamRange';
+import { SegmenBadges } from '@/components/homecell/HomecellListCard';
 
 export function HomecellSpotlight() {
   const { t } = useTranslation();
@@ -190,6 +191,7 @@ function SpotCard({
           <Text className="text-lg font-bold text-neutral-900" numberOfLines={1}>
             {item.nama}
           </Text>
+          <SegmenBadges kategori={item.kategori} usiaMin={item.usiaMin} usiaMax={item.usiaMax} />
           <LastAttendanceText variant="homecell" date={item.lastMeetingAt} daysAgo={item.lastMeetingDaysAgo} />
         </View>
         <ChevronRight size={18} color={nc('#A3A3A3')} />

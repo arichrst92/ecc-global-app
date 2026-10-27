@@ -22,6 +22,7 @@ import {
   Trash2,
   UserPlus,
   Users,
+  Pencil,
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -42,6 +43,8 @@ import { goBack } from '@/utils/nav';
 import { parseLocalDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { homecellKategoriLabel, homecellUsiaLabel } from '@/utils/homecellSegmen';
+import { SegmenEditModal } from '@/components/homecell/SegmenEditModal';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -59,6 +62,7 @@ export default function HomecellDetailScreen() {
   const schedulesQuery = useHomecellSchedules(id);
 
   const [confirmRemove, setConfirmRemove] = useState<HomecellMember | null>(null);
+  const [segmenOpen, setSegmenOpen] = useState(false);
 
   // PIC privileges: tampil tombol Remove hanya kalau current user adalah PIC
   // homecell ini (atau PIC area parent). Backend tetap enforce, ini cuma UI guard.
@@ -130,6 +134,17 @@ export default function HomecellDetailScreen() {
     .filter((m) => !m.isActive)
     .sort((a, b) => b.tanggalBergabung.localeCompare(a.tanggalBergabung));
 
+  // Ringkasan usia anggota aktif (yang tanggal lahirnya tersedia).
+  const ages = activeMembers.map((m) => m.jemaat.usia).filter((u): u is number => u != null);
+  const ageStats = ages.length
+    ? {
+        min: Math.min(...ages),
+        max: Math.max(...ages),
+        avg: Math.round(ages.reduce((a, b) => a + b, 0) / ages.length),
+        n: ages.length,
+      }
+    : null;
+
   // PIC homecell — cari di list members yang jemaat.id match picJemaatId.
   // Kalau PIC bukan member homecell (rare case), pakai sebagai fallback id only.
   const picMember = homecell.picJemaatId
@@ -163,6 +178,25 @@ export default function HomecellDetailScreen() {
             <Text className="text-white/80 text-sm mt-1">
               {homecell.area.nama} · {homecell.area.cabang.nama}
             </Text>
+            {/* Kategori + rentang usia — pemimpin homecell bisa mengubah */}
+            <View className="flex-row items-center flex-wrap gap-1.5 mt-2">
+              <View className="bg-white/20 px-2.5 py-1 rounded-full">
+                <Text className="text-[11px] font-bold text-white">
+                  {homecellKategoriLabel(homecell.kategori) ?? t('hcj.kategori_umum')}
+                </Text>
+              </View>
+              <View className="bg-white/20 px-2.5 py-1 rounded-full">
+                <Text className="text-[11px] font-bold text-white">
+                  {homecellUsiaLabel(homecell.usiaMin, homecell.usiaMax) ?? t('hcj.usia_semua')}
+                </Text>
+              </View>
+              {isPicHomecell || user?.isFulltimer ? (
+                <Pressable onPress={() => setSegmenOpen(true)} className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1">
+                  <Pencil size={11} color="#C2410C" />
+                  <Text className="text-[11px] font-bold text-brand-700">{t('hcj.segmen_edit')}</Text>
+                </Pressable>
+              ) : null}
+            </View>
           </View>
         </SafeAreaView>
       </View>
@@ -186,6 +220,11 @@ export default function HomecellDetailScreen() {
               </Text>
             </View>
           </View>
+          {ageStats ? (
+            <Text className="text-xs text-neutral-600 mb-2">
+              {t('hcj.member_age_summary', { min: ageStats.min, max: ageStats.max, avg: ageStats.avg, n: ageStats.n })}
+            </Text>
+          ) : null}
           {homecell.hari ? (
             <View className="flex-row items-center gap-2 pt-3 border-t border-neutral-100">
               <Clock size={14} color={nc('#737373')} />
@@ -351,6 +390,8 @@ export default function HomecellDetailScreen() {
                 key={m.id}
                 member={m}
                 canRemove={canRemove}
+                usiaMin={homecell.usiaMin}
+                usiaMax={homecell.usiaMax}
                 onRemove={() => setConfirmRemove(m)}
                 onPress={() => router.push(`/jemaat/${m.jemaat.id ?? m.jemaatId}` as never)}
               />
@@ -427,6 +468,18 @@ export default function HomecellDetailScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+      <SegmenEditModal
+        visible={segmenOpen}
+        homecellId={homecell.id}
+        kategori={homecell.kategori}
+        usiaMin={homecell.usiaMin}
+        usiaMax={homecell.usiaMax}
+        onClose={() => setSegmenOpen(false)}
+        onSaved={() => {
+          setSegmenOpen(false);
+          showToast(t('hcj.segmen_saved'), 'success');
+        }}
+      />
     </View>
   );
 }
@@ -436,12 +489,20 @@ function MemberRow({
   canRemove,
   onRemove,
   onPress,
+  usiaMin,
+  usiaMax,
 }: {
   member: HomecellMember;
   canRemove: boolean;
   onRemove?: () => void;
   onPress?: () => void;
+  usiaMin?: number | null;
+  usiaMax?: number | null;
 }) {
+  const usia = member.jemaat.usia;
+  // Tandai anggota di luar rentang usia homecell (info untuk pemimpin).
+  const outOfRange =
+    usia != null && ((usiaMin != null && usia < usiaMin) || (usiaMax != null && usia > usiaMax));
   const { t } = useTranslation();
   const isInactive = !member.isActive;
 
@@ -474,6 +535,12 @@ function MemberRow({
         >
           {member.jemaat.namaLengkap}
         </Text>
+        {member.jemaat.usia != null ? (
+          <Text className={`text-[11px] mt-0.5 font-semibold ${outOfRange ? 'text-amber-700' : 'text-neutral-500'}`}>
+            {t('hcj.member_age', { n: member.jemaat.usia })}
+            {outOfRange ? ` · ${t('hcj.member_age_out')}` : ''}
+          </Text>
+        ) : null}
         <LastAttendanceText date={member.lastAttendedAt} daysAgo={member.lastAttendedDaysAgo} />
         {isInactive ? (
           <Text className="text-[10px] text-red-600 mt-0.5 font-semibold">
