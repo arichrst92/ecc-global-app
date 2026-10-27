@@ -166,8 +166,11 @@ export default function NewScheduleScreen() {
                 marginBottom: 12,
                 padding: 12,
                 borderRadius: 16,
-                border: '1px solid #E5E5E5',
+                border: `1px solid ${nc('#E5E5E5')}`,
                 fontSize: 14,
+                color: isDark() ? '#F5F5F5' : '#171717',
+                backgroundColor: isDark() ? '#1C1C1E' : '#FFFFFF',
+                colorScheme: isDark() ? 'dark' : 'light',
               },
             })
           ) : showPicker ? (
@@ -207,7 +210,14 @@ export default function NewScheduleScreen() {
                           const v = e.target.value;
                           if (v) (f === 'mulai' ? setJamMulai : setJamSelesai)(v.slice(0, 5));
                         },
-                        style: { fontSize: 16, border: 'none', background: 'transparent', padding: 0 },
+                        style: {
+                          fontSize: 16,
+                          border: 'none',
+                          background: 'transparent',
+                          padding: 0,
+                          color: isDark() ? '#F5F5F5' : '#171717',
+                          colorScheme: isDark() ? 'dark' : 'light',
+                        },
                       })}
                     </View>
                   ) : (
@@ -232,8 +242,12 @@ export default function NewScheduleScreen() {
             <Text className="text-xs text-red-600 mb-2">{t('homecell.schedule_jam_invalid')}</Text>
           ) : null}
           {Platform.OS !== 'web' && timeField ? (
+            // iOS spinner: warna teks eksplisit + latar kartu — tanpa ini teks
+            // jam hitam di atas latar gelap (mode gelap) dan tidak terbaca.
+            <View className="bg-card rounded-2xl border border-neutral-200 mb-2 overflow-hidden">
             <DateTimePicker
               themeVariant={isDark() ? 'dark' : 'light'}
+              textColor={isDark() ? '#FFFFFF' : '#171717'}
               value={fromHm(timeField === 'mulai' ? jamMulai : jamSelesai)}
               mode="time"
               is24Hour
@@ -256,6 +270,7 @@ export default function NewScheduleScreen() {
                 }
               }}
             />
+            </View>
           ) : null}
 
           {/* Lokasi */}
