@@ -7,7 +7,7 @@ Or tap "Continue as Guest" on the welcome screen to browse news, devotionals, Bi
 === ABOUT ===
 Els App is the official app of El Shaddai Creative Community (ECC), an Indonesian church network: service reservations and self check-in, events, devotionals, news, Bible, ECC's own worship songs, prayer requests, homecells/groups and family.
 
-=== WHAT'S NEW IN 2.5.0 ===
+=== WHAT'S NEW IN 2.4.3 ===
 - Bible 365: a personal plan to read the whole Bible (Genesis to Revelation) in 365 days, with daily progress, private reflection notes and an optional daily reminder.
 - Share as image: verses, devotionals, news, events, ECC Worship songs and Bible 365 progress can be shared as a square image via the iOS share sheet.
 

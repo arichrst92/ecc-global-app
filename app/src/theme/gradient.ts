@@ -23,7 +23,7 @@ export const BRAND_GRADIENT_DARK = 'linear-gradient(135deg, #EA580C 0%, #9A3412 
 /**
  * Gradient aktif di semua platform. (2.4.2 sempat mematikan iOS karena dicurigai
  * crash — ternyata penyebab crash 2.4.1 adalah teks izin Reminders yang hilang.
- * Diaktifkan lagi di 2.5.0; set false di sini bila perlu mematikan cepat.)
+ * Diaktifkan lagi di 2.4.3; set false di sini bila perlu mematikan cepat.)
  */
 export const GRADIENT_ENABLED = true;
 

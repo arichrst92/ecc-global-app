@@ -1,4 +1,4 @@
-# Els App v2.5.0 — Release Notes (iOS & Android)
+# Els App v2.4.3 — Release Notes (iOS & Android)
 
 Rilis produksi **iOS & Android** + Els App web. Versi sebelumnya: **2.4.2** (hotfix crash iOS).
 Build baru wajib (modul native baru: `expo-notifications`, `expo-sharing`, `expo-media-library`, `react-native-view-shot`) — **bukan OTA**.
@@ -14,7 +14,7 @@ Build baru wajib (modul native baru: `expo-notifications`, `expo-sharing`, `expo
 ## Google Play — "Yang baru"
 **id-ID**
 ```
-Els App 2.5.0:
+Els App 2.4.3:
 • Bible 365: baca seluruh Alkitab dalam setahun, 3–4 pasal sehari
 • Catatan renungan harian & pengingat setiap hari
 • Bagikan ayat, renungan, event, dan lagu sebagai gambar
@@ -23,7 +23,7 @@ Els App 2.5.0:
 ```
 **en-US**
 ```
-Els App 2.5.0:
+Els App 2.4.3:
 • Bible 365: read the whole Bible in a year, 3–4 chapters a day
 • Daily reflection notes & reminders
 • Share verses, devotionals, events and songs as images
@@ -34,7 +34,7 @@ Els App 2.5.0:
 ## App Store — "What's New"
 **Bahasa Indonesia**
 ```
-Els App 2.5.0 — Bible 365 & bagikan sebagai gambar.
+Els App 2.4.3 — Bible 365 & bagikan sebagai gambar.
 
 BIBLE 365 (BARU)
 • Baca seluruh Alkitab, Kejadian sampai Wahyu, dalam 365 hari
@@ -51,7 +51,7 @@ PERBAIKAN
 ```
 **English**
 ```
-Els App 2.5.0 — Bible 365 & share as image.
+Els App 2.4.3 — Bible 365 & share as image.
 
 BIBLE 365 (NEW)
 • Read the whole Bible, Genesis to Revelation, in 365 days
@@ -68,7 +68,7 @@ FIXES
 ```
 
 ## App Review notes
-`docs/app-review-notes-v2.5.0.md` (3.910 karakter).
+`docs/app-review-notes-v2.4.3.md` (3.910 karakter).
 
 ## Popup update (Portal → App Versions)
 ```
