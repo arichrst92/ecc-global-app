@@ -235,9 +235,30 @@ export default function HomecellDetailScreen() {
           {homecell.alamat ? (
             <View className="flex-row items-center gap-2 mt-1">
               <MapPin size={14} color={nc('#737373')} />
-              <Text className="text-sm text-neutral-700" numberOfLines={2}>
+              <Text className="text-sm text-neutral-700 flex-1" numberOfLines={2}>
                 {homecell.alamat}
               </Text>
+            </View>
+          ) : null}
+          {homecell.mapsUrl ? (
+            <Pressable
+              onPress={() => {
+                const u = homecell.mapsUrl!.trim();
+                const url = /^https?:\/\//i.test(u) ? u : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(u)}`;
+                Linking.openURL(url).catch(() => {});
+              }}
+              className="flex-row items-center gap-2 mt-1.5"
+            >
+              <MapPin size={14} color="#2563EB" />
+              <Text className="text-sm font-semibold text-blue-700">{t('hcj.open_maps')}</Text>
+            </Pressable>
+          ) : null}
+          {homecell.deskripsi ? (
+            <View className="pt-3 mt-3 border-t border-neutral-100">
+              <Text className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
+                {t('hcj.edit_deskripsi')}
+              </Text>
+              <Text className="text-sm text-neutral-700 leading-relaxed">{homecell.deskripsi}</Text>
             </View>
           ) : null}
         </View>
