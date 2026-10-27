@@ -22,6 +22,7 @@ export type PicHomecell = {
 export type PicArea = {
   id: string;
   nama: string;
+  deskripsi?: string | null;
   cabang: CabangRef;
   homecellCount: number;
 };
@@ -54,6 +55,8 @@ export type HomecellMember = {
 export type HomecellDetail = {
   id: string;
   nama: string;
+  deskripsi?: string | null;
+  mapsUrl?: string | null;
   alamat: string | null;
   hari: string | null;
   jam: string | null;

@@ -1655,7 +1655,19 @@
     "segmen_saved": "Category & age saved",
     "member_age": "{{n}} yrs",
     "member_age_out": "outside age range",
-    "member_age_summary": "Member ages {{min}}–{{max}} yrs · average {{avg}} ({{n}} people)"
+    "member_age_summary": "Member ages {{min}}–{{max}} yrs · average {{avg}} ({{n}} people)",
+    "edit_title": "Edit homecell",
+    "edit_nama": "Homecell name",
+    "edit_deskripsi": "Description",
+    "edit_alamat": "Meeting address",
+    "edit_alamat_ph": "E.g. Mr. John's house, 5 Rose St",
+    "edit_maps": "Location (Google Maps link)",
+    "edit_maps_hint": "Open Google Maps → long-press the location → copy the coordinates or Share link. Used for \"Find nearest homecell\".",
+    "edit_err_nama": "Name must be at least 2 characters.",
+    "edit_saved": "Changes saved",
+    "edit_area_title": "Edit area",
+    "edit_area_nama": "Area name",
+    "edit_area_forbidden": "You can't edit this area."
   },
   "gc": {
     "tab_announcements": "Announcements",

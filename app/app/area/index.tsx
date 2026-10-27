@@ -16,6 +16,7 @@ import {
   MapPinned,
   UserCog,
   Users,
+  Pencil,
 } from 'lucide-react-native';
 
 import { useAreaHomecells, useManagedAreas } from '@/hooks/useHomecell';
@@ -130,6 +131,7 @@ function AreaSection({
   onHomecellPress: (id: string) => void;
 }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const query = useAreaHomecells(area.id);
   const homecells = query.data ?? [];
 
@@ -145,7 +147,20 @@ function AreaSection({
           <Text className="text-white/80 text-xs mt-0.5">
             {area.cabang.nama} · {area.homecellCount} {t('area.homecells_count')}
           </Text>
+          {area.deskripsi ? (
+            <Text className="text-white/80 text-xs mt-1" numberOfLines={2}>
+              {area.deskripsi}
+            </Text>
+          ) : null}
         </View>
+        <Pressable
+          onPress={() => router.push(`/area/edit?id=${area.id}` as never)}
+          className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"
+          accessibilityLabel={t('hcj.segmen_edit')}
+        >
+          <Pencil size={11} color="#C2410C" />
+          <Text className="text-[11px] font-bold text-brand-700">{t('hcj.segmen_edit')}</Text>
+        </Pressable>
       </View>
 
       {/* Keterangan indikator rata² hadir */}

@@ -10,6 +10,9 @@ import {
   getMyHomecellOverview,
   browseHomecells,
   setHomecellSegmen,
+  updateHomecellInfo,
+  updateHomecellArea,
+  type UpdateHomecellInfoBody,
   getHomecellPublic,
   requestJoinHomecell,
   cancelJoinHomecell,
@@ -162,6 +165,29 @@ export function useSetHomecellLokasi() {
   return useMutation({
     mutationFn: (v: { homecellId: string; mapsUrl: string | null }) => setHomecellLokasi(v.homecellId, v.mapsUrl),
     onSuccess: invalidate,
+  });
+}
+
+export function useUpdateHomecellInfo() {
+  const invalidate = useInvalidateHomecell();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { homecellId: string; body: UpdateHomecellInfoBody }) => updateHomecellInfo(v.homecellId, v.body),
+    onSuccess: () => {
+      invalidate();
+      void qc.invalidateQueries({ queryKey: ['homecell'] });
+    },
+  });
+}
+
+export function useUpdateHomecellArea() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { areaId: string; body: { nama?: string; deskripsi?: string | null } }) => updateHomecellArea(v.areaId, v.body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['homecell'] });
+      void qc.invalidateQueries({ queryKey: AREA_LIST_KEY });
+    },
   });
 }
 

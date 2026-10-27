@@ -44,7 +44,6 @@ import { parseLocalDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { homecellKategoriLabel, homecellUsiaLabel } from '@/utils/homecellSegmen';
-import { SegmenEditModal } from '@/components/homecell/SegmenEditModal';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -62,7 +61,6 @@ export default function HomecellDetailScreen() {
   const schedulesQuery = useHomecellSchedules(id);
 
   const [confirmRemove, setConfirmRemove] = useState<HomecellMember | null>(null);
-  const [segmenOpen, setSegmenOpen] = useState(false);
 
   // PIC privileges: tampil tombol Remove hanya kalau current user adalah PIC
   // homecell ini (atau PIC area parent). Backend tetap enforce, ini cuma UI guard.
@@ -190,8 +188,8 @@ export default function HomecellDetailScreen() {
                   {homecellUsiaLabel(homecell.usiaMin, homecell.usiaMax) ?? t('hcj.usia_semua')}
                 </Text>
               </View>
-              {isPicHomecell || user?.isFulltimer ? (
-                <Pressable onPress={() => setSegmenOpen(true)} className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1">
+              {isPicHomecell || isPicArea || user?.isFulltimer ? (
+                <Pressable onPress={() => router.push(`/homecell/${homecell.id}/edit` as never)} className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1">
                   <Pencil size={11} color="#C2410C" />
                   <Text className="text-[11px] font-bold text-brand-700">{t('hcj.segmen_edit')}</Text>
                 </Pressable>
@@ -468,18 +466,6 @@ export default function HomecellDetailScreen() {
           </Pressable>
         </Pressable>
       </Modal>
-      <SegmenEditModal
-        visible={segmenOpen}
-        homecellId={homecell.id}
-        kategori={homecell.kategori}
-        usiaMin={homecell.usiaMin}
-        usiaMax={homecell.usiaMax}
-        onClose={() => setSegmenOpen(false)}
-        onSaved={() => {
-          setSegmenOpen(false);
-          showToast(t('hcj.segmen_saved'), 'success');
-        }}
-      />
     </View>
   );
 }

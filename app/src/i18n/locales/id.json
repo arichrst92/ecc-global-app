@@ -1654,7 +1654,19 @@
     "segmen_saved": "Kategori & usia disimpan",
     "member_age": "{{n}} th",
     "member_age_out": "di luar rentang usia",
-    "member_age_summary": "Usia anggota {{min}}–{{max}} th · rata-rata {{avg}} th ({{n}} orang)"
+    "member_age_summary": "Usia anggota {{min}}–{{max}} th · rata-rata {{avg}} th ({{n}} orang)",
+    "edit_title": "Ubah homecell",
+    "edit_nama": "Nama homecell",
+    "edit_deskripsi": "Deskripsi",
+    "edit_alamat": "Alamat pertemuan",
+    "edit_alamat_ph": "Mis. Rumah Pak Yohanes, Jl. Mawar 5",
+    "edit_maps": "Lokasi (link Google Maps)",
+    "edit_maps_hint": "Buka Google Maps → tekan lama titik lokasi → salin koordinat atau tautan Bagikan. Dipakai untuk \"Cari homecell terdekat\".",
+    "edit_err_nama": "Nama minimal 2 karakter.",
+    "edit_saved": "Perubahan disimpan",
+    "edit_area_title": "Ubah area",
+    "edit_area_nama": "Nama area",
+    "edit_area_forbidden": "Area ini tidak bisa Anda ubah."
   },
   "gc": {
     "tab_announcements": "Pengumuman",

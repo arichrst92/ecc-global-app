@@ -167,6 +167,26 @@ export function rejectHomecellJoin(requestId: string, reason?: string) {
   );
 }
 
+export type UpdateHomecellInfoBody = {
+  nama?: string;
+  deskripsi?: string | null;
+  alamat?: string | null;
+  mapsUrl?: string | null;
+  kategori?: 'SINGLE' | 'COUPLE' | null;
+  usiaMin?: number | null;
+  usiaMax?: number | null;
+};
+
+/** [Pemimpin homecell / PIC area] ubah info homecell. */
+export function updateHomecellInfo(homecellId: string, body: UpdateHomecellInfoBody) {
+  return api.patch<{ id: string }>(`/admin/me/homecell/${homecellId}`, body);
+}
+
+/** [PIC area] ubah nama & deskripsi area. */
+export function updateHomecellArea(areaId: string, body: { nama?: string; deskripsi?: string | null }) {
+  return api.patch<{ id: string; nama: string; deskripsi: string | null }>(`/admin/me/homecell-area/${areaId}`, body);
+}
+
 /** [Leader] set kategori + rentang usia homecell. null = kosongkan. */
 export function setHomecellSegmen(
   homecellId: string,
