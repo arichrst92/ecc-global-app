@@ -182,7 +182,7 @@
         "expo-calendar",
         {
           "calendarPermission": "Els App membutuhkan akses kalender untuk menyimpan jadwal ibadah dan event dari tiket Anda.",
-          "remindersPermission": false
+          "remindersPermission": "Els App tidak membaca pengingat Anda; izin ini hanya disediakan oleh modul kalender untuk menyimpan jadwal ibadah dan event."
         }
       ]
     ],
