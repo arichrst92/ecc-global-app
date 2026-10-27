@@ -110,11 +110,13 @@ export function deleteAttendance(
 export function bulkRecordAttendance(
   homecellId: string,
   scheduleId: string,
-  kodes: string[],
+  jemaatIds: string[],
 ): Promise<BulkAttendanceResponse> {
+  // Kirim jemaatId (bukan kode): anggota lama bisa belum punya kode — dulu
+  // satu kode null membuat seluruh request ditolak (400) dan tidak ada yang tercatat.
   return api.post<BulkAttendanceResponse>(
     `/admin/homecell/${homecellId}/schedule/${scheduleId}/attendance/bulk`,
-    { kodes },
+    { jemaatIds },
   );
 }
 

@@ -55,7 +55,8 @@ export type HomecellScheduleDetail = HomecellSchedule & {
   missingMembers: Array<{
     jemaatId: string;
     namaLengkap: string;
-    kode: string;
+    /** Bisa null — jemaat lama yang belum punya kode. */
+    kode: string | null;
   }>;
 };
 
@@ -88,6 +89,7 @@ export type BulkAttendanceRowResult =
     }
   | {
       kode: string;
+      jemaatId?: string | null;
       status: 'error';
       error: { code: string; message: string };
     };

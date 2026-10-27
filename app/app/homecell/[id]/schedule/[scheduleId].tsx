@@ -82,6 +82,7 @@ export default function ScheduleDetailScreen() {
   const [manualOpen, setManualOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set());
+  const [bulkError, setBulkError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<HomecellAttendance | null>(null);
   const [confirmDeleteSchedule, setConfirmDeleteSchedule] = useState(false);
 
@@ -157,44 +158,58 @@ export default function ScheduleDetailScreen() {
 
   function openBulkModal() {
     setBulkSelected(new Set());
+    setBulkError(null);
     setBulkOpen(true);
   }
 
   function handleBulkSubmit() {
     const missing = schedule?.missingMembers ?? [];
-    const selectedKodes = missing
-      .filter((m) => bulkSelected.has(m.jemaatId))
-      .map((m) => m.kode);
-    if (selectedKodes.length === 0) return;
+    const selected = missing.filter((m) => bulkSelected.has(m.jemaatId));
+    if (selected.length === 0) return;
+    setBulkError(null);
 
-    bulkMutation.mutate(selectedKodes, {
-      onSuccess: (result) => {
-        // newlyRecorded = baru dicatat di call ini (exclude already_attended)
-        // success = newlyRecorded + alreadyAttended (keduanya outcome yang "OK")
-        if (result.failed === 0) {
-          showToast(
-            t('homecell.schedule_bulk_result_all_success', { count: result.newlyRecorded }),
-            'success',
+    bulkMutation.mutate(
+      selected.map((m) => m.jemaatId),
+      {
+        onSuccess: (result) => {
+          // newlyRecorded = baru dicatat di call ini (exclude already_attended)
+          if (result.failed === 0) {
+            showToast(
+              t('homecell.schedule_bulk_result_all_success', { count: result.newlyRecorded }),
+              'success',
+            );
+            setBulkOpen(false);
+            setBulkSelected(new Set());
+            return;
+          }
+          // Ada yang gagal → tetap di modal & tampilkan alasannya (toast global
+          // tertutup Modal, jadi pesan ditaruh di dalam modal).
+          const nameOf = (k: string) =>
+            missing.find((m) => m.jemaatId === k || m.kode === k)?.namaLengkap ?? k;
+          const head =
+            result.success === 0
+              ? t('homecell.schedule_bulk_result_all_failed')
+              : t('homecell.schedule_bulk_result_partial', {
+                  success: result.newlyRecorded,
+                  failed: result.failed,
+                });
+          setBulkError(
+            [head, ...result.errors.slice(0, 5).map((e) => `• ${nameOf(e.kode)}: ${e.error}`)].join('\n'),
           );
-        } else if (result.success === 0) {
-          showToast(t('homecell.schedule_bulk_result_all_failed'), 'error');
-        } else {
-          showToast(
-            t('homecell.schedule_bulk_result_partial', {
-              success: result.newlyRecorded,
-              failed: result.failed,
-            }),
-            'info',
+          // Yang berhasil sudah pindah ke "Sudah Hadir"; sisakan pilihan yang gagal.
+          setBulkSelected(
+            new Set(
+              result.errors
+                .map((e) => missing.find((m) => m.jemaatId === e.kode || m.kode === e.kode)?.jemaatId)
+                .filter((x): x is string => !!x),
+            ),
           );
-        }
-        setBulkOpen(false);
-        setBulkSelected(new Set());
+        },
+        onError: (err) => {
+          setBulkError(err instanceof ApiError ? err.message : t('error.network'));
+        },
       },
-      onError: (err) => {
-        const msg = err instanceof ApiError ? err.message : t('error.network');
-        showToast(msg, 'error');
-      },
-    });
+    );
   }
 
   function handleDeleteSchedule() {
@@ -394,7 +409,7 @@ export default function ScheduleDetailScreen() {
                     <Text className="text-sm font-medium text-neutral-700" numberOfLines={1}>
                       {m.namaLengkap}
                     </Text>
-                    <Text className="text-xs text-neutral-400 mt-0.5">{m.kode}</Text>
+                    <Text className="text-xs text-neutral-400 mt-0.5">{m.kode ?? '—'}</Text>
                   </View>
                 </View>
               ))}
@@ -569,7 +584,7 @@ export default function ScheduleDetailScreen() {
                           >
                             {m.namaLengkap}
                           </Text>
-                          <Text className="text-xs text-neutral-400 mt-0.5">{m.kode}</Text>
+                          <Text className="text-xs text-neutral-400 mt-0.5">{m.kode ?? '—'}</Text>
                         </View>
                       </Pressable>
                     );
@@ -624,6 +639,11 @@ export default function ScheduleDetailScreen() {
               className="bg-card border-t border-neutral-100 px-5 pt-3"
               style={{ paddingBottom: insets.bottom + 12 }}
             >
+              {bulkError ? (
+                <View className="bg-red-50 border border-red-200 rounded-xl px-3 py-2 mb-2">
+                  <Text className="text-xs text-red-700 leading-relaxed">{bulkError}</Text>
+                </View>
+              ) : null}
               <Button
                 label={
                   bulkSelected.size === 0

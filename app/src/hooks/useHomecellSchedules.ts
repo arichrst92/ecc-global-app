@@ -122,21 +122,21 @@ export type BulkAttendanceResult = {
   failed: number;
   newlyRecorded: number;
   alreadyAttended: number;
-  errors: { kode: string; error: string }[];
+  errors: { kode: string; jemaatId: string | null; error: string }[];
 };
 
 export function useBulkAttendance(homecellId: string, scheduleId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (kodes: string[]): Promise<BulkAttendanceResult> => {
+    mutationFn: async (jemaatIds: string[]): Promise<BulkAttendanceResult> => {
       // BE limit 50 kodes/batch — chunk supaya homecell besar tetap aman.
       const BATCH = 50;
       const results = [];
-      for (let i = 0; i < kodes.length; i += BATCH) {
+      for (let i = 0; i < jemaatIds.length; i += BATCH) {
         const res = await bulkRecordAttendance(
           homecellId,
           scheduleId,
-          kodes.slice(i, i + BATCH),
+          jemaatIds.slice(i, i + BATCH),
         );
         results.push(...res.results);
       }
@@ -147,7 +147,7 @@ export function useBulkAttendance(homecellId: string, scheduleId: string) {
       results.forEach((r) => {
         if (r.status === 'error') {
           failed += 1;
-          errors.push({ kode: r.kode, error: r.error.message });
+          errors.push({ kode: r.kode, jemaatId: r.jemaatId ?? null, error: r.error.message });
         } else if (r.status === 'recorded') {
           newlyRecorded += 1;
         } else {
