@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Linking,
-  Modal,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -32,10 +24,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/auth.store';
 import { HomecellBoardSection } from '@/components/group/GroupContent';
 import { LastAttendanceText } from '@/components/homecell/LastAttendanceText';
-import {
-  useHomecellDetail,
-  useRemoveHomecellMember,
-} from '@/hooks/useHomecell';
+import { useHomecellDetail, useRemoveHomecellMember } from '@/hooks/useHomecell';
 import { useHomecellSchedules } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import type { HomecellMember } from '@/types/homecell';
@@ -47,6 +36,8 @@ import { nc } from '@/theme/ThemeRoot';
 import { homecellKategoriLabel, homecellUsiaLabel } from '@/utils/homecellSegmen';
 import { ReportSheet } from '@/components/homecell/ReportSheet';
 import { HomecellTamuSection } from '@/components/homecell/HomecellTamuSection';
+import { useQuery } from '@tanstack/react-query';
+import { listHomecellTamu } from '@/api/tamu';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -71,6 +62,14 @@ export default function HomecellDetailScreen() {
   const isPicHomecell = !!user && homecell?.picJemaatId === user.jemaatId;
   const isPicArea = !!user && homecell?.area.picJemaatId === user.jemaatId;
   const canRemove = isPicHomecell || isPicArea;
+  const canTamu = isPicHomecell || isPicArea || !!user?.isFulltimer;
+  // Tab Anggota / Tamu — supaya halaman tidak memanjang.
+  const [tab, setTab] = useState<'member' | 'tamu'>('member');
+  const tamuQuery = useQuery({
+    queryKey: ['homecell', 'tamu', homecell?.id ?? id],
+    queryFn: () => listHomecellTamu(homecell?.id ?? id),
+    enabled: !!homecell && canTamu,
+  });
 
   function handleRemove() {
     if (!confirmRemove) return;
@@ -150,9 +149,7 @@ export default function HomecellDetailScreen() {
   // PIC homecell — cari di list members yang jemaat.id match picJemaatId.
   // Kalau PIC bukan member homecell (rare case), pakai sebagai fallback id only.
   const picMember = homecell.picJemaatId
-    ? homecell.members.find(
-        (m) => (m.jemaat.id ?? m.jemaatId) === homecell.picJemaatId,
-      )
+    ? homecell.members.find((m) => (m.jemaat.id ?? m.jemaatId) === homecell.picJemaatId)
     : null;
 
   return (
@@ -193,15 +190,25 @@ export default function HomecellDetailScreen() {
                 </Text>
               </View>
               {isPicHomecell || isPicArea || user?.isFulltimer ? (
-                <Pressable onPress={() => setReportOpen(true)} className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1">
+                <Pressable
+                  onPress={() => setReportOpen(true)}
+                  className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"
+                >
                   <FileText size={11} color="#C2410C" />
-                  <Text className="text-[11px] font-bold text-brand-700">{t('hcj.report_btn')}</Text>
+                  <Text className="text-[11px] font-bold text-brand-700">
+                    {t('hcj.report_btn')}
+                  </Text>
                 </Pressable>
               ) : null}
               {isPicHomecell || isPicArea || user?.isFulltimer ? (
-                <Pressable onPress={() => router.push(`/homecell/${homecell.id}/edit` as never)} className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1">
+                <Pressable
+                  onPress={() => router.push(`/homecell/${homecell.id}/edit` as never)}
+                  className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"
+                >
                   <Pencil size={11} color="#C2410C" />
-                  <Text className="text-[11px] font-bold text-brand-700">{t('hcj.segmen_edit')}</Text>
+                  <Text className="text-[11px] font-bold text-brand-700">
+                    {t('hcj.segmen_edit')}
+                  </Text>
                 </Pressable>
               ) : null}
             </View>
@@ -211,7 +218,11 @@ export default function HomecellDetailScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingTop: 16,
+          paddingBottom: insets.bottom + 32,
+        }}
       >
         {/* Stat + schedule */}
         <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
@@ -220,17 +231,18 @@ export default function HomecellDetailScreen() {
               <Users size={22} color="#EA580C" />
             </View>
             <View className="flex-1">
-              <Text className="text-2xl font-bold text-neutral-900">
-                {activeMembers.length}
-              </Text>
-              <Text className="text-xs text-neutral-500">
-                {t('homecell.members_count')}
-              </Text>
+              <Text className="text-2xl font-bold text-neutral-900">{activeMembers.length}</Text>
+              <Text className="text-xs text-neutral-500">{t('homecell.members_count')}</Text>
             </View>
           </View>
           {ageStats ? (
             <Text className="text-xs text-neutral-600 mb-2">
-              {t('hcj.member_age_summary', { min: ageStats.min, max: ageStats.max, avg: ageStats.avg, n: ageStats.n })}
+              {t('hcj.member_age_summary', {
+                min: ageStats.min,
+                max: ageStats.max,
+                avg: ageStats.avg,
+                n: ageStats.n,
+              })}
             </Text>
           ) : null}
           {homecell.hari ? (
@@ -254,7 +266,9 @@ export default function HomecellDetailScreen() {
             <Pressable
               onPress={() => {
                 const u = homecell.mapsUrl!.trim();
-                const url = /^https?:\/\//i.test(u) ? u : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(u)}`;
+                const url = /^https?:\/\//i.test(u)
+                  ? u
+                  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(u)}`;
                 Linking.openURL(url).catch(() => {});
               }}
               className="flex-row items-center gap-2 mt-1.5"
@@ -281,9 +295,7 @@ export default function HomecellDetailScreen() {
             </Text>
             <Pressable
               onPress={() =>
-                router.push(
-                  `/jemaat/${picMember.jemaat.id ?? picMember.jemaatId}` as never,
-                )
+                router.push(`/jemaat/${picMember.jemaat.id ?? picMember.jemaatId}` as never)
               }
               className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
             >
@@ -293,7 +305,11 @@ export default function HomecellDetailScreen() {
                   fotoUrl={picMember.jemaat.fotoUrl ?? undefined}
                   size={48}
                 />
-                <View {...gx('absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-brand-500 items-center justify-center border-2 border-white')}>
+                <View
+                  {...gx(
+                    'absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-brand-500 items-center justify-center border-2 border-white',
+                  )}
+                >
                   <Text className="text-[8px] font-bold text-white">PIC</Text>
                 </View>
               </View>
@@ -333,9 +349,7 @@ export default function HomecellDetailScreen() {
             </View>
             <View className="flex-1">
               <Text className="font-bold text-white">{t('homecell.add_member_btn')}</Text>
-              <Text className="text-xs text-white/80 mt-0.5">
-                {t('homecell.add_member_sub')}
-              </Text>
+              <Text className="text-xs text-white/80 mt-0.5">{t('homecell.add_member_sub')}</Text>
             </View>
           </Pressable>
         ) : null}
@@ -380,9 +394,7 @@ export default function HomecellDetailScreen() {
                     key={s.id}
                     schedule={s}
                     memberCount={activeMembers.length}
-                    onPress={() =>
-                      router.push(`/homecell/${id}/schedule/${s.id}`)
-                    }
+                    onPress={() => router.push(`/homecell/${id}/schedule/${s.id}`)}
                   />
                 ))}
               </View>
@@ -400,55 +412,100 @@ export default function HomecellDetailScreen() {
         {/* Pengumuman & voting homecell (PIC kelola) */}
         {canRemove ? <HomecellBoardSection homecellId={id} canManage className="mb-4" /> : null}
 
-        {/* Active members */}
-        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-          {t('homecell.members_section', { count: activeMembers.length })}
-        </Text>
-        {activeMembers.length > 0 ? <AttendanceSummary members={activeMembers} /> : null}
-        {activeMembers.length === 0 ? (
-          <View className="bg-card rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
-            <Users size={28} color={nc('#A3A3A3')} />
-            <Text className="text-sm text-neutral-500 text-center mt-2">
-              {t('homecell.members_empty')}
-            </Text>
+        {/* Tab Anggota / Tamu (tamu: pemimpin / PIC area) */}
+        {canTamu ? (
+          <View className="flex-row bg-neutral-100 rounded-xl p-1 mb-3">
+            {(
+              [
+                ['member', t('homecell.members_section', { count: activeMembers.length })],
+                ['tamu', t('hcj.tamu_section', { count: tamuQuery.data?.length ?? 0 })],
+              ] as const
+            ).map(([k, label]) => {
+              const on = tab === k;
+              return (
+                <Pressable
+                  key={k}
+                  onPress={() => setTab(k)}
+                  className={`flex-1 py-2 rounded-lg items-center ${on ? 'bg-card' : ''}`}
+                  style={
+                    on
+                      ? {
+                          shadowColor: '#000',
+                          shadowOpacity: 0.06,
+                          shadowRadius: 4,
+                          shadowOffset: { width: 0, height: 1 },
+                          elevation: 1,
+                        }
+                      : undefined
+                  }
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: on }}
+                >
+                  <Text
+                    className={`text-xs font-bold ${on ? 'text-brand-600' : 'text-neutral-500'}`}
+                  >
+                    {label}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
-        ) : (
-          <View className="gap-2">
-            {activeMembers.map((m) => (
-              <MemberRow
-                key={m.id}
-                member={m}
-                canRemove={canRemove}
-                usiaMin={homecell.usiaMin}
-                usiaMax={homecell.usiaMax}
-                onRemove={() => setConfirmRemove(m)}
-                onPress={() => router.push(`/jemaat/${m.jemaat.id ?? m.jemaatId}` as never)}
-              />
-            ))}
-          </View>
-        )}
-
-        {/* Tamu homecell — pemimpin / PIC area */}
-        {isPicHomecell || isPicArea || user?.isFulltimer ? <HomecellTamuSection homecellId={homecell.id} /> : null}
-
-        {/* Inactive members (collapsed) */}
-        {inactiveMembers.length > 0 ? (
-          <>
-            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-6 mb-2">
-              {t('homecell.inactive_section', { count: inactiveMembers.length })}
-            </Text>
-            <View className="gap-2">
-              {inactiveMembers.map((m) => (
-                <MemberRow
-                  key={m.id}
-                  member={m}
-                  canRemove={false}
-                  onPress={() => router.push(`/jemaat/${m.jemaat.id ?? m.jemaatId}` as never)}
-                />
-              ))}
-            </View>
-          </>
         ) : null}
+
+        {tab === 'tamu' && canTamu ? (
+          <HomecellTamuSection homecellId={homecell.id} inTab />
+        ) : (
+          <>
+            {/* Active members */}
+            {canTamu ? null : (
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+                {t('homecell.members_section', { count: activeMembers.length })}
+              </Text>
+            )}
+            {activeMembers.length > 0 ? <AttendanceSummary members={activeMembers} /> : null}
+            {activeMembers.length === 0 ? (
+              <View className="bg-card rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
+                <Users size={28} color={nc('#A3A3A3')} />
+                <Text className="text-sm text-neutral-500 text-center mt-2">
+                  {t('homecell.members_empty')}
+                </Text>
+              </View>
+            ) : (
+              <View className="gap-2">
+                {activeMembers.map((m) => (
+                  <MemberRow
+                    key={m.id}
+                    member={m}
+                    canRemove={canRemove}
+                    usiaMin={homecell.usiaMin}
+                    usiaMax={homecell.usiaMax}
+                    onRemove={() => setConfirmRemove(m)}
+                    onPress={() => router.push(`/jemaat/${m.jemaat.id ?? m.jemaatId}` as never)}
+                  />
+                ))}
+              </View>
+            )}
+
+            {/* Inactive members (collapsed) */}
+            {inactiveMembers.length > 0 ? (
+              <>
+                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-6 mb-2">
+                  {t('homecell.inactive_section', { count: inactiveMembers.length })}
+                </Text>
+                <View className="gap-2">
+                  {inactiveMembers.map((m) => (
+                    <MemberRow
+                      key={m.id}
+                      member={m}
+                      canRemove={false}
+                      onPress={() => router.push(`/jemaat/${m.jemaat.id ?? m.jemaatId}` as never)}
+                    />
+                  ))}
+                </View>
+              </>
+            ) : null}
+          </>
+        )}
       </ScrollView>
 
       {/* Remove confirm modal */}
@@ -462,10 +519,7 @@ export default function HomecellDetailScreen() {
           onPress={() => setConfirmRemove(null)}
           className="flex-1 bg-black/50 items-center justify-center px-6"
         >
-          <Pressable
-            onPress={() => {}}
-            className="bg-card rounded-2xl p-5 w-full max-w-sm"
-          >
+          <Pressable onPress={() => {}} className="bg-card rounded-2xl p-5 w-full max-w-sm">
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <AlertTriangle size={24} color="#DC2626" />
             </View>
@@ -555,15 +609,15 @@ function MemberRow({
       />
       <View className="flex-1 min-w-0">
         <Text
-          className={`font-semibold text-neutral-900 ${
-            isInactive ? 'line-through' : ''
-          }`}
+          className={`font-semibold text-neutral-900 ${isInactive ? 'line-through' : ''}`}
           numberOfLines={1}
         >
           {member.jemaat.namaLengkap}
         </Text>
         {member.jemaat.usia != null ? (
-          <Text className={`text-[11px] mt-0.5 font-semibold ${outOfRange ? 'text-amber-700' : 'text-neutral-500'}`}>
+          <Text
+            className={`text-[11px] mt-0.5 font-semibold ${outOfRange ? 'text-amber-700' : 'text-neutral-500'}`}
+          >
             {t('hcj.member_age', { n: member.jemaat.usia })}
             {outOfRange ? ` · ${t('hcj.member_age_out')}` : ''}
           </Text>
@@ -634,10 +688,7 @@ function ScheduleTableRow({
     month: 'short',
   });
   const dateLabel = `${dayShort}, ${dateShort}${schedule.jamMulai ? ` · ${schedule.jamMulai}` : ''}`;
-  const ratioPct =
-    memberCount > 0
-      ? Math.round((schedule.attendanceCount / memberCount) * 100)
-      : 0;
+  const ratioPct = memberCount > 0 ? Math.round((schedule.attendanceCount / memberCount) * 100) : 0;
   return (
     <Pressable
       onPress={onPress}
@@ -656,7 +707,9 @@ function ScheduleTableRow({
           {schedule.attendanceCount}/{memberCount}
         </Text>
         {schedule.tamuCount ? (
-          <Text className="text-[10px] font-semibold text-teal-600">{t('hcj.tamu_count_short', { count: schedule.tamuCount })}</Text>
+          <Text className="text-[10px] font-semibold text-teal-600">
+            {t('hcj.tamu_count_short', { count: schedule.tamuCount })}
+          </Text>
         ) : null}
       </View>
     </Pressable>
@@ -679,16 +732,29 @@ function AttendanceSummary({ members }: { members: HomecellMember[] }) {
   }
   const chips = [
     { n: ok, label: t('hcj.sum_ok'), cls: 'bg-green-50 border-green-100', txt: 'text-green-700' },
-    { n: warn, label: t('hcj.sum_warn'), cls: 'bg-amber-50 border-amber-100', txt: 'text-amber-700' },
+    {
+      n: warn,
+      label: t('hcj.sum_warn'),
+      cls: 'bg-amber-50 border-amber-100',
+      txt: 'text-amber-700',
+    },
     { n: bad, label: t('hcj.sum_bad'), cls: 'bg-red-50 border-red-100', txt: 'text-red-600' },
-    { n: never, label: t('hcj.sum_never'), cls: 'bg-neutral-50 border-neutral-200', txt: 'text-neutral-500' },
+    {
+      n: never,
+      label: t('hcj.sum_never'),
+      cls: 'bg-neutral-50 border-neutral-200',
+      txt: 'text-neutral-500',
+    },
   ];
   return (
     <View className="bg-card rounded-2xl p-3 border border-neutral-100 mb-3">
       <Text className="text-xs font-semibold text-neutral-700 mb-2">{t('hcj.sum_title')}</Text>
       <View className="flex-row gap-2">
         {chips.map((c) => (
-          <View key={c.label} className={`flex-1 rounded-xl border px-2 py-2 items-center ${c.cls}`}>
+          <View
+            key={c.label}
+            className={`flex-1 rounded-xl border px-2 py-2 items-center ${c.cls}`}
+          >
             <Text className={`text-lg font-bold ${c.txt}`}>{c.n}</Text>
             <Text className={`text-[10px] text-center ${c.txt}`} numberOfLines={2}>
               {c.label}

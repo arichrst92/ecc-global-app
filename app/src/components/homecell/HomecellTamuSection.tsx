@@ -23,7 +23,13 @@ const STATUS_STYLE: Record<string, [string, string]> = {
   TERDAFTAR: ['bg-emerald-100', 'text-emerald-700'],
 };
 
-export function HomecellTamuSection({ homecellId }: { homecellId: string }) {
+export function HomecellTamuSection({
+  homecellId,
+  inTab,
+}: {
+  homecellId: string;
+  inTab?: boolean;
+}) {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const showToast = useToast((s) => s.show);
@@ -39,15 +45,29 @@ export function HomecellTamuSection({ homecellId }: { homecellId: string }) {
 
   return (
     <View className="mb-4">
-      <View className="flex-row items-center justify-between mb-2">
-        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-          {t('hcj.tamu_section', { count: list.length })}
-        </Text>
-        <Pressable onPress={() => setAdding(true)} className="flex-row items-center gap-1 px-2.5 py-1 rounded-full bg-violet-100">
-          <UserPlus size={13} color="#7C3AED" />
-          <Text className="text-[11px] font-bold text-violet-700">{t('hcj.tamu_add')}</Text>
+      {inTab ? (
+        // Di dalam tab: judul sudah ada di tab → tombol tambah lebar penuh.
+        <Pressable
+          onPress={() => setAdding(true)}
+          className="flex-row items-center justify-center gap-1.5 py-3 mb-3 rounded-2xl border border-dashed border-violet-300 bg-violet-50"
+        >
+          <UserPlus size={15} color="#7C3AED" />
+          <Text className="text-sm font-bold text-violet-700">{t('hcj.tamu_add')}</Text>
         </Pressable>
-      </View>
+      ) : (
+        <View className="flex-row items-center justify-between mb-2">
+          <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+            {t('hcj.tamu_section', { count: list.length })}
+          </Text>
+          <Pressable
+            onPress={() => setAdding(true)}
+            className="flex-row items-center gap-1 px-2.5 py-1 rounded-full bg-violet-100"
+          >
+            <UserPlus size={13} color="#7C3AED" />
+            <Text className="text-[11px] font-bold text-violet-700">{t('hcj.tamu_add')}</Text>
+          </Pressable>
+        </View>
+      )}
 
       {q.isPending ? (
         <ActivityIndicator color="#F97316" />
@@ -63,11 +83,16 @@ export function HomecellTamuSection({ homecellId }: { homecellId: string }) {
               <View key={g.id} className="bg-card rounded-2xl p-3 border border-neutral-100">
                 <View className="flex-row items-center gap-3">
                   <View className="w-10 h-10 rounded-full bg-violet-100 items-center justify-center">
-                    <Text className="text-sm font-bold text-violet-700">{g.namaLengkap.charAt(0).toUpperCase()}</Text>
+                    <Text className="text-sm font-bold text-violet-700">
+                      {g.namaLengkap.charAt(0).toUpperCase()}
+                    </Text>
                   </View>
                   <View className="flex-1 min-w-0">
                     <View className="flex-row items-center gap-1.5">
-                      <Text className="font-semibold text-neutral-900 flex-shrink" numberOfLines={1}>
+                      <Text
+                        className="font-semibold text-neutral-900 flex-shrink"
+                        numberOfLines={1}
+                      >
                         {g.namaLengkap}
                       </Text>
                       {g.statusLabel ? (
@@ -77,9 +102,17 @@ export function HomecellTamuSection({ homecellId }: { homecellId: string }) {
                       ) : null}
                     </View>
                     <Text className="text-[11px] text-neutral-500 mt-0.5">
-                      {g.addedAt ? t('hcj.tamu_added', { date: formatDateWithDay(g.addedAt.slice(0, 10), i18n.language) }) : ''}
-                      {g.kehadiran ? ` · ${t('guests.attended_total', { count: g.kehadiran })}` : ''}
-                      {g.kehadiranHomecell ? ` · ${t('hcj.tamu_hadir_hc', { count: g.kehadiranHomecell })}` : ''}
+                      {g.addedAt
+                        ? t('hcj.tamu_added', {
+                            date: formatDateWithDay(g.addedAt.slice(0, 10), i18n.language),
+                          })
+                        : ''}
+                      {g.kehadiran
+                        ? ` · ${t('guests.attended_total', { count: g.kehadiran })}`
+                        : ''}
+                      {g.kehadiranHomecell
+                        ? ` · ${t('hcj.tamu_hadir_hc', { count: g.kehadiranHomecell })}`
+                        : ''}
                     </Text>
                     {g.catatan ? (
                       <Text className="text-[11px] text-neutral-600 mt-0.5" numberOfLines={2}>
@@ -89,7 +122,11 @@ export function HomecellTamuSection({ homecellId }: { homecellId: string }) {
                   </View>
                   {g.noHp ? (
                     <Pressable
-                      onPress={() => Linking.openURL(`https://wa.me/${g.noHp!.replace(/^\+/, '')}`).catch(() => {})}
+                      onPress={() =>
+                        Linking.openURL(`https://wa.me/${g.noHp!.replace(/^\+/, '')}`).catch(
+                          () => {},
+                        )
+                      }
                       className="w-9 h-9 rounded-full bg-green-50 items-center justify-center"
                       accessibilityLabel="WhatsApp"
                     >
@@ -98,10 +135,18 @@ export function HomecellTamuSection({ homecellId }: { homecellId: string }) {
                   ) : null}
                   <Pressable
                     onPress={() =>
-                      Alert.alert(t('hcj.tamu_remove_title'), t('hcj.tamu_remove_body', { name: g.namaLengkap }), [
-                        { text: t('common.cancel'), style: 'cancel' },
-                        { text: t('common.delete'), style: 'destructive', onPress: () => remove.mutate(g.id) },
-                      ])
+                      Alert.alert(
+                        t('hcj.tamu_remove_title'),
+                        t('hcj.tamu_remove_body', { name: g.namaLengkap }),
+                        [
+                          { text: t('common.cancel'), style: 'cancel' },
+                          {
+                            text: t('common.delete'),
+                            style: 'destructive',
+                            onPress: () => remove.mutate(g.id),
+                          },
+                        ],
+                      )
                     }
                     className="w-9 h-9 rounded-full items-center justify-center"
                     accessibilityLabel={t('common.delete')}
@@ -122,7 +167,12 @@ export function HomecellTamuSection({ homecellId }: { homecellId: string }) {
         onClose={() => setAdding(false)}
         onAdded={(g) => {
           setAdding(false);
-          showToast(g.isReturning ? t('hcj.tamu_added_returning', { name: g.namaLengkap }) : t('hcj.tamu_added_ok', { name: g.namaLengkap }), 'success');
+          showToast(
+            g.isReturning
+              ? t('hcj.tamu_added_returning', { name: g.namaLengkap })
+              : t('hcj.tamu_added_ok', { name: g.namaLengkap }),
+            'success',
+          );
         }}
       />
     </View>

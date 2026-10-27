@@ -8,7 +8,7 @@
  */
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -62,6 +62,11 @@ export default function TiketScreen() {
   const startIndex = Math.max(0, items.findIndex((x) => (x.kind === 'event' ? x.t.id : x.r.id) === p.id));
   const [page, setPage] = useState(startIndex);
   const listRef = useRef<FlatList<Item>>(null);
+  const insets = useSafeAreaInsets();
+  // Tinggi area halaman tiket. ScrollView vertikal di dalam FlatList
+  // horizontal tidak otomatis dibatasi tingginya (ikut tinggi konten) →
+  // konten bawah terpotong & tidak bisa di-scroll. Batasi eksplisit.
+  const [pageH, setPageH] = useState(0);
 
   // Layar terang selama tiket dibuka (QR mudah dipindai), kembali saat keluar.
   useFocusEffect(
@@ -151,13 +156,20 @@ export default function TiketScreen() {
             data={items}
             horizontal
             pagingEnabled
+            style={{ flex: 1 }}
+            onLayout={(e) => setPageH(e.nativeEvent.layout.height)}
             showsHorizontalScrollIndicator={false}
             initialScrollIndex={startIndex}
             getItemLayout={(_d, i) => ({ length: width, offset: width * i, index: i })}
             keyExtractor={(x) => (x.kind === 'event' ? x.t.id : x.r.id)}
             onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
             renderItem={({ item }) => (
-              <ScrollView style={{ width }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}>
+              <ScrollView
+                style={{ width, height: pageH || undefined }}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: items.length > 1 ? 24 : insets.bottom + 32 }}
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled
+              >
                 {item.kind === 'event' ? (
                   <EventTicketCard ticket={item.t} variant="full" notchColor={BG} />
                 ) : (
