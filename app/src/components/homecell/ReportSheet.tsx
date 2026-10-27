@@ -29,7 +29,7 @@ export function ReportSheet({
   id: string;
   title: string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const [periode, setPeriode] = useState<ReportPeriode>('last_30d');
   const [busy, setBusy] = useState(false);
@@ -39,7 +39,12 @@ export function ReportSheet({
     setBusy(true);
     setError(null);
     try {
-      const { url } = await createHomecellReportLink({ kind, id, periode: periode === 'all' ? undefined : periode });
+      const { url } = await createHomecellReportLink({
+        kind,
+        id,
+        periode: periode === 'all' ? undefined : periode,
+        lang: i18n.language?.startsWith('en') ? 'en' : 'id',
+      });
       if (Platform.OS === 'web') {
         window.open(url, '_blank');
       } else {

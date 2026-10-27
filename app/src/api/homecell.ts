@@ -185,7 +185,7 @@ export function updateHomecellInfo(homecellId: string, body: UpdateHomecellInfoB
 export type ReportPeriode = 'last_7d' | 'this_week' | 'last_week' | 'last_30d' | 'this_month' | 'last_month' | 'all';
 
 /** [Pemimpin / PIC area] link laporan PDF (print view) — berlaku 30 menit. */
-export function createHomecellReportLink(body: { kind: 'homecell' | 'area'; id: string; periode?: Exclude<ReportPeriode, 'all'> }) {
+export function createHomecellReportLink(body: { kind: 'homecell' | 'area'; id: string; periode?: Exclude<ReportPeriode, 'all'>; lang?: 'id' | 'en' }) {
   return api.post<{ url: string; expiresInSec: number }>('/admin/me/homecell/report-link', body);
 }
 
