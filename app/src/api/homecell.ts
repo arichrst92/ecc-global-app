@@ -19,6 +19,7 @@ import type {
   HomecellNearestResponse,
   HomecellPublicDetail,
   HomecellJoinRequestRow,
+  HomecellGuestRequestRow,
 } from '@/types/homecell';
 
 /** GET /admin/me/homecell-managed — homecell yang user-nya PIC */
@@ -165,6 +166,23 @@ export function rejectHomecellJoin(requestId: string, reason?: string) {
     `/admin/me/homecell/join-requests/${requestId}/reject`,
     { reason: reason || undefined },
   );
+}
+
+/** [Leader] permintaan dari mode tamu (tanpa akun) — diterima = tamu homecell. */
+export function listHomecellGuestRequests() {
+  return api.get<HomecellGuestRequestRow[]>('/admin/me/homecell/guest-requests');
+}
+
+export function approveHomecellGuest(requestId: string) {
+  return api.post<{ requestId: string; status: 'APPROVED'; tamuId: string }>(
+    `/admin/me/homecell/guest-requests/${requestId}/approve`,
+  );
+}
+
+export function rejectHomecellGuest(requestId: string, reason?: string) {
+  return api.post<{ requestId: string; status: 'REJECTED' }>(`/admin/me/homecell/guest-requests/${requestId}/reject`, {
+    reason: reason || undefined,
+  });
 }
 
 export type UpdateHomecellInfoBody = {

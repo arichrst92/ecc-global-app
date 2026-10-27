@@ -72,7 +72,7 @@ export default function HomecellHubScreen() {
   const joinMut = useRequestJoinHomecell();
   const cancelMut = useCancelJoinHomecell();
 
-  const pendingJoinTotal = managed.reduce((a, h) => a + (h.pendingJoinCount ?? 0), 0);
+  const pendingJoinTotal = managed.reduce((a, h) => a + (h.pendingJoinCount ?? 0) + (h.pendingGuestCount ?? 0), 0);
 
   // Dari tombol "Cari homecell terdekat" di beranda → langsung cari sekali.
   const params = useLocalSearchParams<{ nearest?: string }>();

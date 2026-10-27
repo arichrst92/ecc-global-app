@@ -131,7 +131,7 @@ export type HomecellNextSchedule = { id: string; tanggal: string; jamMulai?: str
 export type HomecellOverview = {
   role: 'LEADER' | 'MEMBER' | 'NONE';
   cabang: CabangRef | null;
-  managed: (HomecellListItem & { pendingJoinCount: number; nextSchedule?: HomecellNextSchedule })[];
+  managed: (HomecellListItem & { pendingJoinCount: number; pendingGuestCount?: number; nextSchedule?: HomecellNextSchedule })[];
   memberships: { tanggalBergabung: string; homecell: HomecellListItem & { nextSchedule?: HomecellNextSchedule } }[];
   pendingRequests: { id: string; createdAt: string; pesan: string | null; homecell: { id: string; nama: string } }[];
 };
@@ -155,6 +155,18 @@ export type HomecellNearestResponse = {
   items: HomecellListItem[];
   totalInCabang: number;
   withoutLocation: number;
+};
+
+/** Permintaan bergabung dari MODE TAMU (tanpa akun) — untuk leader. */
+export type HomecellGuestRequestRow = {
+  id: string;
+  createdAt: string;
+  nama: string;
+  noHp: string;
+  jenisKelamin: 'L' | 'P' | null;
+  usia: number | null;
+  pesan: string | null;
+  homecell: { id: string; nama: string };
 };
 
 /** Permintaan bergabung (untuk leader). */

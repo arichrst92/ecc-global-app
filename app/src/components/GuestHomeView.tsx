@@ -12,6 +12,7 @@ import {
   MapPin,
   Newspaper,
   Sparkles,
+  Users,
 } from 'lucide-react-native';
 
 import { GuestModeBanner } from '@/components/GuestModeBanner';
@@ -77,6 +78,21 @@ export function GuestHomeView() {
             {t('guest.about_body')}
           </Text>
         </View>
+
+        {/* Cari homecell — mode tamu bisa minta bergabung sebagai tamu */}
+        <Pressable
+          onPress={() => router.push('/homecell/guest' as never)}
+          className="bg-card rounded-2xl p-4 border border-brand-100 mt-3 flex-row items-center gap-3"
+        >
+          <View {...gx('w-11 h-11 rounded-xl bg-brand-500 items-center justify-center')}>
+            <Users size={20} color="#fff" />
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-bold text-neutral-900">{t('hcg.home_title')}</Text>
+            <Text className="text-xs text-neutral-500 mt-0.5">{t('hcg.home_sub')}</Text>
+          </View>
+          <ChevronRight size={16} color={nc('#A3A3A3')} />
+        </Pressable>
 
         {/* Renungan Hari Ini */}
         {latestRenungan ? (

@@ -17,6 +17,9 @@ import {
   requestJoinHomecell,
   cancelJoinHomecell,
   listHomecellJoinRequests,
+  listHomecellGuestRequests,
+  approveHomecellGuest,
+  rejectHomecellGuest,
   approveHomecellJoin,
   rejectHomecellJoin,
   setHomecellLokasi,
@@ -144,6 +147,35 @@ export function useHomecellJoinRequests(enabled = true) {
     queryFn: listHomecellJoinRequests,
     enabled,
     staleTime: 30_000,
+  });
+}
+
+export function useHomecellGuestRequests(enabled = true) {
+  return useQuery({
+    queryKey: [...ME_HC_KEY, 'guest-requests'],
+    queryFn: listHomecellGuestRequests,
+    enabled,
+    staleTime: 30_000,
+  });
+}
+
+export function useApproveHomecellGuest() {
+  const invalidate = useInvalidateHomecell();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (requestId: string) => approveHomecellGuest(requestId),
+    onSuccess: () => {
+      invalidate();
+      void qc.invalidateQueries({ queryKey: ['homecell', 'tamu'] });
+    },
+  });
+}
+
+export function useRejectHomecellGuest() {
+  const invalidate = useInvalidateHomecell();
+  return useMutation({
+    mutationFn: (v: { requestId: string; reason?: string }) => rejectHomecellGuest(v.requestId, v.reason),
+    onSuccess: invalidate,
   });
 }
 

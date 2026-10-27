@@ -40,7 +40,7 @@ export function HomecellSpotlight() {
   // ---- Pemimpin ----
   if (managed.length > 0) {
     const h = managed[0]!;
-    const totalReq = managed.reduce((a, x) => a + (x.pendingJoinCount ?? 0), 0);
+    const totalReq = managed.reduce((a, x) => a + (x.pendingJoinCount ?? 0) + (x.pendingGuestCount ?? 0), 0);
     return (
       <SpotCard
         label={t('hcj.spot_label_leader')}
