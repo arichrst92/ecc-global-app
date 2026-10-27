@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -17,6 +18,7 @@ import {
   UserCog,
   Users,
   Pencil,
+  FileText,
 } from 'lucide-react-native';
 
 import { useAreaHomecells, useManagedAreas } from '@/hooks/useHomecell';
@@ -26,6 +28,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { ATTENDANCE_TIERS, attendanceTier } from '@/utils/homecellSegmen';
 import { SegmenBadges } from '@/components/homecell/HomecellListCard';
+import { ReportSheet } from '@/components/homecell/ReportSheet';
 
 /**
  * Area list — flatten + grouped by area.
@@ -132,6 +135,7 @@ function AreaSection({
 }) {
   const { t } = useTranslation();
   const router = useRouter();
+  const [reportOpen, setReportOpen] = useState(false);
   const query = useAreaHomecells(area.id);
   const homecells = query.data ?? [];
 
@@ -153,6 +157,14 @@ function AreaSection({
             </Text>
           ) : null}
         </View>
+        <Pressable
+          onPress={() => setReportOpen(true)}
+          className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1 mr-1.5"
+          accessibilityLabel={t('hcj.report_btn')}
+        >
+          <FileText size={11} color="#C2410C" />
+          <Text className="text-[11px] font-bold text-brand-700">{t('hcj.report_btn')}</Text>
+        </Pressable>
         <Pressable
           onPress={() => router.push(`/area/edit?id=${area.id}` as never)}
           className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"
@@ -197,6 +209,7 @@ function AreaSection({
           ))}
         </View>
       )}
+      <ReportSheet visible={reportOpen} onClose={() => setReportOpen(false)} kind="area" id={area.id} title={area.nama} />
     </View>
   );
 }

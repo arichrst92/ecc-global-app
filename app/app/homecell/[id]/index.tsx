@@ -23,6 +23,7 @@ import {
   UserPlus,
   Users,
   Pencil,
+  FileText,
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -44,6 +45,7 @@ import { parseLocalDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { homecellKategoriLabel, homecellUsiaLabel } from '@/utils/homecellSegmen';
+import { ReportSheet } from '@/components/homecell/ReportSheet';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -61,6 +63,7 @@ export default function HomecellDetailScreen() {
   const schedulesQuery = useHomecellSchedules(id);
 
   const [confirmRemove, setConfirmRemove] = useState<HomecellMember | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   // PIC privileges: tampil tombol Remove hanya kalau current user adalah PIC
   // homecell ini (atau PIC area parent). Backend tetap enforce, ini cuma UI guard.
@@ -188,6 +191,12 @@ export default function HomecellDetailScreen() {
                   {homecellUsiaLabel(homecell.usiaMin, homecell.usiaMax) ?? t('hcj.usia_semua')}
                 </Text>
               </View>
+              {isPicHomecell || isPicArea || user?.isFulltimer ? (
+                <Pressable onPress={() => setReportOpen(true)} className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1">
+                  <FileText size={11} color="#C2410C" />
+                  <Text className="text-[11px] font-bold text-brand-700">{t('hcj.report_btn')}</Text>
+                </Pressable>
+              ) : null}
               {isPicHomecell || isPicArea || user?.isFulltimer ? (
                 <Pressable onPress={() => router.push(`/homecell/${homecell.id}/edit` as never)} className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1">
                   <Pencil size={11} color="#C2410C" />
@@ -487,6 +496,13 @@ export default function HomecellDetailScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+      <ReportSheet
+        visible={reportOpen}
+        onClose={() => setReportOpen(false)}
+        kind="homecell"
+        id={homecell.id}
+        title={homecell.nama}
+      />
     </View>
   );
 }

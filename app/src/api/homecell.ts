@@ -182,6 +182,13 @@ export function updateHomecellInfo(homecellId: string, body: UpdateHomecellInfoB
   return api.patch<{ id: string }>(`/admin/me/homecell/${homecellId}`, body);
 }
 
+export type ReportPeriode = 'last_7d' | 'this_week' | 'last_week' | 'last_30d' | 'this_month' | 'last_month' | 'all';
+
+/** [Pemimpin / PIC area] link laporan PDF (print view) — berlaku 30 menit. */
+export function createHomecellReportLink(body: { kind: 'homecell' | 'area'; id: string; periode?: Exclude<ReportPeriode, 'all'> }) {
+  return api.post<{ url: string; expiresInSec: number }>('/admin/me/homecell/report-link', body);
+}
+
 /** [PIC area] ubah nama & deskripsi area. */
 export function updateHomecellArea(areaId: string, body: { nama?: string; deskripsi?: string | null }) {
   return api.patch<{ id: string; nama: string; deskripsi: string | null }>(`/admin/me/homecell-area/${areaId}`, body);

@@ -1667,7 +1667,19 @@
     "edit_saved": "Changes saved",
     "edit_area_title": "Edit area",
     "edit_area_nama": "Area name",
-    "edit_area_forbidden": "You can't edit this area."
+    "edit_area_forbidden": "You can't edit this area.",
+    "report_btn": "Report",
+    "report_title": "PDF report",
+    "report_period": "Period",
+    "report_hint": "The report opens in the browser. Tap Share → Print / Save PDF to download. The link is valid for 30 minutes.",
+    "report_open": "Open report (PDF)",
+    "period_last_7d": "Last 7 days",
+    "period_this_week": "This week",
+    "period_last_week": "Last week",
+    "period_last_30d": "Last 30 days",
+    "period_this_month": "This month",
+    "period_last_month": "Last month",
+    "period_all": "All time"
   },
   "gc": {
     "tab_announcements": "Announcements",
