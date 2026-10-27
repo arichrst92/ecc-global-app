@@ -42,6 +42,8 @@ import { cancelBible365Reminder, scheduleBible365Reminder } from '@/features/bib
 import { ShareCardModal } from '@/features/share/ShareCardModal';
 import { Bible365ShareCard } from '@/features/share/cards';
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
+import { BIBLE_VERSIONS } from '@/data/bible';
+import { useBibleStore } from '@/stores/bible.store';
 import { useBookNames } from '@/utils/bibleNames';
 import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/auth.store';
@@ -257,6 +259,9 @@ function Dashboard({ plan, onRefresh, refreshing, bottom }: { plan: Bible365Plan
   const [day, setDay] = useState(plan.today);
   const [shareOpen, setShareOpen] = useState(false);
   const [reminderOpen, setReminderOpen] = useState(false);
+  // Versi Alkitab sama dengan halaman Alkitab (berlaku untuk semua bacaan).
+  const versionCode = useBibleStore((s) => s.selectedVersionCode);
+  const setVersion = useBibleStore((s) => s.setSelectedVersion);
 
   const dayQ = useQuery({ queryKey: [...BIBLE365_KEY, 'day', day], queryFn: () => getBible365Day(day) });
   const refreshAll = () => {
@@ -302,6 +307,27 @@ function Dashboard({ plan, onRefresh, refreshing, bottom }: { plan: Bible365Plan
         contentContainerStyle={{ padding: 16, paddingBottom: bottom + 32 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#F97316" />}
       >
+        {/* Versi Alkitab */}
+        <View className="flex-row items-center justify-between mb-3">
+          <Text className="text-xs font-semibold text-neutral-500">{t('bible.choose_version')}</Text>
+          <View className="flex-row bg-neutral-100 rounded-full p-0.5">
+            {BIBLE_VERSIONS.map((v) => {
+              const on = v.code === versionCode;
+              return (
+                <Pressable
+                  key={v.code}
+                  onPress={() => setVersion(v.code)}
+                  className={`px-3 py-1 rounded-full ${on ? 'bg-card' : ''}`}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: on }}
+                >
+                  <Text className={`text-xs font-bold ${on ? 'text-brand-700' : 'text-neutral-500'}`}>{v.shortName}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
         {/* Progres */}
         <View className="bg-card rounded-2xl border border-neutral-100 p-4">
           <View className="flex-row items-end justify-between">
