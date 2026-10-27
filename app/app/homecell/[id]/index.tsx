@@ -46,6 +46,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { homecellKategoriLabel, homecellUsiaLabel } from '@/utils/homecellSegmen';
 import { ReportSheet } from '@/components/homecell/ReportSheet';
+import { HomecellTamuSection } from '@/components/homecell/HomecellTamuSection';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -426,6 +427,9 @@ export default function HomecellDetailScreen() {
             ))}
           </View>
         )}
+
+        {/* Tamu homecell — pemimpin / PIC area */}
+        {isPicHomecell || isPicArea || user?.isFulltimer ? <HomecellTamuSection homecellId={homecell.id} /> : null}
 
         {/* Inactive members (collapsed) */}
         {inactiveMembers.length > 0 ? (

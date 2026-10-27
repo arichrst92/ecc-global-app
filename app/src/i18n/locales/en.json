@@ -1679,7 +1679,16 @@
     "period_last_30d": "Last 30 days",
     "period_this_month": "This month",
     "period_last_month": "Last month",
-    "period_all": "All time"
+    "period_all": "All time",
+    "tamu_section": "Guests ({{count}})",
+    "tamu_add": "Add guest",
+    "tamu_empty": "No guests yet. Record friends who visit the homecell so the ECC team can follow up.",
+    "tamu_added": "Added {{date}}",
+    "tamu_remove_title": "Remove guest from homecell?",
+    "tamu_remove_body": "{{name}} will be removed from this homecell's guest list. The guest record stays at ECC.",
+    "tamu_footnote": "Guests recorded here also appear in the Guests menu on the ECC portal for follow-up.",
+    "tamu_added_ok": "{{name}} added as a guest",
+    "tamu_added_returning": "{{name}} was already recorded — added to this homecell"
   },
   "gc": {
     "tab_announcements": "Announcements",
@@ -1807,7 +1816,9 @@
     "nominal_ph": "Amount received",
     "nominal_tetap": "Received by staff: Rp {{nominal}}",
     "quota_full": "Quota is full. Add this guest anyway?",
-    "force_btn": "Add anyway"
+    "force_btn": "Add anyway",
+    "add_hint_homecell": "Record a guest visiting the homecell — name and phone (for follow-up).",
+    "catatan_ph": "Note (optional), e.g. Andi's colleague"
   },
   "selfcheckin_geo": {
     "title": "Too far from the venue",

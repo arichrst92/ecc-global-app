@@ -10,7 +10,7 @@ import { UserPlus, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
-import { addMyTamu, type Tamu } from '@/api/tamu';
+import { addHomecellTamu, addMyTamu, type Tamu } from '@/api/tamu';
 import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { nc } from '@/theme/ThemeRoot';
@@ -19,22 +19,30 @@ export function AddTamuModal({
   visible,
   onClose,
   onAdded,
+  homecellId,
 }: {
   visible: boolean;
   onClose: () => void;
   onAdded: (t: Tamu) => void;
+  /** Diisi → tamu dicatat sebagai tamu homecell ini (pemimpin / PIC area). */
+  homecellId?: string;
 }) {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const [nama, setNama] = useState('');
   const [noHp, setNoHp] = useState('');
   const [err, setErr] = useState<string | null>(null);
+  const [catatan, setCatatan] = useState('');
   const e164 = normalizePhone(noHp);
 
   const mut = useMutation({
-    mutationFn: () => addMyTamu({ nama: nama.trim(), noHp: e164! }),
+    mutationFn: () =>
+      homecellId
+        ? addHomecellTamu(homecellId, { nama: nama.trim(), noHp: e164!, catatan: catatan.trim() || undefined })
+        : addMyTamu({ nama: nama.trim(), noHp: e164! }),
     onSuccess: (tamu) => {
       qc.invalidateQueries({ queryKey: ['tamu', 'mine'] });
+      if (homecellId) qc.invalidateQueries({ queryKey: ['homecell', 'tamu', homecellId] });
       onAdded(tamu);
       reset();
     },
@@ -44,6 +52,7 @@ export function AddTamuModal({
   function reset() {
     setNama('');
     setNoHp('');
+    setCatatan('');
     setErr(null);
   }
   function close() {
@@ -67,7 +76,7 @@ export function AddTamuModal({
               <X size={18} color={nc('#737373')} />
             </Pressable>
           </View>
-          <Text className="text-xs text-neutral-500 leading-5">{t('tamu.add_hint')}</Text>
+          <Text className="text-xs text-neutral-500 leading-5">{t(homecellId ? 'tamu.add_hint_homecell' : 'tamu.add_hint')}</Text>
           <Text className="text-sm font-semibold text-neutral-800">{t('tamu.nama')}</Text>
           <TextInput
             value={nama}
@@ -89,6 +98,18 @@ export function AddTamuModal({
             }}
             error={phoneErr}
           />
+          {homecellId ? (
+            <TextInput
+              value={catatan}
+              onChangeText={setCatatan}
+              placeholder={t('tamu.catatan_ph')}
+              placeholderTextColor={nc('#A3A3A3')}
+              maxLength={500}
+              multiline
+              className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
+              style={{ minHeight: 56, textAlignVertical: 'top' }}
+            />
+          ) : null}
           {err ? <Text className="text-xs text-red-600">{err}</Text> : null}
           <Button
             label={t('tamu.add_btn')}

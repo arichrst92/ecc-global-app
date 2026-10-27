@@ -1678,7 +1678,16 @@
     "period_last_30d": "30 hari terakhir",
     "period_this_month": "Bulan ini",
     "period_last_month": "Bulan lalu",
-    "period_all": "Semua waktu"
+    "period_all": "Semua waktu",
+    "tamu_section": "Tamu ({{count}})",
+    "tamu_add": "Tambah tamu",
+    "tamu_empty": "Belum ada tamu. Catat teman yang berkunjung ke homecell supaya bisa di-follow-up tim ECC.",
+    "tamu_added": "Dicatat {{date}}",
+    "tamu_remove_title": "Hapus tamu dari homecell?",
+    "tamu_remove_body": "{{name}} dihapus dari daftar tamu homecell ini. Data tamu tetap tersimpan di ECC.",
+    "tamu_footnote": "Tamu yang dicatat di sini juga masuk ke menu Tamu di portal ECC untuk ditindaklanjuti.",
+    "tamu_added_ok": "{{name}} dicatat sebagai tamu",
+    "tamu_added_returning": "{{name}} sudah pernah tercatat — ditambahkan ke homecell ini"
   },
   "gc": {
     "tab_announcements": "Pengumuman",
@@ -1806,7 +1815,9 @@
     "nominal_ph": "Nominal diterima",
     "nominal_tetap": "Diterima petugas: Rp {{nominal}}",
     "quota_full": "Kuota peserta penuh. Tetap masukkan tamu ini?",
-    "force_btn": "Tetap masukkan"
+    "force_btn": "Tetap masukkan",
+    "add_hint_homecell": "Catat tamu yang berkunjung ke homecell — nama dan no HP (untuk follow-up).",
+    "catatan_ph": "Catatan (opsional), mis. teman kantor Andi"
   },
   "selfcheckin_geo": {
     "title": "Lokasi terlalu jauh",

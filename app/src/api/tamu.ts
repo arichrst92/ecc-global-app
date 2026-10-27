@@ -46,3 +46,14 @@ export const walkInGuestEvent = (
 /** Petugas ibadah — catat tamu walk-in langsung hadir (bukan ibadah anak). */
 export const walkInGuestIbadah = (body: { ibadahId: string; tanggalIbadah: string; nama: string; noHp: string }) =>
   api.post<WalkInResult>('/admin/reservasi/walk-in-guest', body);
+
+/** Tamu homecell (pemimpin / PIC area) — /admin/me/homecell/:id/tamu */
+export type HomecellTamu = Tamu & {
+  catatan: string | null;
+  addedBy: { id: string; namaLengkap: string } | null;
+};
+export const listHomecellTamu = (homecellId: string) => api.get<HomecellTamu[]>(`/admin/me/homecell/${homecellId}/tamu`);
+export const addHomecellTamu = (homecellId: string, body: { nama: string; noHp: string; catatan?: string }) =>
+  api.post<Tamu>(`/admin/me/homecell/${homecellId}/tamu`, body);
+export const removeHomecellTamu = (homecellId: string, tamuId: string) =>
+  api.delete<{ id: string }>(`/admin/me/homecell/${homecellId}/tamu/${tamuId}`);
