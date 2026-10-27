@@ -622,7 +622,7 @@ function ScheduleTableRow({
   memberCount: number;
   onPress: () => void;
 }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const lang = i18n.language;
   // Short date format: "Jum, 24 Mei" / "Fri, 24 May"
   const d = parseLocalDate(schedule.tanggal);
@@ -655,6 +655,9 @@ function ScheduleTableRow({
         >
           {schedule.attendanceCount}/{memberCount}
         </Text>
+        {schedule.tamuCount ? (
+          <Text className="text-[10px] font-semibold text-teal-600">{t('hcj.tamu_count_short', { count: schedule.tamuCount })}</Text>
+        ) : null}
       </View>
     </Pressable>
   );

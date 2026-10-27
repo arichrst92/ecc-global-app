@@ -44,6 +44,7 @@ import { useToast } from '@/components/ui/Toast';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { MaterialList, UploadMaterialModal } from '@/components/homecell/ScheduleMaterials';
+import { ScheduleTamuSection } from '@/components/homecell/ScheduleTamuSection';
 import {
   useUploadScheduleFile,
   useDeleteScheduleFile,
@@ -286,9 +287,9 @@ export default function ScheduleDetailScreen() {
             <Pressable
               onPress={() => setConfirmDeleteSchedule(true)}
               className="w-10 h-10 items-center justify-center"
-              disabled={attendedCount > 0}
+              disabled={attendedCount + (schedule.tamuCount ?? 0) > 0}
             >
-              <Trash2 size={18} color={attendedCount > 0 ? '#fff8' : '#fff'} />
+              <Trash2 size={18} color={attendedCount + (schedule.tamuCount ?? 0) > 0 ? '#fff8' : '#fff'} />
             </Pressable>
           </View>
           <View className="px-5 pb-6 pt-2">
@@ -424,6 +425,9 @@ export default function ScheduleDetailScreen() {
             </View>
           </>
         ) : null}
+
+        {/* Tamu hadir — terpisah dari kehadiran anggota */}
+        <ScheduleTamuSection homecellId={id} schedule={schedule} />
 
         {/* Materi pertemuan — dilihat anggota di app */}
         <View className="flex-row items-center justify-between mt-6 mb-2">

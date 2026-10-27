@@ -19,6 +19,8 @@ import {
   recordAttendance,
   deleteAttendance,
   bulkRecordAttendance,
+  markTamuHadir,
+  unmarkTamuHadir,
 } from '@/api/homecellSchedule';
 import type {
   CreateSchedulePayload,
@@ -187,4 +189,23 @@ export function useDeleteScheduleFile(homecellId: string, scheduleId: string) {
     mutationFn: (fileId: string) => deleteScheduleFile(homecellId, scheduleId, fileId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['homecell'] }),
   });
+}
+
+/** Tandai / batalkan tamu hadir di pertemuan (terpisah dari kehadiran anggota). */
+export function useTamuHadir(homecellId: string, scheduleId: string) {
+  const qc = useQueryClient();
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ['homecell', homecellId, 'schedule', scheduleId] });
+    qc.invalidateQueries({ queryKey: ['homecell', homecellId, 'schedules'] });
+    qc.invalidateQueries({ queryKey: ['homecell', 'tamu', homecellId] });
+  };
+  const mark = useMutation({
+    mutationFn: (tamuIds: string[]) => markTamuHadir(homecellId, scheduleId, tamuIds),
+    onSuccess: refresh,
+  });
+  const unmark = useMutation({
+    mutationFn: (tamuId: string) => unmarkTamuHadir(homecellId, scheduleId, tamuId),
+    onSuccess: refresh,
+  });
+  return { mark, unmark };
 }

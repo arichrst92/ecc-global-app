@@ -21,6 +21,16 @@ export type HomecellSchedule = {
   /** ISO datetime */
   createdAt: string;
   attendanceCount: number;
+  /** Tamu hadir — dicatat terpisah, tidak masuk % kehadiran anggota. */
+  tamuCount?: number;
+};
+
+/** Tamu yang hadir di satu pertemuan homecell. */
+export type HomecellTamuAttendance = {
+  id: string;
+  createdAt: string;
+  tamu: { id: string; namaLengkap: string; noHp: string | null };
+  markedBy: { id: string; namaLengkap: string } | null;
 };
 
 export type HomecellAttendance = {
@@ -61,6 +71,9 @@ export type HomecellScheduleDetail = HomecellSchedule & {
     /** Bisa null — jemaat lama yang belum punya kode. */
     kode: string | null;
   }>;
+  tamuAttendances?: HomecellTamuAttendance[];
+  /** Tamu homecell yang belum ditandai hadir di pertemuan ini. */
+  tamuBelumHadir?: Array<{ id: string; namaLengkap: string; noHp: string | null }>;
 };
 
 export type CreateSchedulePayload = {

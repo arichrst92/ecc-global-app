@@ -1687,7 +1687,18 @@
     "tamu_remove_body": "{{name}} dihapus dari daftar tamu homecell ini. Data tamu tetap tersimpan di ECC.",
     "tamu_footnote": "Tamu yang dicatat di sini juga masuk ke menu Tamu di portal ECC untuk ditindaklanjuti.",
     "tamu_added_ok": "{{name}} dicatat sebagai tamu",
-    "tamu_added_returning": "{{name}} sudah pernah tercatat — ditambahkan ke homecell ini"
+    "tamu_added_returning": "{{name}} sudah pernah tercatat — ditambahkan ke homecell ini",
+    "tamu_hadir_hc": "hadir homecell {{count}}×",
+    "tamu_hadir_section": "Tamu hadir ({{count}})",
+    "tamu_hadir_note": "Dicatat terpisah — tidak dihitung dalam % kehadiran anggota.",
+    "tamu_hadir_empty": "Belum ada tamu yang ditandai hadir.",
+    "tamu_belum_hadir": "Tamu homecell — ketuk untuk tandai hadir",
+    "tamu_mark": "Hadir",
+    "tamu_new_hadir": "Tamu baru",
+    "tamu_marked": "{{name}} ditandai hadir",
+    "tamu_unmark_title": "Batalkan kehadiran tamu?",
+    "tamu_unmark_body": "{{name}} tidak lagi tercatat hadir di pertemuan ini.",
+    "tamu_count_short": "+{{count}} tamu"
   },
   "gc": {
     "tab_announcements": "Pengumuman",

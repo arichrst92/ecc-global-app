@@ -1688,7 +1688,18 @@
     "tamu_remove_body": "{{name}} will be removed from this homecell's guest list. The guest record stays at ECC.",
     "tamu_footnote": "Guests recorded here also appear in the Guests menu on the ECC portal for follow-up.",
     "tamu_added_ok": "{{name}} added as a guest",
-    "tamu_added_returning": "{{name}} was already recorded — added to this homecell"
+    "tamu_added_returning": "{{name}} was already recorded — added to this homecell",
+    "tamu_hadir_hc": "attended homecell {{count}}×",
+    "tamu_hadir_section": "Guests present ({{count}})",
+    "tamu_hadir_note": "Recorded separately — not counted in member attendance %.",
+    "tamu_hadir_empty": "No guests marked present yet.",
+    "tamu_belum_hadir": "Homecell guests — tap to mark present",
+    "tamu_mark": "Present",
+    "tamu_new_hadir": "New guest",
+    "tamu_marked": "{{name}} marked present",
+    "tamu_unmark_title": "Remove guest attendance?",
+    "tamu_unmark_body": "{{name}} will no longer be recorded as present at this meeting.",
+    "tamu_count_short": "+{{count}} guests"
   },
   "gc": {
     "tab_announcements": "Announcements",

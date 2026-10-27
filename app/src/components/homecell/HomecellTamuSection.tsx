@@ -79,6 +79,7 @@ export function HomecellTamuSection({ homecellId }: { homecellId: string }) {
                     <Text className="text-[11px] text-neutral-500 mt-0.5">
                       {g.addedAt ? t('hcj.tamu_added', { date: formatDateWithDay(g.addedAt.slice(0, 10), i18n.language) }) : ''}
                       {g.kehadiran ? ` · ${t('guests.attended_total', { count: g.kehadiran })}` : ''}
+                      {g.kehadiranHomecell ? ` · ${t('hcj.tamu_hadir_hc', { count: g.kehadiranHomecell })}` : ''}
                     </Text>
                     {g.catatan ? (
                       <Text className="text-[11px] text-neutral-600 mt-0.5" numberOfLines={2}>

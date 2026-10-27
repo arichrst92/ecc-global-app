@@ -121,6 +121,21 @@ export function bulkRecordAttendance(
 }
 
 // ============================================================
+//  Kehadiran tamu — dicatat terpisah dari anggota
+// ============================================================
+
+export function markTamuHadir(homecellId: string, scheduleId: string, tamuIds: string[]) {
+  return api.post<{ recorded: number; tamuCount: number }>(
+    `/admin/homecell/${homecellId}/schedule/${scheduleId}/tamu`,
+    { tamuIds },
+  );
+}
+
+export function unmarkTamuHadir(homecellId: string, scheduleId: string, tamuId: string) {
+  return api.delete<{ deleted: true }>(`/admin/homecell/${homecellId}/schedule/${scheduleId}/tamu/${tamuId}`);
+}
+
+// ============================================================
 //  File materi pertemuan
 // ============================================================
 
