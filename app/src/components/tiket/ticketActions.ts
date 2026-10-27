@@ -4,7 +4,6 @@
  * jadi pengguna yang memilih kalender & menyimpan.
  */
 import { Linking, Platform } from 'react-native';
-import * as Calendar from 'expo-calendar';
 
 export type CalendarInput = {
   title: string;
@@ -15,6 +14,8 @@ export type CalendarInput = {
 };
 
 export async function addTicketToCalendar(input: CalendarInput): Promise<void> {
+  // Import saat dipakai — modul native yang belum ada di build lama tidak membuat app crash saat start.
+  const Calendar = await import('expo-calendar');
   // iOS < 17 mewajibkan izin kalender sebelum dialog dibuka; iOS 17+ & Android
   // memakai dialog sistem tanpa izin (izin Android sengaja diblokir di app.json).
   if (Platform.OS === 'ios' && parseInt(String(Platform.Version), 10) < 17) {

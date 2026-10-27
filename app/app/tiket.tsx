@@ -14,7 +14,6 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { CalendarPlus, Map, X } from 'lucide-react-native';
-import * as Brightness from 'expo-brightness';
 
 import { listMyEventTickets, type EventTiket, type TicketScope } from '@/api/tiket';
 import { useMyReservasi } from '@/hooks/useMyReservasi';
@@ -27,6 +26,14 @@ import { goBack } from '@/utils/nav';
 import { brandGradient } from '@/theme/gradient';
 
 const BG = '#EA580C';
+
+async function loadBrightness() {
+  try {
+    return await import('expo-brightness');
+  } catch {
+    return null;
+  }
+}
 
 type Item = { kind: 'event'; t: EventTiket } | { kind: 'ibadah'; r: MyReservasi };
 
@@ -61,14 +68,20 @@ export default function TiketScreen() {
     useCallback(() => {
       if (Platform.OS === 'web') return undefined;
       let prev: number | null = null;
-      Brightness.getBrightnessAsync()
-        .then((b) => {
-          prev = b;
-          return Brightness.setBrightnessAsync(1);
+      let active = true;
+      // Dimuat saat dipakai (bukan import di atas): expo-router memuat semua
+      // layar saat start, jadi modul native yang hilang di build lama tidak
+      // boleh membuat app crash — cukup fitur kecerahan yang tidak jalan.
+      loadBrightness()
+        .then(async (B) => {
+          if (!B || !active) return;
+          prev = await B.getBrightnessAsync();
+          await B.setBrightnessAsync(1);
         })
         .catch(() => {});
       return () => {
-        if (prev != null) Brightness.setBrightnessAsync(prev).catch(() => {});
+        active = false;
+        if (prev != null) loadBrightness().then((B) => B?.setBrightnessAsync(prev!)).catch(() => {});
       };
     }, []),
   );
