@@ -20,8 +20,19 @@ export const BRAND_GRADIENT = 'linear-gradient(135deg, #F97316 0%, #C2410C 100%)
 /** Mode gelap: nada sedikit lebih gelap supaya tidak menyilaukan. */
 export const BRAND_GRADIENT_DARK = 'linear-gradient(135deg, #EA580C 0%, #9A3412 100%)';
 
+/**
+ * iOS: gradient native (`experimental_backgroundImage`) DIMATIKAN sejak 2.4.2 —
+ * dicurigai penyebab crash saat start di 2.4.1 (layer gradient dibuat saat view
+ * belum punya ukuran). iOS memakai warna solid `bg-brand-500` dari className.
+ */
+export const GRADIENT_ENABLED = Platform.OS !== 'ios';
+
 const toStyle = (g: string): ViewStyle =>
-  (Platform.OS === 'web' ? { backgroundImage: g } : { experimental_backgroundImage: g }) as ViewStyle;
+  (!GRADIENT_ENABLED
+    ? {}
+    : Platform.OS === 'web'
+      ? { backgroundImage: g }
+      : { experimental_backgroundImage: g }) as ViewStyle;
 const LIGHT_STYLE = toStyle(BRAND_GRADIENT);
 const DARK_STYLE = toStyle(BRAND_GRADIENT_DARK);
 
@@ -34,7 +45,7 @@ const HAS_BRAND_BG = /(^|\s)bg-brand-(500|600)(\s|$)/;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function gx(className: string | false | null | undefined, style?: any): { className?: string; style?: any } {
   const cls = className || undefined;
-  if (!cls || !HAS_BRAND_BG.test(cls)) return { className: cls, style };
+  if (!GRADIENT_ENABLED || !cls || !HAS_BRAND_BG.test(cls)) return { className: cls, style };
   if (typeof style === 'function') {
     // Pressable: style={({ pressed }) => ...}
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
