@@ -33,6 +33,7 @@ import { LyricsView } from '@/components/worship/LyricsView';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
+import { openShareCard } from '@/features/share/shareStore';
 
 const KEEP_AWAKE_TAG = 'ecc-worship-karaoke';
 
@@ -88,7 +89,15 @@ export default function WorshipPlayerScreen() {
               <ALargeSmall size={22} color={fg} />
             </Pressable>
           ) : (
-            <Pressable onPress={() => Share.share({ message: `${track.judul} — ECC Worship\n${shareUrlOf(track.id)}` })} className="w-10 h-10 items-center justify-center">
+            <Pressable onPress={() =>
+                openShareCard({
+                  kind: 'song',
+                  title: track.judul,
+                  subtitle: track.albumTipe === 'SINGLE' ? 'ECC Worship · Single' : `ECC Worship · ${track.albumJudul}`,
+                  coverUrl: track.coverUrl,
+                  caption: `${track.judul} — ECC Worship\n${shareUrlOf(track.id)}`,
+                })
+              } className="w-10 h-10 items-center justify-center">
               <Share2 size={20} color={fg} />
             </Pressable>
           )}

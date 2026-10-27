@@ -50,7 +50,8 @@ import { GuestProfileView } from '@/components/GuestProfileView';
 import { NotificationBell } from '@/components/NotificationBell';
 import { useAuthStore } from '@/stores/auth.store';
 import { useToast } from '@/components/ui/Toast';
-import { shareElsApp } from '@/utils/shareApp';
+import { buildShareAppMessage, shareElsApp } from '@/utils/shareApp';
+import { openShareCard } from '@/features/share/shareStore';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
@@ -296,12 +297,16 @@ function ProfileTabAuthenticated() {
               label={t('share_app.menu')}
               sub={t('share_app.menu_sub')}
               onPress={async () => {
-                try {
-                  const r = await shareElsApp(user?.namaLengkap);
-                  if (r === 'copied') showToast(t('share_app.copied'), 'success');
-                } catch {
-                  showToast(t('error.generic'), 'error');
+                if (Platform.OS === 'web') {
+                  try {
+                    const r = await shareElsApp(user?.namaLengkap);
+                    if (r === 'copied') showToast(t('share_app.copied'), 'success');
+                  } catch {
+                    showToast(t('error.generic'), 'error');
+                  }
+                  return;
                 }
+                openShareCard({ kind: 'app', caption: buildShareAppMessage(user?.namaLengkap) });
               }}
               isLast
             />

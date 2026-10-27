@@ -27,6 +27,8 @@ import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
+import { ShareCardHost } from '@/features/share/shareStore';
+import { initNotificationHandler } from '@/features/bible365/reminder';
 import { ForceUpdateModal } from '@/components/ForceUpdateModal';
 import { SoftUpdatePrompt } from '@/components/SoftUpdatePrompt';
 import { MiniPlayer } from '@/components/worship/MiniPlayer';
@@ -112,6 +114,11 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
+  // Notifikasi lokal (pengingat Bible 365) tampil juga saat app terbuka — dimuat malas, aman bila modul belum ada.
+  useEffect(() => {
+    void initNotificationHandler();
+  }, []);
+
   useEffect(() => {
     Promise.all([
       hydrateAuth(),
@@ -173,6 +180,7 @@ export default function RootLayout() {
             <SoftUpdatePrompt />
           </ForceUpdateGate>
         </MaintenanceGate>
+        <ShareCardHost />
         <ToastContainer />
         </ThemeRoot>
       </PersistQueryClientProvider>

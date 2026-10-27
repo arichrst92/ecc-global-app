@@ -17,6 +17,7 @@ import { SongActionSheet } from '@/components/worship/SongActionSheet';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { openShareCard } from '@/features/share/shareStore';
 
 export default function WorshipAlbumScreen() {
   const { t } = useTranslation();
@@ -66,7 +67,16 @@ export default function WorshipAlbumScreen() {
           </Pressable>
           {tracks[0] ? (
             <Pressable
-              onPress={() => Share.share({ message: `${album.judul} — ECC Worship\n${shareUrlOf(tracks[0]!.id)}` })}
+              onPress={() =>
+                openShareCard({
+                  kind: 'album',
+                  title: album.judul,
+                  subtitle: t('sharecard.album_sub', { n: tracks.length }),
+                  coverUrl: album.coverUrl,
+                  tracks: tracks.map((x) => x.judul),
+                  caption: `${album.judul} — ECC Worship\n${shareUrlOf(tracks[0]!.id)}`,
+                })
+              }
               className="w-10 h-10 items-center justify-center"
             >
               <Share2 size={20} color={nc('#171717')} />

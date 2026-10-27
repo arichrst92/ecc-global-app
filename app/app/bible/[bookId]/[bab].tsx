@@ -22,6 +22,10 @@ import {
 } from 'lucide-react-native';
 
 import { useToast } from '@/components/ui/Toast';
+import { openShareCard } from '@/features/share/shareStore';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { CheckCircle2 } from 'lucide-react-native';
+import { BIBLE365_KEY, markBible365Read } from '@/api/bible365';
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
 import { bookName, useBookNames } from '@/utils/bibleNames';
 import {
@@ -52,7 +56,10 @@ import { nc } from '@/theme/ThemeRoot';
 export default function BibleChapterScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const params = useLocalSearchParams<{ bookId: string; bab: string }>();
+  const params = useLocalSearchParams<{ bookId: string; bab: string; b365?: string }>();
+  // Dibuka dari Bible 365 → tampil tombol "Tandai selesai dibaca".
+  const fromB365 = params.b365 === '1';
+  const b365q = fromB365 ? '?b365=1' : '';
   const bookId = Number(params.bookId);
   const bab = Number(params.bab);
   const book = BIBLE_BOOK_BY_ID.get(bookId);
@@ -104,6 +111,19 @@ export default function BibleChapterScreen() {
     };
   }, [selectedVersionCode, book, bab]);
 
+  // Bible 365 — hook harus di atas early return.
+  const qcB365 = useQueryClient();
+  const [b365Done, setB365Done] = useState(false);
+  useEffect(() => setB365Done(false), [bookId, bab]);
+  const markRead = useMutation({
+    mutationFn: () => markBible365Read(bookId, bab, true),
+    onSuccess: () => {
+      setB365Done(true);
+      void qcB365.invalidateQueries({ queryKey: BIBLE365_KEY });
+    },
+    onError: () => showToast(t('error.generic'), 'error'),
+  });
+
   if (!book) {
     return (
       <View className="flex-1 bg-neutral-50 items-center justify-center">
@@ -117,19 +137,19 @@ export default function BibleChapterScreen() {
 
   function goPrev() {
     if (bab > 1) {
-      router.replace(`/bible/${book!.id}/${bab - 1}`);
+      router.replace(`/bible/${book!.id}/${bab - 1}${b365q}`);
     } else if (book!.id > 1) {
       const prevBook = BIBLE_BOOK_BY_ID.get(book!.id - 1);
-      if (prevBook) router.replace(`/bible/${prevBook.id}/${prevBook.totalBab}`);
+      if (prevBook) router.replace(`/bible/${prevBook.id}/${prevBook.totalBab}${b365q}`);
     }
   }
 
   function goNext() {
     if (bab < book!.totalBab) {
-      router.replace(`/bible/${book!.id}/${bab + 1}`);
+      router.replace(`/bible/${book!.id}/${bab + 1}${b365q}`);
     } else if (book!.id < 66) {
       const nextBook = BIBLE_BOOK_BY_ID.get(book!.id + 1);
-      if (nextBook) router.replace(`/bible/${nextBook.id}/1`);
+      if (nextBook) router.replace(`/bible/${nextBook.id}/1${b365q}`);
     }
   }
 
@@ -158,8 +178,12 @@ export default function BibleChapterScreen() {
 
   function shareVerse(verse: BibleVerse) {
     const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
-    Share.share({
-      message: `"${verse.teks}"\n\n— ${bookName(book!, selectedVersionCode)} ${bab}:${verse.nomor} (${versionLabel})\n\n${t('common.share_signature')}`,
+    openShareCard({
+      kind: 'verse',
+      label: t('sharecard.label_bible'),
+      text: verse.teks,
+      reference: `${bookName(book!, selectedVersionCode)} ${bab}:${verse.nomor} · ${versionLabel}`,
+      caption: `"${verse.teks}"\n\n— ${bookName(book!, selectedVersionCode)} ${bab}:${verse.nomor} (${versionLabel})\n\n${t('common.share_signature')}`,
     });
   }
 
@@ -228,7 +252,7 @@ export default function BibleChapterScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: fromB365 ? 160 : 100 }}
       >
         {isLoadingChapter ? (
           <View className="items-center py-16">
@@ -304,6 +328,20 @@ export default function BibleChapterScreen() {
 
       {/* Bottom prev/next nav */}
       <SafeAreaView edges={['bottom']} className="absolute left-0 right-0 bottom-0 bg-card border-t border-neutral-200">
+        {fromB365 && !isGuest ? (
+          <View className="px-4 pt-2">
+            <Pressable
+              onPress={() => !b365Done && markRead.mutate()}
+              disabled={markRead.isPending || b365Done}
+              className={`flex-row items-center justify-center gap-2 py-2.5 rounded-xl border ${b365Done ? 'bg-emerald-50 border-emerald-200' : 'bg-brand-50 border-brand-200'}`}
+            >
+              <CheckCircle2 size={16} color={b365Done ? '#059669' : '#EA580C'} />
+              <Text className={`text-sm font-bold ${b365Done ? 'text-emerald-700' : 'text-brand-700'}`}>
+                {b365Done ? t('b365.chapter_done') : t('b365.mark_chapter')}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
         <View className="flex-row px-4 py-2">
           <Pressable
             onPress={goPrev}

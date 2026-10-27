@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +15,8 @@ import { buildRenunganShareUrl } from '@/utils/share';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { ShareCardModal } from '@/features/share/ShareCardModal';
+import { ArticleShareCard, EventShareCard } from '@/features/share/cards';
 
 export default function RenunganDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -62,6 +64,8 @@ export default function RenunganDetailScreen() {
     };
   }, [item, listQuery.data]);
 
+  const [share, setShare] = useState<{ caption: string; badge: string | null } | null>(null);
+
   async function handleShare() {
     if (!item) return;
     try {
@@ -83,10 +87,7 @@ export default function RenunganDetailScreen() {
       parts.push(buildRenunganShareUrl(item.slug));
       parts.push('');
       parts.push(t('common.share_signature'));
-      await Share.share({
-        title: item.judul,
-        message: parts.join('\n'),
-      });
+      setShare({ caption: parts.join('\n'), badge: dateStr || null });
     } catch {
       // user cancel — ignore
     }
@@ -94,6 +95,24 @@ export default function RenunganDetailScreen() {
 
   return (
     <View className="flex-1 bg-card">
+      {item ? (
+        <ShareCardModal
+          visible={!!share}
+          onClose={() => setShare(null)}
+          caption={share?.caption ?? ''}
+          renderCard={(theme) => (
+            <ArticleShareCard
+              theme={theme}
+              label={t('sharecard.label_renungan')}
+              cta={t('sharecard.cta_read')}
+              imageUrl={item.heroImageUrl}
+              badge={share?.badge}
+              title={item.judul}
+              excerpt={item.ayatAlkitab || item.ringkasan}
+            />
+          )}
+        />
+      ) : null}
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Floating header */}
         <View className="absolute top-0 left-0 right-0 z-10" pointerEvents="box-none">

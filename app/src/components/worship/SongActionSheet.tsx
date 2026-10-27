@@ -11,6 +11,7 @@ import { useWorshipPlayer } from '@/stores/worship-player.store';
 import { useToast } from '@/components/ui/Toast';
 import { Cover } from './Cover';
 import { nc } from '@/theme/ThemeRoot';
+import { openShareCard } from '@/features/share/shareStore';
 
 export function SongActionSheet({ track, onClose }: { track: WorshipTrack | null; onClose: () => void }) {
   const { t } = useTranslation();
@@ -90,7 +91,18 @@ export function SongActionSheet({ track, onClose }: { track: WorshipTrack | null
         <Row
           icon={<Share2 size={20} color={nc('#404040')} />}
           label={t('worship.share')}
-          onPress={run(() => Share.share({ message: `${track.judul} — ECC Worship\n${shareUrlOf(track.id)}` }))}
+          onPress={run(() =>
+            openShareCard(
+              {
+                kind: 'song',
+                title: track.judul,
+                subtitle: track.albumTipe === 'SINGLE' ? 'ECC Worship · Single' : `ECC Worship · ${track.albumJudul}`,
+                coverUrl: track.coverUrl,
+                caption: `${track.judul} — ECC Worship\n${shareUrlOf(track.id)}`,
+              },
+              450,
+            ),
+          )}
         />
       </View>
     </Modal>

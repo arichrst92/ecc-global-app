@@ -29,6 +29,8 @@ import type { EventParticipation } from '@/types/event';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { ShareCardModal } from '@/features/share/ShareCardModal';
+import { ArticleShareCard, EventShareCard } from '@/features/share/cards';
 
 export default function EventDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -73,6 +75,8 @@ export default function EventDetailScreen() {
     void qcForList.invalidateQueries({ queryKey: ['event', 'home-preview'] });
   }, [notFound, qcForList]);
 
+  const [shareCaption, setShareCaption] = useState<string | null>(null);
+
   function handleShare() {
     if (!event) return;
     const lines: string[] = [event.judul];
@@ -103,7 +107,7 @@ export default function EventDetailScreen() {
     lines.push(buildEventShareUrl(event.id));
     lines.push('');
     lines.push(t('common.share_signature'));
-    Share.share({ title: event.judul, message: lines.join('\n') });
+    setShareCaption(lines.join('\n'));
   }
 
   const addParticipation = useEventFlowStore((s) => s.addParticipation);
@@ -241,6 +245,26 @@ export default function EventDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
+      {event ? (
+        <ShareCardModal
+          visible={shareCaption != null}
+          onClose={() => setShareCaption(null)}
+          caption={shareCaption ?? ''}
+          renderCard={(theme) => (
+            <EventShareCard
+              theme={theme}
+              label={t('sharecard.label_event')}
+              imageUrl={event.heroImageUrl}
+              title={event.judul}
+              date={event.tanggalMulai ? formatDate(event.tanggalMulai, lang) : ''}
+              time={event.jamMulai ? `${event.jamMulai}${event.jamSelesai ? `–${event.jamSelesai}` : ''}` : null}
+              location={event.lokasi}
+              cabang={event.cabang?.nama ?? null}
+              cta={t('sharecard.cta_event')}
+            />
+          )}
+        />
+      ) : null}
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}

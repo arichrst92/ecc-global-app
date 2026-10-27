@@ -21,11 +21,11 @@ export const BRAND_GRADIENT = 'linear-gradient(135deg, #F97316 0%, #C2410C 100%)
 export const BRAND_GRADIENT_DARK = 'linear-gradient(135deg, #EA580C 0%, #9A3412 100%)';
 
 /**
- * iOS: gradient native (`experimental_backgroundImage`) DIMATIKAN sejak 2.4.2 —
- * dicurigai penyebab crash saat start di 2.4.1 (layer gradient dibuat saat view
- * belum punya ukuran). iOS memakai warna solid `bg-brand-500` dari className.
+ * Gradient aktif di semua platform. (2.4.2 sempat mematikan iOS karena dicurigai
+ * crash — ternyata penyebab crash 2.4.1 adalah teks izin Reminders yang hilang.
+ * Diaktifkan lagi di 2.5.0; set false di sini bila perlu mematikan cepat.)
  */
-export const GRADIENT_ENABLED = Platform.OS !== 'ios';
+export const GRADIENT_ENABLED = true;
 
 const toStyle = (g: string): ViewStyle =>
   (!GRADIENT_ENABLED

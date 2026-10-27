@@ -21,6 +21,11 @@ import {
 } from 'lucide-react-native';
 
 import { useBibleStore } from '@/stores/bible.store';
+import { openShareCard } from '@/features/share/shareStore';
+import { useQuery } from '@tanstack/react-query';
+import { Flame } from 'lucide-react-native';
+import { BIBLE365_KEY, getBible365 } from '@/api/bible365';
+import { useAuthStore } from '@/stores/auth.store';
 import {
   BIBLE_BOOK_BY_ID,
   NT_BOOKS,
@@ -83,13 +88,21 @@ export default function BibleHomeScreen() {
   }, [selectedVersionCode, verseOfDayBase]);
 
   const [tab, setTab] = useState<Testament>('NT');
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const b365Q = useQuery({ queryKey: BIBLE365_KEY, queryFn: getBible365, enabled: !isGuest, staleTime: 30_000 });
+  const b365 = b365Q.data?.plan ?? null;
 
   function shareVerse() {
     const book = BIBLE_BOOK_BY_ID.get(verseOfDay.bookId);
     if (!book) return;
     const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
-    Share.share({
-      message: `"${verseOfDay.teks}"\n\n— ${names.name(book)} ${verseOfDay.bab}:${verseOfDay.ayat} (${versionLabel})\n\n${t('common.share_signature')}`,
+    const reference = `${names.name(book)} ${verseOfDay.bab}:${verseOfDay.ayat} · ${versionLabel}`;
+    openShareCard({
+      kind: 'verse',
+      label: t('sharecard.label_verse_of_day'),
+      text: verseOfDay.teks,
+      reference,
+      caption: `"${verseOfDay.teks}"\n\n— ${names.name(book)} ${verseOfDay.bab}:${verseOfDay.ayat} (${versionLabel})\n\n${t('common.share_signature')}`,
     });
   }
 
@@ -148,6 +161,45 @@ export default function BibleHomeScreen() {
             })}
           </View>
         </View>
+
+        {/* Bible 365 — program baca 365 hari (login saja) */}
+        {!isGuest ? (
+          <Pressable
+            onPress={() => router.push('/bible365' as never)}
+            className="rounded-2xl p-4 mb-4 border border-brand-200 bg-brand-50"
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2">
+                <BookOpen size={16} color="#EA580C" />
+                <Text className="text-sm font-bold text-brand-700">Bible 365</Text>
+              </View>
+              {b365 ? (
+                <Text className="text-xs font-semibold text-brand-700">
+                  {t('b365.day_of', { day: b365.today })}
+                </Text>
+              ) : null}
+            </View>
+            {b365 ? (
+              <>
+                <View className="h-2 rounded-full bg-brand-100 mt-3 overflow-hidden">
+                  <View {...gx('h-full rounded-full bg-brand-500', { width: `${Math.min(100, b365.percent)}%` })} />
+                </View>
+                <View className="flex-row justify-between mt-1.5">
+                  <Text className="text-[11px] text-brand-800">{t('b365.percent', { p: b365.percent })}</Text>
+                  <View className="flex-row items-center gap-1">
+                    <Flame size={12} color="#C2410C" />
+                    <Text className="text-[11px] text-brand-800">{t('b365.streak_n', { n: b365.streak })}</Text>
+                  </View>
+                </View>
+                <View {...gx('mt-3 rounded-xl py-2 items-center bg-brand-500')}>
+                  <Text className="text-sm font-bold text-white">{t('b365.read_today')}</Text>
+                </View>
+              </>
+            ) : (
+              <Text className="text-xs text-neutral-600 mt-2 leading-relaxed">{t('b365.card_cta')}</Text>
+            )}
+          </Pressable>
+        ) : null}
 
         {/* Verse of day */}
         <View className="bg-card rounded-2xl p-5 border border-brand-100 mb-4">
