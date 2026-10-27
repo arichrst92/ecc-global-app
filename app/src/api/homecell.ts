@@ -178,6 +178,8 @@ export function setHomecellLokasi(homecellId: string, mapsUrl: string | null) {
 export type HomecellMateriSchedule = {
   id: string;
   tanggal: string;
+  jamMulai?: string | null;
+  jamSelesai?: string | null;
   lokasi: string;
   catatan: string | null;
   files: HomecellScheduleFile[];

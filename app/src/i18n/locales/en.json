@@ -1074,7 +1074,11 @@
     "schedule_bulk_empty": "All members have been recorded as attended.",
     "schedule_bulk_result_all_success": "✓ {{count}} members successfully recorded",
     "schedule_bulk_result_partial": "{{success}} succeeded, {{failed}} failed — try again for failed ones",
-    "schedule_bulk_result_all_failed": "All failed. Check your internet connection."
+    "schedule_bulk_result_all_failed": "All failed. Check your internet connection.",
+    "schedule_field_jam": "Time",
+    "schedule_jam_mulai": "Start",
+    "schedule_jam_selesai": "End",
+    "schedule_jam_invalid": "End time must be after start time."
   },
   "jemaat": {
     "detail_title": "Member Profile",

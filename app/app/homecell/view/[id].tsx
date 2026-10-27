@@ -49,6 +49,7 @@ import {
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { jamRange } from '@/utils/jamRange';
 
 export default function HomecellViewScreen() {
   const insets = useSafeAreaInsets();
@@ -280,7 +281,10 @@ export default function HomecellViewScreen() {
                   <View key={s.id} className="flex-row gap-3">
                     <CalendarDays size={16} color="#EA580C" />
                     <View className="flex-1">
-                      <Text className="text-sm font-semibold text-neutral-900">{fmtDate(s.tanggal)}</Text>
+                      <Text className="text-sm font-semibold text-neutral-900">
+                        {fmtDate(s.tanggal)}
+                        {s.jamMulai ? ` · ${jamRange(s.jamMulai, s.jamSelesai)}` : ''}
+                      </Text>
                       <Text className="text-xs text-neutral-500 mt-0.5">{s.lokasi}</Text>
                       {s.catatan ? <Text className="text-xs text-neutral-500 mt-0.5">{s.catatan}</Text> : null}
                     </View>
@@ -305,7 +309,8 @@ export default function HomecellViewScreen() {
                   {[...(materiQ.data?.upcoming ?? []), ...(materiQ.data?.past ?? [])].map((sc) => (
                     <View key={sc.id}>
                       <Text className="text-xs font-semibold text-neutral-700 mb-2">
-                        {fmtDate(sc.tanggal)} · {sc.lokasi}
+                        {fmtDate(sc.tanggal)}
+                        {sc.jamMulai ? ` · ${jamRange(sc.jamMulai, sc.jamSelesai)}` : ''} · {sc.lokasi}
                       </Text>
                       <MaterialList files={sc.files} />
                     </View>

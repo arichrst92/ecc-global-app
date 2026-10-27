@@ -106,7 +106,7 @@ export type HomecellListItem = {
 };
 
 /** Pertemuan berikutnya (overview). */
-export type HomecellNextSchedule = { id: string; tanggal: string; lokasi: string; catatan: string | null } | null;
+export type HomecellNextSchedule = { id: string; tanggal: string; jamMulai?: string | null; jamSelesai?: string | null; lokasi: string; catatan: string | null } | null;
 
 export type HomecellOverview = {
   role: 'LEADER' | 'MEMBER' | 'NONE';
@@ -119,7 +119,7 @@ export type HomecellOverview = {
 /** Detail read-only — GET /admin/me/homecell/:id */
 export type HomecellPublicDetail = Omit<HomecellListItem, 'picJemaat'> & {
   picJemaat: { id: string; namaLengkap: string; fotoUrl: string | null; noHp: string | null } | null;
-  upcomingSchedules: { id: string; tanggal: string; lokasi: string; catatan: string | null }[];
+  upcomingSchedules: { id: string; tanggal: string; jamMulai?: string | null; jamSelesai?: string | null; lokasi: string; catatan: string | null }[];
   /** Hanya terisi kalau user anggota / leader homecell ini. */
   members: {
     id: string;

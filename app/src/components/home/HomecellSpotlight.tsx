@@ -18,6 +18,7 @@ import { useMyHomecellOverview } from '@/hooks/useHomecell';
 import type { HomecellListItem, HomecellNextSchedule } from '@/types/homecell';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { jamRange } from '@/utils/jamRange';
 
 export function HomecellSpotlight() {
   const { t } = useTranslation();
@@ -202,7 +203,7 @@ function SpotCard({
             <>
               <Text className="text-sm font-bold text-neutral-900 mt-0.5">
                 {nextDate}
-                {item.jam ? ` · ${item.jam}` : ''}
+                {next.jamMulai ? ` · ${jamRange(next.jamMulai, next.jamSelesai)}` : item.jam ? ` · ${item.jam}` : ''}
               </Text>
               <View className="flex-row items-center gap-1 mt-0.5">
                 <MapPin size={11} color={nc('#737373')} />

@@ -11,6 +11,9 @@ export type HomecellSchedule = {
   homecellId: string;
   /** YYYY-MM-DD */
   tanggal: string;
+  /** "HH:MM" — null untuk jadwal lama. */
+  jamMulai?: string | null;
+  jamSelesai?: string | null;
   lokasi: string;
   catatan: string | null;
   createdBy: string;
@@ -62,6 +65,8 @@ export type HomecellScheduleDetail = HomecellSchedule & {
 
 export type CreateSchedulePayload = {
   tanggal: string;
+  jamMulai?: string | null;
+  jamSelesai?: string | null;
   lokasi: string;
   catatan?: string;
 };

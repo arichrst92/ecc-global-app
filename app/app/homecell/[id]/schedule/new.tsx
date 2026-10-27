@@ -1,6 +1,6 @@
 /**
  * Create Homecell Schedule form — PIC only.
- * Form: tanggal (date picker) + lokasi (required) + catatan (optional).
+ * Form: tanggal (date picker) + jam mulai–selesai + lokasi (required) + catatan (optional).
  *
  * BE endpoint POST /admin/homecell/:id/schedule masih pending — error 404
  * akan toast "BE belum ready" message via generic error handler.
@@ -19,7 +19,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CalendarPlus, MapPin } from 'lucide-react-native';
+import { ArrowLeft, CalendarPlus, Clock, MapPin } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Button } from '@/components/ui/Button';
@@ -28,6 +28,16 @@ import { useCreateSchedule } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc, isDark } from '@/theme/ThemeRoot';
+
+function toHm(d: Date): string {
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+function fromHm(hm: string): Date {
+  const [h, m] = hm.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h ?? 19, m ?? 0, 0, 0);
+  return d;
+}
 
 function toYmd(d: Date): string {
   const y = d.getFullYear();
@@ -47,6 +57,11 @@ export default function NewScheduleScreen() {
   const [showPicker, setShowPicker] = useState(Platform.OS === 'ios');
   const [lokasi, setLokasi] = useState('');
   const [catatan, setCatatan] = useState('');
+  // Jam pertemuan (jam dinding cabang) — default 19:00–21:00.
+  const [jamMulai, setJamMulai] = useState('19:00');
+  const [jamSelesai, setJamSelesai] = useState('21:00');
+  const [timeField, setTimeField] = useState<null | 'mulai' | 'selesai'>(null);
+  const jamValid = jamSelesai > jamMulai;
 
   const mutation = useCreateSchedule(id);
 
@@ -55,9 +70,15 @@ export default function NewScheduleScreen() {
       showToast(t('homecell.schedule_field_lokasi') + ' required', 'error');
       return;
     }
+    if (!jamValid) {
+      showToast(t('homecell.schedule_jam_invalid'), 'error');
+      return;
+    }
     mutation.mutate(
       {
         tanggal: toYmd(tanggal),
+        jamMulai,
+        jamSelesai,
         lokasi: lokasi.trim(),
         catatan: catatan.trim() || undefined,
       },
@@ -164,6 +185,79 @@ export default function NewScheduleScreen() {
             />
           ) : null}
 
+          {/* Jam mulai – selesai */}
+          <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-3">
+            {t('homecell.schedule_field_jam')}
+          </Text>
+          <View className="flex-row gap-3 mb-2">
+            {(['mulai', 'selesai'] as const).map((f) => {
+              const val = f === 'mulai' ? jamMulai : jamSelesai;
+              const active = timeField === f;
+              return (
+                <View key={f} className="flex-1">
+                  {Platform.OS === 'web' ? (
+                    <View className="bg-card rounded-2xl p-3 border border-neutral-200">
+                      <Text className="text-[11px] text-neutral-500 mb-1">
+                        {t(f === 'mulai' ? 'homecell.schedule_jam_mulai' : 'homecell.schedule_jam_selesai')}
+                      </Text>
+                      {createElement('input', {
+                        type: 'time',
+                        value: val,
+                        onChange: (e: { target: { value: string } }) => {
+                          const v = e.target.value;
+                          if (v) (f === 'mulai' ? setJamMulai : setJamSelesai)(v.slice(0, 5));
+                        },
+                        style: { fontSize: 16, border: 'none', background: 'transparent', padding: 0 },
+                      })}
+                    </View>
+                  ) : (
+                    <Pressable
+                      onPress={() => setTimeField(active ? null : f)}
+                      className={`bg-card rounded-2xl p-3 border flex-row items-center gap-2 ${active ? 'border-brand-400' : 'border-neutral-200'}`}
+                    >
+                      <Clock size={18} color="#EA580C" />
+                      <View>
+                        <Text className="text-[11px] text-neutral-500">
+                          {t(f === 'mulai' ? 'homecell.schedule_jam_mulai' : 'homecell.schedule_jam_selesai')}
+                        </Text>
+                        <Text className="text-base font-semibold text-neutral-900">{val}</Text>
+                      </View>
+                    </Pressable>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+          {!jamValid ? (
+            <Text className="text-xs text-red-600 mb-2">{t('homecell.schedule_jam_invalid')}</Text>
+          ) : null}
+          {Platform.OS !== 'web' && timeField ? (
+            <DateTimePicker
+              themeVariant={isDark() ? 'dark' : 'light'}
+              value={fromHm(timeField === 'mulai' ? jamMulai : jamSelesai)}
+              mode="time"
+              is24Hour
+              minuteInterval={5}
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={(e, d) => {
+                const field = timeField;
+                if (Platform.OS !== 'ios') setTimeField(null);
+                if (e.type === 'dismissed' || !d || !field) return;
+                const hm = toHm(d);
+                if (field === 'mulai') {
+                  setJamMulai(hm);
+                  // Geser jam selesai ikut maju bila jadi tidak valid (+2 jam).
+                  if (jamSelesai <= hm) {
+                    const end = new Date(d.getTime() + 2 * 60 * 60 * 1000);
+                    setJamSelesai(end.getDate() === d.getDate() ? toHm(end) : '23:55');
+                  }
+                } else {
+                  setJamSelesai(hm);
+                }
+              }}
+            />
+          ) : null}
+
           {/* Lokasi */}
           <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 mt-3">
             {t('homecell.schedule_field_lokasi')}
@@ -206,7 +300,7 @@ export default function NewScheduleScreen() {
               label={t('homecell.schedule_save_btn')}
               onPress={handleSave}
               loading={mutation.isPending}
-              disabled={lokasi.trim().length === 0 || mutation.isPending}
+              disabled={lokasi.trim().length === 0 || !jamValid || mutation.isPending}
               fullWidth
               size="lg"
             />

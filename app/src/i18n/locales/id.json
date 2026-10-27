@@ -1074,7 +1074,11 @@
     "schedule_bulk_empty": "Semua anggota sudah tercatat hadir.",
     "schedule_bulk_result_all_success": "✓ {{count}} anggota berhasil dicatat hadir",
     "schedule_bulk_result_partial": "{{success}} berhasil, {{failed}} gagal — coba lagi untuk yang gagal",
-    "schedule_bulk_result_all_failed": "Semua gagal dicatat. Cek koneksi internet."
+    "schedule_bulk_result_all_failed": "Semua gagal dicatat. Cek koneksi internet.",
+    "schedule_field_jam": "Jam",
+    "schedule_jam_mulai": "Mulai",
+    "schedule_jam_selesai": "Selesai",
+    "schedule_jam_invalid": "Jam selesai harus setelah jam mulai."
   },
   "jemaat": {
     "detail_title": "Profil Jemaat",

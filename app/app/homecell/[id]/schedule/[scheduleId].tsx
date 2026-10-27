@@ -29,6 +29,7 @@ import {
   CheckCircle2,
   CheckSquare,
   ListChecks,
+  Clock,
   MapPin,
   ScanLine,
   Square,
@@ -58,6 +59,7 @@ import type { HomecellAttendance } from '@/types/homecellSchedule';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { jamRange } from '@/utils/jamRange';
 
 export default function ScheduleDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -293,6 +295,12 @@ export default function ScheduleDetailScreen() {
             <Text className="text-white text-xl font-bold">
               {formatDateWithDay(schedule.tanggal, lang)}
             </Text>
+            {schedule.jamMulai ? (
+              <View className="flex-row items-center gap-2 mt-1.5">
+                <Clock size={14} color="#fff8" />
+                <Text className="text-white/90 text-sm">{jamRange(schedule.jamMulai, schedule.jamSelesai)}</Text>
+              </View>
+            ) : null}
             <View className="flex-row items-center gap-2 mt-1.5">
               <MapPin size={14} color="#fff8" />
               <Text className="text-white/90 text-sm flex-1" numberOfLines={2}>

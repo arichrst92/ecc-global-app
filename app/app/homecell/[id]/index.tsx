@@ -539,7 +539,7 @@ function ScheduleTableRow({
     day: 'numeric',
     month: 'short',
   });
-  const dateLabel = `${dayShort}, ${dateShort}`;
+  const dateLabel = `${dayShort}, ${dateShort}${schedule.jamMulai ? ` · ${schedule.jamMulai}` : ''}`;
   const ratioPct =
     memberCount > 0
       ? Math.round((schedule.attendanceCount / memberCount) * 100)
