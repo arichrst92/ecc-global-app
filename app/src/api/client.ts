@@ -1,6 +1,20 @@
 import { env } from '@/config/env';
 import { ApiError, type ApiResponse, type ApiErrorBody } from '@/types/api';
 import { useAuthStore } from '@/stores/auth.store';
+import { recordApiSample } from '@/features/analytics/tracker';
+
+/** fetch + catat waktu respons (sampel analitik anonim). Gagal jaringan = status 0. */
+async function timedFetch(url: string, init: RequestInit): Promise<Response> {
+  const t0 = Date.now();
+  try {
+    const res = await fetch(url, init);
+    recordApiSample(init.method ?? 'GET', url, Date.now() - t0, res.status);
+    return res;
+  } catch (e) {
+    recordApiSample(init.method ?? 'GET', url, Date.now() - t0, 0);
+    throw e;
+  }
+}
 
 type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown;
@@ -63,7 +77,7 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
     reqHeaders['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${env.apiBaseUrl}${path}`, {
+  const res = await timedFetch(`${env.apiBaseUrl}${path}`, {
     ...rest,
     headers: reqHeaders,
     body: body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
@@ -78,7 +92,7 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
       const newToken = await tryRefresh();
       if (newToken) {
         reqHeaders['Authorization'] = `Bearer ${newToken}`;
-        const retry = await fetch(`${env.apiBaseUrl}${path}`, {
+        const retry = await timedFetch(`${env.apiBaseUrl}${path}`, {
           ...rest,
           headers: reqHeaders,
           body:

@@ -23,6 +23,7 @@ import {
   type PrivacySettings,
 } from '@/api/privacy';
 import { goBack } from '@/utils/nav';
+import { AnalyticsToggle } from '@/features/analytics/AnalyticsToggle';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -111,6 +112,8 @@ export default function PrivacyScreen() {
                 <Text className="text-xs text-brand-800 mt-1 leading-5">{t('privacy.intro_body')}</Text>
               </View>
             </View>
+
+            <AnalyticsToggle />
 
             {PRIVACY_FIELDS.map((f) => {
               const sel = settings[f];

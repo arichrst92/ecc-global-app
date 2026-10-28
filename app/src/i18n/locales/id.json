@@ -1873,7 +1873,9 @@
     "footnote": "PIC homecell dan PIC area Anda tetap dapat melihat data Anda untuk keperluan penggembalaan. Tim gereja (admin) tetap dapat mengakses data jemaat sesuai kewenangannya.",
     "save": "Simpan",
     "saved": "Pengaturan privasi disimpan.",
-    "reset": "Atur ulang"
+    "reset": "Atur ulang",
+    "analytics_title": "Bantu tingkatkan Els App",
+    "analytics_body": "Kirim data penggunaan anonim (halaman yang dibuka dan kecepatan app) untuk tim ECC. Tanpa nama, no HP, atau isi data Anda."
   },
   "reservasi": {
     "btn": "Reservasi",

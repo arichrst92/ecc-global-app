@@ -29,6 +29,7 @@ import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
 import { ShareCardHost } from '@/features/share/shareStore';
 import { initNotificationHandler } from '@/features/bible365/reminder';
+import { initAnalytics, setAnalyticsMode, setAnalyticsServerRate, trackScreen } from '@/features/analytics/tracker';
 import { ForceUpdateModal } from '@/components/ForceUpdateModal';
 import { SoftUpdatePrompt } from '@/components/SoftUpdatePrompt';
 import { MiniPlayer } from '@/components/worship/MiniPlayer';
@@ -208,11 +209,29 @@ function AppEffects() {
     if (pathname) addBreadcrumb(pathname, 'navigation');
   }, [pathname]);
 
+  // Analitik anonim: pola halaman (mis. /event/[id]) tanpa grup (tabs)/(auth).
+  const segments = useSegments() as string[];
+  const screen = '/' + segments.filter((s) => !(s.startsWith('(') && s.endsWith(')')) && s !== 'index').join('/');
+  useEffect(() => {
+    void initAnalytics();
+  }, []);
+  useEffect(() => {
+    trackScreen(screen);
+  }, [screen]);
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const hasToken = useAuthStore((s) => !!s.accessToken);
+  useEffect(() => {
+    setAnalyticsMode(hasToken && !isGuest ? 'login' : 'tamu');
+  }, [hasToken, isGuest]);
+
   // Pre-warm /public/app-config — meskipun field-nya (faceMatchThreshold,
   // lowConfidenceWarnThreshold) sudah dormant pasca face login removal,
   // endpoint masih dipakai untuk telemetrySamplingRate + errorReportingEnabled
   // (general telemetry config). Hook call cukup untuk trigger cache prime.
-  useAppConfig();
+  const appConfig = useAppConfig();
+  useEffect(() => {
+    setAnalyticsServerRate(appConfig.data.telemetrySamplingRate);
+  }, [appConfig.data.telemetrySamplingRate]);
 
   return null;
 }

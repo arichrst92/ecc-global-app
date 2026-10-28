@@ -1874,7 +1874,9 @@
     "footnote": "Your homecell PIC and area PIC can still see your data for pastoral care. The church team (admin) can access member data according to their role.",
     "save": "Save",
     "saved": "Privacy settings saved.",
-    "reset": "Reset"
+    "reset": "Reset",
+    "analytics_title": "Help improve Els App",
+    "analytics_body": "Send anonymous usage data (screens opened and app speed) to the ECC team. No name, phone number, or your content."
   },
   "reservasi": {
     "btn": "Reserve",
