@@ -5,11 +5,13 @@ OTP: 123456
 Or tap "Continue as Guest" on the welcome screen to browse news, devotionals, Bible and schedules without login.
 
 === ABOUT ===
-Els App is the official app of El Shaddai Creative Community (ECC), an Indonesian church network: service reservations and self check-in, events, devotionals, news, Bible, ECC's own worship songs, prayer requests, homecells/groups and family.
+Official app of El Shaddai Creative Community (ECC), an Indonesian church network: service reservations, check-in, events, devotionals, news, Bible, worship songs, prayer, homecells and family.
 
 === WHAT'S NEW IN 2.4.3 ===
 - Bible 365: a personal plan to read the whole Bible (Genesis to Revelation) in 365 days, with daily progress, private reflection notes and an optional daily reminder.
-- Share as image: verses, devotionals, news, events, ECC Worship songs and Bible 365 progress can be shared as a square image via the iOS share sheet.
+- Share as image: verses, devotionals, news, events, songs and Bible 365 progress as a square image via the share sheet.
+- Homecells: meeting times, categories, guest records and PDF reports for leaders.
+- Guest mode: find a nearby homecell and ask to join (name + phone, sent only to that homecell's leader; address shown after approval).
 
 === COMPLIANCE NOTES ===
 1. Donations (3.2.2(iv)): No donation is collected in the app. The Home "Beri" (Give) tile opens https://eccchurch.global/persembahan/... in external Safari via Linking.openURL(). No WebView, no in-app payment, no IAP.
@@ -24,22 +26,23 @@ Els App is the official app of El Shaddai Creative Community (ECC), an Indonesia
 
 6. Camera: only for scanning QR codes. Photo Library: picking a photo to upload (profile, payment proof, covers), and "Save to photos" (add only) for the generated share image.
 
-7. Calendar: "Simpan ke kalender" on a ticket opens the system "New Event" sheet; the user saves it. On iOS 17+ no calendar access is requested; on older iOS the system asks once. The app never reads the user's calendar.
+7. Calendar: "Simpan ke kalender" opens the system "New Event" sheet. iOS 17+ requests no access; older iOS asks once. The calendar is never read.
 
-8. The full-screen ticket raises screen brightness for QR scanning and restores it on exit.
+8. The full-screen ticket raises brightness for QR scanning and restores it on exit.
 
 9. Notifications: only LOCAL notifications for the optional Bible 365 daily reminder (time chosen by the user). Permission is requested only when the user turns the reminder on.
 
 10. Encryption: standard HTTPS/TLS only (ITSAppUsesNonExemptEncryption = false).
 
 === KEY FLOWS ===
-1. ECC Worship: Home → "Worship" tile → album → Play. Lock the screen to verify background playback. Switch "Vokal / Karaoke"; song menu (⋮) → Download.
+1. ECC Worship: Home → "Worship" → album → Play; lock the screen to verify background playback.
 2. Prayer: Home → "Doa" → "Buat Prayer Request" → choose category, write request (optionally anonymous) → Send.
 3. Event: Home → any event → "Daftar" (Register). Paid: bank details → upload proof → admin verification.
 4. Service: Home → "Ibadah" → service → "Reservasi". The ticket appears in the "Reservasi" tab; tap it for the full QR and "Simpan ke kalender". Swipe to self check-in from 15 minutes before start.
 5. Bible 365: Home → "Alkitab" → "Bible 365" → tick the commitment → choose a reminder time (or none) → tick chapters, write a note, tap "Bagikan" to share the progress image.
-6. Delete Account: Profil tab → bottom → "Hapus Akun" → confirm → account deactivated and logged out.
-Worship and Prayer require login (not shown in Guest mode). The Worship tile appears once at least one song is published (songs are published for review).
+6. Guest homecell: Guest mode → Home → "Cari homecell terdekat" → pick a homecell → fill the form → "Kirim permintaan".
+7. Delete Account: Profil tab → bottom → "Hapus Akun" → confirm → account deactivated and logged out.
+Worship and Prayer require login. The Worship tile appears once a song is published (published for review).
 
 === CONTACT ===
 Ari Christian (arichrst@ide.asia)
