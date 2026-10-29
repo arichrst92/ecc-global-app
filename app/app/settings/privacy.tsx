@@ -24,6 +24,8 @@ import {
 } from '@/api/privacy';
 import { goBack } from '@/utils/nav';
 import { AnalyticsToggle } from '@/features/analytics/AnalyticsToggle';
+import { CommPrefsCard } from '@/features/privacy/CommPrefsCard';
+import { DownloadMyDataCard } from '@/features/privacy/DownloadMyDataCard';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -114,6 +116,8 @@ export default function PrivacyScreen() {
             </View>
 
             <AnalyticsToggle />
+            <CommPrefsCard />
+            <DownloadMyDataCard />
 
             {PRIVACY_FIELDS.map((f) => {
               const sel = settings[f];

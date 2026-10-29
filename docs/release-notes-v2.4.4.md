@@ -11,6 +11,8 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
   - Jemaat lama diminta setuju **satu kali** lewat layar "Persetujuan data pribadi", dan lagi setiap kali Version dokumen Indonesia di Portal → Legal diubah.
   - "Saya tidak setuju" → keluar dari akun.
   - Tercatat di server (versi dokumen, waktu, usia, platform) dan terlihat di Portal → detail jemaat.
+- **Unduh data saya** — Pengaturan → Privasi → salinan data pribadi (file JSON), dibagikan lewat menu share / diunduh di web.
+- **Pesan WhatsApp** — Pengaturan → Privasi: jemaat bisa mematikan pengingat ibadah/event, ucapan ulang tahun, dan info aktivitas (OTP tetap dikirim).
 - **Statistik penggunaan anonim** (halaman dibuka, kecepatan app) untuk Portal → Analitik; bisa dimatikan di Profil → Pengaturan → Privasi.
 - Server (sudah live): data wajah dihapus, hapus data permanen di Portal, retensi data otomatis.
 
@@ -19,6 +21,7 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 ```
 Els App 2.4.4:
 • Persetujuan data pribadi saat daftar & untuk pengguna lama
+• Unduh data saya & atur pesan WhatsApp di Privasi
 • Statistik penggunaan anonim (bisa dimatikan di Privasi)
 • Perbaikan & peningkatan stabilitas
 ```
@@ -26,6 +29,7 @@ Els App 2.4.4:
 ```
 Els App 2.4.4:
 • Personal data consent at sign-up and for existing users
+• Download my data & choose WhatsApp messages in Privacy
 • Anonymous usage statistics (can be turned off in Privacy)
 • Fixes & stability improvements
 ```
@@ -36,6 +40,7 @@ Els App 2.4.4:
 Els App 2.4.4 — privasi Anda, lebih jelas.
 
 • Persetujuan data pribadi: baca dan setujui Syarat & Ketentuan serta Kebijakan Privasi terbaru langsung di app
+• Unduh salinan data Anda dan pilih pesan WhatsApp yang ingin diterima, di Pengaturan → Privasi
 • Statistik penggunaan anonim untuk membantu kami memperbaiki app — tanpa nama, nomor HP, atau isi Anda, dan bisa dimatikan di Pengaturan → Privasi
 • Perbaikan & peningkatan stabilitas
 ```
@@ -44,12 +49,13 @@ Els App 2.4.4 — privasi Anda, lebih jelas.
 Els App 2.4.4 — clearer privacy.
 
 • Personal data consent: read and agree to the latest Terms & Conditions and Privacy Policy right in the app
+• Download a copy of your data and choose which WhatsApp messages you receive, in Settings → Privacy
 • Anonymous usage statistics to help us improve the app — no name, phone number or content, and you can turn it off in Settings → Privacy
 • Fixes & stability improvements
 ```
 
 ## App Review notes
-`docs/app-review-notes-v2.4.4.md` (3.818 karakter, ≤ 4.000).
+`docs/app-review-notes-v2.4.4.md` (≤ 4.000 karakter).
 Akun review akan melihat layar persetujuan sekali setelah login.
 
 ## App Store Connect → App Privacy
@@ -59,6 +65,7 @@ Google Play → Data safety: **App activity → Page views** & **App info and pe
 ## Popup update (Portal → App Versions)
 ```
 • Persetujuan data pribadi (S&K & Kebijakan Privasi terbaru)
+• Unduh data saya & atur pesan WhatsApp
 • Statistik penggunaan anonim — bisa dimatikan di Privasi
 ```
 
@@ -80,6 +87,11 @@ Google Play → Data safety: **App activity → Page views** & **App info and pe
 - [ ] Profil dengan tanggal lahir < 18 th + pilih "18 tahun ke atas" → pesan error izin orang tua
 - [ ] Mode tamu → tidak ada layar persetujuan
 - [ ] App bahasa English → teks persetujuan English
+
+**Unduh data & pesan WhatsApp**
+- [ ] Privasi → Unduh data saya → iOS/Android: share sheet berisi file .json; web: file terunduh; isi sesuai profil
+- [ ] Ketuk 4x dalam 1 jam → pesan batas tercapai
+- [ ] Privasi → Pesan WhatsApp → matikan "Ucapan ulang tahun" → buka lagi, tetap mati
 
 **Analitik**
 - [ ] Buka beberapa halaman → Portal → Analitik → halaman muncul (≤ 1–2 menit)

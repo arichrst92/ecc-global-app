@@ -1876,7 +1876,18 @@
     "saved": "Privacy settings saved.",
     "reset": "Reset",
     "analytics_title": "Help improve Els App",
-    "analytics_body": "Send anonymous usage data (screens opened and app speed) to the ECC team. No name, phone number, or your content."
+    "analytics_body": "Send anonymous usage data (screens opened and app speed) to the ECC team. No name, phone number, or your content.",
+    "wa_title": "WhatsApp messages",
+    "wa_body": "Choose which messages you want to receive. OTP codes & login links are always sent.",
+    "wa_reminders": "Service & event reminders",
+    "wa_reminders_sub": "The day before a service/event you registered for",
+    "wa_greetings": "Birthday greetings",
+    "wa_greetings_sub": "A message from the church on your birthday",
+    "wa_updates": "Activity updates",
+    "wa_updates_sub": "Groups, events, ministry, family, homecell, prayer",
+    "export_title": "Download my data",
+    "export_body": "Get a copy of your personal data (profile, attendance, events, homecell, notes) as a JSON file.",
+    "export_btn": "Download"
   },
   "reservasi": {
     "btn": "Reserve",

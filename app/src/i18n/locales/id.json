@@ -1875,7 +1875,18 @@
     "saved": "Pengaturan privasi disimpan.",
     "reset": "Atur ulang",
     "analytics_title": "Bantu tingkatkan Els App",
-    "analytics_body": "Kirim data penggunaan anonim (halaman yang dibuka dan kecepatan app) untuk tim ECC. Tanpa nama, no HP, atau isi data Anda."
+    "analytics_body": "Kirim data penggunaan anonim (halaman yang dibuka dan kecepatan app) untuk tim ECC. Tanpa nama, no HP, atau isi data Anda.",
+    "wa_title": "Pesan WhatsApp",
+    "wa_body": "Pilih pesan yang ingin Anda terima. Kode OTP & tautan login tetap dikirim.",
+    "wa_reminders": "Pengingat ibadah & event",
+    "wa_reminders_sub": "Sehari sebelum ibadah/event yang Anda daftar",
+    "wa_greetings": "Ucapan ulang tahun",
+    "wa_greetings_sub": "Pesan dari gereja di hari ulang tahun Anda",
+    "wa_updates": "Info aktivitas",
+    "wa_updates_sub": "Group, event, pelayanan, keluarga, homecell, doa",
+    "export_title": "Unduh data saya",
+    "export_body": "Dapatkan salinan data pribadi Anda (profil, kehadiran, event, homecell, catatan) dalam file JSON.",
+    "export_btn": "Unduh"
   },
   "reservasi": {
     "btn": "Reservasi",
