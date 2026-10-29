@@ -21,6 +21,7 @@ import '@/i18n';
 // Web: Alert.alert react-native-web = no-op → map ke dialog browser. No-op di native.
 import '@/utils/webAlertPolyfill';
 import { useAuthStore } from '@/stores/auth.store';
+import { ConsentGate } from '@/features/consent/ConsentGate';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useBranchStore } from '@/stores/branch.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
@@ -355,6 +356,8 @@ function RootLayoutNav() {
             File at app/auth/email/verify.tsx; routed via URL segment. */}
         <Stack.Screen name="auth/email/verify" />
       </Stack>
+      {/* Kepatuhan no. 2 — minta persetujuan S&K/Privasi versi terbaru */}
+      <ConsentGate />
     </ThemeProvider>
   );
 }

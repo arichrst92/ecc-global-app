@@ -18,16 +18,20 @@ import { useBranches } from '@/hooks/useBranches';
 import { ApiError } from '@/types/api';
 import type { JenisJemaat } from '@/types/auth';
 import { nc } from '@/theme/ThemeRoot';
+import { buildConsentPayload } from '@/api/consent';
+import { ConsentChecklist, EMPTY_CONSENT, isConsentComplete, type ConsentValue } from '@/features/consent/ConsentChecklist';
 
 type FieldErrors = Partial<{
   namaLengkap: string;
   jenisKelamin: string;
   cabangId: string;
   jenisJemaat: string;
+  consent: string;
 }>;
 
 export default function SignupDataScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [consent, setConsent] = useState<ConsentValue>(EMPTY_CONSENT);
   const router = useRouter();
   const login = useAuthStore((s) => s.login);
 
@@ -83,6 +87,10 @@ export default function SignupDataScreen() {
         // assignment. Mobile cuma ask jenisJemaat (Tetap vs NewComer);
         // fulltimer status di-assign manual oleh admin di portal.
         jenisJemaat: jenisJemaat as JenisJemaat,
+        // Kepatuhan no. 2 — bukti persetujuan dicatat saat daftar.
+        consent: isConsentComplete(consent)
+          ? buildConsentPayload(consent.ageGroup, i18n.language ?? 'id')
+          : undefined,
       }),
     onSuccess: async (data) => {
       await login(data.accessToken, data.refreshToken, data.user);
@@ -102,6 +110,8 @@ export default function SignupDataScreen() {
           Alert.alert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [
             { text: 'OK', onPress: () => router.replace('/(auth)/signup') },
           ]);
+        } else if (err.code === 'FORBIDDEN' || err.code === 'BAD_REQUEST') {
+          Alert.alert(t('error.generic'), err.message);
         } else if (err.code === 'CONFLICT') {
           Alert.alert(t('signup.error_already_registered'));
         } else {
@@ -119,6 +129,7 @@ export default function SignupDataScreen() {
     if (!jenisKelamin) next.jenisKelamin = t('signup.error_gender_required');
     if (!cabangId) next.cabangId = t('signup.error_branch_required');
     if (!jenisJemaat) next.jenisJemaat = t('signup.error_jenis_jemaat_required');
+    if (!isConsentComplete(consent)) next.consent = t('consent.error_incomplete');
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -263,6 +274,17 @@ export default function SignupDataScreen() {
           {errors.jenisJemaat ? (
             <Text className="text-xs text-red-600">{errors.jenisJemaat}</Text>
           ) : null}
+        </View>
+
+        <View className="mt-3">
+          <ConsentChecklist
+            value={consent}
+            onChange={(v) => {
+              setConsent(v);
+              setErrors((e) => ({ ...e, consent: undefined }));
+            }}
+            error={errors.consent}
+          />
         </View>
 
         <View className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl flex-row gap-2">

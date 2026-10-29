@@ -2320,5 +2320,25 @@
     "leader_approve_confirm": "Terima {{name}} sebagai tamu {{homecell}}? Ia akan melihat alamat & kontak Anda, dan tercatat di daftar Tamu homecell.",
     "leader_approved": "{{name}} diterima sebagai tamu",
     "age_years": "{{n}} th"
+  },
+  "consent": {
+    "title": "Persetujuan",
+    "terms_prefix": "Saya telah membaca dan menyetujui",
+    "and": "serta",
+    "sensitive": "Saya memberikan persetujuan eksplisit kepada gereja untuk memproses data saya yang termasuk data sensitif, termasuk keyakinan agama (keanggotaan & keikutsertaan di gereja) dan data anak yang saya kelola.",
+    "age_title": "Usia saya",
+    "age_adult": "18 tahun ke atas",
+    "age_minor": "13–17 tahun, dan orang tua/wali saya sudah mengizinkan",
+    "age_under13": "Anak di bawah 13 tahun tidak dapat membuat akun sendiri — orang tua/wali dapat mendaftarkannya melalui menu Keluarga.",
+    "error_incomplete": "Centang kedua persetujuan dan pilih usia Anda.",
+    "gate_title": "Persetujuan data pribadi",
+    "gate_sub": "Agar dapat terus memakai Els App, mohon baca dan setujui Syarat & Ketentuan serta Kebijakan Privasi kami.",
+    "gate_title_updated": "Kebijakan kami diperbarui",
+    "gate_sub_updated": "Syarat & Ketentuan dan/atau Kebijakan Privasi telah diperbarui. Mohon baca dan setujui versi terbaru untuk melanjutkan.",
+    "agree_btn": "Setuju & Lanjutkan",
+    "decline_btn": "Saya tidak setuju",
+    "decline_title": "Tidak menyetujui?",
+    "decline_msg": "Tanpa persetujuan, Anda tidak dapat memakai Els App dengan akun ini. Anda bisa keluar sekarang dan kembali kapan saja, atau minta data Anda dihapus melalui privacy@eccchurch.global.",
+    "decline_logout": "Keluar"
   }
 }

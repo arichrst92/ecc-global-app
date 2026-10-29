@@ -55,6 +55,8 @@ export type RegisterPayload = {
    *  supaya kalau HP hilang / OTP WA gagal user bisa fallback ke email.
    *  Per BE notice magic-link 2026-07-28. */
   email?: string;
+  /** Persetujuan S&K + Kebijakan Privasi saat daftar (kepatuhan no. 2). */
+  consent?: import('@/api/consent').ConsentPayload;
 };
 
 /**
