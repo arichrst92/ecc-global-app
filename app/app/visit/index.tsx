@@ -13,7 +13,6 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
-  RefreshControl,
   Text,
   View,
 } from 'react-native';
@@ -29,6 +28,7 @@ import type { VisitListItem } from '@/types/visit';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 type RoleFilter = 'all' | 'initiator' | 'target';
 
@@ -135,8 +135,7 @@ export default function VisitListScreen() {
           keyExtractor={(r) => r.key}
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
           refreshControl={
-            <RefreshControl
-              refreshing={query.isRefetching}
+            <PullRefreshControl
               onRefresh={() => query.refetch()}
               tintColor="#F97316"
             />

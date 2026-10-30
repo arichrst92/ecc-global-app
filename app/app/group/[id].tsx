@@ -16,7 +16,6 @@ import {
   Alert,
   Modal,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -65,6 +64,7 @@ import type { GroupMember } from '@/types/group';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function GroupDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -281,8 +281,7 @@ export default function GroupDetailScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
+          <PullRefreshControl
             onRefresh={() => query.refetch()}
             tintColor="#F97316"
           />

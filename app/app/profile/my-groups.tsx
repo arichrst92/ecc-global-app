@@ -8,7 +8,6 @@
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   View,
@@ -24,6 +23,7 @@ import { goBack } from '@/utils/nav';
 import { GroupListCard } from '@/components/group/GroupListCard';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function MyGroupsScreen() {
   const insets = useSafeAreaInsets();
@@ -69,8 +69,7 @@ export default function MyGroupsScreen() {
           paddingBottom: insets.bottom + 32,
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
+          <PullRefreshControl
             onRefresh={() => query.refetch()}
             tintColor="#F97316"
           />

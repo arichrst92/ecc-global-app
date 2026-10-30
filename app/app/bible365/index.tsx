@@ -7,7 +7,7 @@
  * - Selesai / dihentikan → ringkasan + mulai putaran baru.
  */
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -51,6 +51,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 const REMINDER_TIMES = ['05:00', '06:00', '07:00', '12:00', '20:00', '21:00'];
 
@@ -101,7 +102,7 @@ export default function Bible365Screen() {
           </Pressable>
         </View>
       ) : plan ? (
-        <Dashboard plan={plan} onRefresh={() => q.refetch()} refreshing={q.isRefetching} bottom={insets.bottom} />
+        <Dashboard plan={plan} onRefresh={() => q.refetch()} bottom={insets.bottom} />
       ) : (
         <Intro
           finished={q.data?.history.find((h) => h.status === 'SELESAI') != null}
@@ -249,7 +250,7 @@ function CommitModal({
 
 // ------------------------------------------------------------------ dashboard
 
-function Dashboard({ plan, onRefresh, refreshing, bottom }: { plan: Bible365Plan; onRefresh: () => void; refreshing: boolean; bottom: number }) {
+function Dashboard({ plan, onRefresh, bottom }: { plan: Bible365Plan; onRefresh: () => unknown; bottom: number }) {
   const { t } = useTranslation();
   const router = useRouter();
   const qc = useQueryClient();
@@ -305,7 +306,7 @@ function Dashboard({ plan, onRefresh, refreshing, bottom }: { plan: Bible365Plan
     <>
       <ScrollView
         contentContainerStyle={{ padding: 16, paddingBottom: bottom + 32 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#F97316" />}
+        refreshControl={<PullRefreshControl onRefresh={onRefresh} />}
       >
         {/* Versi Alkitab */}
         <View className="flex-row items-center justify-between mb-3">

@@ -11,7 +11,6 @@ import {
   FlatList,
   Modal,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -38,6 +37,7 @@ import { INDUSTRI_SUGGESTIONS, type LocalBusiness, type TipeBisnis } from '@/typ
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 type OnlineFilter = 'all' | 'online' | 'offline';
 
@@ -177,8 +177,7 @@ export default function LocalMarketScreen() {
             gap: 10,
           }}
           refreshControl={
-            <RefreshControl
-              refreshing={query.isRefetching}
+            <PullRefreshControl
               onRefresh={() => query.refetch()}
               tintColor="#F97316"
             />

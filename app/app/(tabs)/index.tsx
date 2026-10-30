@@ -20,6 +20,7 @@ import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { SelfCheckinBar } from '@/components/checkin/SelfCheckinBar';
 import { useHomeEvents } from '@/hooks/useHomeEvents';
 import { useMyMinistrySchedule } from '@/hooks/useMinistry';
@@ -68,22 +69,18 @@ function HomeScreenAuthenticated() {
   const myScheduleQuery = useMyMinistrySchedule();
   const lang = i18n.language;
 
-  const isRefreshing =
-    todayQuery.isRefetching ||
-    renunganQuery.isRefetching ||
-    newsQuery.isRefetching ||
-    eventsQuery.isRefetching ||
-    myScheduleQuery.isRefetching;
-
   const queryClient = useQueryClient();
-  function refresh() {
-    todayQuery.refetch();
-    renunganQuery.refetch();
-    newsQuery.refetch();
-    eventsQuery.refetch();
-    myScheduleQuery.refetch();
-    void queryClient.invalidateQueries({ queryKey: ['homecell', 'me'] });
-  }
+  // Spinner hanya saat ditarik (bukan saat refetch otomatis dari cache).
+  const { refreshing: isRefreshing, onRefresh: refresh } = usePullToRefresh(() =>
+    Promise.all([
+      todayQuery.refetch(),
+      renunganQuery.refetch(),
+      newsQuery.refetch(),
+      eventsQuery.refetch(),
+      myScheduleQuery.refetch(),
+      queryClient.invalidateQueries({ queryKey: ['homecell', 'me'] }),
+    ]),
+  );
 
   const todayServices = todayQuery.data ?? [];
 

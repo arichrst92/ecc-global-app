@@ -17,6 +17,7 @@ import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { Picker } from '@/components/ui/Picker';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { useBranches } from '@/hooks/useBranches';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { usePublicEvents } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDate } from '@/utils/date';
@@ -45,6 +46,7 @@ export function GuestEventView() {
 
   const branchesQuery = useBranches();
   const eventsQuery = usePublicEvents(cabangId || null);
+  const pull = usePullToRefresh(() => eventsQuery.refetch());
 
   const branchOptions = (branchesQuery.data ?? []).map((b) => ({
     value: b.id,
@@ -78,8 +80,8 @@ export function GuestEventView() {
         className="flex-1"
         refreshControl={
           <RefreshControl
-            refreshing={eventsQuery.isFetching}
-            onRefresh={() => eventsQuery.refetch()}
+            refreshing={pull.refreshing}
+            onRefresh={pull.onRefresh}
           />
         }
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}

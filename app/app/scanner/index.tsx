@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   View,
@@ -27,6 +26,7 @@ import { zoneTimeText } from '@/utils/time';
 import i18nInst from '@/i18n';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function ScannerPickerScreen() {
   const insets = useSafeAreaInsets();
@@ -37,13 +37,9 @@ export default function ScannerPickerScreen() {
   const eventsQuery = useScannerEvents();
   const ibadahQuery = useScannerIbadah();
 
-  const isRefreshing = eventsQuery.isRefetching || ibadahQuery.isRefetching;
   const isLoading = eventsQuery.isPending || ibadahQuery.isPending;
 
-  function refresh() {
-    eventsQuery.refetch();
-    ibadahQuery.refetch();
-  }
+  const refresh = () => Promise.all([eventsQuery.refetch(), ibadahQuery.refetch()]);
 
   const events = eventsQuery.data ?? [];
   const ibadah = ibadahQuery.data ?? [];
@@ -80,7 +76,7 @@ export default function ScannerPickerScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />
+          <PullRefreshControl onRefresh={refresh} />
         }
       >
         {isLoading ? (

@@ -3,7 +3,7 @@
  * Accessible dari Profile menu. Shows semua bisnis user (incl nonaktif),
  * dengan "+" button untuk create baru.
  */
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import { useMyBusinesses } from '@/hooks/useLocalBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function MyBusinessesScreen() {
   const insets = useSafeAreaInsets();
@@ -50,8 +51,7 @@ export default function MyBusinessesScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
+          <PullRefreshControl
             onRefresh={() => query.refetch()}
             tintColor="#F97316"
           />

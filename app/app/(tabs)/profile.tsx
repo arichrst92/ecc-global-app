@@ -54,6 +54,7 @@ import { buildShareAppMessage, shareElsApp } from '@/utils/shareApp';
 import { openShareCard } from '@/features/share/shareStore';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useLogout } from '@/hooks/useLogout';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { getMyProfile, getMySertifikat, sertifikatFileUrl } from '@/api/me';
 import { useMyHomecellOverview } from '@/hooks/useHomecell';
@@ -92,17 +93,16 @@ function ProfileTabAuthenticated() {
 
   // Pull-to-refresh: refetch semua query yang feed profile page (family info,
   // scanner authorization, plus invalidate any cached me data).
-  const isRefreshing =
-    familyQuery.isFetching ||
-    scannerEventsQuery.isFetching ||
-    scannerIbadahQuery.isFetching;
   const queryClient = useQueryClient();
-  function handleRefresh() {
-    void queryClient.invalidateQueries({ queryKey: ['me'] });
-    void familyQuery.refetch();
-    void scannerEventsQuery.refetch();
-    void scannerIbadahQuery.refetch();
-  }
+  // Spinner hanya saat ditarik (fetch otomatis saat tab dibuka tidak menggeser konten).
+  const { refreshing: isRefreshing, onRefresh: handleRefresh } = usePullToRefresh(() =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['me'] }),
+      familyQuery.refetch(),
+      scannerEventsQuery.refetch(),
+      scannerIbadahQuery.refetch(),
+    ]),
+  );
 
   function confirmLogout() {
     setConfirmOpen(false);

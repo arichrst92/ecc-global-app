@@ -1,5 +1,5 @@
 /** Kritik & Saran saya — daftar kiriman + tombol kirim baru. */
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import { FeedbackStatusBadge, FeedbackTipeBadge, fmtFeedbackDate } from '@/compo
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function MyFeedbackScreen() {
   const { t, i18n } = useTranslation();
@@ -40,7 +41,7 @@ export default function MyFeedbackScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 10 }}
-        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
+        refreshControl={<PullRefreshControl onRefresh={() => q.refetch()} tintColor="#F97316" />}
       >
         {q.isPending ? (
           <ActivityIndicator color="#F97316" style={{ marginTop: 40 }} />

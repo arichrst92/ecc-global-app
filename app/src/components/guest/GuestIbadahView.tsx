@@ -9,6 +9,7 @@ import { Calendar, Church, ChevronsUpDown, MapPin, Video } from 'lucide-react-na
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { Picker } from '@/components/ui/Picker';
 import { useBranches } from '@/hooks/useBranches';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { usePublicIbadah } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
@@ -36,6 +37,7 @@ export function GuestIbadahView() {
 
   const branchesQuery = useBranches();
   const ibadahQuery = usePublicIbadah(cabangId || null);
+  const pull = usePullToRefresh(() => ibadahQuery.refetch());
 
   const branchOptions = (branchesQuery.data ?? []).map((b) => ({
     value: b.id,
@@ -74,8 +76,8 @@ export function GuestIbadahView() {
         className="flex-1"
         refreshControl={
           <RefreshControl
-            refreshing={ibadahQuery.isFetching}
-            onRefresh={() => ibadahQuery.refetch()}
+            refreshing={pull.refreshing}
+            onRefresh={pull.onRefresh}
           />
         }
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}

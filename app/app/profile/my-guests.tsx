@@ -5,7 +5,7 @@
  * Tamu bisa dihapus dari daftar saya (data kehadiran tetap tersimpan).
  */
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -23,6 +23,7 @@ import { formatDateWithDay } from '@/utils/date';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 const STATUS_STYLE: Record<TamuStatus, { bg: string; fg: string }> = {
   DIUNDANG: { bg: 'bg-neutral-100', fg: 'text-neutral-700' },
@@ -79,7 +80,7 @@ export default function MyGuestsScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 100 }}
-        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
+        refreshControl={<PullRefreshControl onRefresh={() => q.refetch()} tintColor="#F97316" />}
       >
         {q.isPending ? (
           <View className="py-16 items-center">

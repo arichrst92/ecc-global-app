@@ -3,7 +3,7 @@
  * diputar, cari lagu, Putar semua / Acak semua (lintas album).
  */
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,7 @@ import { SongActionSheet } from '@/components/worship/SongActionSheet';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 type Tab = 'album' | 'single' | 'liked' | 'downloads';
 
@@ -116,7 +117,7 @@ export default function WorshipHome() {
         <ScrollView
           className="flex-1"
           contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
-          refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
+          refreshControl={<PullRefreshControl onRefresh={() => q.refetch()} tintColor="#F97316" />}
         >
           {search !== null ? (
             results.length ? (

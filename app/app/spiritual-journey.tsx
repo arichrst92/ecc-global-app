@@ -3,7 +3,7 @@
  * Tiap tahap: sudah / berikutnya / belum, syarat (role › sub role › status),
  * cara mendapatkan, dan event mendatang yang memberi status tahap tersebut.
  */
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +18,7 @@ import { goBack } from '@/utils/nav';
 
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 export default function SpiritualJourneyScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -40,7 +41,7 @@ export default function SpiritualJourneyScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 32 }}
-        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
+        refreshControl={<PullRefreshControl onRefresh={() => q.refetch()} tintColor="#F97316" />}
       >
         {q.isPending ? (
           <View className="py-16 items-center">

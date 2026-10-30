@@ -8,7 +8,7 @@
  * - "Pelayanan Saya" — dari /admin/me.ministries (kalau ada)
  * - "Semua Ministry" — dari /admin/ministry (semua aktif)
  */
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function MinistryListScreen() {
   const insets = useSafeAreaInsets();
@@ -63,12 +64,8 @@ export default function MinistryListScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={ministryListQuery.isRefetching}
-            onRefresh={() => {
-              ministryListQuery.refetch();
-              meQuery.refetch();
-            }}
+          <PullRefreshControl
+            onRefresh={() => Promise.all([ministryListQuery.refetch(), meQuery.refetch()])}
             tintColor="#F97316"
           />
         }

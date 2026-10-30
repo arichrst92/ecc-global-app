@@ -1,7 +1,6 @@
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   View,
@@ -18,6 +17,7 @@ import { formatPhoneDisplay } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 function roleLabel(role: FamilyRole, t: (k: string) => string): string {
   switch (role) {
@@ -106,8 +106,7 @@ export default function FamilyListScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
+          <PullRefreshControl
             onRefresh={() => query.refetch()}
             tintColor="#F97316"
           />

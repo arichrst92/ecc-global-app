@@ -16,7 +16,6 @@ import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -37,6 +36,7 @@ import { goBack } from '@/utils/nav';
 import { GroupListCard } from '@/components/group/GroupListCard';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 const JENIS_FILTER_OPTIONS: Array<{ value: '' | GroupJenis; labelKey: string }> = [
   { value: '', labelKey: 'group.filter_all' },
@@ -169,8 +169,7 @@ export default function GroupListScreen() {
           paddingBottom: insets.bottom + 32,
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
+          <PullRefreshControl
             onRefresh={() => query.refetch()}
             tintColor="#F97316"
           />

@@ -20,6 +20,7 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { useAuthStore } from '@/stores/auth.store';
 import { useEventList } from '@/hooks/useEvents';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { EventListItem, TipeBayar } from '@/types/event';
 import { formatScheduleWithZone, ymdInTz } from '@/utils/time';
@@ -68,6 +69,7 @@ function EventListAuthenticated() {
   const query = useEventList();
   // Tab tetap ter-mount → ambil ulang saat tab dibuka lagi / app aktif lagi.
   useRefetchOnFocus(() => query.refetch());
+  const pull = usePullToRefresh(() => query.refetch());
 
   const filtered = useMemo(() => {
     const all = query.data ?? [];
@@ -147,8 +149,8 @@ function EventListAuthenticated() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: 32 }}
         refreshControl={
           <RefreshControl
-            refreshing={query.isRefetching}
-            onRefresh={() => query.refetch()}
+            refreshing={pull.refreshing}
+            onRefresh={pull.onRefresh}
             tintColor="#F97316"
           />
         }

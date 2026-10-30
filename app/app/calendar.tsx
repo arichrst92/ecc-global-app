@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,7 @@ import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 /**
  * Calendar screen — unified view dari Event + Ibadah + Birthday family
@@ -128,13 +129,9 @@ export default function CalendarScreen() {
   // tapi lebih ringan karena grid punya value tanpa data juga).
   const isPending = eventsQuery.isPending || ibadahQuery.isPending || familyQuery.isPending;
   const isError = eventsQuery.isError || ibadahQuery.isError || familyQuery.isError;
-  const isRefetching =
-    eventsQuery.isRefetching || ibadahQuery.isRefetching || familyQuery.isRefetching;
 
   function refetchAll() {
-    eventsQuery.refetch();
-    ibadahQuery.refetch();
-    familyQuery.refetch();
+    return Promise.all([eventsQuery.refetch(), ibadahQuery.refetch(), familyQuery.refetch()]);
   }
 
   // Index items by day (1-31) — filter client-side ke month yang aktif
@@ -272,8 +269,7 @@ export default function CalendarScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
+          <PullRefreshControl
             onRefresh={refetchAll}
             tintColor="#F97316"
           />

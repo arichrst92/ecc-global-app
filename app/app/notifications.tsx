@@ -52,6 +52,7 @@ import type { InAppNotification } from '@/types/notification';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 /* ==============================================================
  * ICON RENDERER
@@ -229,8 +230,7 @@ export default function NotificationsScreen() {
             item.kind === 'section' ? `s-${item.title}-${idx}` : `n-${item.notif.id}`
           }
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: insets.bottom + 32 }}
-          onRefresh={() => query.refetch()}
-          refreshing={query.isRefetching && !query.isFetchingNextPage}
+          refreshControl={<PullRefreshControl onRefresh={() => query.refetch()} />}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (query.hasNextPage && !query.isFetchingNextPage) {

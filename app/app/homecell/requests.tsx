@@ -10,7 +10,6 @@ import {
   Alert,
   Modal,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -37,6 +36,7 @@ import { ApiError } from '@/types/api';
 import type { HomecellGuestRequestRow, HomecellJoinRequestRow } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function HomecellRequestsScreen() {
   const insets = useSafeAreaInsets();
@@ -124,12 +124,8 @@ export default function HomecellRequestsScreen() {
       <ScrollView
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 12 }}
         refreshControl={
-          <RefreshControl
-            refreshing={q.isRefetching || gq.isRefetching}
-            onRefresh={() => {
-              void q.refetch();
-              void gq.refetch();
-            }}
+          <PullRefreshControl
+            onRefresh={() => Promise.all([q.refetch(), gq.refetch()])}
             tintColor="#F97316"
           />
         }

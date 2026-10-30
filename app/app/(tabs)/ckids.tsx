@@ -25,6 +25,7 @@ import {
   View,
 } from 'react-native';
 import { formatInstantDate } from '@/utils/time';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -189,14 +190,10 @@ export default function CKidsTabScreen() {
   // (cabangId tidak dipakai — BE filter by jemaatId + parent guard)
   const historyQuery = useChildRedeemHistory(selectedEntry?.anak.id, 50);
 
-  const isRefreshing = balancesQuery.isPending
-    ? false
-    : katalogQuery.isRefetching || historyQuery.isRefetching;
-
-  function refresh() {
-    if (balancesQuery) katalogQuery.refetch();
-    historyQuery.refetch();
-  }
+  // Spinner hanya saat ditarik (refetch otomatis tidak menggeser konten).
+  const { refreshing: isRefreshing, onRefresh: refresh } = usePullToRefresh(() =>
+    Promise.all([katalogQuery.refetch(), historyQuery.refetch()]),
+  );
 
   // Empty state — user tidak punya anak (bisa via family relations)
   if (!childrenPending && isEmpty) {

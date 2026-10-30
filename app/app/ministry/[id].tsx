@@ -11,7 +11,6 @@ import {
   Linking,
   Modal,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -56,6 +55,7 @@ import { formatDateWithDay, parseLocalDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function MinistryDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -276,8 +276,7 @@ export default function MinistryDetailScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
+          <PullRefreshControl
             onRefresh={() => query.refetch()}
             tintColor="#F97316"
           />

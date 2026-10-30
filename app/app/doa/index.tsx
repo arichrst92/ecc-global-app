@@ -3,7 +3,7 @@
  * untuk petugas doa. Masuk dari tile Doa di Home atau menu Profil.
  */
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -24,6 +24,7 @@ import { Chip, FilterTabs, PrayerStatusBadge, fmtDate, untukLabel } from '@/comp
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 type MainTab = 'mine' | 'assigned';
 
@@ -116,12 +117,10 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
       className="flex-1"
       contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 10 }}
       refreshControl={
-        <RefreshControl
-          refreshing={q.isRefetching}
-          onRefresh={() => {
-            q.refetch();
-            qc.invalidateQueries({ queryKey: ['prayer', 'summary'] });
-          }}
+        <PullRefreshControl
+          onRefresh={() =>
+            Promise.all([q.refetch(), qc.invalidateQueries({ queryKey: ['prayer', 'summary'] })])
+          }
           tintColor="#F97316"
         />
       }
@@ -200,12 +199,10 @@ function AssignedList() {
       className="flex-1"
       contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 10 }}
       refreshControl={
-        <RefreshControl
-          refreshing={q.isRefetching}
-          onRefresh={() => {
-            q.refetch();
-            qc.invalidateQueries({ queryKey: ['prayer', 'summary'] });
-          }}
+        <PullRefreshControl
+          onRefresh={() =>
+            Promise.all([q.refetch(), qc.invalidateQueries({ queryKey: ['prayer', 'summary'] })])
+          }
           tintColor="#F97316"
         />
       }

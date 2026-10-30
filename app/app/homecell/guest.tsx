@@ -17,7 +17,6 @@ import {
   Modal,
   Platform,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -68,6 +67,7 @@ import { ApiError } from '@/types/api';
 import type { HomecellNearestResponse } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function GuestHomecellScreen() {
   const insets = useSafeAreaInsets();
@@ -160,8 +160,7 @@ export default function GuestHomecellScreen() {
   });
 
   function refresh() {
-    void browse.refetch();
-    if (tokens.length) void statusQuery.refetch();
+    return Promise.all([browse.refetch(), tokens.length ? statusQuery.refetch() : null]);
   }
 
   return (
@@ -182,7 +181,7 @@ export default function GuestHomecellScreen() {
         className="flex-1"
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
-        refreshControl={<RefreshControl refreshing={browse.isRefetching || statusQuery.isRefetching} onRefresh={refresh} tintColor="#F97316" />}
+        refreshControl={<PullRefreshControl onRefresh={refresh} tintColor="#F97316" />}
       >
         {/* Permintaan saya */}
         {myRequests.length > 0 ? (

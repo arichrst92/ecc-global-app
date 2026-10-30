@@ -18,6 +18,7 @@ import { ArrowLeft, Baby, CalendarCheck, CalendarDays, Church, Ticket } from 'lu
 
 import { useMyReservasi } from '@/hooks/useMyReservasi';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { listMyEventTickets, type TicketScope } from '@/api/tiket';
 import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
 import { EventTicketCard } from '@/components/tiket/EventTicketCard';
@@ -66,6 +67,8 @@ export function MyReservasiView({ inTab = false }: { inTab?: boolean }) {
   const q = seg === 'ibadah' ? ibQ : evQ;
   usePolling(seg === 'ibadah' && tab === 'active' && kidsPending.length > 0, ibQ.refetch);
   useRefetchOnFocus(() => q.refetch());
+  // Spinner hanya saat ditarik — refetch otomatis/polling tidak mendorong konten.
+  const pull = usePullToRefresh(() => q.refetch());
 
   const empty = seg === 'ibadah' ? reservasi.length === 0 : tickets.length === 0;
   const tabLabel = (k: Tab) =>
@@ -128,7 +131,7 @@ export function MyReservasiView({ inTab = false }: { inTab?: boolean }) {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 16, paddingBottom: inTab ? 32 : insets.bottom + 32 }}
-        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
+        refreshControl={<RefreshControl refreshing={pull.refreshing} onRefresh={pull.onRefresh} tintColor="#F97316" />}
       >
         {q.isPending ? (
           <View className="items-center py-16">

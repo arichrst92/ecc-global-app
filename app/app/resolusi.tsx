@@ -10,7 +10,6 @@ import {
   Modal,
   Platform,
   Pressable,
-  RefreshControl,
   ScrollView,
   Switch,
   Text,
@@ -41,6 +40,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 type Sheet = { mode: 'add' } | { mode: 'edit'; item: Resolusi } | null;
 
@@ -129,7 +129,7 @@ export default function ResolusiScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 10 }}
-        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
+        refreshControl={<PullRefreshControl onRefresh={() => q.refetch()} tintColor="#F97316" />}
       >
         {q.isPending ? (
           <ActivityIndicator color="#F97316" style={{ marginTop: 40 }} />

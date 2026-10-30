@@ -13,6 +13,7 @@ import type { NewsItem, RenunganItem } from '@/types/content';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 type Tab = 'news' | 'renungan';
 
@@ -103,8 +104,7 @@ export default function ContentListScreen() {
             flexGrow: 1,
           }}
           ItemSeparatorComponent={() => <View className="h-3" />}
-          refreshing={newsQuery.isRefetching}
-          onRefresh={() => newsQuery.refetch()}
+          refreshControl={<PullRefreshControl onRefresh={() => newsQuery.refetch()} />}
           onEndReachedThreshold={0.4}
           onEndReached={() => handleEndReached(newsQuery)}
           ListEmptyComponent={<EmptyState type="news" />}
@@ -135,8 +135,7 @@ export default function ContentListScreen() {
             flexGrow: 1,
           }}
           ItemSeparatorComponent={() => <View className="h-3" />}
-          refreshing={renunganQuery.isRefetching}
-          onRefresh={() => renunganQuery.refetch()}
+          refreshControl={<PullRefreshControl onRefresh={() => renunganQuery.refetch()} />}
           onEndReachedThreshold={0.4}
           onEndReached={() => handleEndReached(renunganQuery)}
           ListEmptyComponent={<EmptyState type="renungan" />}

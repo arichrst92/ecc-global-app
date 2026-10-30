@@ -11,7 +11,6 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -41,6 +40,7 @@ import type { HomecellNearestResponse } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 export default function HomecellHubScreen() {
   const insets = useSafeAreaInsets();
@@ -151,12 +151,8 @@ export default function HomecellHubScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
-          <RefreshControl
-            refreshing={overview.isRefetching}
-            onRefresh={() => {
-              void overview.refetch();
-              if (needsHomecell) void browse.refetch();
-            }}
+          <PullRefreshControl
+            onRefresh={() => Promise.all([overview.refetch(), needsHomecell ? browse.refetch() : null])}
             tintColor="#F97316"
           />
         }

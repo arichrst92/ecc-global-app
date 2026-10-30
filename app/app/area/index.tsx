@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  RefreshControl,
   ScrollView,
   Text,
   View,
@@ -29,6 +28,7 @@ import { nc } from '@/theme/ThemeRoot';
 import { ATTENDANCE_TIERS, attendanceTier } from '@/utils/homecellSegmen';
 import { SegmenBadges } from '@/components/homecell/HomecellListCard';
 import { ReportSheet } from '@/components/homecell/ReportSheet';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 /**
  * Area list — flatten + grouped by area.
@@ -50,13 +50,10 @@ export default function AreaListScreen() {
   const router = useRouter();
 
   const areasQuery = useManagedAreas();
-  const isRefreshing = areasQuery.isRefetching;
   const isLoading = areasQuery.isPending;
   const areas = areasQuery.data ?? [];
 
-  function refresh() {
-    areasQuery.refetch();
-  }
+  const refresh = () => areasQuery.refetch();
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -81,7 +78,7 @@ export default function AreaListScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />
+          <PullRefreshControl onRefresh={refresh} />
         }
       >
         {isLoading ? (

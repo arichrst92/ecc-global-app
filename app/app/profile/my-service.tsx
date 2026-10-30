@@ -5,7 +5,7 @@
  * API: GET /admin/me/ministry-schedule?from&to → { assignments, events }
  */
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -22,6 +22,7 @@ import i18nInst from '@/i18n';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 type Tab = 'upcoming' | 'history';
 
@@ -86,7 +87,7 @@ export default function MyServiceScreen() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 32 }}
-        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => q.refetch()} tintColor="#F97316" />}
+        refreshControl={<PullRefreshControl onRefresh={() => q.refetch()} tintColor="#F97316" />}
       >
         {q.isPending ? (
           <View className="py-16 items-center">
