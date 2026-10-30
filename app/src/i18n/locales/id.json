@@ -2359,5 +2359,25 @@
     "decline_title": "Tidak menyetujui?",
     "decline_msg": "Tanpa persetujuan, Anda tidak dapat memakai Els App dengan akun ini. Anda bisa keluar sekarang dan kembali kapan saja, atau minta data Anda dihapus melalui privacy@eccchurch.global.",
     "decline_logout": "Keluar"
+  },
+  "review": {
+    "title_ibadah": "Bagaimana ibadah hari ini?",
+    "title_event": "Bagaimana event ini?",
+    "subtitle": "Beri bintang dan masukan agar pelayanan kami makin baik.",
+    "your_review": "Ulasan Anda",
+    "placeholder": "Ceritakan pengalaman atau masukan Anda (opsional)",
+    "anonymous": "Kirim tanpa nama (anonim)",
+    "submit": "Kirim ulasan",
+    "update": "Simpan perubahan",
+    "thanks": "Terima kasih atas ulasan Anda!",
+    "edit": "Ubah ulasan (sampai {{date}})",
+    "until": "Bisa diubah sampai {{date}}",
+    "sent_anonymous": "Dikirim sebagai anonim",
+    "opens_at": "Ulasan bisa diberikan setelah acara dimulai ({{at}}).",
+    "label_1": "Kurang sekali",
+    "label_2": "Kurang",
+    "label_3": "Cukup",
+    "label_4": "Baik",
+    "label_5": "Luar biasa"
   }
 }

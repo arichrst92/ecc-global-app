@@ -10,6 +10,7 @@ Official app of El Shaddai Creative Community (ECC), an Indonesian church networ
 === WHAT'S NEW IN 2.4.4 ===
 - Consent screen: at sign-up, and once for existing users, the user ticks agreement to the Terms & Privacy Policy, explicit consent for sensitive data (church membership) and an age group (18+, or 13-17 with parent/guardian permission). Under-13s cannot create accounts. "I don't agree" signs the user out.
 - Privacy settings: "Download my data" (opens a PDF copy in the browser) and on/off switches for non-essential WhatsApp messages.
+- Reviews: once a service/event starts, the ticket shows a 1-5 star rating + optional comment.
 - Anonymous usage statistics (screens opened, app speed) to improve the app; can be turned off in Profil > Pengaturan > Privasi.
 
 === COMPLIANCE NOTES ===
@@ -40,7 +41,7 @@ Official app of El Shaddai Creative Community (ECC), an Indonesian church networ
 3. Event: Home → any event → "Daftar" (Register). Paid: bank details → upload proof → admin verification.
 4. Service: Home → "Ibadah" → service → "Reservasi". The ticket appears in the "Reservasi" tab; tap it for the full QR and "Simpan ke kalender". Swipe to self check-in from 15 minutes before start.
 5. Bible 365: Home → "Alkitab" → "Bible 365" → tick the commitment → choose a reminder time (or none) → tick chapters, write a note, tap "Bagikan" to share the progress image.
-6. Delete Account: Profil tab → bottom → "Hapus Akun" → confirm → account deactivated and logged out.
+6. Delete Account: Profil → "Hapus Akun" → confirm.
 Worship and Prayer require login. The Worship tile appears once a song is published (published for review).
 
 === CONTACT ===

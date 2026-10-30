@@ -19,6 +19,7 @@ import { listMyEventTickets, type EventTiket, type TicketScope } from '@/api/tik
 import { useMyReservasi } from '@/hooks/useMyReservasi';
 import { EventTicketCard } from '@/components/tiket/EventTicketCard';
 import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
+import { TicketReviewCard } from '@/components/tiket/TicketReviewCard';
 import { addTicketToCalendar, openDirections, ticketTimes } from '@/components/tiket/ticketActions';
 import { useToast } from '@/components/ui/Toast';
 import type { MyReservasi } from '@/types/ibadah';
@@ -169,6 +170,7 @@ export default function TiketScreen() {
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: items.length > 1 ? 24 : insets.bottom + 32 }}
                 showsVerticalScrollIndicator={false}
                 nestedScrollEnabled
+                keyboardShouldPersistTaps="handled"
               >
                 {item.kind === 'event' ? (
                   <EventTicketCard ticket={item.t} variant="full" notchColor={BG} />
@@ -196,6 +198,11 @@ export default function TiketScreen() {
                     <Text className="text-white text-xs font-semibold">{t('tiket.directions')}</Text>
                   </Pressable>
                 </View>
+                {item.kind === 'event' ? (
+                  item.t.isSelf ? <TicketReviewCard kind="EVENT" ticketId={item.t.id} /> : null
+                ) : !item.r.relation || item.r.relation === 'SELF' ? (
+                  <TicketReviewCard kind="IBADAH" ticketId={item.r.id} />
+                ) : null}
               </ScrollView>
             )}
           />

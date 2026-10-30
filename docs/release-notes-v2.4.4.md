@@ -13,6 +13,7 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
   - Tercatat di server (versi dokumen, waktu, usia, platform) dan terlihat di Portal → detail jemaat.
 - **Unduh data saya** — Pengaturan → Privasi → salinan data pribadi sebagai **PDF** (format sama dengan Export PDF detail jemaat di Portal + persetujuan, pengaturan pesan, prayer request, Bible 365, hak jemaat), dibuka lewat link 10 menit.
 - **Pesan WhatsApp** — Pengaturan → Privasi: jemaat bisa mematikan pengingat ibadah/event, ucapan ulang tahun, dan info aktivitas (OTP tetap dikirim).
+- **Ulasan ibadah & event** — dari layar tiket: beri bintang 1–5, komentar (opsional), bisa anonim. Terbuka sejak acara dimulai sampai 14 hari setelah selesai; hasilnya tampil di Portal (detail ibadah/event, Laporan Ibadah/Event + export PDF/CSV).
 - **Statistik penggunaan anonim** (halaman dibuka, kecepatan app) untuk Portal → Analitik; bisa dimatikan di Profil → Pengaturan → Privasi.
 - Server (sudah live): data wajah dihapus, hapus data permanen di Portal, retensi data otomatis.
 
@@ -21,6 +22,7 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 ```
 Els App 2.4.4:
 • Persetujuan data pribadi saat daftar & untuk pengguna lama
+• Beri ulasan ibadah & event langsung dari tiket
 • Unduh data saya & atur pesan WhatsApp di Privasi
 • Statistik penggunaan anonim (bisa dimatikan di Privasi)
 • Perbaikan & peningkatan stabilitas
@@ -29,6 +31,7 @@ Els App 2.4.4:
 ```
 Els App 2.4.4:
 • Personal data consent at sign-up and for existing users
+• Rate services & events right from your ticket
 • Download my data & choose WhatsApp messages in Privacy
 • Anonymous usage statistics (can be turned off in Privacy)
 • Fixes & stability improvements
@@ -87,6 +90,12 @@ Google Play → Data safety: **App activity → Page views** & **App info and pe
 - [ ] Profil dengan tanggal lahir < 18 th + pilih "18 tahun ke atas" → pesan error izin orang tua
 - [ ] Mode tamu → tidak ada layar persetujuan
 - [ ] App bahasa English → teks persetujuan English
+
+**Ulasan**
+- [ ] Tiket ibadah/event yang belum mulai → teks "Ulasan bisa diberikan setelah acara dimulai"
+- [ ] Setelah jam mulai → pilih bintang, tulis komentar, anonim → Kirim → tampil "Ulasan Anda" → Ubah ulasan
+- [ ] Tiket keluarga/tamu (geser) → tidak ada kartu ulasan
+- [ ] Portal → detail ibadah/event → Ulasan Jemaat; Laporan Ibadah/Event → kartu ulasan & PDF
 
 **Unduh data & pesan WhatsApp**
 - [ ] Privasi → Unduh data saya → browser terbuka → print view PDF (Simpan sebagai PDF); isi sesuai profil; kontak keluarga tidak tampil

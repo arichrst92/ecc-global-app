@@ -2360,5 +2360,25 @@
     "decline_title": "Don't agree?",
     "decline_msg": "Without consent you can't use Els App with this account. You can sign out now and come back any time, or ask for your data to be deleted at privacy@eccchurch.global.",
     "decline_logout": "Sign out"
+  },
+  "review": {
+    "title_ibadah": "How was today's service?",
+    "title_event": "How was this event?",
+    "subtitle": "Rate it and share feedback to help us serve better.",
+    "your_review": "Your review",
+    "placeholder": "Share your experience or suggestions (optional)",
+    "anonymous": "Send anonymously",
+    "submit": "Send review",
+    "update": "Save changes",
+    "thanks": "Thank you for your review!",
+    "edit": "Edit review (until {{date}})",
+    "until": "Can be edited until {{date}}",
+    "sent_anonymous": "Sent anonymously",
+    "opens_at": "You can review once it starts ({{at}}).",
+    "label_1": "Very poor",
+    "label_2": "Poor",
+    "label_3": "Okay",
+    "label_4": "Good",
+    "label_5": "Excellent"
   }
 }
