@@ -15,7 +15,7 @@ import { cancelMyReservasi } from '@/api/me';
 import { useToast } from '@/components/ui/Toast';
 import { PickupCodeCard } from '@/components/scanner/PickupCodeCard';
 import { formatDateWithDay } from '@/utils/date';
-import { formatVenueRange, localTime } from '@/utils/time';
+import { localTime, zoneTimeText } from '@/utils/time';
 import { formatRadius } from '@/utils/selfCheckinLocation';
 import { TicketShell } from './TicketShell';
 import { SwipeToCheckin } from './SwipeToCheckin';
@@ -30,8 +30,9 @@ function statusOf(r: MyReservasi): { key: string; tone: 'green' | 'solidGreen' |
   return { key: 'st_DAFTAR', tone: 'blue' };
 }
 
-export function ibadahTimeText(r: MyReservasi): string {
-  return formatVenueRange(r.tanggalIbadah.slice(0, 10), r.ibadah.jamMulai, r.ibadah.jamSelesai, r.ibadah.timezone, '–');
+/** Jam ibadah dalam zona cabang + labelnya, mis. "10.00 - 12.00 Waktu Kuala Lumpur". */
+export function ibadahTimeText(r: MyReservasi, lang?: string): string {
+  return zoneTimeText(r.ibadah.jamMulai, r.ibadah.jamSelesai, r.ibadah.timezone, lang);
 }
 
 export function IbadahTicketCard({
@@ -94,13 +95,13 @@ export function IbadahTicketCard({
   const body = full ? (
     <View className="flex-row flex-wrap">
       <InfoCell label={t('tiket.date')} value={formatDateWithDay(r.tanggalIbadah, i18n.language)} />
-      <InfoCell label={t('tiket.time')} value={ibadahTimeText(r)} />
+      <InfoCell label={t('tiket.time')} value={ibadahTimeText(r, i18n.language)} />
       <InfoCell label={t('tiket.location')} value={r.ibadah.lokasi || r.ibadah.cabang?.nama || '-'} />
     </View>
   ) : (
     <View>
       <InfoLine icon={<CalendarDays size={11} color={nc('#737373')} />}>
-        {formatDateWithDay(r.tanggalIbadah, i18n.language)} · {ibadahTimeText(r)}
+        {formatDateWithDay(r.tanggalIbadah, i18n.language)} · {ibadahTimeText(r, i18n.language)}
       </InfoLine>
       {r.ibadah.lokasi ? <InfoLine icon={<MapPin size={11} color={nc('#737373')} />}>{r.ibadah.lokasi}</InfoLine> : null}
     </View>

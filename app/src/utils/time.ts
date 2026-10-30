@@ -270,3 +270,26 @@ export function ymdInTz(iso: string | null | undefined, tz: string | null | unde
   const x = new Date(d.getTime() + (off ?? 0) * 60_000);
   return `${x.getUTCFullYear()}-${pad(x.getUTCMonth() + 1)}-${pad(x.getUTCDate())}`;
 }
+
+/** "10.00 - 12.00 Waktu Kuala Lumpur" (jam dinding cabang + label zona). */
+export function zoneTimeText(
+  start: string | null | undefined,
+  end: string | null | undefined,
+  tz: string | null | undefined,
+  lang?: string | null,
+): string {
+  if (!start) return '';
+  return formatScheduleWithZone({ ymd: null, start, end, tz, lang, withDate: false });
+}
+
+/** Jam di zona HP bila berbeda dari zona cabang, mis. "09:00 - 11:00"; null bila sama. */
+export function localRangeIfDifferent(
+  ymd: string | null | undefined,
+  start: string | null | undefined,
+  end: string | null | undefined,
+  tz: string | null | undefined,
+): string | null {
+  const a = venueToLocal(ymd, start, tz);
+  if (!a?.converted) return null;
+  return formatVenueRange(ymd, start, end, tz);
+}

@@ -13,7 +13,7 @@ import { CalendarDays, CreditCard, MapPin } from 'lucide-react-native';
 import { HeroImage } from '@/components/ui/HeroImage';
 import type { EventTiket } from '@/api/tiket';
 import { formatDateWithDay } from '@/utils/date';
-import { formatVenueRange, localTime } from '@/utils/time';
+import { localTime, zoneTimeText } from '@/utils/time';
 import { formatRadius } from '@/utils/selfCheckinLocation';
 import { TicketShell } from './TicketShell';
 import { SwipeToCheckin } from './SwipeToCheckin';
@@ -32,9 +32,10 @@ export function eventDateText(ev: EventTiket['event'], lang: string): string {
   return `${start}${end}`;
 }
 
-export function eventTimeText(ev: EventTiket['event']): string {
+/** Jam event dalam zona cabang + labelnya, mis. "18.00 - 21.00 Waktu Sydney". */
+export function eventTimeText(ev: EventTiket['event'], lang?: string): string {
   if (!ev.jamMulai) return '';
-  return formatVenueRange(ev.tanggalMulai.slice(0, 10), ev.jamMulai, ev.jamSelesai, ev.timezone, '–');
+  return zoneTimeText(ev.jamMulai, ev.jamSelesai, ev.timezone, lang);
 }
 
 function statusOf(tk: EventTiket): { key: string; tone: 'green' | 'solidGreen' | 'blue' | 'amber' | 'red' } {
@@ -91,7 +92,7 @@ export function EventTicketCard({
       <Text className="text-lg font-bold text-neutral-900 mb-2">{ev.judul}</Text>
       <View className="flex-row flex-wrap">
         <InfoCell label={t('tiket.date')} value={eventDateText(ev, i18n.language)} />
-        <InfoCell label={t('tiket.time')} value={eventTimeText(ev) || '-'} />
+        <InfoCell label={t('tiket.time')} value={eventTimeText(ev, i18n.language) || '-'} />
         <InfoCell label={t('tiket.location')} value={ev.lokasi || ev.cabang?.nama || '-'} />
         <InfoCell
           label={t('tiket.fee')}
@@ -110,7 +111,7 @@ export function EventTicketCard({
       </Text>
       <InfoLine icon={<CalendarDays size={11} color={nc('#737373')} />}>
         {eventDateText(ev, i18n.language)}
-        {eventTimeText(ev) ? ` · ${eventTimeText(ev)}` : ''}
+        {eventTimeText(ev, i18n.language) ? ` · ${eventTimeText(ev, i18n.language)}` : ''}
       </InfoLine>
       {ev.lokasi ? <InfoLine icon={<MapPin size={11} color={nc('#737373')} />}>{ev.lokasi}</InfoLine> : null}
     </View>

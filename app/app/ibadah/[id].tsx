@@ -25,7 +25,7 @@ import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import { ReservasiModal } from '@/components/ibadah/ReservasiModal';
 import { useVenueTz } from '@/hooks/useVenueTz';
-import { formatVenueRange, venueTimeHint } from '@/utils/time';
+import { localRangeIfDifferent, zoneTimeText } from '@/utils/time';
 import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
@@ -63,11 +63,12 @@ export default function IbadahDetailScreen() {
   // Tiket reservasi saya / keluarga / tamu untuk ibadah ini (aktif).
   const myTicketsQ = useMyReservasi({ ibadahId: id, activeOnly: true }, { enabled: !!id });
   const myTickets = (myTicketsQ.data ?? []).filter((r) => r.status !== 'CANCEL');
-  // Jam jadwal = jam dinding cabang → tampil di zona waktu HP.
-  const venueTz = useVenueTz(ibadah?.cabang?.id);
-  const timeHint = ibadah
-    ? venueTimeHint(tanggal ?? null, ibadah.jamMulai, ibadah.jamSelesai, venueTz, (p) => t('time.venue_hint', p))
-    : null;
+  // Jam jadwal = jam dinding cabang + label zona (mis. Waktu Kuala Lumpur);
+  // bila zona HP berbeda, jam setempat ditampilkan sebagai keterangan.
+  const branchTz = useVenueTz(ibadah?.cabang?.id);
+  const venueTz = ibadah?.cabang?.timezone ?? branchTz;
+  const localRange = ibadah ? localRangeIfDifferent(tanggal ?? null, ibadah.jamMulai, ibadah.jamSelesai, venueTz) : null;
+  const timeHint = localRange ? t('time.your_time', { time: localRange }) : null;
   const showToast = useToast((s) => s.show);
 
   // Self check-in: status jendela (hari & jam ibadah) + saya & keluarga.
@@ -216,7 +217,7 @@ export default function IbadahDetailScreen() {
               <InfoCard
                 icon={<Clock size={18} color="#EA580C" />}
                 label={t('ibadah.time')}
-                value={formatVenueRange(tanggal ?? null, ibadah.jamMulai, ibadah.jamSelesai, venueTz)}
+                value={zoneTimeText(ibadah.jamMulai, ibadah.jamSelesai, venueTz, lang)}
               />
               <InfoCard
                 icon={<Calendar size={18} color="#EA580C" />}

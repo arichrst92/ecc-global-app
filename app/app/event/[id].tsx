@@ -21,7 +21,7 @@ import { ApiError } from '@/types/api';
 import { formatDate } from '@/utils/date';
 import { useVenueTz } from '@/hooks/useVenueTz';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
-import { formatVenueRange, tzCity } from '@/utils/time';
+import { localRangeIfDifferent, tzZoneLabel, ymdInTz, zoneTimeText } from '@/utils/time';
 import { buildEventShareUrl } from '@/utils/share';
 import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
 import { env } from '@/config/env';
@@ -90,7 +90,9 @@ export default function EventDetailScreen() {
       // Include jam kalau ada — BE patch 2026-05-22a
       // Jam dikirim apa adanya + nama kota cabang (penerima bisa di zona lain).
       const jam = event.jamMulai
-        ? ` · ${event.jamMulai}${event.jamSelesai ? `-${event.jamSelesai}` : ''} (${tzCity(venueTz)})`
+        ? ` · ${zoneTimeText(event.jamMulai, event.jamSelesai, venueTz, lang)}`
+        : venueTz
+          ? ` (${tzZoneLabel(venueTz, lang)})`
         : '';
       lines.push(`📅 ${dateStr}${endStr}${jam}`);
     }
@@ -368,11 +370,15 @@ export default function EventDetailScreen() {
                 {/* Jam mulai - selesai — prefer BE jamMulai/jamSelesai (BE patch 2026-05-22a),
                     fallback ke parse dari ISO untuk event lama */}
                 {(() => {
-                  const range = formatTimeRange(event, venueTz);
+                  const range = formatTimeRange(event, venueTz, lang);
+                  const local = event.jamMulai
+                    ? localRangeIfDifferent(ymdInTz(event.tanggalMulai, venueTz), event.jamMulai, event.jamSelesai, venueTz)
+                    : null;
                   return range ? (
                     <MetaRow
                       icon={<Clock size={20} color="#EA580C" />}
                       primary={range}
+                      secondary={local ? t('time.your_time', { time: local }) : null}
                     />
                   ) : null;
                 })()}
@@ -554,7 +560,7 @@ export default function EventDetailScreen() {
                 subtitle={(d) =>
                   [
                     d.event.judul,
-                    d.event.jamMulai ? formatVenueRange(d.tanggal ?? null, d.event.jamMulai, d.event.jamSelesai, d.timezone, '–') : null,
+                    d.event.jamMulai ? zoneTimeText(d.event.jamMulai, d.event.jamSelesai, d.timezone, lang) : null,
                     d.event.lokasi,
                   ]
                     .filter(Boolean)
@@ -776,10 +782,11 @@ function formatTimeRange(
     jamSelesai?: string | null;
   },
   venueTz?: string | null,
+  lang?: string,
 ): string | null {
-  // Path 1: BE jam fields (preferred) — jam dinding cabang → zona waktu HP.
+  // Path 1: BE jam fields (preferred) — jam dinding cabang + label zona.
   if (event.jamMulai) {
-    return formatVenueRange(event.tanggalMulai, event.jamMulai, event.jamSelesai, venueTz);
+    return zoneTimeText(event.jamMulai, event.jamSelesai, venueTz, lang);
   }
 
   // Path 2: legacy fallback — parse jam dari ISO

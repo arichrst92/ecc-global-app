@@ -14,9 +14,28 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 - **Unduh data saya** — Pengaturan → Privasi → salinan data pribadi sebagai **PDF** (format sama dengan Export PDF detail jemaat di Portal + persetujuan, pengaturan pesan, prayer request, Bible 365, hak jemaat), dibuka lewat link 10 menit.
 - **Pesan WhatsApp** — Pengaturan → Privasi: jemaat bisa mematikan pengingat ibadah/event, ucapan ulang tahun, dan info aktivitas (OTP tetap dikirim).
 - **Ulasan ibadah & event** — dari layar tiket: beri bintang 1–5, komentar (opsional), bisa anonim. Terbuka sejak acara dimulai sampai 14 hari setelah selesai; hasilnya tampil di Portal (detail ibadah/event, Laporan Ibadah/Event + export PDF/CSV).
-- **Zona waktu jelas** — daftar ibadah, daftar event, dan Beranda menampilkan jadwal lengkap dengan zona waktu cabang, mis. "26 Oktober 2029 10.00 - 12.00 Waktu Kuala Lumpur"; bila zona HP berbeda, jam setempat ikut ditampilkan di kartu ibadah hari ini.
+- **Zona waktu jelas** — daftar ibadah, daftar event, Beranda, detail ibadah, detail event, dan tiket menampilkan jadwal dengan zona waktu cabang, mis. "26 Oktober 2029 10.00 - 12.00 Waktu Kuala Lumpur"; bila zona HP berbeda, jam setempat ikut ditampilkan ("09:00 - 11:00 di zona waktu Anda").
 - **Statistik penggunaan anonim** (halaman dibuka, kecepatan app) untuk Portal → Analitik; bisa dimatikan di Profil → Pengaturan → Privasi.
-- Server (sudah live): data wajah dihapus, hapus data permanen di Portal, retensi data otomatis.
+- **Label jadwal lebih jelas** — detail ibadah menampilkan "Sabtu minggu kedua setiap bulan", "Setiap 2 minggu, hari …", "Sekali" (sebelumnya tampil kode mentah seperti `MONTHLY`).
+- Server (sudah live): data wajah dihapus, hapus data permanen di Portal, retensi data otomatis, enkripsi Credential & backup, jadwal Bulanan minggu ke-N, menu Compliance.
+
+## Perbandingan 2.4.3 → 2.4.4
+
+| Area | 2.4.3 (27 Okt 2026) | 2.4.4 (Nov 2026) |
+|---|---|---|
+| Persetujuan S&K & Privasi | Kalimat "dengan melanjutkan Anda menyetujui…" — tidak tercatat | Centang wajib saat daftar (S&K + Privasi, data sensitif, usia) + layar setuju ulang untuk pengguna lama; **tercatat** (versi, waktu, platform) |
+| Batas usia | Belum ditanyakan | 18+ atau 13–17 dengan izin orang tua; < 13 ditolak bila tanggal lahir diketahui |
+| Dokumen legal | v2.0 (ID/EN) | v3.0 untuk Indonesia, Malaysia & Australia (ID/EN/Melayu) |
+| Salinan data pribadi | Lewat email ke gereja | **Unduh data saya** — PDF langsung dari Pengaturan → Privasi |
+| Pesan WhatsApp | Hanya bisa diatur admin | Jemaat memilih sendiri: pengingat, ucapan ulang tahun, info aktivitas |
+| Statistik penggunaan | — | Anonim (tanpa nama/no HP), bisa dimatikan |
+| Ulasan ibadah & event | — | Bintang 1–5 + komentar (opsional, bisa anonim) dari tiket |
+| Zona waktu jadwal | Jam dikonversi ke zona HP tanpa label | Jam resmi cabang + label zona di daftar, Beranda, detail & tiket, mis. "10.00 - 12.00 Waktu Kuala Lumpur" |
+| Label jadwal ibadah | "Setiap Minggu" atau kode mentah (`MONTHLY`, `BIWEEKLY`) | "Sabtu minggu kedua setiap bulan", "Setiap 2 minggu, hari …", "Sekali" |
+| Modul native baru | expo-notifications, expo-sharing, media-library, view-shot | Tidak ada (aman untuk build biasa) |
+| Versi minimum server | Migrasi 2.4.3 | Migrasi s.d. `20261030230000` — wajib sudah di-deploy sebelum app 2.4.4 dipakai |
+
+Fitur 2.4.3 (Bible 365, share gambar, homecell & tamu, laporan PDF) tetap ada di 2.4.4 tanpa perubahan perilaku.
 
 ## Google Play — "Yang baru"
 **id-ID**
