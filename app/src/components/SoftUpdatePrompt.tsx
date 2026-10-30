@@ -3,31 +3,32 @@
  * (BE updateAvailable=true) tapi versi terpasang masih didukung
  * (forceUpdate=false; yang wajib ditangani ForceUpdateModal).
  *
- * Muncul sekali per versi: "Nanti" menyimpan versi yang dilewati, jadi
- * baru muncul lagi kalau admin publish versi yang lebih baru.
- * Data dari menu App Versions di portal (GET /public/app-version).
+ * Muncul sekali per versi: tombol "Nanti" menyimpan versi yang dilewati, jadi
+ * baru muncul lagi kalau admin publish versi yang lebih baru. Ketuk area gelap
+ * / tombol back hanya MENUTUP (tidak dicatat sebagai "Nanti") supaya ketukan
+ * tak sengaja tidak menyembunyikan update sampai versi berikutnya.
  *
- * Layout bottom sheet (maks. 85% tinggi layar): ikon app + judul + catatan
- * rilis ada di ScrollView, tombol Nanti / Update di-pin di bawah. Backdrop
- * adalah Pressable TERPISAH (bukan membungkus sheet) supaya gesture scroll
- * di dalam sheet tidak "dicuri" responder Pressable di Android.
+ * Desain 2.4.4: bottom sheet dengan kepala oranye brand (logo + versi),
+ * catatan rilis bercentang sesuai bahasa app, tombol Nanti / Perbarui di-pin.
+ * Backdrop adalah Pressable TERPISAH (bukan membungkus sheet) supaya gesture
+ * scroll di dalam sheet tidak "dicuri" responder Pressable di Android.
  */
 import { useEffect, useState } from 'react';
-import { Image, Linking, Modal, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { Linking, Modal, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { ArrowDownToLine } from 'lucide-react-native';
+import { ArrowDownToLine, X } from 'lucide-react-native';
 
 import { useAppVersion } from '@/hooks/useAppVersion';
 import { gx } from '@/theme/gradient';
+import { AppLogo, ReleaseNotes, VersionPill, releaseNotesFor, storeUrlFor } from '@/components/update/shared';
 
 const DISMISS_KEY = 'app-update.dismissed-version';
-const APP_ICON = require('../../assets/images/ecc-icon-ios.png');
 
 export function SoftUpdatePrompt() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data } = useAppVersion();
   const [visible, setVisible] = useState(false);
   const insets = useSafeAreaInsets();
@@ -53,6 +54,12 @@ export function SoftUpdatePrompt() {
 
   if (!eligible || !data) return null;
 
+  /** Tutup saja (muncul lagi saat app dibuka berikutnya). */
+  function close() {
+    setVisible(false);
+  }
+
+  /** "Nanti" — lewati versi ini. */
   function later() {
     setVisible(false);
     if (latest) AsyncStorage.setItem(DISMISS_KEY, latest).catch(() => {});
@@ -60,57 +67,56 @@ export function SoftUpdatePrompt() {
 
   function update() {
     setVisible(false);
-    if (data?.downloadUrl) Linking.openURL(data.downloadUrl).catch(() => {});
+    Linking.openURL(storeUrlFor(data!)).catch(() => {});
   }
 
   const current = Constants.expoConfig?.version ?? '';
+  const notes = releaseNotesFor(data, i18n.language);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={later}>
+    <Modal visible={visible} transparent animationType="slide" statusBarTranslucent onRequestClose={close}>
       <View className="flex-1 justify-end">
-        {/* Backdrop — tap untuk "Nanti" */}
         <Pressable
-          onPress={later}
+          onPress={close}
           accessibilityRole="button"
-          accessibilityLabel={t('update.soft_later')}
+          accessibilityLabel={t('common.close')}
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)' }}
         />
 
         <View
-          className="bg-card rounded-t-3xl w-full max-w-md self-center"
-          style={{ maxHeight: height * 0.85, paddingBottom: Math.max(insets.bottom, 16) + 8 }}
+          className="bg-card rounded-t-3xl w-full max-w-md self-center overflow-hidden"
+          style={{ maxHeight: height * 0.88, paddingBottom: Math.max(insets.bottom, 16) + 8 }}
         >
-          <View className="items-center pt-3 pb-2">
-            <View className="w-10 h-1 bg-neutral-300 rounded-full" />
+          {/* Kepala oranye */}
+          <View {...gx('bg-brand-500 px-6 pt-3 pb-6 items-center')}>
+            <View className="w-10 h-1 bg-white/40 rounded-full mb-4" />
+            <Pressable
+              onPress={close}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.close')}
+              hitSlop={10}
+              className="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/20 items-center justify-center"
+            >
+              <X size={16} color="#fff" />
+            </Pressable>
+            <AppLogo size={60} />
+            <Text className="text-white text-xl font-bold text-center mt-3">{t('update.soft_title')}</Text>
+            <View className="mt-2">
+              <VersionPill current={current} latest={latest} />
+            </View>
           </View>
 
           <ScrollView
             style={{ flexGrow: 0, flexShrink: 1 }}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 8 }}
+            contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 18, paddingBottom: 4 }}
             showsVerticalScrollIndicator
             persistentScrollbar
             nestedScrollEnabled
           >
-            <View className="flex-row items-center gap-3 mb-3">
-              <Image
-                source={APP_ICON}
-                style={{ width: 52, height: 52, borderRadius: 12 }}
-                accessibilityIgnoresInvertColors
-                accessibilityLabel="Els App"
-              />
-              <View className="flex-1 min-w-0">
-                <Text className="text-lg font-bold text-neutral-900">{t('update.soft_title')}</Text>
-                <Text className="text-xs text-neutral-500">{t('update.soft_versions', { current, latest })}</Text>
-              </View>
-            </View>
-            <Text className="text-sm text-neutral-600 leading-relaxed">{t('update.soft_body')}</Text>
-
-            {data.releaseNotes ? (
-              <View className="bg-neutral-50 rounded-2xl p-4 mt-4">
-                <Text className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">
-                  {t('update.release_notes')}
-                </Text>
-                <Text className="text-sm text-neutral-700 leading-relaxed">{data.releaseNotes}</Text>
+            <Text className="text-sm text-neutral-600 text-center leading-relaxed">{t('update.soft_body')}</Text>
+            {notes ? (
+              <View className="mt-4">
+                <ReleaseNotes text={notes} />
               </View>
             ) : null}
           </ScrollView>
@@ -119,20 +125,18 @@ export function SoftUpdatePrompt() {
             <Pressable
               onPress={later}
               accessibilityRole="button"
-              className="flex-1 py-3.5 rounded-2xl border border-neutral-200 items-center"
+              className="flex-1 py-3.5 rounded-2xl bg-neutral-100 items-center justify-center"
             >
               <Text className="text-sm font-semibold text-neutral-700">{t('update.soft_later')}</Text>
             </Pressable>
-            {data.downloadUrl ? (
-              <Pressable
-                onPress={update}
-                accessibilityRole="button"
-                {...gx('flex-1 py-3.5 rounded-2xl bg-brand-500 flex-row items-center justify-center gap-2')}
-              >
-                <ArrowDownToLine size={18} color="#fff" />
-                <Text className="text-sm font-bold text-white">{t('update.soft_update')}</Text>
-              </Pressable>
-            ) : null}
+            <Pressable
+              onPress={update}
+              accessibilityRole="button"
+              {...gx('py-3.5 rounded-2xl bg-brand-500 flex-row items-center justify-center gap-2', { flex: 1.4 })}
+            >
+              <ArrowDownToLine size={18} color="#fff" />
+              <Text className="text-sm font-bold text-white">{t('update.soft_update')}</Text>
+            </Pressable>
           </View>
         </View>
       </View>

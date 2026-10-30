@@ -4,6 +4,8 @@
 export type MaintenanceStatus = {
   isEnabled: boolean;
   message: string | null;
+  /** Pesan bahasa Inggris (server baru); kosong → teks bawaan English. */
+  messageEn?: string | null;
   startedAt: string | null;
   estimatedEndAt: string | null;
 };

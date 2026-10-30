@@ -1230,22 +1230,33 @@
   "maintenance": {
     "title": "Sedang Pemeliharaan",
     "default_message": "Sistem sedang dalam pemeliharaan. Mohon coba kembali sebentar lagi.",
-    "countdown_label": "Selesai Dalam",
-    "no_estimate": "Mohon tunggu...",
-    "retry_btn": "Coba Lagi",
-    "auto_recover_hint": "Aplikasi akan otomatis kembali normal saat maintenance selesai."
+    "countdown_label": "Perkiraan selesai dalam",
+    "no_estimate": "Kami sedang menyelesaikannya…",
+    "retry_btn": "Coba lagi",
+    "auto_recover_hint": "Aplikasi akan kembali normal dengan sendirinya setelah pemeliharaan selesai.",
+    "badge": "Pemeliharaan sistem",
+    "unit_hours": "jam",
+    "unit_minutes": "menit",
+    "unit_seconds": "detik",
+    "ends_at": "Selesai sekitar pukul {{time}}",
+    "almost_done": "Hampir selesai, sedang memeriksa…",
+    "checking": "Memeriksa…"
   },
   "update": {
-    "force_title": "Pembaruan Diperlukan",
-    "force_body": "Versi aplikasi Anda tidak didukung lagi. Silakan perbarui ke versi terbaru ({{latest}}) untuk melanjutkan.",
+    "force_title": "Perbarui Els App",
+    "force_body": "Versi aplikasi Anda sudah tidak didukung. Perbarui ke versi {{latest}} untuk melanjutkan.",
     "release_notes": "Apa yang baru",
-    "cta_update": "Perbarui Sekarang",
+    "cta_update": "Perbarui sekarang",
     "no_download_url": "Silakan buka App Store / Play Store untuk perbarui aplikasi.",
     "soft_title": "Versi baru tersedia",
     "soft_versions": "Versi Anda {{current}} → terbaru {{latest}}",
     "soft_body": "Perbarui aplikasi untuk mendapatkan fitur terbaru dan perbaikan.",
     "soft_later": "Nanti",
-    "soft_update": "Update"
+    "soft_update": "Perbarui",
+    "data_safe": "Data dan akun Anda tetap aman setelah diperbarui.",
+    "check_again": "Sudah memperbarui? Periksa lagi",
+    "checking": "Memeriksa…",
+    "still_old": "Versi terpasang masih {{current}}. Tunggu beberapa menit setelah pembaruan selesai, lalu buka lagi app."
   },
   "edit_profile": {
     "title_dependent": "Edit Profil — {{name}}",

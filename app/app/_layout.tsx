@@ -247,9 +247,9 @@ function AppEffects() {
  * di per-query level). Hanya BLOCK kalau BE explicitly say maintenance ON.
  */
 function MaintenanceGate({ children }: { children: React.ReactNode }) {
-  const { data, refetch } = useMaintenanceMode();
+  const { data, refetch, isFetching } = useMaintenanceMode();
   if (data?.isEnabled) {
-    return <MaintenanceModal data={data} onRetry={refetch} />;
+    return <MaintenanceModal data={data} onRetry={refetch} checking={isFetching} />;
   }
   return <>{children}</>;
 }

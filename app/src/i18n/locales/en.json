@@ -1230,22 +1230,33 @@
   "maintenance": {
     "title": "Under Maintenance",
     "default_message": "The system is currently under maintenance. Please try again shortly.",
-    "countdown_label": "Done In",
-    "no_estimate": "Please wait...",
-    "retry_btn": "Try Again",
-    "auto_recover_hint": "The app will automatically resume normal operation once maintenance is complete."
+    "countdown_label": "Expected to finish in",
+    "no_estimate": "We're finishing up…",
+    "retry_btn": "Try again",
+    "auto_recover_hint": "The app will return to normal on its own once maintenance is finished.",
+    "badge": "System maintenance",
+    "unit_hours": "hours",
+    "unit_minutes": "minutes",
+    "unit_seconds": "seconds",
+    "ends_at": "Expected to finish around {{time}}",
+    "almost_done": "Almost done, checking…",
+    "checking": "Checking…"
   },
   "update": {
-    "force_title": "Update Required",
-    "force_body": "Your app version is no longer supported. Please update to the latest version ({{latest}}) to continue.",
+    "force_title": "Update Els App",
+    "force_body": "This version of the app is no longer supported. Update to version {{latest}} to continue.",
     "release_notes": "What's new",
-    "cta_update": "Update Now",
+    "cta_update": "Update now",
     "no_download_url": "Please open App Store / Play Store to update the app.",
     "soft_title": "New version available",
     "soft_versions": "Your version {{current}} → latest {{latest}}",
     "soft_body": "Update the app to get the latest features and fixes.",
     "soft_later": "Later",
-    "soft_update": "Update"
+    "soft_update": "Update",
+    "data_safe": "Your data and account stay safe after updating.",
+    "check_again": "Already updated? Check again",
+    "checking": "Checking…",
+    "still_old": "Installed version is still {{current}}. Wait a few minutes after the update finishes, then reopen the app."
   },
   "edit_profile": {
     "title_dependent": "Edit Profile — {{name}}",

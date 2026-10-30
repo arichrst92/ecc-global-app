@@ -11,6 +11,8 @@ export type AppVersionInfo = {
   updateAvailable: boolean;
   forceUpdate: boolean;
   releaseNotes: string | null;
+  /** Catatan rilis bahasa Inggris (server baru). */
+  releaseNotesEn?: string | null;
   downloadUrl: string | null;
   publishedAt: string | null;
 };
