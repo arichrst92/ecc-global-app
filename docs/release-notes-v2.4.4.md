@@ -14,6 +14,7 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 - **Unduh data saya** — Pengaturan → Privasi → salinan data pribadi sebagai **PDF** (format sama dengan Export PDF detail jemaat di Portal + persetujuan, pengaturan pesan, prayer request, Bible 365, hak jemaat), dibuka lewat link 10 menit.
 - **Pesan WhatsApp** — Pengaturan → Privasi: jemaat bisa mematikan pengingat ibadah/event, ucapan ulang tahun, dan info aktivitas (OTP tetap dikirim).
 - **Ulasan ibadah & event** — dari layar tiket: beri bintang 1–5, komentar (opsional), bisa anonim. Terbuka sejak acara dimulai sampai 14 hari setelah selesai; hasilnya tampil di Portal (detail ibadah/event, Laporan Ibadah/Event + export PDF/CSV).
+- **Zona waktu jelas** — daftar ibadah, daftar event, dan Beranda menampilkan jadwal lengkap dengan zona waktu cabang, mis. "26 Oktober 2029 10.00 - 12.00 Waktu Kuala Lumpur"; bila zona HP berbeda, jam setempat ikut ditampilkan di kartu ibadah hari ini.
 - **Statistik penggunaan anonim** (halaman dibuka, kecepatan app) untuk Portal → Analitik; bisa dimatikan di Profil → Pengaturan → Privasi.
 - Server (sudah live): data wajah dihapus, hapus data permanen di Portal, retensi data otomatis.
 

@@ -172,3 +172,101 @@ export function venueTimeHint(
   const raw = end && end !== start ? `${start} - ${end}` : (start ?? '');
   return label({ time: raw, city: tzCity(venueTz) });
 }
+
+// ------------------------------------------------------------------
+// Label zona waktu eksplisit untuk daftar ibadah/event & dashboard, mis.
+// "26 Oktober 2029 10.00 - 12.00 Waktu Kuala Lumpur". Jam = jam dinding
+// di zona cabang (tanpa konversi) supaya sama dengan jadwal resmi gereja.
+// ------------------------------------------------------------------
+
+const TZ_CITY: Record<string, { id: string; en: string }> = {
+  'Asia/Jakarta': { id: 'Jakarta', en: 'Jakarta' },
+  'Asia/Pontianak': { id: 'Pontianak', en: 'Pontianak' },
+  'Asia/Makassar': { id: 'Makassar', en: 'Makassar' },
+  'Asia/Jayapura': { id: 'Jayapura', en: 'Jayapura' },
+  'Asia/Kuala_Lumpur': { id: 'Kuala Lumpur', en: 'Kuala Lumpur' },
+  'Asia/Kuching': { id: 'Kuching', en: 'Kuching' },
+  'Asia/Singapore': { id: 'Singapura', en: 'Singapore' },
+  'Australia/Sydney': { id: 'Sydney', en: 'Sydney' },
+  'Australia/Melbourne': { id: 'Melbourne', en: 'Melbourne' },
+  'Australia/Brisbane': { id: 'Brisbane', en: 'Brisbane' },
+  'Australia/Adelaide': { id: 'Adelaide', en: 'Adelaide' },
+  'Australia/Perth': { id: 'Perth', en: 'Perth' },
+  'Australia/Darwin': { id: 'Darwin', en: 'Darwin' },
+  'Australia/Hobart': { id: 'Hobart', en: 'Hobart' },
+};
+
+const isEn = (lang: string | null | undefined) => !!lang && lang.startsWith('en');
+
+/** "Waktu Kuala Lumpur" / "Kuala Lumpur time". */
+export function tzZoneLabel(tz: string | null | undefined, lang?: string | null): string {
+  const key = tz || DEFAULT_VENUE_TZ;
+  const city = TZ_CITY[key]?.[isEn(lang) ? 'en' : 'id'] ?? tzCity(key);
+  return isEn(lang) ? `${city} time` : `Waktu ${city}`;
+}
+
+const MONTHS_FULL_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const MONTHS_FULL_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+/** "HH:mm" → "10.00" (id) / "10:00" (en). */
+function wall(hhmm: string | null | undefined, lang?: string | null): string {
+  if (!hhmm) return '';
+  const m = /^(\d{1,2})[:.](\d{2})/.exec(hhmm.trim());
+  if (!m) return hhmm;
+  return `${pad(Number(m[1]))}${isEn(lang) ? ':' : '.'}${m[2]}`;
+}
+
+/** "26 Oktober 2029" dari YYYY-MM-DD (tanpa geser zona). */
+export function formatYmdLong(ymd: string | null | undefined, lang?: string | null): string {
+  if (!ymd) return '';
+  const [y, mo, d] = ymd.slice(0, 10).split('-').map(Number);
+  if (!y || !mo || !d) return '';
+  return `${d} ${(isEn(lang) ? MONTHS_FULL_EN : MONTHS_FULL_ID)[mo - 1]} ${y}`;
+}
+
+/** "26 – 28 Oktober 2029" / "30 Oktober – 1 November 2029". */
+function ymdRange(a: string, b: string | null | undefined, lang?: string | null): string {
+  if (!b || b.slice(0, 10) === a.slice(0, 10)) return formatYmdLong(a, lang);
+  const [y1, m1, d1] = a.slice(0, 10).split('-').map(Number);
+  const [y2, m2, d2] = b.slice(0, 10).split('-').map(Number);
+  const months = isEn(lang) ? MONTHS_FULL_EN : MONTHS_FULL_ID;
+  if (y1 === y2 && m1 === m2) return `${d1} – ${d2} ${months[m1! - 1]} ${y1}`;
+  if (y1 === y2) return `${d1} ${months[m1! - 1]} – ${d2} ${months[m2! - 1]} ${y1}`;
+  return `${formatYmdLong(a, lang)} – ${formatYmdLong(b, lang)}`;
+}
+
+/**
+ * Jadwal lengkap dengan zona waktu cabang:
+ *   "26 Oktober 2029 10.00 - 12.00 Waktu Kuala Lumpur"
+ * `withDate=false` → "10.00 - 12.00 Waktu Kuala Lumpur".
+ * Tanpa jam (event seharian) → "26 Oktober 2029 · Waktu Kuala Lumpur".
+ */
+export function formatScheduleWithZone(opts: {
+  ymd: string | null | undefined;
+  endYmd?: string | null;
+  start?: string | null;
+  end?: string | null;
+  tz: string | null | undefined;
+  lang?: string | null;
+  withDate?: boolean;
+}): string {
+  const { ymd, endYmd, start, end, tz, lang, withDate = true } = opts;
+  const date = withDate && ymd ? ymdRange(ymd, endYmd, lang) : '';
+  const a = wall(start, lang);
+  const b = end && end !== start ? wall(end, lang) : '';
+  const time = a ? (b ? `${a} - ${b}` : a) : '';
+  const zone = tzZoneLabel(tz, lang);
+  if (!time) return date ? `${date} · ${zone}` : zone;
+  return [date, time, zone].filter(Boolean).join(' ');
+}
+
+/** Tanggal kalender (YYYY-MM-DD) dari instant ISO menurut zona `tz`. */
+export function ymdInTz(iso: string | null | undefined, tz: string | null | undefined): string | null {
+  if (!iso) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso.slice(0, 10);
+  const off = tzOffsetMin(tz || DEFAULT_VENUE_TZ, d);
+  const x = new Date(d.getTime() + (off ?? 0) * 60_000);
+  return `${x.getUTCFullYear()}-${pad(x.getUTCMonth() + 1)}-${pad(x.getUTCDate())}`;
+}

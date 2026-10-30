@@ -43,6 +43,8 @@ export type MyMinistryAssignment = {
   ibadahJamMulai: string;
   ibadahJamSelesai: string;
   ibadahLokasi: string;
+  /** Zona waktu cabang ibadah (IANA). */
+  timezone?: string | null;
   ministryId: string;
   ministryNama: string;
   posisi: string;

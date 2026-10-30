@@ -1918,7 +1918,8 @@
     "cancelled": "Reservasi dibatalkan."
   },
   "time": {
-    "venue_hint": "Jam gereja: {{time}} (waktu {{city}})"
+    "venue_hint": "Jam gereja: {{time}} (waktu {{city}})",
+    "your_time": "{{time}} di zona waktu Anda"
   },
   "journey": {
     "title": "Spiritual Journey",

@@ -22,7 +22,7 @@ import { useEventList } from '@/hooks/useEvents';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { EventListItem, TipeBayar } from '@/types/event';
-import { formatDate } from '@/utils/date';
+import { formatScheduleWithZone, ymdInTz } from '@/utils/time';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -225,11 +225,15 @@ function EventCard({
       </View>
 
       <View className="p-4">
-        <Text className="text-xs text-neutral-500 mb-1" numberOfLines={1}>
-          {formatDate(event.tanggalMulai, lang)}
-          {event.tanggalSelesai !== event.tanggalMulai
-            ? ` - ${formatDate(event.tanggalSelesai, lang)}`
-            : ''}
+        <Text className="text-xs text-neutral-500 mb-1" numberOfLines={2}>
+          {formatScheduleWithZone({
+            ymd: ymdInTz(event.tanggalMulai, event.cabang?.timezone),
+            endYmd: ymdInTz(event.tanggalSelesai, event.cabang?.timezone),
+            start: event.jamMulai,
+            end: event.jamSelesai,
+            tz: event.cabang?.timezone,
+            lang,
+          })}
         </Text>
         <Text className="font-bold text-neutral-900 mb-1.5" numberOfLines={2}>
           {event.judul}

@@ -10,6 +10,8 @@ export type KategoriIbadah = {
 export type CabangRef = {
   id: string;
   nama: string;
+  /** Zona waktu cabang (IANA), mis. Asia/Kuala_Lumpur. */
+  timezone?: string | null;
 };
 
 /** Item dari GET /admin/ibadah (list, paginated) */

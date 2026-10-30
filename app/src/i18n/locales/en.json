@@ -1919,7 +1919,8 @@
     "cancelled": "Reservation cancelled."
   },
   "time": {
-    "venue_hint": "Church time: {{time}} ({{city}} time)"
+    "venue_hint": "Church time: {{time}} ({{city}} time)",
+    "your_time": "{{time}} in your time zone"
   },
   "journey": {
     "title": "Spiritual Journey",

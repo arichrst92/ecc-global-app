@@ -10,7 +10,7 @@ export type ParticipationStatus =
   | 'BATAL';
 
 type SinodeRef = { id: string; nama: string };
-type CabangRef = { id: string; nama: string };
+type CabangRef = { id: string; nama: string; /** Zona waktu cabang (IANA). */ timezone?: string | null };
 
 /** Item dari GET /admin/event (list, paginated) */
 export type EventListItem = {

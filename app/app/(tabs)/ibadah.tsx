@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useVenueTz } from '@/hooks/useVenueTz';
-import { formatVenueRange, venueToLocal } from '@/utils/time';
+import { formatScheduleWithZone } from '@/utils/time';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -159,7 +159,7 @@ function DateSection({
   const { i18n } = useTranslation();
   const lang = i18n.language;
   const today = isToday(date);
-  // Jam jadwal (zona cabang yang dilihat) → zona waktu HP.
+  // Zona waktu cabang yang dilihat — ditampilkan sebagai label (mis. Waktu Kuala Lumpur).
   const venueTz = useVenueTz();
 
   return (
@@ -172,8 +172,8 @@ function DateSection({
       </View>
       <View className="gap-2">
         {items.map((item) => {
-          const start = venueToLocal(date, item.jamMulai, venueTz);
-          const [hh, mm] = (start?.time ?? item.jamMulai).split(':');
+          // Jam jadwal = jam dinding di zona cabang, ditampilkan dengan label zonanya.
+          const [hh, mm] = item.jamMulai.split(':');
           return (
           <Pressable
             key={`${item.ibadahId}-${date}`}
@@ -193,7 +193,7 @@ function DateSection({
                 {item.lokasi}
               </Text>
               <Text className="text-xs text-neutral-400 mt-1">
-                {formatVenueRange(date, item.jamMulai, item.jamSelesai, venueTz)}
+                {formatScheduleWithZone({ ymd: date, start: item.jamMulai, end: item.jamSelesai, tz: venueTz, lang, withDate: false })}
               </Text>
             </View>
             <ChevronRight size={16} color={nc('#A3A3A3')} />
