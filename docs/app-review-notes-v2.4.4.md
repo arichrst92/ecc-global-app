@@ -9,7 +9,7 @@ Official app of El Shaddai Creative Community (ECC), an Indonesian church networ
 
 === WHAT'S NEW IN 2.4.4 ===
 - Consent screen: at sign-up, and once for existing users, the user ticks agreement to the Terms & Privacy Policy, explicit consent for sensitive data (church membership) and an age group (18+, or 13-17 with parent/guardian permission). Under-13s cannot create accounts. "I don't agree" signs the user out.
-- Privacy settings: "Download my data" (JSON copy via the share sheet) and on/off switches for non-essential WhatsApp messages.
+- Privacy settings: "Download my data" (opens a PDF copy in the browser) and on/off switches for non-essential WhatsApp messages.
 - Anonymous usage statistics (screens opened, app speed) to improve the app; can be turned off in Profil > Pengaturan > Privasi.
 
 === COMPLIANCE NOTES ===

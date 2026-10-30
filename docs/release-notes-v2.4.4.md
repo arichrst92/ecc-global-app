@@ -11,7 +11,7 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
   - Jemaat lama diminta setuju **satu kali** lewat layar "Persetujuan data pribadi", dan lagi setiap kali Version dokumen Indonesia di Portal → Legal diubah.
   - "Saya tidak setuju" → keluar dari akun.
   - Tercatat di server (versi dokumen, waktu, usia, platform) dan terlihat di Portal → detail jemaat.
-- **Unduh data saya** — Pengaturan → Privasi → salinan data pribadi (file JSON), dibagikan lewat menu share / diunduh di web.
+- **Unduh data saya** — Pengaturan → Privasi → salinan data pribadi sebagai **PDF** (format sama dengan Export PDF detail jemaat di Portal + persetujuan, pengaturan pesan, prayer request, Bible 365, hak jemaat), dibuka lewat link 10 menit.
 - **Pesan WhatsApp** — Pengaturan → Privasi: jemaat bisa mematikan pengingat ibadah/event, ucapan ulang tahun, dan info aktivitas (OTP tetap dikirim).
 - **Statistik penggunaan anonim** (halaman dibuka, kecepatan app) untuk Portal → Analitik; bisa dimatikan di Profil → Pengaturan → Privasi.
 - Server (sudah live): data wajah dihapus, hapus data permanen di Portal, retensi data otomatis.
@@ -89,7 +89,7 @@ Google Play → Data safety: **App activity → Page views** & **App info and pe
 - [ ] App bahasa English → teks persetujuan English
 
 **Unduh data & pesan WhatsApp**
-- [ ] Privasi → Unduh data saya → iOS/Android: share sheet berisi file .json; web: file terunduh; isi sesuai profil
+- [ ] Privasi → Unduh data saya → browser terbuka → print view PDF (Simpan sebagai PDF); isi sesuai profil; kontak keluarga tidak tampil
 - [ ] Ketuk 4x dalam 1 jam → pesan batas tercapai
 - [ ] Privasi → Pesan WhatsApp → matikan "Ucapan ulang tahun" → buka lagi, tetap mati
 

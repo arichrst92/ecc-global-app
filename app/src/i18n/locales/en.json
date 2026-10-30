@@ -1886,8 +1886,8 @@
     "wa_updates": "Activity updates",
     "wa_updates_sub": "Groups, events, ministry, family, homecell, prayer",
     "export_title": "Download my data",
-    "export_body": "Get a copy of your personal data (profile, attendance, events, homecell, notes) as a JSON file.",
-    "export_btn": "Download"
+    "export_body": "Get a copy of your personal data (profile, family, attendance, events, homecell, prayer, consent) as a PDF.",
+    "export_btn": "Open PDF"
   },
   "reservasi": {
     "btn": "Reserve",

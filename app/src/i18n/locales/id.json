@@ -1885,8 +1885,8 @@
     "wa_updates": "Info aktivitas",
     "wa_updates_sub": "Group, event, pelayanan, keluarga, homecell, doa",
     "export_title": "Unduh data saya",
-    "export_body": "Dapatkan salinan data pribadi Anda (profil, kehadiran, event, homecell, catatan) dalam file JSON.",
-    "export_btn": "Unduh"
+    "export_body": "Dapatkan salinan data pribadi Anda (profil, keluarga, kehadiran, event, homecell, doa, persetujuan) sebagai PDF.",
+    "export_btn": "Buka PDF"
   },
   "reservasi": {
     "btn": "Reservasi",
