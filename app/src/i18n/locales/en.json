@@ -614,7 +614,15 @@
     "self_checkin_success": "Checked in: {{names}}",
     "self_checkin_opens_at": "Opens at {{time}} (15 minutes before start)",
     "self_checkin_countdown": "Self check-in will be available in",
-    "my_qr_short": "My QR"
+    "my_qr_short": "My QR",
+    "every_other_day": "Every other {{day}}",
+    "monthly_nth": "{{nth}} {{day}} of every month",
+    "monthly": "Monthly",
+    "once": "One-time",
+    "nth_1": "1st",
+    "nth_2": "2nd",
+    "nth_3": "3rd",
+    "nth_4": "4th"
   },
   "error": {
     "network": "No internet connection. Please try again.",

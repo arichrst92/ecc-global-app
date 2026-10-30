@@ -18,6 +18,8 @@ export type IbadahListItem = {
   nama: string;
   tipeJadwal: TipeJadwal;
   hari?: string | null;
+  /** Bulanan: minggu ke-1..4 dalam bulan (bersama `hari`). */
+  mingguKe?: number | null;
   tanggalMulai: string; // ISO date
   jamMulai: string; // HH:mm
   jamSelesai: string;

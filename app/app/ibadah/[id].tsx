@@ -221,11 +221,16 @@ export default function IbadahDetailScreen() {
               <InfoCard
                 icon={<Calendar size={18} color="#EA580C" />}
                 label={t('ibadah.schedule')}
-                value={
-                  ibadah.tipeJadwal === 'WEEKLY' && ibadah.hari
-                    ? t('ibadah.every_day', { day: ibadah.hari })
-                    : ibadah.tipeJadwal
-                }
+                value={(() => {
+                  const day = ibadah.hari ? ibadah.hari.charAt(0) + ibadah.hari.slice(1).toLowerCase() : '';
+                  if (ibadah.tipeJadwal === 'WEEKLY' && day) return t('ibadah.every_day', { day });
+                  if (ibadah.tipeJadwal === 'BIWEEKLY' && day) return t('ibadah.every_other_day', { day });
+                  if (ibadah.tipeJadwal === 'MONTHLY' && day && ibadah.mingguKe)
+                    return t('ibadah.monthly_nth', { day, nth: t(`ibadah.nth_${ibadah.mingguKe}`) });
+                  if (ibadah.tipeJadwal === 'MONTHLY') return t('ibadah.monthly');
+                  if (ibadah.tipeJadwal === 'ONCE') return t('ibadah.once');
+                  return ibadah.tipeJadwal;
+                })()}
               />
             </View>
             {timeHint ? <Text className="text-[11px] text-neutral-500 -mt-1 mb-3">{timeHint}</Text> : null}
