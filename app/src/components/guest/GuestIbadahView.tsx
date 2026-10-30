@@ -13,7 +13,8 @@ import { usePublicIbadah } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
-import { formatVenueRange } from '@/utils/time';
+import { zoneTimeText } from '@/utils/time';
+import i18nInst from '@/i18n';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -135,7 +136,7 @@ export function GuestIbadahView() {
                         {it.judul}
                       </Text>
                       <Text className="text-xs text-neutral-500 mt-0.5">
-                        {formatVenueRange(date, it.jam, it.jamSelesai, venueTz, ' – ')}
+                        {zoneTimeText(it.jam, it.jamSelesai, venueTz, i18nInst.language)}
                       </Text>
                       <Text className="text-xs text-neutral-500 mt-0.5">
                         {it.cabang?.nama ?? t('event.synod_level')}

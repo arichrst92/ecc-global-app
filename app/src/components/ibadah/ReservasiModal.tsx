@@ -15,7 +15,8 @@ import { useToast } from '@/components/ui/Toast';
 import { AddTamuModal } from '@/components/tamu/AddTamuModal';
 import { cancelReservasiFor, getReservasiOptions, postReservasi, type ReservasiMember } from '@/api/ibadah';
 import { formatDateWithDay } from '@/utils/date';
-import { formatVenueRange } from '@/utils/time';
+import { zoneTimeText } from '@/utils/time';
+import i18nInst from '@/i18n';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -109,7 +110,7 @@ export function ReservasiModal({
               <Text className="text-base font-bold text-neutral-900">{t('reservasi.title')}</Text>
               {d ? (
                 <Text className="text-xs text-neutral-500" numberOfLines={1}>
-                  {d.ibadah.nama} · {formatVenueRange(current?.tanggal ?? null, d.ibadah.jamMulai, d.ibadah.jamSelesai, d.timezone, '–')}
+                  {d.ibadah.nama} · {zoneTimeText(d.ibadah.jamMulai, d.ibadah.jamSelesai, d.timezone, i18nInst.language)}
                 </Text>
               ) : null}
             </View>

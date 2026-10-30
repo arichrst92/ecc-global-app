@@ -8,7 +8,8 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Check, CheckCircle2, LocateFixed, MapPin, UserPlus } from 'lucide-react-native';
 import { formatRadius } from '@/utils/selfCheckinLocation';
-import { formatVenueRange } from '@/utils/time';
+import { zoneTimeText } from '@/utils/time';
+import i18nInst from '@/i18n';
 import { AddTamuModal } from '@/components/tamu/AddTamuModal';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -68,7 +69,7 @@ export function SelfCheckinModal({
   const sub =
     subtitle ??
     (status?.ibadah
-      ? `${status.ibadah.nama} · ${formatVenueRange(status.tanggal ?? null, status.ibadah.jamMulai, status.ibadah.jamSelesai, status.timezone, '–')}${status.ibadah.lokasi ? ` · ${status.ibadah.lokasi}` : ''}`
+      ? `${status.ibadah.nama} · ${zoneTimeText(status.ibadah.jamMulai, status.ibadah.jamSelesai, status.timezone, i18nInst.language)}${status.ibadah.lokasi ? ` · ${status.ibadah.lokasi}` : ''}`
       : '');
 
   return (

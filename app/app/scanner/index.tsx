@@ -23,7 +23,8 @@ import {
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { formatDate, todayIso } from '@/utils/date';
 import { useVenueTz } from '@/hooks/useVenueTz';
-import { formatVenueRange } from '@/utils/time';
+import { zoneTimeText } from '@/utils/time';
+import i18nInst from '@/i18n';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -191,7 +192,7 @@ function IbadahCard({
         <View className="flex-row items-center gap-1.5 mt-1">
           <Clock size={12} color={nc('#A3A3A3')} />
           <Text className="text-xs text-neutral-500">
-            {formatVenueRange(null, item.jamMulai, item.jamSelesai, venueTz)}
+            {zoneTimeText(item.jamMulai, item.jamSelesai, venueTz, i18nInst.language)}
           </Text>
           <Text className="text-xs text-neutral-400">·</Text>
           <MapPin size={12} color={nc('#A3A3A3')} />

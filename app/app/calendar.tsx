@@ -11,7 +11,8 @@ import { useMyFamily } from '@/hooks/useFamily';
 import { listEvents } from '@/api/event';
 import { getIbadahCalendar } from '@/api/ibadah';
 import { useVenueTz } from '@/hooks/useVenueTz';
-import { formatVenueRange } from '@/utils/time';
+import { zoneTimeText } from '@/utils/time';
+import i18nInst from '@/i18n';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
@@ -181,7 +182,7 @@ export default function CalendarScreen() {
           id: o.ibadahId,
           title: o.nama,
           date: o.tanggal,
-          time: formatVenueRange(o.tanggal, o.jamMulai, null, venueTz),
+          time: zoneTimeText(o.jamMulai, null, venueTz, i18nInst.language),
           kategori: o.kategoriIbadah?.nama,
         });
       }

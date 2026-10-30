@@ -17,7 +17,8 @@ import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { useVenueTz } from '@/hooks/useVenueTz';
 import { addDaysIso, formatDateWithDay, todayIso } from '@/utils/date';
-import { formatVenueRange } from '@/utils/time';
+import { zoneTimeText } from '@/utils/time';
+import i18nInst from '@/i18n';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
@@ -180,7 +181,7 @@ function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; o
       {a.ibadahJamMulai ? (
         <Row
           icon={<Clock size={13} color={nc('#737373')} />}
-          text={formatVenueRange(a.tanggal, a.ibadahJamMulai, a.ibadahJamSelesai, tz)}
+          text={zoneTimeText(a.ibadahJamMulai, a.ibadahJamSelesai, tz, i18nInst.language)}
         />
       ) : null}
       {a.ibadahLokasi ? <Row icon={<MapPin size={13} color={nc('#737373')} />} text={a.ibadahLokasi} /> : null}
@@ -211,7 +212,7 @@ function EventDuty({ e, onPress }: { e: MyEventDuty; onPress: () => void }) {
       </View>
       <RoleBadge posisi={e.posisi} ministry={e.ministryNama} />
       {e.jamMulai ? (
-        <Row icon={<Clock size={13} color={nc('#737373')} />} text={formatVenueRange(e.tanggalMulai, e.jamMulai, e.jamSelesai, tz)} />
+        <Row icon={<Clock size={13} color={nc('#737373')} />} text={zoneTimeText(e.jamMulai, e.jamSelesai, tz, i18nInst.language)} />
       ) : null}
       {e.lokasi ? <Row icon={<MapPin size={13} color={nc('#737373')} />} text={e.lokasi} /> : null}
       {e.canScanAttendance ? <Row icon={<ScanLine size={13} color="#059669" />} text={t('service.scanner')} /> : null}
