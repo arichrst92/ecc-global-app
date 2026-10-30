@@ -2359,7 +2359,13 @@
     "decline_btn": "Saya tidak setuju",
     "decline_title": "Tidak menyetujui?",
     "decline_msg": "Tanpa persetujuan, Anda tidak dapat memakai Els App dengan akun ini. Anda bisa keluar sekarang dan kembali kapan saja, atau minta data Anda dihapus melalui privacy@eccchurch.global.",
-    "decline_logout": "Keluar"
+    "decline_logout": "Keluar",
+    "dob_title": "Tanggal lahir Anda",
+    "dob_recorded": "Tercatat: {{date}} ({{age}} tahun). Jika ini bukan tanggal lahir Anda, perbaiki di sini.",
+    "dob_new": "Akan disimpan: {{date}} ({{age}} tahun).",
+    "dob_empty": "Tanggal lahir belum tercatat.",
+    "dob_fix": "Perbaiki tanggal lahir",
+    "dob_change_again": "Ubah lagi"
   },
   "review": {
     "title_ibadah": "Bagaimana ibadah hari ini?",

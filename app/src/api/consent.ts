@@ -11,6 +11,8 @@ export type ConsentAgeGroup = 'ADULT' | 'MINOR_WITH_GUARDIAN';
 
 export interface ConsentStatus {
   required: boolean;
+  /** Tanggal lahir tercatat (YYYY-MM-DD). */
+  birthDate?: string | null;
   current: { termsVersion: string | null; privacyVersion: string | null };
   latest: { termsVersion: string; privacyVersion: string; ageGroup: string | null; acceptedAt: string } | null;
 }
@@ -22,6 +24,8 @@ export interface ConsentPayload {
   language?: string;
   platform?: string;
   appVersion?: string;
+  /** Koreksi tanggal lahir (YYYY-MM-DD) bila data tercatat salah. */
+  tanggalLahir?: string;
 }
 
 export function buildConsentPayload(ageGroup: ConsentAgeGroup, language: string): ConsentPayload {

@@ -2360,7 +2360,13 @@
     "decline_btn": "I don't agree",
     "decline_title": "Don't agree?",
     "decline_msg": "Without consent you can't use Els App with this account. You can sign out now and come back any time, or ask for your data to be deleted at privacy@eccchurch.global.",
-    "decline_logout": "Sign out"
+    "decline_logout": "Sign out",
+    "dob_title": "Your date of birth",
+    "dob_recorded": "On record: {{date}} ({{age}} years). If this isn't your date of birth, fix it here.",
+    "dob_new": "Will be saved: {{date}} ({{age}} years).",
+    "dob_empty": "No date of birth on record.",
+    "dob_fix": "Fix date of birth",
+    "dob_change_again": "Change again"
   },
   "review": {
     "title_ibadah": "How was today's service?",

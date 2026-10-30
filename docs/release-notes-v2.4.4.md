@@ -9,6 +9,7 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 - **Persetujuan data pribadi (kepatuhan UU PDP / PDPA / Privacy Act)**
   - Saat daftar akun, jemaat wajib mencentang tiga hal: setuju S&K + Kebijakan Privasi, persetujuan data sensitif (keanggotaan gereja, data anak), dan kelompok usia (18+ / 13–17 dengan izin orang tua).
   - Jemaat lama diminta setuju **satu kali** lewat layar "Persetujuan data pribadi", dan lagi setiap kali Version dokumen Indonesia di Portal → Legal diubah.
+  - Bila tanggal lahir tercatat < 18 tahun (mis. data impor Shiftsoft salah), layar menampilkan tanggal lahir tersebut dengan tombol **Perbaiki tanggal lahir**; koreksi disimpan ke profil (tercatat di Audit Log) sebelum batas usia dicek.
   - "Saya tidak setuju" → keluar dari akun.
   - Tercatat di server (versi dokumen, waktu, usia, platform) dan terlihat di Portal → detail jemaat.
 - **Unduh data saya** — Pengaturan → Privasi → salinan data pribadi sebagai **PDF** (format sama dengan Export PDF detail jemaat di Portal + persetujuan, pengaturan pesan, prayer request, Bible 365, hak jemaat), dibuka lewat link 10 menit.
@@ -108,6 +109,7 @@ Google Play → Data safety: **App activity → Page views** & **App info and pe
 - [ ] Setuju & Lanjutkan → masuk app; tutup & buka lagi → tidak muncul lagi
 - [ ] "Saya tidak setuju" → Keluar → kembali ke Welcome
 - [ ] Profil dengan tanggal lahir < 18 th + pilih "18 tahun ke atas" → pesan error izin orang tua
+- [ ] Profil dengan tanggal lahir salah (mis. 2015) → kotak "Tanggal lahir Anda" → Perbaiki (mis. 2005) → pilihan usia jadi 18+ → Setuju berhasil → profil menampilkan tanggal baru
 - [ ] Mode tamu → tidak ada layar persetujuan
 - [ ] App bahasa English → teks persetujuan English
 
