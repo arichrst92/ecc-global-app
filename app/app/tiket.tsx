@@ -6,8 +6,8 @@
  *   kind=event  &id=<participationId>&eventId=<eventId>[&scope=upcoming|history]
  *   kind=ibadah &id=<reservasiId>&ibadahId=<ibadahId>&tanggal=YYYY-MM-DD
  */
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -63,6 +63,27 @@ export default function TiketScreen() {
   const startIndex = Math.max(0, items.findIndex((x) => (x.kind === 'event' ? x.t.id : x.r.id) === p.id));
   const [page, setPage] = useState(startIndex);
   const listRef = useRef<FlatList<Item>>(null);
+  // Scroll per halaman tiket — dipakai supaya kolom komentar ulasan tidak tertutup keyboard.
+  const pageRefs = useRef<Record<string, ScrollView | null>>({});
+  const focusedPage = useRef<string | null>(null);
+  const scrollPageToEnd = (key: string) => {
+    focusedPage.current = key;
+    setTimeout(() => pageRefs.current[key]?.scrollToEnd({ animated: true }), Platform.OS === 'ios' ? 350 : 250);
+  };
+  // Setelah keyboard benar-benar tampil (tinggi layar berubah), gulir lagi halaman yang sedang diisi.
+  useEffect(() => {
+    const sub = Keyboard.addListener('keyboardDidShow', () => {
+      const key = focusedPage.current;
+      if (key) setTimeout(() => pageRefs.current[key]?.scrollToEnd({ animated: true }), 50);
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => {
+      focusedPage.current = null;
+    });
+    return () => {
+      sub.remove();
+      hide.remove();
+    };
+  }, []);
   const insets = useSafeAreaInsets();
   // Tinggi area halaman tiket. ScrollView vertikal di dalam FlatList
   // horizontal tidak otomatis dibatasi tingginya (ikut tinggi konten) →
@@ -166,6 +187,10 @@ export default function TiketScreen() {
             onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}
             renderItem={({ item }) => (
               <ScrollView
+                ref={(r) => {
+                  pageRefs.current[item.kind === 'event' ? item.t.id : item.r.id] = r;
+                }}
+                automaticallyAdjustKeyboardInsets
                 style={{ width, height: pageH || undefined }}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: items.length > 1 ? 24 : insets.bottom + 32 }}
                 showsVerticalScrollIndicator={false}
@@ -199,9 +224,9 @@ export default function TiketScreen() {
                   </Pressable>
                 </View>
                 {item.kind === 'event' ? (
-                  item.t.isSelf ? <TicketReviewCard kind="EVENT" ticketId={item.t.id} /> : null
+                  item.t.isSelf ? <TicketReviewCard kind="EVENT" ticketId={item.t.id} onInputFocus={() => scrollPageToEnd(item.t.id)} /> : null
                 ) : !item.r.relation || item.r.relation === 'SELF' ? (
-                  <TicketReviewCard kind="IBADAH" ticketId={item.r.id} />
+                  <TicketReviewCard kind="IBADAH" ticketId={item.r.id} onInputFocus={() => scrollPageToEnd(item.r.id)} />
                 ) : null}
               </ScrollView>
             )}

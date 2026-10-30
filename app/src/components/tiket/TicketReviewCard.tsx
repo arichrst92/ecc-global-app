@@ -14,7 +14,16 @@ import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
 import { nc } from '@/theme/ThemeRoot';
 
-export function TicketReviewCard({ kind, ticketId }: { kind: ReviewKind; ticketId: string }) {
+export function TicketReviewCard({
+  kind,
+  ticketId,
+  onInputFocus,
+}: {
+  kind: ReviewKind;
+  ticketId: string;
+  /** Dipanggil saat kolom komentar fokus — induk menggulir agar tidak tertutup keyboard. */
+  onInputFocus?: () => void;
+}) {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const showToast = useToast((s) => s.show);
@@ -97,6 +106,7 @@ export function TicketReviewCard({ kind, ticketId }: { kind: ReviewKind; ticketI
           <TextInput
             value={komentar}
             onChangeText={setKomentar}
+            onFocus={onInputFocus}
             placeholder={t('review.placeholder')}
             placeholderTextColor={nc('#A3A3A3')}
             multiline
