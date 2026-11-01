@@ -19,7 +19,7 @@ import { localTime, zoneTimeText } from '@/utils/time';
 import { formatRadius } from '@/utils/selfCheckinLocation';
 import { TicketShell } from './TicketShell';
 import { SwipeToCheckin } from './SwipeToCheckin';
-import { HadirStamp, Hint, InfoCell, InfoLine, InlineError, RelasiBadge, StatusPill, TicketQR } from './parts';
+import { Hint, InfoCell, InfoLine, InlineError, RelasiBadge, StatusPill, TicketQR } from './parts';
 import { useOpensLabel, useTicketCheckin, useTicketWindow } from './useTicketCheckin';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -127,7 +127,6 @@ export function IbadahTicketCard({
     r.relation && r.relation !== 'SELF' ? (
       <RelasiBadge label={t(`my_reservasi.rel_${r.relation}`)} tamu={r.relation === 'TAMU'} />
     ) : null;
-  const stampText = hadir && r.joinedAt ? `${t('tiket.stamp')} ${localTime(r.joinedAt)}` : null;
 
   const stub = full ? (
     <View className="items-center">
@@ -141,11 +140,6 @@ export function IbadahTicketCard({
       <View className="mt-2">
         <StatusPill label={t(`tiket.${st.key}`)} tone={st.tone} />
       </View>
-      {stampText ? (
-        <View style={{ position: 'absolute', right: 0, top: 4 }}>
-          <HadirStamp text={stampText} />
-        </View>
-      ) : null}
     </View>
   ) : (
     <View className="flex-row items-center gap-2.5">
@@ -161,7 +155,6 @@ export function IbadahTicketCard({
         <Text className="text-[10px] text-neutral-500 tracking-widest">{r.jemaat.kode ?? ''}</Text>
       </View>
       <StatusPill label={t(`tiket.${st.key}`)} tone={st.tone} />
-      {stampText ? <HadirStamp text={stampText} /> : null}
     </View>
   );
 

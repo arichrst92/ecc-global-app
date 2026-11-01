@@ -2243,7 +2243,7 @@
     "pickup_done": "Anak sudah dijemput · {{time}}",
     "cancel_checkin_btn": "Batalkan check-in",
     "cancel_checkin_title": "Batalkan check-in?",
-    "cancel_checkin_body": "Check-in {{name}} akan dibatalkan. Pakai ini bila salah check-in (mis. yang bersangkutan tidak hadir). Bisa sampai ibadah selesai.",
+    "cancel_checkin_body": "Check-in {{name}} akan dibatalkan. Pakai ini bila salah check-in (mis. yang bersangkutan tidak hadir). Bisa sampai 30 menit setelah ibadah selesai.",
     "cancel_checkin_confirm": "Ya, batalkan",
     "checkin_cancelled": "Check-in dibatalkan"
   },

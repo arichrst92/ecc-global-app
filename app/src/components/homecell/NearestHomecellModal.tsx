@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Clock, MapPin, Navigation, User, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
-import { StatusBadge, jadwalLabel } from '@/components/homecell/HomecellListCard';
+import { SegmenBadges, StatusBadge, jadwalLabel } from '@/components/homecell/HomecellListCard';
 import type { HomecellNearestResponse } from '@/types/homecell';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
@@ -66,6 +66,7 @@ export function NearestHomecellModal({ visible, data, joiningId, hasPending, onC
                       <Text className="text-xs text-neutral-500 mt-0.5">
                         {h.area.nama} · {h.area.cabang.nama}
                       </Text>
+                      <SegmenBadges kategori={h.kategori} usiaMin={h.usiaMin} usiaMax={h.usiaMax} />
                     </View>
                     {h.distanceKm != null ? (
                       <View className="flex-row items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">

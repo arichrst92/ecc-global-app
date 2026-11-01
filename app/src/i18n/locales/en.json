@@ -2244,7 +2244,7 @@
     "pickup_done": "Child picked up · {{time}}",
     "cancel_checkin_btn": "Undo check-in",
     "cancel_checkin_title": "Undo check-in?",
-    "cancel_checkin_body": "{{name}}'s check-in will be cancelled. Use this if the check-in was a mistake (e.g. they are not here). Available until the service ends.",
+    "cancel_checkin_body": "{{name}}'s check-in will be cancelled. Use this if the check-in was a mistake (e.g. they are not here). Available until 30 minutes after the service ends.",
     "cancel_checkin_confirm": "Yes, undo",
     "checkin_cancelled": "Check-in cancelled"
   },

@@ -17,7 +17,7 @@ import { localTime, zoneTimeText } from '@/utils/time';
 import { formatRadius } from '@/utils/selfCheckinLocation';
 import { TicketShell } from './TicketShell';
 import { SwipeToCheckin } from './SwipeToCheckin';
-import { HadirStamp, Hint, InfoCell, InfoLine, InlineError, RelasiBadge, StatusPill, TicketQR } from './parts';
+import { Hint, InfoCell, InfoLine, InlineError, RelasiBadge, StatusPill, TicketQR } from './parts';
 import { useOpensLabel, useTicketCheckin, useTicketWindow } from './useTicketCheckin';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -134,11 +134,6 @@ export function EventTicketCard({
       <View className="mt-2">
         <StatusPill label={t(`tiket.${st.key}`)} tone={st.tone} />
       </View>
-      {hadir && tk.attendedAt ? (
-        <View style={{ position: 'absolute', right: 0, top: 4 }}>
-          <HadirStamp text={`${t('tiket.stamp')} ${localTime(tk.attendedAt)}`} />
-        </View>
-      ) : null}
     </View>
   ) : (
     <View className="flex-row items-center gap-2.5">
@@ -156,7 +151,6 @@ export function EventTicketCard({
         <Text className="text-[10px] text-neutral-500 tracking-widest">{tk.jemaat.kode ?? ''}</Text>
       </View>
       <StatusPill label={t(`tiket.${st.key}`)} tone={st.tone} />
-      {hadir && tk.attendedAt ? <HadirStamp text={`${t('tiket.stamp')} ${localTime(tk.attendedAt)}`} /> : null}
     </View>
   );
 

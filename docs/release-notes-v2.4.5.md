@@ -16,6 +16,9 @@ Versi sebelumnya: **2.4.4**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Visit dengan tamu** — Visit → scan → tombol **Tamu**: catat pertemuan dengan orang yang belum punya akun (nama, no HP, kategori, judul, lokasi). Tamu ikut masuk Tamu saya; no HP milik jemaat terdaftar otomatis tercatat ke akun jemaat itu. Label "Tamu" di daftar & detail visit.
 - **Permintaan bergabung ministry** — di popup tinjauan, profil pemohon bisa diketuk untuk melihat informasinya.
 - **Scanner (mode gelap)** — tombol & input manual di scan QR jemaat/keluarga/visit kini terbaca.
+- **Self check-in diperpanjang** — ibadah & event bisa self check-in sampai **30 menit setelah selesai** (sebelumnya tutup tepat jam selesai), termasuk ibadah malam yang tenggangnya melewati tengah malam. Batalkan check-in mengikuti batas yang sama. Kartu Beranda baru diburamkan setelah tenggang lewat.
+- **Cari homecell terdekat** — setiap hasil menampilkan kategori (Single / Couple / Umum) dan rentang usia (atau "Semua usia"); badge yang sama kini selalu tampil di semua daftar homecell.
+- **Tampilan lebih bersih** — detail ibadah tidak lagi menampilkan "Petugas akan diumumkan" bila petugas belum diisi; stempel miring "Hadir hh:mm" di tiket ibadah/event dihapus (waktu hadir sudah ada di slider "Sudah hadir · hh:mm").
 - **Popup self check-in** punya tombol tutup (×) di pojok kanan atas.
 - Server & Portal (deploy terpisah, sudah kompatibel dengan app lama): kolom & filter kategori di Portal → Tamu (bisa diubah admin), laporan ibadah/event/cabang/homecell area + PDF/CSV dipecah per kategori, monitor ibadah/event. Data tamu lama = "Belum ditentukan". Follow-up tetap untuk semua tamu; tamu yang mendaftar akun mengikuti alur standar.
 
@@ -28,6 +31,8 @@ Els App 2.4.5:
 • Kategori tamu: New Comer atau Visitor saat menambah tamu
 • Minta bergabung homecell: pilih tujuan Anda
 • Batalkan check-in yang salah dari tiket
+• Self check-in sampai 30 menit setelah ibadah/event selesai
+• Kategori & usia di pencarian homecell terdekat
 • Catatan khotbah pribadi dengan format & ayat
 • Catat visit dengan tamu
 • Perbaikan & peningkatan stabilitas
@@ -38,6 +43,8 @@ Els App 2.4.5:
 • Guest category: New Comer or Visitor when adding a guest
 • Joining a homecell as a guest: tell us what brings you
 • Undo a mistaken check-in from your ticket
+• Self check-in up to 30 minutes after the service/event ends
+• Category & age range in nearest homecell results
 • Private sermon notes with formatting & verses
 • Log a visit with a guest
 • Fixes & stability improvements
@@ -62,3 +69,8 @@ Els App 2.4.5:
 - [ ] Mode gelap → scan QR jemaat → input manual & tombol terbaca
 - [ ] Ministry → permintaan bergabung → ketuk profil pemohon
 - [ ] Portal → homecell → kosongkan PIC → simpan
+- [ ] Ibadah selesai 11:00 → 11:20 masih bisa self check-in (detail ibadah, Beranda, tiket); 11:31 tertutup "ditutup 30 menit setelah ibadah selesai"
+- [ ] Event selesai 21:00 → 21:25 self check-in dari tiket event berhasil
+- [ ] Homecell → Cari terdekat → setiap kartu menampilkan Single/Couple/Umum + usia
+- [ ] Detail ibadah tanpa petugas → tidak ada kotak "Petugas akan diumumkan"
+- [ ] Tiket ibadah & event yang sudah hadir → tanpa stempel miring, slider menampilkan "Sudah hadir · hh:mm"

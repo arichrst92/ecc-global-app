@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LastAttendanceText } from '@/components/homecell/LastAttendanceText';
@@ -35,7 +36,10 @@ export function StatusBadge({ status }: { status: HomecellListItem['myStatus'] }
 }
 
 /** Kartu homecell untuk daftar (browse / homecell saya). */
-/** Badge kategori (Single/Couple) + rentang usia — tidak tampil bila homecell umum. */
+/**
+ * Badge kategori (Single/Couple/Umum) + rentang usia (atau "Semua usia").
+ * Selalu tampil supaya pencari homecell tahu segmennya.
+ */
 export function SegmenBadges({
   kategori,
   usiaMin,
@@ -45,21 +49,18 @@ export function SegmenBadges({
   usiaMin?: number | null;
   usiaMax?: number | null;
 }) {
-  const kat = homecellKategoriLabel(kategori);
-  const usia = homecellUsiaLabel(usiaMin, usiaMax);
-  if (!kat && !usia) return null;
+  const kat = homecellKategoriLabel(kategori) ?? i18n.t('hcj.kategori_umum');
+  const usia = homecellUsiaLabel(usiaMin, usiaMax) ?? i18n.t('hcj.usia_semua');
+  const tone =
+    kategori === 'COUPLE' ? ['bg-pink-100', 'text-pink-700'] : kategori === 'SINGLE' ? ['bg-sky-100', 'text-sky-700'] : ['bg-emerald-100', 'text-emerald-700'];
   return (
     <View className="flex-row items-center gap-1.5 mt-1">
-      {kat ? (
-        <View className={`px-2 py-0.5 rounded-full ${kategori === 'COUPLE' ? 'bg-pink-100' : 'bg-sky-100'}`}>
-          <Text className={`text-[10px] font-bold ${kategori === 'COUPLE' ? 'text-pink-700' : 'text-sky-700'}`}>{kat}</Text>
-        </View>
-      ) : null}
-      {usia ? (
-        <View className="px-2 py-0.5 rounded-full bg-neutral-100">
-          <Text className="text-[10px] font-semibold text-neutral-600">{usia}</Text>
-        </View>
-      ) : null}
+      <View className={`px-2 py-0.5 rounded-full ${tone[0]}`}>
+        <Text className={`text-[10px] font-bold ${tone[1]}`}>{kat}</Text>
+      </View>
+      <View className="px-2 py-0.5 rounded-full bg-neutral-100">
+        <Text className="text-[10px] font-semibold text-neutral-600">{usia}</Text>
+      </View>
     </View>
   );
 }

@@ -35,7 +35,7 @@ import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
-import { isOccurrenceEnded } from '@/utils/time';
+import { SELF_CHECKIN_GRACE_MS, isOccurrenceEnded } from '@/utils/time';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -455,13 +455,16 @@ function TodayServiceCard({
   const venueTz = useVenueTz(detailQuery.data?.cabang?.id);
   // Ibadah hari ini yang sudah lewat jam selesai → kartu diburamkan + label "Sudah selesai".
   const now = useNowTick();
-  const ended = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, detailQuery.data?.cabang?.timezone ?? venueTz, now);
+  const svcTz = detailQuery.data?.cabang?.timezone ?? venueTz;
+  const ended = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, svcTz, now);
+  // Self check-in masih dibuka 30 menit setelah selesai → kartu baru diburamkan setelah tenggang lewat.
+  const checkinClosed = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, svcTz, now - SELF_CHECKIN_GRACE_MS);
   // Jadwal tampil dalam jam & zona cabang; bila zona HP berbeda, tambah jam setempat.
   const localStart = venueToLocal(service.tanggal, service.jamMulai, venueTz);
   const hint = localStart?.converted ? t('time.your_time', { time: localStart.time }) : null;
 
   return (
-    <View className="bg-card rounded-2xl overflow-hidden border border-neutral-100" style={ended ? { opacity: 0.55 } : undefined}>
+    <View className="bg-card rounded-2xl overflow-hidden border border-neutral-100" style={checkinClosed ? { opacity: 0.55 } : undefined}>
       <View className="p-4">
         <View className="flex-row items-start justify-between gap-2 mb-2">
           <View className="flex-row items-center gap-2 flex-1">
@@ -507,7 +510,7 @@ function TodayServiceCard({
         <OccupancyBar compact data={detailQuery.data?.okupansi} />
 
         {/* Self check-in: hitung mundur → tombol (hari & jam ibadah, sesuai radius) */}
-        {ended ? null : <SelfCheckinBar
+        {checkinClosed ? null : <SelfCheckinBar
           compact
           allowAddGuest
           queryKey={['ibadah', 'self-checkin', service.ibadahId]}

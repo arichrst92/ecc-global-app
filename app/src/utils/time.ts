@@ -313,6 +313,9 @@ export function venueInstantMs(ymd: string, hhmm: string | null | undefined, tz:
  * Ibadah pada tanggal `ymd` sudah selesai (jam selesai di zona cabang sudah
  * lewat). jamSelesai kosong / ≤ jamMulai → dianggap selesai di akhir hari.
  */
+/** Self check-in masih dibuka 30 menit setelah ibadah/event selesai (sama dengan server). */
+export const SELF_CHECKIN_GRACE_MS = 30 * 60 * 1000;
+
 export function isOccurrenceEnded(
   ymd: string | null | undefined,
   jamMulai: string | null | undefined,

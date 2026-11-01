@@ -350,11 +350,7 @@ export default function IbadahDetailScreen() {
                   ))}
                 </View>
               </View>
-            ) : (
-              <View className="bg-neutral-100 rounded-2xl p-4 items-center">
-                <Text className="text-xs text-neutral-500">{t('ibadah.team_tba')}</Text>
-              </View>
-            )}
+            ) : null}
           </>
         ) : null}
       </ScrollView>
