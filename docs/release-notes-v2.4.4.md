@@ -19,7 +19,6 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 - **Statistik penggunaan anonim** (halaman dibuka, kecepatan app) untuk Portal → Analitik; bisa dimatikan di Profil → Pengaturan → Privasi.
 - **Label jadwal lebih jelas** — detail ibadah menampilkan "Sabtu minggu kedua setiap bulan", "Setiap 2 minggu, hari …", "Sekali" (sebelumnya tampil kode mentah seperti `MONTHLY`).
 - **Tampilan update & maintenance baru** — header oranye dengan logo Els App, bisa di-scroll di HP layar kecil, semua teks mengikuti bahasa app (pesan maintenance & catatan rilis bisa diisi Indonesia/English di Portal). Update wajib: tombol "Sudah memperbarui? Periksa lagi"; maintenance: jam selesai + zona waktu HP, app terbuka sendiri saat hitungan habis.
-- **Batalkan check-in** — self check-in yang salah (mis. ikut men-check-in-kan keluarga yang tidak hadir) bisa dibatalkan sendiri dari tiket sampai ibadah selesai; kembali "Terdaftar" bila sebelumnya reservasi.
 - **Tarik untuk refresh lebih rapi** — saat membuka tab/halaman, konten tidak lagi turun karena spinner; spinner hanya muncul saat layar ditarik.
 - Server (sudah live): data wajah dihapus, hapus data permanen di Portal, retensi data otomatis, enkripsi Credential & backup, jadwal Bulanan minggu ke-N, menu Compliance.
 
