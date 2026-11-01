@@ -374,20 +374,20 @@ export default function EventDetailScreen() {
                   const local = event.jamMulai
                     ? localRangeIfDifferent(ymdInTz(event.tanggalMulai, venueTz), event.jamMulai, event.jamSelesai, venueTz)
                     : null;
-                  return range ? (
+                  // Jam mulai & selesai dikosongkan admin → tampilkan "-".
+                  return (
                     <MetaRow
                       icon={<Clock size={20} color="#EA580C" />}
-                      primary={range}
-                      secondary={local ? t('time.your_time', { time: local }) : null}
+                      primary={range ?? '-'}
+                      secondary={range && local ? t('time.your_time', { time: local }) : null}
                     />
-                  ) : null;
+                  );
                 })()}
                 <MetaRow
                   icon={<MapPin size={20} color="#EA580C" />}
                   primary={
-                    event.lokasi && event.lokasi.trim().length > 0
-                      ? event.lokasi
-                      : t('event.location_tba')
+                    // Lokasi dikosongkan admin → "-"
+                    event.lokasi && event.lokasi.trim().length > 0 ? event.lokasi : '-'
                   }
                 />
                 {event.quotaPeserta != null ? (

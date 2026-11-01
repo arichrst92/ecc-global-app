@@ -20,6 +20,7 @@ Versi sebelumnya: **2.4.4**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Cari homecell terdekat** — setiap hasil menampilkan kategori (Single / Couple / Umum) dan rentang usia (atau "Semua usia"); badge yang sama kini selalu tampil di semua daftar homecell.
 - **Tampilan lebih bersih** — detail ibadah tidak lagi menampilkan "Petugas akan diumumkan" bila petugas belum diisi; stempel miring "Hadir hh:mm" di tiket ibadah/event dihapus (waktu hadir sudah ada di slider "Sudah hadir · hh:mm").
 - **Petunjuk arah ke titik Google Maps** — tombol Petunjuk arah di tiket ibadah membuka link Google Maps ibadah (atau link cabang bila ibadah tidak punya titik sendiri), bukan koordinat mentah; tiket event memakai link cabang sebagai cadangan; lokasi homecell membuka link Google Maps lebih dulu.
+- **Detail event** — lokasi yang dikosongkan tampil "-" (bukan "Lokasi akan diumumkan"); jam mulai & selesai yang dikosongkan juga tampil "-".
 - **Popup self check-in** punya tombol tutup (×) di pojok kanan atas.
 - Server & Portal (deploy terpisah, sudah kompatibel dengan app lama): kolom & filter kategori di Portal → Tamu (bisa diubah admin), laporan ibadah/event/cabang/homecell area + PDF/CSV dipecah per kategori, monitor ibadah/event. Data tamu lama = "Belum ditentukan". Follow-up tetap untuk semua tamu; tamu yang mendaftar akun mengikuti alur standar.
 
@@ -76,3 +77,4 @@ Els App 2.4.5:
 - [ ] Detail ibadah tanpa petugas → tidak ada kotak "Petugas akan diumumkan"
 - [ ] Tiket ibadah & event yang sudah hadir → tanpa stempel miring, slider menampilkan "Sudah hadir · hh:mm"
 - [ ] Tiket ibadah → Petunjuk arah → Google Maps membuka nama tempat (bukan hanya koordinat)
+- [ ] Event tanpa lokasi & tanpa jam → detail event menampilkan "-" di baris jam dan lokasi
