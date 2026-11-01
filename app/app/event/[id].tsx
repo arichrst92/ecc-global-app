@@ -89,14 +89,14 @@ export default function EventDetailScreen() {
           : '';
       // Include jam kalau ada — BE patch 2026-05-22a
       // Jam dikirim apa adanya + nama kota cabang (penerima bisa di zona lain).
-      const jam = event.jamMulai
+      const jam = event.jamMulai && event.jamMulai !== '-'
         ? ` · ${zoneTimeText(event.jamMulai, event.jamSelesai, venueTz, lang)}`
         : venueTz
           ? ` (${tzZoneLabel(venueTz, lang)})`
         : '';
       lines.push(`📅 ${dateStr}${endStr}${jam}`);
     }
-    if (event.lokasi && event.lokasi.trim()) {
+    if (event.lokasi && event.lokasi.trim() && event.lokasi.trim() !== '-') {
       lines.push(`📍 ${event.lokasi}`);
     }
     if (event.ringkasan) {
@@ -259,7 +259,7 @@ export default function EventDetailScreen() {
               imageUrl={event.heroImageUrl}
               title={event.judul}
               date={event.tanggalMulai ? formatDate(event.tanggalMulai, lang) : ''}
-              time={event.jamMulai ? `${event.jamMulai}${event.jamSelesai ? `–${event.jamSelesai}` : ''}` : null}
+              time={event.jamMulai && event.jamMulai !== '-' ? `${event.jamMulai}${event.jamSelesai ? `–${event.jamSelesai}` : ''}` : null}
               location={event.lokasi}
               cabang={event.cabang?.nama ?? null}
               cta={t('sharecard.cta_event')}
@@ -371,7 +371,7 @@ export default function EventDetailScreen() {
                     fallback ke parse dari ISO untuk event lama */}
                 {(() => {
                   const range = formatTimeRange(event, venueTz, lang);
-                  const local = event.jamMulai
+                  const local = event.jamMulai && event.jamMulai !== '-'
                     ? localRangeIfDifferent(ymdInTz(event.tanggalMulai, venueTz), event.jamMulai, event.jamSelesai, venueTz)
                     : null;
                   // Jam mulai & selesai dikosongkan admin → tampilkan "-".
@@ -784,6 +784,8 @@ function formatTimeRange(
   venueTz?: string | null,
   lang?: string,
 ): string | null {
+  // Server mengirim "-" untuk jam yang dikosongkan admin (khusus app).
+  if (event.jamMulai === '-') return null;
   // Path 1: BE jam fields (preferred) — jam dinding cabang + label zona.
   if (event.jamMulai) {
     return zoneTimeText(event.jamMulai, event.jamSelesai, venueTz, lang);
