@@ -166,6 +166,8 @@ export type MyReservasi = {
     kategoriIbadah?: { nama: string } | null;
     /** Titik venue (ibadah atau cabang) — Petunjuk arah. */
     point?: { lat: number; lng: number } | null;
+    /** Link Google Maps ibadah (atau cabang) — tujuan Petunjuk arah. */
+    mapsUrl?: string | null;
     /** Zona waktu cabang (IANA) — jamMulai/jamSelesai = jam dinding di zona ini. */
     timezone?: string | null;
   };

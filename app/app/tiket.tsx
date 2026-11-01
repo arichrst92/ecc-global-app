@@ -144,6 +144,7 @@ export default function TiketScreen() {
             label: it.t.event.lokasi ?? it.t.event.judul,
           })
         : openDirections({
+            mapsUrl: it.r.ibadah.mapsUrl ?? null,
             point: it.r.ibadah.point ?? null,
             label: [it.r.ibadah.lokasi, it.r.ibadah.cabang?.nama].filter(Boolean).join(', ') || it.r.ibadah.nama,
           });

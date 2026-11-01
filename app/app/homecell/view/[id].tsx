@@ -79,10 +79,16 @@ export default function HomecellViewScreen() {
 
   function openMaps() {
     if (!hc) return;
+    // Utamakan link Google Maps asli (titik tempat), koordinat hanya cadangan.
+    const link = hc.mapsUrl?.trim();
     const url =
-      hc.latitude != null && hc.longitude != null
-        ? `https://www.google.com/maps/search/?api=1&query=${hc.latitude},${hc.longitude}`
-        : hc.mapsUrl;
+      link && /^https?:\/\//i.test(link)
+        ? link
+        : hc.latitude != null && hc.longitude != null
+          ? `https://www.google.com/maps/search/?api=1&query=${hc.latitude},${hc.longitude}`
+          : link
+            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(link)}`
+            : null;
     if (url) Linking.openURL(url).catch(() => {});
   }
 
