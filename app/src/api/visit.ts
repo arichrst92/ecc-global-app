@@ -67,6 +67,17 @@ export function createVisit(payload: CreateVisitPayload) {
   return api.post<VisitListItem>('/admin/me/visits', payload);
 }
 
+/** POST /admin/me/visits/guest — pertemuan dengan tamu (nama + no HP). */
+export function createGuestVisit(payload: {
+  nama: string;
+  noHp: string;
+  kategori?: 'BELUM' | 'NEW_COMER' | 'VISITOR';
+  judul: string;
+  lokasi?: string;
+}) {
+  return api.post<VisitListItem>('/admin/me/visits/guest', payload);
+}
+
 /** GET /admin/me/visits/:id */
 export function getVisitDetail(id: string) {
   return api.get<VisitDetail>(`/admin/me/visits/${id}`);

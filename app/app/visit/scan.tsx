@@ -27,8 +27,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
+import { VisitGuestModal } from '@/components/visit/VisitGuestModal';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { Search, ArrowLeft, Handshake, MapPin, QrCode } from 'lucide-react-native';
+import { Search, ArrowLeft, Handshake, MapPin, QrCode, UserPlus } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -45,6 +46,7 @@ export default function VisitScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scannedKode, setScannedKode] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [guestOpen, setGuestOpen] = useState(false);
   const [judul, setJudul] = useState('');
   const [lokasi, setLokasi] = useState('');
 
@@ -183,14 +185,30 @@ export default function VisitScanScreen() {
       </CameraView>
       {/* Input manual: cari jemaat by kode / nama / no HP (kalau QR tidak terbaca) */}
       <View className="absolute bottom-10 left-0 right-0 items-center">
-        <Pressable
-          onPress={() => setSearchOpen(true)}
-          className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2"
-        >
-          <Search size={16} color={nc('#171717')} />
-          <Text className="text-sm font-semibold text-neutral-900">{t('scanner.search_title')}</Text>
-        </Pressable>
+        <View className="flex-row gap-2">
+          <Pressable
+            onPress={() => setSearchOpen(true)}
+            className="bg-card border border-neutral-200 rounded-full px-5 py-3 flex-row items-center gap-2"
+          >
+            <Search size={16} color={nc('#171717')} />
+            <Text className="text-sm font-semibold text-neutral-900">{t('scanner.search_title')}</Text>
+          </Pressable>
+          {/* Pertemuan dengan tamu (tanpa akun / tanpa QR) */}
+          <Pressable onPress={() => setGuestOpen(true)} className="bg-violet-600 rounded-full px-5 py-3 flex-row items-center gap-2">
+            <UserPlus size={16} color="#fff" />
+            <Text className="text-sm font-semibold text-white">{t('visit.guest_btn')}</Text>
+          </Pressable>
+        </View>
       </View>
+      <VisitGuestModal
+        visible={guestOpen}
+        onClose={() => setGuestOpen(false)}
+        onCreated={(v) => {
+          setGuestOpen(false);
+          showToast(t('visit.guest_created', { name: v.lawan.namaLengkap }), 'success');
+          router.replace(`/visit/${v.id}` as never);
+        }}
+      />
       <JemaatSearchModal
         visible={searchOpen}
         onClose={() => setSearchOpen(false)}

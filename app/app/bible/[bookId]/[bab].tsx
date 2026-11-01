@@ -17,9 +17,11 @@ import {
   BookmarkCheck,
   ChevronLeft,
   ChevronRight,
+  NotebookPen,
   Share2,
   Type,
 } from 'lucide-react-native';
+import { useCatatanBridge } from '@/stores/catatanBridge.store';
 
 import { useToast } from '@/components/ui/Toast';
 import { openShareCard } from '@/features/share/shareStore';
@@ -76,6 +78,8 @@ export default function BibleChapterScreen() {
   const selectedVersionCode = useBibleStore((s) => s.selectedVersionCode);
 
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+  const catatanEditorsOpen = useCatatanBridge((s) => s.editorsOpen);
+  const pushToCatatan = useCatatanBridge((s) => s.push);
   const [showFontModal, setShowFontModal] = useState(false);
 
   const ref = book ? `${book.singkatan.toUpperCase()} ${bab}` : '';
@@ -187,6 +191,25 @@ export default function BibleChapterScreen() {
     });
   }
 
+  /** Ayat → Catatan saya. Editor sedang terbuka → titip ke editor; selain itu buka catatan baru. */
+  function verseToCatatan(verse: BibleVerse) {
+    if (isGuest) {
+      showToast(t('catatan.login_required'), 'info');
+      return;
+    }
+    const nomor = verse.nomorEnd && verse.nomorEnd > verse.nomor ? `${verse.nomor}-${verse.nomorEnd}` : `${verse.nomor}`;
+    const r = `${bookName(book!, selectedVersionCode)} ${bab}:${nomor}`;
+    const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
+    const quote = `> "${verse.teks}" — ${r} (${versionLabel})`;
+    setSelectedVerse(null);
+    if (catatanEditorsOpen > 0) {
+      pushToCatatan({ ref: r, quote });
+      showToast(t('catatan.ayat_queued'), 'success');
+      return;
+    }
+    router.push(`/catatan/edit?ref=${encodeURIComponent(r)}&quote=${encodeURIComponent(quote)}` as never);
+  }
+
   function toggleVerseBookmark(verse: BibleVerse) {
     // Same guest guard as toggleChapterBookmark above.
     if (isGuest) {
@@ -230,6 +253,15 @@ export default function BibleChapterScreen() {
                 {versionMeta?.fullName ?? ''}
               </Text>
             </View>
+            {isGuest ? null : (
+              <Pressable
+                onPress={() => router.push('/catatan/edit' as never)}
+                className="w-10 h-10 items-center justify-center"
+                accessibilityLabel={t('catatan.sermon_btn')}
+              >
+                <NotebookPen size={18} color="#fff" />
+              </Pressable>
+            )}
             <Pressable
               onPress={() => setShowFontModal(true)}
               className="w-10 h-10 items-center justify-center"
@@ -300,6 +332,15 @@ export default function BibleChapterScreen() {
                           {isVerseBookmarked
                             ? t('bible.bookmarked')
                             : t('bible.bookmark')}
+                        </Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => verseToCatatan(verse)}
+                        className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-violet-50 rounded-lg"
+                      >
+                        <NotebookPen size={14} color="#7C3AED" />
+                        <Text className="text-xs font-semibold text-violet-700">
+                          {t('catatan.to_note')}
                         </Text>
                       </Pressable>
                       <Pressable

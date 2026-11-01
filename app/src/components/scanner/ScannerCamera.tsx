@@ -116,7 +116,7 @@ export function ScannerCamera({
         <View className="flex-row gap-2">
           <Pressable
             onPress={onManualInput}
-            className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg"
+            className="bg-card border border-neutral-200 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg"
           >
             <Keyboard size={16} color={nc('#171717')} />
             <Text className="text-sm font-semibold text-neutral-900">

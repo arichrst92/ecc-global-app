@@ -9,6 +9,8 @@ export type VisitLawan = {
   namaLengkap: string;
   fotoUrl?: string | null;
   noHp?: string | null;
+  /** Tamu (non-anggota tanpa akun) — tidak punya profil publik. */
+  isTamu?: boolean;
   cabang: CabangRef;
 };
 

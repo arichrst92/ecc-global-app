@@ -22,6 +22,7 @@ import {
   LogOut,
   MessageSquareText,
   Moon,
+  NotebookPen,
   Sun,
   Pencil,
   Share2,
@@ -195,6 +196,13 @@ function ProfileTabAuthenticated() {
           <JourneyCard />
           <SertifikatCard />
           <MenuBox>
+            <MenuRow
+              icon={<NotebookPen size={18} color="#059669" />}
+              iconBg="bg-emerald-50"
+              label={t('catatan.title')}
+              sub={t('catatan.menu_sub')}
+              onPress={() => router.push('/catatan' as never)}
+            />
             <MenuRow
               icon={<HandHelping size={18} color="#059669" />}
               iconBg="bg-emerald-50"

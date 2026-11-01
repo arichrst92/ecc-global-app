@@ -214,7 +214,7 @@ export default function FamilyScanScreen() {
       <View className="absolute bottom-10 left-0 right-0 items-center">
         <Pressable
           onPress={() => setSearchOpen(true)}
-          className="bg-white/95 rounded-full px-5 py-3 flex-row items-center gap-2"
+          className="bg-card border border-neutral-200 rounded-full px-5 py-3 flex-row items-center gap-2"
         >
           <Search size={16} color={nc('#171717')} />
           <Text className="text-sm font-semibold text-neutral-900">{t('scanner.search_title')}</Text>

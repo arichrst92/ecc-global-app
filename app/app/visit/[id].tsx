@@ -258,6 +258,7 @@ export default function VisitDetailScreen() {
           {visit.iAmInitiator ? t('visit.lawan_section_target') : t('visit.lawan_section_initiator')}
         </Text>
         <Pressable
+          disabled={!!visit.lawan.isTamu}
           onPress={() => router.push(`/jemaat/${visit.lawan.id}` as never)}
           className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3 mb-4"
         >
@@ -270,6 +271,11 @@ export default function VisitDetailScreen() {
             <Text className="text-base font-bold text-neutral-900" numberOfLines={1}>
               {visit.lawan.namaLengkap}
             </Text>
+            {visit.lawan.isTamu ? (
+              <View className="self-start bg-violet-100 rounded-full px-2 py-0.5 mt-1">
+                <Text className="text-[10px] font-bold text-violet-700">{t('visit.tamu_badge')}</Text>
+              </View>
+            ) : null}
             <Text className="text-xs text-neutral-500 mt-0.5">
               {visit.lawan.cabang.nama}
             </Text>
@@ -286,7 +292,7 @@ export default function VisitDetailScreen() {
               <MessageCircle size={16} color="#16A34A" />
             </Pressable>
           ) : null}
-          <ChevronRight size={16} color={nc('#A3A3A3')} />
+          {visit.lawan.isTamu ? null : <ChevronRight size={16} color={nc('#A3A3A3')} />}
         </Pressable>
 
         {/* My note */}

@@ -9,7 +9,7 @@ import { useBibleStore } from '@/stores/bible.store';
 import type { BibleBook, BibleVersionCode } from '@/types/bible';
 
 /** Singkatan Inggris standar (urut id 1–66). */
-const ABBR_EN = [
+export const ABBR_EN = [
   'Gen', 'Exod', 'Lev', 'Num', 'Deut', 'Josh', 'Judg', 'Ruth', '1Sam', '2Sam', '1Kgs', '2Kgs', '1Chr', '2Chr',
   'Ezra', 'Neh', 'Esth', 'Job', 'Ps', 'Prov', 'Eccl', 'Song', 'Isa', 'Jer', 'Lam', 'Ezek', 'Dan', 'Hos', 'Joel',
   'Amos', 'Obad', 'Jonah', 'Mic', 'Nah', 'Hab', 'Zeph', 'Hag', 'Zech', 'Mal', 'Matt', 'Mark', 'Luke', 'John',

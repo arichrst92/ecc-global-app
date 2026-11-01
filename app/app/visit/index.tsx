@@ -226,7 +226,7 @@ function VisitRow({
             {visit.lawan.namaLengkap}
           </Text>
           <Text className="text-[11px] text-neutral-500 mt-0.5">
-            {visit.lawan.cabang.nama} · {time}
+            {visit.lawan.isTamu ? `${t('visit.tamu_badge')} · ` : ''}{visit.lawan.cabang.nama} · {time}
           </Text>
         </View>
         <View
