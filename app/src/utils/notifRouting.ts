@@ -11,21 +11,75 @@ import type { InAppNotification, InAppNotifType } from '@/types/notification';
 import { nc } from '@/theme/ThemeRoot';
 
 /**
+ * Rute yang benar-benar ada di app (expo-router). actionUrl dari server yang
+ * tidak cocok di-normalisasi dulu; kalau tetap tidak cocok → pakai fallback
+ * per tipe, atau tidak navigasi (jangan pernah "Unmatched route").
+ */
+const ID = '[^/?#]+';
+const KNOWN_ROUTES: RegExp[] = [
+  '/', '/my-reservasi', '/ckids', '/(tabs)/ckids', '/(tabs)/event', '/(tabs)/ibadah', '/family',
+  '/group', `/group/${ID}`, '/profile/my-groups',
+  '/event', `/event/${ID}`, '/ibadah', `/ibadah/${ID}`,
+  '/homecell', '/homecell/requests', `/homecell/view/${ID}`, `/homecell/${ID}`,
+  '/visit', `/visit/${ID}`, '/profile', '/settings/change-branch',
+  '/ministry', `/ministry/${ID}`, '/feedback', `/feedback/${ID}`,
+  '/doa', `/doa/${ID}`, `/doa/assigned/${ID}`, '/notifications', '/tiket', '/spiritual-journey',
+].map((p) => new RegExp(`^${p.replace(/[()]/g, '\\$&')}/?(\\?.*)?$`));
+
+const isKnownRoute = (url: string) => KNOWN_ROUTES.some((re) => re.test(url));
+
+/** Path lama / salah dari server → rute app yang benar. */
+function normalizeActionUrl(url: string, type: InAppNotifType): string {
+  let u = url.trim();
+  if (u.startsWith('/ckids/reservasi')) return '/my-reservasi';
+  if (u.startsWith('/ckids/anak')) return '/ckids';
+  u = u.replace(/^\/groups(?=\/|$|\?)/, '/group'); // server lama: /groups, /groups/:id
+  u = u.replace(/^\/visits(?=\/|$|\?)/, '/visit'); // server lama: /visits/:id
+  if (u.startsWith('/profile/branch')) return '/settings/change-branch';
+  // /homecell/:id = halaman kelola pemimpin; anggota (notif kehadiran) → tampilan anggota.
+  const hc = /^\/homecell\/([^/?#]+)$/.exec(u);
+  if (hc && hc[1] !== 'requests' && hc[1] !== 'guest' && type === 'HOMECELL_ATTENDED') return `/homecell/view/${hc[1]}`;
+  return u;
+}
+
+/**
+ * Dikeluarkan / dibubarkan / ditolak: TIDAK pernah membuka halaman detail
+ * (grup sudah tidak bisa diakses) — selalu ke daftar.
+ */
+function exitRoute(type: InAppNotifType): string | null {
+  switch (type) {
+    case 'GROUP_MEMBER_REMOVED':
+    case 'GROUP_DISMISSED':
+    case 'GROUP_JOIN_REJECTED':
+      return '/group';
+    case 'HOMECELL_JOIN_REJECTED':
+      return '/homecell';
+    default:
+      return null;
+  }
+}
+
+/**
  * Resolve deep-link target dari notif. Priority:
- * 1. actionUrl dari BE (kalau ada)
- * 2. Fallback per-type dari metadata
- * 3. null → no navigate (mis. VISIT_RECORDED yang informational)
+ * 1. Notif "keluar" (dikeluarkan / dibubarkan / ditolak) → daftar, bukan detail
+ * 2. actionUrl dari BE (dinormalisasi & divalidasi)
+ * 3. Fallback per-type dari metadata (divalidasi)
+ * 4. null → tidak navigasi
  */
 export function resolveNotifRoute(
   notif: InAppNotification,
 ): string | null {
+  const exit = exitRoute(notif.type);
+  if (exit) return exit;
   if (notif.actionUrl) {
-    // URL lama dari BE (rute ini tidak ada di app) → arahkan ke layar yang benar.
-    if (notif.actionUrl.startsWith('/ckids/reservasi')) return '/my-reservasi';
-    if (notif.actionUrl.startsWith('/ckids/anak')) return '/ckids';
-    return notif.actionUrl;
+    const url = normalizeActionUrl(notif.actionUrl, notif.type);
+    if (isKnownRoute(url)) return url;
   }
+  const fb = fallbackRoute(notif);
+  return fb && isKnownRoute(fb) ? fb : null;
+}
 
+function fallbackRoute(notif: InAppNotification): string | null {
   const meta = notif.metadata ?? {};
   const anakId = pickString(meta, 'anakId');
   const reservasiId = pickString(meta, 'reservasiId');
@@ -62,14 +116,14 @@ export function resolveNotifRoute(
       return eventId ? `/event/${eventId}` : '/(tabs)/event';
 
     case 'HOMECELL_ATTENDED':
-      return homecellId ? `/homecell/${homecellId}` : '/homecell';
+      return homecellId ? `/homecell/view/${homecellId}` : '/homecell';
 
     case 'VISIT_RECORDED':
       return '/visit';
 
     case 'BRANCH_CHANGE_APPROVED':
     case 'BRANCH_CHANGE_REJECTED':
-      return '/profile';
+      return '/settings/change-branch';
 
     case 'MINISTRY_JOIN_REQUESTED':
     case 'MINISTRY_JOIN_APPROVED':
