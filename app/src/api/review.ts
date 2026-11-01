@@ -4,7 +4,7 @@
 import { api } from './client';
 
 export type ReviewKind = 'IBADAH' | 'EVENT';
-export type ReviewReason = 'NOT_STARTED' | 'CLOSED' | 'CANCELLED' | 'NOT_OWNER';
+export type ReviewReason = 'NOT_STARTED' | 'CLOSED' | 'CANCELLED' | 'NOT_OWNER' | 'DISABLED';
 
 export interface ReviewState {
   window: { open: boolean; reason: ReviewReason | null; reasonText: string | null; startsAt: string; closesAt: string };

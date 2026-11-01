@@ -57,7 +57,8 @@ export function TicketReviewCard({
   const d = q.data;
   if (q.isLoading || !d) return null;
   const w = d.window;
-  if (w.reason === 'NOT_OWNER' || w.reason === 'CANCELLED') return null;
+  // Ulasan dimatikan untuk ibadah/event ini (Portal) → jangan tampilkan apa pun.
+  if (w.reason === 'DISABLED' || w.reason === 'NOT_OWNER' || w.reason === 'CANCELLED') return null;
   if (!w.open && !d.review) {
     if (w.reason !== 'NOT_STARTED') return null;
     const at = new Date(w.startsAt).toLocaleString(i18n.language?.startsWith('en') ? 'en-GB' : 'id-ID', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
