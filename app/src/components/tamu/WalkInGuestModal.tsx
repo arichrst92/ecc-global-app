@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
 import { useToast } from '@/components/ui/Toast';
 import { walkInGuestEvent, walkInGuestIbadah, type WalkInBayar } from '@/api/tamu';
+import { TamuKategoriPicker, type TamuKategori } from './TamuKategoriPicker';
 import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { gx } from '@/theme/gradient';
@@ -40,6 +41,7 @@ export function WalkInGuestModal({
   const [bayar, setBayar] = useState<WalkInBayar>('TUNAI');
   const [nominal, setNominal] = useState('');
   const [quotaFull, setQuotaFull] = useState(false);
+  const [kategori, setKategori] = useState<TamuKategori>('BELUM');
   const e164 = normalizePhone(noHp);
   const paid = target.kind === 'event' && target.tipeBayar !== 'GRATIS';
 
@@ -49,11 +51,12 @@ export function WalkInGuestModal({
         ? walkInGuestEvent(target.eventId, {
             nama: nama.trim(),
             noHp: e164!,
+            kategori,
             ...(paid ? { pembayaran: bayar } : {}),
             ...(target.tipeBayar === 'NOMINAL_BEBAS' && bayar !== 'GRATIS' ? { nominal: Number(nominal) || 0 } : {}),
             ...(force ? { force: true } : {}),
           })
-        : walkInGuestIbadah({ ibadahId: target.ibadahId, tanggalIbadah: target.tanggalIbadah, nama: nama.trim(), noHp: e164! }),
+        : walkInGuestIbadah({ ibadahId: target.ibadahId, tanggalIbadah: target.tanggalIbadah, nama: nama.trim(), noHp: e164!, kategori }),
     onSuccess: (r) => {
       showToast(
         r.isMember ? t('tamu.walkin_member', { name: r.jemaat.namaLengkap }) : t('tamu.walkin_ok', { name: r.jemaat.namaLengkap }),
@@ -76,6 +79,7 @@ export function WalkInGuestModal({
     setNoHp('');
     setNominal('');
     setBayar('TUNAI');
+    setKategori('BELUM');
     setQuotaFull(false);
     onClose();
   }
@@ -107,6 +111,7 @@ export function WalkInGuestModal({
             className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
           />
           <PhoneInput label={t('tamu.no_hp')} value={noHp} onChangeText={setNoHp} error={phoneErr} />
+          <TamuKategoriPicker value={kategori} onChange={setKategori} />
           {paid ? (
             <View className="gap-2">
               <Text className="text-sm font-semibold text-neutral-800">{t('tamu.pembayaran')}</Text>

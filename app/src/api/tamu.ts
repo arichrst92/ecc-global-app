@@ -27,10 +27,15 @@ export type Tamu = {
   /** Petugas ECC yang mem-follow-up tamu ini (diatur admin). */
   followupBy?: { id: string; namaLengkap: string } | null;
   followupSejak?: string | null;
+  /** 2.4.5 — VISITOR | NEW_COMER | null (belum ditentukan). */
+  tamuKategori?: string | null;
 };
 
+/** Kategori yang dikirim saat menambah tamu (BELUM = belum ditentukan). */
+export type TamuKategoriInput = 'BELUM' | 'NEW_COMER' | 'VISITOR';
+
 export const listMyTamu = () => api.get<Tamu[]>('/admin/me/tamu');
-export const addMyTamu = (body: { nama: string; noHp: string }) => api.post<Tamu>('/admin/me/tamu', body);
+export const addMyTamu = (body: { nama: string; noHp: string; kategori?: TamuKategoriInput }) => api.post<Tamu>('/admin/me/tamu', body);
 export const removeMyTamu = (id: string) => api.delete<{ id: string }>(`/admin/me/tamu/${id}`);
 
 export type WalkInBayar = 'TUNAI' | 'TRANSFER' | 'QRIS' | 'GRATIS';
@@ -43,11 +48,11 @@ export type WalkInResult = {
 /** Petugas event — catat tamu walk-in langsung HADIR. */
 export const walkInGuestEvent = (
   eventId: string,
-  body: { nama: string; noHp: string; pembayaran?: WalkInBayar; nominal?: number; force?: boolean },
+  body: { nama: string; noHp: string; kategori?: TamuKategoriInput; pembayaran?: WalkInBayar; nominal?: number; force?: boolean },
 ) => api.post<WalkInResult>(`/admin/event/${eventId}/walk-in-guest`, body);
 
 /** Petugas ibadah — catat tamu walk-in langsung hadir (bukan ibadah anak). */
-export const walkInGuestIbadah = (body: { ibadahId: string; tanggalIbadah: string; nama: string; noHp: string }) =>
+export const walkInGuestIbadah = (body: { ibadahId: string; tanggalIbadah: string; nama: string; noHp: string; kategori?: TamuKategoriInput }) =>
   api.post<WalkInResult>('/admin/reservasi/walk-in-guest', body);
 
 /** Tamu homecell (pemimpin / PIC area) — /admin/me/homecell/:id/tamu */
@@ -56,7 +61,7 @@ export type HomecellTamu = Tamu & {
   addedBy: { id: string; namaLengkap: string } | null;
 };
 export const listHomecellTamu = (homecellId: string) => api.get<HomecellTamu[]>(`/admin/me/homecell/${homecellId}/tamu`);
-export const addHomecellTamu = (homecellId: string, body: { nama: string; noHp: string; catatan?: string }) =>
+export const addHomecellTamu = (homecellId: string, body: { nama: string; noHp: string; catatan?: string; kategori?: TamuKategoriInput }) =>
   api.post<Tamu>(`/admin/me/homecell/${homecellId}/tamu`, body);
 export const removeHomecellTamu = (homecellId: string, tamuId: string) =>
   api.delete<{ id: string }>(`/admin/me/homecell/${homecellId}/tamu/${tamuId}`);

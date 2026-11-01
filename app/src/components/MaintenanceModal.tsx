@@ -93,10 +93,18 @@ export function MaintenanceModal({ data, onRetry, checking = false }: Props) {
   return (
     <View className="flex-1 bg-card">
       <StatusBar style="light" />
-      {/* Header oranye + logo */}
-      <View {...gx('bg-brand-500 rounded-b-3xl')}>
-        <SafeAreaView edges={['top']}>
-          <View className="items-center px-8 pt-10 pb-8 w-full max-w-md self-center">
+      {/* Strip status bar (tetap) — konten yang di-scroll lewat di bawahnya */}
+      <SafeAreaView edges={['top']} {...gx('bg-brand-500')} />
+
+      {/* SELURUH isi bisa di-scroll → aman di HP layar kecil / font besar */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
+        showsVerticalScrollIndicator
+        persistentScrollbar
+      >
+        <View {...gx('bg-brand-500 rounded-b-3xl')}>
+          <View className="items-center px-8 pt-8 pb-8 w-full max-w-md self-center">
             <AppLogo size={84} />
             <View className="flex-row items-center gap-1.5 bg-white/20 rounded-full px-3 py-1 mt-5">
               <Wrench size={12} color="#fff" />
@@ -104,14 +112,9 @@ export function MaintenanceModal({ data, onRetry, checking = false }: Props) {
             </View>
             <Text className="text-white text-2xl font-bold text-center mt-3">{t('maintenance.title')}</Text>
           </View>
-        </SafeAreaView>
-      </View>
+        </View>
 
-      <View className="flex-1 w-full max-w-md self-center">
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 16 }}
-        >
+        <View className="px-6 pt-6 w-full max-w-md self-center">
           <Text className="text-base text-neutral-700 text-center leading-relaxed">{message.replace(/\*\*/g, '')}</Text>
 
           {/* Estimasi */}
@@ -119,7 +122,7 @@ export function MaintenanceModal({ data, onRetry, checking = false }: Props) {
             {remaining ? (
               <>
                 <Text className="text-xs font-semibold text-brand-600 mb-3">{t('maintenance.countdown_label')}</Text>
-                <View className="flex-row gap-2.5">
+                <View className="flex-row flex-wrap justify-center gap-2.5">
                   {units.map((u, i) => (
                     <View key={i} className="items-center bg-card rounded-xl border border-neutral-100 py-2.5" style={{ minWidth: 68 }}>
                       <Text className="text-3xl font-bold text-neutral-900" style={{ fontVariant: ['tabular-nums'] }}>
@@ -154,8 +157,11 @@ export function MaintenanceModal({ data, onRetry, checking = false }: Props) {
           <Text className="text-xs text-neutral-500 text-center mt-5 leading-relaxed">
             {t('maintenance.auto_recover_hint')}
           </Text>
-        </ScrollView>
+        </View>
+      </ScrollView>
 
+      {/* Tombol di-pin di bawah — selalu terlihat */}
+      <View className="w-full max-w-md self-center">
         <SafeAreaView edges={['bottom']}>
           <View className="px-6 pt-3 pb-4">
             <Pressable

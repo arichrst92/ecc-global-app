@@ -68,6 +68,7 @@ import type { HomecellNearestResponse } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { TamuKategoriPicker, type TamuKategori } from '@/components/tamu/TamuKategoriPicker';
 
 export default function GuestHomecellScreen() {
   const insets = useSafeAreaInsets();
@@ -426,6 +427,7 @@ function JoinSheet({
   const [jk, setJk] = useState<'L' | 'P' | null>(null);
   const [usia, setUsia] = useState('');
   const [pesan, setPesan] = useState('');
+  const [kategoriTamu, setKategoriTamu] = useState<TamuKategori>('BELUM');
   const [err, setErr] = useState<string | null>(null);
   const e164 = normalizePhone(noHp);
   const usiaNum = usia.trim() ? Number(usia) : undefined;
@@ -440,6 +442,7 @@ function JoinSheet({
         jenisKelamin: jk ?? undefined,
         usia: usiaNum,
         pesan: pesan.trim() || undefined,
+        kategori: kategoriTamu,
       }),
     onSuccess: (d) => {
       setPesan('');
@@ -564,6 +567,7 @@ function JoinSheet({
                         />
                       </View>
                     </View>
+                    <TamuKategoriPicker value={kategoriTamu} onChange={setKategoriTamu} variant="self" />
                     <TextInput
                       value={pesan}
                       onChangeText={setPesan}

@@ -24,6 +24,7 @@ import { formatPhoneDisplay } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { tamuKategoriLabel } from '@/components/tamu/TamuKategoriPicker';
 
 const STATUS_STYLE: Record<TamuStatus, { bg: string; fg: string }> = {
   DIUNDANG: { bg: 'bg-neutral-100', fg: 'text-neutral-700' },
@@ -137,8 +138,13 @@ export default function MyGuestsScreen() {
                             </Text>
                           </View>
                         ) : null}
-                        <View className={`self-start px-2 py-0.5 rounded-full mt-2 ${STATUS_STYLE[st].bg}`}>
-                          <Text className={`text-[11px] font-bold ${STATUS_STYLE[st].fg}`}>{t(`guests.status_${st}`)}</Text>
+                        <View className="flex-row flex-wrap gap-1.5 mt-2">
+                          <View className={`px-2 py-0.5 rounded-full ${STATUS_STYLE[st].bg}`}>
+                            <Text className={`text-[11px] font-bold ${STATUS_STYLE[st].fg}`}>{t(`guests.status_${st}`)}</Text>
+                          </View>
+                          <View className="px-2 py-0.5 rounded-full bg-neutral-100">
+                            <Text className="text-[11px] font-semibold text-neutral-600">{tamuKategoriLabel(t, g.tamuKategori)}</Text>
+                          </View>
                         </View>
                         {g.followupBy ? (
                           <View className="flex-row items-start gap-1.5 mt-2">

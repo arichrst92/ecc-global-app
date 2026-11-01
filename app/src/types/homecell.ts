@@ -166,6 +166,8 @@ export type HomecellGuestRequestRow = {
   jenisKelamin: 'L' | 'P' | null;
   usia: number | null;
   pesan: string | null;
+  /** 2.4.5 — pilihan tamu sendiri: VISITOR | NEW_COMER | null. */
+  kategori?: string | null;
   homecell: { id: string; nama: string };
 };
 

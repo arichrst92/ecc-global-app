@@ -14,6 +14,7 @@ import { addHomecellTamu, addMyTamu, type Tamu } from '@/api/tamu';
 import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { nc } from '@/theme/ThemeRoot';
+import { TamuKategoriPicker, type TamuKategori } from './TamuKategoriPicker';
 
 export function AddTamuModal({
   visible,
@@ -33,13 +34,14 @@ export function AddTamuModal({
   const [noHp, setNoHp] = useState('');
   const [err, setErr] = useState<string | null>(null);
   const [catatan, setCatatan] = useState('');
+  const [kategori, setKategori] = useState<TamuKategori>('BELUM');
   const e164 = normalizePhone(noHp);
 
   const mut = useMutation({
     mutationFn: () =>
       homecellId
-        ? addHomecellTamu(homecellId, { nama: nama.trim(), noHp: e164!, catatan: catatan.trim() || undefined })
-        : addMyTamu({ nama: nama.trim(), noHp: e164! }),
+        ? addHomecellTamu(homecellId, { nama: nama.trim(), noHp: e164!, catatan: catatan.trim() || undefined, kategori })
+        : addMyTamu({ nama: nama.trim(), noHp: e164!, kategori }),
     onSuccess: (tamu) => {
       qc.invalidateQueries({ queryKey: ['tamu', 'mine'] });
       if (homecellId) qc.invalidateQueries({ queryKey: ['homecell', 'tamu', homecellId] });
@@ -53,6 +55,7 @@ export function AddTamuModal({
     setNama('');
     setNoHp('');
     setCatatan('');
+    setKategori('BELUM');
     setErr(null);
   }
   function close() {
@@ -98,6 +101,7 @@ export function AddTamuModal({
             }}
             error={phoneErr}
           />
+          <TamuKategoriPicker value={kategori} onChange={setKategori} />
           {homecellId ? (
             <TextInput
               value={catatan}

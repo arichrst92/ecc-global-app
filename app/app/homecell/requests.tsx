@@ -228,6 +228,9 @@ export default function HomecellRequestsScreen() {
                     .join(' · ')}
                 />
               ) : null}
+              {r.kategori === 'NEW_COMER' || r.kategori === 'VISITOR' ? (
+                <Detail icon={<UserRound size={13} color={nc('#737373')} />} text={t(`tamu.kategori_self_${r.kategori}`)} />
+              ) : null}
               {r.pesan ? <Detail icon={<MessageSquareQuote size={13} color={nc('#737373')} />} text={`“${r.pesan}”`} /> : null}
             </View>
             <View className="flex-row gap-2 mt-4">

@@ -59,27 +59,28 @@ export function ForceUpdateModal({ data }: Props) {
       <SafeAreaProvider>
         <StatusBar style="light" />
         <View className="flex-1 bg-card">
-          {/* Header oranye */}
-          <View {...gx('bg-brand-500 rounded-b-3xl')}>
-            <SafeAreaView edges={['top']}>
-              <View className="items-center px-8 pt-8 pb-8 w-full max-w-md self-center">
+          {/* Strip status bar (tetap) — konten yang di-scroll lewat di bawahnya */}
+          <SafeAreaView edges={['top']} {...gx('bg-brand-500')} />
+
+          {/* SELURUH isi (header + teks + catatan rilis) bisa di-scroll → aman di HP layar kecil / font besar */}
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
+            showsVerticalScrollIndicator
+            persistentScrollbar
+            nestedScrollEnabled
+          >
+            <View {...gx('bg-brand-500 rounded-b-3xl')}>
+              <View className="items-center px-8 pt-6 pb-8 w-full max-w-md self-center">
                 <AppLogo size={84} />
                 <Text className="text-white text-2xl font-bold text-center mt-5">{t('update.force_title')}</Text>
                 <View className="mt-3">
                   <VersionPill current={current} latest={data.latestVersion} />
                 </View>
               </View>
-            </SafeAreaView>
-          </View>
+            </View>
 
-          <View className="flex-1 w-full max-w-md self-center">
-            <ScrollView
-              style={{ flex: 1 }}
-              contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 16 }}
-              showsVerticalScrollIndicator
-              persistentScrollbar
-              nestedScrollEnabled
-            >
+            <View className="px-6 pt-6 w-full max-w-md self-center">
               <Text className="text-base text-neutral-700 text-center leading-relaxed">
                 {t('update.force_body', { latest: data.latestVersion ?? '-' })}
               </Text>
@@ -94,8 +95,11 @@ export function ForceUpdateModal({ data }: Props) {
                   <ReleaseNotes text={notes} />
                 </View>
               ) : null}
-            </ScrollView>
+            </View>
+          </ScrollView>
 
+          {/* Tombol di-pin di bawah — selalu terlihat */}
+          <View className="w-full max-w-md self-center">
             <SafeAreaView edges={['bottom']}>
               <View className="px-6 pt-3 pb-4 border-t border-neutral-100 gap-2">
                 <Pressable

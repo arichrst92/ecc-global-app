@@ -54,6 +54,8 @@ export type GuestRequestInput = {
   jenisKelamin?: 'L' | 'P';
   usia?: number;
   pesan?: string;
+  /** 2.4.5 — dipilih tamu sendiri. */
+  kategori?: 'BELUM' | 'NEW_COMER' | 'VISITOR';
 };
 
 /** Bentuk kartu homecell yang sama dengan anggota (komponen dipakai ulang). */

@@ -87,39 +87,44 @@ export function SoftUpdatePrompt() {
           className="bg-card rounded-t-3xl w-full max-w-md self-center overflow-hidden"
           style={{ maxHeight: height * 0.88, paddingBottom: Math.max(insets.bottom, 16) + 8 }}
         >
-          {/* Kepala oranye */}
-          <View {...gx('bg-brand-500 px-6 pt-3 pb-6 items-center')}>
-            <View className="w-10 h-1 bg-white/40 rounded-full mb-4" />
-            <Pressable
-              onPress={close}
-              accessibilityRole="button"
-              accessibilityLabel={t('common.close')}
-              hitSlop={10}
-              className="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/20 items-center justify-center"
-            >
-              <X size={16} color="#fff" />
-            </Pressable>
-            <AppLogo size={60} />
-            <Text className="text-white text-xl font-bold text-center mt-3">{t('update.soft_title')}</Text>
-            <View className="mt-2">
-              <VersionPill current={current} latest={latest} />
-            </View>
-          </View>
-
+          {/* Kepala + isi dalam SATU ScrollView → di HP layar kecil semuanya tetap bisa di-scroll;
+              tombol Nanti / Perbarui di-pin di bawah. */}
           <ScrollView
             style={{ flexGrow: 0, flexShrink: 1 }}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 18, paddingBottom: 4 }}
+            contentContainerStyle={{ paddingBottom: 4 }}
             showsVerticalScrollIndicator
             persistentScrollbar
             nestedScrollEnabled
           >
-            <Text className="text-sm text-neutral-600 text-center leading-relaxed">{t('update.soft_body')}</Text>
-            {notes ? (
-              <View className="mt-4">
-                <ReleaseNotes text={notes} />
+            <View {...gx('bg-brand-500 px-6 pt-3 pb-6 items-center')}>
+              <View className="w-10 h-1 bg-white/40 rounded-full mb-4" />
+              <AppLogo size={60} />
+              <Text className="text-white text-xl font-bold text-center mt-3">{t('update.soft_title')}</Text>
+              <View className="mt-2">
+                <VersionPill current={current} latest={latest} />
               </View>
-            ) : null}
+            </View>
+
+            <View className="px-6 pt-5">
+              <Text className="text-sm text-neutral-600 text-center leading-relaxed">{t('update.soft_body')}</Text>
+              {notes ? (
+                <View className="mt-4">
+                  <ReleaseNotes text={notes} />
+                </View>
+              ) : null}
+            </View>
           </ScrollView>
+
+          {/* Tombol tutup tetap di pojok (tidak ikut ter-scroll) */}
+          <Pressable
+            onPress={close}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.close')}
+            hitSlop={10}
+            className="absolute right-4 top-4 w-8 h-8 rounded-full bg-black/25 items-center justify-center"
+          >
+            <X size={16} color="#fff" />
+          </Pressable>
 
           <View className="flex-row gap-3 px-6 pt-4">
             <Pressable

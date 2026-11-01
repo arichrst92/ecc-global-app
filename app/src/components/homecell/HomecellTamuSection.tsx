@@ -15,6 +15,7 @@ import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
 import { formatDateWithDay } from '@/utils/date';
 import { nc } from '@/theme/ThemeRoot';
+import { tamuKategoriLabel } from '@/components/tamu/TamuKategoriPicker';
 
 const STATUS_STYLE: Record<string, [string, string]> = {
   DIUNDANG: ['bg-neutral-100', 'text-neutral-600'],
@@ -98,6 +99,11 @@ export function HomecellTamuSection({
                       {g.statusLabel ? (
                         <View className={`px-1.5 py-0.5 rounded-full ${bg}`}>
                           <Text className={`text-[9px] font-bold ${fg}`}>{g.statusLabel}</Text>
+                        </View>
+                      ) : null}
+                      {g.tamuKategori === 'NEW_COMER' || g.tamuKategori === 'VISITOR' ? (
+                        <View className="px-1.5 py-0.5 rounded-full bg-neutral-100">
+                          <Text className="text-[9px] font-bold text-neutral-600">{tamuKategoriLabel(t, g.tamuKategori)}</Text>
                         </View>
                       ) : null}
                     </View>
