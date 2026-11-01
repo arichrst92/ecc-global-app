@@ -622,7 +622,9 @@
     "nth_1": "1st",
     "nth_2": "2nd",
     "nth_3": "3rd",
-    "nth_4": "4th"
+    "nth_4": "4th",
+    "ended": "Ended",
+    "today_upper": "TODAY"
   },
   "error": {
     "network": "No internet connection. Please try again.",

@@ -622,7 +622,9 @@
     "nth_1": "pertama",
     "nth_2": "kedua",
     "nth_3": "ketiga",
-    "nth_4": "keempat"
+    "nth_4": "keempat",
+    "ended": "Sudah selesai",
+    "today_upper": "HARI INI"
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

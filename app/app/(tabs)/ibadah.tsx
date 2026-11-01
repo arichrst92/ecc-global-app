@@ -19,6 +19,8 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { todayIso, addDaysIso, formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { useNowTick } from '@/hooks/useNowTick';
+import { isOccurrenceEnded } from '@/utils/time';
 
 const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 
@@ -156,38 +158,51 @@ function DateSection({
   items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null }[];
   onTapItem: (id: string) => void;
 }) {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const lang = i18n.language;
   const today = isToday(date);
   // Zona waktu cabang yang dilihat — ditampilkan sebagai label (mis. Waktu Kuala Lumpur).
   const venueTz = useVenueTz();
+  const now = useNowTick();
 
   return (
     <View className="mb-5">
       <View className="flex-row items-center gap-2 mb-2">
         <Text className={`text-xs font-bold uppercase tracking-wider ${today ? 'text-brand-600' : 'text-neutral-500'}`}>
-          {today ? 'HARI INI' : ''} {formatDateWithDay(date, lang)}
+          {today ? t('ibadah.today_upper') : ''} {formatDateWithDay(date, lang)}
         </Text>
         <View className="flex-1 h-px bg-neutral-200" />
       </View>
       <View className="gap-2">
-        {items.map((item) => {
+        {[...items]
+          // Yang sudah selesai (hari ini) di bawah.
+          .sort((a, b) => Number(isOccurrenceEnded(date, a.jamMulai, a.jamSelesai, venueTz, now)) - Number(isOccurrenceEnded(date, b.jamMulai, b.jamSelesai, venueTz, now)))
+          .map((item) => {
           // Jam jadwal = jam dinding di zona cabang, ditampilkan dengan label zonanya.
           const [hh, mm] = item.jamMulai.split(':');
+          const ended = isOccurrenceEnded(date, item.jamMulai, item.jamSelesai, venueTz, now);
           return (
           <Pressable
             key={`${item.ibadahId}-${date}`}
             onPress={() => onTapItem(item.ibadahId)}
             className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100"
+            style={ended ? { opacity: 0.5 } : undefined}
           >
             <View className="w-12 h-12 rounded-xl bg-brand-50 items-center justify-center">
               <Text className="text-xs text-brand-600 font-bold">{hh}</Text>
               <Text className="text-[10px] text-brand-500">{mm}</Text>
             </View>
             <View className="flex-1">
-              <Text className="font-semibold text-neutral-900" numberOfLines={1}>
-                {item.nama}
-              </Text>
+              <View className="flex-row items-center gap-1.5">
+                <Text className="font-semibold text-neutral-900 flex-shrink" numberOfLines={1}>
+                  {item.nama}
+                </Text>
+                {ended ? (
+                  <View className="bg-neutral-200 rounded-full px-2 py-0.5">
+                    <Text className="text-[10px] font-bold text-neutral-700">{t('ibadah.ended')}</Text>
+                  </View>
+                ) : null}
+              </View>
               <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
                 {item.kategoriIbadah?.nama ? `${item.kategoriIbadah.nama} · ` : ''}
                 {item.lokasi}

@@ -293,3 +293,36 @@ export function localRangeIfDifferent(
   if (!a?.converted) return null;
   return formatVenueRange(ymd, start, end, tz);
 }
+
+/** Instant (ms) jam dinding `hhmm` pada `ymd` di zona `tz`; null kalau tidak valid. */
+export function venueInstantMs(ymd: string, hhmm: string | null | undefined, tz: string | null | undefined): number | null {
+  const m = /^(\d{1,2})[:.](\d{2})/.exec((hhmm ?? '').trim());
+  const [y, mo, d] = ymd.slice(0, 10).split('-').map(Number);
+  if (!m || !y || !mo || !d) return null;
+  const zone = tz || DEFAULT_VENUE_TZ;
+  const wallAsUtc = Date.UTC(y, mo - 1, d, Number(m[1]), Number(m[2]));
+  const off1 = tzOffsetMin(zone, new Date(wallAsUtc));
+  if (off1 === null) return wallAsUtc - 7 * 3600_000; // fallback WIB
+  let instant = wallAsUtc - off1 * 60_000;
+  const off2 = tzOffsetMin(zone, new Date(instant));
+  if (off2 !== null && off2 !== off1) instant = wallAsUtc - off2 * 60_000;
+  return instant;
+}
+
+/**
+ * Ibadah pada tanggal `ymd` sudah selesai (jam selesai di zona cabang sudah
+ * lewat). jamSelesai kosong / ≤ jamMulai → dianggap selesai di akhir hari.
+ */
+export function isOccurrenceEnded(
+  ymd: string | null | undefined,
+  jamMulai: string | null | undefined,
+  jamSelesai: string | null | undefined,
+  tz: string | null | undefined,
+  nowMs: number,
+): boolean {
+  if (!ymd) return false;
+  const start = venueInstantMs(ymd, jamMulai, tz);
+  let end = venueInstantMs(ymd, jamSelesai, tz);
+  if (end == null || (start != null && end <= start)) end = venueInstantMs(ymd, '23:59', tz);
+  return end != null && nowMs > end;
+}

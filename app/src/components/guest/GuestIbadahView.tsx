@@ -14,7 +14,8 @@ import { usePublicIbadah } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
-import { zoneTimeText } from '@/utils/time';
+import { isOccurrenceEnded, zoneTimeText } from '@/utils/time';
+import { useNowTick } from '@/hooks/useNowTick';
 import i18nInst from '@/i18n';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
@@ -37,6 +38,7 @@ export function GuestIbadahView() {
 
   const branchesQuery = useBranches();
   const ibadahQuery = usePublicIbadah(cabangId || null);
+  const now = useNowTick();
   const pull = usePullToRefresh(() => ibadahQuery.refetch());
 
   const branchOptions = (branchesQuery.data ?? []).map((b) => ({
@@ -127,16 +129,23 @@ export function GuestIbadahView() {
               {isToday(date) ? ` · ${t('common.today')}` : ''}
             </Text>
             <View className="bg-card rounded-2xl border border-neutral-100 divide-y divide-neutral-100">
-              {dayItems.map((it) => (
-                <View key={it.id} className="p-4">
+              {dayItems.map((it) => {
+                const ended = isOccurrenceEnded(date, it.jam, it.jamSelesai, venueTz, now);
+                return (
+                <View key={it.id} className="p-4" style={ended ? { opacity: 0.5 } : undefined}>
                   <View className="flex-row items-start gap-3">
                     <View className="w-12 h-12 rounded-xl bg-brand-50 items-center justify-center">
                       <Church size={20} color="#EA580C" />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-sm font-semibold text-neutral-900">
-                        {it.judul}
-                      </Text>
+                      <View className="flex-row items-center gap-1.5">
+                        <Text className="text-sm font-semibold text-neutral-900 flex-shrink">{it.judul}</Text>
+                        {ended ? (
+                          <View className="bg-neutral-200 rounded-full px-2 py-0.5">
+                            <Text className="text-[10px] font-bold text-neutral-700">{t('ibadah.ended')}</Text>
+                          </View>
+                        ) : null}
+                      </View>
                       <Text className="text-xs text-neutral-500 mt-0.5">
                         {zoneTimeText(it.jam, it.jamSelesai, venueTz, i18nInst.language)}
                       </Text>
@@ -175,17 +184,18 @@ export function GuestIbadahView() {
                       </Pressable>
                     );
                   })()}
-                  {/* Read-only — CTA daftar untuk check-in */}
-                  <Pressable
+                  {/* Read-only — CTA daftar untuk check-in (tidak untuk ibadah yang sudah selesai) */}
+                  {ended ? null : <Pressable
                     onPress={promptSignup}
                     className="mt-3 bg-neutral-100 rounded-xl py-2 items-center"
                   >
                     <Text className="text-xs text-neutral-600 font-medium">
                       {t('guest.cta_signup_to_checkin')}
                     </Text>
-                  </Pressable>
+                  </Pressable>}
                 </View>
-              ))}
+                );
+              })}
             </View>
           </View>
         ))}

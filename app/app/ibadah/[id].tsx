@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   Calendar,
   CalendarPlus,
+  CheckCircle2,
   Clock,
   FileText,
   MapPin,
@@ -40,6 +41,8 @@ import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
 import { useMyReservasi } from '@/hooks/useMyReservasi';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { useNowTick } from '@/hooks/useNowTick';
+import { isOccurrenceEnded } from '@/utils/time';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -69,6 +72,9 @@ export default function IbadahDetailScreen() {
   const venueTz = ibadah?.cabang?.timezone ?? branchTz;
   const localRange = ibadah ? localRangeIfDifferent(tanggal ?? null, ibadah.jamMulai, ibadah.jamSelesai, venueTz) : null;
   const timeHint = localRange ? t('time.your_time', { time: localRange }) : null;
+  // Pertemuan tanggal ini sudah selesai → tombol reservasi disembunyikan.
+  const nowDetail = useNowTick();
+  const ended = !!ibadah && isOccurrenceEnded(tanggal ?? null, ibadah.jamMulai, ibadah.jamSelesai, venueTz, nowDetail);
   const showToast = useToast((s) => s.show);
 
   // Self check-in: status jendela (hari & jam ibadah) + saya & keluarga.
@@ -209,6 +215,12 @@ export default function IbadahDetailScreen() {
                     {formatDateWithDay(tanggal, lang)}
                   </Text>
                 </View>
+                {ended ? (
+                  <View className="flex-row items-center gap-1 bg-neutral-200 rounded-full px-2.5 py-1">
+                    <CheckCircle2 size={12} color={nc('#525252')} />
+                    <Text className="text-[11px] font-bold text-neutral-700">{t('ibadah.ended')}</Text>
+                  </View>
+                ) : null}
               </View>
             ) : null}
 
@@ -383,7 +395,7 @@ export default function IbadahDetailScreen() {
                   size="lg"
                 />
               </View>
-            ) : (
+            ) : ended ? null : (
               <View className="flex-1">
                 <Button
                   label={t('reservasi.btn')}

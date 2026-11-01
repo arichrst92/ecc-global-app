@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { BookOpen, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake, Ticket } from 'lucide-react-native';
+import { BookOpen, CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake, Ticket } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -34,6 +34,8 @@ import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
 import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { useNowTick } from '@/hooks/useNowTick';
+import { isOccurrenceEnded } from '@/utils/time';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -82,7 +84,14 @@ function HomeScreenAuthenticated() {
     ]),
   );
 
-  const todayServices = todayQuery.data ?? [];
+  // Ibadah yang sudah selesai diletakkan paling bawah (kartu diburamkan).
+  const homeTz = useVenueTz();
+  const nowHome = useNowTick();
+  const todayServices = [...(todayQuery.data ?? [])].sort(
+    (a, b) =>
+      Number(isOccurrenceEnded(a.tanggal, a.jamMulai, a.jamSelesai, homeTz, nowHome)) -
+      Number(isOccurrenceEnded(b.tanggal, b.jamMulai, b.jamSelesai, homeTz, nowHome)),
+  );
 
   if (!user) return null;
 
@@ -444,19 +453,31 @@ function TodayServiceCard({
   const lokasi = detailQuery.data?.lokasi?.trim() || service.lokasi?.trim() || service.cabang?.nama || null;
   // Jam jadwal = jam dinding cabang → tampil di zona waktu HP.
   const venueTz = useVenueTz(detailQuery.data?.cabang?.id);
+  // Ibadah hari ini yang sudah lewat jam selesai → kartu diburamkan + label "Sudah selesai".
+  const now = useNowTick();
+  const ended = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, detailQuery.data?.cabang?.timezone ?? venueTz, now);
   // Jadwal tampil dalam jam & zona cabang; bila zona HP berbeda, tambah jam setempat.
   const localStart = venueToLocal(service.tanggal, service.jamMulai, venueTz);
   const hint = localStart?.converted ? t('time.your_time', { time: localStart.time }) : null;
 
   return (
-    <View className="bg-card rounded-2xl overflow-hidden border border-neutral-100">
+    <View className="bg-card rounded-2xl overflow-hidden border border-neutral-100" style={ended ? { opacity: 0.55 } : undefined}>
       <View className="p-4">
         <View className="flex-row items-start justify-between gap-2 mb-2">
           <View className="flex-row items-center gap-2 flex-1">
-            <View className="w-2 h-2 rounded-full bg-emerald-500" />
-            <Text className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
-              {t('home.today_service')}
-            </Text>
+            {ended ? (
+              <View className="flex-row items-center gap-1 bg-neutral-200 rounded-full px-2 py-0.5">
+                <CheckCircle2 size={12} color={nc('#525252')} />
+                <Text className="text-[11px] font-bold text-neutral-700 uppercase tracking-wider">{t('ibadah.ended')}</Text>
+              </View>
+            ) : (
+              <>
+                <View className="w-2 h-2 rounded-full bg-emerald-500" />
+                <Text className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
+                  {t('home.today_service')}
+                </Text>
+              </>
+            )}
           </View>
           {service.kategoriIbadah ? (
             <View className="bg-brand-50 border border-brand-100 rounded-full px-2.5 py-0.5">
@@ -486,13 +507,13 @@ function TodayServiceCard({
         <OccupancyBar compact data={detailQuery.data?.okupansi} />
 
         {/* Self check-in: hitung mundur → tombol (hari & jam ibadah, sesuai radius) */}
-        <SelfCheckinBar
+        {ended ? null : <SelfCheckinBar
           compact
           allowAddGuest
           queryKey={['ibadah', 'self-checkin', service.ibadahId]}
           fetcher={() => getSelfCheckin(service.ibadahId)}
           submit={(ids, coords) => postSelfCheckin(service.ibadahId, ids, coords)}
-        />
+        />}
 
         {streamLink ? (
           <Pressable

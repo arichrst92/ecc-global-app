@@ -10,6 +10,7 @@ Versi sebelumnya: **2.4.4**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
   - Mode tamu → Cari Homecell → minta bergabung: tamu memilih sendiri ("Belum tahu" / "Ingin bergabung" / "Sekadar berkunjung"); pemimpin homecell melihat pilihannya.
   - Daftar Tamu saya & tamu homecell menampilkan kategori.
 - **Batalkan check-in** — self check-in yang salah (mis. ikut men-check-in-kan keluarga yang tidak hadir) bisa dibatalkan sendiri dari tiket sampai ibadah selesai; kembali "Terdaftar" bila sebelumnya reservasi, selain itu "Dibatalkan". Ulasan di tiket itu ikut terhapus. Check-in hasil scan usher & CKids tetap lewat usher/admin.
+- **Ibadah yang sudah selesai** — di Beranda (Ibadah Hari Ini), daftar ibadah, mode tamu, dan detail ibadah: kartu diburamkan + label **Sudah selesai** (menurut jam selesai di zona waktu cabang), diletakkan paling bawah; tombol **Reservasi** dan self check-in disembunyikan.
 - **Popup self check-in** punya tombol tutup (×) di pojok kanan atas.
 - Server & Portal (deploy terpisah, sudah kompatibel dengan app lama): kolom & filter kategori di Portal → Tamu (bisa diubah admin), laporan ibadah/event/cabang/homecell area + PDF/CSV dipecah per kategori, monitor ibadah/event. Data tamu lama = "Belum ditentukan". Follow-up tetap untuk semua tamu; tamu yang mendaftar akun mengikuti alur standar.
 
@@ -36,6 +37,7 @@ Els App 2.4.5:
 ## Smoke test
 - [ ] Self check-in ibadah (tanpa reservasi) → tiket → **Batalkan check-in** → status Dibatalkan; dengan reservasi → kembali Terdaftar; setelah ibadah selesai tombol hilang
 - [ ] Popup self check-in → tombol × menutup popup
+- [ ] Setelah jam selesai ibadah hari ini: Beranda & daftar ibadah menampilkan kartu buram "Sudah selesai" di bawah; detail ibadah tanggal itu tanpa tombol Reservasi
 - [ ] Tamu saya → Tambah tamu → pilih New Comer → Portal → Tamu menampilkan New Comer
 - [ ] Usher walk-in tamu ibadah & event dengan kategori Visitor
 - [ ] Homecell → tambah tamu (default Belum ditentukan)
