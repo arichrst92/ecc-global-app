@@ -1010,7 +1010,8 @@
     "review_reject_confirm": "Kirim Penolakan",
     "review_approved_toast": "{{nama}} bergabung sebagai {{role}}",
     "review_rejected_toast": "Permintaan {{nama}} ditolak",
-    "review_already_processed": "Permintaan ini sudah diproses sebelumnya."
+    "review_already_processed": "Permintaan ini sudah diproses sebelumnya.",
+    "review_view_profile": "Lihat profil pemohon"
   },
   "homecell": {
     "title": "Homecell Saya",

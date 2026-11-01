@@ -810,6 +810,7 @@ function ReviewJoinRequestModal({
   onClose: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const showToast = useToast((s) => s.show);
   const qc = useQueryClient();
   const approveMutation = useApproveJoinRequest(ministryId);
@@ -892,8 +893,17 @@ function ReviewJoinRequestModal({
               contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 }}
               keyboardShouldPersistTaps="handled"
             >
-              {/* Pemohon */}
-              <View className="flex-row items-center gap-3 mb-4">
+              {/* Pemohon — ketuk untuk melihat profil (popup ditutup dulu) */}
+              <Pressable
+                onPress={() => {
+                  if (busy) return;
+                  onClose();
+                  router.push(`/jemaat/${request.jemaat.id}` as never);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={t('ministry.review_view_profile')}
+                className="flex-row items-center gap-3 mb-4 bg-neutral-50 rounded-2xl p-3 border border-neutral-100"
+              >
                 <Avatar name={nama} fotoUrl={request.jemaat.fotoUrl ?? undefined} size={52} />
                 <View className="flex-1 min-w-0">
                   <Text className="text-base font-bold text-neutral-900" numberOfLines={1}>
@@ -908,8 +918,10 @@ function ReviewJoinRequestModal({
                       { day: 'numeric', month: 'short', year: 'numeric' },
                     )}
                   </Text>
+                  <Text className="text-xs font-semibold text-brand-600 mt-1">{t('ministry.review_view_profile')} ›</Text>
                 </View>
-              </View>
+                <ChevronRight size={18} color={nc('#A3A3A3')} />
+              </Pressable>
 
               <View className="bg-neutral-50 rounded-2xl p-3 mb-4 gap-2">
                 <View>
