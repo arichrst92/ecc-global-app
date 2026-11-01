@@ -140,6 +140,11 @@ export async function deleteMyAccount(payload: DeleteAccountPayload): Promise<De
 }
 
 /** POST /admin/me/reservasi/:id/cancel — batalkan reservasi (sebelum jam mulai). */
+/** Batalkan self check-in yang salah (sampai ibadah selesai). */
+export function cancelMyCheckin(id: string) {
+  return api.post<MyReservasi>(`/admin/me/reservasi/${id}/cancel-checkin`);
+}
+
 export function cancelMyReservasi(id: string) {
   return api.post<MyReservasi>(`/admin/me/reservasi/${id}/cancel`);
 }

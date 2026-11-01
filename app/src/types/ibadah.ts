@@ -145,6 +145,8 @@ export type MyReservasi = {
   relation?: MyReservasiRelation;
   /** RESERVE & belum lewat jam mulai → boleh dibatalkan. */
   canCancel?: boolean;
+  /** Self check-in bisa dibatalkan (salah input) sampai ibadah selesai. */
+  canCancelCheckin?: boolean;
   checkinMethod?: string | null;
   jemaat: {
     id: string;

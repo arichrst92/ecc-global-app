@@ -18,6 +18,9 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 - **Zona waktu jelas** — daftar ibadah, daftar event, Beranda, detail ibadah, detail event, dan tiket menampilkan jadwal dengan zona waktu cabang, mis. "26 Oktober 2029 10.00 - 12.00 Waktu Kuala Lumpur"; bila zona HP berbeda, jam setempat ikut ditampilkan ("09:00 - 11:00 di zona waktu Anda").
 - **Statistik penggunaan anonim** (halaman dibuka, kecepatan app) untuk Portal → Analitik; bisa dimatikan di Profil → Pengaturan → Privasi.
 - **Label jadwal lebih jelas** — detail ibadah menampilkan "Sabtu minggu kedua setiap bulan", "Setiap 2 minggu, hari …", "Sekali" (sebelumnya tampil kode mentah seperti `MONTHLY`).
+- **Tampilan update & maintenance baru** — header oranye dengan logo Els App, bisa di-scroll di HP layar kecil, semua teks mengikuti bahasa app (pesan maintenance & catatan rilis bisa diisi Indonesia/English di Portal). Update wajib: tombol "Sudah memperbarui? Periksa lagi"; maintenance: jam selesai + zona waktu HP, app terbuka sendiri saat hitungan habis.
+- **Batalkan check-in** — self check-in yang salah (mis. ikut men-check-in-kan keluarga yang tidak hadir) bisa dibatalkan sendiri dari tiket sampai ibadah selesai; kembali "Terdaftar" bila sebelumnya reservasi.
+- **Tarik untuk refresh lebih rapi** — saat membuka tab/halaman, konten tidak lagi turun karena spinner; spinner hanya muncul saat layar ditarik.
 - Server (sudah live): data wajah dihapus, hapus data permanen di Portal, retensi data otomatis, enkripsi Credential & backup, jadwal Bulanan minggu ke-N, menu Compliance.
 
 ## Perbandingan 2.4.3 → 2.4.4
@@ -33,8 +36,10 @@ Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 | Ulasan ibadah & event | — | Bintang 1–5 + komentar (opsional, bisa anonim) dari tiket |
 | Zona waktu jadwal | Jam dikonversi ke zona HP tanpa label | Jam resmi cabang + label zona di daftar, Beranda, detail & tiket, mis. "10.00 - 12.00 Waktu Kuala Lumpur" |
 | Label jadwal ibadah | "Setiap Minggu" atau kode mentah (`MONTHLY`, `BIWEEKLY`) | "Sabtu minggu kedua setiap bulan", "Setiap 2 minggu, hari …", "Sekali" |
+| Layar update & maintenance | Ikon/warna kuning, sebagian teks selalu Indonesia, tidak bisa di-scroll penuh | Desain brand + logo Els App, scroll penuh, ikut bahasa app, cek ulang versi |
+| Tarik untuk refresh | Konten turun & spinner muncul tiap tab dibuka | Spinner hanya saat ditarik |
 | Modul native baru | expo-notifications, expo-sharing, media-library, view-shot | Tidak ada (aman untuk build biasa) |
-| Versi minimum server | Migrasi 2.4.3 | Migrasi s.d. `20261030230000` — wajib sudah di-deploy sebelum app 2.4.4 dipakai |
+| Versi minimum server | Migrasi 2.4.3 | Migrasi s.d. `20261031090000` — wajib sudah di-deploy sebelum app 2.4.4 dipakai |
 
 Fitur 2.4.3 (Bible 365, share gambar, homecell & tamu, laporan PDF) tetap ada di 2.4.4 tanpa perubahan perilaku.
 
@@ -128,11 +133,16 @@ Google Play → Data safety: **App activity → Page views** & **App info and pe
 - [ ] Buka beberapa halaman → Portal → Analitik → halaman muncul (≤ 1–2 menit)
 - [ ] Pengaturan → Privasi → matikan statistik → halaman baru tidak lagi tercatat
 
+**Update & maintenance**
+- [ ] Portal → Maintenance Mode ON 5 menit, isi pesan ID & EN → app bahasa Indonesia & English menampilkan pesan masing-masing, logo Els App, bisa di-scroll; tunggu hitungan habis → app terbuka sendiri → matikan di Portal
+- [ ] Portal → App Versions: Min supported sementara > versi TestFlight → layar update wajib (scroll, Perbarui membuka store, Periksa lagi) → kembalikan
+- [ ] Buka tab Beranda/Event/Reservasi/CKids/Profil → konten tidak turun, tarik layar → spinner muncul & hilang
+
 **Regresi cepat**
 - [ ] Login OTP & tautan email, reservasi + tiket, Bible 365, share gambar, homecell & mode tamu
 
 ## Urutan rilis
-1. Server — **sudah** (migrasi `20261029180000_consent_purge_face` sudah jalan).
+1. Server — deploy core-platform terbaru di VPS (migrasi s.d. `20261031090000_update_maintenance_en`).
 2. Deploy Els App web (`./scripts/deploy-web.sh`) → cek layar persetujuan di web.
 3. Build production iOS & Android → TestFlight / internal testing → smoke test.
 4. Submit ke App Store & Google Play (teks di atas, App Review notes, App Privacy / Data safety).

@@ -1847,7 +1847,21 @@
     "quota_full": "Kuota peserta penuh. Tetap masukkan tamu ini?",
     "force_btn": "Tetap masukkan",
     "add_hint_homecell": "Catat tamu yang berkunjung ke homecell — nama dan no HP (untuk follow-up).",
-    "catatan_ph": "Catatan (opsional), mis. teman kantor Andi"
+    "catatan_ph": "Catatan (opsional), mis. teman kantor Andi",
+    "kategori_title": "Kategori tamu",
+    "kategori_BELUM": "Belum ditentukan",
+    "kategori_NEW_COMER": "New Comer",
+    "kategori_VISITOR": "Visitor saja",
+    "kategori_BELUM_hint": "Boleh dipilih bila belum tahu — tim ECC bisa melengkapinya nanti.",
+    "kategori_NEW_COMER_hint": "Orang baru yang berpotensi berjemaat di ECC.",
+    "kategori_VISITOR_hint": "Hanya berkunjung (mis. keluarga dari luar kota, jemaat gereja lain).",
+    "kategori_self_title": "Apa tujuan Anda?",
+    "kategori_self_BELUM": "Belum tahu",
+    "kategori_self_NEW_COMER": "Ingin bergabung",
+    "kategori_self_VISITOR": "Sekadar berkunjung",
+    "kategori_self_BELUM_hint": "Tidak apa-apa — pemimpin homecell akan membantu Anda.",
+    "kategori_self_NEW_COMER_hint": "Saya orang baru dan ingin menjadi bagian dari ECC.",
+    "kategori_self_VISITOR_hint": "Saya hanya ingin berkunjung kali ini."
   },
   "selfcheckin_geo": {
     "title": "Lokasi terlalu jauh",
@@ -2216,7 +2230,12 @@
     "my_tickets": "Tiket Saya",
     "radius_note": "Lokasi Anda dicek (maks. {{radius}} dari lokasi)",
     "not_found": "Tiket tidak ditemukan.",
-    "pickup_done": "Anak sudah dijemput · {{time}}"
+    "pickup_done": "Anak sudah dijemput · {{time}}",
+    "cancel_checkin_btn": "Batalkan check-in",
+    "cancel_checkin_title": "Batalkan check-in?",
+    "cancel_checkin_body": "Check-in {{name}} akan dibatalkan. Pakai ini bila salah check-in (mis. yang bersangkutan tidak hadir). Bisa sampai ibadah selesai.",
+    "cancel_checkin_confirm": "Ya, batalkan",
+    "checkin_cancelled": "Check-in dibatalkan"
   },
   "appearance": {
     "title": "Tampilan",

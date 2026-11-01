@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Baby, CalendarDays, Church, LogOut, MapPin } from 'lucide-react-native';
 
 import type { MyReservasi } from '@/types/ibadah';
-import { cancelMyReservasi } from '@/api/me';
+import { cancelMyCheckin, cancelMyReservasi } from '@/api/me';
 import { useToast } from '@/components/ui/Toast';
 import { PickupCodeCard } from '@/components/scanner/PickupCodeCard';
 import { formatDateWithDay } from '@/utils/date';
@@ -76,6 +76,22 @@ export function IbadahTicketCard({
     Alert.alert(t('reservasi.cancel_title'), t('reservasi.cancel_body', { name: r.jemaat.namaLengkap }), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('reservasi.cancel_confirm'), style: 'destructive', onPress: () => cancel.mutate() },
+    ]);
+
+  const undo = useMutation({
+    mutationFn: () => cancelMyCheckin(r.id),
+    onSuccess: () => {
+      showToast(t('tiket.checkin_cancelled'), 'success');
+      void qc.invalidateQueries({ queryKey: ['my-reservasi'] });
+      void qc.invalidateQueries({ queryKey: ['reservasi-options'] });
+      void qc.invalidateQueries({ queryKey: ['ticket-review'] });
+    },
+    onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
+  });
+  const askUndo = () =>
+    Alert.alert(t('tiket.cancel_checkin_title'), t('tiket.cancel_checkin_body', { name: r.jemaat.namaLengkap }), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('tiket.cancel_checkin_confirm'), style: 'destructive', onPress: () => undo.mutate() },
     ]);
 
   const band = kids ? '#DB2777' : '#EA580C';
@@ -180,6 +196,15 @@ export function IbadahTicketCard({
             <LogOut size={11} color={nc('#B45309')} />
             <Text className="text-[11px] text-amber-700">{t('my_reservasi.checkout_needed')}</Text>
           </View>
+        ) : null}
+        {r.canCancelCheckin ? (
+          <Pressable
+            onPress={askUndo}
+            disabled={undo.isPending}
+            className="self-center mt-2.5 px-3 py-1 rounded-full border border-red-200"
+          >
+            <Text className="text-[11px] font-semibold text-red-600">{undo.isPending ? '…' : t('tiket.cancel_checkin_btn')}</Text>
+          </Pressable>
         ) : null}
       </View>
     );

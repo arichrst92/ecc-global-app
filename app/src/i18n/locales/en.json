@@ -1848,7 +1848,21 @@
     "quota_full": "Quota is full. Add this guest anyway?",
     "force_btn": "Add anyway",
     "add_hint_homecell": "Record a guest visiting the homecell — name and phone (for follow-up).",
-    "catatan_ph": "Note (optional), e.g. Andi's colleague"
+    "catatan_ph": "Note (optional), e.g. Andi's colleague",
+    "kategori_title": "Guest category",
+    "kategori_BELUM": "Not decided",
+    "kategori_NEW_COMER": "New Comer",
+    "kategori_VISITOR": "Visitor only",
+    "kategori_BELUM_hint": "Fine if you are not sure — the ECC team can update it later.",
+    "kategori_NEW_COMER_hint": "Someone new who may want to join ECC.",
+    "kategori_VISITOR_hint": "Just visiting (e.g. family from out of town, members of another church).",
+    "kategori_self_title": "What brings you?",
+    "kategori_self_BELUM": "Not sure yet",
+    "kategori_self_NEW_COMER": "I'd like to join",
+    "kategori_self_VISITOR": "Just visiting",
+    "kategori_self_BELUM_hint": "That's okay — the homecell leader will help you.",
+    "kategori_self_NEW_COMER_hint": "I'm new and would like to be part of ECC.",
+    "kategori_self_VISITOR_hint": "I'm only visiting this time."
   },
   "selfcheckin_geo": {
     "title": "Too far from the venue",
@@ -2217,7 +2231,12 @@
     "my_tickets": "My Tickets",
     "radius_note": "Your location is checked (max. {{radius}} from the venue)",
     "not_found": "Ticket not found.",
-    "pickup_done": "Child picked up · {{time}}"
+    "pickup_done": "Child picked up · {{time}}",
+    "cancel_checkin_btn": "Undo check-in",
+    "cancel_checkin_title": "Undo check-in?",
+    "cancel_checkin_body": "{{name}}'s check-in will be cancelled. Use this if the check-in was a mistake (e.g. they are not here). Available until the service ends.",
+    "cancel_checkin_confirm": "Yes, undo",
+    "checkin_cancelled": "Check-in cancelled"
   },
   "appearance": {
     "title": "Appearance",

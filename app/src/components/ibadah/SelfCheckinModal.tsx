@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Check, CheckCircle2, LocateFixed, MapPin, UserPlus } from 'lucide-react-native';
+import { Check, CheckCircle2, LocateFixed, MapPin, UserPlus, X } from 'lucide-react-native';
 import { formatRadius } from '@/utils/selfCheckinLocation';
 import { zoneTimeText } from '@/utils/time';
 import i18nInst from '@/i18n';
@@ -76,6 +76,16 @@ export function SelfCheckinModal({
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 items-center justify-center px-6">
         <View className="bg-card rounded-3xl p-5 w-full max-w-md" style={{ maxHeight: '85%' }}>
+          {/* Tutup (X) di pojok kanan atas */}
+          <Pressable
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.close')}
+            hitSlop={12}
+            className="absolute right-3 top-3 w-9 h-9 rounded-full bg-neutral-100 items-center justify-center z-10"
+          >
+            <X size={18} color={nc('#525252')} />
+          </Pressable>
           <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center self-center mb-3">
             <MapPin size={24} color="#EA580C" />
           </View>
