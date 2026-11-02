@@ -4,7 +4,7 @@ import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Bookmark, Calendar, MapPin, Share2, User } from 'lucide-react-native';
+import { ArrowLeft, Bookmark, Calendar, MapPin, Share2 } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { SimpleMarkdown } from '@/components/ui/SimpleMarkdown';
@@ -158,14 +158,6 @@ export default function NewsDetailScreen() {
                   <View className="flex-row items-center gap-2">
                     <MapPin size={14} color={nc('#737373')} />
                     <Text className="text-xs text-neutral-500">{item.cabang.nama}</Text>
-                  </View>
-                ) : null}
-                {item.author ? (
-                  <View className="flex-row items-center gap-2">
-                    <User size={14} color={nc('#737373')} />
-                    <Text className="text-xs text-neutral-500">
-                      {item.author.jemaat.namaLengkap}
-                    </Text>
                   </View>
                 ) : null}
               </View>

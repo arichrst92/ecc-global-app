@@ -215,10 +215,7 @@ function HomeScreenAuthenticated() {
                 fitToWidth
               />
               <View className="p-3.5">
-                <Text className="text-xs text-brand-600 font-semibold">
-                  {renungan.ayatAlkitab} · {t('home.today_service').split(' ')[1] /* "Hari ini"/"today" approx */}
-                </Text>
-                <Text className="font-bold text-neutral-900 mt-1" numberOfLines={1}>
+                <Text className="font-bold text-neutral-900" numberOfLines={1}>
                   {renungan.judul}
                 </Text>
                 <Text className="text-sm text-neutral-500 mt-1" numberOfLines={2}>
