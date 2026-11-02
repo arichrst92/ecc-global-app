@@ -108,23 +108,38 @@ export default function CatatanEditScreen() {
   useEffect(() => {
     if (id) return;
     const fromRef = typeof params.ref === 'string' && params.ref ? params.ref : null;
-    if (fromRef) {
-      setAyat([fromRef]);
-      if (typeof params.quote === 'string' && params.quote) setIsi(`${params.quote}\n\n`);
-      dirty.current = true;
-      return;
-    }
+    const quote = typeof params.quote === 'string' && params.quote ? params.quote : '';
     AsyncStorage.getItem(draftKey)
       .then((raw) => {
-        if (!raw) return;
-        const d = JSON.parse(raw) as Draft;
+        // Pengguna sudah mulai mengetik sebelum draf selesai dimuat → jangan timpa.
+        if (dirty.current && !fromRef) return;
+        let d: Partial<Draft> = {};
+        try {
+          d = raw ? (JSON.parse(raw) as Draft) : {};
+        } catch {
+          d = {};
+        }
+        const isiDraf = typeof d.isi === 'string' ? d.isi : '';
+        const ayatDraf = Array.isArray(d.ayat) ? d.ayat : [];
         setJudul(d.judul ?? '');
-        setIsi(d.isi ?? '');
-        setAyat(Array.isArray(d.ayat) ? d.ayat : []);
         setPengkhotbah(d.pengkhotbah ?? '');
         if (d.tanggal) setTanggal(d.tanggal);
+        if (fromRef) {
+          // Dari Alkitab: ayat DITAMBAHKAN ke draf yang ada (draf lama tidak hilang).
+          setAyat(ayatDraf.includes(fromRef) ? ayatDraf : [...ayatDraf, fromRef].slice(0, 20));
+          setIsi(quote ? `${isiDraf.trimEnd() ? `${isiDraf.trimEnd()}\n\n` : ''}${quote}\n\n` : isiDraf);
+          dirty.current = true;
+        } else {
+          setIsi(isiDraf);
+          setAyat(ayatDraf);
+        }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!fromRef) return;
+        setAyat([fromRef]);
+        if (quote) setIsi(`${quote}\n\n`);
+        dirty.current = true;
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

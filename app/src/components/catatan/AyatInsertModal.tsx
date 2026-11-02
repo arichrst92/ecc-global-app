@@ -52,6 +52,9 @@ export function AyatInsertModal({
         .map((v) => v.teks)
         .join(' ');
       setPreview({ ref, text });
+    }).catch(() => {
+      // Teks Alkitab gagal dimuat → tetap bisa sisip referensi saja.
+      if (!cancelled) setPreview({ ref, text: '' });
     });
     return () => {
       cancelled = true;

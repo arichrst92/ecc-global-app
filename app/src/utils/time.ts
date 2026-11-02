@@ -309,12 +309,13 @@ export function venueInstantMs(ymd: string, hhmm: string | null | undefined, tz:
   return instant;
 }
 
-/**
- * Ibadah pada tanggal `ymd` sudah selesai (jam selesai di zona cabang sudah
- * lewat). jamSelesai kosong / ≤ jamMulai → dianggap selesai di akhir hari.
- */
 /** Self check-in masih dibuka 30 menit setelah ibadah/event selesai (sama dengan server). */
 export const SELF_CHECKIN_GRACE_MS = 30 * 60 * 1000;
+
+/**
+ * Ibadah pada tanggal `ymd` sudah selesai (jam selesai di zona cabang sudah
+ * lewat). jamSelesai kosong → akhir hari; jamSelesai ≤ jamMulai → keesokan hari.
+ */
 
 export function isOccurrenceEnded(
   ymd: string | null | undefined,
@@ -326,6 +327,8 @@ export function isOccurrenceEnded(
   if (!ymd) return false;
   const start = venueInstantMs(ymd, jamMulai, tz);
   let end = venueInstantMs(ymd, jamSelesai, tz);
-  if (end == null || (start != null && end <= start)) end = venueInstantMs(ymd, '23:59', tz);
+  if (end == null) end = venueInstantMs(ymd, '23:59', tz);
+  // Melewati tengah malam (mis. 22:00–01:00) → selesai keesokan harinya.
+  else if (start != null && end <= start) end += 24 * 3600_000;
   return end != null && nowMs > end;
 }
