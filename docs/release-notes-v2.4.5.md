@@ -23,6 +23,7 @@ Versi sebelumnya: **2.4.4**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Detail event** — lokasi yang dikosongkan tampil "-" (bukan "Lokasi akan diumumkan"); jam mulai & selesai yang dikosongkan juga tampil "-".
 - **Rating & ulasan bisa dimatikan per ibadah/event** (Portal) — kartu ulasan di tiket tidak muncul bila dimatikan (berlaku juga di 2.4.4 lewat server). Urutan ibadah di app mengikuti urutan yang diatur di Portal.
 - **Popup self check-in** punya tombol tutup (×) di pojok kanan atas.
+- **Renungan & news** — gambar utama di halaman detail kini berasio **3:2** (sama dengan unggahan di Portal). Link bagikan renungan menampilkan gambar renungannya di pratinjau WhatsApp/media sosial (perubahan di website, berlaku juga untuk app lama).
 - Server & Portal (deploy terpisah, sudah kompatibel dengan app lama): kolom & filter kategori di Portal → Tamu (bisa diubah admin), laporan ibadah/event/cabang/homecell area + PDF/CSV dipecah per kategori, monitor ibadah/event. Data tamu lama = "Belum ditentukan". Follow-up tetap untuk semua tamu; tamu yang mendaftar akun mengikuti alur standar.
 
 ## Syarat server
@@ -80,4 +81,6 @@ Els App 2.4.5:
 - [ ] Tiket ibadah → Petunjuk arah → Google Maps membuka nama tempat (bukan hanya koordinat)
 - [ ] Event tanpa lokasi & tanpa jam → detail event menampilkan "-" di baris jam dan lokasi
 - [ ] Portal → matikan Rating & ulasan di satu ibadah → tiket ibadah itu di app tanpa kartu ulasan
+- [ ] Detail renungan & news → gambar 3:2 tidak terpotong aneh
+- [ ] Bagikan renungan → tempel link di WhatsApp → pratinjau memakai gambar renungan
 - [ ] Portal → ubah urutan ibadah satu cabang → tab Ibadah & Beranda mengikuti urutan baru pada tanggal yang sama

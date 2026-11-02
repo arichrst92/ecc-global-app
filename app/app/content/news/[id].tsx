@@ -138,7 +138,8 @@ export default function NewsDetailScreen() {
           </View>
         ) : item ? (
           <>
-            <HeroImage url={item.heroImageUrl} fallbackEmoji="📰" emojiSize={96} className="h-72" />
+            {/* Hero 3:2 — sama dengan rasio unggahan di Portal & pratinjau link */}
+            <HeroImage url={item.heroImageUrl} fallbackEmoji="📰" emojiSize={96} className="w-full" style={{ aspectRatio: 3 / 2 }} />
 
             <View className="px-5 pt-5 pb-3">
               <Text className="text-2xl font-bold text-neutral-900 leading-tight mb-3">

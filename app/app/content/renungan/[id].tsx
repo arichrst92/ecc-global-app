@@ -165,12 +165,8 @@ export default function RenunganDetailScreen() {
           </View>
         ) : item ? (
           <>
-            <HeroImage
-              url={item.heroImageUrl}
-              fallbackEmoji="📖"
-              emojiSize={96}
-              className="h-60"
-            />
+            {/* Hero 3:2 — sama dengan rasio unggahan di Portal & pratinjau link */}
+            <HeroImage url={item.heroImageUrl} fallbackEmoji="📖" emojiSize={96} className="w-full" style={{ aspectRatio: 3 / 2 }} />
 
             <View className="px-5 pt-5 pb-3">
               {/* Ayat banner */}
