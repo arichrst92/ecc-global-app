@@ -20,6 +20,7 @@ import {
   NotebookPen,
   Share2,
   Type,
+  X,
 } from 'lucide-react-native';
 import { useCatatanBridge } from '@/stores/catatanBridge.store';
 
@@ -74,10 +75,16 @@ export default function BibleChapterScreen() {
   const setLastRead = useBibleStore((s) => s.setLastRead);
   const addBookmark = useBibleStore((s) => s.addBookmark);
   const removeBookmark = useBibleStore((s) => s.removeBookmark);
+  const addBookmarks = useBibleStore((s) => s.addBookmarks);
+  const removeBookmarks = useBibleStore((s) => s.removeBookmarks);
   const isBookmarked = useBibleStore((s) => s.isBookmarked);
+  // Langganan daftar penanda supaya tanda ★ ikut berubah setelah aksi massal.
+  useBibleStore((s) => s.bookmarks);
   const selectedVersionCode = useBibleStore((s) => s.selectedVersionCode);
 
-  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+  // 2.4.6 — bisa memilih beberapa ayat sekaligus (tandai / catatan / bagikan).
+  const [selected, setSelected] = useState<number[]>([]);
+  useEffect(() => setSelected([]), [bookId, bab]);
   const catatanEditorsOpen = useCatatanBridge((s) => s.editorsOpen);
   const pushToCatatan = useCatatanBridge((s) => s.push);
   const [showFontModal, setShowFontModal] = useState(false);
@@ -180,28 +187,63 @@ export default function BibleChapterScreen() {
     }
   }
 
-  function shareVerse(verse: BibleVerse) {
+  /** Ayat terpilih, urut nomor. */
+  const selectedVerses = (chapter?.ayat ?? []).filter((v) => selected.includes(v.nomor));
+
+  /** "1-3, 5, 7-8" dari ayat terpilih (ayat gabungan memakai nomorEnd). */
+  function verseRangeLabel(vs: BibleVerse[]): string {
+    const nums: number[] = [];
+    for (const v of vs) {
+      const end = v.nomorEnd && v.nomorEnd > v.nomor ? v.nomorEnd : v.nomor;
+      for (let n = v.nomor; n <= end; n++) nums.push(n);
+    }
+    const out: string[] = [];
+    let i = 0;
+    while (i < nums.length) {
+      let j = i;
+      while (j + 1 < nums.length && nums[j + 1] === nums[j]! + 1) j++;
+      out.push(i === j ? `${nums[i]}` : `${nums[i]}-${nums[j]}`);
+      i = j + 1;
+    }
+    return out.join(', ');
+  }
+
+  function toggleSelect(nomor: number) {
+    setSelected((cur) => (cur.includes(nomor) ? cur.filter((n) => n !== nomor) : [...cur, nomor].sort((a, b) => a - b)));
+  }
+
+  function shareSelected() {
+    if (!selectedVerses.length) return;
     const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
+    const r = `${bookName(book!, selectedVersionCode)} ${bab}:${verseRangeLabel(selectedVerses)}`;
+    const text =
+      selectedVerses.length === 1
+        ? selectedVerses[0]!.teks
+        : selectedVerses.map((v) => `${v.nomor} ${v.teks}`).join(' ');
     openShareCard({
       kind: 'verse',
       label: t('sharecard.label_bible'),
-      text: verse.teks,
-      reference: `${bookName(book!, selectedVersionCode)} ${bab}:${verse.nomor} · ${versionLabel}`,
-      caption: `"${verse.teks}"\n\n— ${bookName(book!, selectedVersionCode)} ${bab}:${verse.nomor} (${versionLabel})\n\n${t('common.share_signature')}`,
+      text,
+      reference: `${r} · ${versionLabel}`,
+      caption: `"${text}"\n\n— ${r} (${versionLabel})\n\n${t('common.share_signature')}`,
     });
   }
 
-  /** Ayat → Catatan saya. Editor sedang terbuka → titip ke editor; selain itu buka catatan baru. */
-  function verseToCatatan(verse: BibleVerse) {
+  /** Ayat terpilih → Catatan saya. Editor sedang terbuka → titip ke editor; selain itu buka catatan baru. */
+  function selectedToCatatan() {
     if (isGuest) {
       showToast(t('catatan.login_required'), 'info');
       return;
     }
-    const nomor = verse.nomorEnd && verse.nomorEnd > verse.nomor ? `${verse.nomor}-${verse.nomorEnd}` : `${verse.nomor}`;
-    const r = `${bookName(book!, selectedVersionCode)} ${bab}:${nomor}`;
+    if (!selectedVerses.length) return;
+    const r = `${bookName(book!, selectedVersionCode)} ${bab}:${verseRangeLabel(selectedVerses)}`;
     const versionLabel = versionMeta?.shortName ?? selectedVersionCode;
-    const quote = `> "${verse.teks}" — ${r} (${versionLabel})`;
-    setSelectedVerse(null);
+    const isi =
+      selectedVerses.length === 1
+        ? selectedVerses[0]!.teks
+        : selectedVerses.map((v) => `(${v.nomor}) ${v.teks}`).join(' ');
+    const quote = `> "${isi}" — ${r} (${versionLabel})`;
+    setSelected([]);
     if (catatanEditorsOpen > 0) {
       pushToCatatan({ ref: r, quote });
       showToast(t('catatan.ayat_queued'), 'success');
@@ -210,28 +252,37 @@ export default function BibleChapterScreen() {
     router.push(`/catatan/edit?ref=${encodeURIComponent(r)}&quote=${encodeURIComponent(quote)}` as never);
   }
 
-  function toggleVerseBookmark(verse: BibleVerse) {
-    // Same guest guard as toggleChapterBookmark above.
+  /** Semua terpilih sudah ditandai → hapus penandanya; selain itu tandai semua. */
+  function bookmarkSelected() {
     if (isGuest) {
       showToast(t('bible.login_required_bookmark'), 'info');
       return;
     }
-    const verseRef = ref;
-    if (isBookmarked(verseRef, verse.nomor)) {
-      removeBookmark(verseRef, verse.nomor);
+    if (!selectedVerses.length) return;
+    const allMarked = selectedVerses.every((v) => isBookmarked(ref, v.nomor));
+    if (allMarked) {
+      void removeBookmarks(selectedVerses.map((v) => ({ ref, ayat: v.nomor })));
       showToast(t('bible.remove_bookmark'), 'info');
     } else {
-      addBookmark({
-        ref: verseRef,
-        bookId: book!.id,
-        bab,
-        ayat: verse.nomor,
-        preview: verse.teks.slice(0, 120),
-        versionCode: selectedVersionCode,
-      });
-      showToast(t('bible.bookmarked'), 'success');
+      void addBookmarks(
+        selectedVerses.map((v) => ({
+          ref,
+          bookId: book!.id,
+          bab,
+          ayat: v.nomor,
+          preview: v.teks.slice(0, 120),
+          versionCode: selectedVersionCode,
+        })),
+      );
+      showToast(
+        selectedVerses.length > 1 ? t('bible.bookmarked_n', { count: selectedVerses.length }) : t('bible.bookmarked'),
+        'success',
+      );
     }
+    setSelected([]);
   }
+
+  const selAllMarked = selectedVerses.length > 0 && selectedVerses.every((v) => isBookmarked(ref, v.nomor));
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -284,7 +335,7 @@ export default function BibleChapterScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: fromB365 ? 160 : 100 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: (fromB365 ? 160 : 100) + (selected.length ? 64 : 0) }}
       >
         {isLoadingChapter ? (
           <View className="items-center py-16">
@@ -293,14 +344,12 @@ export default function BibleChapterScreen() {
         ) : chapter ? (
           <View className="bg-card rounded-2xl p-5 border border-neutral-100">
             {chapter.ayat.map((verse) => {
-              const isSelected = selectedVerse === verse.nomor;
+              const isSelected = selected.includes(verse.nomor);
               const isVerseBookmarked = isBookmarked(ref, verse.nomor);
               return (
                 <View key={verse.nomor}>
                   <Pressable
-                    onPress={() =>
-                      setSelectedVerse(isSelected ? null : verse.nomor)
-                    }
+                    onPress={() => toggleSelect(verse.nomor)}
                     className={`mb-3 ${
                       isSelected ? 'bg-brand-50 -mx-2 px-2 py-2 rounded-lg' : ''
                     }`}
@@ -317,43 +366,6 @@ export default function BibleChapterScreen() {
                       ) : null}
                     </Text>
                   </Pressable>
-                  {isSelected ? (
-                    <View className="flex-row gap-2 mb-4 -mt-1">
-                      <Pressable
-                        onPress={() => toggleVerseBookmark(verse)}
-                        className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-amber-50 rounded-lg"
-                      >
-                        {isVerseBookmarked ? (
-                          <BookmarkCheck size={14} color="#D97706" />
-                        ) : (
-                          <Bookmark size={14} color="#D97706" />
-                        )}
-                        <Text className="text-xs font-semibold text-amber-700">
-                          {isVerseBookmarked
-                            ? t('bible.bookmarked')
-                            : t('bible.bookmark')}
-                        </Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => verseToCatatan(verse)}
-                        className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-violet-50 rounded-lg"
-                      >
-                        <NotebookPen size={14} color="#7C3AED" />
-                        <Text className="text-xs font-semibold text-violet-700">
-                          {t('catatan.to_note')}
-                        </Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => shareVerse(verse)}
-                        className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-brand-50 rounded-lg"
-                      >
-                        <Share2 size={14} color="#EA580C" />
-                        <Text className="text-xs font-semibold text-brand-700">
-                          {t('bible.share')}
-                        </Text>
-                      </Pressable>
-                    </View>
-                  ) : null}
                 </View>
               );
             })}
@@ -369,6 +381,43 @@ export default function BibleChapterScreen() {
 
       {/* Bottom prev/next nav */}
       <SafeAreaView edges={['bottom']} className="absolute left-0 right-0 bottom-0 bg-card border-t border-neutral-200">
+        {selected.length > 0 ? (
+          <View className="px-4 pt-2 flex-row items-center gap-2">
+            <Pressable
+              onPress={() => setSelected([])}
+              className="w-9 h-9 rounded-full bg-neutral-100 items-center justify-center"
+              accessibilityLabel={t('common.cancel')}
+            >
+              <X size={16} color={nc('#525252')} />
+            </Pressable>
+            <Text className="text-xs font-semibold text-neutral-700 mr-1" numberOfLines={1}>
+              {t('bible.selected_n', { count: selected.length })}
+            </Text>
+            <Pressable
+              onPress={bookmarkSelected}
+              className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-amber-50 rounded-lg"
+            >
+              {selAllMarked ? <BookmarkCheck size={14} color="#D97706" /> : <Bookmark size={14} color="#D97706" />}
+              <Text className="text-xs font-semibold text-amber-700">
+                {selAllMarked ? t('bible.remove_bookmark') : t('bible.bookmark')}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={selectedToCatatan}
+              className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-violet-50 rounded-lg"
+            >
+              <NotebookPen size={14} color="#7C3AED" />
+              <Text className="text-xs font-semibold text-violet-700">{t('catatan.to_note')}</Text>
+            </Pressable>
+            <Pressable
+              onPress={shareSelected}
+              className="flex-1 flex-row items-center justify-center gap-1.5 py-2 bg-brand-50 rounded-lg"
+            >
+              <Share2 size={14} color="#EA580C" />
+              <Text className="text-xs font-semibold text-brand-700">{t('bible.share')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
         {fromB365 && !isGuest ? (
           <View className="px-4 pt-2">
             <Pressable

@@ -12,6 +12,7 @@ import { ArrowLeft, CalendarDays, Check, ChevronRight, Footprints, Lock } from '
 
 import { getMyJourney, type JourneyStep } from '@/api/spiritualJourney';
 import { MY_JOURNEY_KEY } from '@/components/spiritual/JourneyCard';
+import { JourneyRequestCard } from '@/components/spiritual/JourneyRequest';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { formatDateWithDay } from '@/utils/date';
 import { goBack } from '@/utils/nav';
@@ -75,6 +76,8 @@ export default function SpiritualJourneyScreen() {
                 {d.nextIndex != null ? t('journey.next_short', { title: d.steps[d.nextIndex]!.judul }) : t('journey.all_done')}
               </Text>
             </View>
+
+            <JourneyRequestCard journey={d} />
 
             {d.steps.map((s, i) => (
               <StepItem key={s.id} step={s} last={i === d.steps.length - 1} onEvent={(id) => router.push(`/event/${id}` as never)} />

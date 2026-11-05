@@ -1156,7 +1156,7 @@
   },
   "area": {
     "title": "Zona",
-    "subtitle": "Zona + homecell yang Anda layani",
+    "subtitle": "Zona homecell Anda",
     "homecells_count": "homecell",
     "empty_title": "Belum jadi PIC / pastor zona",
     "empty_msg": "Anda belum ditunjuk sebagai PIC atau pastor zona. Hubungi admin cabang.",
@@ -1168,7 +1168,13 @@
     "attendance_legend": "Rata² hadir:",
     "role_pic": "PIC",
     "role_pastor": "Pastor",
-    "pastor_label": "Pastor"
+    "pastor_label": "Pastor",
+    "none_title": "Belum ada zona",
+    "none_msg": "Anda belum ikut homecell. Ikuti homecell untuk melihat zonanya.",
+    "find_homecell": "Cari homecell",
+    "my_zona_header": "Zona homecell saya",
+    "zone_leader": "Zone leader",
+    "my_homecell_badge": "Homecell saya"
   },
   "bible": {
     "title": "Alkitab",
@@ -1202,7 +1208,9 @@
     "sample_available_msg": "Pasal-pasal populer berikut sudah tersedia untuk dibaca sekarang.",
     "choose_version": "Pilih Versi Alkitab",
     "chapter_not_found": "Pasal tidak ditemukan.",
-    "login_required_bookmark": "Login untuk menyimpan bookmark ayat"
+    "login_required_bookmark": "Login untuk menyimpan bookmark ayat",
+    "selected_n": "{{count}} ayat",
+    "bookmarked_n": "{{count}} ayat ditandai"
   },
   "calendar": {
     "title": "Kalender",
@@ -1996,7 +2004,24 @@
     "how": "Cara mendapatkan",
     "events": "Ikuti kelas / event ini",
     "card_empty": "Tahap perjalanan rohani akan tampil di sini setelah diatur gereja.",
-    "card_tap": "Lihat perjalanan rohani Anda"
+    "card_tap": "Lihat perjalanan rohani Anda",
+    "req_btn": "Ajukan update tahap",
+    "req_title": "Update Spiritual Journey",
+    "req_intro": "Pilih tahap terakhir yang sudah Anda capai dan ceritakan singkat (mis. tanggal & tempat baptis, kelas yang diikuti). Admin akan memeriksa; bila disetujui, tahap itu dan tahap sebelumnya tercatat.",
+    "req_already": "Sudah tercatat",
+    "req_notes": "Catatan",
+    "req_notes_ph": "Mis. Dibaptis 12 Mei 2024 di ECC Kelapa Gading",
+    "req_notes_hint": "Minimal 3 karakter. Dibaca oleh admin gereja.",
+    "req_submit": "Kirim request",
+    "req_sent": "Request terkirim, menunggu persetujuan admin",
+    "req_pending_title": "Menunggu persetujuan admin",
+    "req_pending_step": "Tahap diminta: {{title}}",
+    "req_cancel": "Batalkan request",
+    "req_cancel_title": "Batalkan request?",
+    "req_cancel_msg": "Request update tahap ini akan dibatalkan.",
+    "req_cancel_yes": "Batalkan",
+    "req_rejected": "Request \"{{title}}\" belum disetujui",
+    "req_approved": "Tahap \"{{title}}\" sudah tercatat"
   },
   "guests": {
     "menu": "Tamu Saya",

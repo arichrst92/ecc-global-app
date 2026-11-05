@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   listManagedHomecells,
   listManagedAreas,
+  listMyZona,
   addHomecellMemberByKode,
   getHomecellDetail,
   removeHomecellMember,
@@ -39,6 +40,15 @@ export function useManagedHomecells() {
 }
 
 /** List area user as PIC */
+/** Zona dari homecell yang saya ikuti (2.4.6) — untuk semua jemaat. */
+export function useMyZona() {
+  return useQuery({
+    queryKey: ['homecell', 'zona-saya'],
+    queryFn: listMyZona,
+    staleTime: 5 * 60_000,
+  });
+}
+
 export function useManagedAreas() {
   return useQuery({
     queryKey: AREA_LIST_KEY,

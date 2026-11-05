@@ -25,7 +25,6 @@ import {
 
 import { openGiving } from '@/utils/giving';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
-import { useManagedAreas } from '@/hooks/useHomecell';
 import { getPrayerSummary } from '@/api/prayer';
 import { useWorshipSummary } from '@/hooks/useWorship';
 
@@ -59,8 +58,6 @@ export function QuickAccess() {
   const router = useRouter();
   const { branch: viewingBranch } = useViewingBranch();
 
-  const areasQuery = useManagedAreas();
-  const isPicArea = (areasQuery.data?.length ?? 0) > 0;
 
   // Badge jumlah doa yang belum didoakan untuk petugas doa.
   const prayerQ = useQuery({ queryKey: ['prayer', 'summary'], queryFn: getPrayerSummary, staleTime: 60_000 });
@@ -98,7 +95,8 @@ export function QuickAccess() {
     { key: 'homecell', icon: House, label: t('quickaccess.homecell'), onPress: go('/homecell') },
 
     { key: 'ministry', icon: HeartHandshake, label: t('quickaccess.ministry'), onPress: go('/ministry') },
-    ...(isPicArea ? [{ key: 'area', icon: MapPinned, label: t('quickaccess.area'), onPress: go('/area') }] : []),
+    // Zona — untuk SEMUA jemaat (2.4.6): PIC/pastor kelola, lainnya lihat zona homecell-nya.
+    { key: 'area', icon: MapPinned, label: t('quickaccess.area'), onPress: go('/area') },
     { key: 'visit', icon: Handshake, label: t('quickaccess.visit'), onPress: go('/visit') },
     { key: 'market', icon: Store, label: t('quickaccess.market'), onPress: go('/market') },
   ];

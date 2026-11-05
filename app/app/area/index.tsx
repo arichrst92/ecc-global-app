@@ -20,7 +20,9 @@ import {
   FileText,
 } from 'lucide-react-native';
 
-import { useAreaHomecells, useManagedAreas } from '@/hooks/useHomecell';
+import { useAreaHomecells, useManagedAreas, useMyZona } from '@/hooks/useHomecell';
+import type { MyZona } from '@/api/homecell';
+import { Avatar } from '@/components/ui/Avatar';
 import type { AreaHomecellRow, PicArea } from '@/types/homecell';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
@@ -51,10 +53,17 @@ export default function AreaListScreen() {
   const router = useRouter();
 
   const areasQuery = useManagedAreas();
-  const isLoading = areasQuery.isPending;
+  // 2.4.6 — semua jemaat: zona dari homecell yang diikuti (hanya lihat).
+  const myZonaQuery = useMyZona();
+  const isLoading = areasQuery.isPending || myZonaQuery.isPending;
   const areas = areasQuery.data ?? [];
+  const managedIds = new Set(areas.map((a) => a.id));
+  const myZona = (myZonaQuery.data ?? []).filter((z) => !managedIds.has(z.id));
 
-  const refresh = () => areasQuery.refetch();
+  const refresh = () => {
+    void areasQuery.refetch();
+    void myZonaQuery.refetch();
+  };
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -86,7 +95,7 @@ export default function AreaListScreen() {
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />
           </View>
-        ) : areasQuery.isError ? (
+        ) : areasQuery.isError && myZonaQuery.isError ? (
           <View className="items-center py-16 px-8">
             <Text className="text-sm text-red-600 text-center mb-3">{t('error.generic')}</Text>
             <Pressable
@@ -96,17 +105,20 @@ export default function AreaListScreen() {
               <Text className="text-white font-semibold text-sm">{t('common.retry')}</Text>
             </Pressable>
           </View>
-        ) : areas.length === 0 ? (
+        ) : areas.length === 0 && myZona.length === 0 ? (
           <View className="items-center py-16 px-8">
             <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
               <MapPinned size={32} color={nc('#A3A3A3')} />
             </View>
             <Text className="text-lg font-semibold text-neutral-700 text-center">
-              {t('area.empty_title')}
+              {t('area.none_title')}
             </Text>
             <Text className="text-sm text-neutral-500 text-center mt-1">
-              {t('area.empty_msg')}
+              {t('area.none_msg')}
             </Text>
+            <Pressable onPress={() => router.push('/homecell' as never)} {...gx('mt-4 px-4 py-2 bg-brand-500 rounded-lg')}>
+              <Text className="text-white font-semibold text-sm">{t('area.find_homecell')}</Text>
+            </Pressable>
           </View>
         ) : (
           <View className="gap-5">
@@ -117,9 +129,88 @@ export default function AreaListScreen() {
                 onHomecellPress={(hid) => router.push(`/homecell/${hid}`)}
               />
             ))}
+            {myZona.length > 0 && areas.length > 0 ? (
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider -mb-2">{t('area.my_zona_header')}</Text>
+            ) : null}
+            {myZona.map((z) => (
+              <MyZonaSection key={z.id} zona={z} onHomecellPress={(hid) => router.push(`/homecell/view/${hid}` as never)} />
+            ))}
           </View>
         )}
       </ScrollView>
+    </View>
+  );
+}
+
+/** Zona dari homecell yang saya ikuti — hanya lihat (tanpa laporan / ubah). */
+function MyZonaSection({ zona, onHomecellPress }: { zona: MyZona; onHomecellPress: (id: string) => void }) {
+  const { t } = useTranslation();
+  const pastor = zona.pastors.map((p) => p.namaLengkap).join(', ');
+  return (
+    <View>
+      <View {...gx('bg-brand-500 rounded-2xl p-4 mb-2')}>
+        <View className="flex-row items-center gap-3">
+          <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center">
+            <MapPinned size={18} color="#fff" />
+          </View>
+          <View className="flex-1">
+            <Text className="text-white font-bold text-base">{zona.nama}</Text>
+            <Text className="text-white/80 text-xs mt-0.5">
+              {zona.cabang.nama} · {zona.homecellCount} {t('area.homecells_count')}
+            </Text>
+          </View>
+        </View>
+        {zona.deskripsi ? (
+          <Text className="text-white/80 text-xs mt-2" numberOfLines={3}>
+            {zona.deskripsi}
+          </Text>
+        ) : null}
+        <View className="mt-3 gap-1.5">
+          <View className="flex-row items-center gap-2">
+            {zona.picJemaat ? <Avatar name={zona.picJemaat.namaLengkap} fotoUrl={zona.picJemaat.fotoUrl} size={22} /> : null}
+            <Text className="text-white text-xs flex-1" numberOfLines={1}>
+              <Text className="font-bold">{t('area.zone_leader')}: </Text>
+              {zona.picJemaat?.namaLengkap ?? t('area.pic_unassigned')}
+            </Text>
+          </View>
+          {pastor ? (
+            <Text className="text-white text-xs" numberOfLines={2}>
+              <Text className="font-bold">{t('area.pastor_label')}: </Text>
+              {pastor}
+            </Text>
+          ) : null}
+        </View>
+      </View>
+      <View className="gap-2">
+        {zona.homecells.map((h) => (
+          <Pressable
+            key={h.id}
+            onPress={() => onHomecellPress(h.id)}
+            className={`bg-card rounded-2xl p-3 flex-row items-center gap-3 border ${h.isMine ? 'border-brand-300' : 'border-neutral-100'}`}
+          >
+            <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+              <Users size={18} color="#EA580C" />
+            </View>
+            <View className="flex-1 min-w-0">
+              <View className="flex-row items-center gap-2">
+                <Text className="font-semibold text-neutral-900 flex-shrink" numberOfLines={1}>
+                  {h.nama}
+                </Text>
+                {h.isMine ? (
+                  <View className="px-1.5 py-0.5 rounded-full bg-brand-100">
+                    <Text className="text-[10px] font-bold text-brand-700">{t('area.my_homecell_badge')}</Text>
+                  </View>
+                ) : null}
+              </View>
+              <SegmenBadges kategori={h.kategori} usiaMin={h.usiaMin} usiaMax={h.usiaMax} />
+              <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                {t('area.pic_label')}: {h.picJemaat?.namaLengkap ?? t('area.pic_unassigned')} · {h.memberCount} {t('homecell.members_count')}
+              </Text>
+            </View>
+            <ChevronRight size={16} color={nc('#A3A3A3')} />
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 }

@@ -160,6 +160,9 @@ function fallbackRoute(notif: InAppNotification): string | null {
       const pid = pickString(meta, 'prayerId');
       return pid ? `/doa/${pid}` : '/doa';
     }
+    case 'SPIRITUAL_JOURNEY_APPROVED':
+    case 'SPIRITUAL_JOURNEY_REJECTED':
+      return '/spiritual-journey';
 
     default:
       return null;
@@ -246,6 +249,10 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'group-add';
     case 'PRAYER_PRAYED':
       return 'home-check';
+    case 'SPIRITUAL_JOURNEY_APPROVED':
+      return 'home-check';
+    case 'SPIRITUAL_JOURNEY_REJECTED':
+      return 'group-remove';
     default:
       return 'bell';
   }

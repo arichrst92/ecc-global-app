@@ -1156,7 +1156,7 @@
   },
   "area": {
     "title": "Zones",
-    "subtitle": "Zones + homecells you serve",
+    "subtitle": "Your homecell zones",
     "homecells_count": "homecells",
     "empty_title": "Not a zone PIC or pastor yet",
     "empty_msg": "You haven't been assigned as a zone PIC or pastor. Contact branch admin.",
@@ -1168,7 +1168,13 @@
     "attendance_legend": "Avg attendance:",
     "role_pic": "PIC",
     "role_pastor": "Pastor",
-    "pastor_label": "Pastor"
+    "pastor_label": "Pastor",
+    "none_title": "No zone yet",
+    "none_msg": "You haven't joined a homecell. Join one to see its zone.",
+    "find_homecell": "Find a homecell",
+    "my_zona_header": "My homecell zone",
+    "zone_leader": "Zone leader",
+    "my_homecell_badge": "My homecell"
   },
   "bible": {
     "title": "Bible",
@@ -1202,7 +1208,11 @@
     "sample_available_msg": "These popular chapters are ready to read now.",
     "choose_version": "Choose Bible Version",
     "chapter_not_found": "Chapter not found.",
-    "login_required_bookmark": "Sign in to save verse bookmarks"
+    "login_required_bookmark": "Sign in to save verse bookmarks",
+    "selected_n_one": "{{count}} verse",
+    "selected_n_other": "{{count}} verses",
+    "bookmarked_n_one": "{{count}} verse bookmarked",
+    "bookmarked_n_other": "{{count}} verses bookmarked"
   },
   "calendar": {
     "title": "Calendar",
@@ -1997,7 +2007,24 @@
     "how": "How to get it",
     "events": "Join this class / event",
     "card_empty": "Your spiritual journey steps will appear here once your church sets them up.",
-    "card_tap": "View your spiritual journey"
+    "card_tap": "View your spiritual journey",
+    "req_btn": "Request stage update",
+    "req_title": "Update Spiritual Journey",
+    "req_intro": "Pick the latest stage you've reached and add a short note (e.g. baptism date & place, classes taken). An admin will review; once approved, that stage and the previous ones are recorded.",
+    "req_already": "Already recorded",
+    "req_notes": "Notes",
+    "req_notes_ph": "e.g. Baptized 12 May 2024 at ECC Kelapa Gading",
+    "req_notes_hint": "At least 3 characters. Read by church admins.",
+    "req_submit": "Send request",
+    "req_sent": "Request sent, waiting for admin approval",
+    "req_pending_title": "Waiting for admin approval",
+    "req_pending_step": "Requested stage: {{title}}",
+    "req_cancel": "Cancel request",
+    "req_cancel_title": "Cancel request?",
+    "req_cancel_msg": "This stage update request will be cancelled.",
+    "req_cancel_yes": "Cancel request",
+    "req_rejected": "Request \"{{title}}\" was not approved",
+    "req_approved": "Stage \"{{title}}\" is now recorded"
   },
   "guests": {
     "menu": "My Guests",

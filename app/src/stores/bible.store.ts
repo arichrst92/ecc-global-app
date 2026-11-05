@@ -40,6 +40,10 @@ type State = {
   hydrate: () => Promise<void>;
   addBookmark: (b: Omit<BibleBookmark, 'createdAt'>) => Promise<void>;
   removeBookmark: (ref: string, ayat: number | null) => Promise<void>;
+  /** Tandai beberapa ayat sekaligus (satu kali simpan) — 2.4.6. */
+  addBookmarks: (items: Omit<BibleBookmark, 'createdAt'>[]) => Promise<void>;
+  /** Hapus beberapa penanda sekaligus (satu kali simpan) — 2.4.6. */
+  removeBookmarks: (items: { ref: string; ayat: number | null }[]) => Promise<void>;
   isBookmarked: (ref: string, ayat: number | null) => boolean;
   setLastRead: (ref: string, bookId: number, bab: number) => Promise<void>;
   setFontSize: (size: BibleFontSize) => Promise<void>;
@@ -113,6 +117,36 @@ export const useBibleStore = create<State>((set, get) => ({
     const jemaatId = currentJemaatId();
     if (!jemaatId) return;
     const list = get().bookmarks.filter((b) => !(b.ref === ref && b.ayat === ayat));
+    set({ bookmarks: list });
+    const shape = await readStore();
+    await persistShape({
+      ...shape,
+      bookmarksByJemaatId: { ...shape.bookmarksByJemaatId, [jemaatId]: list },
+    });
+  },
+
+  addBookmarks: async (items) => {
+    const jemaatId = currentJemaatId();
+    if (!jemaatId) return;
+    const cur = get().bookmarks;
+    const now = new Date().toISOString();
+    const baru = items
+      .filter((b) => !cur.some((x) => x.ref === b.ref && x.ayat === b.ayat))
+      .map((b) => ({ ...b, createdAt: now }) as BibleBookmark);
+    if (!baru.length) return;
+    const list = [...baru, ...cur];
+    set({ bookmarks: list });
+    const shape = await readStore();
+    await persistShape({
+      ...shape,
+      bookmarksByJemaatId: { ...shape.bookmarksByJemaatId, [jemaatId]: list },
+    });
+  },
+
+  removeBookmarks: async (items) => {
+    const jemaatId = currentJemaatId();
+    if (!jemaatId) return;
+    const list = get().bookmarks.filter((b) => !items.some((x) => x.ref === b.ref && x.ayat === b.ayat));
     set({ bookmarks: list });
     const shape = await readStore();
     await persistShape({

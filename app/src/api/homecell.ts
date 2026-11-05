@@ -275,3 +275,31 @@ export function listPotensialMember(homecellId: string, radiusKm: number) {
     `/admin/me/homecell/${homecellId}/potensial-member?radiusKm=${radiusKm}`,
   );
 }
+
+/** Zona saya (2.4.6) — zona dari homecell yang saya ikuti. Hanya lihat. */
+export type MyZona = {
+  id: string;
+  nama: string;
+  deskripsi: string | null;
+  cabang: { id: string; nama: string };
+  picJemaat: { id: string; namaLengkap: string; fotoUrl: string | null } | null;
+  pastors: { id: string; namaLengkap: string; fotoUrl: string | null }[];
+  homecellCount: number;
+  homecells: {
+    id: string;
+    nama: string;
+    hari: string | null;
+    jam: string | null;
+    kategori: 'SINGLE' | 'COUPLE' | null;
+    usiaMin: number | null;
+    usiaMax: number | null;
+    picJemaat: { id: string; namaLengkap: string } | null;
+    memberCount: number;
+    isMine: boolean;
+  }[];
+};
+
+/** GET /admin/me/zona-saya (2.4.6) */
+export function listMyZona() {
+  return api.get<MyZona[]>('/admin/me/zona-saya');
+}
