@@ -2,7 +2,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, Phone, QrCode, UserPlus } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, QrCode, Search, UserPlus } from 'lucide-react-native';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -21,12 +21,13 @@ export default function FamilyAddOptionsScreen() {
       onPress: () => router.push('/family/add/scan'),
     },
     {
-      key: 'phone',
-      icon: <Phone size={22} color="#EA580C" />,
+      // 2.4.6 — cari nama / email / no HP (menggantikan "Cari via Nomor HP").
+      key: 'search',
+      icon: <Search size={22} color="#EA580C" />,
       iconBg: 'bg-brand-50',
-      label: t('family.add_via_phone'),
-      sub: t('family.add_via_phone_sub'),
-      onPress: () => router.push('/family/add/phone'),
+      label: t('family.add_via_search'),
+      sub: t('family.add_via_search_sub'),
+      onPress: () => router.push('/family/add/search' as never),
     },
     {
       key: 'new',

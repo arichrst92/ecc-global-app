@@ -86,6 +86,26 @@ export type LinkByKodePayload = {
 } & RelationDiscriminator;
 
 /** Payload untuk link-by-phone */
+/** Payload link hasil pencarian (2.4.6) */
+export type LinkByIdPayload = {
+  jemaatId: string;
+} & RelationDiscriminator;
+
+/** Hasil GET /admin/me/family/search — tanpa data kontak. */
+export type FamilySearchItem = {
+  id: string;
+  namaLengkap: string;
+  kode: string | null;
+  fotoUrl: string | null;
+  jenisKelamin: 'L' | 'P' | null;
+  cabang: string;
+  alreadyLinked: boolean;
+};
+export type FamilySearchResult = {
+  mode: 'email' | 'phone' | 'nama';
+  items: FamilySearchItem[];
+};
+
 export type LinkByPhonePayload = {
   noHp: string;
 } & RelationDiscriminator;

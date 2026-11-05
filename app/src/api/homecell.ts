@@ -246,3 +246,32 @@ export function getHomecellMateri(homecellId: string) {
     `/admin/me/homecell/${homecellId}/materi`,
   );
 }
+
+/** Item potensial member (2.4.6) — jemaat belum homecell di sekitar homecell. */
+export type PotensialMemberItem = {
+  id: string;
+  namaLengkap: string;
+  fotoUrl: string | null;
+  jenisKelamin: 'L' | 'P' | null;
+  cabang: { id: string; nama: string };
+  jarakKm: number;
+  /** null bila disembunyikan pengaturan privasi jemaat tsb. */
+  noHp: string | null;
+  usia: number | null;
+};
+export type PotensialMemberResult = {
+  homecell: { id: string; nama: string };
+  radiusKm: number;
+  total: number;
+  data: PotensialMemberItem[];
+};
+
+/**
+ * GET /admin/me/homecell/:id/potensial-member?radiusKm= (2.4.6) — untuk
+ * pemimpin homecell / PIC & pastor zona.
+ */
+export function listPotensialMember(homecellId: string, radiusKm: number) {
+  return api.get<PotensialMemberResult>(
+    `/admin/me/homecell/${homecellId}/potensial-member?radiusKm=${radiusKm}`,
+  );
+}

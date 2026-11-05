@@ -392,7 +392,19 @@
     "cat_saudara": "Saudara",
     "cat_kakeknenek": "Kakek / Nenek",
     "cat_cucu": "Cucu",
-    "cat_walilain": "Wali / Lainnya"
+    "cat_walilain": "Wali / Lainnya",
+    "add_via_search": "Cari jemaat",
+    "add_via_search_sub": "Nama, email, atau no HP — untuk yang sudah terdaftar",
+    "search_intro": "Cari anggota keluarga yang sudah terdaftar di ECC dengan nama, email, atau nomor HP.",
+    "search_placeholder": "Nama, email, atau no HP",
+    "search_notice": "Nama boleh sebagian (min. 3 huruf). Email dan nomor HP harus ditulis lengkap.",
+    "search_min": "Ketik minimal 3 huruf nama, atau email / no HP lengkap.",
+    "search_empty_nama": "Tidak ada jemaat dengan nama tersebut.",
+    "search_empty_contact": "Email / nomor HP tidak ditemukan. Pastikan ditulis lengkap.",
+    "search_already": "Sudah terhubung",
+    "search_picked": "Jemaat dipilih",
+    "search_change": "Ganti",
+    "search_rate_limited": "Terlalu banyak pencarian. Coba lagi beberapa menit lagi."
   },
   "placeholder": {
     "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."
@@ -1097,7 +1109,17 @@
     "schedule_jam_mulai": "Mulai",
     "schedule_jam_selesai": "Selesai",
     "schedule_jam_invalid": "Jam selesai harus setelah jam mulai.",
-    "area_pastor_badge": "PASTOR ZONA"
+    "area_pastor_badge": "PASTOR ZONA",
+    "potensial_btn": "Potensial member",
+    "potensial_title": "Potensial member",
+    "potensial_radius": "Radius",
+    "potensial_intro": "{{count}} jemaat belum ikut homecell, rumahnya (perkiraan dari alamat) dalam {{radius}} km dari homecell ini. Jarak garis lurus.",
+    "potensial_empty": "Tidak ada jemaat belum homecell dalam radius ini. Coba perbesar radius.",
+    "potensial_more": "Menampilkan {{shown}} terdekat dari {{total}}. Perkecil radius untuk daftar yang lebih fokus.",
+    "potensial_pria": "Pria",
+    "potensial_wanita": "Wanita",
+    "potensial_usia": "{{usia}} th",
+    "potensial_call": "Telepon"
   },
   "jemaat": {
     "detail_title": "Profil Jemaat",

@@ -392,7 +392,19 @@
     "cat_saudara": "Siblings",
     "cat_kakeknenek": "Grandparents",
     "cat_cucu": "Grandchildren",
-    "cat_walilain": "Guardian / Other"
+    "cat_walilain": "Guardian / Other",
+    "add_via_search": "Search member",
+    "add_via_search_sub": "Name, email, or phone — for registered members",
+    "search_intro": "Find a family member registered at ECC by name, email, or phone number.",
+    "search_placeholder": "Name, email, or phone",
+    "search_notice": "Names can be partial (min. 3 letters). Email and phone must be complete.",
+    "search_min": "Type at least 3 letters of a name, or a full email / phone.",
+    "search_empty_nama": "No member with that name.",
+    "search_empty_contact": "Email / phone not found. Make sure it is complete.",
+    "search_already": "Already linked",
+    "search_picked": "Selected member",
+    "search_change": "Change",
+    "search_rate_limited": "Too many searches. Try again in a few minutes."
   },
   "placeholder": {
     "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."
@@ -1097,7 +1109,17 @@
     "schedule_jam_mulai": "Start",
     "schedule_jam_selesai": "End",
     "schedule_jam_invalid": "End time must be after start time.",
-    "area_pastor_badge": "ZONE PASTOR"
+    "area_pastor_badge": "ZONE PASTOR",
+    "potensial_btn": "Potential members",
+    "potensial_title": "Potential members",
+    "potensial_radius": "Radius",
+    "potensial_intro": "{{count}} members not in a homecell live (estimated from address) within {{radius}} km of this homecell. Straight-line distance.",
+    "potensial_empty": "No members without a homecell in this radius. Try a larger radius.",
+    "potensial_more": "Showing the nearest {{shown}} of {{total}}. Reduce the radius for a more focused list.",
+    "potensial_pria": "Male",
+    "potensial_wanita": "Female",
+    "potensial_usia": "{{usia}} yrs",
+    "potensial_call": "Call"
   },
   "jemaat": {
     "detail_title": "Member Profile",

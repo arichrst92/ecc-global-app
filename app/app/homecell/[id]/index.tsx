@@ -16,6 +16,7 @@ import {
   Users,
   Pencil,
   FileText,
+  UserSearch,
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -214,6 +215,18 @@ export default function HomecellDetailScreen() {
                   <Pencil size={11} color="#C2410C" />
                   <Text className="text-[11px] font-bold text-brand-700">
                     {t('hcj.segmen_edit')}
+                  </Text>
+                </Pressable>
+              ) : null}
+              {/* 2.4.6 — jemaat belum homecell di sekitar homecell ini */}
+              {isPicHomecell || isPicArea || user?.isFulltimer ? (
+                <Pressable
+                  onPress={() => router.push(`/homecell/${homecell.id}/potensial` as never)}
+                  className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"
+                >
+                  <UserSearch size={11} color="#C2410C" />
+                  <Text className="text-[11px] font-bold text-brand-700">
+                    {t('homecell.potensial_btn')}
                   </Text>
                 </Pressable>
               ) : null}

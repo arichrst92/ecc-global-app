@@ -4,6 +4,7 @@ import {
   listFamily,
   linkByKode,
   linkByPhone,
+  linkById,
   registerNewFamily,
   updateFamilyRelation,
   unlinkFamily,
@@ -12,6 +13,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import type {
   LinkByKodePayload,
   LinkByPhonePayload,
+  LinkByIdPayload,
 } from '@/types/family';
 
 const FAMILY_QUERY_KEY = ['family', 'list'] as const;
@@ -40,6 +42,17 @@ export function useLinkByKode() {
 }
 
 /** Mutation: link via no HP */
+/** Mutation: link hasil pencarian nama / email / no HP (2.4.6) */
+export function useLinkById() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: LinkByIdPayload) => linkById(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+    },
+  });
+}
+
 export function useLinkByPhone() {
   const queryClient = useQueryClient();
   return useMutation({

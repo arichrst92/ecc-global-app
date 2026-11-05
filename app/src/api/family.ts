@@ -8,6 +8,8 @@ import type {
   FamilyRelation,
   LinkByKodePayload,
   LinkByPhonePayload,
+  LinkByIdPayload,
+  FamilySearchResult,
   LinkFamilyResponse,
   RegisterNewFamilyPayload,
   RegisterNewFamilyResponse,
@@ -27,6 +29,19 @@ export function linkByKode(payload: LinkByKodePayload) {
 /** POST /admin/me/family/link-by-phone — link via nomor HP */
 export function linkByPhone(payload: LinkByPhonePayload) {
   return api.post<LinkFamilyResponse>('/admin/me/family/link-by-phone', payload);
+}
+
+/**
+ * GET /admin/me/family/search?q= (2.4.6) — nama cocok sebagian (min 3 huruf),
+ * email & no HP harus persis. Hasil tanpa kontak.
+ */
+export function searchFamily(q: string) {
+  return api.get<FamilySearchResult>(`/admin/me/family/search?q=${encodeURIComponent(q)}`);
+}
+
+/** POST /admin/me/family/link-by-id (2.4.6) — link hasil pencarian. */
+export function linkById(payload: LinkByIdPayload) {
+  return api.post<LinkFamilyResponse>('/admin/me/family/link-by-id', payload);
 }
 
 /**
