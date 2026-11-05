@@ -1174,7 +1174,9 @@
     "find_homecell": "Find a homecell",
     "my_zona_header": "My homecell zone",
     "zone_leader": "Zone leader",
-    "my_homecell_badge": "My homecell"
+    "my_homecell_badge": "My homecell",
+    "show_homecells": "Show {{count}} homecells",
+    "hide_homecells": "Hide homecells"
   },
   "bible": {
     "title": "Bible",

@@ -11,7 +11,9 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
+  ChevronDown,
   ChevronRight,
+  ChevronUp,
   Clock,
   MapPinned,
   UserCog,
@@ -126,6 +128,7 @@ export default function AreaListScreen() {
               <AreaSection
                 key={area.id}
                 area={area}
+                defaultOpen={areas.length + myZona.length === 1}
                 onHomecellPress={(hid) => router.push(`/homecell/${hid}`)}
               />
             ))}
@@ -133,7 +136,7 @@ export default function AreaListScreen() {
               <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider -mb-2">{t('area.my_zona_header')}</Text>
             ) : null}
             {myZona.map((z) => (
-              <MyZonaSection key={z.id} zona={z} onHomecellPress={(hid) => router.push(`/homecell/view/${hid}` as never)} />
+              <MyZonaSection key={z.id} zona={z} defaultOpen={areas.length + myZona.length === 1} onHomecellPress={(hid) => router.push(`/homecell/view/${hid}` as never)} />
             ))}
           </View>
         )}
@@ -142,13 +145,35 @@ export default function AreaListScreen() {
   );
 }
 
-/** Zona dari homecell yang saya ikuti — hanya lihat (tanpa laporan / ubah). */
-function MyZonaSection({ zona, onHomecellPress }: { zona: MyZona; onHomecellPress: (id: string) => void }) {
+/** Baris buka/tutup daftar homecell di kartu zona (2.4.6). */
+function ExpandToggle({ open, count }: { open: boolean; count: number }) {
   const { t } = useTranslation();
+  return (
+    <View className="flex-row items-center justify-center gap-1 mt-3 pt-2.5 border-t border-white/20">
+      <Text className="text-white text-xs font-bold">
+        {open ? t('area.hide_homecells') : t('area.show_homecells', { count })}
+      </Text>
+      {open ? <ChevronUp size={14} color="#fff" /> : <ChevronDown size={14} color="#fff" />}
+    </View>
+  );
+}
+
+/** Zona dari homecell yang saya ikuti — hanya lihat (tanpa laporan / ubah). */
+function MyZonaSection({
+  zona,
+  onHomecellPress,
+  defaultOpen,
+}: {
+  zona: MyZona;
+  onHomecellPress: (id: string) => void;
+  defaultOpen: boolean;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(defaultOpen);
   const pastor = zona.pastors.map((p) => p.namaLengkap).join(', ');
   return (
     <View>
-      <View {...gx('bg-brand-500 rounded-2xl p-4 mb-2')}>
+      <Pressable onPress={() => setOpen((x) => !x)} {...gx('bg-brand-500 rounded-2xl p-4 mb-2')}>
         <View className="flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center">
             <MapPinned size={18} color="#fff" />
@@ -180,7 +205,9 @@ function MyZonaSection({ zona, onHomecellPress }: { zona: MyZona; onHomecellPres
             </Text>
           ) : null}
         </View>
-      </View>
+        {zona.homecells.length ? <ExpandToggle open={open} count={zona.homecells.length} /> : null}
+      </Pressable>
+      {open ? (
       <View className="gap-2">
         {zona.homecells.map((h) => (
           <Pressable
@@ -211,6 +238,7 @@ function MyZonaSection({ zona, onHomecellPress }: { zona: MyZona; onHomecellPres
           </Pressable>
         ))}
       </View>
+      ) : null}
     </View>
   );
 }
@@ -218,20 +246,25 @@ function MyZonaSection({ zona, onHomecellPress }: { zona: MyZona; onHomecellPres
 function AreaSection({
   area,
   onHomecellPress,
+  defaultOpen,
 }: {
   area: PicArea;
   onHomecellPress: (id: string) => void;
+  defaultOpen: boolean;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
   const [reportOpen, setReportOpen] = useState(false);
-  const query = useAreaHomecells(area.id);
+  // Kartu zona bisa dibuka/tutup — daftar homecell baru dimuat saat dibuka.
+  const [open, setOpen] = useState(defaultOpen);
+  const query = useAreaHomecells(area.id, open);
   const homecells = query.data ?? [];
 
   return (
     <View>
-      {/* Area header */}
-      <View {...gx('bg-brand-500 rounded-2xl p-4 mb-2 flex-row items-center gap-3')}>
+      {/* Area header — ketuk untuk buka/tutup daftar homecell */}
+      <Pressable onPress={() => setOpen((x) => !x)} {...gx('bg-brand-500 rounded-2xl p-4 mb-2')}>
+      <View className="flex-row items-center gap-3">
         <View className="w-10 h-10 rounded-xl bg-white/20 items-center justify-center">
           <MapPinned size={18} color="#fff" />
         </View>
@@ -276,7 +309,11 @@ function AreaSection({
         </Pressable>
         ) : null}
       </View>
+      <ExpandToggle open={open} count={area.homecellCount} />
+      </Pressable>
 
+      {open ? (
+      <>
       {/* Keterangan indikator rata² hadir */}
       {homecells.length > 0 ? (
         <View className="flex-row flex-wrap items-center gap-1.5 mb-2 px-1">
@@ -311,6 +348,8 @@ function AreaSection({
           ))}
         </View>
       )}
+      </>
+      ) : null}
       <ReportSheet visible={reportOpen} onClose={() => setReportOpen(false)} kind="area" id={area.id} title={area.nama} />
     </View>
   );

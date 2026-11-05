@@ -4,7 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, MapPin, MessageCircle, Minus, Phone, Plus, UserSearch } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, MapPin, MessageCircle, Minus, Phone, Plus, UserSearch } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
@@ -143,6 +143,7 @@ export default function HomecellPotensialScreen() {
 
 function PotensialRow({ m }: { m: PotensialMemberItem }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const wa = m.noHp ? m.noHp.replace(/\D/g, '') : null;
   const sub = [
     m.jenisKelamin === 'L' ? t('homecell.potensial_pria') : m.jenisKelamin === 'P' ? t('homecell.potensial_wanita') : null,
@@ -152,7 +153,12 @@ function PotensialRow({ m }: { m: PotensialMemberItem }) {
     .filter(Boolean)
     .join(' · ');
   return (
-    <View className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100">
+    <Pressable
+      onPress={() => router.push(`/jemaat/${m.id}` as never)}
+      className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 active:bg-neutral-50"
+      accessibilityRole="button"
+      accessibilityLabel={m.namaLengkap}
+    >
       <Avatar name={m.namaLengkap} fotoUrl={m.fotoUrl} size={44} />
       <View className="flex-1 min-w-0">
         <Text className="font-semibold text-neutral-900" numberOfLines={1}>
@@ -183,7 +189,9 @@ function PotensialRow({ m }: { m: PotensialMemberItem }) {
             <MessageCircle size={16} color="#059669" />
           </Pressable>
         </View>
-      ) : null}
-    </View>
+      ) : (
+        <ChevronRight size={16} color={nc('#A3A3A3')} />
+      )}
+    </Pressable>
   );
 }

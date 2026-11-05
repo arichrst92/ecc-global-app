@@ -1174,7 +1174,9 @@
     "find_homecell": "Cari homecell",
     "my_zona_header": "Zona homecell saya",
     "zone_leader": "Zone leader",
-    "my_homecell_badge": "Homecell saya"
+    "my_homecell_badge": "Homecell saya",
+    "show_homecells": "Lihat {{count}} homecell",
+    "hide_homecells": "Sembunyikan homecell"
   },
   "bible": {
     "title": "Alkitab",
