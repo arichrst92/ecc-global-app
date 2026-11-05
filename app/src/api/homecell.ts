@@ -27,7 +27,7 @@ export function listManagedHomecells() {
   return api.get<PicHomecell[]>('/admin/me/homecell-managed');
 }
 
-/** GET /admin/me/homecell-area-managed — area yang user-nya PIC */
+/** GET /admin/me/homecell-area-managed — zona yang user-nya PIC atau pastor */
 export function listManagedAreas() {
   return api.get<PicArea[]>('/admin/me/homecell-area-managed');
 }

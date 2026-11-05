@@ -31,7 +31,8 @@ import { ReportSheet } from '@/components/homecell/ReportSheet';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 /**
- * Area list — flatten + grouped by area.
+ * Zona — daftar zona yang user-nya PIC atau pastor (pastor bisa punya
+ * beberapa zona; semuanya tampil di sini, tanpa tombol ubah zona).
  *
  * Pakai data dari /admin/me/homecell-area-managed (PIC area) + /admin/me/
  * homecell-managed (PIC homecell user). Untuk setiap area yang user PIC,
@@ -144,7 +145,18 @@ function AreaSection({
           <MapPinned size={18} color="#fff" />
         </View>
         <View className="flex-1">
-          <Text className="text-white font-bold text-base">{area.nama}</Text>
+          <View className="flex-row items-center gap-1.5">
+            <Text className="text-white font-bold text-base flex-shrink" numberOfLines={1}>
+              {area.nama}
+            </Text>
+            {area.myRole ? (
+              <View className="bg-white/25 px-1.5 py-0.5 rounded-full">
+                <Text className="text-[9px] font-bold text-white">
+                  {area.myRole === 'PASTOR' ? t('area.role_pastor') : t('area.role_pic')}
+                </Text>
+              </View>
+            ) : null}
+          </View>
           <Text className="text-white/80 text-xs mt-0.5">
             {area.cabang.nama} · {area.homecellCount} {t('area.homecells_count')}
           </Text>
@@ -162,6 +174,7 @@ function AreaSection({
           <FileText size={11} color="#C2410C" />
           <Text className="text-[11px] font-bold text-brand-700">{t('hcj.report_btn')}</Text>
         </Pressable>
+        {area.myRole !== 'PASTOR' ? (
         <Pressable
           onPress={() => router.push(`/area/edit?id=${area.id}` as never)}
           className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"
@@ -170,6 +183,7 @@ function AreaSection({
           <Pencil size={11} color="#C2410C" />
           <Text className="text-[11px] font-bold text-brand-700">{t('hcj.segmen_edit')}</Text>
         </Pressable>
+        ) : null}
       </View>
 
       {/* Keterangan indikator rata² hadir */}

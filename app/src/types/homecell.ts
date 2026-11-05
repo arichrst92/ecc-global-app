@@ -2,7 +2,11 @@
 
 type CabangRef = { id: string; nama: string };
 type AreaRef = { id: string; nama: string; cabang: CabangRef };
-type AreaRefWithPic = AreaRef & { picJemaatId?: string | null };
+type AreaRefWithPic = AreaRef & {
+  picJemaatId?: string | null;
+  /** Jemaat id pastor zona (server ≥ 2026-11; bisa kosong). */
+  pastorIds?: string[];
+};
 
 /** Item dari GET /admin/me/homecell-managed */
 export type PicHomecell = {
@@ -25,6 +29,8 @@ export type PicArea = {
   deskripsi?: string | null;
   cabang: CabangRef;
   homecellCount: number;
+  /** Peran user di zona ini — PASTOR hanya melihat (tidak mengubah zona). */
+  myRole?: 'PIC' | 'PASTOR';
 };
 
 /** Member row di homecell (returned dari add by-kode + di list members) */

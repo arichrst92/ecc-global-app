@@ -60,7 +60,9 @@ export default function HomecellDetailScreen() {
   // PIC privileges: tampil tombol Remove hanya kalau current user adalah PIC
   // homecell ini (atau PIC area parent). Backend tetap enforce, ini cuma UI guard.
   const isPicHomecell = !!user && homecell?.picJemaatId === user.jemaatId;
-  const isPicArea = !!user && homecell?.area.picJemaatId === user.jemaatId;
+  const isPastorArea = !!user && !!homecell?.area.pastorIds?.includes(user.jemaatId);
+  // Pastor zona punya hak yang sama dengan PIC zona di homecell ini.
+  const isPicArea = (!!user && homecell?.area.picJemaatId === user.jemaatId) || isPastorArea;
   const canRemove = isPicHomecell || isPicArea;
   const canTamu = isPicHomecell || isPicArea || !!user?.isFulltimer;
   // Tab Anggota / Tamu — supaya halaman tidak memanjang.
@@ -170,7 +172,11 @@ export default function HomecellDetailScreen() {
           <View className="px-5 pb-6 pt-2">
             <View className="bg-white/20 self-start px-2.5 py-1 rounded-full mb-2">
               <Text className="text-[10px] font-bold text-white tracking-wider">
-                {isPicHomecell ? t('homecell.pic_badge') : t('homecell.area_pic_badge')}
+                {isPicHomecell
+                  ? t('homecell.pic_badge')
+                  : isPastorArea && homecell.area.picJemaatId !== user?.jemaatId
+                    ? t('homecell.area_pastor_badge')
+                    : t('homecell.area_pic_badge')}
               </Text>
             </View>
             <Text className="text-white text-2xl font-bold">{homecell.nama}</Text>
