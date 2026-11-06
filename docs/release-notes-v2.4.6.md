@@ -25,28 +25,72 @@ Versi sebelumnya: **2.4.5**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 ## Syarat server
 Migrasi `20261107090000_homecell_area_pastor`, `20261108090000_spiritual_journey_request`, `20261111090000_pelayanan_approver`, `20261112090000_ministry_duty_notif`, `20261113090000_pelayanan_ikon_warna`, `20261114090000_pelayanan_pendaftaran` + perubahan core-api (`/admin/me/homecell-area-managed` mengembalikan zona pastor + `myRole`, detail homecell mengirim `area.pastorIds`, `GET /admin/me/homecell/:id/potensial-member`, `GET /admin/me/family/search`, `POST /admin/me/family/link-by-id`, `GET /admin/me/zona-saya`, `POST/DELETE /admin/me/spiritual-journey/request`, `GET/PUT /admin/ministry/:id/jadwal…`) sudah di-deploy sebelum app 2.4.6 dipakai. App 2.4.5 tetap jalan: pastor sudah melihat zonanya, hanya label masih "Area" dan tombol Ubah zona masih tampil (server menolak perubahannya).
 
-## Google Play — "Yang baru" (id-ID)
+## Server & Portal (deploy terpisah, kompatibel dengan app lama)
+- Portal → Map View: cari potensial member dari pin homecell (radius km), filter sudah/belum homecell, filter Pastor zona.
+- Portal → Zona Homecell: filter Pastor (ikut ke PDF & CSV); PIC zona, PIC homecell, dan pastor bisa diklik.
+- Portal → Onboarding config: jumlah kehadiran ibadah untuk promosi otomatis **New Comer → Jemaat Tetap** (migrasi `20261109090000_new_comer_promosi`).
+- Portal → Spiritual Journey: persetujuan request update tahap; hapus jemaat dari tahap.
+- Portal → Jemaat: kolom email (juga di PDF & CSV), penanda **potensial junk data** (migrasi `20261110090000_jemaat_junk_flag`); data hasil sync Shiftsoft yang sudah dirapikan tidak tertimpa.
+- Portal → Audit log: aktor bisa diklik.
+- Portal → Pelayanan: anggota per cabang + tambah anggota (cari nama/kode/no HP), otoritas approval, ikon & warna, buka/tutup pendaftaran per cabang.
+- Portal → Grup: PIC dicari dengan nama / no HP / email / kode.
+- Portal → Kritik & Saran: tampil untuk role yang diberi menu `feedback` di Role Access.
+
+## Google Play — "Yang baru"
+**id-ID**
 ```
 Els App 2.4.6:
-• "Area" kini bernama "Zona"
-• Pastor zona dapat melihat semua zona yang dilayani
+• Tampilan baru halaman Pelayanan dengan ikon & warna
+• Koordinator: atur jadwal pelayanan & buka/tutup pendaftaran
+• Anggota pelayanan per cabang
+• "Area" kini bernama "Zona", menu Zona untuk semua jemaat
 • Cari potensial member di sekitar homecell
 • Tambah keluarga: cari dengan nama, email, atau no HP
 • Ajukan update tahap Spiritual Journey
 • Tandai beberapa ayat sekaligus
-• Menu Zona untuk semua jemaat
-• Perbaikan kecil
+• Validasi isian lebih rapi & perbaikan kecil
+```
+**en-US**
+```
+Els App 2.4.6:
+• Redesigned Ministry page with icons & colors
+• Coordinators: schedule servants & open/close registration
+• Ministry members grouped by branch
+• "Area" is now "Zone", with a Zone menu for every member
+• Find potential members near a homecell
+• Add family: search by name, email, or phone
+• Request a Spiritual Journey stage update
+• Bookmark several verses at once
+• Cleaner form validation & minor fixes
 ```
 
 ## App Store — "What's New" (en)
 ```
 Els App 2.4.6:
-• "Area" is now called "Zone"
-• Zone pastors can view all the zones they serve
+• Redesigned Ministry page with icons & colors
+• Coordinators: schedule servants & open/close registration
+• Ministry members grouped by branch
+• "Area" is now "Zone", with a Zone menu for every member
 • Find potential members near a homecell
 • Add family: search by name, email, or phone
 • Request a Spiritual Journey stage update
 • Bookmark several verses at once
-• Zone menu for every member
-• Minor fixes
+• Cleaner form validation & minor fixes
 ```
+
+## Smoke test
+- [ ] Akses cepat → Zona tampil untuk jemaat biasa (zona homecell sendiri, hanya lihat); PIC/pastor melihat zona yang dikelola + badge
+- [ ] Pastor zona → detail homecell → badge PASTOR ZONA, bisa kelola jadwal/kehadiran; tombol Ubah zona tidak ada
+- [ ] Detail homecell → Potensial member → ubah radius → ketuk nama → profil; telepon/WA sesuai privasi
+- [ ] Profil → Keluarga → Tambah → Cari jemaat (nama sebagian / email / no HP lengkap) → Hubungkan
+- [ ] Spiritual Journey → Ajukan update tahap → Menunggu → batalkan; ajukan lagi → Portal setujui → notifikasi & tahap tercatat; tolak → alasan tampil
+- [ ] Alkitab → pilih 3 ayat → Tandai / Ke catatan / Bagikan (rentang ayat benar)
+- [ ] Pelayanan (daftar): header, Tugas berikutnya, Pelayanan saya, grid Jelajahi dengan ikon & warna; mode gelap ikon tidak terang
+- [ ] Detail pelayanan sebagai anggota → tidak ada tombol Gabung; badge "Anda melayani · peran"
+- [ ] Anggota: default cabang aktif; chip cabang lain & Semua cabang
+- [ ] Koordinator → Permintaan → setujui/tolak (hanya pemohon cabang otoritasnya); non-koordinator tidak melihat aksi ini
+- [ ] Koordinator → Atur jadwal → hanya cabang otoritas; ibadah: Tanggal ini saja / Setiap jadwal / Kembalikan ke susunan tetap; event cabang; tanda bentrok; petugas dapat notifikasi & muncul di Jadwal Pelayanan Saya
+- [ ] Koordinator → Pendaftaran → Buka (catatan + 7 hari) → badge & chip saring di daftar; Tutup → jemaat cabang itu melihat "Pendaftaran di {cabang} sedang ditutup"
+- [ ] Ikon pelayanan tampil di Beranda (kartu tugas), Profil saya, profil jemaat, petugas detail ibadah
+- [ ] Validasi: nama "Budi123" ditolak; pekerjaan "!!!" ditolak; status Single → tanggal nikah tersembunyi; tanggal lahir masa depan ditolak; usia tamu 3 ditolak
+- [ ] App 2.4.5 masih bisa login & membuka pelayanan setelah server di-deploy
