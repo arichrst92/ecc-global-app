@@ -13,6 +13,7 @@ import { X } from 'lucide-react-native';
 import { getMinistryPendaftaran, saveMinistryPendaftaran, type PendaftaranCabang } from '@/api/ministry';
 import { ApiError } from '@/types/api';
 import { useToast } from '@/components/ui/Toast';
+import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
 const PRESET = [0, 7, 14, 30] as const; // hari; 0 = tanpa batas
@@ -107,7 +108,7 @@ export function PendaftaranSheet({ ministryId, visible, onClose }: { ministryId:
                           <Pressable
                             key={d}
                             onPress={() => setPreset(d)}
-                            className={`px-2.5 py-1 rounded-full border ${preset === d ? 'bg-brand-500 border-brand-500' : 'border-neutral-200'}`}
+                            {...gx(`px-2.5 py-1 rounded-full border ${preset === d ? 'bg-brand-500 border-brand-500' : 'border-neutral-200'}`)}
                           >
                             <Text className={`text-[11px] font-semibold ${preset === d ? 'text-white' : 'text-neutral-700'}`}>
                               {d === 0 ? t('ministry.pend_tanpa_batas') : t('ministry.pend_hari', { count: d })}

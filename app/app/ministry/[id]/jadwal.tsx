@@ -32,6 +32,7 @@ import {
 import { ApiError } from '@/types/api';
 import { formatDateWithDay } from '@/utils/date';
 import { goBack } from '@/utils/nav';
+import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
 type Editing = { kind: 'ibadah'; item: JadwalIbadah } | { kind: 'event'; item: JadwalEvent };
@@ -89,7 +90,7 @@ export default function MinistryJadwalScreen() {
                 <Pressable
                   key={c.id}
                   onPress={() => setCabangId(c.id)}
-                  className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+                  {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`)}
                 >
                   <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>{c.nama}</Text>
                 </Pressable>
@@ -387,7 +388,7 @@ function RoleChips({ roles, value, onChange }: { roles: JadwalRole[]; value: str
         <Pressable
           key={r.id}
           onPress={() => onChange(r.id)}
-          className={`px-2.5 py-1 rounded-full border ${r.id === value ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+          {...gx(`px-2.5 py-1 rounded-full border ${r.id === value ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`)}
         >
           <Text className={`text-[11px] font-semibold ${r.id === value ? 'text-white' : 'text-neutral-700'}`}>{r.nama}</Text>
         </Pressable>
@@ -470,7 +471,7 @@ function MemberPicker({
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingTop: 8 }}>
           <Pressable
             onPress={() => setSemua((x) => !x)}
-            className={`px-2.5 py-1 rounded-full border ${semua ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+            {...gx(`px-2.5 py-1 rounded-full border ${semua ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`)}
           >
             <Text className={`text-[11px] font-semibold ${semua ? 'text-white' : 'text-neutral-700'}`}>{t('ministry.cabang_all')}</Text>
           </Pressable>
@@ -478,7 +479,7 @@ function MemberPicker({
             <Pressable
               key={r.id}
               onPress={() => setRoleId(roleId === r.id ? null : r.id)}
-              className={`px-2.5 py-1 rounded-full border ${roleId === r.id ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+              {...gx(`px-2.5 py-1 rounded-full border ${roleId === r.id ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`)}
             >
               <Text className={`text-[11px] font-semibold ${roleId === r.id ? 'text-white' : 'text-neutral-700'}`}>{r.nama}</Text>
             </Pressable>

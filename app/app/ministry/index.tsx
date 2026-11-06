@@ -25,7 +25,7 @@ import type { MinistryListItem } from '@/types/ministry';
 import { formatDateWithDay } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
-import { nc } from '@/theme/ThemeRoot';
+import { isDark, nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
 type Filter = 'ALL' | 'MINE' | 'BUKA';
@@ -175,7 +175,7 @@ export default function MinistryListScreen() {
             <Pressable
               key={f}
               onPress={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-full border ${filter === f ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+              {...gx(`px-3 py-1.5 rounded-full border ${filter === f ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`)}
             >
               <Text className={`text-xs font-semibold ${filter === f ? 'text-white' : 'text-neutral-700'}`}>
                 {f === 'ALL'
@@ -247,7 +247,7 @@ function MinistryTile({ ministry: m, onPress }: { ministry: MinistryListItem; on
       </Text>
       <View className="flex-row items-center mt-2">
         {avatars.map((a, i) => (
-          <View key={a.id} style={{ marginLeft: i ? -8 : 0, borderWidth: 2, borderColor: '#fff', borderRadius: 999 }}>
+          <View key={a.id} style={{ marginLeft: i ? -8 : 0, borderWidth: 2, borderColor: isDark() ? '#1C1C1E' : '#fff', borderRadius: 999 }}>
             <Avatar name={a.namaLengkap} fotoUrl={a.fotoUrl ?? undefined} size={22} />
           </View>
         ))}

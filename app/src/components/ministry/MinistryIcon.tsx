@@ -4,6 +4,7 @@
  * Portal. Kosong / tidak dikenal (server / app lama) → tangan-hati oranye ECC.
  */
 import { Text, View } from 'react-native';
+import { isDark } from '@/theme/ThemeRoot';
 import {
   Baby,
   BookOpen,
@@ -98,8 +99,29 @@ export const MINISTRY_WARNA = {
   green: { solid: '#22C55E', bg: '#DCFCE7', fg: '#15803D' },
 } as const;
 
+/** Versi mode gelap: latar = warna solid transparan, ikon/teks = tone terang. */
+const DARK_FG: Record<keyof typeof MINISTRY_WARNA, string> = {
+  orange: '#FDBA74',
+  amber: '#FCD34D',
+  rose: '#FDA4AF',
+  pink: '#F9A8D4',
+  violet: '#C4B5FD',
+  sky: '#7DD3FC',
+  teal: '#5EEAD4',
+  green: '#86EFAC',
+};
+
+const hexA = (hex: string, a: number) => {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+};
+
+/** Warna ministry sesuai mode (terang / gelap). */
 export function ministryWarna(warna?: string | null) {
-  return MINISTRY_WARNA[(warna ?? '') as keyof typeof MINISTRY_WARNA] ?? MINISTRY_WARNA.orange;
+  const key = ((warna ?? '') in MINISTRY_WARNA ? warna : 'orange') as keyof typeof MINISTRY_WARNA;
+  const w = MINISTRY_WARNA[key];
+  if (!isDark()) return w;
+  return { solid: w.solid, bg: hexA(w.solid, 0.2), fg: DARK_FG[key] };
 }
 
 export function ministryIconComponent(ikon?: string | null): LucideIcon {

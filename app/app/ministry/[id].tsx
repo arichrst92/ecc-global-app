@@ -361,7 +361,7 @@ export default function MinistryDetailScreen() {
             {coordForView ? (
               <QuickAction
                 icon={<MessageCircle size={18} color="#16A34A" />}
-                bg="#DCFCE7"
+                bg={isDark() ? "rgba(34,197,94,0.2)" : "#DCFCE7"}
                 label={t('ministry.qa_chat_koordinator')}
                 onPress={() => openWhatsApp(coordForView.jemaat.noHp!, ministry.nama, coordForView.jemaat.namaLengkap)}
               />
@@ -506,7 +506,7 @@ export default function MinistryDetailScreen() {
                     <Pressable
                       key={c.id}
                       onPress={() => setCabangPick(c.id)}
-                      className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+                      {...gx(`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`)}
                     >
                       <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>
                         {c.nama} ({c.count})
