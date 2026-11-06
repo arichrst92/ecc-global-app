@@ -139,31 +139,36 @@ export default function MinistryListScreen() {
         {mine.length > 0 ? (
           <>
             <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('ministry.my_section')}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-4 mb-5" contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}>
-              {mine.map((m) => (
+            {/* Daftar biasa (bukan ScrollView horizontal bersarang — tingginya bisa 0 di iOS). */}
+            <View className="bg-card rounded-2xl border border-neutral-100 mb-5 overflow-hidden">
+              {mine.map((m, idx) => (
                 <Pressable
                   key={m.id}
                   onPress={() => router.push(`/ministry/${m.id}` as never)}
-                  className="bg-card rounded-2xl p-3 border border-neutral-100"
-                  style={{ width: 160 }}
+                  className={`flex-row items-center gap-3 px-3 py-2.5 ${idx ? 'border-t border-neutral-100' : ''}`}
                 >
                   <MinistryIcon ikon={m.ikon} warna={m.warna} size={36} />
-                  <Text className="text-sm font-bold text-neutral-900 mt-2" numberOfLines={1}>
-                    {m.nama}
-                  </Text>
-                  <Text className="text-[11px] text-neutral-500" numberOfLines={1}>
-                    {m.myPosisi}
-                  </Text>
+                  <View className="flex-1 min-w-0">
+                    <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                      {m.nama}
+                    </Text>
+                    {m.myPosisi ? (
+                      <Text className="text-[11px] text-neutral-500" numberOfLines={1}>
+                        {m.myPosisi}
+                      </Text>
+                    ) : null}
+                  </View>
                   {m.pendingRequestCount ? (
-                    <View className="self-start mt-1.5 bg-amber-100 px-2 py-0.5 rounded-full">
+                    <View className="bg-amber-100 px-2 py-0.5 rounded-full">
                       <Text className="text-[10px] font-bold text-amber-800">
                         {t('ministry.pending_badge', { count: m.pendingRequestCount })}
                       </Text>
                     </View>
                   ) : null}
+                  <ChevronRight size={16} color={nc('#A3A3A3')} />
                 </Pressable>
               ))}
-            </ScrollView>
+            </View>
           </>
         ) : null}
 
@@ -208,10 +213,17 @@ export default function MinistryListScreen() {
             <Text className="text-xs text-neutral-500 text-center mt-1 leading-relaxed">{t('ministry.empty_all_msg')}</Text>
           </View>
         ) : (
-          <View className="flex-row flex-wrap" style={{ marginHorizontal: -5 }}>
-            {shown.map((m) => (
-              <View key={m.id} style={{ width: '50%', padding: 5 }}>
-                <MinistryTile ministry={m} onPress={() => router.push(`/ministry/${m.id}` as never)} />
+          // Baris berisi 2 kartu: tinggi kartu disamakan per baris (tanpa h-full, yang di iOS
+          // membuat kartu memanjang setinggi layar).
+          <View style={{ gap: 10 }}>
+            {Array.from({ length: Math.ceil(shown.length / 2) }, (_, r) => shown.slice(r * 2, r * 2 + 2)).map((row) => (
+              <View key={row[0]!.id} className="flex-row" style={{ gap: 10 }}>
+                {row.map((m) => (
+                  <View key={m.id} className="flex-1">
+                    <MinistryTile ministry={m} onPress={() => router.push(`/ministry/${m.id}` as never)} />
+                  </View>
+                ))}
+                {row.length === 1 ? <View className="flex-1" /> : null}
               </View>
             ))}
           </View>
@@ -226,7 +238,7 @@ function MinistryTile({ ministry: m, onPress }: { ministry: MinistryListItem; on
   const avatars = m.avatars ?? [];
   const sisa = Math.max(0, (m.memberCount ?? 0) - avatars.length);
   return (
-    <Pressable onPress={onPress} className="bg-card rounded-2xl p-3 border border-neutral-100 h-full">
+    <Pressable onPress={onPress} className="flex-1 bg-card rounded-2xl p-3 border border-neutral-100">
       <View className="flex-row items-start justify-between">
         <MinistryIcon ikon={m.ikon} warna={m.warna} size={38} />
         {m.myPosisi ? (
@@ -251,9 +263,11 @@ function MinistryTile({ ministry: m, onPress }: { ministry: MinistryListItem; on
             <Avatar name={a.namaLengkap} fotoUrl={a.fotoUrl ?? undefined} size={22} />
           </View>
         ))}
-        <Text className="text-[11px] text-neutral-500 ml-1.5">
-          {avatars.length ? (sisa ? `+${sisa}` : '') : t('ministry.member_count_short', { count: m.memberCount ?? 0 })}
-        </Text>
+        {avatars.length ? (
+          sisa ? <Text className="text-[11px] text-neutral-500 ml-1.5">+{sisa}</Text> : null
+        ) : (
+          <Text className="text-[11px] text-neutral-500">{t('ministry.member_count_short', { count: m.memberCount ?? 0 })}</Text>
+        )}
       </View>
     </Pressable>
   );
