@@ -27,12 +27,12 @@ import {
   ChevronRight,
   Circle,
   Clock,
-  HeartHandshake,
+  Crown,
   Hourglass,
   MapPin,
   MessageCircle,
+  ShieldCheck,
   UserPlus,
-  Users,
   X,
   XCircle,
 } from 'lucide-react-native';
@@ -51,6 +51,7 @@ import {
 } from '@/hooks/useMinistry';
 import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
+import { MinistryIcon, ministryWarna, taglineOf } from '@/components/ministry/MinistryIcon';
 import type { MinistryJoinRequest, MinistryMember, MinistryRole } from '@/types/ministry';
 import { ApiError } from '@/types/api';
 import { formatDateWithDay, parseLocalDate } from '@/utils/date';
@@ -83,6 +84,7 @@ export default function MinistryDetailScreen() {
     return [...m.values()].sort((a, b) => a.nama.localeCompare(b.nama));
   }, [ministry]);
   const activeCabang = cabangPick ?? viewingCabangId ?? 'ALL';
+  const cabangNama = useMemo(() => new Map(cabangOptions.map((c) => [c.id, c.nama])), [cabangOptions]);
   const visibleMembers = useMemo(
     () => (ministry?.members ?? []).filter((m) => activeCabang === 'ALL' || m.jemaat.cabang?.id === activeCabang),
     [ministry, activeCabang],
@@ -106,6 +108,7 @@ export default function MinistryDetailScreen() {
   const cancelRequestMutation = useCancelMyJoinRequest(id);
   const [reviewing, setReviewing] = useState<MinistryJoinRequest | null>(null);
 
+  const [tab, setTab] = useState<'ANGGOTA' | 'JADWAL' | 'TENTANG'>('ANGGOTA');
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [motivasi, setMotivasi] = useState('');
@@ -251,40 +254,44 @@ export default function MinistryDetailScreen() {
     );
   }
 
+  // Koordinator (pemegang otoritas) — badge per anggota untuk cabang yang dilihat.
+  const coordinators = ministry.coordinators ?? [];
+  const coordIdsFor = (cabangId: string | null | undefined) =>
+    new Set(coordinators.filter((c) => !cabangId || c.cabangIds.includes(cabangId)).map((c) => c.jemaat.id));
+  const coordForView = coordinators.find(
+    (c) => (activeCabang === 'ALL' ? c.cabangIds.includes(viewingCabangId ?? '') : c.cabangIds.includes(activeCabang)) && c.jemaat.noHp,
+  );
+  const w = ministryWarna(ministry.warna);
+  const tagline = taglineOf(ministry.deskripsi);
+
   return (
     <View className="flex-1 bg-neutral-50">
       <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
-            <Pressable
-              onPress={() => goBack(router)}
-              className="w-10 h-10 items-center justify-center"
-            >
+            <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
               <ArrowLeft size={20} color="#fff" />
             </Pressable>
             <Text className="flex-1 text-base font-bold text-white" numberOfLines={1}>
               {t('ministry.title')}
             </Text>
           </View>
-          <View className="items-center pb-6 pt-2 px-5">
-            <View className="w-16 h-16 rounded-2xl bg-white/20 items-center justify-center mb-2">
-              <HeartHandshake size={32} color="#fff" />
-            </View>
-            <Text className="text-white text-xl font-bold text-center">
-              {ministry.nama}
-            </Text>
-            <View className="flex-row items-center gap-3 mt-2">
-              <View className="flex-row items-center gap-1">
-                <Users size={12} color="#fff" />
-                <Text className="text-xs text-white/80">
-                  {ministry.memberCount} {t('ministry.member_label')}
+          <View className="flex-row items-center gap-3 px-5 pt-1 pb-12">
+            <MinistryIcon ikon={ministry.ikon} warna={ministry.warna} size={56} onHero />
+            <View className="flex-1 min-w-0">
+              <Text className="text-white text-xl font-bold" numberOfLines={2}>
+                {ministry.nama}
+              </Text>
+              {tagline ? (
+                <Text className="text-white/85 text-xs mt-0.5" numberOfLines={2}>
+                  {tagline}
                 </Text>
-              </View>
+              ) : null}
               {ministry.myMembership ? (
-                <View className="bg-white/20 px-2 py-0.5 rounded-full flex-row items-center gap-1">
-                  <CheckCircle2 size={10} color="#fff" />
-                  <Text className="text-[10px] font-bold text-white">
-                    {t('ministry.youre_member')}
+                <View className="self-start mt-1.5 bg-white px-2 py-0.5 rounded-full flex-row items-center gap-1">
+                  <CheckCircle2 size={11} color="#C2410C" />
+                  <Text className="text-[10px] font-bold text-brand-700">
+                    {t('ministry.serving_as', { posisi: ministry.myMembership.posisi || '—' })}
                   </Text>
                 </View>
               ) : null}
@@ -295,63 +302,68 @@ export default function MinistryDetailScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}
-        refreshControl={
-          <PullRefreshControl
-            onRefresh={() => query.refetch()}
-            tintColor="#F97316"
-          />
-        }
+        style={{ marginTop: -28 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+        refreshControl={<PullRefreshControl onRefresh={() => query.refetch()} tintColor="#F97316" />}
       >
-        {/* Deskripsi */}
-        {ministry.deskripsi ? (
-          <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
-            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-              {t('ministry.about_section')}
-            </Text>
-            <Text className="text-sm text-neutral-700 leading-relaxed">
-              {ministry.deskripsi}
-            </Text>
-          </View>
-        ) : null}
+        {/* Statistik */}
+        <View className="bg-card rounded-2xl border border-neutral-100 flex-row py-3 mb-3">
+          {[
+            { n: ministry.memberCount, l: t('ministry.stat_anggota') },
+            { n: cabangOptions.length, l: t('ministry.stat_cabang') },
+            { n: ministry.roles?.length ?? 0, l: t('ministry.stat_peran') },
+          ].map((x, i) => (
+            <View key={x.l} className={`flex-1 items-center ${i ? 'border-l border-neutral-100' : ''}`}>
+              <Text className="text-lg font-bold text-neutral-900">{x.n}</Text>
+              <Text className="text-[11px] text-neutral-500">{x.l}</Text>
+            </View>
+          ))}
+        </View>
 
-        {/* My membership info */}
-        {ministry.myMembership ? (
-          <View className="bg-brand-50 rounded-2xl p-4 border border-brand-100 mb-4 flex-row items-center gap-3">
-            <View {...gx('w-10 h-10 rounded-xl bg-brand-500 items-center justify-center')}>
-              <CheckCircle2 size={20} color="#fff" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-sm font-semibold text-brand-700">
-                {t('ministry.my_role_label')}
-              </Text>
-              <Text className="text-xs text-brand-700/80 mt-0.5">
-                {ministry.myMembership.posisi || '—'}
-                {' · '}
-                {t('ministry.since_label')}{' '}
-                {parseLocalDate(ministry.myMembership.sinceDate).toLocaleDateString('id-ID')}
-              </Text>
-            </View>
+        {/* Aksi cepat */}
+        {canManage || coordForView ? (
+          <View className="flex-row gap-2 mb-3">
+            {canManage ? (
+              <QuickAction
+                icon={<CalendarDays size={18} color={w.fg} />}
+                bg={w.bg}
+                label={t('ministry.qa_jadwal')}
+                onPress={() => router.push(`/ministry/${id}/jadwal` as never)}
+              />
+            ) : null}
+            {canManage ? (
+              <QuickAction
+                icon={<UserPlus size={18} color={w.fg} />}
+                bg={w.bg}
+                label={t('ministry.qa_permintaan')}
+                badge={joinRequests.length || undefined}
+                onPress={() => setTab('ANGGOTA')}
+              />
+            ) : null}
+            {coordForView ? (
+              <QuickAction
+                icon={<MessageCircle size={18} color="#16A34A" />}
+                bg="#DCFCE7"
+                label={t('ministry.qa_chat_koordinator')}
+                onPress={() => openWhatsApp(coordForView.jemaat.noHp!, ministry.nama, coordForView.jemaat.namaLengkap)}
+              />
+            ) : null}
           </View>
         ) : null}
 
         {/* Status permintaan join milik user (approval flow) */}
         {!ministry.myMembership && isPendingRequest && myRequest ? (
-          <View className="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-4">
+          <View className="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-3">
             <View className="flex-row items-center gap-3">
               <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
                 <Hourglass size={20} color="#fff" />
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-semibold text-amber-900">
-                  {t('ministry.pending_title')}
-                </Text>
+                <Text className="text-sm font-semibold text-amber-900">{t('ministry.pending_title')}</Text>
                 <Text className="text-xs text-amber-800 mt-0.5">
                   {t('ministry.pending_body', {
                     role: myRequest.requestedRole?.nama ?? t('ministry.requested_role_none'),
-                    date: new Date(myRequest.createdAt).toLocaleDateString(
-                      i18n.language === 'id' ? 'id-ID' : 'en-US',
-                    ),
+                    date: new Date(myRequest.createdAt).toLocaleDateString(i18n.language === 'id' ? 'id-ID' : 'en-US'),
                   })}
                 </Text>
               </View>
@@ -360,11 +372,7 @@ export default function MinistryDetailScreen() {
               onPress={() =>
                 cancelRequestMutation.mutate(undefined, {
                   onSuccess: () => showToast(t('ministry.pending_cancelled'), 'success'),
-                  onError: (err) =>
-                    showToast(
-                      err instanceof ApiError ? err.message : t('error.network'),
-                      'error',
-                    ),
+                  onError: (err) => showToast(err instanceof ApiError ? err.message : t('error.network'), 'error'),
                 })
               }
               disabled={cancelRequestMutation.isPending}
@@ -377,105 +385,182 @@ export default function MinistryDetailScreen() {
           </View>
         ) : null}
         {!ministry.myMembership && myRequest?.status === 'REJECTED' ? (
-          <View className="bg-neutral-100 rounded-2xl p-4 mb-4 flex-row gap-3">
+          <View className="bg-neutral-100 rounded-2xl p-4 mb-3 flex-row gap-3">
             <XCircle size={20} color={nc('#737373')} />
             <View className="flex-1">
-              <Text className="text-sm font-semibold text-neutral-800">
-                {t('ministry.rejected_title')}
-              </Text>
+              <Text className="text-sm font-semibold text-neutral-800">{t('ministry.rejected_title')}</Text>
               {myRequest.rejectReason ? (
-                <Text className="text-xs text-neutral-600 mt-0.5">
-                  {t('ministry.rejected_reason', { reason: myRequest.rejectReason })}
-                </Text>
+                <Text className="text-xs text-neutral-600 mt-0.5">{t('ministry.rejected_reason', { reason: myRequest.rejectReason })}</Text>
               ) : null}
-              <Text className="text-xs text-neutral-500 mt-0.5">
-                {t('ministry.rejected_retry_hint')}
-              </Text>
+              <Text className="text-xs text-neutral-500 mt-0.5">{t('ministry.rejected_retry_hint')}</Text>
             </View>
           </View>
         ) : null}
 
-        {/* 2.4.6 — pemegang otoritas: atur jadwal petugas ibadah / event cabangnya */}
-        {canManage ? (
-          <Pressable
-            onPress={() => router.push(`/ministry/${id}/jadwal` as never)}
-            className="mb-4 bg-card rounded-2xl border border-brand-200 p-3 flex-row items-center gap-3"
-          >
-            <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-              <CalendarDays size={18} color="#EA580C" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-sm font-bold text-neutral-900">{t('ministry.jadwal_btn')}</Text>
-              <Text className="text-xs text-neutral-500">{t('ministry.jadwal_btn_sub')}</Text>
-            </View>
-            <ChevronRight size={16} color={nc('#A3A3A3')} />
-          </Pressable>
-        ) : null}
-
-        {/* Leader: permintaan bergabung yang menunggu persetujuan */}
-        {canManage && joinRequests.length > 0 ? (
-          <View className="mb-4">
-            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-              {t('ministry.requests_section', { count: joinRequests.length })}
+        {/* Ajakan bergabung (bukan anggota) */}
+        {!ministry.myMembership && !isPendingRequest && ministry.isOpen ? (
+          <View className="bg-card rounded-2xl border p-4 mb-3" style={{ borderColor: w.bg }}>
+            <Text className="text-sm font-bold text-neutral-900">{t('ministry.join_invite_title')}</Text>
+            <Text className="text-xs text-neutral-500 mt-0.5 mb-3">
+              {approvalEnabled ? t('ministry.join_notice_approval') : t('ministry.join_notice')}
             </Text>
-            <View className="bg-card rounded-2xl border border-amber-200">
-              {joinRequests.map((r, idx) => (
-                <Pressable
-                  key={r.id}
-                  onPress={() => setReviewing(r)}
-                  className={`p-3 flex-row items-center gap-3 ${
-                    idx > 0 ? 'border-t border-neutral-100' : ''
-                  }`}
-                >
-                  <Avatar
-                    name={r.jemaat.namaLengkap}
-                    fotoUrl={r.jemaat.fotoUrl ?? undefined}
-                    size={40}
-                  />
-                  <View className="flex-1 min-w-0">
-                    <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
-                      {r.jemaat.namaLengkap}
-                    </Text>
-                    <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-                      {r.requestedRole?.nama ?? t('ministry.requested_role_none')}
-                      {r.jemaat.cabang ? ` · ${r.jemaat.cabang.nama}` : ''}
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center gap-1">
-                    <Text className="text-[11px] font-semibold text-amber-700">
-                      {t('ministry.requests_tap_hint')}
-                    </Text>
-                    <ChevronRight size={14} color={nc('#B45309')} />
-                  </View>
-                </Pressable>
-              ))}
-            </View>
+            <Button
+              onPress={handleJoinPress}
+              disabled={joinMutation.isPending}
+              loading={joinMutation.isPending}
+              label={t('ministry.join_cta')}
+              variant="primary"
+              fullWidth
+            />
+          </View>
+        ) : null}
+        {!ministry.myMembership && !ministry.isOpen ? (
+          <View className="bg-neutral-100 rounded-2xl p-3 mb-3">
+            <Text className="text-xs text-neutral-600 leading-relaxed text-center">{t('ministry.closed_notice')}</Text>
           </View>
         ) : null}
 
-        {/* Jadwal 4 Minggu Ke Depan — per docs/backend-request-ministry-schedule-roster.md.
-            BE endpoint belum di-deploy; scheduleQuery gracefully resolve ke []
-            kalau 404, jadi section ini hide entirely (silent) sampai BE ready. */}
-        {schedules.length > 0 ? (
-          <View className="mb-4">
-            <View className="flex-row items-center gap-2 mb-2">
-              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                {t('ministry.schedule_title')}
+        {/* Tab */}
+        <View className="flex-row bg-neutral-100 rounded-xl p-1 mb-3">
+          {(['ANGGOTA', 'JADWAL', 'TENTANG'] as const).map((k) => (
+            <Pressable key={k} onPress={() => setTab(k)} className={`flex-1 py-2 rounded-lg items-center ${tab === k ? 'bg-card' : ''}`}>
+              <Text className={`text-xs font-bold ${tab === k ? 'text-brand-700' : 'text-neutral-500'}`}>
+                {k === 'ANGGOTA' ? t('ministry.tab_anggota') : k === 'JADWAL' ? t('ministry.tab_jadwal') : t('ministry.tab_tentang')}
               </Text>
-              <Text className="text-[11px] text-neutral-400">
-                · {t('ministry.schedule_upcoming')}
-              </Text>
-            </View>
+            </Pressable>
+          ))}
+        </View>
+
+        {tab === 'ANGGOTA' ? (
+          <>
+            {/* Koordinator: permintaan bergabung yang menunggu */}
+            {canManage && joinRequests.length > 0 ? (
+              <View className="mb-4">
+                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+                  {t('ministry.requests_section', { count: joinRequests.length })}
+                </Text>
+                <View className="bg-card rounded-2xl border border-amber-200">
+                  {joinRequests.map((r, idx) => (
+                    <Pressable
+                      key={r.id}
+                      onPress={() => setReviewing(r)}
+                      className={`p-3 flex-row items-center gap-3 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+                    >
+                      <Avatar name={r.jemaat.namaLengkap} fotoUrl={r.jemaat.fotoUrl ?? undefined} size={40} />
+                      <View className="flex-1 min-w-0">
+                        <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+                          {r.jemaat.namaLengkap}
+                        </Text>
+                        <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                          {r.requestedRole?.nama ?? t('ministry.requested_role_none')}
+                          {r.jemaat.cabang ? ` · ${r.jemaat.cabang.nama}` : ''}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center gap-1">
+                        <Text className="text-[11px] font-semibold text-amber-700">{t('ministry.requests_tap_hint')}</Text>
+                        <ChevronRight size={14} color={nc('#B45309')} />
+                      </View>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            ) : null}
+
+            {cabangOptions.length > 0 ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3 -mx-1" contentContainerStyle={{ paddingHorizontal: 4, gap: 6 }}>
+                {[{ id: 'ALL', nama: t('ministry.cabang_all'), count: ministry.members.length }, ...cabangOptions].map((c) => {
+                  const on = activeCabang === c.id;
+                  return (
+                    <Pressable
+                      key={c.id}
+                      onPress={() => setCabangPick(c.id)}
+                      className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+                    >
+                      <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>
+                        {c.nama} ({c.count})
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            ) : null}
+
+            {groupedMembers.length === 0 ? (
+              <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
+                <Text className="text-sm text-neutral-500 text-center">
+                  {ministry.members.length > 0 ? t('ministry.members_empty_cabang') : t('ministry.members_empty')}
+                </Text>
+              </View>
+            ) : (
+              <View className="gap-3">
+                {groupedMembers.map((group, gi) => (
+                  <View key={group.posisi}>
+                    <View className="flex-row items-center gap-2 mb-1.5">
+                      {gi === 0 ? <Crown size={12} color="#D97706" /> : null}
+                      <Text className="text-[11px] font-bold uppercase tracking-wider" style={{ color: w.fg }}>
+                        {group.posisi}
+                      </Text>
+                      <View className="px-1.5 py-0.5 rounded" style={{ backgroundColor: w.bg }}>
+                        <Text className="text-[10px] font-semibold" style={{ color: w.fg }}>
+                          {group.members.length}
+                        </Text>
+                      </View>
+                      <View className="flex-1 h-px bg-neutral-200" />
+                    </View>
+                    <View className="bg-card rounded-2xl border border-neutral-100">
+                      {group.members.map((m, idx) => {
+                        const isCoord = coordIdsFor(m.jemaat.cabang?.id ?? null).has(m.jemaat.id);
+                        return (
+                          <Pressable
+                            key={m.id}
+                            onPress={() => router.push(`/jemaat/${m.jemaat.id}` as never)}
+                            className={`p-3 flex-row items-center gap-3 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+                          >
+                            <Avatar name={m.jemaat.namaLengkap} fotoUrl={m.jemaat.fotoUrl ?? undefined} size={40} />
+                            <View className="flex-1 min-w-0">
+                              <View className="flex-row items-center gap-1.5">
+                                <Text className="text-sm font-semibold text-neutral-900 flex-shrink" numberOfLines={1}>
+                                  {m.jemaat.namaLengkap}
+                                </Text>
+                                {isCoord ? (
+                                  <View className="bg-emerald-50 px-1.5 py-0.5 rounded flex-row items-center gap-0.5">
+                                    <ShieldCheck size={9} color="#047857" />
+                                    <Text className="text-[9px] font-bold text-emerald-700">{t('ministry.koordinator_badge')}</Text>
+                                  </View>
+                                ) : null}
+                              </View>
+                              {m.jemaat.cabang ? <Text className="text-xs text-neutral-500 mt-0.5">{m.jemaat.cabang.nama}</Text> : null}
+                            </View>
+                            {m.jemaat.noHp ? (
+                              <Pressable
+                                onPress={(e) => {
+                                  e.stopPropagation();
+                                  openWhatsApp(m.jemaat.noHp!, ministry.nama, m.jemaat.namaLengkap);
+                                }}
+                                className="w-9 h-9 rounded-full bg-green-50 items-center justify-center"
+                                accessibilityLabel={t('ministry.member_whatsapp')}
+                              >
+                                <MessageCircle size={14} color="#16A34A" />
+                              </Pressable>
+                            ) : null}
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </>
+        ) : null}
+
+        {tab === 'JADWAL' ? (
+          schedules.length > 0 ? (
             <View className="gap-3">
               {schedules.map((s) => (
-                <View
-                  key={s.id}
-                  className="bg-card rounded-2xl border border-neutral-100 overflow-hidden"
-                >
+                <View key={s.id} className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
                   <View className="p-3.5 border-b border-neutral-100">
-                    <Text className="text-sm font-semibold text-neutral-900">
-                      {formatDateWithDay(s.tanggal, i18n.language)}
-                    </Text>
+                    <Text className="text-sm font-semibold text-neutral-900">{formatDateWithDay(s.tanggal, i18n.language)}</Text>
                     <View className="flex-row items-center gap-3 mt-1.5">
                       <View className="flex-row items-center gap-1">
                         <Clock size={12} color={nc('#737373')} />
@@ -491,49 +576,20 @@ export default function MinistryDetailScreen() {
                         </Text>
                       </View>
                     </View>
-                    <View className="flex-row items-center justify-between mt-1">
-                      <Text className="text-xs text-brand-600 font-medium flex-1" numberOfLines={1}>
-                        {s.ibadahNama}
-                      </Text>
-                      <Text className="text-[10px] text-neutral-400 ml-2">
-                        {t('ministry.schedule_assignments', { count: s.assignments.length })}
-                      </Text>
-                    </View>
-                    {s.catatan ? (
-                      <Text className="text-xs text-neutral-500 mt-1.5 italic" numberOfLines={2}>
-                        {s.catatan}
-                      </Text>
-                    ) : null}
+                    <Text className="text-xs text-brand-600 font-medium mt-1" numberOfLines={1}>
+                      {s.ibadahNama} · {t('ministry.schedule_assignments', { count: s.assignments.length })}
+                    </Text>
                   </View>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ padding: 12, gap: 12 }}
-                  >
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 12, gap: 12 }}>
                     {s.assignments.map((a) => {
                       const isMe = !!currentUser && a.jemaatId === currentUser.jemaatId;
                       return (
                         <View key={a.id} className="items-center" style={{ width: 68 }}>
-                          <Avatar
-                            name={a.jemaatNama}
-                            fotoUrl={a.jemaatFotoUrl ?? undefined}
-                            size={44}
-                            className={isMe ? 'bg-brand-500' : undefined}
-                          />
-                          <Text
-                            className={`text-[11px] mt-1 text-center ${
-                              isMe ? 'font-bold text-brand-600' : 'font-medium text-neutral-700'
-                            }`}
-                            numberOfLines={1}
-                          >
+                          <Avatar name={a.jemaatNama} fotoUrl={a.jemaatFotoUrl ?? undefined} size={44} className={isMe ? 'bg-brand-500' : undefined} />
+                          <Text className={`text-[11px] mt-1 text-center ${isMe ? 'font-bold text-brand-600' : 'font-medium text-neutral-700'}`} numberOfLines={1}>
                             {a.jemaatNama}
                           </Text>
-                          <Text
-                            className={`text-[10px] text-center ${
-                              isMe ? 'font-semibold text-brand-500' : 'text-neutral-400'
-                            }`}
-                            numberOfLines={1}
-                          >
+                          <Text className={`text-[10px] text-center ${isMe ? 'font-semibold text-brand-500' : 'text-neutral-400'}`} numberOfLines={1}>
                             {a.posisi}
                           </Text>
                         </View>
@@ -543,136 +599,79 @@ export default function MinistryDetailScreen() {
                 </View>
               ))}
             </View>
-          </View>
+          ) : (
+            <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
+              <CalendarDays size={24} color={nc('#A3A3A3')} />
+              <Text className="text-sm text-neutral-500 text-center mt-2">{t('ministry.jadwal_tab_empty')}</Text>
+              {ministry.myMembership ? (
+                <Pressable onPress={() => router.push('/profile/my-service' as never)} className="mt-3 px-3 py-1.5 rounded-full border border-brand-200 bg-brand-50">
+                  <Text className="text-xs font-semibold text-brand-700">{t('ministry.jadwal_tab_mine')}</Text>
+                </Pressable>
+              ) : null}
+              {canManage ? (
+                <Pressable onPress={() => router.push(`/ministry/${id}/jadwal` as never)} className="mt-2 px-3 py-1.5 rounded-full border border-brand-200">
+                  <Text className="text-xs font-semibold text-brand-700">{t('ministry.jadwal_btn')}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          )
         ) : null}
 
-        {/* Members list — grouped by posisi (role pelayanan) */}
-        <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-          {t('ministry.members_section', { count: visibleMembers.length })}
-        </Text>
-        {cabangOptions.length > 0 ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3 -mx-1" contentContainerStyle={{ paddingHorizontal: 4, gap: 6 }}>
-            {[{ id: 'ALL', nama: t('ministry.cabang_all'), count: ministry.members.length }, ...cabangOptions].map((c) => {
-              const on = activeCabang === c.id;
-              return (
-                <Pressable
-                  key={c.id}
-                  onPress={() => setCabangPick(c.id)}
-                  className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
-                >
-                  <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>
-                    {c.nama} ({c.count})
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        ) : null}
-        {groupedMembers.length === 0 ? (
-          <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
-            <Text className="text-sm text-neutral-500 text-center">
-              {ministry.members.length > 0 ? t('ministry.members_empty_cabang') : t('ministry.members_empty')}
-            </Text>
-          </View>
-        ) : (
+        {tab === 'TENTANG' ? (
           <View className="gap-3">
-            {groupedMembers.map((group) => (
-              <View key={group.posisi}>
-                {/* Group header */}
-                <View className="flex-row items-center gap-2 mb-1.5">
-                  <Text className="text-[11px] font-bold text-brand-600 uppercase tracking-wider">
-                    {group.posisi}
-                  </Text>
-                  <View className="bg-brand-50 px-1.5 py-0.5 rounded">
-                    <Text className="text-[10px] font-semibold text-brand-700">
-                      {group.members.length}
-                    </Text>
-                  </View>
-                  <View className="flex-1 h-px bg-neutral-200" />
-                </View>
-                <View className="bg-card rounded-2xl border border-neutral-100">
-                  {group.members.map((m, idx) => {
-                    const isLeader = ministry.leader?.jemaat.id === m.jemaat.id;
-                    return (
-                      <Pressable
-                        key={m.id}
-                        onPress={() => router.push(`/jemaat/${m.jemaat.id}` as never)}
-                        className={`p-3 flex-row items-center gap-3 ${
-                          idx > 0 ? 'border-t border-neutral-100' : ''
-                        }`}
-                      >
-                        <Avatar
-                          name={m.jemaat.namaLengkap}
-                          fotoUrl={m.jemaat.fotoUrl ?? undefined}
-                          size={40}
-                        />
-                        <View className="flex-1 min-w-0">
-                          <View className="flex-row items-center gap-2">
-                            <Text
-                              className="text-sm font-semibold text-neutral-900 flex-1"
-                              numberOfLines={1}
-                            >
-                              {m.jemaat.namaLengkap}
-                            </Text>
-                            {isLeader ? (
-                              <View className="bg-brand-100 px-1.5 py-0.5 rounded">
-                                <Text className="text-[9px] font-bold text-brand-700">
-                                  {t('ministry.leader_badge')}
-                                </Text>
-                              </View>
-                            ) : null}
-                          </View>
-                          {m.jemaat.cabang ? (
-                            <Text className="text-xs text-neutral-500 mt-0.5">
-                              {m.jemaat.cabang.nama}
-                            </Text>
-                          ) : null}
-                        </View>
-                        {/* WhatsApp button — kalau ada noHp dari BE */}
-                        {m.jemaat.noHp ? (
-                          <Pressable
-                            onPress={(e) => {
-                              e.stopPropagation();
-                              openWhatsApp(m.jemaat.noHp!, ministry.nama, m.jemaat.namaLengkap);
-                            }}
-                            className="w-9 h-9 rounded-full bg-green-50 items-center justify-center"
-                            accessibilityLabel={t('ministry.member_whatsapp')}
-                          >
-                            <MessageCircle size={14} color="#16A34A" />
-                          </Pressable>
-                        ) : null}
-                      </Pressable>
-                    );
-                  })}
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100">
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('ministry.about_section')}</Text>
+              <Text className="text-sm text-neutral-700 leading-relaxed">{ministry.deskripsi || t('ministry.about_empty')}</Text>
+            </View>
+            {ministry.roles?.length ? (
+              <View className="bg-card rounded-2xl p-4 border border-neutral-100">
+                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('ministry.roles_section')}</Text>
+                <View className="flex-row flex-wrap gap-1.5">
+                  {[...ministry.roles].sort((a, b) => b.level - a.level).map((r) => (
+                    <View key={r.id} className="px-2.5 py-1 rounded-full" style={{ backgroundColor: w.bg }}>
+                      <Text className="text-[11px] font-semibold" style={{ color: w.fg }}>
+                        {r.nama}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
               </View>
-            ))}
-          </View>
-        )}
-
-        {/* Join button — Phase 2 (POST /admin/ministry/:id/join live 2026-08-03) */}
-        {!ministry.myMembership && !isPendingRequest && ministry.isOpen ? (
-          <View className="mt-6">
-            <Button
-              onPress={handleJoinPress}
-              disabled={joinMutation.isPending}
-              loading={joinMutation.isPending}
-              label={t('ministry.join_cta')}
-              variant="primary"
-              fullWidth
-            />
-            <Text className="text-[11px] text-neutral-500 text-center mt-2 leading-relaxed">
-              {approvalEnabled ? t('ministry.join_notice_approval') : t('ministry.join_notice')}
-            </Text>
-          </View>
-        ) : null}
-
-        {/* Closed ministry notice */}
-        {!ministry.myMembership && !ministry.isOpen ? (
-          <View className="bg-neutral-100 rounded-2xl p-3 mt-4">
-            <Text className="text-xs text-neutral-600 leading-relaxed text-center">
-              {t('ministry.closed_notice')}
-            </Text>
+            ) : null}
+            {coordinators.length ? (
+              <View className="bg-card rounded-2xl p-4 border border-neutral-100">
+                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('ministry.koordinator_section')}</Text>
+                {coordinators.map((c) => (
+                  <Pressable key={c.jemaat.id} onPress={() => router.push(`/jemaat/${c.jemaat.id}` as never)} className="flex-row items-center gap-3 py-1.5">
+                    <Avatar name={c.jemaat.namaLengkap} fotoUrl={c.jemaat.fotoUrl ?? undefined} size={32} />
+                    <View className="flex-1 min-w-0">
+                      <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+                        {c.jemaat.namaLengkap}
+                      </Text>
+                      <Text className="text-[11px] text-neutral-500" numberOfLines={1}>
+                        {c.cabangIds.map((cid) => cabangNama.get(cid) ?? '').filter(Boolean).join(', ') || t('ministry.koordinator_badge')}
+                      </Text>
+                    </View>
+                    {c.jemaat.noHp ? (
+                      <Pressable
+                        onPress={() => openWhatsApp(c.jemaat.noHp!, ministry.nama, c.jemaat.namaLengkap)}
+                        className="w-9 h-9 rounded-full bg-green-50 items-center justify-center"
+                      >
+                        <MessageCircle size={14} color="#16A34A" />
+                      </Pressable>
+                    ) : null}
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
+            {ministry.myMembership ? (
+              <View className="rounded-2xl p-4 flex-row items-center gap-3" style={{ backgroundColor: w.bg }}>
+                <CheckCircle2 size={20} color={w.fg} />
+                <Text className="text-xs flex-1" style={{ color: w.fg }}>
+                  {ministry.myMembership.posisi || '—'} · {t('ministry.since_label')}{' '}
+                  {parseLocalDate(ministry.myMembership.sinceDate).toLocaleDateString('id-ID')}
+                </Text>
+              </View>
+            ) : null}
           </View>
         ) : null}
       </ScrollView>
@@ -1113,5 +1112,24 @@ function ReviewJoinRequestModal({
         </SafeAreaView>
       </View>
     </Modal>
+  );
+}
+
+/** Tombol aksi cepat di bawah statistik. */
+function QuickAction({ icon, bg, label, badge, onPress }: { icon: React.ReactNode; bg: string; label: string; badge?: number; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} className="flex-1 bg-card rounded-2xl border border-neutral-100 py-3 items-center">
+      <View style={{ backgroundColor: bg }} className="w-9 h-9 rounded-xl items-center justify-center">
+        {icon}
+      </View>
+      <Text className="text-[11px] font-semibold text-neutral-800 mt-1.5 text-center" numberOfLines={1}>
+        {label}
+      </Text>
+      {badge ? (
+        <View className="absolute top-2 right-3 bg-red-500 rounded-full px-1.5">
+          <Text className="text-[10px] font-bold text-white">{badge > 99 ? '99+' : badge}</Text>
+        </View>
+      ) : null}
+    </Pressable>
   );
 }

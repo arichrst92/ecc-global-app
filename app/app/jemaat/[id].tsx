@@ -33,6 +33,7 @@ import {
   Users as UsersIcon,
 } from 'lucide-react-native';
 
+import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Avatar } from '@/components/ui/Avatar';
 import { useMyFamily } from '@/hooks/useFamily';
 import { getJemaatPublicProfile } from '@/api/jemaat';
@@ -447,8 +448,8 @@ function FullProfile({
             {profile.ministries.map((m) => (
               <Row
                 key={m.id}
-                icon={<HeartHandshake size={16} color="#DB2777" />}
-                bg="bg-pink-50"
+                icon={<MinistryIcon ikon={m.ikon} warna={m.warna} size={28} />}
+                bg="bg-transparent"
                 label={m.posisi ?? ''}
                 value={m.nama}
                 strong

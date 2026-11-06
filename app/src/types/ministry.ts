@@ -24,6 +24,14 @@ export type MinistryListItem = {
   id: string;
   nama: string;
   deskripsi: string | null;
+  /** 2.4.6 — ikon & warna aksen (dipilih admin di Portal). */
+  ikon?: string | null;
+  warna?: string | null;
+  /** Peran saya di ministry ini (null = bukan anggota). */
+  myPosisi?: string | null;
+  /** Hingga 4 anggota (foto) untuk kartu. */
+  avatars?: { id: string; namaLengkap: string; fotoUrl: string | null }[];
+  pendingRequestCount?: number;
   memberCount: number;
   isOpen: boolean; // saat ini = isActive flag
   leader: MinistryLeader | null;
@@ -49,10 +57,21 @@ export type MinistryMember = {
 };
 
 /** Detail dari GET /admin/ministry/:id */
+export type MinistryCoordinator = {
+  jemaat: { id: string; namaLengkap: string; fotoUrl: string | null; noHp: string | null };
+  /** Cabang tempat ia punya otoritas approval & jadwal. */
+  cabangIds: string[];
+};
+
 export type MinistryDetail = {
   id: string;
   nama: string;
   deskripsi: string | null;
+  ikon?: string | null;
+  warna?: string | null;
+  /** 2.4.6 — koordinator (pemegang otoritas) per cabang. */
+  coordinators?: MinistryCoordinator[];
+  approvalCabangIds?: string[] | null;
   isOpen: boolean;
   memberCount: number;
   roles: MinistryRole[];

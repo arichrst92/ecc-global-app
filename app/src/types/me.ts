@@ -40,6 +40,9 @@ export type MeProfile = {
     pelayananId: string;
     nama: string;
     deskripsi?: string | null;
+    /** 2.4.6 — ikon & warna pelayanan. */
+    ikon?: string | null;
+    warna?: string | null;
     posisi?: string | null;
     posisiLevel?: number | null;
     tanggalMulai?: string | null;

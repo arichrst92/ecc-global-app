@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { BookOpen, CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake, Ticket } from 'lucide-react-native';
 
+import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { BranchChip } from '@/components/branch/BranchChip';
@@ -587,6 +588,8 @@ function MyScheduleRow({
         })} · ${item.e.judul}`;
   const posisi = item.kind === 'ibadah' ? item.a.posisi : item.e.posisi;
   const ministry = item.kind === 'ibadah' ? item.a.ministryNama : item.e.ministryNama;
+  const mIkon = item.kind === 'ibadah' ? item.a.ministryIkon : item.e.ministryIkon;
+  const mWarna = item.kind === 'ibadah' ? item.a.ministryWarna : item.e.ministryWarna;
 
   return (
     <Pressable
@@ -595,9 +598,7 @@ function MyScheduleRow({
         isFirst ? '' : 'border-t border-neutral-100'
       }`}
     >
-      <View className={`w-10 h-10 rounded-xl items-center justify-center ${isEvent ? 'bg-violet-50' : 'bg-brand-50'}`}>
-        {isEvent ? <Ticket size={18} color="#7C3AED" /> : <HeartHandshake size={18} color="#EA580C" />}
-      </View>
+      <MinistryIcon ikon={mIkon} warna={mWarna} size={40} />
       <View className="flex-1 min-w-0">
         <Text className="text-xs text-neutral-500" numberOfLines={2}>
           {meta}

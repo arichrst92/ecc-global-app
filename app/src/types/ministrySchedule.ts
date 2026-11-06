@@ -47,6 +47,9 @@ export type MyMinistryAssignment = {
   timezone?: string | null;
   ministryId: string;
   ministryNama: string;
+  /** 2.4.6 — ikon & warna pelayanan. */
+  ministryIkon?: string | null;
+  ministryWarna?: string | null;
   posisi: string;
   posisiLevel: number;
   notes: string | null;
@@ -73,6 +76,9 @@ export type MyEventDuty = {
   cabang: { id: string; nama: string; timezone?: string | null } | null;
   ministryId: string;
   ministryNama: string;
+  /** 2.4.6 — ikon & warna pelayanan. */
+  ministryIkon?: string | null;
+  ministryWarna?: string | null;
   posisi: string;
   posisiLevel: number;
   canScanAttendance: boolean;

@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, CalendarDays, Church, Clock, HeartHandshake, MapPin, ScanLine, StickyNote, Ticket, Users } from 'lucide-react-native';
 
+import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { getMyServiceSchedule } from '@/api/ministry';
 import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
@@ -140,15 +141,13 @@ export default function MyServiceScreen() {
   );
 }
 
-function RoleBadge({ posisi, ministry }: { posisi: string; ministry: string }) {
+function RoleBadge({ posisi, ministry, ikon, warna }: { posisi: string; ministry: string; ikon?: string | null; warna?: string | null }) {
   return (
     <View className="flex-row flex-wrap items-center gap-1.5 mt-2">
       <View {...gx('bg-brand-500 px-2.5 py-1 rounded-full')}>
         <Text className="text-[11px] font-bold text-white">{posisi}</Text>
       </View>
-      <View className="bg-brand-50 px-2.5 py-1 rounded-full">
-        <Text className="text-[11px] font-semibold text-brand-700">{ministry}</Text>
-      </View>
+      <MinistryChip nama={ministry} ikon={ikon} warna={warna} />
     </View>
   );
 }
@@ -178,7 +177,7 @@ function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; o
           <Text className="text-sm font-bold text-neutral-900">{a.ibadahNama}</Text>
         </View>
       </View>
-      <RoleBadge posisi={a.posisi} ministry={a.ministryNama} />
+      <RoleBadge posisi={a.posisi} ministry={a.ministryNama} ikon={a.ministryIkon} warna={a.ministryWarna} />
       {a.ibadahJamMulai ? (
         <Row
           icon={<Clock size={13} color={nc('#737373')} />}
@@ -211,7 +210,7 @@ function EventDuty({ e, onPress }: { e: MyEventDuty; onPress: () => void }) {
           <Text className="text-sm font-bold text-neutral-900">{e.judul}</Text>
         </View>
       </View>
-      <RoleBadge posisi={e.posisi} ministry={e.ministryNama} />
+      <RoleBadge posisi={e.posisi} ministry={e.ministryNama} ikon={e.ministryIkon} warna={e.ministryWarna} />
       {e.jamMulai ? (
         <Row icon={<Clock size={13} color={nc('#737373')} />} text={zoneTimeText(e.jamMulai, e.jamSelesai, tz, i18nInst.language)} />
       ) : null}

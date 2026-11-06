@@ -193,7 +193,7 @@ export type JadwalEvent = {
   petugas: JadwalPetugas[];
 };
 export type MinistryJadwal = {
-  pelayanan: { id: string; nama: string; roles: JadwalRole[] };
+  pelayanan: { id: string; nama: string; ikon?: string | null; warna?: string | null; roles: JadwalRole[] };
   cabang: { id: string; nama: string }[];
   cabangId: string | null;
   ibadah: JadwalIbadah[];

@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CalendarDays, ChevronRight, Plus, RotateCcw, Search, UserCheck, Users, X } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
@@ -68,6 +69,11 @@ export default function MinistryJadwalScreen() {
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
+          {d ? (
+            <View className="mr-2">
+              <MinistryIcon ikon={d.pelayanan.ikon} warna={d.pelayanan.warna} size={32} />
+            </View>
+          ) : null}
           <View className="flex-1">
             <Text className="text-base font-bold text-neutral-900">{t('ministry.jadwal_title')}</Text>
             <Text className="text-xs text-neutral-500" numberOfLines={1}>

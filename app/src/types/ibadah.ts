@@ -85,6 +85,8 @@ export type IbadahDetail = IbadahListItem & {
 export type IbadahPetugas = {
   id: string;
   pelayananNama: string; // mis. "Worship", "Multimedia"
+  pelayananIkon?: string | null;
+  pelayananWarna?: string | null;
   jemaat: {
     id: string;
     namaLengkap: string;

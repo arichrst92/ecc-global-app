@@ -13,6 +13,8 @@ export type JemaatPublicMinistry = {
   id: string;
   pelayananId: string;
   nama: string;
+  ikon?: string | null;
+  warna?: string | null;
   posisi?: string | null;
   posisiLevel?: number | null;
 };

@@ -20,6 +20,7 @@ import {
   Video,
 } from 'lucide-react-native';
 
+import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
@@ -341,10 +342,11 @@ export default function IbadahDetailScreen() {
                     >
                       <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl} size={32} />
                       <View className="flex-1">
-                        <Text className="text-xs text-neutral-500">
-                          {p.pelayananNama} · {p.role}
-                        </Text>
                         <Text className="text-sm font-medium text-neutral-900">{p.jemaat.namaLengkap}</Text>
+                        <View className="flex-row items-center gap-1.5 mt-0.5">
+                          <MinistryChip nama={p.pelayananNama} ikon={p.pelayananIkon} warna={p.pelayananWarna} />
+                          <Text className="text-xs text-neutral-500">{p.role}</Text>
+                        </View>
                       </View>
                     </Pressable>
                   ))}

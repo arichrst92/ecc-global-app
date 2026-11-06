@@ -40,6 +40,7 @@ import {
   CalendarClock,
   Settings,
 } from 'lucide-react-native';
+import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { useRouter } from 'expo-router';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -768,9 +769,7 @@ function MinistryCard() {
                 idx > 0 ? 'border-t border-neutral-100' : ''
               }`}
             >
-              <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
-                <HeartHandshake size={18} color="#DB2777" />
-              </View>
+              <MinistryIcon ikon={m.ikon} warna={m.warna} size={40} />
               <View className="flex-1 min-w-0">
                 <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
                   {m.nama}
