@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useMyChildren } from '@/hooks/useCKids';
+import { useAuthStore } from '@/stores/auth.store';
 import { isDark, nc } from '@/theme/ThemeRoot';
 
 export default function TabsLayout() {
@@ -18,7 +19,10 @@ export default function TabsLayout() {
   // registered ke router (accessible via deeplink) tapi hidden dari tab bar.
   // Per BE notice ckids-mobile-tab 2026-08-01.
   const { children: myChildren, isPending: childrenPending } = useMyChildren();
-  const showCKidsTab = !childrenPending && myChildren.length > 0;
+  // Mode tamu: tab CKids tidak pernah tampil (data keluarga bisa tersisa di cache
+  // dari sesi login sebelumnya).
+  const isGuest = useAuthStore((st) => st.isGuest);
+  const showCKidsTab = !isGuest && !childrenPending && myChildren.length > 0;
 
   return (
     <Tabs

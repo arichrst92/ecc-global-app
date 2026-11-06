@@ -4,6 +4,7 @@
  * (endpoint /admin/me/children-points + /admin/me/children-redeem-history live).
  */
 
+import { useAuthStore } from '@/stores/auth.store';
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -45,10 +46,12 @@ export const CKIDS_KEYS = {
  * only), filter tetap catch keduanya.
  */
 export function useMyChildren() {
+  const isGuest = useAuthStore((st) => st.isGuest);
   const query = useQuery({
     queryKey: CKIDS_KEYS.myChildren(),
     queryFn: listFamily,
     staleTime: 5 * 60_000,
+    enabled: !isGuest, // mode tamu tidak punya keluarga → jangan panggil API
   });
 
   const children = useMemo(
@@ -62,10 +65,13 @@ export function useMyChildren() {
     [query.data],
   );
 
+  // Query dimatikan untuk tamu → isPending TanStack tetap true; anggap selesai & kosong.
+  const isPending = isGuest ? false : query.isPending;
   return {
     ...query,
-    children,
-    isEmpty: !query.isPending && children.length === 0,
+    isPending,
+    children: isGuest ? [] : children,
+    isEmpty: isGuest || (!query.isPending && children.length === 0),
   };
 }
 
