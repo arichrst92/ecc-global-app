@@ -19,6 +19,15 @@ export type MinistryLeader = {
   role: MinistryRole;
 };
 
+/** Status pendaftaran untuk cabang saya (2.4.6). MENERIMA = default (tanpa badge). */
+export type MinistryPendaftaran = {
+  cabangId: string;
+  cabangNama?: string | null;
+  status: 'MENERIMA' | 'BUKA' | 'TUTUP';
+  catatan: string | null;
+  tutupOtomatis: string | null;
+};
+
 /** Item dari GET /admin/ministry (list) */
 export type MinistryListItem = {
   id: string;
@@ -32,6 +41,7 @@ export type MinistryListItem = {
   /** Hingga 4 anggota (foto) untuk kartu. */
   avatars?: { id: string; namaLengkap: string; fotoUrl: string | null }[];
   pendingRequestCount?: number;
+  pendaftaran?: MinistryPendaftaran | null;
   memberCount: number;
   isOpen: boolean; // saat ini = isActive flag
   leader: MinistryLeader | null;
@@ -71,6 +81,7 @@ export type MinistryDetail = {
   warna?: string | null;
   /** 2.4.6 — koordinator (pemegang otoritas) per cabang. */
   coordinators?: MinistryCoordinator[];
+  pendaftaran?: MinistryPendaftaran | null;
   approvalCabangIds?: string[] | null;
   isOpen: boolean;
   memberCount: number;

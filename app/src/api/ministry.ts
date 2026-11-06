@@ -222,3 +222,27 @@ export function saveIbadahJadwal(
 export function saveEventJadwal(id: string, eventId: string, petugas: PetugasInput[]) {
   return api.put<{ ok: true }>(`/admin/ministry/${id}/jadwal/event/${eventId}`, { petugas });
 }
+
+// ------------------------------------------------------------------ Pendaftaran (2.4.6)
+
+export type PendaftaranCabang = {
+  cabangId: string;
+  cabangNama: string;
+  status: 'MENERIMA' | 'BUKA' | 'TUTUP';
+  catatan: string | null;
+  tutupOtomatis: string | null;
+};
+
+/** GET /admin/ministry/:id/pendaftaran — cabang otoritas saya. */
+export function getMinistryPendaftaran(id: string) {
+  return api.get<PendaftaranCabang[]>(`/admin/ministry/${id}/pendaftaran`);
+}
+
+/** PUT /admin/ministry/:id/pendaftaran/:cabangId */
+export function saveMinistryPendaftaran(
+  id: string,
+  cabangId: string,
+  body: { isOpen: boolean; catatan?: string | null; tutupOtomatis?: string | null },
+) {
+  return api.put<{ ok: true }>(`/admin/ministry/${id}/pendaftaran/${cabangId}`, body);
+}

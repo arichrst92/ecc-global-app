@@ -23,6 +23,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   CalendarDays,
+  DoorOpen,
   CheckCircle2,
   ChevronRight,
   Circle,
@@ -52,6 +53,7 @@ import {
 import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { MinistryIcon, ministryWarna, taglineOf } from '@/components/ministry/MinistryIcon';
+import { PendaftaranSheet } from '@/components/ministry/PendaftaranSheet';
 import type { MinistryJoinRequest, MinistryMember, MinistryRole } from '@/types/ministry';
 import { ApiError } from '@/types/api';
 import { formatDateWithDay, parseLocalDate } from '@/utils/date';
@@ -109,6 +111,7 @@ export default function MinistryDetailScreen() {
   const [reviewing, setReviewing] = useState<MinistryJoinRequest | null>(null);
 
   const [tab, setTab] = useState<'ANGGOTA' | 'JADWAL' | 'TENTANG'>('ANGGOTA');
+  const [pendOpen, setPendOpen] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [motivasi, setMotivasi] = useState('');
@@ -133,6 +136,12 @@ export default function MinistryDetailScreen() {
         );
       },
       onError: (err) => {
+        if (err instanceof ApiError && /ditutup|closed/i.test(err.message ?? '')) {
+          // 2.4.6 — pendaftaran cabang ditutup
+          showToast(err.message, 'info');
+          query.refetch();
+          return;
+        }
         if (err instanceof ApiError) {
           // BE returns code 'CONFLICT' or explicit 'ALREADY_MEMBER' string in message
           const isAlreadyMember =
@@ -341,6 +350,14 @@ export default function MinistryDetailScreen() {
                 onPress={() => setTab('ANGGOTA')}
               />
             ) : null}
+            {canManage ? (
+              <QuickAction
+                icon={<DoorOpen size={18} color={w.fg} />}
+                bg={w.bg}
+                label={t('ministry.qa_pendaftaran')}
+                onPress={() => setPendOpen(true)}
+              />
+            ) : null}
             {coordForView ? (
               <QuickAction
                 icon={<MessageCircle size={18} color="#16A34A" />}
@@ -401,7 +418,17 @@ export default function MinistryDetailScreen() {
         {/* Ajakan bergabung (bukan anggota) */}
         {!ministry.myMembership && !isPendingRequest && ministry.isOpen ? (
           <View className="bg-card rounded-2xl border p-4 mb-3" style={{ borderColor: w.bg }}>
-            <Text className="text-sm font-bold text-neutral-900">{t('ministry.join_invite_title')}</Text>
+            <View className="flex-row items-center gap-2">
+              <Text className="text-sm font-bold text-neutral-900 flex-1">{t('ministry.join_invite_title')}</Text>
+              {ministry.pendaftaran?.status === 'BUKA' ? (
+                <View className="bg-emerald-100 px-2 py-0.5 rounded-full">
+                  <Text className="text-[10px] font-bold text-emerald-800">{t('ministry.pend_status_buka')}</Text>
+                </View>
+              ) : null}
+            </View>
+            {ministry.pendaftaran?.status === 'BUKA' && ministry.pendaftaran.catatan ? (
+              <Text className="text-xs text-neutral-800 mt-1.5">“{ministry.pendaftaran.catatan}”</Text>
+            ) : null}
             <Text className="text-xs text-neutral-500 mt-0.5 mb-3">
               {approvalEnabled ? t('ministry.join_notice_approval') : t('ministry.join_notice')}
             </Text>
@@ -417,7 +444,11 @@ export default function MinistryDetailScreen() {
         ) : null}
         {!ministry.myMembership && !ministry.isOpen ? (
           <View className="bg-neutral-100 rounded-2xl p-3 mb-3">
-            <Text className="text-xs text-neutral-600 leading-relaxed text-center">{t('ministry.closed_notice')}</Text>
+            <Text className="text-xs text-neutral-600 leading-relaxed text-center">
+              {ministry.pendaftaran?.status === 'TUTUP'
+                ? t('ministry.pend_closed_notice', { cabang: ministry.pendaftaran.cabangNama ?? '' })
+                : t('ministry.closed_notice')}
+            </Text>
           </View>
         ) : null}
 
@@ -692,6 +723,8 @@ export default function MinistryDetailScreen() {
         onConfirm={handleConfirmJoin}
         confirmLabel={approvalEnabled ? t('ministry.join_confirm_request') : undefined}
       />
+
+      {canManage ? <PendaftaranSheet ministryId={id} visible={pendOpen} onClose={() => setPendOpen(false)} /> : null}
 
       {/* Leader: popup tinjau permintaan + tetapkan peran */}
       {reviewing ? (

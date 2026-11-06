@@ -28,7 +28,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 
-type Filter = 'ALL' | 'MINE';
+type Filter = 'ALL' | 'MINE' | 'BUKA';
 
 export default function MinistryListScreen() {
   const insets = useSafeAreaInsets();
@@ -54,7 +54,9 @@ export default function MinistryListScreen() {
     pendingRequestCount: pendingById.get(m.pelayananId) ?? 0,
   }));
   const totalPelayan = all.reduce((n, m) => n + (m.memberCount ?? 0), 0);
-  const shown = filter === 'MINE' ? all.filter((m) => mineIds.has(m.id) || !!m.myPosisi) : all;
+  const buka = all.filter((m) => m.pendaftaran?.status === 'BUKA');
+  const shown =
+    filter === 'MINE' ? all.filter((m) => mineIds.has(m.id) || !!m.myPosisi) : filter === 'BUKA' ? buka : all;
 
   // Tugas terdekat (ibadah atau event) dari Jadwal Pelayanan Saya.
   const next = useMemo(() => {
@@ -169,7 +171,7 @@ export default function MinistryListScreen() {
           <Text className="flex-1 text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('ministry.explore_section')}</Text>
         </View>
         <View className="flex-row gap-1.5 mb-3">
-          {(['ALL', 'MINE'] as const).map((f) => (
+          {(['ALL', 'BUKA', 'MINE'] as const).map((f) => (
             <Pressable
               key={f}
               onPress={() => setFilter(f)}
@@ -178,6 +180,8 @@ export default function MinistryListScreen() {
               <Text className={`text-xs font-semibold ${filter === f ? 'text-white' : 'text-neutral-700'}`}>
                 {f === 'ALL'
                   ? t('ministry.filter_all', { count: all.length })
+                  : f === 'BUKA'
+                  ? t('ministry.filter_buka', { count: buka.length })
                   : t('ministry.filter_mine', { count: all.filter((m) => mineIds.has(m.id) || !!m.myPosisi).length })}
               </Text>
             </Pressable>
@@ -226,8 +230,12 @@ function MinistryTile({ ministry: m, onPress }: { ministry: MinistryListItem; on
       <View className="flex-row items-start justify-between">
         <MinistryIcon ikon={m.ikon} warna={m.warna} size={38} />
         {m.myPosisi ? (
-          <View className="bg-emerald-50 px-1.5 py-0.5 rounded-full">
-            <Text className="text-[9px] font-bold text-emerald-700">{t('ministry.badge_mine')}</Text>
+          <View className="bg-neutral-100 px-1.5 py-0.5 rounded-full">
+            <Text className="text-[9px] font-bold text-neutral-600">{t('ministry.badge_mine')}</Text>
+          </View>
+        ) : m.pendaftaran?.status === 'BUKA' ? (
+          <View className="bg-emerald-100 px-1.5 py-0.5 rounded-full">
+            <Text className="text-[9px] font-bold text-emerald-800">{t('ministry.pend_status_buka')}</Text>
           </View>
         ) : null}
       </View>
