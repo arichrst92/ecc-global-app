@@ -262,10 +262,16 @@ export default function MinistryDetailScreen() {
     (c) => (activeCabang === 'ALL' ? c.cabangIds.includes(viewingCabangId ?? '') : c.cabangIds.includes(activeCabang)) && c.jemaat.noHp,
   );
   const w = ministryWarna(ministry.warna);
+  const topLevel = Math.max(0, ...(ministry.roles ?? []).map((r) => r.level));
   const tagline = taglineOf(ministry.deskripsi);
 
   return (
     <View className="flex-1 bg-neutral-50">
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 32 }}
+        refreshControl={<PullRefreshControl onRefresh={() => query.refetch()} tintColor="#F97316" />}
+      >
       <View {...gx('bg-brand-500 rounded-b-3xl')}>
         <SafeAreaView edges={['top']}>
           <View className="px-4 py-2 flex-row items-center">
@@ -276,7 +282,7 @@ export default function MinistryDetailScreen() {
               {t('ministry.title')}
             </Text>
           </View>
-          <View className="flex-row items-center gap-3 px-5 pt-1 pb-12">
+          <View className="flex-row items-center gap-3 px-5 pt-1 pb-4">
             <MinistryIcon ikon={ministry.ikon} warna={ministry.warna} size={56} onHero />
             <View className="flex-1 min-w-0">
               <Text className="text-white text-xl font-bold" numberOfLines={2}>
@@ -298,28 +304,23 @@ export default function MinistryDetailScreen() {
             </View>
           </View>
         </SafeAreaView>
-      </View>
-
-      <ScrollView
-        className="flex-1"
-        style={{ marginTop: -28 }}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
-        refreshControl={<PullRefreshControl onRefresh={() => query.refetch()} tintColor="#F97316" />}
-      >
         {/* Statistik */}
-        <View className="bg-card rounded-2xl border border-neutral-100 flex-row py-3 mb-3">
+        <View className="mx-4 mb-4 bg-white/15 rounded-2xl flex-row py-2.5">
           {[
             { n: ministry.memberCount, l: t('ministry.stat_anggota') },
             { n: cabangOptions.length, l: t('ministry.stat_cabang') },
             { n: ministry.roles?.length ?? 0, l: t('ministry.stat_peran') },
           ].map((x, i) => (
-            <View key={x.l} className={`flex-1 items-center ${i ? 'border-l border-neutral-100' : ''}`}>
-              <Text className="text-lg font-bold text-neutral-900">{x.n}</Text>
-              <Text className="text-[11px] text-neutral-500">{x.l}</Text>
+            <View key={x.l} className={`flex-1 items-center ${i ? 'border-l border-white/25' : ''}`}>
+              <Text className="text-lg font-bold text-white">{x.n}</Text>
+              <Text className="text-[11px] text-white/80">{x.l}</Text>
             </View>
           ))}
         </View>
 
+      </View>
+
+        <View className="px-4 pt-4">
         {/* Aksi cepat */}
         {canManage || coordForView ? (
           <View className="flex-row gap-2 mb-3">
@@ -496,7 +497,7 @@ export default function MinistryDetailScreen() {
                 {groupedMembers.map((group, gi) => (
                   <View key={group.posisi}>
                     <View className="flex-row items-center gap-2 mb-1.5">
-                      {gi === 0 ? <Crown size={12} color="#D97706" /> : null}
+                      {gi === 0 && group.posisiLevel > 0 && group.posisiLevel >= topLevel ? <Crown size={12} color="#D97706" /> : null}
                       <Text className="text-[11px] font-bold uppercase tracking-wider" style={{ color: w.fg }}>
                         {group.posisi}
                       </Text>
@@ -674,6 +675,7 @@ export default function MinistryDetailScreen() {
             ) : null}
           </View>
         ) : null}
+        </View>
       </ScrollView>
 
       {/* Join role picker modal — slide-up sheet, pattern konsisten dengan
