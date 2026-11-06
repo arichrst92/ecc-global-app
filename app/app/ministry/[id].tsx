@@ -85,7 +85,9 @@ export default function MinistryDetailScreen() {
     }
     return [...m.values()].sort((a, b) => a.nama.localeCompare(b.nama));
   }, [ministry]);
-  const activeCabang = cabangPick ?? viewingCabangId ?? 'ALL';
+  // Cabang yang dibuka tidak punya anggota di pelayanan ini → tampilkan semua (bukan daftar kosong tanpa chip aktif).
+  const activeCabang =
+    cabangPick ?? (viewingCabangId && cabangOptions.some((c) => c.id === viewingCabangId) ? viewingCabangId : 'ALL');
   const cabangNama = useMemo(() => new Map(cabangOptions.map((c) => [c.id, c.nama])), [cabangOptions]);
   const visibleMembers = useMemo(
     () => (ministry?.members ?? []).filter((m) => activeCabang === 'ALL' || m.jemaat.cabang?.id === activeCabang),
@@ -210,7 +212,7 @@ export default function MinistryDetailScreen() {
     }
     // Sort dalam tiap group: by sinceDate ASC
     for (const g of groups.values()) {
-      g.members.sort((a, b) => a.sinceDate.localeCompare(b.sinceDate));
+      g.members.sort((a, b) => (a.sinceDate ?? '').localeCompare(b.sinceDate ?? ''));
     }
     // Sort groups: posisiLevel DESC (senior dulu), tie-break alfabetik
     return Array.from(groups.entries())

@@ -63,14 +63,14 @@ export default function MinistryListScreen() {
     const d = scheduleQuery.data;
     if (!d) return null;
     const items = [
-      ...d.assignments.map((a) => ({
+      ...(d.assignments ?? []).map((a) => ({
         tanggal: String(a.tanggal).slice(0, 10),
-        jam: a.ibadahJamMulai,
+        jam: a.ibadahJamMulai ?? '',
         judul: a.ibadahNama,
         ministry: a.ministryNama,
         posisi: a.posisi,
       })),
-      ...d.events.map((e) => ({
+      ...(d.events ?? []).map((e) => ({
         tanggal: String(e.tanggalMulai).slice(0, 10),
         jam: e.jamMulai ?? '',
         judul: e.judul,

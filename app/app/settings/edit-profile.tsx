@@ -145,11 +145,17 @@ export default function EditProfileScreen() {
   const updateMutation = useMutation<{ namaLengkap: string; noHpAdded?: boolean }>({
     mutationFn: async () => {
       // Audit input 2026-11: cegah isian yang menyalahi fungsinya.
+      // Nilai lama yang tidak diubah tidak dicek ulang (data lama / hasil sync
+      // boleh belum memenuhi aturan baru — jangan blokir edit field lain).
+      const sama = (v: string, awal: string | null | undefined) => v.trim() === (awal ?? '').trim();
+      const dobSama = (dob ? toIsoDate(dob) : '') === (sourceJemaat?.tanggalLahir ?? '').slice(0, 10);
       const salah = pertamaGagal(
-        cekNama(namaLengkap),
-        cekTanggalLahir(dob),
-        cekTeks(alamat, { min: 3, label: t('signup.address') }),
-        isDependent || TANPA_KANTOR.includes(pekerjaan) ? null : cekHuruf(namaKantor, { label: t('edit_profile.office_label') }),
+        sama(namaLengkap, sourceJemaat?.namaLengkap) && namaLengkap.trim() ? null : cekNama(namaLengkap),
+        dobSama ? null : cekTanggalLahir(dob),
+        sama(alamat, sourceJemaat?.alamat) ? null : cekTeks(alamat, { min: 3, label: t('signup.address') }),
+        isDependent || TANPA_KANTOR.includes(pekerjaan) || sama(namaKantor, sourceJemaat?.namaKantor)
+          ? null
+          : cekHuruf(namaKantor, { label: t('edit_profile.office_label') }),
         isDependent ? null : pernikahan && pernikahan !== 'Single' ? cekTanggalNikah(tglNikah, dob, pernikahan) : null,
       );
       if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);

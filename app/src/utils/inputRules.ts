@@ -5,15 +5,28 @@
  */
 import i18n from '@/i18n';
 
-const HURUF = /\p{L}/gu;
-const HURUF_ANGKA = /[\p{L}\p{N}]/gu;
+// Regex Unicode property (\p{L}) dibuat saat runtime dgn cadangan rentang Latin,
+// supaya engine JS yang belum mendukungnya tidak crash saat modul dimuat.
+const L_FALLBACK = 'A-Za-z\\u00C0-\\u024F\\u1E00-\\u1EFF';
+function re(unicodeSrc: string, fallbackSrc: string, flags: string): RegExp {
+  try {
+    return new RegExp(unicodeSrc, flags + 'u');
+  } catch {
+    return new RegExp(fallbackSrc, flags);
+  }
+}
+const HURUF = re('\\p{L}', `[${L_FALLBACK}]`, 'g');
+const HURUF_ANGKA = re('[\\p{L}\\p{N}]', `[${L_FALLBACK}0-9]`, 'g');
+const NAMA_RE = re("^[\\p{L}\\p{M}][\\p{L}\\p{M} .,'’()\\-]*$", `^[${L_FALLBACK}][${L_FALLBACK} .,'’()\\-]*$`, '');
+const ULANG_RE = re('(\\p{L})\\1{3,}', `([${L_FALLBACK}])\\1{3,}`, 'i');
+export const HURUF_SATU = re('\\p{L}', `[${L_FALLBACK}]`, '');
 
 export const rapikan = (s: string) => s.trim().replace(/\s+/g, ' ');
 
 export function namaOrangValid(s: string): boolean {
-  if (!/^[\p{L}\p{M}][\p{L}\p{M} .,'’()\-]*$/u.test(s)) return false;
+  if (!NAMA_RE.test(s)) return false;
   if ((s.match(HURUF) ?? []).length < 2) return false;
-  if (/(\p{L})\1{3,}/iu.test(s.replace(/\s/g, ''))) return false;
+  if (ULANG_RE.test(s.replace(/\s/g, ''))) return false;
   return true;
 }
 

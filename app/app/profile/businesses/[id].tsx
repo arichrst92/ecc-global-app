@@ -61,7 +61,7 @@ import type { SocialLink, TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
-import { cekHuruf, cekTeks, cekUrl, pertamaGagal } from '@/utils/inputRules';
+import { HURUF_SATU, cekHuruf, cekTeks, cekUrl, pertamaGagal } from '@/utils/inputRules';
 
 export default function OwnerBusinessDetailScreen() {
   const { t } = useTranslation();
@@ -264,7 +264,7 @@ export default function OwnerBusinessDetailScreen() {
     const platform = newPlatform.trim();
     const rawUrl = newUrl.trim();
     if (!platform || !rawUrl) return;
-    if (!/\p{L}/u.test(platform) || cekUrl(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`)) {
+    if (!HURUF_SATU.test(platform) || cekUrl(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`)) {
       showToast(cekUrl(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`) ?? t('input_rules.huruf', { label: 'Platform' }), 'error');
       return;
     }
