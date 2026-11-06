@@ -15,6 +15,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { cekTeks } from '@/utils/inputRules';
 
 export default function NewFeedbackScreen() {
   const { t } = useTranslation();
@@ -27,13 +28,16 @@ export default function NewFeedbackScreen() {
   const [isi, setIsi] = useState('');
 
   const mut = useMutation({
-    mutationFn: () =>
-      sendFeedback({
+    mutationFn: async () => {
+      const salah = cekTeks(isi, { wajib: true, min: 10, minHurufAngka: 6, label: t('feedback.isi_label') });
+      if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
+      return sendFeedback({
         tipe,
         kategori,
         isi: isi.trim(),
         appInfo: `${Platform.OS} · v${(Constants.expoConfig?.version as string | undefined) ?? '-'}`,
-      }),
+      });
+    },
     onSuccess: (f) => {
       qc.invalidateQueries({ queryKey: ['feedback', 'mine'] });
       showToast(t('feedback.sent'), 'success');

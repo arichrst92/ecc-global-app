@@ -57,6 +57,7 @@ import { ApiError } from '@/types/api';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { nc, isDark } from '@/theme/ThemeRoot';
+import { cekNama, cekTanggalLahir, cekTeks } from '@/utils/inputRules';
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -620,6 +621,17 @@ function ProfileStep({
     const nextErrors: ProfileFieldErrors = {};
     if (!values.namaLengkap.trim()) {
       nextErrors.namaLengkap = t('auth.onboarding.error_name_required');
+    } else {
+      const n = cekNama(values.namaLengkap);
+      if (n) nextErrors.namaLengkap = n;
+    }
+    if (values.tanggalLahir) {
+      const d = cekTanggalLahir(new Date(`${values.tanggalLahir}T12:00:00`));
+      if (d) nextErrors.tanggalLahir = d;
+    }
+    {
+      const a = cekTeks(values.alamat, { min: 3, label: t('signup.address') });
+      if (a) nextErrors.alamat = a;
     }
     if (requiresGender && !values.jenisKelamin) {
       nextErrors.jenisKelamin = t('auth.onboarding.error_gender_required');

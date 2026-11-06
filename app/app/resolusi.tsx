@@ -41,6 +41,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 type Sheet = { mode: 'add' } | { mode: 'edit'; item: Resolusi } | null;
 
@@ -232,10 +233,13 @@ function ResolusiSheet({
   const refresh = () => qc.invalidateQueries({ queryKey: ['resolusi'] });
 
   const saveMut = useMutation({
-    mutationFn: () =>
-      editItem
+    mutationFn: async () => {
+      const salah = pertamaGagal(cekTeks(judul, { wajib: true, label: t('resolusi.judul_label') }), cekTeks(catatan, { label: t('resolusi.catatan_label') }));
+      if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
+      return editItem
         ? updateResolusi(editItem.id, { judul: judul.trim(), kategori, catatan: catatan.trim() || null, isDone })
-        : createResolusi({ tahun, judul: judul.trim(), kategori, catatan: catatan.trim() || null, isDone }),
+        : createResolusi({ tahun, judul: judul.trim(), kategori, catatan: catatan.trim() || null, isDone });
+    },
     onSuccess: () => {
       refresh();
       onClose();

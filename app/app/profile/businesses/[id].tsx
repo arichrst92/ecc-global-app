@@ -61,6 +61,7 @@ import type { SocialLink, TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { cekHuruf, cekTeks, cekUrl, pertamaGagal } from '@/utils/inputRules';
 
 export default function OwnerBusinessDetailScreen() {
   const { t } = useTranslation();
@@ -202,6 +203,18 @@ export default function OwnerBusinessDetailScreen() {
       showToast(t('my_business.nama_required'), 'error');
       return;
     }
+    const salah = pertamaGagal(
+      cekHuruf(nama, { label: t('my_business.nama_label') }),
+      cekTeks(deskripsi, { label: t('my_business.deskripsi_label') }),
+      cekHuruf(industri, { label: t('my_business.industri_label') }),
+      cekTeks(lokasi, { label: t('my_business.lokasi_label') }),
+      cekUrl(normalizeUrl(websiteUrl) ?? ''),
+      cekUrl(normalizeUrl(whatsappUrl) ?? ''),
+    );
+    if (salah) {
+      showToast(salah, 'error');
+      return;
+    }
     // Normalize URLs + filter empty social links sebelum send.
     // BE Zod validation reject URL tanpa scheme atau empty string di array.
     const normWebsite = normalizeUrl(websiteUrl);
@@ -251,6 +264,10 @@ export default function OwnerBusinessDetailScreen() {
     const platform = newPlatform.trim();
     const rawUrl = newUrl.trim();
     if (!platform || !rawUrl) return;
+    if (!/\p{L}/u.test(platform) || cekUrl(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`)) {
+      showToast(cekUrl(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`) ?? t('input_rules.huruf', { label: 'Platform' }), 'error');
+      return;
+    }
     if (socialLinks.length >= 10) {
       showToast(t('my_business.social_max'), 'error');
       return;

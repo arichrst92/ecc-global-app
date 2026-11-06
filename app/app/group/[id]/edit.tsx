@@ -32,6 +32,7 @@ import type { GroupJenis } from '@/types/group';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { cekHuruf, cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 const HARI_OPTIONS = [
   { value: '', label: '—' },
@@ -113,6 +114,15 @@ export default function EditGroupScreen() {
   function submit() {
     if (!nama.trim()) {
       Alert.alert(t('common.error'), t('group.error_nama_required'));
+      return;
+    }
+    const salah = pertamaGagal(
+      cekHuruf(nama, { label: t('group.field_nama') }),
+      cekTeks(deskripsi, { label: t('group.field_deskripsi') }),
+      cekTeks(alamat, { label: t('group.field_alamat') }),
+    );
+    if (salah) {
+      Alert.alert(t('common.error'), salah);
       return;
     }
     updateMutation.mutate(

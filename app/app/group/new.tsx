@@ -35,6 +35,7 @@ import type { GroupJenis } from '@/types/group';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { cekHuruf, cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 const JENIS_OPTIONS: GroupJenis[] = [
   'FAMILY',
@@ -105,6 +106,17 @@ export default function CreateGroupScreen() {
   function submit() {
     const nextErrors: FieldErrors = {};
     if (!nama.trim()) nextErrors.nama = t('group.error_nama_required');
+    else {
+      const n = cekHuruf(nama, { label: t('group.field_nama') });
+      if (n) nextErrors.nama = n;
+    }
+    {
+      const salah = pertamaGagal(cekTeks(deskripsi, { label: t('group.field_deskripsi') }), cekTeks(alamat, { label: t('group.field_alamat') }));
+      if (salah) {
+        Alert.alert(t('common.error'), salah);
+        return;
+      }
+    }
     if (!cabangId) nextErrors.cabangId = t('group.error_cabang_required');
     if (!jenis) nextErrors.jenis = t('group.error_jenis_required');
     if (Object.keys(nextErrors).length > 0) {

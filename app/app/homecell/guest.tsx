@@ -69,6 +69,7 @@ import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { TamuKategoriPicker, type TamuKategori } from '@/components/tamu/TamuKategoriPicker';
+import { cekNama, cekUsia, cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 export default function GuestHomecellScreen() {
   const insets = useSafeAreaInsets();
@@ -435,15 +436,18 @@ function JoinSheet({
   const phoneErr = noHp.trim() && !e164 ? invalidPhoneMessage(noHp, i18n.language === 'en' ? 'en' : 'id') : undefined;
 
   const mut = useMutation({
-    mutationFn: () =>
-      createGuestRequest(homecell!.id, {
+    mutationFn: async () => {
+      const salah = pertamaGagal(cekNama(nama), cekUsia(usia), cekTeks(pesan, { label: t('hcg.pesan_label') }));
+      if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
+      return createGuestRequest(homecell!.id, {
         nama: nama.trim(),
         noHp: e164!,
         jenisKelamin: jk ?? undefined,
         usia: usiaNum,
         pesan: pesan.trim() || undefined,
         kategori: kategoriTamu,
-      }),
+      });
+    },
     onSuccess: (d) => {
       setPesan('');
       setErr(null);

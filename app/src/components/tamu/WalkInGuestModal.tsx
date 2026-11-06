@@ -18,6 +18,7 @@ import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { cekNama, cekNominal, pertamaGagal } from '@/utils/inputRules';
 
 type Target =
   | { kind: 'event'; eventId: string; tipeBayar: 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS'; nominal?: string | number | null }
@@ -46,8 +47,13 @@ export function WalkInGuestModal({
   const paid = target.kind === 'event' && target.tipeBayar !== 'GRATIS';
 
   const mut = useMutation({
-    mutationFn: (force: boolean) =>
-      target.kind === 'event'
+    mutationFn: async (force: boolean) => {
+      const salah = pertamaGagal(
+        cekNama(nama),
+        target.kind === 'event' && target.tipeBayar === 'NOMINAL_BEBAS' && bayar !== 'GRATIS' ? cekNominal(nominal, 1) : null,
+      );
+      if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
+      return target.kind === 'event'
         ? walkInGuestEvent(target.eventId, {
             nama: nama.trim(),
             noHp: e164!,
@@ -56,7 +62,8 @@ export function WalkInGuestModal({
             ...(target.tipeBayar === 'NOMINAL_BEBAS' && bayar !== 'GRATIS' ? { nominal: Number(nominal) || 0 } : {}),
             ...(force ? { force: true } : {}),
           })
-        : walkInGuestIbadah({ ibadahId: target.ibadahId, tanggalIbadah: target.tanggalIbadah, nama: nama.trim(), noHp: e164!, kategori }),
+        : walkInGuestIbadah({ ibadahId: target.ibadahId, tanggalIbadah: target.tanggalIbadah, nama: nama.trim(), noHp: e164!, kategori });
+    },
     onSuccess: (r) => {
       showToast(
         r.isMember ? t('tamu.walkin_member', { name: r.jemaat.namaLengkap }) : t('tamu.walkin_ok', { name: r.jemaat.namaLengkap }),

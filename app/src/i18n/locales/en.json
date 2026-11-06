@@ -1429,7 +1429,8 @@
       "Janda": "Widowed",
       "Duda": "Widowed",
       "Cerai": "Divorced"
-    }
+    },
+    "office_label": "Office / school / business name"
   },
   "group": {
     "browse_title": "Groups",
@@ -1993,7 +1994,8 @@
     "kategori_self_VISITOR": "Just visiting",
     "kategori_self_BELUM_hint": "That's okay — the homecell leader will help you.",
     "kategori_self_NEW_COMER_hint": "I'm new and would like to be part of ECC.",
-    "kategori_self_VISITOR_hint": "I'm only visiting this time."
+    "kategori_self_VISITOR_hint": "I'm only visiting this time.",
+    "catatan_label": "Note"
   },
   "selfcheckin_geo": {
     "title": "Too far from the venue",
@@ -2518,7 +2520,8 @@
     "leader_badge": "Guest",
     "leader_approve_confirm": "Accept {{name}} as a guest of {{homecell}}? They will see your address & contact, and be listed under the homecell's Guests.",
     "leader_approved": "{{name}} accepted as a guest",
-    "age_years": "{{n}} yrs"
+    "age_years": "{{n}} yrs",
+    "pesan_label": "Message"
   },
   "consent": {
     "title": "Consent",
@@ -2619,5 +2622,25 @@
     "empty_body": "Jot down sermon points during the service, or tap a verse in the Bible → To note.",
     "badge_khotbah": "Sermon",
     "badge_b365": "Bible 365 · Day {{day}}"
+  },
+  "input_rules": {
+    "nama_wajib": "Name is required.",
+    "nama_pendek": "Name must be at least 2 letters.",
+    "nama": "Names may only contain letters, spaces, periods, commas, apostrophes, or hyphens — no numbers/symbols.",
+    "isian": "This field",
+    "wajib": "{{label}} is required.",
+    "min": "{{label}} must be at least {{n}} characters.",
+    "teks": "{{label}} must contain meaningful letters/numbers, not just symbols.",
+    "huruf": "{{label}} must contain letters, not just numbers/symbols.",
+    "lahir_masa_depan": "Date of birth cannot be in the future.",
+    "lahir_lama": "Date of birth looks wrong (over 120 years ago).",
+    "nikah_single": "Marriage date only applies to Married, Widowed, or Divorced.",
+    "nikah_masa_depan": "Marriage date cannot be in the future.",
+    "nikah_usia": "Marriage date looks wrong compared to date of birth.",
+    "usia_angka": "Age must be a number.",
+    "usia_rentang": "Age must be between {{min}}–{{max}}.",
+    "nominal_angka": "Amount must be a number.",
+    "nominal_min": "Minimum amount is Rp {{min}}.",
+    "url": "Web address must start with http:// or https://."
   }
 }

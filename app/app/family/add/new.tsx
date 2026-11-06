@@ -26,6 +26,7 @@ import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
+import { cekNama, cekTanggalLahir, pertamaGagal } from '@/utils/inputRules';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -43,6 +44,11 @@ export default function FamilyAddNewScreen() {
     setNamaError(null);
     if (!nama.trim()) {
       setNamaError(t('family.nama_required'));
+      return;
+    }
+    const salah = pertamaGagal(cekNama(nama), tanggalLahir ? cekTanggalLahir(new Date(`${tanggalLahir}T12:00:00`)) : null);
+    if (salah) {
+      setNamaError(salah);
       return;
     }
     if (!tipe) return;

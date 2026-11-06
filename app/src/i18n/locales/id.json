@@ -1427,7 +1427,8 @@
       "Janda": "Janda",
       "Duda": "Duda",
       "Cerai": "Cerai"
-    }
+    },
+    "office_label": "Nama kantor / sekolah / usaha"
   },
   "group": {
     "browse_title": "Group",
@@ -1990,7 +1991,8 @@
     "kategori_self_VISITOR": "Sekadar berkunjung",
     "kategori_self_BELUM_hint": "Tidak apa-apa — pemimpin homecell akan membantu Anda.",
     "kategori_self_NEW_COMER_hint": "Saya orang baru dan ingin menjadi bagian dari ECC.",
-    "kategori_self_VISITOR_hint": "Saya hanya ingin berkunjung kali ini."
+    "kategori_self_VISITOR_hint": "Saya hanya ingin berkunjung kali ini.",
+    "catatan_label": "Catatan"
   },
   "selfcheckin_geo": {
     "title": "Lokasi terlalu jauh",
@@ -2515,7 +2517,8 @@
     "leader_badge": "Tamu",
     "leader_approve_confirm": "Terima {{name}} sebagai tamu {{homecell}}? Ia akan melihat alamat & kontak Anda, dan tercatat di daftar Tamu homecell.",
     "leader_approved": "{{name}} diterima sebagai tamu",
-    "age_years": "{{n}} th"
+    "age_years": "{{n}} th",
+    "pesan_label": "Pesan"
   },
   "consent": {
     "title": "Persetujuan",
@@ -2616,5 +2619,25 @@
     "empty_body": "Catat poin khotbah saat ibadah, atau tekan ayat di Alkitab → Ke catatan.",
     "badge_khotbah": "Khotbah",
     "badge_b365": "Bible 365 · Hari {{day}}"
+  },
+  "input_rules": {
+    "nama_wajib": "Nama wajib diisi.",
+    "nama_pendek": "Nama minimal 2 huruf.",
+    "nama": "Nama hanya boleh berisi huruf, spasi, titik, koma, apostrof, atau tanda hubung — tanpa angka/simbol.",
+    "isian": "Isian",
+    "wajib": "{{label}} wajib diisi.",
+    "min": "{{label}} minimal {{n}} karakter.",
+    "teks": "{{label}} harus berisi huruf/angka yang bermakna, bukan hanya simbol.",
+    "huruf": "{{label}} harus berisi huruf, bukan hanya angka/simbol.",
+    "lahir_masa_depan": "Tanggal lahir tidak boleh di masa depan.",
+    "lahir_lama": "Tanggal lahir tidak wajar (lebih dari 120 tahun lalu).",
+    "nikah_single": "Tanggal pernikahan hanya untuk status Menikah, Janda, Duda, atau Cerai.",
+    "nikah_masa_depan": "Tanggal pernikahan tidak boleh di masa depan.",
+    "nikah_usia": "Tanggal pernikahan tidak wajar terhadap tanggal lahir.",
+    "usia_angka": "Usia harus berupa angka.",
+    "usia_rentang": "Usia harus antara {{min}}–{{max}} tahun.",
+    "nominal_angka": "Nominal harus berupa angka.",
+    "nominal_min": "Nominal minimal Rp {{min}}.",
+    "url": "Alamat web harus diawali http:// atau https://."
   }
 }

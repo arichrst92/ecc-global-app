@@ -20,6 +20,7 @@ import type { JenisJemaat } from '@/types/auth';
 import { nc } from '@/theme/ThemeRoot';
 import { buildConsentPayload } from '@/api/consent';
 import { ConsentChecklist, EMPTY_CONSENT, isConsentComplete, type ConsentValue } from '@/features/consent/ConsentChecklist';
+import { cekNama } from '@/utils/inputRules';
 
 type FieldErrors = Partial<{
   namaLengkap: string;
@@ -126,6 +127,10 @@ export default function SignupDataScreen() {
   function submit() {
     const next: FieldErrors = {};
     if (!namaLengkap || namaLengkap.length < 2) next.namaLengkap = t('signup.error_name_required');
+    else {
+      const n = cekNama(namaLengkap);
+      if (n) next.namaLengkap = n;
+    }
     if (!jenisKelamin) next.jenisKelamin = t('signup.error_gender_required');
     if (!cabangId) next.cabangId = t('signup.error_branch_required');
     if (!jenisJemaat) next.jenisJemaat = t('signup.error_jenis_jemaat_required');

@@ -28,6 +28,7 @@ import type { TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { cekHuruf, cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 export default function NewBusinessScreen() {
   const { t } = useTranslation();
@@ -46,6 +47,16 @@ export default function NewBusinessScreen() {
     const namaTrim = nama.trim();
     if (namaTrim.length < 2) {
       Alert.alert(t('my_business.nama_required'));
+      return;
+    }
+    const salah = pertamaGagal(
+      cekHuruf(nama, { label: t('my_business.nama_label') }),
+      cekTeks(deskripsi, { label: t('my_business.deskripsi_label') }),
+      cekHuruf(industri, { label: t('my_business.industri_label') }),
+      cekTeks(lokasi, { label: t('my_business.lokasi_label') }),
+    );
+    if (salah) {
+      Alert.alert(salah);
       return;
     }
     createMutation.mutate(

@@ -15,6 +15,7 @@ import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { nc } from '@/theme/ThemeRoot';
 import { TamuKategoriPicker, type TamuKategori } from './TamuKategoriPicker';
+import { cekNama, cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 export function AddTamuModal({
   visible,
@@ -38,10 +39,13 @@ export function AddTamuModal({
   const e164 = normalizePhone(noHp);
 
   const mut = useMutation({
-    mutationFn: () =>
-      homecellId
+    mutationFn: async () => {
+      const salah = pertamaGagal(cekNama(nama), cekTeks(catatan, { label: t('tamu.catatan_label') }));
+      if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
+      return homecellId
         ? addHomecellTamu(homecellId, { nama: nama.trim(), noHp: e164!, catatan: catatan.trim() || undefined, kategori })
-        : addMyTamu({ nama: nama.trim(), noHp: e164!, kategori }),
+        : addMyTamu({ nama: nama.trim(), noHp: e164!, kategori });
+    },
     onSuccess: (tamu) => {
       qc.invalidateQueries({ queryKey: ['tamu', 'mine'] });
       if (homecellId) qc.invalidateQueries({ queryKey: ['homecell', 'tamu', homecellId] });

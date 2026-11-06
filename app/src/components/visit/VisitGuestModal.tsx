@@ -17,6 +17,7 @@ import type { VisitListItem } from '@/types/visit';
 import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { nc } from '@/theme/ThemeRoot';
+import { cekNama, cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 export function VisitGuestModal({
   visible,
@@ -52,8 +53,15 @@ export function VisitGuestModal({
   }
 
   const mut = useMutation({
-    mutationFn: () =>
-      createGuestVisit({ nama: nama.trim(), noHp: e164!, kategori, judul: judul.trim(), lokasi: lokasi.trim() || undefined }),
+    mutationFn: async () => {
+      const salah = pertamaGagal(
+        cekNama(nama),
+        cekTeks(judul, { wajib: true, label: t('visit.judul_label') }),
+        cekTeks(lokasi, { label: t('visit.lokasi_label') }),
+      );
+      if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
+      return createGuestVisit({ nama: nama.trim(), noHp: e164!, kategori, judul: judul.trim(), lokasi: lokasi.trim() || undefined });
+    },
     onSuccess: (v) => {
       qc.invalidateQueries({ queryKey: ['visit'] });
       qc.invalidateQueries({ queryKey: ['tamu', 'mine'] });

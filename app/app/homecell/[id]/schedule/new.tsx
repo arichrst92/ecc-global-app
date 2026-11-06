@@ -28,6 +28,7 @@ import { useCreateSchedule } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc, isDark } from '@/theme/ThemeRoot';
+import { cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 function toHm(d: Date): string {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -66,9 +67,15 @@ export default function NewScheduleScreen() {
   const mutation = useCreateSchedule(id);
 
   function handleSave() {
-    if (lokasi.trim().length === 0) {
-      showToast(t('homecell.schedule_field_lokasi') + ' required', 'error');
-      return;
+    {
+      const salah = pertamaGagal(
+        cekTeks(lokasi, { wajib: true, label: t('homecell.schedule_field_lokasi') }),
+        cekTeks(catatan, { label: t('homecell.schedule_field_catatan') }),
+      );
+      if (salah) {
+        showToast(salah, 'error');
+        return;
+      }
     }
     if (!jamValid) {
       showToast(t('homecell.schedule_jam_invalid'), 'error');

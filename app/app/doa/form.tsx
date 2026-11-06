@@ -33,6 +33,7 @@ import { useMyFamily } from '@/hooks/useFamily';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 export default function DoaFormScreen() {
   const { t } = useTranslation();
@@ -77,7 +78,14 @@ export default function DoaFormScreen() {
   });
 
   const mut = useMutation({
-    mutationFn: () => (editing ? updatePrayer(id!, body()) : createPrayer(body())),
+    mutationFn: async () => {
+      const salah = pertamaGagal(
+        untukNama.trim() ? cekTeks(untukNama, { label: t('doa.untuk_nama_label') }) : null,
+        cekTeks(isi, { wajib: true, min: 5, minHurufAngka: 4, label: t('doa.isi_label') }),
+      );
+      if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
+      return editing ? updatePrayer(id!, body()) : createPrayer(body());
+    },
     onSuccess: (p) => {
       qc.invalidateQueries({ queryKey: ['prayer'] });
       showToast(editing ? t('doa.saved') : t('doa.sent'), 'success');

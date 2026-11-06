@@ -33,6 +33,7 @@ import { invalidPhoneMessage, formatPhoneDisplay, normalizePhone } from '@/utils
 import { goBack } from '@/utils/nav';
 import { ChangePhoneModal } from '@/components/profile/ChangePhoneModal';
 import { PEKERJAAN_OPTIONS, PERNIKAHAN_OPTIONS } from '@/constants/profileOptions';
+import { cekHuruf, cekNama, cekTanggalLahir, cekTanggalNikah, cekTeks, pertamaGagal } from '@/utils/inputRules';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
@@ -47,6 +48,9 @@ import { nc, isDark } from '@/theme/ThemeRoot';
  *
  * Dalam dependent mode, hide phone + email fields (dependent tidak punya kedua-nya).
  */
+/** Pekerjaan yang tidak punya kantor/sekolah/usaha. */
+const TANPA_KANTOR: string[] = ['Belum Bekerja', 'Ibu Rumah Tangga', 'Pensiunan'];
+
 export default function EditProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -140,6 +144,15 @@ export default function EditProfileScreen() {
 
   const updateMutation = useMutation<{ namaLengkap: string; noHpAdded?: boolean }>({
     mutationFn: async () => {
+      // Audit input 2026-11: cegah isian yang menyalahi fungsinya.
+      const salah = pertamaGagal(
+        cekNama(namaLengkap),
+        cekTanggalLahir(dob),
+        cekTeks(alamat, { min: 3, label: t('signup.address') }),
+        isDependent || TANPA_KANTOR.includes(pekerjaan) ? null : cekHuruf(namaKantor, { label: t('edit_profile.office_label') }),
+        isDependent ? null : pernikahan && pernikahan !== 'Single' ? cekTanggalNikah(tglNikah, dob, pernikahan) : null,
+      );
+      if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
       const tanggalLahir = dob ? toIsoDate(dob) : undefined;
       if (isDependent) {
         // Normalize phone: kalau user kosongin → null (clear), kalau diisi →
@@ -179,7 +192,8 @@ export default function EditProfileScreen() {
         jenisKelamin: jenisKelamin || undefined,
         // Kosong = hapus (null)
         statusPekerjaan: pekerjaan.trim() || null,
-        namaKantor: namaKantor.trim() || null,
+        // Pekerjaan tanpa kantor (belum bekerja, IRT, pensiunan) → nama kantor dikosongkan.
+        namaKantor: TANPA_KANTOR.includes(pekerjaan) ? null : namaKantor.trim() || null,
         statusPernikahan: pernikahan || null,
         tanggalPernikahan: pernikahan && pernikahan !== 'Single' && tglNikah ? toIsoDate(tglNikah) : null,
       });
@@ -449,12 +463,14 @@ export default function EditProfileScreen() {
                   onChange={setPekerjaan}
                   labelFor={(v) => t(`edit_profile.job_opt.${v}`, { defaultValue: v })}
                 />
+                {TANPA_KANTOR.includes(pekerjaan) ? null : (
                 <TextInput
                   value={namaKantor}
                   onChangeText={setNamaKantor}
                   placeholder={t('edit_profile.office_placeholder')}
                   className="mt-2 bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
                 />
+                )}
               </Field>
 
               <Field label={t('edit_profile.marriage')}>
