@@ -55,7 +55,9 @@ export type InAppNotifType =
   | 'PRAYER_ASSIGNED'
   | 'PRAYER_PRAYED'
   | 'SPIRITUAL_JOURNEY_APPROVED'
-  | 'SPIRITUAL_JOURNEY_REJECTED';
+  | 'SPIRITUAL_JOURNEY_REJECTED'
+  | 'MINISTRY_DUTY_ASSIGNED'
+  | 'MINISTRY_DUTY_REMOVED';
 
 /**
  * Metadata JSON per notif type — kontennya bervariasi.

@@ -166,3 +166,59 @@ export async function getMyServiceSchedule(
   );
   return { assignments: r.assignments ?? [], events: r.events ?? [] };
 }
+
+// ------------------------------------------------------------------ Atur jadwal (2.4.6)
+
+export type JadwalPerson = { id: string; namaLengkap: string; fotoUrl: string | null };
+export type JadwalRole = { id: string; nama: string; level: number };
+export type JadwalPetugas = { id: string; jemaat: JadwalPerson; role: JadwalRole };
+export type JadwalIbadah = {
+  key: string;
+  ibadahId: string;
+  nama: string;
+  jamMulai: string;
+  jamSelesai: string;
+  tanggal: string; // YYYY-MM-DD
+  /** TANGGAL = susunan khusus tanggal ini; DEFAULT = ikut susunan tiap minggu. */
+  source: 'TANGGAL' | 'DEFAULT';
+  petugas: JadwalPetugas[];
+  defaultPetugas: JadwalPetugas[];
+};
+export type JadwalEvent = {
+  eventId: string;
+  judul: string;
+  tanggalMulai: string;
+  tanggalSelesai: string | null;
+  jamMulai: string | null;
+  petugas: JadwalPetugas[];
+};
+export type MinistryJadwal = {
+  pelayanan: { id: string; nama: string; roles: JadwalRole[] };
+  cabang: { id: string; nama: string }[];
+  cabangId: string | null;
+  ibadah: JadwalIbadah[];
+  events: JadwalEvent[];
+  members: { jemaat: JadwalPerson & { cabang: { id: string; nama: string } }; role: JadwalRole }[];
+};
+export type PetugasInput = { jemaatId: string; pelayananRoleId: string };
+
+/** GET /admin/ministry/:id/jadwal — hanya pemegang otoritas (per cabang). */
+export function getMinistryJadwal(id: string, cabangId?: string | null) {
+  return api.get<MinistryJadwal>(
+    `/admin/ministry/${id}/jadwal${cabangId ? `?cabangId=${encodeURIComponent(cabangId)}` : ''}`,
+  );
+}
+
+/** PUT jadwal ibadah: scope TANGGAL (tanggal ini saja), DEFAULT (tiap jadwal), RESET (kembali ke default). */
+export function saveIbadahJadwal(
+  id: string,
+  ibadahId: string,
+  body: { tanggal: string; scope: 'TANGGAL' | 'DEFAULT' | 'RESET'; petugas: PetugasInput[] },
+) {
+  return api.put<{ ok: true }>(`/admin/ministry/${id}/jadwal/ibadah/${ibadahId}`, body);
+}
+
+/** PUT jadwal event (ganti seluruh petugas pelayanan ini di event tsb). */
+export function saveEventJadwal(id: string, eventId: string, petugas: PetugasInput[]) {
+  return api.put<{ ok: true }>(`/admin/ministry/${id}/jadwal/event/${eventId}`, { petugas });
+}

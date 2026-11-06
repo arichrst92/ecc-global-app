@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
+  CalendarDays,
   CheckCircle2,
   ChevronRight,
   Circle,
@@ -392,6 +393,23 @@ export default function MinistryDetailScreen() {
               </Text>
             </View>
           </View>
+        ) : null}
+
+        {/* 2.4.6 — pemegang otoritas: atur jadwal petugas ibadah / event cabangnya */}
+        {canManage ? (
+          <Pressable
+            onPress={() => router.push(`/ministry/${id}/jadwal` as never)}
+            className="mb-4 bg-card rounded-2xl border border-brand-200 p-3 flex-row items-center gap-3"
+          >
+            <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+              <CalendarDays size={18} color="#EA580C" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-sm font-bold text-neutral-900">{t('ministry.jadwal_btn')}</Text>
+              <Text className="text-xs text-neutral-500">{t('ministry.jadwal_btn_sub')}</Text>
+            </View>
+            <ChevronRight size={16} color={nc('#A3A3A3')} />
+          </Pressable>
         ) : null}
 
         {/* Leader: permintaan bergabung yang menunggu persetujuan */}

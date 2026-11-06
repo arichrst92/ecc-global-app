@@ -23,7 +23,7 @@ const KNOWN_ROUTES: RegExp[] = [
   '/homecell', '/homecell/requests', `/homecell/view/${ID}`, `/homecell/${ID}`,
   '/visit', `/visit/${ID}`, '/profile', '/settings/change-branch',
   '/ministry', `/ministry/${ID}`, '/feedback', `/feedback/${ID}`,
-  '/doa', `/doa/${ID}`, `/doa/assigned/${ID}`, '/notifications', '/tiket', '/spiritual-journey',
+  '/doa', `/doa/${ID}`, `/doa/assigned/${ID}`, '/notifications', '/tiket', '/spiritual-journey', '/profile/my-service',
 ].map((p) => new RegExp(`^${p.replace(/[()]/g, '\\$&')}/?(\\?.*)?$`));
 
 const isKnownRoute = (url: string) => KNOWN_ROUTES.some((re) => re.test(url));
@@ -163,6 +163,9 @@ function fallbackRoute(notif: InAppNotification): string | null {
     case 'SPIRITUAL_JOURNEY_APPROVED':
     case 'SPIRITUAL_JOURNEY_REJECTED':
       return '/spiritual-journey';
+    case 'MINISTRY_DUTY_ASSIGNED':
+    case 'MINISTRY_DUTY_REMOVED':
+      return '/profile/my-service';
 
     default:
       return null;
@@ -252,6 +255,10 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
     case 'SPIRITUAL_JOURNEY_APPROVED':
       return 'home-check';
     case 'SPIRITUAL_JOURNEY_REJECTED':
+      return 'group-remove';
+    case 'MINISTRY_DUTY_ASSIGNED':
+      return 'home-check';
+    case 'MINISTRY_DUTY_REMOVED':
       return 'group-remove';
     default:
       return 'bell';
