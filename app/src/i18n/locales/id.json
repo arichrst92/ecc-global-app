@@ -1112,7 +1112,8 @@
     "pend_opened": "Pendaftaran dibuka",
     "pend_closed": "Pendaftaran ditutup",
     "pend_closed_notice": "Pendaftaran di {{cabang}} sedang ditutup.",
-    "filter_buka": "Buka pendaftaran ({{count}})"
+    "filter_buka": "Buka pendaftaran ({{count}})",
+    "requests_none": "Belum ada permintaan bergabung yang menunggu."
   },
   "homecell": {
     "title": "Homecell Saya",

@@ -1112,7 +1112,8 @@
     "pend_opened": "Sign-ups opened",
     "pend_closed": "Sign-ups closed",
     "pend_closed_notice": "Sign-ups in {{cabang}} are closed for now.",
-    "filter_buka": "Open for sign-up ({{count}})"
+    "filter_buka": "Open for sign-up ({{count}})",
+    "requests_none": "No pending join requests."
   },
   "homecell": {
     "title": "My Homecells",

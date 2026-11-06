@@ -112,6 +112,7 @@ export default function MinistryDetailScreen() {
 
   const [tab, setTab] = useState<'ANGGOTA' | 'JADWAL' | 'TENTANG'>('ANGGOTA');
   const [pendOpen, setPendOpen] = useState(false);
+  const [reqOpen, setReqOpen] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [motivasi, setMotivasi] = useState('');
@@ -347,7 +348,13 @@ export default function MinistryDetailScreen() {
                 bg={w.bg}
                 label={t('ministry.qa_permintaan')}
                 badge={joinRequests.length || undefined}
-                onPress={() => setTab('ANGGOTA')}
+                onPress={() => {
+                  if (joinRequests.length === 0) {
+                    showToast(t('ministry.requests_none'), 'info');
+                    return;
+                  }
+                  setReqOpen(true);
+                }}
               />
             ) : null}
             {canManage ? (
@@ -725,6 +732,52 @@ export default function MinistryDetailScreen() {
       />
 
       {canManage ? <PendaftaranSheet ministryId={id} visible={pendOpen} onClose={() => setPendOpen(false)} /> : null}
+
+      {/* Daftar permintaan bergabung (aksi cepat "Permintaan") */}
+      <Modal visible={reqOpen} animationType="slide" transparent onRequestClose={() => setReqOpen(false)}>
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="bg-card rounded-t-3xl max-h-[80%] pb-8">
+            <View className="flex-row items-center px-5 pt-4 pb-2">
+              <Text className="flex-1 text-base font-bold text-neutral-900">
+                {t('ministry.requests_section', { count: joinRequests.length })}
+              </Text>
+              <Pressable onPress={() => setReqOpen(false)} className="w-9 h-9 items-center justify-center">
+                <X size={20} color={nc('#525252')} />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}>
+              {joinRequests.length === 0 ? (
+                <Text className="text-sm text-neutral-500 text-center py-8">{t('ministry.requests_none')}</Text>
+              ) : (
+                joinRequests.map((r, idx) => (
+                  <Pressable
+                    key={r.id}
+                    onPress={() => {
+                      // Tutup lembar ini dulu supaya modal tinjauan bisa tampil (iOS: satu modal sekaligus).
+                      setReqOpen(false);
+                      setTimeout(() => setReviewing(r), 350);
+                    }}
+                    className={`p-3 flex-row items-center gap-3 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+                  >
+                    <Avatar name={r.jemaat.namaLengkap} fotoUrl={r.jemaat.fotoUrl ?? undefined} size={40} />
+                    <View className="flex-1 min-w-0">
+                      <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+                        {r.jemaat.namaLengkap}
+                      </Text>
+                      <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                        {r.requestedRole?.nama ?? t('ministry.requested_role_none')}
+                        {r.jemaat.cabang ? ` · ${r.jemaat.cabang.nama}` : ''}
+                      </Text>
+                    </View>
+                    <Text className="text-[11px] font-semibold text-amber-700">{t('ministry.requests_tap_hint')}</Text>
+                    <ChevronRight size={14} color={nc('#B45309')} />
+                  </Pressable>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       {/* Leader: popup tinjau permintaan + tetapkan peran */}
       {reviewing ? (
