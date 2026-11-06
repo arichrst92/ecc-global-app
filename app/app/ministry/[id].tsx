@@ -49,6 +49,7 @@ import {
   useRejectJoinRequest,
 } from '@/hooks/useMinistry';
 import { useAuthStore } from '@/stores/auth.store';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { MinistryJoinRequest, MinistryMember, MinistryRole } from '@/types/ministry';
 import { ApiError } from '@/types/api';
 import { formatDateWithDay, parseLocalDate } from '@/utils/date';
@@ -66,6 +67,25 @@ export default function MinistryDetailScreen() {
 
   const query = useMinistryDetail(id);
   const ministry = query.data;
+  // 2.4.6 — anggota default hanya cabang yang sedang dibuka; bisa pilih cabang lain / semua.
+  const { viewingCabangId } = useViewingBranch();
+  const [cabangPick, setCabangPick] = useState<string | null>(null); // null = ikut cabang dibuka; 'ALL' = semua
+  const cabangOptions = useMemo(() => {
+    const m = new Map<string, { id: string; nama: string; count: number }>();
+    for (const x of ministry?.members ?? []) {
+      const c = x.jemaat.cabang;
+      if (!c) continue;
+      const e = m.get(c.id) ?? { ...c, count: 0 };
+      e.count++;
+      m.set(c.id, e);
+    }
+    return [...m.values()].sort((a, b) => a.nama.localeCompare(b.nama));
+  }, [ministry]);
+  const activeCabang = cabangPick ?? viewingCabangId ?? 'ALL';
+  const visibleMembers = useMemo(
+    () => (ministry?.members ?? []).filter((m) => activeCabang === 'ALL' || m.jemaat.cabang?.id === activeCabang),
+    [ministry, activeCabang],
+  );
   const joinMutation = useJoinMinistry(id);
   // Jadwal 4 minggu ke depan — BE endpoint mungkin belum di-deploy, hook
   // graceful fallback ke [] (lihat useMinistry.ts / api/ministry.ts). Section
@@ -167,7 +187,7 @@ export default function MinistryDetailScreen() {
   const groupedMembers = useMemo<GroupedRow[]>(() => {
     if (!ministry) return [];
     const groups = new Map<string, { posisiLevel: number; members: MinistryMember[] }>();
-    for (const m of ministry.members) {
+    for (const m of visibleMembers) {
       const key = m.posisi ?? t('ministry.posisi_unassigned');
       if (!groups.has(key)) {
         groups.set(key, { posisiLevel: m.posisiLevel ?? 0, members: [] });
@@ -185,7 +205,7 @@ export default function MinistryDetailScreen() {
         if (a.posisiLevel !== b.posisiLevel) return b.posisiLevel - a.posisiLevel;
         return a.posisi.localeCompare(b.posisi);
       });
-  }, [ministry, t]);
+  }, [ministry, visibleMembers, t]);
 
   function openWhatsApp(noHp: string, ministryName: string, contactName: string) {
     const num = noHp.replace(/^\+/, '').replace(/\D/g, '');
@@ -510,12 +530,30 @@ export default function MinistryDetailScreen() {
 
         {/* Members list — grouped by posisi (role pelayanan) */}
         <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
-          {t('ministry.members_section', { count: ministry.memberCount })}
+          {t('ministry.members_section', { count: visibleMembers.length })}
         </Text>
+        {cabangOptions.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3 -mx-1" contentContainerStyle={{ paddingHorizontal: 4, gap: 6 }}>
+            {[{ id: 'ALL', nama: t('ministry.cabang_all'), count: ministry.members.length }, ...cabangOptions].map((c) => {
+              const on = activeCabang === c.id;
+              return (
+                <Pressable
+                  key={c.id}
+                  onPress={() => setCabangPick(c.id)}
+                  className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+                >
+                  <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>
+                    {c.nama} ({c.count})
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        ) : null}
         {groupedMembers.length === 0 ? (
           <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
             <Text className="text-sm text-neutral-500 text-center">
-              {t('ministry.members_empty')}
+              {ministry.members.length > 0 ? t('ministry.members_empty_cabang') : t('ministry.members_empty')}
             </Text>
           </View>
         ) : (

@@ -1030,7 +1030,9 @@
     "review_approved_toast": "{{nama}} joined as {{role}}",
     "review_rejected_toast": "{{nama}}'s request was declined",
     "review_already_processed": "This request has already been processed.",
-    "review_view_profile": "View applicant profile"
+    "review_view_profile": "View applicant profile",
+    "cabang_all": "All branches",
+    "members_empty_cabang": "No members in this branch yet. Pick another branch above."
   },
   "homecell": {
     "title": "My Homecells",

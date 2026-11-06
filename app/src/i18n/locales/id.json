@@ -1030,7 +1030,9 @@
     "review_approved_toast": "{{nama}} bergabung sebagai {{role}}",
     "review_rejected_toast": "Permintaan {{nama}} ditolak",
     "review_already_processed": "Permintaan ini sudah diproses sebelumnya.",
-    "review_view_profile": "Lihat profil pemohon"
+    "review_view_profile": "Lihat profil pemohon",
+    "cabang_all": "Semua cabang",
+    "members_empty_cabang": "Belum ada anggota di cabang ini. Pilih cabang lain di atas."
   },
   "homecell": {
     "title": "Homecell Saya",
