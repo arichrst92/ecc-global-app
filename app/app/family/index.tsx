@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -8,11 +9,13 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, Plus, Users } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, Hourglass, Plus, UserPlus, Users } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
-import { useMyFamily } from '@/hooks/useFamily';
-import type { FamilyRelation, FamilyRole } from '@/types/family';
+import { useFamilyRequestAction, useFamilyRequests, useMyFamily } from '@/hooks/useFamily';
+import { useToast } from '@/components/ui/Toast';
+import { ApiError } from '@/types/api';
+import type { FamilyLinkRequestRow, FamilyRelation, FamilyRole } from '@/types/family';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
@@ -74,6 +77,9 @@ export default function FamilyListScreen() {
   const router = useRouter();
   const query = useMyFamily();
   const family = query.data ?? [];
+  const reqQuery = useFamilyRequests();
+  const incoming = reqQuery.data?.incoming ?? [];
+  const outgoing = reqQuery.data?.outgoing ?? [];
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -107,11 +113,13 @@ export default function FamilyListScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
           <PullRefreshControl
-            onRefresh={() => query.refetch()}
+            onRefresh={() => Promise.all([query.refetch(), reqQuery.refetch()])}
             tintColor="#F97316"
           />
         }
       >
+        <FamilyRequests incoming={incoming} outgoing={outgoing} />
+
         {query.isPending ? (
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />
@@ -244,6 +252,124 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
           {t('family.add_first')}
         </Text>
       </Pressable>
+    </View>
+  );
+}
+
+/* ==============================================================
+ * Permintaan hubungan keluarga (2.4.7): masuk (setujui / tolak) &
+ * keluar (menunggu, bisa dibatalkan).
+ * ============================================================== */
+function FamilyRequests({ incoming, outgoing }: { incoming: FamilyLinkRequestRow[]; outgoing: FamilyLinkRequestRow[] }) {
+  const { t } = useTranslation();
+  const showToast = useToast((s) => s.show);
+  const act = useFamilyRequestAction();
+  const busy = act.approve.isPending || act.reject.isPending || act.cancel.isPending;
+  if (!incoming.length && !outgoing.length) return null;
+  const onErr = (e: unknown) => showToast(e instanceof ApiError ? e.message : t('error.network'), 'error');
+
+  return (
+    <View className="mb-4 gap-3">
+      {incoming.length ? (
+        <View>
+          <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+            {t('family.req_incoming', { count: incoming.length })}
+          </Text>
+          <View className="gap-2">
+            {incoming.map((r) => (
+              <View key={r.id} className="bg-card rounded-2xl p-4 border border-amber-200">
+                <View className="flex-row items-center gap-3">
+                  <Avatar name={r.requester.namaLengkap} fotoUrl={r.requester.fotoUrl ?? undefined} size={44} />
+                  <View className="flex-1 min-w-0">
+                    <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                      {r.requester.namaLengkap}
+                    </Text>
+                    <Text className="text-xs text-neutral-500" numberOfLines={1}>
+                      {[r.requester.kode, r.requester.cabang].filter(Boolean).join(' · ')}
+                    </Text>
+                  </View>
+                </View>
+                <Text className="text-sm text-neutral-700 mt-3 leading-relaxed">
+                  {r.viaGuardian
+                    ? t('family.req_body_guardian', { name: r.requester.namaLengkap, target: r.target.namaLengkap, tipe: r.tipeRelasi.nama })
+                    : t('family.req_body', { name: r.requester.namaLengkap, tipe: r.tipeRelasi.nama })}
+                </Text>
+                <Text className="text-[11px] text-neutral-500 mt-1">{t('family.req_warning')}</Text>
+                <View className="flex-row gap-2 mt-3">
+                  <Pressable
+                    disabled={busy}
+                    onPress={() =>
+                      Alert.alert(t('family.req_reject_title'), t('family.req_reject_msg', { name: r.requester.namaLengkap }), [
+                        { text: t('common.cancel'), style: 'cancel' },
+                        {
+                          text: t('family.req_reject'),
+                          style: 'destructive',
+                          onPress: () =>
+                            act.reject.mutate(
+                              { id: r.id },
+                              { onSuccess: () => showToast(t('family.req_rejected'), 'success'), onError: onErr },
+                            ),
+                        },
+                      ])
+                    }
+                    className="flex-1 py-2.5 rounded-xl border border-neutral-200 items-center"
+                  >
+                    <Text className="text-sm font-semibold text-neutral-700">{t('family.req_reject')}</Text>
+                  </Pressable>
+                  <Pressable
+                    disabled={busy}
+                    onPress={() =>
+                      act.approve.mutate(r.id, {
+                        onSuccess: () => showToast(t('family.req_approved', { name: r.requester.namaLengkap }), 'success'),
+                        onError: onErr,
+                      })
+                    }
+                    {...gx('flex-1 py-2.5 rounded-xl bg-brand-500 items-center flex-row justify-center gap-1.5')}
+                  >
+                    <UserPlus size={15} color="#fff" />
+                    <Text className="text-sm font-bold text-white">{t('family.req_approve')}</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
+
+      {outgoing.length ? (
+        <View>
+          <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">
+            {t('family.req_outgoing', { count: outgoing.length })}
+          </Text>
+          <View className="bg-card rounded-2xl border border-neutral-100">
+            {outgoing.map((r, idx) => (
+              <View key={r.id} className={`p-3 flex-row items-center gap-3 ${idx ? 'border-t border-neutral-100' : ''}`}>
+                <Avatar name={r.target.namaLengkap} fotoUrl={r.target.fotoUrl ?? undefined} size={40} />
+                <View className="flex-1 min-w-0">
+                  <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+                    {r.target.namaLengkap}
+                  </Text>
+                  <View className="flex-row items-center gap-1 mt-0.5">
+                    <Hourglass size={11} color="#B45309" />
+                    <Text className="text-xs text-amber-700 flex-1" numberOfLines={1}>
+                      {r.tipeRelasi.nama} · {r.viaGuardian ? t('family.req_waiting_guardian') : t('family.req_waiting')}
+                    </Text>
+                  </View>
+                </View>
+                <Pressable
+                  disabled={busy}
+                  onPress={() =>
+                    act.cancel.mutate(r.id, { onSuccess: () => showToast(t('family.req_cancelled'), 'success'), onError: onErr })
+                  }
+                  className="px-3 py-1.5 rounded-full border border-neutral-200"
+                >
+                  <Text className="text-xs font-semibold text-neutral-700">{t('family.req_cancel')}</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }

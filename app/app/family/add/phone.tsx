@@ -45,6 +45,12 @@ export default function FamilyAddPhoneScreen() {
       { noHp: e164, tipeRelasiId: tipe.id },
       {
         onSuccess: (data) => {
+          if (data.status === 'PENDING') {
+            // 2.4.7 — menunggu persetujuan orangnya / walinya.
+            showToast(data.message ?? t('family.request_sent'), 'success');
+            router.replace('/family');
+            return;
+          }
           showToast(
             t('family.link_success', { name: data.target?.namaLengkap ?? '' }),
             'success',
@@ -58,7 +64,7 @@ export default function FamilyAddPhoneScreen() {
             } else if (err.code === 'BAD_REQUEST') {
               Alert.alert(t('family.cant_link_self'));
             } else if (err.code === 'CONFLICT') {
-              Alert.alert(t('family.already_linked'));
+              Alert.alert(err.message || t('family.already_linked'));
             } else {
               Alert.alert(err.message);
             }

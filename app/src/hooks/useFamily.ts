@@ -8,6 +8,10 @@ import {
   registerNewFamily,
   updateFamilyRelation,
   unlinkFamily,
+  getFamilyRequests,
+  approveFamilyRequest,
+  rejectFamilyRequest,
+  cancelFamilyRequest,
 } from '@/api/family';
 import { useAuthStore } from '@/stores/auth.store';
 import type {
@@ -17,6 +21,7 @@ import type {
 } from '@/types/family';
 
 const FAMILY_QUERY_KEY = ['family', 'list'] as const;
+export const FAMILY_REQ_KEY = ['family', 'requests'] as const;
 
 /** List family members current user. Guest mode → hook disabled (endpoint
  *  require auth, hindari 401 spam untuk guest yang buka /family screen). */
@@ -37,6 +42,7 @@ export function useLinkByKode() {
     mutationFn: (payload: LinkByKodePayload) => linkByKode(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FAMILY_REQ_KEY });
     },
   });
 }
@@ -49,6 +55,7 @@ export function useLinkById() {
     mutationFn: (payload: LinkByIdPayload) => linkById(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FAMILY_REQ_KEY });
     },
   });
 }
@@ -59,6 +66,7 @@ export function useLinkByPhone() {
     mutationFn: (payload: LinkByPhonePayload) => linkByPhone(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FAMILY_REQ_KEY });
     },
   });
 }
@@ -70,6 +78,7 @@ export function useRegisterNewFamily() {
     mutationFn: registerNewFamily,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FAMILY_REQ_KEY });
     },
   });
 }
@@ -84,6 +93,7 @@ export function useUpdateFamilyRelation() {
     }) => updateFamilyRelation(args.jemaatId, args.payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FAMILY_REQ_KEY });
     },
   });
 }
@@ -95,6 +105,26 @@ export function useUnlinkFamily() {
     mutationFn: (jemaatId: string) => unlinkFamily(jemaatId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FAMILY_REQ_KEY });
     },
   });
+}
+
+/** Permintaan hubungan keluarga masuk & keluar (2.4.7). */
+export function useFamilyRequests() {
+  const isGuest = useAuthStore((s) => s.isGuest);
+  return useQuery({ queryKey: FAMILY_REQ_KEY, queryFn: getFamilyRequests, enabled: !isGuest, staleTime: 30_000 });
+}
+
+export function useFamilyRequestAction() {
+  const qc = useQueryClient();
+  const done = () => {
+    void qc.invalidateQueries({ queryKey: FAMILY_REQ_KEY });
+    void qc.invalidateQueries({ queryKey: FAMILY_QUERY_KEY });
+  };
+  return {
+    approve: useMutation({ mutationFn: (id: string) => approveFamilyRequest(id), onSuccess: done }),
+    reject: useMutation({ mutationFn: (v: { id: string; reason?: string }) => rejectFamilyRequest(v.id, v.reason), onSuccess: done }),
+    cancel: useMutation({ mutationFn: (id: string) => cancelFamilyRequest(id), onSuccess: done }),
+  };
 }

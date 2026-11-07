@@ -163,6 +163,10 @@ function fallbackRoute(notif: InAppNotification): string | null {
     case 'SPIRITUAL_JOURNEY_APPROVED':
     case 'SPIRITUAL_JOURNEY_REJECTED':
       return '/spiritual-journey';
+    case 'FAMILY_LINK_REQUESTED':
+    case 'FAMILY_LINK_APPROVED':
+    case 'FAMILY_LINK_REJECTED':
+      return '/family';
     case 'MINISTRY_DUTY_ASSIGNED':
     case 'MINISTRY_DUTY_REMOVED':
       return '/profile/my-service';
@@ -255,6 +259,12 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
     case 'SPIRITUAL_JOURNEY_APPROVED':
       return 'home-check';
     case 'SPIRITUAL_JOURNEY_REJECTED':
+      return 'group-remove';
+    case 'FAMILY_LINK_REQUESTED':
+      return 'group-add';
+    case 'FAMILY_LINK_APPROVED':
+      return 'home-check';
+    case 'FAMILY_LINK_REJECTED':
       return 'group-remove';
     case 'MINISTRY_DUTY_ASSIGNED':
       return 'home-check';

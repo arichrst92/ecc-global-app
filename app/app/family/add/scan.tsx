@@ -46,6 +46,12 @@ export default function FamilyScanScreen() {
       { kode: scannedKode, tipeRelasiId: tipe.id },
       {
         onSuccess: (data) => {
+          if (data.status === 'PENDING') {
+            // 2.4.7 — menunggu persetujuan orangnya / walinya.
+            showToast(data.message ?? t('family.request_sent'), 'success');
+            router.replace('/family');
+            return;
+          }
           const name = data.target?.namaLengkap ?? '';
           showToast(t('family.link_success', { name }), 'success');
           addNotification({
@@ -65,7 +71,7 @@ export default function FamilyScanScreen() {
               Alert.alert(t('family.cant_link_self'));
               setScannedKode(null);
             } else if (err.code === 'CONFLICT') {
-              Alert.alert(t('family.already_linked'));
+              Alert.alert(err.message || t('family.already_linked'));
               setScannedKode(null);
             } else {
               Alert.alert(err.message);

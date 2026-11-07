@@ -56,6 +56,11 @@ export type FamilyRelation = {
 /** Response dari link-by-kode / link-by-phone — shape berbeda dari list row.
  * Per mobile-api-guide section 13.3 — return relation summary + target jemaat info. */
 export type LinkFamilyResponse = {
+  /** 2.4.7: PENDING = permintaan terkirim (menunggu persetujuan); LINKED = langsung terhubung. */
+  status?: 'PENDING' | 'LINKED';
+  message?: string;
+  requestId?: string;
+  viaGuardian?: boolean;
   id: string;
   jemaatAId: string;
   jemaatBId: string;
@@ -100,6 +105,8 @@ export type FamilySearchItem = {
   jenisKelamin: 'L' | 'P' | null;
   cabang: string;
   alreadyLinked: boolean;
+  /** 2.4.7: permintaan saya ke orang ini masih menunggu persetujuan. */
+  pendingRequest?: boolean;
 };
 export type FamilySearchResult = {
   mode: 'email' | 'phone' | 'nama';
@@ -137,3 +144,17 @@ export type RegisterNewFamilyResponse = {
     isVerified: boolean;
   };
 };
+
+/** Permintaan hubungan keluarga (2.4.7). */
+export type FamilyRequestPerson = { id: string; namaLengkap: string; kode: string | null; fotoUrl: string | null; cabang: string };
+export type FamilyLinkRequestRow = {
+  id: string;
+  via: string;
+  createdAt: string;
+  tipeRelasi: { id: string; nama: string };
+  requester: FamilyRequestPerson;
+  target: FamilyRequestPerson;
+  /** Disetujui wali (target = tanggungan Anda). */
+  viaGuardian: boolean;
+};
+export type FamilyLinkRequests = { incoming: FamilyLinkRequestRow[]; outgoing: FamilyLinkRequestRow[] };

@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Check, Info, Search, X } from 'lucide-react-native';
+import { ArrowLeft, Check, Info, Search, X, Hourglass } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -66,12 +66,18 @@ export default function FamilyAddSearchScreen() {
       { jemaatId: picked.id, tipeRelasiId: tipe.id },
       {
         onSuccess: (data) => {
+          if (data.status === 'PENDING') {
+            // 2.4.7 — menunggu persetujuan orangnya / walinya.
+            showToast(data.message ?? t('family.request_sent'), 'success');
+            router.replace('/family');
+            return;
+          }
           showToast(t('family.link_success', { name: data.target?.namaLengkap ?? picked.namaLengkap }), 'success');
           router.replace('/family');
         },
         onError: (err) => {
           if (err instanceof ApiError) {
-            if (err.code === 'CONFLICT') Alert.alert(t('family.already_linked'));
+            if (err.code === 'CONFLICT') Alert.alert(err.message || t('family.already_linked'));
             else if (err.code === 'BAD_REQUEST' && /diri sendiri/i.test(err.message)) Alert.alert(t('family.cant_link_self'));
             else Alert.alert(err.message);
           } else {
@@ -181,9 +187,9 @@ export default function FamilyAddSearchScreen() {
                     {items.map((it) => (
                       <Pressable
                         key={it.id}
-                        disabled={it.alreadyLinked}
+                        disabled={it.alreadyLinked || !!it.pendingRequest}
                         onPress={() => setPicked(it)}
-                        className={`flex-row items-center gap-3 p-3 rounded-2xl border border-neutral-100 bg-card ${it.alreadyLinked ? 'opacity-50' : ''}`}
+                        className={`flex-row items-center gap-3 p-3 rounded-2xl border border-neutral-100 bg-card ${it.alreadyLinked || it.pendingRequest ? 'opacity-50' : ''}`}
                       >
                         <Avatar name={it.namaLengkap} fotoUrl={it.fotoUrl} size={40} />
                         <View className="flex-1 min-w-0">
@@ -198,6 +204,11 @@ export default function FamilyAddSearchScreen() {
                           <View className="flex-row items-center gap-1">
                             <Check size={14} color="#059669" />
                             <Text className="text-[11px] font-semibold text-emerald-700">{t('family.search_already')}</Text>
+                          </View>
+                        ) : it.pendingRequest ? (
+                          <View className="flex-row items-center gap-1">
+                            <Hourglass size={13} color="#B45309" />
+                            <Text className="text-[11px] font-semibold text-amber-700">{t('family.search_pending')}</Text>
                           </View>
                         ) : null}
                       </Pressable>

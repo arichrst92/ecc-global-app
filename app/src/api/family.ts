@@ -1,6 +1,7 @@
 /**
  * Family API — mobile-api-guide section 13.
- * Endpoint self-managed di /admin/me/family/*. Auto-verify (no 2-way confirm).
+ * Endpoint self-managed di /admin/me/family/*. 2.4.7: menambah jemaat berakun
+ * = permintaan yang harus disetujui orangnya (atau walinya).
  */
 
 import { api } from './client';
@@ -13,7 +14,11 @@ import type {
   LinkFamilyResponse,
   RegisterNewFamilyPayload,
   RegisterNewFamilyResponse,
+  FamilyLinkRequests,
 } from '@/types/family';
+
+/** App ini paham respons PENDING (permintaan keluarga). */
+const FR = { headers: { 'X-Family-Request': '1' } };
 
 /** GET /admin/me/family — list anggota keluarga current user */
 export function listFamily() {
@@ -23,12 +28,12 @@ export function listFamily() {
 /** POST /admin/me/family/link-by-kode — link via QR scan (8 char kode).
  * Response shape berbeda dari list row — punya target field. */
 export function linkByKode(payload: LinkByKodePayload) {
-  return api.post<LinkFamilyResponse>('/admin/me/family/link-by-kode', payload);
+  return api.post<LinkFamilyResponse>('/admin/me/family/link-by-kode', payload, FR);
 }
 
 /** POST /admin/me/family/link-by-phone — link via nomor HP */
 export function linkByPhone(payload: LinkByPhonePayload) {
-  return api.post<LinkFamilyResponse>('/admin/me/family/link-by-phone', payload);
+  return api.post<LinkFamilyResponse>('/admin/me/family/link-by-phone', payload, FR);
 }
 
 /**
@@ -41,7 +46,7 @@ export function searchFamily(q: string) {
 
 /** POST /admin/me/family/link-by-id (2.4.6) — link hasil pencarian. */
 export function linkById(payload: LinkByIdPayload) {
-  return api.post<LinkFamilyResponse>('/admin/me/family/link-by-id', payload);
+  return api.post<LinkFamilyResponse>('/admin/me/family/link-by-id', payload, FR);
 }
 
 /**
@@ -141,4 +146,18 @@ export function uploadDependentFoto(
     `/admin/me/family/${jemaatId}/foto`,
     formData,
   );
+}
+
+/** GET /admin/me/family/requests (2.4.7) — permintaan masuk & keluar yang menunggu. */
+export function getFamilyRequests() {
+  return api.get<FamilyLinkRequests>('/admin/me/family/requests');
+}
+export function approveFamilyRequest(id: string) {
+  return api.post<{ id: string; status: 'APPROVED' }>(`/admin/me/family/requests/${id}/approve`, {});
+}
+export function rejectFamilyRequest(id: string, reason?: string) {
+  return api.post<{ id: string; status: 'REJECTED' }>(`/admin/me/family/requests/${id}/reject`, reason ? { reason } : {});
+}
+export function cancelFamilyRequest(id: string) {
+  return api.delete<{ id: string; status: 'CANCELLED' }>(`/admin/me/family/requests/${id}`);
 }
