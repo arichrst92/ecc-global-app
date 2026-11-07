@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useBranchStore } from '@/stores/branch.store';
+import { gx } from '@/theme/gradient';
 
 /**
  * Persistent strip banner kalau user sedang viewing cabang lain (bukan home).
@@ -21,10 +22,12 @@ export function ViewingBanner({ safeTop = false }: { safeTop?: boolean }) {
   if (isHome || !branch) return null;
 
   return (
-    <View className="bg-amber-500 px-4 pb-2 flex-row items-center gap-2" style={{ paddingTop: (safeTop ? insets.top : 0) + 8 }}>
+    <View
+      {...gx('bg-brand-500 px-4 pb-2 flex-row items-center gap-2 border-b border-white/20', { paddingTop: (safeTop ? insets.top : 0) + 8 })}
+    >
       <MapPin size={14} color="#fff" />
       <Text className="text-xs text-white flex-1" numberOfLines={1}>
-        <Text className="text-neutral-900 font-bold">{t('branch.viewing_label')}:</Text> {branch.nama}
+        <Text className="text-white font-bold">{t('branch.viewing_label')}:</Text> {branch.nama}
       </Text>
       <Pressable onPress={() => resetToHome()} className="bg-white/20 px-2 py-1 rounded-md">
         <Text className="text-xs text-white font-semibold">{t('branch.back_home')}</Text>

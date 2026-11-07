@@ -3,7 +3,7 @@
 Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 
 ## Isi rilis
-- **Banner "Sedang menjelajahi" cabang lain** — di Beranda tidak lagi tertutup jam / sinyal / baterai di atas layar.
+- **Banner "Sedang menjelajahi" cabang lain** (Beranda, Event, Ibadah) — gradient oranye dengan tulisan putih (sebelumnya kuning dengan label hitam); di Beranda tidak lagi tertutup jam / sinyal / baterai.
 - **Keluarkan anggota homecell dengan alasan** — ⋯ → Keluarkan dari homecell → popup konfirmasi dengan pilihan alasan wajib: *Salah invite member*, *Member sudah tidak aktif*, *Member berpindah homecell*, *Member berpindah kota*, atau *Alasan lain* (diketik). Alasan tampil di anggota nonaktif (app) & riwayat homecell di profil jemaat (Portal). Server kini hanya mengizinkan PIC homecell, PIC/pastor zona, atau admin mengeluarkan anggota.
 - **Keyboard tidak menutupi isian (Android)** — semua form & lembar isian kini naik di atas keyboard di Android (mode layar penuh): login/daftar, edit profil, doa, kritik & saran, resolusi, catatan & Bible 365, visit, tamu, keluarga, group, homecell (jadwal, materi, gabung sebagai tamu, alasan tolak), zona, usaha, hapus akun, scanner (kode manual & jemput), pengumuman/voting, ajukan Spiritual Journey, gabung & tinjau pelayanan, pendaftaran pelayanan, daftar event, dan ulasan di tiket. iOS tetap seperti sebelumnya.
 - **Ubah jadwal pertemuan homecell** — ikon pensil di detail pertemuan: ubah tanggal, jam, lokasi, catatan (form yang sama dengan Buat Jadwal), juga setelah absen tercatat. Untuk PIC homecell, PIC / pastor zona, dan asisten. Tanpa notifikasi ke anggota.
