@@ -55,19 +55,21 @@ export function PersonalDataCard() {
         .join(' · ')
     : null;
 
+  // Warna ikon seragam abu-abu, sama dengan section Pengaturan.
+  const ICON = nc('#525252');
   const rows: Row[] = [
-    { key: 'email', icon: <Mail size={15} color="#2563EB" />, label: t('edit_profile.email'), value: me?.email ?? null, privacy: 'email' },
-    { key: 'gender', icon: <User size={15} color="#7C3AED" />, label: t('signup.gender'), value: gender },
+    { key: 'email', icon: <Mail size={15} color={ICON} />, label: t('edit_profile.email'), value: me?.email ?? null, privacy: 'email' },
+    { key: 'gender', icon: <User size={15} color={ICON} />, label: t('signup.gender'), value: gender },
     {
       key: 'dob',
-      icon: <Cake size={15} color="#DB2777" />,
+      icon: <Cake size={15} color={ICON} />,
       label: t('edit_profile.dob'),
       value: me?.tanggalLahir ? formatDate(me.tanggalLahir, lang) : null,
       privacy: 'tanggalLahir',
     },
-    { key: 'alamat', icon: <MapPin size={15} color="#059669" />, label: t('signup.address'), value: me?.alamat ?? null, privacy: 'alamat' },
-    { key: 'job', icon: <Briefcase size={15} color={nc('#B45309')} />, label: t('edit_profile.job'), value: pekerjaan || null, privacy: 'pekerjaan' },
-    { key: 'marriage', icon: <Heart size={15} color="#E11D48" />, label: t('edit_profile.marriage'), value: pernikahan, privacy: 'pernikahan' },
+    { key: 'alamat', icon: <MapPin size={15} color={ICON} />, label: t('signup.address'), value: me?.alamat ?? null, privacy: 'alamat' },
+    { key: 'job', icon: <Briefcase size={15} color={ICON} />, label: t('edit_profile.job'), value: pekerjaan || null, privacy: 'pekerjaan' },
+    { key: 'marriage', icon: <Heart size={15} color={ICON} />, label: t('edit_profile.marriage'), value: pernikahan, privacy: 'pernikahan' },
   ];
 
   return (
@@ -86,7 +88,7 @@ export function PersonalDataCard() {
         const aud = r.privacy ? audience(r.privacy) : null;
         return (
           <View key={r.key} className="flex-row gap-3 px-4 py-2.5 border-t border-neutral-50">
-            <View className="w-7 h-7 rounded-lg bg-neutral-50 items-center justify-center mt-0.5">{r.icon}</View>
+            <View className="w-7 h-7 rounded-lg bg-neutral-100 items-center justify-center mt-0.5">{r.icon}</View>
             <View className="flex-1 min-w-0">
               <Text className="text-[11px] text-neutral-500">{r.label}</Text>
               <Text className={`text-sm ${r.value ? 'text-neutral-900' : 'text-neutral-400 italic'}`}>
