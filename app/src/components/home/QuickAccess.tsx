@@ -128,14 +128,21 @@ function Tile({ tile }: { tile: QuickAccessTile }) {
   return (
     <Pressable onPress={tile.onPress} className="items-center" accessibilityRole="button" accessibilityLabel={tile.label}>
       <View className="w-14 h-14 rounded-2xl bg-brand-50 items-center justify-center relative">
-        <Icon size={22} color={ICON_COLOR} />
+        {/* 2.4.7: ikon & label sedikit lebih besar; kotak 56 & jarak antar tile tetap. */}
+        <Icon size={25} color={ICON_COLOR} />
         {tile.badge ? (
           <View className="absolute -top-1 -right-1 px-1 py-0.5 rounded-full bg-red-500 min-w-[16px] items-center">
             <Text className="text-[8px] font-bold text-white">{tile.badge}</Text>
           </View>
         ) : null}
       </View>
-      <Text className="text-[10px] font-semibold text-neutral-700 text-center mt-1.5" numberOfLines={2}>
+      <Text
+        className="text-[11.5px] font-semibold text-neutral-700 text-center mt-1.5"
+        style={{ lineHeight: 14 }}
+        numberOfLines={2}
+        adjustsFontSizeToFit
+        minimumFontScale={0.85}
+      >
         {tile.label}
       </Text>
     </Pressable>
