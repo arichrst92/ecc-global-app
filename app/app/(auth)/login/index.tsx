@@ -7,13 +7,13 @@
  */
 import { useState } from 'react';
 import {
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
@@ -66,8 +66,7 @@ export default function LoginPhoneScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         keyboardVerticalOffset={0}
         className="flex-1"
       >
@@ -123,7 +122,7 @@ export default function LoginPhoneScreen() {
             size="lg"
           />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </SafeAreaView>
   );
 }

@@ -8,7 +8,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -16,6 +15,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -181,8 +181,7 @@ export default function EditGroupScreen() {
         </View>
       </SafeAreaView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         className="flex-1"
       >
         <ScrollView
@@ -290,7 +289,7 @@ export default function EditGroupScreen() {
             size="lg"
           />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </View>
   );
 }

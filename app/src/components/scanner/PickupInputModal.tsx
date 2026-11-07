@@ -9,7 +9,6 @@
  */
 import { useState } from 'react';
 import {
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -17,6 +16,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
 import { Baby, X } from 'lucide-react-native';
 
@@ -72,8 +72,7 @@ export function PickupInputModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <KeyboardSafeView
         className="flex-1 bg-black/60 justify-end"
       >
         <Pressable onPress={handleClose} className="flex-1" />
@@ -129,7 +128,7 @@ export function PickupInputModal({
             />
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </Modal>
   );
 }

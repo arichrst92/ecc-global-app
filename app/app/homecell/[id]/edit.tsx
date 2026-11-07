@@ -4,8 +4,8 @@
  * PATCH /admin/me/homecell/:id
  */
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
-import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +22,6 @@ import { nc } from '@/theme/ThemeRoot';
 type Kategori = 'SINGLE' | 'COUPLE' | null;
 
 export default function EditHomecellScreen() {
-  const kbH = useKeyboardHeight();
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -106,9 +105,9 @@ export default function EditHomecellScreen() {
       {q.isPending ? (
         <ActivityIndicator color="#F97316" style={{ marginTop: 40 }} />
       ) : (
-        <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardSafeView className="flex-1">
           <ScrollView
-            contentContainerStyle={{ padding: 20, paddingBottom: 24 + (Platform.OS === 'android' ? kbH : 0) }}
+            contentContainerStyle={{ padding: 20, paddingBottom: 24 }}
             keyboardShouldPersistTaps="handled"
           >
             <Field label={t('hcj.edit_nama')}>
@@ -186,7 +185,7 @@ export default function EditHomecellScreen() {
               {mut.isPending ? <ActivityIndicator color="#fff" /> : <Text className="text-base font-bold text-white">{t('common.save')}</Text>}
             </Pressable>
           </View>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       )}
     </View>
   );

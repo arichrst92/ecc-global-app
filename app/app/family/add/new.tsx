@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -9,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -83,8 +83,7 @@ export default function FamilyAddNewScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         className="flex-1"
       >
         <View className="px-4 py-2 flex-row items-center border-b border-neutral-100">
@@ -211,7 +210,7 @@ export default function FamilyAddNewScreen() {
             leftIcon={<UserPlus size={16} color="#fff" />}
           />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
 
       {showDatePicker ? (
         <DatePickerModal

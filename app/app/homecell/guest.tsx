@@ -12,7 +12,6 @@ import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Linking,
   Modal,
   Platform,
@@ -22,6 +21,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -462,7 +462,7 @@ function JoinSheet({
 
   return (
     <Modal visible={!!h} transparent animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
+      <KeyboardSafeView className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={onClose} />
         <View className="bg-card rounded-t-3xl" style={{ maxHeight: '90%' }}>
           <ScrollView
@@ -591,7 +591,7 @@ function JoinSheet({
             ) : null}
           </ScrollView>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </Modal>
   );
 }

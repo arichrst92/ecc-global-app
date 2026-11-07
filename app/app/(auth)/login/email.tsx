@@ -12,13 +12,13 @@
  */
 import { useEffect, useState } from 'react';
 import {
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { Redirect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
@@ -124,8 +124,7 @@ function LoginEmailForm() {
 
   return (
     <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         keyboardVerticalOffset={0}
         className="flex-1"
       >
@@ -254,7 +253,7 @@ function LoginEmailForm() {
             />
           </View>
         ) : null}
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </SafeAreaView>
   );
 }

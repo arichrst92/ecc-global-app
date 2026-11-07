@@ -21,6 +21,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -523,7 +524,7 @@ export default function GroupDetailScreen() {
 
       {/* Modal alasan tolak (PIC) */}
       <Modal visible={!!rejectingReq} transparent animationType="fade" onRequestClose={() => setRejectingReq(null)}>
-        <View className="flex-1 bg-black/40 items-center justify-center px-6">
+        <KeyboardSafeView className="flex-1 bg-black/40 items-center justify-center px-6">
           <View className="bg-card rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
             <Text className="text-base font-bold text-neutral-900 mb-3">
               {t('group.reject_title', { nama: rejectingReq?.nama ?? '' })}
@@ -564,7 +565,7 @@ export default function GroupDetailScreen() {
               </View>
             </View>
           </View>
-        </View>
+        </KeyboardSafeView>
       </Modal>
 
       {/* Sticky footer — Join / Leave / Dismiss */}

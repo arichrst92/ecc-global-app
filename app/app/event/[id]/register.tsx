@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -271,7 +272,7 @@ export default function EventRegisterScreen() {
   }
 
   return (
-    <View className="flex-1 bg-neutral-50">
+    <KeyboardSafeView className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
@@ -529,7 +530,7 @@ export default function EventRegisterScreen() {
           />
         </SafeAreaView>
       </View>
-    </View>
+    </KeyboardSafeView>
   );
 }
 

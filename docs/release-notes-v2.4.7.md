@@ -3,6 +3,7 @@
 Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 
 ## Isi rilis
+- **Keyboard tidak menutupi isian (Android)** — semua form & lembar isian kini naik di atas keyboard di Android (mode layar penuh): login/daftar, edit profil, doa, kritik & saran, resolusi, catatan & Bible 365, visit, tamu, keluarga, group, homecell (jadwal, materi, gabung sebagai tamu, alasan tolak), zona, usaha, hapus akun, scanner (kode manual & jemput), pengumuman/voting, ajukan Spiritual Journey, gabung & tinjau pelayanan, pendaftaran pelayanan, daftar event, dan ulasan di tiket. iOS tetap seperti sebelumnya.
 - **Ubah jadwal pertemuan homecell** — ikon pensil di detail pertemuan: ubah tanggal, jam, lokasi, catatan (form yang sama dengan Buat Jadwal), juga setelah absen tercatat. Untuk PIC homecell, PIC / pastor zona, dan asisten. Tanpa notifikasi ke anggota.
 - **Asisten homecell** — PIC homecell (atau PIC / pastor zona) menunjuk anggota aktif sebagai **asisten** lewat tombol ⋯ di daftar anggota (**Jadikan asisten / Lepas asisten**; jumlah tidak dibatasi). Asisten mendapat notifikasi, badge **Asisten**, dan tombol **Kelola** di halaman homecell untuk: **buat jadwal pertemuan, absen (scan / manual), catat tamu, pengumuman, voting, dan lampiran**. Asisten tidak bisa menambah/mengeluarkan anggota, menghapus jadwal, mengubah info homecell, laporan, atau memproses permintaan bergabung. Keluar dari homecell → status asisten lepas.
 - **Tambah keluarga harus disetujui** — menambah jemaat yang sudah punya akun (scan QR, input kode, Cari jemaat, no HP) kini mengirim **permintaan**; orangnya (atau **wali utamanya** bila ia tanggungan tanpa HP) menyetujui / menolak di menu **Keluarga** dan mendapat notifikasi. Pemohon melihat daftar **Menunggu persetujuan** (bisa dibatalkan) dan notifikasi hasilnya. "Daftarkan Baru" (balita / lansia tanpa HP) tetap langsung. Hasil Cari jemaat menandai orang yang permintaannya masih menunggu.
@@ -52,6 +53,7 @@ Els App 2.4.7:
 ```
 
 ## Smoke test
+- [ ] Android: buka beberapa form (Doa baru, Kritik & Saran, Tambah tamu, Gabung pelayanan → motivasi, Tolak permintaan homecell, ulasan di tiket) → ketik di kolom paling bawah → kolom & tombol simpan tetap terlihat di atas keyboard
 - [ ] Detail pertemuan (sudah ada absen) → pensil → ubah jam & lokasi → Simpan Perubahan → detail & daftar jadwal ter-update, absen tetap
 - [ ] Asisten bisa mengubah jadwal; anggota biasa tidak melihat pensil
 - [ ] Detail event yang sudah didaftar → Tiket Saya tanpa gambar; ketuk → tiket penuh (dengan gambar) tetap normal

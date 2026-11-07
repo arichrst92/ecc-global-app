@@ -4,7 +4,8 @@
  * nomor baru.
  */
 import { useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, Platform, Pressable, Text, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
 import { Phone, X } from 'lucide-react-native';
@@ -82,7 +83,7 @@ export function ChangePhoneModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <KeyboardSafeView style={{ flex: 1 }}>
         <Pressable onPress={close} className="flex-1 bg-black/50 justify-end">
           <Pressable onPress={() => {}} className="bg-card rounded-t-3xl px-5 pt-4 pb-8">
             <View className="flex-row items-center mb-4">
@@ -154,7 +155,7 @@ export function ChangePhoneModal({
             )}
           </Pressable>
         </Pressable>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </Modal>
   );
 }

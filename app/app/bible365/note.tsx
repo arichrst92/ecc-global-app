@@ -1,6 +1,7 @@
 /** Bible 365 — catatan renungan satu hari (pribadi). Param: ?day=N */
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -58,7 +59,7 @@ export default function Bible365NoteScreen() {
   });
 
   return (
-    <KeyboardAvoidingView className="flex-1 bg-neutral-50" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardSafeView className="flex-1 bg-neutral-50">
       <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="px-4 py-2 flex-row items-center">
           <Pressable onPress={() => goBack(router, '/bible365')} className="w-10 h-10 items-center justify-center">
@@ -131,6 +132,6 @@ export default function Bible365NoteScreen() {
           </Pressable>
         </ScrollView>
       )}
-    </KeyboardAvoidingView>
+    </KeyboardSafeView>
   );
 }

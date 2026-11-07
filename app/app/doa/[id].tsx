@@ -3,7 +3,6 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -12,6 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -176,7 +176,7 @@ export default function DoaDetailScreen() {
       )}
 
       <Modal visible={answerOpen} transparent animationType="slide" onRequestClose={() => setAnswerOpen(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
+        <KeyboardSafeView className="flex-1 bg-black/50 justify-end">
           <Pressable className="flex-1" onPress={() => setAnswerOpen(false)} />
           <View className="bg-card rounded-t-3xl p-5 gap-3" style={{ paddingBottom: insets.bottom + 20 }}>
             <View className="flex-row items-center justify-between">
@@ -198,7 +198,7 @@ export default function DoaDetailScreen() {
             />
             <Button label={t('doa.mark_answered')} loading={answerMut.isPending} onPress={() => answerMut.mutate(true)} fullWidth />
           </View>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       </Modal>
     </View>
   );

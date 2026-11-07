@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Image,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -10,6 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -291,8 +291,7 @@ export default function EditProfileScreen() {
         </View>
       </SafeAreaView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         className="flex-1"
       >
         <ScrollView
@@ -517,7 +516,7 @@ export default function EditProfileScreen() {
             />
           </View>
         </SafeAreaView>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
 
       {/* Date picker modal — lazy import @react-native-community/datetimepicker */}
       {showDatePicker ? (

@@ -3,7 +3,8 @@
  * plus modal upload untuk PIC (nama, deskripsi, file via document picker).
  */
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import * as DocumentPicker from 'expo-document-picker';
 import * as WebBrowser from 'expo-web-browser';
 import { useTranslation } from 'react-i18next';
@@ -117,7 +118,7 @@ export function UploadMaterialModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
+      <KeyboardSafeView className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={close} />
         <View className="bg-card rounded-t-3xl p-5 gap-3">
           <View className="flex-row items-center justify-between">
@@ -171,7 +172,7 @@ export function UploadMaterialModal({
             }}
           />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </Modal>
   );
 }

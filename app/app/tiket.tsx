@@ -8,6 +8,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -39,6 +40,8 @@ async function loadBrightness() {
 type Item = { kind: 'event'; t: EventTiket } | { kind: 'ibadah'; r: MyReservasi };
 
 export default function TiketScreen() {
+  // Android edge-to-edge: ruang bawah setinggi keyboard untuk kolom ulasan.
+  const kbH = useKeyboardHeight();
   const { t } = useTranslation();
   const router = useRouter();
   const showToast = useToast((s) => s.show);
@@ -193,7 +196,7 @@ export default function TiketScreen() {
                 }}
                 automaticallyAdjustKeyboardInsets
                 style={{ width, height: pageH || undefined }}
-                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: items.length > 1 ? 24 : insets.bottom + 32 }}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: (items.length > 1 ? 24 : insets.bottom + 32) + (Platform.OS === 'android' ? kbH : 0) }}
                 showsVerticalScrollIndicator={false}
                 nestedScrollEnabled
                 keyboardShouldPersistTaps="handled"

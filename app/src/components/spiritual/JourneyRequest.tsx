@@ -7,7 +7,6 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -16,6 +15,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -135,7 +135,7 @@ function RequestSheet({ visible, onClose, journey }: { visible: boolean; onClose
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 justify-end bg-black/40">
+      <KeyboardSafeView className="flex-1 justify-end bg-black/40">
         <View className="bg-card rounded-t-3xl max-h-[88%]" style={{ paddingBottom: insets.bottom + 12 }}>
           <View className="flex-row items-center px-5 pt-4 pb-2">
             <Text className="flex-1 text-base font-bold text-neutral-900">{t('journey.req_title')}</Text>
@@ -199,7 +199,7 @@ function RequestSheet({ visible, onClose, journey }: { visible: boolean; onClose
             )}
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </Modal>
   );
 }

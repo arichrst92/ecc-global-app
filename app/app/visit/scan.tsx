@@ -15,7 +15,6 @@
 import { useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -23,6 +22,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -225,8 +225,7 @@ export default function VisitScanScreen() {
         animationType="fade"
         onRequestClose={resetScanner}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        <KeyboardSafeView
           className="flex-1"
         >
           <Pressable
@@ -295,7 +294,7 @@ export default function VisitScanScreen() {
               </View>
             </Pressable>
           </Pressable>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       </Modal>
     </View>
   );

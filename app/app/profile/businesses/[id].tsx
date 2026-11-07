@@ -13,7 +13,6 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  KeyboardAvoidingView,
   Linking,
   Modal,
   Platform,
@@ -23,6 +22,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -340,8 +340,7 @@ export default function OwnerBusinessDetailScreen() {
         </View>
       </SafeAreaView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         className="flex-1"
       >
         <ScrollView
@@ -743,7 +742,7 @@ export default function OwnerBusinessDetailScreen() {
             />
           </View>
         </SafeAreaView>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
 
       {/* Add social link modal */}
       <Modal
@@ -752,8 +751,7 @@ export default function OwnerBusinessDetailScreen() {
         animationType="slide"
         onRequestClose={() => setAddSocialOpen(false)}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        <KeyboardSafeView
           className="flex-1"
         >
           <Pressable
@@ -793,7 +791,7 @@ export default function OwnerBusinessDetailScreen() {
               />
             </Pressable>
           </Pressable>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       </Modal>
 
       {/* Delete confirm */}

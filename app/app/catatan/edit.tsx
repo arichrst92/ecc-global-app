@@ -11,7 +11,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -19,6 +18,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -293,7 +293,7 @@ export default function CatatanEditScreen() {
         </View>
       </SafeAreaView>
 
-      <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardSafeView className="flex-1">
         <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
           <TextInput
             value={judul}
@@ -405,7 +405,7 @@ export default function CatatanEditScreen() {
             </Pressable>
           </ScrollView>
         </SafeAreaView>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
 
       <AyatInsertModal
         visible={ayatOpen}

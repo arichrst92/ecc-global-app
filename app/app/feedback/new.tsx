@@ -1,6 +1,7 @@
 /** Kirim Kritik & Saran — tipe, topik, isi. */
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -62,7 +63,7 @@ export default function NewFeedbackScreen() {
           <Text className="text-base font-bold text-neutral-900 flex-1">{t('feedback.new_title')}</Text>
         </View>
       </SafeAreaView>
-      <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardSafeView className="flex-1">
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 14 }} keyboardShouldPersistTaps="handled">
           <Text className="text-sm text-neutral-600 leading-5">{t('feedback.new_intro')}</Text>
 
@@ -117,7 +118,7 @@ export default function NewFeedbackScreen() {
           <Button label={t('feedback.send')} loading={mut.isPending} disabled={len < 10} onPress={() => mut.mutate()} fullWidth size="lg" />
           <Text className="text-[11px] text-neutral-500 text-center">{t('feedback.privacy_note')}</Text>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </View>
   );
 }

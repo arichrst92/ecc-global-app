@@ -3,7 +3,8 @@
  * PATCH /admin/me/homecell-area/:id   (param: ?id=)
  */
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -70,7 +71,7 @@ export default function EditAreaScreen() {
       ) : !area ? (
         <Text className="text-sm text-neutral-500 text-center mt-10 px-8">{t('hcj.edit_area_forbidden')}</Text>
       ) : (
-        <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardSafeView className="flex-1">
           <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
             <Field label={t('hcj.edit_area_nama')}>
               <Input value={nama} onChangeText={setNama} maxLength={100} />
@@ -89,7 +90,7 @@ export default function EditAreaScreen() {
               {mut.isPending ? <ActivityIndicator color="#fff" /> : <Text className="text-base font-bold text-white">{t('common.save')}</Text>}
             </Pressable>
           </View>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       )}
     </View>
   );

@@ -1,6 +1,7 @@
 /** Petugas doa — detail prayer request yang ditugaskan + tandai sudah didoakan. */
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -60,7 +61,7 @@ export default function AssignedPrayerScreen() {
           {q.error instanceof ApiError ? q.error.message : t('error.generic')}
         </Text>
       ) : (
-        <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardSafeView className="flex-1">
           <ScrollView
             contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 14 }}
             keyboardShouldPersistTaps="handled"
@@ -132,7 +133,7 @@ export default function AssignedPrayerScreen() {
               size="lg"
             />
           </ScrollView>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       )}
     </View>
   );

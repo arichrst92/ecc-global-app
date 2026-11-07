@@ -3,7 +3,8 @@
  * event dan popup self check-in ibadah.
  */
 import { useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { UserPlus, X } from 'lucide-react-native';
@@ -71,7 +72,7 @@ export function AddTamuModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
+      <KeyboardSafeView className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={close} />
         <View className="bg-card rounded-t-3xl p-5 gap-3">
           <View className="flex-row items-center justify-between">
@@ -126,7 +127,7 @@ export function AddTamuModal({
             onPress={() => mut.mutate()}
           />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </Modal>
   );
 }

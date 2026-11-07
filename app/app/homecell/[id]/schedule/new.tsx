@@ -9,7 +9,6 @@
 
 import { createElement, useEffect, useState } from 'react';
 import {
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -17,6 +16,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -164,8 +164,7 @@ export default function NewScheduleScreen() {
         </View>
       </SafeAreaView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         className="flex-1"
         keyboardVerticalOffset={0}
       >
@@ -360,7 +359,7 @@ export default function NewScheduleScreen() {
             />
           </SafeAreaView>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </View>
   );
 }

@@ -15,7 +15,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -23,6 +22,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -394,8 +394,7 @@ function AddPhoneInputStep({
 
   return (
     <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         className="flex-1"
       >
         <View className="px-4 py-2">
@@ -444,7 +443,7 @@ function AddPhoneInputStep({
             size="lg"
           />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </SafeAreaView>
   );
 }
@@ -661,8 +660,7 @@ function ProfileStep({
 
   return (
     <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         className="flex-1"
       >
         <View className="px-4 py-2">
@@ -802,7 +800,7 @@ function ProfileStep({
             rightIcon={<CheckCircle2 size={18} color="#fff" />}
           />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
 
       {showDatePicker ? (
         <DatePickerModal

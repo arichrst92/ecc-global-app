@@ -5,6 +5,7 @@
  */
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -55,7 +56,7 @@ export function PendaftaranSheet({ ministryId, visible, onClose }: { ministryId:
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View className="flex-1 justify-end bg-black/40">
+      <KeyboardSafeView className="flex-1 justify-end bg-black/40">
         <View className="bg-card rounded-t-3xl max-h-[85%]" style={{ paddingBottom: insets.bottom + 12 }}>
           <View className="flex-row items-center px-5 pt-4 pb-2">
             <Text className="flex-1 text-base font-bold text-neutral-900">{t('ministry.pend_title')}</Text>
@@ -164,7 +165,7 @@ export function PendaftaranSheet({ ministryId, visible, onClose }: { ministryId:
             )}
           </ScrollView>
         </View>
-      </View>
+      </KeyboardSafeView>
     </Modal>
   );
 }

@@ -5,7 +5,8 @@
  * - PIC / admin: buat & kelola semuanya.
  */
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Platform, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
 import {
   BarChart3,
@@ -204,7 +205,7 @@ function AnnouncementsTab({ root, canManage }: { root: string; canManage: boolea
 function Sheet({ visible, title, onClose, children }: { visible: boolean; title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
+      <KeyboardSafeView className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={onClose} />
         <View className="bg-card rounded-t-3xl p-5" style={{ maxHeight: '88%' }}>
           <View className="flex-row items-center justify-between mb-3">
@@ -217,7 +218,7 @@ function Sheet({ visible, title, onClose, children }: { visible: boolean; title:
             {children}
           </ScrollView>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </Modal>
   );
 }

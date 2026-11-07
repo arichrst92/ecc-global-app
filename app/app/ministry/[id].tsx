@@ -16,6 +16,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -827,7 +828,7 @@ function JoinMinistryModal({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+      <KeyboardSafeView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
         {/* Tap backdrop untuk close */}
         <Pressable style={{ flex: 1 }} onPress={onClose} />
         <SafeAreaView edges={['bottom']} style={{ backgroundColor: isDark() ? '#1C1C1E' : '#fff' }}>
@@ -933,7 +934,7 @@ function JoinMinistryModal({
             </View>
           </View>
         </SafeAreaView>
-      </View>
+      </KeyboardSafeView>
     </Modal>
   );
 }
@@ -1012,7 +1013,7 @@ function ReviewJoinRequestModal({
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+      <KeyboardSafeView style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }}>
         <Pressable style={{ flex: 1 }} onPress={busy ? undefined : onClose} />
         <SafeAreaView edges={['bottom']} style={{ backgroundColor: isDark() ? '#1C1C1E' : '#fff' }}>
           <View className="bg-card rounded-t-3xl overflow-hidden">
@@ -1200,7 +1201,7 @@ function ReviewJoinRequestModal({
             </View>
           </View>
         </SafeAreaView>
-      </View>
+      </KeyboardSafeView>
     </Modal>
   );
 }

@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -11,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -112,7 +112,7 @@ export default function DoaFormScreen() {
       {!loaded ? (
         <ActivityIndicator color="#F97316" style={{ marginTop: 40 }} />
       ) : (
-        <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardSafeView className="flex-1">
           <ScrollView
             contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 14 }}
             keyboardShouldPersistTaps="handled"
@@ -208,7 +208,7 @@ export default function DoaFormScreen() {
               size="lg"
             />
           </ScrollView>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       )}
     </View>
   );

@@ -14,7 +14,6 @@
 import { useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -22,6 +21,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -79,8 +79,7 @@ export default function DeleteAccountScreen() {
         </View>
       </SafeAreaView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardSafeView
         className="flex-1"
       >
         <ScrollView
@@ -215,7 +214,7 @@ export default function DeleteAccountScreen() {
           />
           </View>
         </SafeAreaView>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </View>
   );
 }

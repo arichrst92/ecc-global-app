@@ -12,7 +12,6 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Linking,
   Modal,
   Platform,
@@ -22,6 +21,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -370,8 +370,7 @@ export default function VisitDetailScreen() {
         animationType="slide"
         onRequestClose={() => setEditMetaOpen(false)}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        <KeyboardSafeView
           className="flex-1"
         >
           <Pressable
@@ -425,7 +424,7 @@ export default function VisitDetailScreen() {
               />
             </Pressable>
           </Pressable>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       </Modal>
 
       {/* Edit note modal */}
@@ -435,8 +434,7 @@ export default function VisitDetailScreen() {
         animationType="slide"
         onRequestClose={() => setEditNoteOpen(false)}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        <KeyboardSafeView
           className="flex-1"
         >
           <Pressable
@@ -485,7 +483,7 @@ export default function VisitDetailScreen() {
               />
             </Pressable>
           </Pressable>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       </Modal>
 
       {/* Cancel confirm modal */}

@@ -4,7 +4,8 @@
  * No HP milik jemaat terdaftar → server mencatat dengan akun jemaat itu.
  */
 import { useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Handshake, X } from 'lucide-react-native';
@@ -76,7 +77,7 @@ export function VisitGuestModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-black/50 justify-end">
+      <KeyboardSafeView className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={close} />
         <View className="bg-card rounded-t-3xl" style={{ maxHeight: '90%' }}>
           <ScrollView contentContainerStyle={{ padding: 20, gap: 12 }} keyboardShouldPersistTaps="handled">
@@ -136,7 +137,7 @@ export function VisitGuestModal({
             <Button label={t('visit.guest_submit')} loading={mut.isPending} disabled={!can} onPress={() => mut.mutate()} fullWidth />
           </ScrollView>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardSafeView>
     </Modal>
   );
 }

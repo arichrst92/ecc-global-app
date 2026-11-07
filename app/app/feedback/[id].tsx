@@ -1,6 +1,7 @@
 /** Detail Kritik & Saran — percakapan dengan tim gereja + tanggapan lanjutan. */
 import { useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -59,7 +60,7 @@ export default function FeedbackDetailScreen() {
       {!f ? (
         <ActivityIndicator color="#F97316" style={{ marginTop: 40 }} />
       ) : (
-        <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardSafeView className="flex-1">
           <ScrollView contentContainerStyle={{ padding: 20, gap: 10 }}>
             <View className="bg-card rounded-2xl p-4 border border-neutral-100">
               <View className="flex-row items-center gap-2 mb-2">
@@ -113,7 +114,7 @@ export default function FeedbackDetailScreen() {
               </Pressable>
             </View>
           </View>
-        </KeyboardAvoidingView>
+        </KeyboardSafeView>
       )}
     </View>
   );
