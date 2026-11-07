@@ -24,6 +24,7 @@ import {
   reorderItems,
   uploadItemFoto,
   deleteItemFoto,
+  type FileObj,
 } from '@/api/businesses';
 import {
   getLocalMarketDetail,
@@ -99,7 +100,7 @@ export function useDeleteBusiness() {
 export function useUploadBusinessHero(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (file: { uri: string; name: string; type: string }) =>
+    mutationFn: (file: FileObj) =>
       uploadBusinessHero(id, file),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['businesses', 'mine', 'detail', id] });
@@ -122,7 +123,7 @@ export function useDeleteBusinessHero(id: string) {
 export function useUploadBusinessLogo(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (file: { uri: string; name: string; type: string }) =>
+    mutationFn: (file: FileObj) =>
       uploadBusinessLogo(id, file),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['businesses', 'mine', 'detail', id] });
@@ -145,7 +146,7 @@ export function useDeleteBusinessLogo(id: string) {
 export function useUploadBusinessPdf(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (file: { uri: string; name: string; type: string }) =>
+    mutationFn: (file: FileObj) =>
       uploadBusinessProfilePdf(id, file),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['businesses', 'mine', 'detail', id] });
@@ -241,7 +242,7 @@ export function useReorderItems(bizId: string) {
 export function useUploadItemFoto(bizId: string) {
   const inv = useItemInvalidate(bizId);
   return useMutation({
-    mutationFn: ({ itemId, file }: { itemId: string; file: { uri: string; name: string; type: string } }) =>
+    mutationFn: ({ itemId, file }: { itemId: string; file: FileObj }) =>
       uploadItemFoto(bizId, itemId, file),
     onSuccess: inv,
   });

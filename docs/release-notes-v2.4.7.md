@@ -20,9 +20,11 @@ Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Katalog Local Market** — pemilik usaha: Usaha Saya → bisnis → **Katalog produk & jasa**: tambah item (Produk / Jasa), nama, deskripsi, sampai 4 foto (dipotong 3:2, foto pertama jadi sampul), harga **Tetap / Mulai dari / By agreement** + **mata uang** (IDR, AUD, SGD, MYR, USD, EUR, NZD, HKD, TWD, CNY, JPY) + satuan, tampil/sembunyikan, urutan naik/turun. Jumlah item per bisnis dibatasi global dari Portal; item langsung tampil (admin Portal bisa menyembunyikan).
 - **Detail bisnis Local Market** — tombol **WhatsApp admin** & **Email**, grid katalog 2 kolom (filter Semua/Produk/Jasa). Detail item: galeri foto 3:2, harga, **Tanya via WhatsApp** (pesan otomatis berisi nama item, harga, dan link), Email, Bagikan link item (pratinjau WhatsApp memakai foto item).
 - **Form usaha** — kolom **Nomor WhatsApp admin** & **Email bisnis**; sosial media cukup isi **username** (Instagram, Facebook, TikTok, YouTube, X, LinkedIn, Threads — semua opsional). Kolom link "Chat WhatsApp" dihapus (digantikan WhatsApp admin); data sosmed lama otomatis terbaca sebagai username.
+- **Jumlah kunjungan Local Market** — pemilik melihat "Dilihat N kali" di form usaha dan jumlah kunjungan per item di Katalog; Portal menampilkan kunjungan usaha & item. Dihitung dari app + web, pemilik sendiri tidak dihitung, satu pengunjung dihitung sekali per 30 menit, bot pratinjau link diabaikan.
+- **Upload foto usaha & katalog** — nama/tipe file diambil dari picker; di versi web foto dikirim sebagai file asli (sebelumnya gagal "File foto wajib (multipart)").
 
 ## Syarat server
-Migrasi `20261115090000_family_link_request`, `20261116090000_homecell_asisten`, `20261117090000_homecell_member_alasan_keluar`, `20261118090000_local_market_katalog` + core-api & landing terbaru (katalog `/admin/me/businesses/:id/items…`, `/public/local-market/:id/item/:itemId`, halaman web `/local-market/:id/item/:itemId` dengan OG image) (`PATCH /admin/homecell/:id/schedule/:scheduleId`, `/admin/me/family/requests…`, link-by-* jadi permintaan, catatan SJ opsional, resolver link Google Maps tanpa koordinat, request join group/homecell hanya PIC di app).
+Migrasi `20261115090000_family_link_request`, `20261116090000_homecell_asisten`, `20261117090000_homecell_member_alasan_keluar`, `20261118090000_local_market_katalog`, `20261119090000_local_market_view_count` + core-api & landing terbaru (katalog `/admin/me/businesses/:id/items…`, `/public/local-market/:id/item/:itemId`, halaman web `/local-market/:id/item/:itemId` dengan OG image) (`PATCH /admin/homecell/:id/schedule/:scheduleId`, `/admin/me/family/requests…`, link-by-* jadi permintaan, catatan SJ opsional, resolver link Google Maps tanpa koordinat, request join group/homecell hanya PIC di app).
 App 2.4.6 ke bawah: menambah keluarga berakun juga menjadi permintaan — app lama menampilkan pesan "Permintaan terkirim…"; persetujuan dilakukan dari app 2.4.7.
 
 ## Google Play — "Yang baru"
@@ -90,3 +92,5 @@ Els App 2.4.7:
 - [ ] Bagikan link item ke WhatsApp → pratinjau berisi foto item, nama, harga; link membuka halaman web item (dan app di Android 2.4.7)
 - [ ] Portal → detail bisnis → Katalog → Sembunyikan item → item hilang dari app & web, pemilik melihat label "Disembunyikan admin"
 - [ ] Bisnis lama dengan link sosmed → form usaha menampilkan username terisi
+- [ ] Akun lain buka detail usaha & item (app dan web) → Portal / form usaha pemilik: kunjungan bertambah 1; buka ulang dalam 30 menit tidak menambah; pemilik membuka sendiri tidak menambah
+- [ ] Tambah foto item & hero/logo usaha (Android, iOS, dan web) → berhasil

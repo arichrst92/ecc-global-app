@@ -37,13 +37,19 @@ export function deleteBusiness(id: string) {
   return api.delete<{ success: true }>(`/admin/me/businesses/${id}`);
 }
 
-type FileObj = { uri: string; name: string; type: string };
+/** File gambar: native pakai uri; web (Expo web) wajib File asli — objek {uri}
+ *  di FormData browser jadi teks "[object Object]" → server: "File foto wajib (multipart)". */
+export type FileObj = { uri: string; name: string; type: string; file?: Blob };
+
+function appendFile(fd: FormData, file: FileObj) {
+  if (file.file) fd.append('file', file.file, file.name);
+  else fd.append('file', { uri: file.uri, name: file.name, type: file.type } as unknown as Blob);
+}
 
 /** POST /admin/me/businesses/:id/hero — banner image (max 5 MB, auto-webp 1600px) */
 export function uploadBusinessHero(id: string, file: FileObj) {
   const formData = new FormData();
-  // @ts-expect-error RN FormData accepts file objects
-  formData.append('file', file);
+  appendFile(formData, file);
   return api.upload<{ id: string; heroImageUrl: string }>(
     `/admin/me/businesses/${id}/hero`,
     formData,
@@ -58,8 +64,7 @@ export function deleteBusinessHero(id: string) {
 /** POST /admin/me/businesses/:id/logo — square 512x512 (server auto-crop center) */
 export function uploadBusinessLogo(id: string, file: FileObj) {
   const formData = new FormData();
-  // @ts-expect-error RN FormData accepts file objects
-  formData.append('file', file);
+  appendFile(formData, file);
   return api.upload<{ id: string; logoUrl: string }>(
     `/admin/me/businesses/${id}/logo`,
     formData,
@@ -74,8 +79,7 @@ export function deleteBusinessLogo(id: string) {
 /** POST /admin/me/businesses/:id/profile-pdf — passthrough (max 5 MB) */
 export function uploadBusinessProfilePdf(id: string, file: FileObj) {
   const formData = new FormData();
-  // @ts-expect-error RN FormData accepts file objects
-  formData.append('file', file);
+  appendFile(formData, file);
   return api.upload<{ id: string; companyProfileUrl: string }>(
     `/admin/me/businesses/${id}/profile-pdf`,
     formData,
@@ -110,12 +114,16 @@ export function reorderItems(bizId: string, ids: string[]) {
 /** Foto item — server crop 3:2 (1200×800), maks. 4 */
 export function uploadItemFoto(bizId: string, itemId: string, file: FileObj) {
   const formData = new FormData();
-  // @ts-expect-error RN FormData accepts file objects
-  formData.append('file', file);
+  appendFile(formData, file);
   return api.upload<LocalItem>(`/admin/me/businesses/${bizId}/items/${itemId}/foto`, formData);
 }
 export function deleteItemFoto(bizId: string, itemId: string, url: string) {
   return api.delete<LocalItem>(
     `/admin/me/businesses/${bizId}/items/${itemId}/foto?url=${encodeURIComponent(url)}`,
   );
+}
+
+/** POST /admin/me/local-market/:id/item/:itemId/view — hitung kunjungan item */
+export function pingItemView(bizId: string, itemId: string) {
+  return api.post<{ ok: true }>(`/admin/me/local-market/${bizId}/item/${itemId}/view`, {}, { suppressErrorReport: true });
 }

@@ -32,6 +32,7 @@ import {
   ArrowLeft,
   Camera,
   ChevronRight,
+  Eye,
   ShoppingBag,
   FileText,
   Image as ImageIcon,
@@ -60,6 +61,7 @@ import { INDUSTRI_SUGGESTIONS } from '@/types/localBusiness';
 import { SOCIAL_PLATFORMS, cleanSocialUsername, usernamesFromLinks } from '@/types/localBusiness';
 import type { SocialUsernames, TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
+import { imageAssetToFile } from '@/utils/pickedImage';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { cekHuruf, cekTeks, cekUrl, pertamaGagal } from '@/utils/inputRules';
@@ -164,11 +166,7 @@ export default function OwnerBusinessDetailScreen() {
       quality: 0.85,
     });
     if (result.canceled || !result.assets[0]) return;
-    const asset = result.assets[0];
-    const filename = asset.uri.split('/').pop() ?? `${target}.jpg`;
-    const ext = filename.split('.').pop()?.toLowerCase() ?? 'jpg';
-    const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
-    const fileObj = { uri: asset.uri, name: filename, type: mime };
+    const fileObj = await imageAssetToFile(result.assets[0], `${target}.jpg`);
 
     const mutation = target === 'logo' ? logoUploadMutation : heroUploadMutation;
     mutation.mutate(fileObj, {
@@ -394,6 +392,12 @@ export default function OwnerBusinessDetailScreen() {
           </View>
 
           <View className="px-5 mt-8">
+            <View className="flex-row items-center gap-1.5 mb-2 self-end">
+              <Eye size={13} color={nc('#737373')} />
+              <Text className="text-xs text-neutral-500">
+                {t('my_business.views', { n: biz.viewCount ?? 0 })}
+              </Text>
+            </View>
             <Text className="text-[10px] text-neutral-400 mb-4 leading-relaxed">
               {t('my_business.image_hint')}
             </Text>

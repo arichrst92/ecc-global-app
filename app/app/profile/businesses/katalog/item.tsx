@@ -33,11 +33,12 @@ import {
   type LocalItemJenis,
 } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
+import { imageAssetToFile } from '@/utils/pickedImage';
+import type { FileObj } from '@/api/businesses';
 import { nc } from '@/theme/ThemeRoot';
 import { cekTeks, pertamaGagal } from '@/utils/inputRules';
 
 const FOTO_MAX = 4;
-type FileObj = { uri: string; name: string; type: string };
 
 export default function KatalogItemFormScreen() {
   const { t } = useTranslation();
@@ -103,9 +104,7 @@ export default function KatalogItemFormScreen() {
       quality: 0.85,
     });
     if (r.canceled || !r.assets[0]) return;
-    const a = r.assets[0];
-    const name = a.uri.split('/').pop() ?? 'foto.jpg';
-    const file = { uri: a.uri, name, type: name.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg' };
+    const file = await imageAssetToFile(r.assets[0]);
     if (isEdit && itemId) {
       upFoto.mutate({ itemId, file }, { onError: onErr });
     } else {

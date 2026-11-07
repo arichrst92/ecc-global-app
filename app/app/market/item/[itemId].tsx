@@ -3,7 +3,7 @@
  * Param: itemId (path), bizId (query). Data diambil dari detail bisnis
  * (sudah berisi item aktif) supaya tidak perlu endpoint baru di app.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -12,6 +12,7 @@ import { ArrowLeft, ChevronRight, Mail, MessageCircle, Share2 } from 'lucide-rea
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useLocalMarketDetail } from '@/hooks/useLocalBusiness';
+import { pingItemView } from '@/api/businesses';
 import { hargaLabel, itemShareUrl, waNumber } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
@@ -26,6 +27,11 @@ export default function MarketItemScreen() {
   const biz = query.data;
   const item = biz?.items?.find((i) => i.id === itemId);
   const [page, setPage] = useState(0);
+  const found = !!item;
+  // Hitung kunjungan item (server abaikan pemilik & dedupe 30 menit).
+  useEffect(() => {
+    if (found && bizId && itemId) pingItemView(bizId, itemId).catch(() => {});
+  }, [found, bizId, itemId]);
 
   if (query.isPending) {
     return (

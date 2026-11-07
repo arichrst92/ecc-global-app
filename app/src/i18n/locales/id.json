@@ -924,7 +924,8 @@
     "email_label": "Email bisnis",
     "email_invalid": "Format email tidak valid.",
     "social_username_ph": "username (opsional)",
-    "social_username_hint": "Cukup isi username — link dibuat otomatis. Kosongkan yang tidak dipakai."
+    "social_username_hint": "Cukup isi username — link dibuat otomatis. Kosongkan yang tidak dipakai.",
+    "views": "Dilihat {{n}} kali"
   },
   "visit": {
     "title": "Visit",
@@ -2732,6 +2733,7 @@
     "email_btn": "Email",
     "ask_wa": "Tanya via WhatsApp",
     "wa_message": "Halo {{usaha}}, saya tertarik dengan {{item}} ({{harga}}).\n{{link}}",
-    "email_subject": "Tanya: {{item}}"
+    "email_subject": "Tanya: {{item}}",
+    "views": "Dilihat {{n}}x"
   }
 }

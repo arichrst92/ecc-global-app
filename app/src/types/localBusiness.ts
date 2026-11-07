@@ -38,6 +38,8 @@ export type LocalBusiness = {
   socialUsernames?: SocialUsernames | null;
   /** 2.4.7 — hanya di detail publik: item aktif & tidak disembunyikan admin */
   items?: LocalItem[];
+  /** 2.4.7 — jumlah kunjungan detail (app + web) */
+  viewCount?: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -171,6 +173,7 @@ export type LocalItem = {
   isActive: boolean;
   isHiddenByAdmin?: boolean;
   urutan: number;
+  viewCount?: number;
   createdAt: string;
   updatedAt: string;
 };

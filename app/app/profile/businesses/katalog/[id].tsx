@@ -8,7 +8,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'rea
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowDown, ArrowLeft, ArrowUp, EyeOff, Plus, ShoppingBag } from 'lucide-react-native';
+import { ArrowDown, ArrowLeft, ArrowUp, Eye, EyeOff, Plus, ShoppingBag } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
@@ -133,6 +133,10 @@ export default function KatalogOwnerScreen() {
                   >
                     {harga(it)}
                   </Text>
+                  <View className="flex-row items-center gap-1 mt-0.5">
+                    <Eye size={11} color={nc('#A3A3A3')} />
+                    <Text className="text-[10px] text-neutral-400">{t('katalog.views', { n: it.viewCount ?? 0 })}</Text>
+                  </View>
                   {it.isHiddenByAdmin ? (
                     <View className="flex-row items-center gap-1 mt-1">
                       <EyeOff size={11} color="#DC2626" />
