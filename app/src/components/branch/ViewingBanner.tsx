@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { useBranchStore } from '@/stores/branch.store';
@@ -8,16 +9,19 @@ import { useBranchStore } from '@/stores/branch.store';
 /**
  * Persistent strip banner kalau user sedang viewing cabang lain (bukan home).
  * Render di top screen (di bawah header, di atas konten).
+ * `safeTop` = banner berada paling atas layar → beri jarak status bar
+ * (sinyal / baterai / notch) supaya tidak tertutup.
  */
-export function ViewingBanner() {
+export function ViewingBanner({ safeTop = false }: { safeTop?: boolean }) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { branch, isHome } = useViewingBranch();
   const resetToHome = useBranchStore((s) => s.resetToHome);
 
   if (isHome || !branch) return null;
 
   return (
-    <View className="bg-amber-500 px-4 py-2 flex-row items-center gap-2">
+    <View className="bg-amber-500 px-4 pb-2 flex-row items-center gap-2" style={{ paddingTop: (safeTop ? insets.top : 0) + 8 }}>
       <MapPin size={14} color="#fff" />
       <Text className="text-xs text-white flex-1" numberOfLines={1}>
         <Text className="text-neutral-900 font-bold">{t('branch.viewing_label')}:</Text> {branch.nama}

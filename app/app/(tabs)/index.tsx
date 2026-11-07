@@ -17,6 +17,7 @@ import { ScannerHeaderButton } from '@/components/home/ScannerHeaderButton';
 import { NowPlayingCard } from '@/components/worship/NowPlayingCard';
 import { HomecellSpotlight } from '@/components/home/HomecellSpotlight';
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { useAuthStore } from '@/stores/auth.store';
 import { useTodayServices, useLatestRenungan, useLatestNews } from '@/hooks/useHomeData';
@@ -54,6 +55,9 @@ export default function HomeScreen() {
 }
 
 function HomeScreenAuthenticated() {
+  // Banner "Sedang menjelajahi" tampil (sama dengan syarat di ViewingBanner) → ia yang memberi jarak status bar.
+  const vb = useViewingBranch();
+  const bannerShown = !vb.isHome && !!vb.branch;
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
@@ -127,11 +131,12 @@ function HomeScreenAuthenticated() {
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         {/* Persistent viewing banner kalau != home */}
-        <ViewingBanner />
+        {/* Banner di paling atas → beri jarak status bar; header tidak menambah jarak lagi. */}
+        <ViewingBanner safeTop />
 
         {/* Header gradient */}
         <View {...gx('bg-brand-500 pb-6 rounded-b-3xl')}>
-          <SafeAreaView edges={['top']}>
+          <SafeAreaView edges={bannerShown ? [] : ['top']}>
             <View className="flex-row items-center justify-between px-5 pt-4 pb-3">
               <View className="flex-row items-center gap-3 flex-1">
                 <Avatar
