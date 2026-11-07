@@ -2127,7 +2127,7 @@
   "journey": {
     "title": "Spiritual Journey",
     "next_short": "Next: {{title}}",
-    "all_done": "All steps completed 🎉",
+    "all_done": "All steps completed",
     "progress": "{{done}} of {{total}} steps completed",
     "empty": "Your church hasn't set up the Spiritual Journey yet.",
     "step_n": "STEP {{n}}",
