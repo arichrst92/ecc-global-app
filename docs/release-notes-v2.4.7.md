@@ -1,6 +1,6 @@
 # Els App v2.4.7 — Release Notes (iOS & Android)
 
-Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
+Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul native baru (hanya tambahan Android app link `/local-market`).
 
 ## Isi rilis
 - **Akses Cepat** — ikon & label sedikit lebih besar (ikon 22→25, label 10→11,5 pt) dengan susunan grid yang sama.
@@ -17,9 +17,12 @@ Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Daftar event (konfirmasi)** — ringkasan event menampilkan gambar event sesuai rasio aslinya (ikon 🎉 dihapus).
 - **Atur jadwal pelayanan (mode gelap)** — kartu "Belum ada petugas" tanpa border kuning.
 - **Detail event** — kartu "Tiket Saya" tanpa gambar & judul (sudah ada di atas), cukup peserta, QR, status, dan check-in; ukuran judul bagian, ikon, dan kartu "Tentang Event" diseragamkan dengan detail ibadah.
+- **Katalog Local Market** — pemilik usaha: Usaha Saya → bisnis → **Katalog produk & jasa**: tambah item (Produk / Jasa), nama, deskripsi, sampai 4 foto (dipotong 3:2, foto pertama jadi sampul), harga **Tetap / Mulai dari / By agreement** + **mata uang** (IDR, AUD, SGD, MYR, USD, EUR, NZD, HKD, TWD, CNY, JPY) + satuan, tampil/sembunyikan, urutan naik/turun. Jumlah item per bisnis dibatasi global dari Portal; item langsung tampil (admin Portal bisa menyembunyikan).
+- **Detail bisnis Local Market** — tombol **WhatsApp admin** & **Email**, grid katalog 2 kolom (filter Semua/Produk/Jasa). Detail item: galeri foto 3:2, harga, **Tanya via WhatsApp** (pesan otomatis berisi nama item, harga, dan link), Email, Bagikan link item (pratinjau WhatsApp memakai foto item).
+- **Form usaha** — kolom **Nomor WhatsApp admin** & **Email bisnis**; sosial media cukup isi **username** (Instagram, Facebook, TikTok, YouTube, X, LinkedIn, Threads — semua opsional). Kolom link "Chat WhatsApp" dihapus (digantikan WhatsApp admin); data sosmed lama otomatis terbaca sebagai username.
 
 ## Syarat server
-Migrasi `20261115090000_family_link_request`, `20261116090000_homecell_asisten`, `20261117090000_homecell_member_alasan_keluar` + core-api terbaru (`PATCH /admin/homecell/:id/schedule/:scheduleId`, `/admin/me/family/requests…`, link-by-* jadi permintaan, catatan SJ opsional, resolver link Google Maps tanpa koordinat, request join group/homecell hanya PIC di app).
+Migrasi `20261115090000_family_link_request`, `20261116090000_homecell_asisten`, `20261117090000_homecell_member_alasan_keluar`, `20261118090000_local_market_katalog` + core-api & landing terbaru (katalog `/admin/me/businesses/:id/items…`, `/public/local-market/:id/item/:itemId`, halaman web `/local-market/:id/item/:itemId` dengan OG image) (`PATCH /admin/homecell/:id/schedule/:scheduleId`, `/admin/me/family/requests…`, link-by-* jadi permintaan, catatan SJ opsional, resolver link Google Maps tanpa koordinat, request join group/homecell hanya PIC di app).
 App 2.4.6 ke bawah: menambah keluarga berakun juga menjadi permintaan — app lama menampilkan pesan "Permintaan terkirim…"; persetujuan dilakukan dari app 2.4.7.
 
 ## Google Play — "Yang baru"
@@ -30,6 +33,7 @@ Els App 2.4.7:
 • PIC homecell bisa menunjuk asisten
 • Setujui / tolak permintaan keluarga di menu Keluarga
 • Pencarian jemaat manual lebih mudah (keyboard tidak menutupi)
+• Katalog produk & jasa di Local Market + tanya via WhatsApp
 • Catatan pengajuan Spiritual Journey opsional
 • Perbaikan kecil
 ```
@@ -40,6 +44,7 @@ Els App 2.4.7:
 • Homecell leaders can appoint assistants
 • Approve / decline family requests in the Family menu
 • Easier manual member search (keyboard no longer covers it)
+• Local Market product & service catalog + ask via WhatsApp
 • Spiritual Journey request notes are optional
 • Minor fixes
 ```
@@ -51,6 +56,7 @@ Els App 2.4.7:
 • Homecell leaders can appoint assistants
 • Approve / decline family requests in the Family menu
 • Easier manual member search (keyboard no longer covers it)
+• Local Market product & service catalog + ask via WhatsApp
 • Spiritual Journey request notes are optional
 • Minor fixes
 ```
@@ -76,3 +82,11 @@ Els App 2.4.7:
 - [ ] Tambah anggota homecell → input manual → keyboard tidak menutupi, hasil bisa diketuk (Android & iOS)
 - [ ] Spiritual Journey → ajukan update tanpa catatan → terkirim
 - [ ] Group: Fulltimer non-PIC tidak melihat permintaan bergabung
+- [ ] Portal → Local Market → Batas katalog = 3 → simpan
+- [ ] Pemilik → Usaha Saya → bisnis → isi WA admin (08…), email, username Instagram "@usahaku" → Simpan → detail publik: tombol WhatsApp admin & Email; Sosial Media → instagram.com/usahaku
+- [ ] Katalog → Tambah item Produk, 2 foto (crop 3:2), harga Tetap IDR 150000 /porsi → tampil "Rp 150.000/porsi"; item Jasa harga By agreement; item USD Mulai dari 20 → "Mulai US$ 20"
+- [ ] Item ke-4 ditolak (batas 3); ubah urutan naik/turun; nonaktifkan item → hilang dari detail publik
+- [ ] Jemaat → detail bisnis → grid katalog & filter Produk/Jasa → detail item → Tanya via WhatsApp membuka chat dengan pesan + link; Email membuka aplikasi email
+- [ ] Bagikan link item ke WhatsApp → pratinjau berisi foto item, nama, harga; link membuka halaman web item (dan app di Android 2.4.7)
+- [ ] Portal → detail bisnis → Katalog → Sembunyikan item → item hilang dari app & web, pemilik melihat label "Disembunyikan admin"
+- [ ] Bisnis lama dengan link sosmed → form usaha menampilkan username terisi

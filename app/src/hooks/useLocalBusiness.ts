@@ -17,12 +17,20 @@ import {
   uploadBusinessHero,
   uploadBusinessLogo,
   uploadBusinessProfilePdf,
+  listMyItems,
+  createItem,
+  updateItem,
+  deleteItem,
+  reorderItems,
+  uploadItemFoto,
+  deleteItemFoto,
 } from '@/api/businesses';
 import {
   getLocalMarketDetail,
   listLocalMarket,
 } from '@/api/localMarket';
 import type {
+  LocalItemPayload,
   CreateBusinessPayload,
   LocalMarketQuery,
   UpdateBusinessPayload,
@@ -179,5 +187,70 @@ export function useLocalMarketDetail(id: string | undefined) {
     queryFn: () => getLocalMarketDetail(id!),
     enabled: !!id,
     staleTime: 30_000,
+  });
+}
+
+// ===== 2.4.7 — Katalog item (pemilik) =====
+const itemsKey = (bizId: string) => ['businesses', 'mine', 'items', bizId] as const;
+
+export function useMyItems(bizId: string | undefined) {
+  return useQuery({
+    queryKey: itemsKey(bizId ?? ''),
+    queryFn: () => listMyItems(bizId!),
+    enabled: !!bizId,
+    staleTime: 15_000,
+  });
+}
+
+function useItemInvalidate(bizId: string) {
+  const qc = useQueryClient();
+  return () => {
+    qc.invalidateQueries({ queryKey: itemsKey(bizId) });
+    qc.invalidateQueries({ queryKey: ['local-market', 'detail', bizId] });
+  };
+}
+
+export function useSaveItem(bizId: string) {
+  const inv = useItemInvalidate(bizId);
+  return useMutation({
+    mutationFn: ({ itemId, payload }: { itemId?: string; payload: LocalItemPayload }) =>
+      itemId ? updateItem(bizId, itemId, payload) : createItem(bizId, payload),
+    onSuccess: inv,
+  });
+}
+
+export function useToggleItem(bizId: string) {
+  const inv = useItemInvalidate(bizId);
+  return useMutation({
+    mutationFn: ({ itemId, isActive }: { itemId: string; isActive: boolean }) =>
+      updateItem(bizId, itemId, { isActive }),
+    onSuccess: inv,
+  });
+}
+
+export function useDeleteItem(bizId: string) {
+  const inv = useItemInvalidate(bizId);
+  return useMutation({ mutationFn: (itemId: string) => deleteItem(bizId, itemId), onSuccess: inv });
+}
+
+export function useReorderItems(bizId: string) {
+  const inv = useItemInvalidate(bizId);
+  return useMutation({ mutationFn: (ids: string[]) => reorderItems(bizId, ids), onSuccess: inv });
+}
+
+export function useUploadItemFoto(bizId: string) {
+  const inv = useItemInvalidate(bizId);
+  return useMutation({
+    mutationFn: ({ itemId, file }: { itemId: string; file: { uri: string; name: string; type: string } }) =>
+      uploadItemFoto(bizId, itemId, file),
+    onSuccess: inv,
+  });
+}
+
+export function useDeleteItemFoto(bizId: string) {
+  const inv = useItemInvalidate(bizId);
+  return useMutation({
+    mutationFn: ({ itemId, url }: { itemId: string; url: string }) => deleteItemFoto(bizId, itemId, url),
+    onSuccess: inv,
   });
 }

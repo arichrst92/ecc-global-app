@@ -31,10 +31,10 @@ import * as DocumentPicker from 'expo-document-picker';
 import {
   ArrowLeft,
   Camera,
-  ExternalLink,
+  ChevronRight,
+  ShoppingBag,
   FileText,
   Image as ImageIcon,
-  Plus,
   Trash2,
   Upload,
   X,
@@ -57,11 +57,12 @@ import {
 import { ApiError } from '@/types/api';
 import { env } from '@/config/env';
 import { INDUSTRI_SUGGESTIONS } from '@/types/localBusiness';
-import type { SocialLink, TipeBisnis } from '@/types/localBusiness';
+import { SOCIAL_PLATFORMS, cleanSocialUsername, usernamesFromLinks } from '@/types/localBusiness';
+import type { SocialUsernames, TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
-import { HURUF_SATU, cekHuruf, cekTeks, cekUrl, pertamaGagal } from '@/utils/inputRules';
+import { cekHuruf, cekTeks, cekUrl, pertamaGagal } from '@/utils/inputRules';
 
 export default function OwnerBusinessDetailScreen() {
   const { t } = useTranslation();
@@ -89,13 +90,10 @@ export default function OwnerBusinessDetailScreen() {
   const [isOnline, setIsOnline] = useState(false);
   const [lokasi, setLokasi] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
-  const [whatsappUrl, setWhatsappUrl] = useState('');
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [waAdmin, setWaAdmin] = useState('');
+  const [email, setEmail] = useState('');
+  const [socials, setSocials] = useState<SocialUsernames>({});
   const [isActive, setIsActive] = useState(true);
-
-  const [addSocialOpen, setAddSocialOpen] = useState(false);
-  const [newPlatform, setNewPlatform] = useState('');
-  const [newUrl, setNewUrl] = useState('');
 
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
@@ -108,8 +106,9 @@ export default function OwnerBusinessDetailScreen() {
       setIsOnline(biz.isOnline);
       setLokasi(biz.lokasi ?? '');
       setWebsiteUrl(biz.websiteUrl ?? '');
-      setWhatsappUrl(biz.whatsappUrl ?? '');
-      setSocialLinks(biz.socialLinks);
+      setWaAdmin(biz.waAdmin ?? '');
+      setEmail(biz.email ?? '');
+      setSocials(biz.socialUsernames ?? usernamesFromLinks(biz.socialLinks));
       setIsActive(biz.isActive);
     }
   }, [biz]);
@@ -209,7 +208,12 @@ export default function OwnerBusinessDetailScreen() {
       cekHuruf(industri, { label: t('my_business.industri_label') }),
       cekTeks(lokasi, { label: t('my_business.lokasi_label') }),
       cekUrl(normalizeUrl(websiteUrl) ?? ''),
-      cekUrl(normalizeUrl(whatsappUrl) ?? ''),
+      waAdmin.trim() && !/^(\+?62|0)8\d{7,12}$/.test(waAdmin.replace(/[\s-]/g, ''))
+        ? t('my_business.wa_admin_invalid')
+        : null,
+      email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+        ? t('my_business.email_invalid')
+        : null,
     );
     if (salah) {
       showToast(salah, 'error');
@@ -218,13 +222,11 @@ export default function OwnerBusinessDetailScreen() {
     // Normalize URLs + filter empty social links sebelum send.
     // BE Zod validation reject URL tanpa scheme atau empty string di array.
     const normWebsite = normalizeUrl(websiteUrl);
-    const normWhatsapp = normalizeUrl(whatsappUrl);
-    const cleanedSocials = socialLinks
-      .map((s) => ({
-        platform: s.platform.trim(),
-        url: normalizeUrl(s.url),
-      }))
-      .filter((s) => s.platform && s.url);
+    const cleanedSocials: SocialUsernames = {};
+    for (const p of SOCIAL_PLATFORMS) {
+      const u = cleanSocialUsername(socials[p.key] ?? '');
+      if (u) cleanedSocials[p.key] = u;
+    }
 
     updateMutation.mutate(
       {
@@ -235,8 +237,9 @@ export default function OwnerBusinessDetailScreen() {
         isOnline,
         lokasi: lokasi.trim() || undefined,
         websiteUrl: normWebsite || undefined,
-        whatsappUrl: normWhatsapp || undefined,
-        socialLinks: cleanedSocials,
+        waAdmin: waAdmin.replace(/[\s-]/g, '') || null,
+        email: email.trim() || null,
+        socialUsernames: cleanedSocials,
         isActive,
       },
       {
@@ -258,30 +261,6 @@ export default function OwnerBusinessDetailScreen() {
         },
       },
     );
-  }
-
-  function handleAddSocial() {
-    const platform = newPlatform.trim();
-    const rawUrl = newUrl.trim();
-    if (!platform || !rawUrl) return;
-    if (!HURUF_SATU.test(platform) || cekUrl(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`)) {
-      showToast(cekUrl(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`) ?? t('input_rules.huruf', { label: 'Platform' }), 'error');
-      return;
-    }
-    if (socialLinks.length >= 10) {
-      showToast(t('my_business.social_max'), 'error');
-      return;
-    }
-    // Auto-normalize URL — user boleh ketik "instagram.com/x" tanpa https://
-    const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
-    setSocialLinks([...socialLinks, { platform, url }]);
-    setNewPlatform('');
-    setNewUrl('');
-    setAddSocialOpen(false);
-  }
-
-  function handleRemoveSocial(idx: number) {
-    setSocialLinks(socialLinks.filter((_, i) => i !== idx));
   }
 
   function handleDelete() {
@@ -550,73 +529,76 @@ export default function OwnerBusinessDetailScreen() {
               />
             </Field>
 
-            <Field label={t('my_business.whatsapp_label')}>
+            <Field label={t('my_business.wa_admin_label')}>
               <TextInput
-                value={whatsappUrl}
-                onChangeText={setWhatsappUrl}
-                placeholder="https://wa.me/628..."
-                autoCapitalize="none"
-                keyboardType="url"
+                value={waAdmin}
+                onChangeText={setWaAdmin}
+                placeholder="0812xxxxxxx"
+                keyboardType="phone-pad"
+                maxLength={20}
                 className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
               />
               <Text className="text-[10px] text-neutral-400 mt-1">
-                {t('my_business.whatsapp_hint')}
+                {t('my_business.wa_admin_hint')}
               </Text>
             </Field>
 
-            {/* Social links */}
-            <View className="mb-4">
-              <View className="flex-row items-center mb-2">
-                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider flex-1">
-                  {t('my_business.social_label')}
-                </Text>
-                <Pressable
-                  onPress={() => setAddSocialOpen(true)}
-                  className="bg-brand-50 rounded-full px-2.5 py-1 flex-row items-center gap-1"
-                >
-                  <Plus size={11} color="#EA580C" />
-                  <Text className="text-[11px] font-bold text-brand-600">
-                    {t('my_business.social_add')}
-                  </Text>
-                </Pressable>
+            <Field label={t('my_business.email_label')}>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="halo@usahaku.com"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                maxLength={255}
+                className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+              />
+            </Field>
+
+            {/* Sosial media — cukup username (2.4.7) */}
+            <Field label={t('my_business.social_label')}>
+              <View className="bg-card rounded-2xl border border-neutral-100">
+                {SOCIAL_PLATFORMS.map((p, idx) => (
+                  <View
+                    key={p.key}
+                    className={`px-3 py-2 flex-row items-center gap-2 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+                  >
+                    <Text className="w-[78px] text-xs font-semibold text-neutral-700">{p.label}</Text>
+                    <Text className="text-xs text-neutral-400">@</Text>
+                    <TextInput
+                      value={socials[p.key] ?? ''}
+                      onChangeText={(v) => setSocials((prev) => ({ ...prev, [p.key]: v }))}
+                      onEndEditing={(e) =>
+                        setSocials((prev) => ({ ...prev, [p.key]: cleanSocialUsername(e.nativeEvent.text) }))
+                      }
+                      placeholder={t('my_business.social_username_ph')}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      maxLength={100}
+                      className="flex-1 py-1.5 text-sm text-neutral-900"
+                    />
+                  </View>
+                ))}
               </View>
-              {socialLinks.length === 0 ? (
-                <View className="bg-card rounded-2xl p-4 border border-neutral-100 items-center">
-                  <Text className="text-xs text-neutral-400 text-center">
-                    {t('my_business.social_empty')}
-                  </Text>
-                </View>
-              ) : (
-                <View className="bg-card rounded-2xl border border-neutral-100">
-                  {socialLinks.map((s, idx) => (
-                    <View
-                      key={`${s.platform}-${idx}`}
-                      className={`p-3 flex-row items-center gap-3 ${
-                        idx > 0 ? 'border-t border-neutral-100' : ''
-                      }`}
-                    >
-                      <View className="w-9 h-9 rounded-xl bg-neutral-100 items-center justify-center">
-                        <ExternalLink size={14} color={nc('#525252')} />
-                      </View>
-                      <View className="flex-1 min-w-0">
-                        <Text className="text-sm font-semibold text-neutral-900">
-                          {s.platform}
-                        </Text>
-                        <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-                          {s.url}
-                        </Text>
-                      </View>
-                      <Pressable
-                        onPress={() => handleRemoveSocial(idx)}
-                        className="w-7 h-7 rounded-full bg-red-50 items-center justify-center"
-                      >
-                        <X size={12} color="#DC2626" />
-                      </Pressable>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
+              <Text className="text-[10px] text-neutral-400 mt-1">
+                {t('my_business.social_username_hint')}
+              </Text>
+            </Field>
+
+            {/* Katalog (2.4.7) */}
+            <Pressable
+              onPress={() => router.push(`/profile/businesses/katalog/${biz.id}` as never)}
+              className="mb-4 bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+            >
+              <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+                <ShoppingBag size={18} color="#EA580C" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-sm font-semibold text-neutral-900">{t('katalog.manage_title')}</Text>
+                <Text className="text-xs text-neutral-500 mt-0.5">{t('katalog.manage_sub')}</Text>
+              </View>
+              <ChevronRight size={16} color={nc('#A3A3A3')} />
+            </Pressable>
 
             {/* PDF profile */}
             <Field label={t('my_business.pdf_label')}>
@@ -743,56 +725,6 @@ export default function OwnerBusinessDetailScreen() {
           </View>
         </SafeAreaView>
       </KeyboardSafeView>
-
-      {/* Add social link modal */}
-      <Modal
-        visible={addSocialOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setAddSocialOpen(false)}
-      >
-        <KeyboardSafeView
-          className="flex-1"
-        >
-          <Pressable
-            onPress={() => setAddSocialOpen(false)}
-            className="flex-1 bg-black/50 justify-end"
-          >
-            <Pressable onPress={() => {}} className="bg-card rounded-t-3xl p-5 pb-8">
-              <Text className="text-lg font-bold text-neutral-900 mb-3">
-                {t('my_business.social_modal_title')}
-              </Text>
-              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">
-                {t('my_business.social_platform_label')}
-              </Text>
-              <TextInput
-                value={newPlatform}
-                onChangeText={setNewPlatform}
-                placeholder="Instagram"
-                maxLength={50}
-                className="bg-neutral-50 rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 mb-3"
-              />
-              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">
-                {t('my_business.social_url_label')}
-              </Text>
-              <TextInput
-                value={newUrl}
-                onChangeText={setNewUrl}
-                placeholder="https://instagram.com/..."
-                autoCapitalize="none"
-                keyboardType="url"
-                className="bg-neutral-50 rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 mb-4"
-              />
-              <Button
-                label={t('common.save')}
-                onPress={handleAddSocial}
-                disabled={!newPlatform.trim() || !newUrl.trim()}
-                fullWidth
-              />
-            </Pressable>
-          </Pressable>
-        </KeyboardSafeView>
-      </Modal>
 
       {/* Delete confirm */}
       <Modal

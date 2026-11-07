@@ -125,6 +125,16 @@
               "scheme": "https",
               "host": "www.eccchurch.global",
               "pathPrefix": "/news"
+            },
+            {
+              "scheme": "https",
+              "host": "eccchurch.global",
+              "pathPrefix": "/local-market"
+            },
+            {
+              "scheme": "https",
+              "host": "www.eccchurch.global",
+              "pathPrefix": "/local-market"
             }
           ],
           "category": [

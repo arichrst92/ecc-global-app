@@ -7,6 +7,8 @@ import { api } from './client';
 import type {
   CreateBusinessPayload,
   LocalBusiness,
+  LocalItem,
+  LocalItemPayload,
   UpdateBusinessPayload,
 } from '@/types/localBusiness';
 
@@ -84,5 +86,36 @@ export function uploadBusinessProfilePdf(id: string, file: FileObj) {
 export function deleteBusinessProfilePdf(id: string) {
   return api.delete<{ success: true }>(
     `/admin/me/businesses/${id}/profile-pdf`,
+  );
+}
+
+// ===== 2.4.7 — Katalog item =====
+
+/** GET /admin/me/businesses/:id/items — semua item (incl. nonaktif) + batas global */
+export function listMyItems(bizId: string) {
+  return api.get<{ items: LocalItem[]; max: number }>(`/admin/me/businesses/${bizId}/items`);
+}
+export function createItem(bizId: string, payload: LocalItemPayload) {
+  return api.post<LocalItem>(`/admin/me/businesses/${bizId}/items`, payload);
+}
+export function updateItem(bizId: string, itemId: string, payload: Partial<LocalItemPayload>) {
+  return api.patch<LocalItem>(`/admin/me/businesses/${bizId}/items/${itemId}`, payload);
+}
+export function deleteItem(bizId: string, itemId: string) {
+  return api.delete<{ id: string }>(`/admin/me/businesses/${bizId}/items/${itemId}`);
+}
+export function reorderItems(bizId: string, ids: string[]) {
+  return api.put<{ ok: true }>(`/admin/me/businesses/${bizId}/items-order`, { ids });
+}
+/** Foto item — server crop 3:2 (1200×800), maks. 4 */
+export function uploadItemFoto(bizId: string, itemId: string, file: FileObj) {
+  const formData = new FormData();
+  // @ts-expect-error RN FormData accepts file objects
+  formData.append('file', file);
+  return api.upload<LocalItem>(`/admin/me/businesses/${bizId}/items/${itemId}/foto`, formData);
+}
+export function deleteItemFoto(bizId: string, itemId: string, url: string) {
+  return api.delete<LocalItem>(
+    `/admin/me/businesses/${bizId}/items/${itemId}/foto?url=${encodeURIComponent(url)}`,
   );
 }

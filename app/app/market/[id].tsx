@@ -4,6 +4,7 @@
  * Hero + logo overlay + nama + tipe badge + industri + deskripsi + lokasi
  * + links (website, WhatsApp, social media), download PDF profile, owner card.
  */
+import { useState } from 'react';
 import { ActivityIndicator, Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,6 +15,7 @@ import {
   ExternalLink,
   FileText,
   Globe,
+  Mail,
   MapPin,
   MessageCircle,
   Wifi,
@@ -23,6 +25,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useLocalMarketDetail } from '@/hooks/useLocalBusiness';
 import { env } from '@/config/env';
+import { hargaLabel, waNumber, type LocalItemJenis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -33,6 +36,7 @@ export default function LocalMarketDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const query = useLocalMarketDetail(id);
   const biz = query.data;
+  const [filter, setFilter] = useState<'ALL' | LocalItemJenis>('ALL');
 
   function openUrl(url: string) {
     Linking.openURL(url).catch(() => {});
@@ -75,6 +79,10 @@ export default function LocalMarketDetailScreen() {
         ? 'bg-blue-100 text-blue-700'
         : 'bg-violet-100 text-violet-700';
   const [tipeBg, tipeText] = tipeColor.split(' ');
+  const items = biz.items ?? [];
+  const hasBoth = items.some((i) => i.jenis === 'PRODUK') && items.some((i) => i.jenis === 'JASA');
+  const shown = filter === 'ALL' ? items : items.filter((i) => i.jenis === filter);
+  const waTarget = biz.waAdmin ? `https://wa.me/${waNumber(biz.waAdmin)}` : biz.whatsappUrl;
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -166,25 +174,82 @@ export default function LocalMarketDetailScreen() {
             </View>
           ) : null}
 
-          {/* WhatsApp */}
-          {biz.whatsappUrl ? (
-            <Pressable
-              onPress={() => openUrl(biz.whatsappUrl!)}
-              className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
-            >
-              <View className="w-10 h-10 rounded-xl bg-green-50 items-center justify-center">
-                <MessageCircle size={18} color="#16A34A" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-neutral-900">
-                  {t('market.whatsapp_btn')}
+          {/* Kontak admin (2.4.7) — WA admin menggantikan link "Chat WhatsApp" */}
+          {waTarget || biz.email ? (
+            <View className="flex-row gap-2 mb-3">
+              {waTarget ? (
+                <Pressable
+                  onPress={() => openUrl(waTarget)}
+                  className="flex-1 bg-emerald-600 rounded-2xl py-3 flex-row items-center justify-center gap-2"
+                >
+                  <MessageCircle size={16} color="#fff" />
+                  <Text className="text-sm font-bold text-white">{t('katalog.wa_admin_btn')}</Text>
+                </Pressable>
+              ) : null}
+              {biz.email ? (
+                <Pressable
+                  onPress={() => openUrl(`mailto:${biz.email}`)}
+                  className="flex-1 bg-card border border-neutral-200 rounded-2xl py-3 flex-row items-center justify-center gap-2"
+                >
+                  <Mail size={16} color={nc('#404040')} />
+                  <Text className="text-sm font-bold text-neutral-800">{t('katalog.email_btn')}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null}
+
+          {/* Katalog (2.4.7) */}
+          {items.length > 0 ? (
+            <View className="mb-3">
+              <View className="flex-row items-center mt-2 mb-2">
+                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider flex-1">
+                  {t('katalog.section')}
                 </Text>
-                <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-                  {biz.whatsappUrl}
-                </Text>
+                {hasBoth ? (
+                  <View className="flex-row gap-1">
+                    {(['ALL', 'PRODUK', 'JASA'] as const).map((f) => (
+                      <Pressable
+                        key={f}
+                        onPress={() => setFilter(f)}
+                        className={`px-2.5 py-1 rounded-full ${filter === f ? 'bg-brand-500' : 'bg-neutral-100'}`}
+                      >
+                        <Text className={`text-[11px] font-semibold ${filter === f ? 'text-white' : 'text-neutral-600'}`}>
+                          {f === 'ALL' ? t('market.filter_all') : f === 'JASA' ? t('katalog.jenis_jasa') : t('katalog.jenis_produk')}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                ) : null}
               </View>
-              <ChevronRight size={16} color={nc('#A3A3A3')} />
-            </Pressable>
+              <View className="flex-row flex-wrap" style={{ marginHorizontal: -5 }}>
+                {shown.map((it) => (
+                  <View key={it.id} style={{ width: '50%', padding: 5 }}>
+                    <Pressable
+                      onPress={() => router.push(`/market/item/${it.id}?bizId=${biz.id}` as never)}
+                      className="bg-card rounded-2xl border border-neutral-100 overflow-hidden"
+                    >
+                      <HeroImage
+                        url={it.fotoUrls[0]}
+                        fallbackEmoji={it.jenis === 'JASA' ? '🛠️' : '📦'}
+                        emojiSize={28}
+                        style={{ width: '100%', aspectRatio: 1.5 }}
+                      />
+                      <View className="p-2.5">
+                        <Text className="text-[13px] font-semibold text-neutral-900" numberOfLines={2}>
+                          {it.nama}
+                        </Text>
+                        <Text
+                          className={`text-xs font-bold mt-1 ${it.hargaTipe === 'NEGO' ? 'text-neutral-500' : 'text-brand-600'}`}
+                          numberOfLines={1}
+                        >
+                          {hargaLabel(it, t('katalog.harga_nego'), t('katalog.harga_mulai'))}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  </View>
+                ))}
+              </View>
+            </View>
           ) : null}
 
           {/* Website */}
