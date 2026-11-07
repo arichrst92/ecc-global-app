@@ -41,6 +41,8 @@ export type HomecellMember = {
   isActive: boolean;
   /** Asisten homecell (2.4.7) — ditunjuk PIC. */
   isAsisten?: boolean;
+  /** Alasan dikeluarkan (2.4.7). */
+  alasanKeluar?: string | null;
   tanggalBergabung: string;
   tanggalKeluar?: string | null;
   jemaat: {

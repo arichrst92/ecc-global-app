@@ -1223,7 +1223,15 @@
     "asisten_hc_badge": "HOMECELL ASSISTANT",
     "schedule_edit_title": "Edit Meeting",
     "schedule_update_btn": "Save Changes",
-    "schedule_updated_toast": "Meeting updated"
+    "schedule_updated_toast": "Meeting updated",
+    "remove_reason_label": "Reason",
+    "remove_reason_salah_invite": "Invited by mistake",
+    "remove_reason_tidak_aktif": "Member is no longer active",
+    "remove_reason_pindah_homecell": "Member moved to another homecell",
+    "remove_reason_pindah_kota": "Member moved to another city",
+    "remove_reason_lain": "Other reason",
+    "remove_reason_lain_ph": "Type the reason…",
+    "remove_member_btn": "Remove from homecell"
   },
   "jemaat": {
     "detail_title": "Member Profile",

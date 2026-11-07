@@ -93,7 +93,7 @@ export function useAddHomecellMember(homecellId: string) {
 export function useRemoveHomecellMember(homecellId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (jemaatId: string) => removeHomecellMember(homecellId, jemaatId),
+    mutationFn: (v: { jemaatId: string; alasan?: string }) => removeHomecellMember(homecellId, v.jemaatId, v.alasan),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HOMECELL_LIST_KEY });
       queryClient.invalidateQueries({ queryKey: ['homecell', 'detail', homecellId] });

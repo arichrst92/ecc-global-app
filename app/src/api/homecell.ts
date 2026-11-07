@@ -63,10 +63,13 @@ export function getHomecellDetail(homecellId: string) {
 export async function removeHomecellMember(
   homecellId: string,
   jemaatId: string,
+  /** Alasan dikeluarkan (2.4.7). */
+  alasan?: string,
 ): Promise<{ member: HomecellMember; alreadyRemoved: boolean }> {
   const accessToken = useAuthStore.getState().accessToken;
+  const q = alasan ? `?alasan=${encodeURIComponent(alasan)}` : '';
   const res = await fetch(
-    `${env.apiBaseUrl}/admin/homecell/${homecellId}/members/by-jemaat/${jemaatId}`,
+    `${env.apiBaseUrl}/admin/homecell/${homecellId}/members/by-jemaat/${jemaatId}${q}`,
     {
       method: 'DELETE',
       headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},

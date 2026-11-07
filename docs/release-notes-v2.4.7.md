@@ -3,6 +3,7 @@
 Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul native baru.
 
 ## Isi rilis
+- **Keluarkan anggota homecell dengan alasan** — ⋯ → Keluarkan dari homecell → popup konfirmasi dengan pilihan alasan wajib: *Salah invite member*, *Member sudah tidak aktif*, *Member berpindah homecell*, *Member berpindah kota*, atau *Alasan lain* (diketik). Alasan tampil di anggota nonaktif (app) & riwayat homecell di profil jemaat (Portal). Server kini hanya mengizinkan PIC homecell, PIC/pastor zona, atau admin mengeluarkan anggota.
 - **Keyboard tidak menutupi isian (Android)** — semua form & lembar isian kini naik di atas keyboard di Android (mode layar penuh): login/daftar, edit profil, doa, kritik & saran, resolusi, catatan & Bible 365, visit, tamu, keluarga, group, homecell (jadwal, materi, gabung sebagai tamu, alasan tolak), zona, usaha, hapus akun, scanner (kode manual & jemput), pengumuman/voting, ajukan Spiritual Journey, gabung & tinjau pelayanan, pendaftaran pelayanan, daftar event, dan ulasan di tiket. iOS tetap seperti sebelumnya.
 - **Ubah jadwal pertemuan homecell** — ikon pensil di detail pertemuan: ubah tanggal, jam, lokasi, catatan (form yang sama dengan Buat Jadwal), juga setelah absen tercatat. Untuk PIC homecell, PIC / pastor zona, dan asisten. Tanpa notifikasi ke anggota.
 - **Asisten homecell** — PIC homecell (atau PIC / pastor zona) menunjuk anggota aktif sebagai **asisten** lewat tombol ⋯ di daftar anggota (**Jadikan asisten / Lepas asisten**; jumlah tidak dibatasi). Asisten mendapat notifikasi, badge **Asisten**, dan tombol **Kelola** di halaman homecell untuk: **buat jadwal pertemuan, absen (scan / manual), catat tamu, pengumuman, voting, dan lampiran**. Asisten tidak bisa menambah/mengeluarkan anggota, menghapus jadwal, mengubah info homecell, laporan, atau memproses permintaan bergabung. Keluar dari homecell → status asisten lepas.
@@ -16,7 +17,7 @@ Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Detail event** — kartu "Tiket Saya" tanpa gambar & judul (sudah ada di atas), cukup peserta, QR, status, dan check-in; ukuran judul bagian, ikon, dan kartu "Tentang Event" diseragamkan dengan detail ibadah.
 
 ## Syarat server
-Migrasi `20261115090000_family_link_request`, `20261116090000_homecell_asisten` + core-api terbaru (`PATCH /admin/homecell/:id/schedule/:scheduleId`, `/admin/me/family/requests…`, link-by-* jadi permintaan, catatan SJ opsional, resolver link Google Maps tanpa koordinat, request join group/homecell hanya PIC di app).
+Migrasi `20261115090000_family_link_request`, `20261116090000_homecell_asisten`, `20261117090000_homecell_member_alasan_keluar` + core-api terbaru (`PATCH /admin/homecell/:id/schedule/:scheduleId`, `/admin/me/family/requests…`, link-by-* jadi permintaan, catatan SJ opsional, resolver link Google Maps tanpa koordinat, request join group/homecell hanya PIC di app).
 App 2.4.6 ke bawah: menambah keluarga berakun juga menjadi permintaan — app lama menampilkan pesan "Permintaan terkirim…"; persetujuan dilakukan dari app 2.4.7.
 
 ## Google Play — "Yang baru"
@@ -53,6 +54,7 @@ Els App 2.4.7:
 ```
 
 ## Smoke test
+- [ ] PIC → ⋯ anggota → Keluarkan dari homecell → tombol Keluarkan nonaktif sampai alasan dipilih; Alasan lain wajib diketik → anggota pindah ke nonaktif dengan alasannya; Portal → profil jemaat → riwayat homecell menampilkan alasan
 - [ ] Android: buka beberapa form (Doa baru, Kritik & Saran, Tambah tamu, Gabung pelayanan → motivasi, Tolak permintaan homecell, ulasan di tiket) → ketik di kolom paling bawah → kolom & tombol simpan tetap terlihat di atas keyboard
 - [ ] Detail pertemuan (sudah ada absen) → pensil → ubah jam & lokasi → Simpan Perubahan → detail & daftar jadwal ter-update, absen tetap
 - [ ] Asisten bisa mengubah jadwal; anggota biasa tidak melihat pensil

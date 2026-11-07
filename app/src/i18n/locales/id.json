@@ -1223,7 +1223,15 @@
     "asisten_hc_badge": "ASISTEN HOMECELL",
     "schedule_edit_title": "Ubah Jadwal Pertemuan",
     "schedule_update_btn": "Simpan Perubahan",
-    "schedule_updated_toast": "Jadwal pertemuan diperbarui"
+    "schedule_updated_toast": "Jadwal pertemuan diperbarui",
+    "remove_reason_label": "Alasan",
+    "remove_reason_salah_invite": "Salah invite member",
+    "remove_reason_tidak_aktif": "Member sudah tidak aktif",
+    "remove_reason_pindah_homecell": "Member berpindah homecell",
+    "remove_reason_pindah_kota": "Member berpindah kota",
+    "remove_reason_lain": "Alasan lain",
+    "remove_reason_lain_ph": "Ketik alasannya…",
+    "remove_member_btn": "Keluarkan dari homecell"
   },
   "jemaat": {
     "detail_title": "Profil Jemaat",

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +20,7 @@ import {
   UserSearch,
   MoreHorizontal,
   ShieldCheck,
+  Check,
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -88,7 +90,7 @@ export default function HomecellDetailScreen() {
       m.isAsisten
         ? { text: t('hcj.asisten_unset_btn'), onPress: () => asistenMut.mutate({ jemaatId: m.jemaat.id ?? m.jemaatId, isAsisten: false }) }
         : { text: t('hcj.asisten_set_btn'), onPress: () => asistenMut.mutate({ jemaatId: m.jemaat.id ?? m.jemaatId, isAsisten: true }) },
-      { text: t('homecell.confirm_remove'), style: 'destructive', onPress: () => setConfirmRemove(m) },
+      { text: t('homecell.remove_member_btn'), style: 'destructive', onPress: () => setConfirmRemove(m) },
       { text: t('common.cancel'), style: 'cancel' },
     ]);
   }
@@ -100,11 +102,24 @@ export default function HomecellDetailScreen() {
     enabled: !!homecell && canTamu,
   });
 
+  // Alasan dikeluarkan (2.4.7): wajib pilih; "Alasan lain" wajib diketik.
+  const ALASAN = ['salah_invite', 'tidak_aktif', 'pindah_homecell', 'pindah_kota', 'lain'] as const;
+  const [alasanKey, setAlasanKey] = useState<(typeof ALASAN)[number] | null>(null);
+  const [alasanLain, setAlasanLain] = useState('');
+  const alasanText =
+    alasanKey === 'lain' ? alasanLain.trim() : alasanKey ? t(`homecell.remove_reason_${alasanKey}`) : '';
+  const alasanOk = !!alasanKey && (alasanKey !== 'lain' || alasanLain.trim().length >= 3);
+  function closeRemove() {
+    setConfirmRemove(null);
+    setAlasanKey(null);
+    setAlasanLain('');
+  }
+
   function handleRemove() {
-    if (!confirmRemove) return;
-    removeMutation.mutate(confirmRemove.jemaatId, {
+    if (!confirmRemove || !alasanOk) return;
+    removeMutation.mutate({ jemaatId: confirmRemove.jemaatId, alasan: alasanText }, {
       onSuccess: ({ alreadyRemoved }) => {
-        setConfirmRemove(null);
+        closeRemove();
         showToast(
           alreadyRemoved
             ? t('homecell.member_already_removed')
@@ -113,7 +128,7 @@ export default function HomecellDetailScreen() {
         );
       },
       onError: (err) => {
-        setConfirmRemove(null);
+        closeRemove();
         const msg = err instanceof ApiError ? err.message : t('error.network');
         showToast(msg, 'error');
       },
@@ -554,38 +569,56 @@ export default function HomecellDetailScreen() {
         )}
       </ScrollView>
 
-      {/* Remove confirm modal */}
-      <Modal
-        visible={!!confirmRemove}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setConfirmRemove(null)}
-      >
-        <Pressable
-          onPress={() => setConfirmRemove(null)}
-          className="flex-1 bg-black/50 items-center justify-center px-6"
-        >
-          <Pressable onPress={() => {}} className="bg-card rounded-2xl p-5 w-full max-w-sm">
+      {/* Konfirmasi keluarkan anggota + alasan (2.4.7) */}
+      <Modal visible={!!confirmRemove} transparent animationType="fade" onRequestClose={closeRemove}>
+        <KeyboardSafeView className="flex-1 bg-black/50 items-center justify-center px-6">
+          <View className="bg-card rounded-2xl p-5 w-full max-w-sm">
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <AlertTriangle size={24} color="#DC2626" />
             </View>
-            <Text className="text-lg font-bold text-neutral-900 mb-1">
-              {t('homecell.remove_confirm_title')}
+            <Text className="text-lg font-bold text-neutral-900 mb-1">{t('homecell.remove_confirm_title')}</Text>
+            <Text className="text-sm text-neutral-500 mb-3 leading-relaxed">
+              {t('homecell.remove_confirm_msg', { name: confirmRemove?.jemaat.namaLengkap ?? '' })}
             </Text>
-            <Text className="text-sm text-neutral-500 mb-4 leading-relaxed">
-              {t('homecell.remove_confirm_msg', {
-                name: confirmRemove?.jemaat.namaLengkap ?? '',
+            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('homecell.remove_reason_label')}</Text>
+            <View className="gap-1.5">
+              {ALASAN.map((k) => {
+                const on = alasanKey === k;
+                return (
+                  <Pressable
+                    key={k}
+                    onPress={() => setAlasanKey(k)}
+                    disabled={removeMutation.isPending}
+                    className={`flex-row items-center gap-2.5 px-3 py-2.5 rounded-xl border ${on ? 'border-red-300 bg-red-50' : 'border-neutral-200'}`}
+                  >
+                    <View
+                      className={`w-5 h-5 rounded-md items-center justify-center ${on ? 'bg-red-600' : 'border-2 border-neutral-300'}`}
+                    >
+                      {on ? <Check size={13} color="#fff" /> : null}
+                    </View>
+                    <Text className={`text-sm flex-1 ${on ? 'font-semibold text-neutral-900' : 'text-neutral-700'}`}>
+                      {t(`homecell.remove_reason_${k}`)}
+                    </Text>
+                  </Pressable>
+                );
               })}
-            </Text>
-            <View className="flex-row gap-2">
+            </View>
+            {alasanKey === 'lain' ? (
+              <TextInput
+                value={alasanLain}
+                onChangeText={setAlasanLain}
+                placeholder={t('homecell.remove_reason_lain_ph')}
+                placeholderTextColor={nc('#A3A3A3')}
+                maxLength={300}
+                multiline
+                autoFocus
+                textAlignVertical="top"
+                className="mt-2 border border-neutral-300 rounded-xl px-3 py-2.5 text-sm text-neutral-900 min-h-[72px]"
+              />
+            ) : null}
+            <View className="flex-row gap-2 mt-4">
               <View className="flex-1">
-                <Button
-                  label={t('common.cancel')}
-                  variant="secondary"
-                  onPress={() => setConfirmRemove(null)}
-                  fullWidth
-                  disabled={removeMutation.isPending}
-                />
+                <Button label={t('common.cancel')} variant="secondary" onPress={closeRemove} fullWidth disabled={removeMutation.isPending} />
               </View>
               <View className="flex-1">
                 <Button
@@ -593,12 +626,13 @@ export default function HomecellDetailScreen() {
                   variant="danger"
                   onPress={handleRemove}
                   loading={removeMutation.isPending}
+                  disabled={!alasanOk || removeMutation.isPending}
                   fullWidth
                 />
               </View>
             </View>
-          </Pressable>
-        </Pressable>
+          </View>
+        </KeyboardSafeView>
       </Modal>
       <ReportSheet
         visible={reportOpen}
@@ -681,6 +715,7 @@ function MemberRow({
             {member.tanggalKeluar
               ? ` · ${parseLocalDate(member.tanggalKeluar).toLocaleDateString('id-ID')}`
               : ''}
+            {member.alasanKeluar ? ` · ${member.alasanKeluar}` : ''}
           </Text>
         ) : null}
       </View>
