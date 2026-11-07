@@ -1810,7 +1810,7 @@
     "edit_alamat": "Alamat pertemuan",
     "edit_alamat_ph": "Mis. Rumah Pak Yohanes, Jl. Mawar 5",
     "edit_maps": "Lokasi (link Google Maps)",
-    "edit_maps_hint": "Buka Google Maps → tekan lama titik lokasi → salin koordinat atau tautan Bagikan. Dipakai untuk \"Cari homecell terdekat\".",
+    "edit_maps_hint": "Tempel link Google Maps (tautan Bagikan, nama tempat, atau alamat) atau koordinat. Dipakai untuk \"Cari homecell terdekat\".",
     "edit_err_nama": "Nama minimal 2 karakter.",
     "edit_saved": "Perubahan disimpan",
     "edit_area_title": "Ubah zona",

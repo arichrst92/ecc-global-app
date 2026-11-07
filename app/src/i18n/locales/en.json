@@ -1813,7 +1813,7 @@
     "edit_alamat": "Meeting address",
     "edit_alamat_ph": "E.g. Mr. John's house, 5 Rose St",
     "edit_maps": "Location (Google Maps link)",
-    "edit_maps_hint": "Open Google Maps → long-press the location → copy the coordinates or Share link. Used for \"Find nearest homecell\".",
+    "edit_maps_hint": "Paste a Google Maps link (Share link, place name or address) or coordinates. Used for \"Find nearest homecell\".",
     "edit_err_nama": "Name must be at least 2 characters.",
     "edit_saved": "Changes saved",
     "edit_area_title": "Edit zone",
