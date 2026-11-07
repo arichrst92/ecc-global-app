@@ -382,7 +382,18 @@ export default function CatatanEditScreen() {
               placeholder={t('catatan.isi_placeholder')}
               placeholderTextColor={nc('#A3A3A3')}
               maxLength={20000}
-              onContentSizeChange={(e) => setBodyH(Math.ceil(e.nativeEvent.contentSize.height) + 34)}
+              // Native: kotak memanjang mengikuti isi (contentSize = teks saja, + padding).
+              // Web: TIDAK dipakai — contentSize di web = scrollHeight textarea yang ikut
+              // membesar saat minHeight diubah → loop render (React #185). Di web kotak
+              // cukup mengisi layar (flex-1) dan menggulir di dalam.
+              onContentSizeChange={
+                Platform.OS === 'web'
+                  ? undefined
+                  : (e) => {
+                      const h = Math.ceil(e.nativeEvent.contentSize.height) + 34;
+                      setBodyH((prev) => (Math.abs(prev - h) < 2 ? prev : h));
+                    }
+              }
               className="flex-1 bg-card rounded-2xl border border-neutral-100 p-4 text-base text-neutral-900 leading-relaxed"
               style={{ minHeight: Math.max(280, bodyH) }}
             />
