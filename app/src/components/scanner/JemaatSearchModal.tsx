@@ -13,9 +13,7 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -31,6 +29,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { searchJemaat, type JemaatSearchResult } from '@/api/jemaat';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { nc } from '@/theme/ThemeRoot';
 
 const KODE_RE = /^[A-Z0-9]{8}$/;
@@ -57,6 +56,8 @@ export function JemaatSearchModal({
 }) {
   const { t } = useTranslation();
   const { viewingCabangId } = useViewingBranch();
+  // Ruang bawah = tinggi keyboard → hasil yang tertutup keyboard tetap bisa digulir & diketuk.
+  const kbH = useKeyboardHeight();
   const [text, setText] = useState('');
   const q = useDebounce(text.trim(), 300);
   const upper = text.trim().toUpperCase();
@@ -88,11 +89,7 @@ export function JemaatSearchModal({
   // tidak menutupi input, dan daftar hasil punya tinggi pasti (flex-1) sehingga
   // bisa digulir & diketuk di Android maupun iOS.
   const content = (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-      className="bg-card"
-    >
+    <View style={{ flex: 1 }} className="bg-card">
       <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
         <View className="flex-row items-center px-4 py-2">
           <Search size={18} color={nc('#525252')} />
@@ -166,7 +163,7 @@ export function JemaatSearchModal({
             keyExtractor={(j) => j.id}
             keyboardShouldPersistTaps="always"
             keyboardDismissMode="on-drag"
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: kbH + 24 }}
             ItemSeparatorComponent={() => <View className="h-px bg-neutral-100" />}
             renderItem={({ item: j }) => (
               <Pressable
@@ -189,7 +186,7 @@ export function JemaatSearchModal({
           />
         )}
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 
   if (inline) {

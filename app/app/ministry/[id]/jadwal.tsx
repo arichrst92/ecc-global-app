@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CalendarDays, ChevronRight, Plus, RotateCcw, Search, UserCheck, Users, X } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -415,6 +416,7 @@ function MemberPicker({
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [semua, setSemua] = useState(false);
+  const kbH = useKeyboardHeight();
   const [roleId, setRoleId] = useState<string | null>(null);
   const editKey = editing.kind === 'ibadah' ? editing.item.key : `event:${editing.item.eventId}`;
   const bulan = tanggal.slice(0, 7);
@@ -486,7 +488,7 @@ function MemberPicker({
           ))}
         </ScrollView>
       </View>
-      <ScrollView contentContainerStyle={{ padding: 16 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: kbH + 16 }} keyboardShouldPersistTaps="always" keyboardDismissMode="on-drag">
         {list.length === 0 ? (
           <Text className="text-sm text-neutral-500 text-center py-8">{t('ministry.jadwal_cari_kosong')}</Text>
         ) : (

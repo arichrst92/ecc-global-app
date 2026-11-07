@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -18,6 +16,7 @@ import { ArrowLeft, Check, Info, Search, X, Hourglass } from 'lucide-react-nativ
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { TipeRelasiPicker } from '@/components/family/TipeRelasiPicker';
 import { useToast } from '@/components/ui/Toast';
 import { useLinkById } from '@/hooks/useFamily';
@@ -34,6 +33,7 @@ import { nc } from '@/theme/ThemeRoot';
  * Hasil hanya nama, foto, kode & cabang (kontak tidak ditampilkan).
  */
 export default function FamilyAddSearchScreen() {
+  const kbH = useKeyboardHeight();
   const { t } = useTranslation();
   const router = useRouter();
   const showToast = useToast((s) => s.show);
@@ -97,7 +97,7 @@ export default function FamilyAddSearchScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+      <View className="flex-1">
         <View className="px-4 py-2 flex-row items-center border-b border-neutral-100">
           <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color={nc('#171717')} />
@@ -107,8 +107,9 @@ export default function FamilyAddSearchScreen() {
 
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24 }}
-          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: kbH + 24 }}
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
         >
           {picked ? (
@@ -232,7 +233,7 @@ export default function FamilyAddSearchScreen() {
             />
           </View>
         ) : null}
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 }

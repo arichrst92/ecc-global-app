@@ -5,6 +5,7 @@
  */
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +22,7 @@ import { nc } from '@/theme/ThemeRoot';
 type Kategori = 'SINGLE' | 'COUPLE' | null;
 
 export default function EditHomecellScreen() {
+  const kbH = useKeyboardHeight();
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -105,7 +107,10 @@ export default function EditHomecellScreen() {
         <ActivityIndicator color="#F97316" style={{ marginTop: 40 }} />
       ) : (
         <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            contentContainerStyle={{ padding: 20, paddingBottom: 24 + (Platform.OS === 'android' ? kbH : 0) }}
+            keyboardShouldPersistTaps="handled"
+          >
             <Field label={t('hcj.edit_nama')}>
               <Input value={nama} onChangeText={setNama} maxLength={150} placeholder="Homecell Kelapa Gading" />
             </Field>
@@ -121,7 +126,9 @@ export default function EditHomecellScreen() {
                 onChangeText={setMapsUrl}
                 maxLength={2000}
                 autoCapitalize="none"
-                placeholder="https://maps.app.goo.gl/… / -6.2088, 106.8456"
+                autoCorrect={false}
+                keyboardType="url"
+                placeholder={t('hcj.location_placeholder')}
               />
             </Field>
 

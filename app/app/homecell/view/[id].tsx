@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { jadwalLabel } from '@/components/homecell/HomecellListCard';
 import { MaterialList } from '@/components/homecell/ScheduleMaterials';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { HomecellBoardSection } from '@/components/group/GroupContent';
 import { LastAttendanceText } from '@/components/homecell/LastAttendanceText';
 import {
@@ -57,6 +58,8 @@ export default function HomecellViewScreen() {
   const [pesan, setPesan] = useState('');
   const [lokasiOpen, setLokasiOpen] = useState(false);
   const [lokasiInput, setLokasiInput] = useState('');
+  // Modal lokasi naik di atas keyboard (Android edge-to-edge tidak mengecilkan jendela).
+  const kbH = useKeyboardHeight();
 
   const errMsg = (e: unknown) => (e instanceof ApiError ? e.message : t('error.generic'));
   const fmtDate = (d: string) =>
@@ -358,7 +361,7 @@ export default function HomecellViewScreen() {
 
       {/* Modal atur lokasi (pemimpin) */}
       <Modal visible={lokasiOpen} transparent animationType="fade" onRequestClose={() => setLokasiOpen(false)}>
-        <View className="flex-1 bg-black/40 items-center justify-center px-6">
+        <View className="flex-1 bg-black/40 items-center justify-center px-6" style={{ paddingBottom: kbH }}>
           <View className="bg-card rounded-2xl p-5 w-full" style={{ maxWidth: 420 }}>
             <Text className="text-base font-bold text-neutral-900">{t('hcj.location_title')}</Text>
             <Text className="text-xs text-neutral-500 mt-1 mb-3">{t('hcj.location_help')}</Text>
@@ -367,6 +370,7 @@ export default function HomecellViewScreen() {
               onChangeText={setLokasiInput}
               placeholder={t('hcj.location_placeholder')}
               placeholderTextColor={nc('#A3A3A3')}
+              keyboardType="url"
               autoCapitalize="none"
               autoCorrect={false}
               className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
