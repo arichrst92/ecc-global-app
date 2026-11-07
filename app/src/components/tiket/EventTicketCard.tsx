@@ -52,11 +52,14 @@ export function EventTicketCard({
   variant = 'list',
   onPress,
   notchColor,
+  compact,
 }: {
   ticket: EventTiket;
   variant?: 'list' | 'full';
   onPress?: () => void;
   notchColor?: string;
+  /** Di halaman detail event: tanpa gambar & judul/tanggal (sudah tampil di atas). */
+  compact?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -194,8 +197,8 @@ export function EventTicketCard({
 
   return (
     <TicketShell
-      header={header}
-      body={body}
+      header={compact ? null : header}
+      body={compact ? null : body}
       stub={stub}
       footer={footer}
       onPress={onPress}

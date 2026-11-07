@@ -9,6 +9,7 @@ Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Spiritual Journey** — catatan pengajuan update tahap kini opsional.
 - **Lokasi homecell** — petunjuk kolom: link Google Maps apa pun (tautan Bagikan, nama tempat, alamat) atau koordinat.
 - **Group** — permintaan bergabung hanya tampil untuk PIC group.
+- **Detail event** — kartu "Tiket Saya" tanpa gambar & judul (sudah ada di atas), cukup peserta, QR, status, dan check-in; ukuran judul bagian, ikon, dan kartu "Tentang Event" diseragamkan dengan detail ibadah.
 
 ## Syarat server
 Migrasi `20261115090000_family_link_request`, `20261116090000_homecell_asisten` + core-api terbaru (`/admin/me/family/requests…`, link-by-* jadi permintaan, catatan SJ opsional, resolver link Google Maps tanpa koordinat, request join group/homecell hanya PIC di app).
@@ -48,6 +49,7 @@ Els App 2.4.7:
 ```
 
 ## Smoke test
+- [ ] Detail event yang sudah didaftar → Tiket Saya tanpa gambar; ketuk → tiket penuh (dengan gambar) tetap normal
 - [ ] PIC → detail homecell → ⋯ pada anggota → Jadikan asisten → badge Asisten; anggota dapat notifikasi
 - [ ] Asisten → homecell (view) → Kelola → Buat jadwal, scan/absen manual, catat tamu, upload lampiran, buat pengumuman & voting berhasil
 - [ ] Asisten tidak melihat tombol tambah anggota, ⋯ anggota, Laporan/Ubah/Potensial member, hapus jadwal

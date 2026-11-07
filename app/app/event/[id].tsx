@@ -353,7 +353,7 @@ export default function EventDetailScreen() {
               {/* Meta */}
               <View className="mt-4 gap-2.5">
                 <MetaRow
-                  icon={<Calendar size={20} color="#EA580C" />}
+                  icon={<Calendar size={18} color="#EA580C" />}
                   primary={`${formatDate(event.tanggalMulai, lang)}${
                     event.tanggalSelesai !== event.tanggalMulai
                       ? ` - ${formatDate(event.tanggalSelesai, lang)}`
@@ -377,14 +377,14 @@ export default function EventDetailScreen() {
                   // Jam mulai & selesai dikosongkan admin → tampilkan "-".
                   return (
                     <MetaRow
-                      icon={<Clock size={20} color="#EA580C" />}
+                      icon={<Clock size={18} color="#EA580C" />}
                       primary={range ?? '-'}
                       secondary={range && local ? t('time.your_time', { time: local }) : null}
                     />
                   );
                 })()}
                 <MetaRow
-                  icon={<MapPin size={20} color="#EA580C" />}
+                  icon={<MapPin size={18} color="#EA580C" />}
                   primary={
                     // Lokasi dikosongkan admin → "-"
                     event.lokasi && event.lokasi.trim().length > 0 ? event.lokasi : '-'
@@ -393,7 +393,7 @@ export default function EventDetailScreen() {
                 {event.quotaPeserta != null ? (
                   <View className="flex-row items-center gap-3">
                     <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-                      <Users size={20} color="#EA580C" />
+                      <Users size={18} color="#EA580C" />
                     </View>
                     <View className="flex-1">
                       <Text className="font-semibold text-neutral-900">
@@ -409,7 +409,7 @@ export default function EventDetailScreen() {
                   </View>
                 ) : (
                   <MetaRow
-                    icon={<Users size={20} color="#EA580C" />}
+                    icon={<Users size={18} color="#EA580C" />}
                     primary={t('event.participants_count', { count: event.pesertaCount })}
                   />
                 )}
@@ -485,11 +485,12 @@ export default function EventDetailScreen() {
               {/* Tiket Saya — satu tiket per orang, ketuk untuk QR besar */}
               {myTickets.length > 0 ? (
                 <View className="mt-5 gap-3">
-                  <Text className="text-lg font-bold text-neutral-900">{t('tiket.my_tickets')}</Text>
+                  <Text className="text-base font-bold text-neutral-900">{t('tiket.my_tickets')}</Text>
                   {myTickets.map((tk) => (
                     <EventTicketCard
                       key={tk.id}
                       ticket={tk}
+                      compact
                       onPress={() => router.push(`/tiket?kind=event&id=${tk.id}&eventId=${tk.event.id}` as never)}
                     />
                   ))}
@@ -497,24 +498,24 @@ export default function EventDetailScreen() {
               ) : null}
 
               {/* Deskripsi */}
-              <View className="mt-5">
-                <Text className="text-lg font-bold text-neutral-900 mb-2">
-                  {t('event.about_event')}
-                </Text>
-                {/* Plain text fallback — markdown render M4 atau add lib */}
-                <Text className="text-sm text-neutral-700 leading-relaxed">
-                  {event.deskripsi}
-                </Text>
-              </View>
+              {event.deskripsi && event.deskripsi.trim().length > 0 ? (
+                <View className="mt-5 bg-card rounded-2xl p-4 border border-neutral-100">
+                  <View className="flex-row items-center gap-2 mb-2">
+                    <FileText size={16} color={nc('#525252')} />
+                    <Text className="text-sm font-semibold text-neutral-700">{t('event.about_event')}</Text>
+                  </View>
+                  <Text className="text-sm text-neutral-700 leading-relaxed">{event.deskripsi}</Text>
+                </View>
+              ) : null}
 
               {/* Video teaser button — kalau BE provide videoUrl */}
               {event.videoUrl && event.videoUrl.trim().length > 0 ? (
                 <Pressable
                   onPress={() => Linking.openURL(event.videoUrl!).catch(() => {})}
-                  className="mt-4 bg-red-500 rounded-2xl py-3 flex-row items-center justify-center gap-2"
+                  className="mt-4 bg-red-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
                 >
-                  <PlayCircle size={20} color="#fff" />
-                  <Text className="text-white font-semibold text-base">
+                  <PlayCircle size={18} color="#fff" />
+                  <Text className="text-white font-semibold text-sm">
                     {t('event.watch_teaser')}
                   </Text>
                 </Pressable>

@@ -15,8 +15,9 @@ export function TicketShell({
   notchColor = nc('#FAFAFA'),
   dim,
 }: {
-  header: ReactNode;
-  body: ReactNode;
+  /** null = tanpa kepala (mis. tiket di halaman detail event yang sudah bergambar). */
+  header?: ReactNode;
+  body?: ReactNode;
   stub: ReactNode;
   footer?: ReactNode;
   onPress?: () => void;
@@ -32,15 +33,17 @@ export function TicketShell({
       className="bg-card rounded-2xl border border-neutral-100 overflow-hidden"
       style={dim ? { opacity: 0.55 } : undefined}
     >
-      {header}
-      <View className="px-3.5 pt-2.5 pb-3">{body}</View>
-      {/* garis sobek + lekukan */}
-      <View style={{ height: 18, justifyContent: 'center' }}>
-        <View style={{ marginHorizontal: 14, borderTopWidth: 2, borderStyle: 'dashed', borderColor: nc('#E5E5E5') }} />
-        <View style={{ position: 'absolute', left: -10, width: 20, height: 20, borderRadius: 10, backgroundColor: notchColor }} />
-        <View style={{ position: 'absolute', right: -10, width: 20, height: 20, borderRadius: 10, backgroundColor: notchColor }} />
-      </View>
-      <View className="px-3.5 pt-1 pb-3">{stub}</View>
+      {header ?? null}
+      {body ? <View className="px-3.5 pt-2.5 pb-3">{body}</View> : null}
+      {/* garis sobek + lekukan (hanya bila ada kepala / isi di atasnya) */}
+      {header || body ? (
+        <View style={{ height: 18, justifyContent: 'center' }}>
+          <View style={{ marginHorizontal: 14, borderTopWidth: 2, borderStyle: 'dashed', borderColor: nc('#E5E5E5') }} />
+          <View style={{ position: 'absolute', left: -10, width: 20, height: 20, borderRadius: 10, backgroundColor: notchColor }} />
+          <View style={{ position: 'absolute', right: -10, width: 20, height: 20, borderRadius: 10, backgroundColor: notchColor }} />
+        </View>
+      ) : null}
+      <View className={`px-3.5 pb-3 ${header || body ? 'pt-1' : 'pt-3'}`}>{stub}</View>
       {footer ? <View className="px-3.5 pb-3.5">{footer}</View> : null}
     </Wrap>
   );
