@@ -21,6 +21,7 @@ Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Detail bisnis Local Market** — tombol **WhatsApp admin** & **Email**, grid katalog 2 kolom (filter Semua/Produk/Jasa). Detail item: galeri foto 3:2, harga, **Tanya via WhatsApp** (pesan otomatis berisi nama item, harga, dan link), Email, Bagikan link item (pratinjau WhatsApp memakai foto item).
 - **Form usaha** — kolom **Nomor WhatsApp admin** & **Email bisnis**; sosial media cukup isi **username** (Instagram, Facebook, TikTok, YouTube, X, LinkedIn, Threads — semua opsional). Kolom link "Chat WhatsApp" dihapus (digantikan WhatsApp admin); data sosmed lama otomatis terbaca sebagai username.
 - **Jumlah kunjungan Local Market** — pemilik melihat "Dilihat N kali" di form usaha dan jumlah kunjungan per item di Katalog; Portal menampilkan kunjungan usaha & item. Dihitung dari app + web, pemilik sendiri tidak dihitung, satu pengunjung dihitung sekali per 30 menit, bot pratinjau link diabaikan.
+- **Catatan (tulis / pratinjau)** — kotak isi kini memanjang sampai toolbar di bawah dan ikut memanjang mengikuti isi (halaman yang digulir), tidak lagi terpotong.
 - **Upload foto usaha & katalog** — nama/tipe file diambil dari picker; di versi web foto dikirim sebagai file asli (sebelumnya gagal "File foto wajib (multipart)").
 
 ## Syarat server
@@ -94,3 +95,4 @@ Els App 2.4.7:
 - [ ] Bisnis lama dengan link sosmed → form usaha menampilkan username terisi
 - [ ] Akun lain buka detail usaha & item (app dan web) → Portal / form usaha pemilik: kunjungan bertambah 1; buka ulang dalam 30 menit tidak menambah; pemilik membuka sendiri tidak menambah
 - [ ] Tambah foto item & hero/logo usaha (Android, iOS, dan web) → berhasil
+- [ ] Catatan → tulis teks panjang → kotak isi memenuhi layar sampai toolbar & memanjang, teks tidak terpotong (iOS, Android, web)

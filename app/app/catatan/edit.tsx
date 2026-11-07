@@ -89,6 +89,9 @@ export default function CatatanEditScreen() {
   const dirty = useRef(false);
   const saved = useRef(false);
   const bodyRef = useRef<TextInput>(null);
+  // Tinggi isi catatan → kotak ikut memanjang (halaman yang menggulir, bukan
+  // kotaknya) dan minimal mengisi layar sampai toolbar.
+  const [bodyH, setBodyH] = useState(0);
   const selRef = useRef(sel);
   selRef.current = sel;
 
@@ -294,7 +297,7 @@ export default function CatatanEditScreen() {
       </SafeAreaView>
 
       <KeyboardSafeView className="flex-1">
-        <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+        <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 24, flexGrow: 1 }} keyboardShouldPersistTaps="handled">
           <TextInput
             value={judul}
             onChangeText={(v) => {
@@ -379,11 +382,12 @@ export default function CatatanEditScreen() {
               placeholder={t('catatan.isi_placeholder')}
               placeholderTextColor={nc('#A3A3A3')}
               maxLength={20000}
-              className="bg-card rounded-2xl border border-neutral-100 p-4 text-base text-neutral-900 leading-relaxed"
-              style={{ minHeight: 280 }}
+              onContentSizeChange={(e) => setBodyH(Math.ceil(e.nativeEvent.contentSize.height) + 34)}
+              className="flex-1 bg-card rounded-2xl border border-neutral-100 p-4 text-base text-neutral-900 leading-relaxed"
+              style={{ minHeight: Math.max(280, bodyH) }}
             />
           ) : (
-            <View className="bg-card rounded-2xl border border-neutral-100 p-4" style={{ minHeight: 280 }}>
+            <View className="flex-1 bg-card rounded-2xl border border-neutral-100 p-4" style={{ minHeight: 280 }}>
               {isi.trim() ? <CatatanRender text={isi} /> : <Text className="text-sm text-neutral-400">{t('catatan.preview_empty')}</Text>}
             </View>
           )}
