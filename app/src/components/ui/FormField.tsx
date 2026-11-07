@@ -1,6 +1,7 @@
 /** Label + input sederhana untuk form edit (tema terang/gelap). */
 import type { ComponentProps, ReactNode } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { TextInput } from '@/components/ui/ThemedTextInput';
 import { nc } from '@/theme/ThemeRoot';
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {

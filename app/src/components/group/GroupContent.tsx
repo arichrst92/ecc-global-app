@@ -5,7 +5,8 @@
  * - PIC / admin: buat & kelola semuanya.
  */
 import { useState } from 'react';
-import { Alert, Modal, Platform, Pressable, ScrollView, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Platform, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
 import {

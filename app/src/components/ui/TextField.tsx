@@ -1,4 +1,5 @@
-import { TextInput, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { TextInput } from '@/components/ui/ThemedTextInput';
 import type { TextInputProps } from 'react-native';
 import { nc } from '@/theme/ThemeRoot';
 

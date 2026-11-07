@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FlatList, Modal, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { FlatList, Modal, Platform, Pressable, Text, View } from 'react-native';
+import { TextInput } from '@/components/ui/ThemedTextInput';
 import { ChevronDown, X } from 'lucide-react-native';
 
 import { COUNTRIES, DEFAULT_COUNTRY, countryFromE164, type Country } from '@/utils/phone';

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Platform, TextInput } from 'react-native';
+import { Platform } from 'react-native';
+import { TextInput } from '@/components/ui/ThemedTextInput';
 import { nc } from '@/theme/ThemeRoot';
 
 type Props = {

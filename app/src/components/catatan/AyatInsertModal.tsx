@@ -3,7 +3,8 @@
  * dari Alkitab offline versi yang dipilih. Bisa sisip kutipan atau referensi saja.
  */
 import { useEffect, useState } from 'react';
-import { Modal, Platform, Pressable, Text, TextInput, View } from 'react-native';
+import { Modal, Platform, Pressable, Text, View } from 'react-native';
+import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
 import { BookOpen, X } from 'lucide-react-native';

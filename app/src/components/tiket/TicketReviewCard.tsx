@@ -4,7 +4,8 @@
  * opsi anonim. Hanya untuk tiket milik sendiri.
  */
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, Switch, Text, View } from 'react-native';
+import { TextInput } from '@/components/ui/ThemedTextInput';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { MessageSquareHeart, Star } from 'lucide-react-native';
