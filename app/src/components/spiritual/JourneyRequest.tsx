@@ -120,7 +120,7 @@ function RequestSheet({ visible, onClose, journey }: { visible: boolean; onClose
   const [catatan, setCatatan] = useState('');
 
   const submit = useMutation({
-    mutationFn: () => requestJourneyUpdate({ stepId: stepId!, catatan: catatan.trim() }),
+    mutationFn: () => requestJourneyUpdate({ stepId: stepId!, catatan: catatan.trim() || null }),
     onSuccess: () => {
       showToast(t('journey.req_sent'), 'success');
       setStepId(null);
@@ -131,7 +131,7 @@ function RequestSheet({ visible, onClose, journey }: { visible: boolean; onClose
     onError: (e) => Alert.alert(e instanceof ApiError ? e.message : t('error.network')),
   });
 
-  const canSubmit = !!stepId && catatan.trim().length >= 3 && !submit.isPending;
+  const canSubmit = !!stepId && !submit.isPending;
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>

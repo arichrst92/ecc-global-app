@@ -46,7 +46,7 @@ export type MyJourney = {
 export const getMyJourney = () => api.get<MyJourney>('/admin/me/spiritual-journey');
 
 /** POST /admin/me/spiritual-journey/request (2.4.6) */
-export const requestJourneyUpdate = (body: { stepId: string; catatan: string }) =>
+export const requestJourneyUpdate = (body: { stepId: string; catatan: string | null }) =>
   api.post<JourneyRequest>('/admin/me/spiritual-journey/request', body);
 
 /** DELETE /admin/me/spiritual-journey/request/:id (2.4.6) — batalkan yang masih menunggu. */

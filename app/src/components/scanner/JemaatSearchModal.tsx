@@ -23,6 +23,7 @@ import {
   View,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, Search, X } from 'lucide-react-native';
 
@@ -83,27 +84,29 @@ export function JemaatSearchModal({
   // Kode persis yang belum muncul di hasil → tawarkan "Pakai kode …"
   const showUseKode = looksLikeKode && !data.some((j) => j.kode === upper);
 
+  // Layar penuh dengan kolom cari di ATAS (bukan lembar di bawah): keyboard
+  // tidak menutupi input, dan daftar hasil punya tinggi pasti (flex-1) sehingga
+  // bisa digulir & diketuk di Android maupun iOS.
   const content = (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-black/60 justify-end"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+      className="bg-card"
     >
-      <Pressable onPress={close} className="flex-1" />
-      <View className="bg-card rounded-t-3xl p-5" style={{ maxHeight: '85%' }}>
-        <View className="items-center mb-2">
-          <View className="w-10 h-1 bg-neutral-300 rounded-full" />
-        </View>
-        <View className="flex-row items-center justify-between mb-2">
-          <View className="flex-row items-center gap-2">
-            <Search size={18} color={nc('#525252')} />
-            <Text className="text-lg font-bold text-neutral-900">{title ?? t('scanner.search_title')}</Text>
-          </View>
-          <Pressable onPress={close} className="w-8 h-8 items-center justify-center">
-            <X size={18} color={nc('#737373')} />
+      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
+        <View className="flex-row items-center px-4 py-2">
+          <Search size={18} color={nc('#525252')} />
+          <Text className="flex-1 text-base font-bold text-neutral-900 ml-2" numberOfLines={1}>
+            {title ?? t('scanner.search_title')}
+          </Text>
+          <Pressable onPress={close} className="w-10 h-10 items-center justify-center" accessibilityLabel={t('common.close')}>
+            <X size={20} color={nc('#525252')} />
           </Pressable>
         </View>
-        <Text className="text-xs text-neutral-500 mb-3 leading-relaxed">{t('scanner.search_hint')}</Text>
+      </SafeAreaView>
 
+      <View className="px-4 pt-3">
+        <Text className="text-xs text-neutral-500 mb-3 leading-relaxed">{t('scanner.search_hint')}</Text>
         <View className="flex-row items-center border-2 border-neutral-200 rounded-xl px-3">
           <Search size={16} color={nc('#A3A3A3')} />
           <TextInput
@@ -123,7 +126,13 @@ export function JemaatSearchModal({
             }}
             className="flex-1 px-2 py-3 text-base text-neutral-900"
           />
-          {results.isFetching || loading ? <ActivityIndicator size="small" color="#F97316" /> : null}
+          {results.isFetching || loading ? (
+            <ActivityIndicator size="small" color="#F97316" />
+          ) : text ? (
+            <Pressable onPress={() => setText('')} hitSlop={8}>
+              <X size={16} color={nc('#A3A3A3')} />
+            </Pressable>
+          ) : null}
         </View>
 
         {showUseKode ? (
@@ -141,41 +150,44 @@ export function JemaatSearchModal({
             <ChevronRight size={16} color={nc('#C2410C')} />
           </Pressable>
         ) : null}
+      </View>
 
-        <View style={{ minHeight: 120 }} className="mt-3">
-          {q.length < 2 ? (
-            <Text className="text-xs text-neutral-400 text-center mt-6">{t('scanner.search_min')}</Text>
-          ) : results.isError ? (
-            <Text className="text-xs text-red-600 text-center mt-6">{t('scanner.search_error')}</Text>
-          ) : !results.isFetching && data.length === 0 && !showUseKode ? (
-            <Text className="text-sm text-neutral-500 text-center mt-6">{t('scanner.search_empty')}</Text>
-          ) : (
-            <FlatList
-              data={data}
-              keyExtractor={(j) => j.id}
-              keyboardShouldPersistTaps="handled"
-              ItemSeparatorComponent={() => <View className="h-px bg-neutral-100" />}
-              renderItem={({ item: j }) => (
-                <Pressable
-                  onPress={() => pick(j)}
-                  disabled={!j.kode || loading}
-                  className="flex-row items-center gap-3 py-3"
-                >
-                  <Avatar name={j.namaLengkap} fotoUrl={j.fotoUrl} size={40} />
-                  <View className="flex-1 min-w-0">
-                    <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-                      {j.namaLengkap}
-                    </Text>
-                    <Text className="text-xs text-neutral-500" numberOfLines={1}>
-                      {[j.isTamu ? t('tamu.label') : null, j.kode, j.noHpMasked, j.cabang?.nama].filter(Boolean).join(' · ')}
-                    </Text>
-                  </View>
-                  <ChevronRight size={16} color={nc('#A3A3A3')} />
-                </Pressable>
-              )}
-            />
-          )}
-        </View>
+      <View style={{ flex: 1 }} className="mt-2">
+        {q.length < 2 ? (
+          <Text className="text-xs text-neutral-400 text-center mt-6 px-4">{t('scanner.search_min')}</Text>
+        ) : results.isError ? (
+          <Text className="text-xs text-red-600 text-center mt-6 px-4">{t('scanner.search_error')}</Text>
+        ) : !results.isFetching && data.length === 0 && !showUseKode ? (
+          <Text className="text-sm text-neutral-500 text-center mt-6 px-4">{t('scanner.search_empty')}</Text>
+        ) : (
+          <FlatList
+            style={{ flex: 1 }}
+            data={data}
+            keyExtractor={(j) => j.id}
+            keyboardShouldPersistTaps="always"
+            keyboardDismissMode="on-drag"
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+            ItemSeparatorComponent={() => <View className="h-px bg-neutral-100" />}
+            renderItem={({ item: j }) => (
+              <Pressable
+                onPress={() => pick(j)}
+                disabled={!j.kode || loading}
+                className="flex-row items-center gap-3 py-3 active:bg-neutral-50"
+              >
+                <Avatar name={j.namaLengkap} fotoUrl={j.fotoUrl} size={40} />
+                <View className="flex-1 min-w-0">
+                  <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                    {j.namaLengkap}
+                  </Text>
+                  <Text className="text-xs text-neutral-500" numberOfLines={1}>
+                    {[j.isTamu ? t('tamu.label') : null, j.kode, j.noHpMasked, j.cabang?.nama].filter(Boolean).join(' · ')}
+                  </Text>
+                </View>
+                <ChevronRight size={16} color={nc('#A3A3A3')} />
+              </Pressable>
+            )}
+          />
+        )}
       </View>
     </KeyboardAvoidingView>
   );
@@ -185,7 +197,7 @@ export function JemaatSearchModal({
     return <View style={[StyleSheet.absoluteFill, { zIndex: 100, elevation: 100 }]}>{content}</View>;
   }
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={close}>
       {content}
     </Modal>
   );
