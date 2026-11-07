@@ -87,7 +87,8 @@ export default function GroupDetailScreen() {
 
   const joinMutation = useJoinGroup(id);
   const cancelJoinMutation = useCancelGroupJoin(id);
-  const canManageJoin = isPIC || !!user?.isFulltimer;
+  // Permintaan bergabung hanya untuk PIC group (Fulltimer mengelola lewat Portal).
+  const canManageJoin = isPIC;
   const joinRequestsQuery = useGroupJoinRequests(id, canManageJoin && !!group);
   const approveJoinMutation = useApproveGroupJoin(id);
   const rejectJoinMutation = useRejectGroupJoin(id);
