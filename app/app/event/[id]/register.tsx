@@ -143,6 +143,8 @@ export default function EventRegisterScreen() {
       // Invalidate cache
       await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
       await queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
+      // Tiket Saya (detail event) & Reservasi Saya → ambil ulang, jangan pakai cache lama.
+      await queryClient.invalidateQueries({ queryKey: ['event-tiket'] });
 
       // Local notification per successful registration
       if (event) {
