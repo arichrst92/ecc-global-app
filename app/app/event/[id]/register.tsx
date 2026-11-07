@@ -12,6 +12,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { BebasWebRedirect } from '@/components/event/BebasWebRedirect';
 import { TextField } from '@/components/ui/TextField';
+import { HeroImage } from '@/components/ui/HeroImage';
 import { useEventDetail, useMyEventParticipations } from '@/hooks/useEvents';
 import { useMyFamily } from '@/hooks/useFamily';
 import { useAuthStore } from '@/stores/auth.store';
@@ -285,11 +286,12 @@ export default function EventRegisterScreen() {
       <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16 }}>
         {/* Event summary */}
         {event ? (
-          <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4 flex-row gap-3">
-            <View className="w-14 h-14 rounded-xl bg-brand-300 items-center justify-center">
-              <Text style={{ fontSize: 28 }}>🎉</Text>
-            </View>
-            <View className="flex-1">
+          <View className="bg-card rounded-2xl border border-neutral-100 mb-4 overflow-hidden">
+            {/* Gambar event mengikuti rasio aslinya (tanpa ikon pengganti). */}
+            {event.heroImageUrl ? (
+              <HeroImage url={event.heroImageUrl} fallbackEmoji="" fitToWidth fallbackAspect={3 / 2} style={{ width: '100%' }} />
+            ) : null}
+            <View className="p-4">
               <Text className="font-semibold text-neutral-900" numberOfLines={2}>
                 {event.judul}
               </Text>

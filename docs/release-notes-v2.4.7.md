@@ -10,6 +10,8 @@ Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 - **Spiritual Journey** — catatan pengajuan update tahap kini opsional.
 - **Lokasi homecell** — kolom lokasi (Edit homecell & Atur lokasi) menerima link Google Maps apa pun (tautan Bagikan, link tempat / alamat) atau koordinat; titik dicari otomatis oleh server. Keyboard tidak lagi menutupi kolom / tombol simpan.
 - **Group** — permintaan bergabung hanya tampil untuk PIC group.
+- **Daftar event (konfirmasi)** — ringkasan event menampilkan gambar event sesuai rasio aslinya (ikon 🎉 dihapus).
+- **Atur jadwal pelayanan (mode gelap)** — kartu "Belum ada petugas" tanpa border kuning.
 - **Detail event** — kartu "Tiket Saya" tanpa gambar & judul (sudah ada di atas), cukup peserta, QR, status, dan check-in; ukuran judul bagian, ikon, dan kartu "Tentang Event" diseragamkan dengan detail ibadah.
 
 ## Syarat server

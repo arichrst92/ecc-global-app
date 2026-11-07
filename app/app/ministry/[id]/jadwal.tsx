@@ -34,7 +34,7 @@ import { ApiError } from '@/types/api';
 import { formatDateWithDay } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
-import { nc } from '@/theme/ThemeRoot';
+import { isDark, nc } from '@/theme/ThemeRoot';
 
 type Editing = { kind: 'ibadah'; item: JadwalIbadah } | { kind: 'event'; item: JadwalEvent };
 type Draft = { jemaatId: string; namaLengkap: string; fotoUrl: string | null; roleId: string };
@@ -172,7 +172,8 @@ function SlotCard({ title, sub, count, names, onPress }: { title: string; sub: s
   return (
     <Pressable
       onPress={onPress}
-      className={`bg-card rounded-2xl p-3 flex-row items-center gap-3 border ${count ? 'border-neutral-100' : 'border-amber-300'}`}
+      // Mode gelap: tanpa border kuning (penanda cukup ikon & teks "Belum ada petugas").
+      className={`bg-card rounded-2xl p-3 flex-row items-center gap-3 border ${count || isDark() ? 'border-neutral-100' : 'border-amber-300'}`}
     >
       <View className={`w-10 h-10 rounded-xl items-center justify-center ${count ? 'bg-emerald-50' : 'bg-amber-50'}`}>
         {count ? <UserCheck size={18} color="#059669" /> : <CalendarDays size={18} color="#B45309" />}
