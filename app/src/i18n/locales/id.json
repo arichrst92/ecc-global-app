@@ -1220,7 +1220,10 @@
     "potensial_wanita": "Wanita",
     "potensial_usia": "{{usia}} th",
     "potensial_call": "Telepon",
-    "asisten_hc_badge": "ASISTEN HOMECELL"
+    "asisten_hc_badge": "ASISTEN HOMECELL",
+    "schedule_edit_title": "Ubah Jadwal Pertemuan",
+    "schedule_update_btn": "Simpan Perubahan",
+    "schedule_updated_toast": "Jadwal pertemuan diperbarui"
   },
   "jemaat": {
     "detail_title": "Profil Jemaat",

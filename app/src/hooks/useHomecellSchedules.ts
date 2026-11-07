@@ -15,6 +15,7 @@ import {
   listSchedules,
   getScheduleDetail,
   createSchedule,
+  updateSchedule,
   deleteSchedule,
   recordAttendance,
   deleteAttendance,
@@ -59,6 +60,19 @@ export function useCreateSchedule(homecellId: string) {
       createSchedule(homecellId, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['homecell', homecellId, 'schedules'] });
+      qc.invalidateQueries({ queryKey: ['homecell', 'detail', homecellId] });
+    },
+  });
+}
+
+/** Ubah jadwal pertemuan (2.4.7). */
+export function useUpdateSchedule(homecellId: string, scheduleId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof updateSchedule>[2]) => updateSchedule(homecellId, scheduleId, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['homecell', homecellId, 'schedules'] });
+      qc.invalidateQueries({ queryKey: ['homecell', homecellId, 'schedule', scheduleId] });
       qc.invalidateQueries({ queryKey: ['homecell', 'detail', homecellId] });
     },
   });

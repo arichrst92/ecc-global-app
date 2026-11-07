@@ -1,12 +1,13 @@
 /**
- * Create Homecell Schedule form — PIC only.
+ * Form jadwal pertemuan homecell — buat baru, atau ubah (`?edit=<scheduleId>`, 2.4.7).
+ * PIC homecell, PIC/pastor zona, dan asisten.
  * Form: tanggal (date picker) + jam mulai–selesai + lokasi (required) + catatan (optional).
  *
  * BE endpoint POST /admin/homecell/:id/schedule masih pending — error 404
  * akan toast "BE belum ready" message via generic error handler.
  */
 
-import { createElement, useState } from 'react';
+import { createElement, useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -24,7 +25,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { useCreateSchedule } from '@/hooks/useHomecellSchedules';
+import { useCreateSchedule, useHomecellSchedule, useUpdateSchedule } from '@/hooks/useHomecellSchedules';
+import { parseLocalDate } from '@/utils/date';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc, isDark } from '@/theme/ThemeRoot';
@@ -50,7 +52,8 @@ function toYmd(d: Date): string {
 export default function NewScheduleScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, edit } = useLocalSearchParams<{ id: string; edit?: string }>();
+  const isEdit = !!edit;
   const lang = i18n.language;
   const showToast = useToast((s) => s.show);
 
@@ -65,6 +68,20 @@ export default function NewScheduleScreen() {
   const jamValid = jamSelesai > jamMulai;
 
   const mutation = useCreateSchedule(id);
+  const updateMut = useUpdateSchedule(id, edit ?? '');
+  // Mode ubah: isi form dari jadwal yang ada (sekali saja).
+  const existing = useHomecellSchedule(id, edit);
+  const [filled, setFilled] = useState(false);
+  useEffect(() => {
+    const d = existing.data;
+    if (!isEdit || filled || !d) return;
+    setTanggal(parseLocalDate(d.tanggal.slice(0, 10)));
+    if (d.jamMulai) setJamMulai(d.jamMulai);
+    if (d.jamSelesai) setJamSelesai(d.jamSelesai);
+    setLokasi(d.lokasi ?? '');
+    setCatatan(d.catatan ?? '');
+    setFilled(true);
+  }, [existing.data, isEdit, filled]);
 
   function handleSave() {
     {
@@ -79,6 +96,19 @@ export default function NewScheduleScreen() {
     }
     if (!jamValid) {
       showToast(t('homecell.schedule_jam_invalid'), 'error');
+      return;
+    }
+    if (isEdit) {
+      updateMut.mutate(
+        { tanggal: toYmd(tanggal), jamMulai, jamSelesai, lokasi: lokasi.trim(), catatan: catatan.trim() || null },
+        {
+          onSuccess: () => {
+            showToast(t('homecell.schedule_updated_toast'), 'success');
+            goBack(router);
+          },
+          onError: (err) => showToast(err instanceof ApiError ? err.message : t('error.network'), 'error'),
+        },
+      );
       return;
     }
     mutation.mutate(
@@ -113,6 +143,8 @@ export default function NewScheduleScreen() {
   // 90 hari ke depan (reasonable scheduling horizon).
   const minDate = new Date();
   minDate.setDate(minDate.getDate() - 30);
+  // Ubah jadwal lama: tanggal aslinya tetap bisa dipertahankan.
+  if (isEdit && tanggal < minDate) minDate.setTime(tanggal.getTime());
   const maxDate = new Date();
   maxDate.setDate(maxDate.getDate() + 90);
 
@@ -127,7 +159,7 @@ export default function NewScheduleScreen() {
             <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
           <Text className="flex-1 text-base font-bold text-neutral-900">
-            {t('homecell.schedule_form_title')}
+            {isEdit ? t('homecell.schedule_edit_title') : t('homecell.schedule_form_title')}
           </Text>
         </View>
       </SafeAreaView>
@@ -319,10 +351,10 @@ export default function NewScheduleScreen() {
         <View className="px-5 pb-4 pt-3 bg-card border-t border-neutral-100">
           <SafeAreaView edges={['bottom']}>
             <Button
-              label={t('homecell.schedule_save_btn')}
+              label={isEdit ? t('homecell.schedule_update_btn') : t('homecell.schedule_save_btn')}
               onPress={handleSave}
-              loading={mutation.isPending}
-              disabled={lokasi.trim().length === 0 || !jamValid || mutation.isPending}
+              loading={mutation.isPending || updateMut.isPending}
+              disabled={lokasi.trim().length === 0 || !jamValid || mutation.isPending || updateMut.isPending || (isEdit && !filled)}
               fullWidth
               size="lg"
             />

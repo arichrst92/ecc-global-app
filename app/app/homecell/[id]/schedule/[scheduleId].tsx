@@ -36,6 +36,7 @@ import {
   Trash2,
   UserX,
   X,
+  Pencil,
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -85,6 +86,10 @@ export default function ScheduleDetailScreen() {
       hcd?.picJemaatId === me.jemaatId ||
       hcd?.area.picJemaatId === me.jemaatId ||
       !!hcd?.area.pastorIds?.includes(me.jemaatId));
+  // Ubah jadwal: PIC / zona / admin + asisten (2.4.7).
+  const canEditSchedule =
+    canDeleteSchedule ||
+    (!!me && !!hcd?.members.some((m) => (m.jemaat.id ?? m.jemaatId) === me.jemaatId && m.isActive && m.isAsisten));
   const recordMutation = useRecordAttendance(id, scheduleId);
   const deleteAttMutation = useDeleteAttendance(id, scheduleId);
   const deleteSchedMutation = useDeleteSchedule(id);
@@ -296,6 +301,15 @@ export default function ScheduleDetailScreen() {
             <Text className="flex-1 text-base font-bold text-white">
               {t('homecell.schedule_detail_title')}
             </Text>
+{canEditSchedule ? (
+            <Pressable
+              onPress={() => router.push(`/homecell/${id}/schedule/new?edit=${scheduleId}` as never)}
+              className="w-10 h-10 items-center justify-center"
+              accessibilityLabel={t('homecell.schedule_edit_title')}
+            >
+              <Pencil size={18} color="#fff" />
+            </Pressable>
+            ) : null}
 {canDeleteSchedule ? (
             <Pressable
               onPress={() => setConfirmDeleteSchedule(true)}

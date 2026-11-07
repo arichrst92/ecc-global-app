@@ -1220,7 +1220,10 @@
     "potensial_wanita": "Female",
     "potensial_usia": "{{usia}} yrs",
     "potensial_call": "Call",
-    "asisten_hc_badge": "HOMECELL ASSISTANT"
+    "asisten_hc_badge": "HOMECELL ASSISTANT",
+    "schedule_edit_title": "Edit Meeting",
+    "schedule_update_btn": "Save Changes",
+    "schedule_updated_toast": "Meeting updated"
   },
   "jemaat": {
     "detail_title": "Member Profile",

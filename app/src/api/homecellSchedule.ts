@@ -64,6 +64,15 @@ export function createSchedule(
   );
 }
 
+/** PATCH /admin/homecell/:id/schedule/:scheduleId (2.4.7) — ubah jadwal pertemuan. */
+export function updateSchedule(
+  homecellId: string,
+  scheduleId: string,
+  payload: Partial<Omit<CreateSchedulePayload, 'catatan'>> & { catatan?: string | null },
+): Promise<HomecellSchedule> {
+  return api.patch<HomecellSchedule>(`/admin/homecell/${homecellId}/schedule/${scheduleId}`, payload);
+}
+
 export function deleteSchedule(
   homecellId: string,
   scheduleId: string,
