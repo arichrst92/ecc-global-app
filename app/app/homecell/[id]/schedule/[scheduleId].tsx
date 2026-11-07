@@ -55,6 +55,8 @@ import {
   useBulkAttendance,
 } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
+import { useAuthStore } from '@/stores/auth.store';
+import { useHomecellDetail } from '@/hooks/useHomecell';
 import { formatDateWithDay } from '@/utils/date';
 import type { HomecellAttendance } from '@/types/homecellSchedule';
 import { goBack } from '@/utils/nav';
@@ -73,6 +75,16 @@ export default function ScheduleDetailScreen() {
   const showToast = useToast((s) => s.show);
 
   const detailQuery = useHomecellSchedule(id, scheduleId);
+  // Hapus jadwal hanya PIC / PIC & pastor zona / admin (asisten tidak).
+  const me = useAuthStore((s) => s.user);
+  const hcDetail = useHomecellDetail(id);
+  const hcd = hcDetail.data;
+  const canDeleteSchedule =
+    !!me &&
+    (!!me.isFulltimer ||
+      hcd?.picJemaatId === me.jemaatId ||
+      hcd?.area.picJemaatId === me.jemaatId ||
+      !!hcd?.area.pastorIds?.includes(me.jemaatId));
   const recordMutation = useRecordAttendance(id, scheduleId);
   const deleteAttMutation = useDeleteAttendance(id, scheduleId);
   const deleteSchedMutation = useDeleteSchedule(id);
@@ -284,6 +296,7 @@ export default function ScheduleDetailScreen() {
             <Text className="flex-1 text-base font-bold text-white">
               {t('homecell.schedule_detail_title')}
             </Text>
+{canDeleteSchedule ? (
             <Pressable
               onPress={() => setConfirmDeleteSchedule(true)}
               className="w-10 h-10 items-center justify-center"
@@ -291,6 +304,7 @@ export default function ScheduleDetailScreen() {
             >
               <Trash2 size={18} color={attendedCount + (schedule.tamuCount ?? 0) > 0 ? '#fff8' : '#fff'} />
             </Pressable>
+            ) : null}
           </View>
           <View className="px-5 pb-6 pt-2">
             <Text className="text-white text-xl font-bold">

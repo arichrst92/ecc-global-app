@@ -19,18 +19,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  ArrowLeft,
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  Hourglass,
-  MapPin,
-  MessageCircle,
-  Navigation,
-  Settings2,
-  Users,
-} from 'lucide-react-native';
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock, Hourglass, MapPin, MessageCircle, Navigation, Settings2, Users, ShieldCheck } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -235,7 +224,13 @@ export default function HomecellViewScreen() {
           ) : null}
 
           {/* Status / aksi */}
-          {hc.myStatus === 'MEMBER' ? (
+          {hc.myStatus === 'MEMBER' && hc.isAsisten ? (
+            // Asisten (2.4.7): buka halaman kelola terbatas (jadwal, absen, tamu, konten).
+            <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3">
+              <StatusNote icon={<ShieldCheck size={18} color="#6D28D9" />} tone="brand" text={t('hcj.you_are_asisten')} />
+              <Button label={t('hcj.manage')} variant="ghost" onPress={() => router.push(`/homecell/${hc.id}`)} />
+            </View>
+          ) : hc.myStatus === 'MEMBER' ? (
             <StatusNote icon={<CheckCircle2 size={18} color="#059669" />} tone="emerald" text={t('hcj.you_are_member')} />
           ) : hc.myStatus === 'LEADER' ? (
             <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3">
@@ -332,7 +327,7 @@ export default function HomecellViewScreen() {
           {hc.myStatus === 'MEMBER' || hc.myStatus === 'LEADER' ? (
             <HomecellBoardSection
               homecellId={hc.id}
-              canManage={hc.myStatus === 'LEADER'}
+              canManage={hc.myStatus === 'LEADER' || !!hc.isAsisten}
               className=""
             />
           ) : null}

@@ -39,6 +39,8 @@ export type HomecellMember = {
   homecellId?: string;
   jemaatId: string;
   isActive: boolean;
+  /** Asisten homecell (2.4.7) — ditunjuk PIC. */
+  isAsisten?: boolean;
   tanggalBergabung: string;
   tanggalKeluar?: string | null;
   jemaat: {
@@ -155,6 +157,8 @@ export type HomecellPublicDetail = Omit<HomecellListItem, 'picJemaat'> & {
     lastAttendedDaysAgo?: number | null;
   }[];
   myPendingRequest: { id: string; createdAt: string } | null;
+  /** Saya asisten homecell ini (2.4.7). */
+  isAsisten?: boolean;
 };
 
 export type HomecellNearestResponse = {

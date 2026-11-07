@@ -303,3 +303,8 @@ export type MyZona = {
 export function listMyZona() {
   return api.get<MyZona[]>('/admin/me/zona-saya');
 }
+
+/** PATCH /admin/me/homecell/:id/asisten (2.4.7) — PIC tunjuk / lepas asisten. */
+export function setHomecellAsisten(homecellId: string, jemaatId: string, isAsisten: boolean) {
+  return api.patch<{ jemaatId: string; isAsisten: boolean }>(`/admin/me/homecell/${homecellId}/asisten`, { jemaatId, isAsisten });
+}

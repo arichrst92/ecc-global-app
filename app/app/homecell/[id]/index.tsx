@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, Linking, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,8 @@ import {
   Pencil,
   FileText,
   UserSearch,
+  MoreHorizontal,
+  ShieldCheck,
 } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -37,8 +39,9 @@ import { nc } from '@/theme/ThemeRoot';
 import { homecellKategoriLabel, homecellUsiaLabel } from '@/utils/homecellSegmen';
 import { ReportSheet } from '@/components/homecell/ReportSheet';
 import { HomecellTamuSection } from '@/components/homecell/HomecellTamuSection';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { listHomecellTamu } from '@/api/tamu';
+import { setHomecellAsisten } from '@/api/homecell';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -65,7 +68,30 @@ export default function HomecellDetailScreen() {
   // Pastor zona punya hak yang sama dengan PIC zona di homecell ini.
   const isPicArea = (!!user && homecell?.area.picJemaatId === user.jemaatId) || isPastorArea;
   const canRemove = isPicHomecell || isPicArea;
-  const canTamu = isPicHomecell || isPicArea || !!user?.isFulltimer;
+  // Asisten (2.4.7): ditunjuk PIC — jadwal, absen, tamu, pengumuman, voting, lampiran.
+  const isAsisten = !!user && !!homecell?.members.some((m) => (m.jemaat.id ?? m.jemaatId) === user.jemaatId && m.isActive && m.isAsisten);
+  const canSchedule = canRemove || isAsisten;
+  const canTamu = isPicHomecell || isPicArea || !!user?.isFulltimer || isAsisten;
+  const qc = useQueryClient();
+  const asistenMut = useMutation({
+    mutationFn: (v: { jemaatId: string; isAsisten: boolean }) => setHomecellAsisten(id!, v.jemaatId, v.isAsisten),
+    onSuccess: (_r, v) => {
+      showToast(v.isAsisten ? t('hcj.asisten_set') : t('hcj.asisten_unset'), 'success');
+      void detailQuery.refetch();
+      void qc.invalidateQueries({ queryKey: ['homecell'] });
+    },
+    onError: (e) => showToast(e instanceof ApiError ? e.message : t('error.network'), 'error'),
+  });
+  function memberMenu(m: HomecellMember) {
+    const nama = m.jemaat.namaLengkap;
+    Alert.alert(nama, undefined, [
+      m.isAsisten
+        ? { text: t('hcj.asisten_unset_btn'), onPress: () => asistenMut.mutate({ jemaatId: m.jemaat.id ?? m.jemaatId, isAsisten: false }) }
+        : { text: t('hcj.asisten_set_btn'), onPress: () => asistenMut.mutate({ jemaatId: m.jemaat.id ?? m.jemaatId, isAsisten: true }) },
+      { text: t('homecell.confirm_remove'), style: 'destructive', onPress: () => setConfirmRemove(m) },
+      { text: t('common.cancel'), style: 'cancel' },
+    ]);
+  }
   // Tab Anggota / Tamu — supaya halaman tidak memanjang.
   const [tab, setTab] = useState<'member' | 'tamu'>('member');
   const tamuQuery = useQuery({
@@ -175,7 +201,9 @@ export default function HomecellDetailScreen() {
               <Text className="text-[10px] font-bold text-white tracking-wider">
                 {isPicHomecell
                   ? t('homecell.pic_badge')
-                  : isPastorArea && homecell.area.picJemaatId !== user?.jemaatId
+                  : isAsisten && !isPicArea
+                    ? t('homecell.asisten_hc_badge')
+                    : isPastorArea && homecell.area.picJemaatId !== user?.jemaatId
                     ? t('homecell.area_pastor_badge')
                     : t('homecell.area_pic_badge')}
               </Text>
@@ -373,9 +401,8 @@ export default function HomecellDetailScreen() {
           </Pressable>
         ) : null}
 
-        {/* Jadwal Pertemuan section — PIC only.
-            Tampil walau BE endpoint belum deploy (query 404 → empty state). */}
-        {canRemove ? (
+        {/* Jadwal Pertemuan — PIC & asisten. */}
+        {canSchedule ? (
           <View className="mb-4">
             <View className="flex-row items-center justify-between mb-2">
               <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
@@ -429,7 +456,7 @@ export default function HomecellDetailScreen() {
         ) : null}
 
         {/* Pengumuman & voting homecell (PIC kelola) */}
-        {canRemove ? <HomecellBoardSection homecellId={id} canManage className="mb-4" /> : null}
+        {canSchedule ? <HomecellBoardSection homecellId={id} canManage className="mb-4" /> : null}
 
         {/* Tab Anggota / Tamu (tamu: pemimpin / PIC area) */}
         {canTamu ? (
@@ -495,10 +522,10 @@ export default function HomecellDetailScreen() {
                   <MemberRow
                     key={m.id}
                     member={m}
-                    canRemove={canRemove}
+                    canRemove={canRemove && (m.jemaat.id ?? m.jemaatId) !== homecell.picJemaatId}
                     usiaMin={homecell.usiaMin}
                     usiaMax={homecell.usiaMax}
-                    onRemove={() => setConfirmRemove(m)}
+                    onRemove={() => memberMenu(m)}
                     onPress={() => router.push(`/jemaat/${m.jemaat.id ?? m.jemaatId}` as never)}
                   />
                 ))}
@@ -633,6 +660,12 @@ function MemberRow({
         >
           {member.jemaat.namaLengkap}
         </Text>
+        {member.isAsisten && member.isActive ? (
+          <View className="self-start mt-0.5 bg-violet-50 px-1.5 py-0.5 rounded flex-row items-center gap-0.5">
+            <ShieldCheck size={9} color="#6D28D9" />
+            <Text className="text-[9px] font-bold text-violet-700">{t('hcj.asisten_badge')}</Text>
+          </View>
+        ) : null}
         {member.jemaat.usia != null ? (
           <Text
             className={`text-[11px] mt-0.5 font-semibold ${outOfRange ? 'text-amber-700' : 'text-neutral-500'}`}
@@ -670,9 +703,10 @@ function MemberRow({
             e.stopPropagation();
             onRemove?.();
           }}
-          className="w-9 h-9 rounded-full bg-red-50 items-center justify-center"
+          className="w-9 h-9 rounded-full bg-neutral-100 items-center justify-center"
+          accessibilityLabel={t('hcj.member_menu')}
         >
-          <Trash2 size={14} color="#DC2626" />
+          <MoreHorizontal size={16} color={nc('#525252')} />
         </Pressable>
       ) : null}
     </Pressable>

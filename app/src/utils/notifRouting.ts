@@ -262,6 +262,8 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'group-remove';
     case 'FAMILY_LINK_REQUESTED':
       return 'group-add';
+    case 'HOMECELL_ASISTEN_ASSIGNED':
+      return 'home-check';
     case 'FAMILY_LINK_APPROVED':
       return 'home-check';
     case 'FAMILY_LINK_REJECTED':

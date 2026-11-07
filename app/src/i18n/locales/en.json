@@ -1219,7 +1219,8 @@
     "potensial_pria": "Male",
     "potensial_wanita": "Female",
     "potensial_usia": "{{usia}} yrs",
-    "potensial_call": "Call"
+    "potensial_call": "Call",
+    "asisten_hc_badge": "HOMECELL ASSISTANT"
   },
   "jemaat": {
     "detail_title": "Member Profile",
@@ -1867,7 +1868,14 @@
     "tamu_marked": "{{name}} marked present",
     "tamu_unmark_title": "Remove guest attendance?",
     "tamu_unmark_body": "{{name}} will no longer be recorded as present at this meeting.",
-    "tamu_count_short": "+{{count}} guests"
+    "tamu_count_short": "+{{count}} guests",
+    "asisten_badge": "Assistant",
+    "asisten_set_btn": "Make assistant",
+    "asisten_unset_btn": "Remove assistant",
+    "asisten_set": "Assistant assigned",
+    "asisten_unset": "Assistant removed",
+    "member_menu": "Member options",
+    "you_are_asisten": "You are an assistant of this homecell — help with schedules, attendance, guests, announcements, polls & attachments."
   },
   "gc": {
     "tab_announcements": "Announcements",
