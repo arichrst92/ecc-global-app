@@ -30,6 +30,7 @@ import {
 } from 'lucide-react-native';
 
 import { BusinessRow } from '@/components/market/BusinessRow';
+import { MarketDisclaimer } from '@/components/market/MarketDisclaimer';
 import { useLocalMarket } from '@/hooks/useLocalBusiness';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { listCabang } from '@/api/cabang';
@@ -188,6 +189,7 @@ export default function LocalMarketScreen() {
             }
           }}
           onEndReachedThreshold={0.4}
+          ListHeaderComponent={<MarketDisclaimer />}
           ListFooterComponent={
             query.isFetchingNextPage ? (
               <View className="py-4 items-center">

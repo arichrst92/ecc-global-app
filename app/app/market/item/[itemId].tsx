@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ChevronRight, Mail, MessageCircle, Share2 } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
+import { MarketDisclaimer } from '@/components/market/MarketDisclaimer';
 import { useLocalMarketDetail } from '@/hooks/useLocalBusiness';
 import { pingItemView } from '@/api/businesses';
 import { hargaLabel, itemShareUrl, waNumber } from '@/types/localBusiness';
@@ -153,6 +154,8 @@ export default function MarketItemScreen() {
             </View>
             <ChevronRight size={14} color={nc('#A3A3A3')} />
           </Pressable>
+
+          <MarketDisclaimer className="mt-4" />
         </View>
       </ScrollView>
 

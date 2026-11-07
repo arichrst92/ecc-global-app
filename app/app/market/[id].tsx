@@ -23,6 +23,7 @@ import {
 
 import { Avatar } from '@/components/ui/Avatar';
 import { HeroImage } from '@/components/ui/HeroImage';
+import { MarketDisclaimer } from '@/components/market/MarketDisclaimer';
 import { useLocalMarketDetail } from '@/hooks/useLocalBusiness';
 import { env } from '@/config/env';
 import { hargaLabel, waNumber, type LocalItemJenis } from '@/types/localBusiness';
@@ -358,6 +359,8 @@ export default function LocalMarketDetailScreen() {
             </View>
             <ChevronRight size={14} color={nc('#A3A3A3')} />
           </Pressable>
+
+          <MarketDisclaimer className="mt-4" />
         </View>
       </ScrollView>
     </View>

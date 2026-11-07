@@ -855,7 +855,8 @@
     "profile_pdf_btn": "Company Profile (PDF)",
     "profile_pdf_sub": "Download / view full profile",
     "social_section": "Social Media",
-    "owner_section": "Business Owner"
+    "owner_section": "Business Owner",
+    "disclaimer": "ECC only facilitates businesses run by its members and does not take any profit in any form."
   },
   "my_business": {
     "title": "My Businesses",
