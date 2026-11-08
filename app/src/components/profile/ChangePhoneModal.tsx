@@ -4,7 +4,7 @@
  * nomor baru.
  */
 import { useState } from 'react';
-import { ActivityIndicator, Modal, Platform, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, Platform, Pressable, Text, View, ScrollView } from 'react-native';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
@@ -85,8 +85,10 @@ export function ChangePhoneModal({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
       <KeyboardSafeView style={{ flex: 1 }}>
-        <Pressable onPress={close} className="flex-1 bg-black/50 justify-end">
-          <Pressable onPress={() => {}} className="bg-card rounded-t-3xl px-5 pt-4 pb-8">
+        <View className="flex-1 justify-end">
+<Pressable onPress={close} className="absolute inset-0 bg-black/50" />
+          <View className="bg-card rounded-t-3xl px-5 pt-4 pb-8" style={{ maxHeight: '90%' }}>
+            <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View className="flex-row items-center mb-4">
               <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center mr-3">
                 <Phone size={18} color="#EA580C" />
@@ -154,9 +156,10 @@ export function ChangePhoneModal({
                 </View>
               </>
             )}
+            </ScrollView>
             <SheetNavSpacer />
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </KeyboardSafeView>
     </Modal>
   );

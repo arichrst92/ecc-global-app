@@ -3,7 +3,7 @@
  * dari Alkitab offline versi yang dipilih. Bisa sisip kutipan atau referensi saja.
  */
 import { useEffect, useState } from 'react';
-import { Modal, Platform, Pressable, Text, View } from 'react-native';
+import { Modal, Platform, Pressable, Text, View, ScrollView } from 'react-native';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
@@ -80,7 +80,8 @@ export function AyatInsertModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
       <KeyboardSafeView className="flex-1 bg-black/50 justify-center px-5">
-        <View className="bg-card rounded-2xl p-5 gap-3">
+        <View className="bg-card rounded-2xl p-5 gap-3" style={{ maxHeight: '85%' }}>
+          <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
           <View className="flex-row items-center justify-between">
             <Text className="text-base font-bold text-neutral-900">{t('catatan.ayat_title')}</Text>
             <Pressable onPress={close} hitSlop={10} accessibilityLabel={t('common.close')}>
@@ -128,7 +129,8 @@ export function AyatInsertModal({
             <BookOpen size={14} color="#EA580C" />
             <Text className="text-xs font-semibold text-brand-700">{t('catatan.open_bible')}</Text>
           </Pressable>
-        </View>
+                  </ScrollView>
+</View>
       </KeyboardSafeView>
     </Modal>
   );

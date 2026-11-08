@@ -12,7 +12,7 @@
  * hanya menawarkan "Bagikan teks & link" — app tidak boleh crash karena share.
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Modal, Platform, Pressable, Share, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Modal, Platform, Pressable, Share, Text, View, useWindowDimensions, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Download, ImageIcon, Link2, X } from 'lucide-react-native';
@@ -129,7 +129,8 @@ export function ShareCardModal({ visible, onClose, caption, renderCard, themes =
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable className="flex-1 bg-black/50" onPress={onClose} />
-      <View className="bg-card rounded-t-3xl px-5 pt-4" style={{ paddingBottom: insets.bottom + 16 }}>
+      <View className="bg-card rounded-t-3xl px-5 pt-4" style={{ maxHeight: '90%', paddingBottom: insets.bottom + 16 }}>
+        <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View className="flex-row items-center justify-between mb-3">
           <Text className="text-base font-bold text-neutral-900">{t('sharecard.title')}</Text>
           <Pressable onPress={onClose} className="w-9 h-9 items-center justify-center" accessibilityLabel={t('common.close')}>
@@ -190,7 +191,8 @@ export function ShareCardModal({ visible, onClose, caption, renderCard, themes =
             <Text className="text-sm font-semibold text-neutral-800">{t('sharecard.share_text')}</Text>
           </Pressable>
         </View>
-      </View>
+              </ScrollView>
+</View>
     </Modal>
   );
 }

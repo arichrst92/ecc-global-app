@@ -19,8 +19,7 @@ import {
   Platform,
   Pressable,
   Text,
-  View,
-} from 'react-native';
+  View, ScrollView } from 'react-native';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -229,14 +228,11 @@ export default function VisitScanScreen() {
         <KeyboardSafeView
           className="flex-1"
         >
-          <Pressable
-            onPress={resetScanner}
-            className="flex-1 bg-black/50 items-center justify-end"
-          >
-            <Pressable
-              onPress={() => {}}
-              className="bg-card w-full rounded-t-3xl p-5 pb-8"
-            >
+          <View className="flex-1 items-center justify-end">
+<Pressable onPress={resetScanner} className="absolute inset-0 bg-black/50" />
+            <View
+              className="bg-card w-full rounded-t-3xl p-5 pb-8" style={{ maxHeight: '90%' }}>
+              <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View className="w-12 h-12 rounded-2xl bg-brand-50 items-center justify-center mb-3 self-start">
                 <Handshake size={24} color="#EA580C" />
               </View>
@@ -293,9 +289,10 @@ export default function VisitScanScreen() {
                   />
                 </View>
               </View>
+              </ScrollView>
               <SheetNavSpacer />
-            </Pressable>
-          </Pressable>
+            </View>
+          </View>
         </KeyboardSafeView>
       </Modal>
     </View>

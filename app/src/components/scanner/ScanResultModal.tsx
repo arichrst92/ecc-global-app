@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, Text, View, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
@@ -54,11 +54,10 @@ export function ScanResultModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
-      <Pressable
-        onPress={onDismiss}
-        className="flex-1 bg-black/60 items-center justify-center px-6"
-      >
-        <Pressable onPress={() => {}} className="bg-card rounded-3xl p-5 w-full max-w-sm">
+      <View className="flex-1 items-center justify-center px-6">
+<Pressable onPress={onDismiss} className="absolute inset-0 bg-black/60" />
+        <View className="bg-card rounded-3xl p-5 w-full max-w-sm" style={{ maxHeight: '85%' }}>
+          <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {result.kind === 'success' ? (
             <SuccessContent
               namaLengkap={result.namaLengkap}
@@ -110,8 +109,9 @@ export function ScanResultModal({
               />
             )}
           </View>
-        </Pressable>
-      </Pressable>
+                  </ScrollView>
+</View>
+      </View>
     </Modal>
   );
 }

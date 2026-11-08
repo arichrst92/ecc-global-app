@@ -8,6 +8,7 @@ Versi sebelumnya di toko: **2.4.6**. Rilis ini **menggabungkan 2.4.7 + 2.4.8** (
 - **Tombol bawah lembar tidak tertutup navigasi Android** — 31 lembar isian/pilihan (Tambah tamu, Reservasi, Tamu walk-in, Ganti no HP, Pilih tanggal, filter Local Market, materi homecell, scanner, dll.) memberi ruang setinggi bilah navigasi; HP bertombol fisik tidak mendapat celah tambahan.
 - **Isian tidak tertutup keyboard** — Pesan untuk pemimpin saat minta bergabung homecell (halaman otomatis bergulir ke kolom & tombol) dan kolom industri di filter Local Market.
 - **Detail hadiah CKids di HP lipat / layar lebar** — foto dibatasi tingginya dan isi lembar bisa digulir sampai tombol Tutup; lembar filter Local Market, mata uang katalog, dan pilih cabang memakai pola yang sama (gulir lebih andal di Android).
+- **Semua popup & lembar bisa digulir** — 21 popup/lembar lain (konfirmasi keluar/hapus, Tambah tamu, Tamu walk-in, Ganti no HP, kode jemput, hasil scan, sisip ayat, materi homecell, pilih anak/cabang CKids, Bagikan, aksi lagu, Visit, Bible 365, dll.) kini dibatasi tingginya dan isinya bisa digulir, sehingga tidak terpotong di HP lipat, layar landscape, atau ukuran huruf sistem besar.
 - **Status bar di halaman ber-hero** — Beranda, detail usaha & item Local Market, detail event, berita, renungan, dan pelayanan: konten tidak lagi menabrak jam/sinyal/baterai saat digulir; tombol di atas foto Local Market selalu di bawah area aman atas.
 
 ### Local Market (usaha jemaat)

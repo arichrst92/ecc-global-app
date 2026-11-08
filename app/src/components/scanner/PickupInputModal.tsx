@@ -13,8 +13,7 @@ import {
   Platform,
   Pressable,
   Text,
-  View,
-} from 'react-native';
+  View, ScrollView } from 'react-native';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
@@ -77,7 +76,8 @@ export function PickupInputModal({
         className="flex-1 bg-black/60 justify-end"
       >
         <Pressable onPress={handleClose} className="flex-1" />
-        <View className="bg-card rounded-t-3xl p-5">
+        <View className="bg-card rounded-t-3xl p-5" style={{ maxHeight: '90%' }}>
+          <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View className="items-center mb-2">
             <View className="w-10 h-1 bg-neutral-300 rounded-full" />
           </View>
@@ -128,6 +128,7 @@ export function PickupInputModal({
               size="lg"
             />
           </View>
+          </ScrollView>
           <SheetNavSpacer />
         </View>
       </KeyboardSafeView>

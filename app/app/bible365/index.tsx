@@ -200,7 +200,8 @@ function CommitModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 items-center justify-center px-6">
-        <View className="bg-card rounded-3xl p-5 w-full max-w-sm">
+        <View className="bg-card rounded-3xl p-5 w-full max-w-sm" style={{ maxHeight: '85%' }}>
+          <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Text className="text-lg font-bold text-neutral-900">{t('b365.commit_title')}</Text>
           <Text className="text-sm text-neutral-600 mt-2 leading-relaxed">{t('b365.commit_body')}</Text>
           <Pressable onPress={() => setAgree((a) => !a)} className="flex-row items-start gap-3 mt-4 bg-brand-50 rounded-2xl p-3">
@@ -242,7 +243,8 @@ function CommitModal({
               )}
             </Pressable>
           </View>
-        </View>
+                  </ScrollView>
+</View>
       </View>
     </Modal>
   );

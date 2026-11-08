@@ -452,11 +452,10 @@ export default function CKidsTabScreen() {
         animationType="slide"
         onRequestClose={() => setSelectorOpen(false)}
       >
-        <Pressable
-          onPress={() => setSelectorOpen(false)}
-          className="flex-1 bg-black/60 justify-end"
-        >
-          <Pressable onPress={() => {}} className="bg-card rounded-t-3xl p-5">
+        <View className="flex-1 justify-end">
+<Pressable onPress={() => setSelectorOpen(false)} className="absolute inset-0 bg-black/60" />
+          <View className="bg-card rounded-t-3xl p-5" style={{ maxHeight: '90%' }}>
+            <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View className="items-center mb-3">
               <View className="w-10 h-1 bg-neutral-300 rounded-full" />
             </View>
@@ -501,9 +500,10 @@ export default function CKidsTabScreen() {
                 );
               })}
             </View>
+            </ScrollView>
             <SheetNavSpacer />
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </Modal>
 
       {/* Cabang picker modal — pilih cabang aktif untuk balance + katalog view */}
@@ -513,11 +513,10 @@ export default function CKidsTabScreen() {
         animationType="slide"
         onRequestClose={() => setCabangPickerOpen(false)}
       >
-        <Pressable
-          onPress={() => setCabangPickerOpen(false)}
-          className="flex-1 bg-black/60 justify-end"
-        >
-          <Pressable onPress={() => {}} className="bg-card rounded-t-3xl p-5">
+        <View className="flex-1 justify-end">
+<Pressable onPress={() => setCabangPickerOpen(false)} className="absolute inset-0 bg-black/60" />
+          <View className="bg-card rounded-t-3xl p-5" style={{ maxHeight: '90%' }}>
+            <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View className="items-center mb-3">
               <View className="w-10 h-1 bg-neutral-300 rounded-full" />
             </View>
@@ -565,9 +564,10 @@ export default function CKidsTabScreen() {
                 );
               })}
             </View>
+            </ScrollView>
             <SheetNavSpacer />
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </Modal>
 
       {/* Hadiah detail modal — tap katalog item → info lengkap */}

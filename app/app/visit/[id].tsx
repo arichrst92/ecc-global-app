@@ -374,14 +374,11 @@ export default function VisitDetailScreen() {
         <KeyboardSafeView
           className="flex-1"
         >
-          <Pressable
-            onPress={() => setEditMetaOpen(false)}
-            className="flex-1 bg-black/50 justify-end"
-          >
-            <Pressable
-              onPress={() => {}}
-              className="bg-card rounded-t-3xl p-5 pb-8"
-            >
+          <View className="flex-1 justify-end">
+<Pressable onPress={() => setEditMetaOpen(false)} className="absolute inset-0 bg-black/50" />
+            <View
+              className="bg-card rounded-t-3xl p-5 pb-8" style={{ maxHeight: '90%' }}>
+              <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View className="flex-row items-center mb-3">
                 <Text className="text-lg font-bold text-neutral-900 flex-1">
                   {t('visit.edit_meta_title')}
@@ -423,9 +420,10 @@ export default function VisitDetailScreen() {
                 fullWidth
                 size="lg"
               />
+              </ScrollView>
               <SheetNavSpacer />
-            </Pressable>
-          </Pressable>
+            </View>
+          </View>
         </KeyboardSafeView>
       </Modal>
 
@@ -439,14 +437,11 @@ export default function VisitDetailScreen() {
         <KeyboardSafeView
           className="flex-1"
         >
-          <Pressable
-            onPress={() => setEditNoteOpen(false)}
-            className="flex-1 bg-black/50 justify-end"
-          >
-            <Pressable
-              onPress={() => {}}
-              className="bg-card rounded-t-3xl p-5 pb-8"
-            >
+          <View className="flex-1 justify-end">
+<Pressable onPress={() => setEditNoteOpen(false)} className="absolute inset-0 bg-black/50" />
+            <View
+              className="bg-card rounded-t-3xl p-5 pb-8" style={{ maxHeight: '90%' }}>
+              <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
               <View className="flex-row items-center mb-3">
                 <Text className="text-lg font-bold text-neutral-900 flex-1">
                   {t('visit.edit_note_title')}
@@ -483,9 +478,10 @@ export default function VisitDetailScreen() {
                 fullWidth
                 size="lg"
               />
+              </ScrollView>
               <SheetNavSpacer />
-            </Pressable>
-          </Pressable>
+            </View>
+          </View>
         </KeyboardSafeView>
       </Modal>
 
@@ -496,14 +492,11 @@ export default function VisitDetailScreen() {
         animationType="fade"
         onRequestClose={() => setConfirmDeleteOpen(false)}
       >
-        <Pressable
-          onPress={() => setConfirmDeleteOpen(false)}
-          className="flex-1 bg-black/50 items-center justify-center px-6"
-        >
-          <Pressable
-            onPress={() => {}}
-            className="bg-card rounded-2xl p-5 w-full max-w-sm"
-          >
+        <View className="flex-1 items-center justify-center px-6">
+<Pressable onPress={() => setConfirmDeleteOpen(false)} className="absolute inset-0 bg-black/50" />
+          <View
+            className="bg-card rounded-2xl p-5 w-full max-w-sm" style={{ maxHeight: '85%' }}>
+            <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <Trash2 size={24} color="#DC2626" />
             </View>
@@ -533,8 +526,9 @@ export default function VisitDetailScreen() {
                 />
               </View>
             </View>
-          </Pressable>
-        </Pressable>
+                      </ScrollView>
+</View>
+        </View>
       </Modal>
     </View>
   );

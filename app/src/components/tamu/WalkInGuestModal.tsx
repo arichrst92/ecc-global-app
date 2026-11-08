@@ -4,7 +4,7 @@
  * No HP milik jemaat terdaftar → jemaat itu yang tercatat hadir.
  */
 import { useState } from 'react';
-import { Modal, Platform, Pressable, Text, View } from 'react-native';
+import { Modal, Platform, Pressable, Text, View, ScrollView } from 'react-native';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useMutation } from '@tanstack/react-query';
@@ -100,7 +100,8 @@ export function WalkInGuestModal({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
       <KeyboardSafeView className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={close} />
-        <View className="bg-card rounded-t-3xl p-5 gap-3">
+        <View className="bg-card rounded-t-3xl p-5 gap-3" style={{ maxHeight: '90%' }}>
+          <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-2">
               <UserPlus size={18} color="#7C3AED" />
@@ -166,6 +167,7 @@ export function WalkInGuestModal({
             disabled={nama.trim().length < 2 || !e164}
             onPress={() => mut.mutate(quotaFull)}
           />
+          </ScrollView>
           <SheetNavSpacer />
         </View>
       </KeyboardSafeView>

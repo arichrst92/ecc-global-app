@@ -573,7 +573,8 @@ export default function HomecellDetailScreen() {
       {/* Konfirmasi keluarkan anggota + alasan (2.4.7) */}
       <Modal visible={!!confirmRemove} transparent animationType="fade" onRequestClose={closeRemove}>
         <KeyboardSafeView className="flex-1 bg-black/50 items-center justify-center px-6">
-          <View className="bg-card rounded-2xl p-5 w-full max-w-sm">
+          <View className="bg-card rounded-2xl p-5 w-full max-w-sm" style={{ maxHeight: '85%' }}>
+            <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View className="w-12 h-12 rounded-xl bg-red-50 items-center justify-center mb-3 self-start">
               <AlertTriangle size={24} color="#DC2626" />
             </View>
@@ -632,7 +633,8 @@ export default function HomecellDetailScreen() {
                 />
               </View>
             </View>
-          </View>
+                      </ScrollView>
+</View>
         </KeyboardSafeView>
       </Modal>
       <ReportSheet

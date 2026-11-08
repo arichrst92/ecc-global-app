@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, Text, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -110,11 +110,10 @@ export default function HomecellAddMemberScreen() {
         animationType="fade"
         onRequestClose={dismissResult}
       >
-        <Pressable
-          onPress={dismissResult}
-          className="flex-1 bg-black/60 items-center justify-center px-6"
-        >
-          <Pressable onPress={() => {}} className="bg-card rounded-3xl p-5 w-full max-w-sm">
+        <View className="flex-1 items-center justify-center px-6">
+<Pressable onPress={dismissResult} className="absolute inset-0 bg-black/60" />
+          <View className="bg-card rounded-3xl p-5 w-full max-w-sm" style={{ maxHeight: '85%' }}>
+            <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             {result?.kind === 'success' ? (
               <View className="items-center">
                 <View className="relative">
@@ -187,8 +186,9 @@ export default function HomecellAddMemberScreen() {
                 size="lg"
               />
             </View>
-          </Pressable>
-        </Pressable>
+                      </ScrollView>
+</View>
+        </View>
       </Modal>
     </View>
   );

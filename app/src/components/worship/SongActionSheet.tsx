@@ -1,5 +1,5 @@
 /** Menu lagu (ketuk lama / ikon titik tiga). */
-import { Modal, Pressable, Share, Text, View } from 'react-native';
+import { Modal, Pressable, Share, Text, View, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Download, Heart, ListPlus, MicVocal, Music, Play, Share2, Trash2 } from 'lucide-react-native';
@@ -54,7 +54,8 @@ export function SongActionSheet({ track, onClose }: { track: WorshipTrack | null
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
       <Pressable className="flex-1 bg-black/40" onPress={onClose} />
-      <View className="bg-card rounded-t-3xl px-5 pt-4" style={{ paddingBottom: insets.bottom + 12 }}>
+      <View className="bg-card rounded-t-3xl px-5 pt-4" style={{ maxHeight: '90%', paddingBottom: insets.bottom + 12 }}>
+        <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View className="flex-row items-center gap-3 pb-3 border-b border-neutral-100">
           <Cover url={track.coverUrl} size={44} />
           <View className="flex-1 min-w-0">
@@ -104,7 +105,8 @@ export function SongActionSheet({ track, onClose }: { track: WorshipTrack | null
             ),
           )}
         />
-      </View>
+              </ScrollView>
+</View>
     </Modal>
   );
 }
