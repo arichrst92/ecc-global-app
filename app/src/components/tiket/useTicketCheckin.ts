@@ -20,11 +20,21 @@ export type TicketWindow = 'LOCKED' | 'OPEN' | 'CLOSED';
 
 /** Status jendela check-in, dihitung ulang tiap 15 detik dengan jam server. */
 export function useTicketWindow(opensAt: string | null | undefined, closesAt: string | null | undefined): TicketWindow {
-  const [, setTick] = useState(0);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((x) => x + 1), 15_000);
     return () => clearInterval(id);
   }, []);
+  // Re-render tepat saat jendela dibuka/ditutup (tiket langsung menyembunyikan
+  // self check-in begitu hitung mundur "berakhir dalam" habis).
+  useEffect(() => {
+    if (!opensAt || !closesAt) return;
+    const now = serverNowMs();
+    const next = [Date.parse(opensAt), Date.parse(closesAt) + 50].find((x) => x > now);
+    if (!next || next - now > 6 * 60 * 60 * 1000) return;
+    const id = setTimeout(() => setTick((x) => x + 1), next - now);
+    return () => clearTimeout(id);
+  }, [opensAt, closesAt, tick]);
   if (!opensAt || !closesAt) return 'CLOSED';
   const now = serverNowMs();
   if (now < Date.parse(opensAt)) return 'LOCKED';

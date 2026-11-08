@@ -1,8 +1,8 @@
 /**
  * Local Market public detail — per BE handoff doc 2026-05-22 (rev a).
  *
- * Hero + logo overlay + nama + tipe badge + industri + deskripsi + lokasi
- * + links (website, WhatsApp, social media), download PDF profile, owner card.
+ * 2.4.7: header (hero, logo, nama, ikon sosmed & toko online, WhatsApp/Email) lalu
+ * tab Katalog | Info supaya halaman tidak memanjang. Ikon hanya untuk data yang ada.
  */
 import { useState } from 'react';
 import { ActivityIndicator, Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
@@ -13,6 +13,8 @@ import {
   ArrowLeft,
   ChevronRight,
   ExternalLink,
+  Link2,
+  Map as MapIcon,
   FileText,
   Globe,
   Mail,
@@ -26,7 +28,16 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { MarketDisclaimer } from '@/components/market/MarketDisclaimer';
 import { useLocalMarketDetail } from '@/hooks/useLocalBusiness';
 import { env } from '@/config/env';
-import { hargaLabel, waNumber, type LocalItemJenis } from '@/types/localBusiness';
+import {
+  MARKETPLACES,
+  SOCIAL_PLATFORMS,
+  hargaLabel,
+  usernamesFromLinks,
+  waNumber,
+  type LocalItemJenis,
+} from '@/types/localBusiness';
+import { BrandIconLink } from '@/components/market/BrandIcon';
+import { MARKET_ICONS, SOCIAL_ICONS } from '@/components/market/brandIcons';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -38,6 +49,7 @@ export default function LocalMarketDetailScreen() {
   const query = useLocalMarketDetail(id);
   const biz = query.data;
   const [filter, setFilter] = useState<'ALL' | LocalItemJenis>('ALL');
+  const [tab, setTab] = useState<'katalog' | 'info' | null>(null);
 
   function openUrl(url: string) {
     Linking.openURL(url).catch(() => {});
@@ -84,38 +96,42 @@ export default function LocalMarketDetailScreen() {
   const hasBoth = items.some((i) => i.jenis === 'PRODUK') && items.some((i) => i.jenis === 'JASA');
   const shown = filter === 'ALL' ? items : items.filter((i) => i.jenis === filter);
   const waTarget = biz.waAdmin ? `https://wa.me/${waNumber(biz.waAdmin)}` : biz.whatsappUrl;
+  // Tab awal: Katalog bila ada item, selain itu Info (tab Katalog disembunyikan).
+  const activeTab = items.length === 0 ? 'info' : (tab ?? 'katalog');
+
+  // Sosmed: username 2.4.7; usaha lama → ditebak dari URL. URL lain tetap tampil sebagai ikon link.
+  const usernames = biz.socialUsernames ?? usernamesFromLinks(biz.socialLinks);
+  const socialIcons = SOCIAL_PLATFORMS.filter((p) => usernames[p.key]).map((p) => ({
+    key: p.key,
+    label: p.label,
+    url: p.url(usernames[p.key]!),
+  }));
+  const otherLinks = biz.socialUsernames
+    ? []
+    : (biz.socialLinks ?? []).filter((l) => !socialIcons.some((s) => s.url === l.url || l.url.includes(usernames[s.key] ?? '\u0000')));
+  const shopIcons = MARKETPLACES.filter((m) => biz.marketplaceLinks?.[m.key]).map((m) => ({
+    key: m.key,
+    label: m.label,
+    url: biz.marketplaceLinks![m.key]!,
+  }));
 
   return (
     <View className="flex-1 bg-neutral-50">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}>
         {/* Hero */}
         <View className="relative">
-          <HeroImage
-            url={biz.heroImageUrl}
-            fallbackEmoji="🏪"
-            emojiSize={56}
-            className="w-full aspect-video"
-          />
-          {/* Back btn overlay */}
+          <HeroImage url={biz.heroImageUrl} fallbackEmoji="🏪" emojiSize={56} className="w-full aspect-video" />
           <SafeAreaView edges={['top']} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
             <View className="px-4 py-2 flex-row items-center">
-              <Pressable
-                onPress={() => goBack(router)}
-                className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
-              >
+              <Pressable onPress={() => goBack(router)} className="w-10 h-10 rounded-full bg-black/40 items-center justify-center">
                 <ArrowLeft size={20} color="#fff" />
               </Pressable>
             </View>
           </SafeAreaView>
-          {/* Logo overlay bottom-left */}
           {biz.logoUrl ? (
             <View className="absolute -bottom-6 left-5 w-16 h-16 rounded-2xl bg-card border-4 border-white overflow-hidden">
               <Image
-                source={{
-                  uri: biz.logoUrl.startsWith('http')
-                    ? biz.logoUrl
-                    : `${env.apiBaseUrl}${biz.logoUrl}`,
-                }}
+                source={{ uri: biz.logoUrl.startsWith('http') ? biz.logoUrl : `${env.apiBaseUrl}${biz.logoUrl}` }}
                 style={{ width: '100%', height: '100%' }}
                 resizeMode="cover"
               />
@@ -125,59 +141,57 @@ export default function LocalMarketDetailScreen() {
 
         <View className="px-5 mt-8">
           {/* Nama + tipe + industri */}
-          <View className="flex-row items-start gap-2 mb-2">
-            <Text className="text-2xl font-bold text-neutral-900 flex-1">
-              {biz.nama}
-            </Text>
+          <View className="flex-row items-start gap-2 mb-1">
+            <Text className="text-2xl font-bold text-neutral-900 flex-1">{biz.nama}</Text>
             <View className={`px-2 py-1 rounded-full ${tipeBg}`}>
-              <Text className={`text-[10px] font-bold ${tipeText}`}>
-                {biz.tipeBisnis}
-              </Text>
+              <Text className={`text-[10px] font-bold ${tipeText}`}>{biz.tipeBisnis}</Text>
             </View>
           </View>
-          {biz.industri ? (
-            <Text className="text-sm text-neutral-500 mb-3">{biz.industri}</Text>
-          ) : null}
-
-          {/* Online badge */}
-          {biz.isOnline ? (
-            <View className="bg-emerald-50 rounded-xl p-3 flex-row items-center gap-2 mb-3 self-start">
-              <Wifi size={14} color="#059669" />
-              <Text className="text-xs font-semibold text-emerald-700">
-                {t('market.online_business')}
-              </Text>
-            </View>
-          ) : null}
-
-          {/* Deskripsi */}
-          {biz.deskripsi ? (
-            <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3">
-              <Text className="text-sm text-neutral-700 leading-relaxed">
-                {biz.deskripsi}
-              </Text>
-            </View>
-          ) : null}
-
-          {/* Lokasi */}
-          {biz.lokasi ? (
-            <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-start gap-3">
-              <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-                <MapPin size={18} color="#EA580C" />
+          <View className="flex-row items-center flex-wrap gap-2 mb-3">
+            {biz.industri ? <Text className="text-sm text-neutral-500">{biz.industri}</Text> : null}
+            {biz.isOnline ? (
+              <View className="bg-emerald-50 rounded-full px-2 py-0.5 flex-row items-center gap-1">
+                <Wifi size={11} color="#059669" />
+                <Text className="text-[11px] font-semibold text-emerald-700">{t('market.online_business')}</Text>
               </View>
-              <View className="flex-1">
-                <Text className="text-xs text-neutral-500">
-                  {t('market.location_label')}
-                </Text>
-                <Text className="text-sm text-neutral-900 leading-relaxed">
-                  {biz.lokasi}
-                </Text>
+            ) : null}
+          </View>
+
+          {/* Ikon sosial media & toko online — hanya yang ada datanya */}
+          {socialIcons.length > 0 || otherLinks.length > 0 ? (
+            <View className="mb-3">
+              <Text className="text-[11px] font-semibold text-neutral-400 mb-1.5">{t('market.social_section')}</Text>
+              <View className="flex-row flex-wrap gap-2.5">
+                {socialIcons.map((s) => (
+                  <BrandIconLink key={s.key} glyph={SOCIAL_ICONS[s.key]} url={s.url} label={s.label} />
+                ))}
+                {otherLinks.map((l, i) => (
+                  <Pressable
+                    key={`o${i}`}
+                    onPress={() => openUrl(l.url)}
+                    accessibilityLabel={l.platform}
+                    className="w-[38px] h-[38px] rounded-full bg-neutral-200 items-center justify-center"
+                  >
+                    <Link2 size={16} color={nc('#404040')} />
+                  </Pressable>
+                ))}
               </View>
             </View>
           ) : null}
+          {shopIcons.length > 0 ? (
+            <View className="mb-3">
+              <Text className="text-[11px] font-semibold text-neutral-400 mb-1.5">{t('market.shop_section')}</Text>
+              <View className="flex-row flex-wrap gap-2.5">
+                {shopIcons.map((m) => (
+                  <BrandIconLink key={m.key} glyph={MARKET_ICONS[m.key]} url={m.url} label={m.label} shape="square" />
+                ))}
+              </View>
+            </View>
+          ) : null}
 
-          {/* Kontak admin (2.4.7) — WA admin menggantikan link "Chat WhatsApp" */}
+          {/* Kontak */}
           {waTarget || biz.email ? (
-            <View className="flex-row gap-2 mb-3">
+            <View className="flex-row gap-2 mb-4">
               {waTarget ? (
                 <Pressable
                   onPress={() => openUrl(waTarget)}
@@ -199,29 +213,37 @@ export default function LocalMarketDetailScreen() {
             </View>
           ) : null}
 
-          {/* Katalog (2.4.7) */}
+          {/* Tab Katalog | Info */}
           {items.length > 0 ? (
-            <View className="mb-3">
-              <View className="flex-row items-center mt-2 mb-2">
-                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider flex-1">
-                  {t('katalog.section')}
-                </Text>
-                {hasBoth ? (
-                  <View className="flex-row gap-1">
-                    {(['ALL', 'PRODUK', 'JASA'] as const).map((f) => (
-                      <Pressable
-                        key={f}
-                        onPress={() => setFilter(f)}
-                        className={`px-2.5 py-1 rounded-full ${filter === f ? 'bg-brand-500' : 'bg-neutral-100'}`}
-                      >
-                        <Text className={`text-[11px] font-semibold ${filter === f ? 'text-white' : 'text-neutral-600'}`}>
-                          {f === 'ALL' ? t('market.filter_all') : f === 'JASA' ? t('katalog.jenis_jasa') : t('katalog.jenis_produk')}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                ) : null}
-              </View>
+            <View className="flex-row border-b border-neutral-200 mb-3">
+              {(['katalog', 'info'] as const).map((k) => (
+                <Pressable key={k} onPress={() => setTab(k)} className="flex-1 items-center pb-2.5 pt-1">
+                  <Text className={`text-sm font-bold ${activeTab === k ? 'text-brand-600' : 'text-neutral-500'}`}>
+                    {k === 'katalog' ? `${t('katalog.section')} (${items.length})` : t('market.tab_info')}
+                  </Text>
+                  <View className={`absolute bottom-0 left-6 right-6 h-0.5 rounded-full ${activeTab === k ? 'bg-brand-500' : ''}`} />
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+
+          {activeTab === 'katalog' ? (
+            <View>
+              {hasBoth ? (
+                <View className="flex-row gap-1.5 mb-2">
+                  {(['ALL', 'PRODUK', 'JASA'] as const).map((f) => (
+                    <Pressable
+                      key={f}
+                      onPress={() => setFilter(f)}
+                      className={`px-3 py-1 rounded-full ${filter === f ? 'bg-brand-500' : 'bg-neutral-100'}`}
+                    >
+                      <Text className={`text-xs font-semibold ${filter === f ? 'text-white' : 'text-neutral-600'}`}>
+                        {f === 'ALL' ? t('market.filter_all') : f === 'JASA' ? t('katalog.jenis_jasa') : t('katalog.jenis_produk')}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              ) : null}
               <View className="flex-row flex-wrap" style={{ marginHorizontal: -5 }}>
                 {shown.map((it) => (
                   <View key={it.id} style={{ width: '50%', padding: 5 }}>
@@ -251,114 +273,91 @@ export default function LocalMarketDetailScreen() {
                 ))}
               </View>
             </View>
-          ) : null}
-
-          {/* Website */}
-          {biz.websiteUrl ? (
-            <Pressable
-              onPress={() => openUrl(biz.websiteUrl!)}
-              className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
-            >
-              <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center">
-                <Globe size={18} color="#2563EB" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-neutral-900">
-                  {t('market.website_btn')}
-                </Text>
-                <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-                  {biz.websiteUrl}
-                </Text>
-              </View>
-              <ExternalLink size={14} color={nc('#A3A3A3')} />
-            </Pressable>
-          ) : null}
-
-          {/* Company profile PDF */}
-          {biz.companyProfileUrl ? (
-            <Pressable
-              onPress={() =>
-                openUrl(
-                  biz.companyProfileUrl!.startsWith('http')
-                    ? biz.companyProfileUrl!
-                    : `${env.apiBaseUrl}${biz.companyProfileUrl}`,
-                )
-              }
-              className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3"
-            >
-              <View className="w-10 h-10 rounded-xl bg-red-50 items-center justify-center">
-                <FileText size={18} color="#DC2626" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-semibold text-neutral-900">
-                  {t('market.profile_pdf_btn')}
-                </Text>
-                <Text className="text-xs text-neutral-500 mt-0.5">
-                  {t('market.profile_pdf_sub')}
-                </Text>
-              </View>
-              <ExternalLink size={14} color={nc('#A3A3A3')} />
-            </Pressable>
-          ) : null}
-
-          {/* Social links */}
-          {biz.socialLinks.length > 0 ? (
-            <>
-              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-2 mb-2">
-                {t('market.social_section')}
-              </Text>
-              <View className="bg-card rounded-2xl border border-neutral-100 mb-3">
-                {biz.socialLinks.map((s, idx) => (
-                  <Pressable
-                    key={`${s.platform}-${idx}`}
-                    onPress={() => openUrl(s.url)}
-                    className={`p-3 flex-row items-center gap-3 ${
-                      idx > 0 ? 'border-t border-neutral-100' : ''
-                    }`}
-                  >
-                    <View className="w-9 h-9 rounded-xl bg-neutral-100 items-center justify-center">
-                      <ExternalLink size={14} color={nc('#525252')} />
-                    </View>
-                    <View className="flex-1 min-w-0">
-                      <Text className="text-sm font-semibold text-neutral-900">
-                        {s.platform}
-                      </Text>
-                      <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
-                        {s.url}
-                      </Text>
-                    </View>
-                    <ChevronRight size={14} color={nc('#A3A3A3')} />
-                  </Pressable>
-                ))}
-              </View>
-            </>
-          ) : null}
-
-          {/* Owner card */}
-          <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-2 mb-2">
-            {t('market.owner_section')}
-          </Text>
-          <Pressable
-            onPress={() => router.push(`/jemaat/${biz.owner.id}` as never)}
-            className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
-          >
-            <Avatar
-              name={biz.owner.namaLengkap}
-              fotoUrl={biz.owner.fotoUrl ?? undefined}
-              size={44}
-            />
-            <View className="flex-1 min-w-0">
-              <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-                {biz.owner.namaLengkap}
-              </Text>
-              {biz.owner.cabang ? (
-                <Text className="text-xs text-neutral-500 mt-0.5">
-                  {biz.owner.cabang.nama}
-                </Text>
+          ) : (
+            <View className="gap-3">
+              {biz.deskripsi ? (
+                <View className="bg-card rounded-2xl p-4 border border-neutral-100">
+                  <Text className="text-sm text-neutral-700 leading-relaxed">{biz.deskripsi}</Text>
+                </View>
               ) : null}
+
+              {biz.lokasi || biz.mapsUrl ? (
+                <Pressable
+                  disabled={!biz.mapsUrl}
+                  onPress={() => biz.mapsUrl && openUrl(biz.mapsUrl)}
+                  className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-start gap-3"
+                >
+                  <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
+                    <MapPin size={18} color="#EA580C" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-xs text-neutral-500">{t('market.location_label')}</Text>
+                    <Text className="text-sm text-neutral-900 leading-relaxed">{biz.lokasi || t('market.open_maps')}</Text>
+                    {biz.mapsUrl ? (
+                      <View className="flex-row items-center gap-1 mt-1">
+                        <MapIcon size={12} color="#EA580C" />
+                        <Text className="text-xs font-semibold text-brand-600">{t('market.open_maps')}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  {biz.mapsUrl ? <ExternalLink size={14} color={nc('#A3A3A3')} /> : null}
+                </Pressable>
+              ) : null}
+
+              {biz.websiteUrl ? (
+                <Pressable
+                  onPress={() => openUrl(biz.websiteUrl!)}
+                  className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+                >
+                  <View className="w-10 h-10 rounded-xl bg-blue-50 items-center justify-center">
+                    <Globe size={18} color="#2563EB" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-neutral-900">{t('market.website_btn')}</Text>
+                    <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                      {biz.websiteUrl}
+                    </Text>
+                  </View>
+                  <ExternalLink size={14} color={nc('#A3A3A3')} />
+                </Pressable>
+              ) : null}
+
+              {biz.companyProfileUrl ? (
+                <Pressable
+                  onPress={() =>
+                    openUrl(
+                      biz.companyProfileUrl!.startsWith('http') ? biz.companyProfileUrl! : `${env.apiBaseUrl}${biz.companyProfileUrl}`,
+                    )
+                  }
+                  className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+                >
+                  <View className="w-10 h-10 rounded-xl bg-red-50 items-center justify-center">
+                    <FileText size={18} color="#DC2626" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-neutral-900">{t('market.profile_pdf_btn')}</Text>
+                    <Text className="text-xs text-neutral-500 mt-0.5">{t('market.profile_pdf_sub')}</Text>
+                  </View>
+                  <ExternalLink size={14} color={nc('#A3A3A3')} />
+                </Pressable>
+              ) : null}
+
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-1">{t('market.owner_section')}</Text>
+              <Pressable
+                onPress={() => router.push(`/jemaat/${biz.owner.id}` as never)}
+                className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+              >
+                <Avatar name={biz.owner.namaLengkap} fotoUrl={biz.owner.fotoUrl ?? undefined} size={44} />
+                <View className="flex-1 min-w-0">
+                  <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                    {biz.owner.namaLengkap}
+                  </Text>
+                  {biz.owner.cabang ? <Text className="text-xs text-neutral-500 mt-0.5">{biz.owner.cabang.nama}</Text> : null}
+                </View>
+                <ChevronRight size={14} color={nc('#A3A3A3')} />
+              </Pressable>
             </View>
-            <ChevronRight size={14} color={nc('#A3A3A3')} />
-          </Pressable>
+          )}
 
           <MarketDisclaimer className="mt-4" />
         </View>

@@ -22,6 +22,7 @@ import { SwipeToCheckin } from './SwipeToCheckin';
 import { Hint, InfoCell, InfoLine, InlineError, RelasiBadge, StatusPill, TicketQR } from './parts';
 import { useOpensLabel, useTicketCheckin, useTicketWindow } from './useTicketCheckin';
 import { nc } from '@/theme/ThemeRoot';
+import { SelfCheckinEndsCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 
 function statusOf(r: MyReservasi): { key: string; tone: 'green' | 'solidGreen' | 'blue' | 'red' } {
   if (r.status === 'CANCEL') return { key: 'st_BATAL', tone: 'red' };
@@ -206,6 +207,10 @@ export function IbadahTicketCard({
       <View>
         {win !== 'CLOSED' ? (
           <>
+            {/* Ibadah sudah selesai → hitung mundur sampai self check-in ditutup */}
+            {win === 'OPEN' && r.selfCheckin?.closesAt ? (
+              <SelfCheckinEndsCountdown closesAt={r.selfCheckin.closesAt} compact className="mb-2" />
+            ) : null}
             <SwipeToCheckin
               size={full ? 'lg' : 'md'}
               state={win === 'LOCKED' ? 'LOCKED' : ck.busy ? 'BUSY' : 'READY'}

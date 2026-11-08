@@ -14,7 +14,9 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { MarketDisclaimer } from '@/components/market/MarketDisclaimer';
 import { useLocalMarketDetail } from '@/hooks/useLocalBusiness';
 import { pingItemView } from '@/api/businesses';
-import { hargaLabel, itemShareUrl, waNumber } from '@/types/localBusiness';
+import { MARKETPLACES, hargaLabel, itemShareUrl, waNumber } from '@/types/localBusiness';
+import { BrandIconLink } from '@/components/market/BrandIcon';
+import { MARKET_ICONS } from '@/components/market/brandIcons';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -70,6 +72,11 @@ export default function MarketItemScreen() {
   const mail = biz.email
     ? `mailto:${biz.email}?subject=${encodeURIComponent(t('katalog.email_subject', { item: item.nama }))}&body=${encodeURIComponent(pesan)}`
     : null;
+  const shopIcons = MARKETPLACES.filter((m) => item.marketplaceLinks?.[m.key]).map((m) => ({
+    key: m.key,
+    label: m.label,
+    url: item.marketplaceLinks![m.key]!,
+  }));
   const fotos = item.fotoUrls.length ? item.fotoUrls : [null];
   const open = (u: string) => Linking.openURL(u).catch(() => {});
 
@@ -130,6 +137,17 @@ export default function MarketItemScreen() {
           >
             {harga}
           </Text>
+          {/* Beli juga di — hanya link produk yang diisi (tanpa cadangan link toko) */}
+          {shopIcons.length > 0 ? (
+            <View className="mt-3">
+              <Text className="text-[11px] font-semibold text-neutral-400 mb-1.5">{t('katalog.buy_also')}</Text>
+              <View className="flex-row flex-wrap gap-2.5">
+                {shopIcons.map((m) => (
+                  <BrandIconLink key={m.key} glyph={MARKET_ICONS[m.key]} url={m.url} label={m.label} shape="square" />
+                ))}
+              </View>
+            </View>
+          ) : null}
           {item.deskripsi ? (
             <Text className="text-sm text-neutral-700 leading-relaxed mt-3">{item.deskripsi}</Text>
           ) : null}

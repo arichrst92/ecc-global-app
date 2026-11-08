@@ -141,6 +141,11 @@ export default function AboutScreen() {
           </Pressable>
         </View>
 
+        {/* Atribusi ikon (lisensi CC BY-SA 4.0 mewajibkan kredit) */}
+        <Text className="text-[10px] text-neutral-400 text-center mt-6 px-4 leading-4">
+          Ikon marketplace: Arcticons (CC BY-SA 4.0). Ikon sosial media: Simple Icons (CC0) & Material Design Icons (Apache 2.0). Merek dagang milik pemiliknya masing-masing.
+        </Text>
+
         {/* Powered by IDEA — footer */}
         <View className="items-center mt-8 mb-2">
           <View className="flex-row items-center gap-2">

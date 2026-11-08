@@ -58,8 +58,18 @@ import {
 import { ApiError } from '@/types/api';
 import { env } from '@/config/env';
 import { INDUSTRI_SUGGESTIONS } from '@/types/localBusiness';
-import { SOCIAL_PLATFORMS, cleanSocialUsername, usernamesFromLinks } from '@/types/localBusiness';
-import type { SocialUsernames, TipeBisnis } from '@/types/localBusiness';
+import {
+  MARKETPLACES,
+  SOCIAL_PLATFORMS,
+  cleanMarketplaceLinks,
+  cleanSocialUsername,
+  isMapsUrl,
+  usernamesFromLinks,
+  withScheme,
+} from '@/types/localBusiness';
+import { BrandIcon } from '@/components/market/BrandIcon';
+import { MARKET_ICONS, SOCIAL_ICONS } from '@/components/market/brandIcons';
+import type { MarketplaceLinks, SocialUsernames, TipeBisnis } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { imageAssetToFile } from '@/utils/pickedImage';
 import { gx } from '@/theme/gradient';
@@ -95,6 +105,8 @@ export default function OwnerBusinessDetailScreen() {
   const [waAdmin, setWaAdmin] = useState('');
   const [email, setEmail] = useState('');
   const [socials, setSocials] = useState<SocialUsernames>({});
+  const [mapsUrl, setMapsUrl] = useState('');
+  const [markets, setMarkets] = useState<MarketplaceLinks>({});
   const [isActive, setIsActive] = useState(true);
 
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -111,6 +123,8 @@ export default function OwnerBusinessDetailScreen() {
       setWaAdmin(biz.waAdmin ?? '');
       setEmail(biz.email ?? '');
       setSocials(biz.socialUsernames ?? usernamesFromLinks(biz.socialLinks));
+      setMapsUrl(biz.mapsUrl ?? '');
+      setMarkets(biz.marketplaceLinks ?? {});
       setIsActive(biz.isActive);
     }
   }, [biz]);
@@ -217,6 +231,15 @@ export default function OwnerBusinessDetailScreen() {
       showToast(salah, 'error');
       return;
     }
+    if (mapsUrl.trim() && !isMapsUrl(mapsUrl)) {
+      showToast(t('my_business.maps_invalid'), 'error');
+      return;
+    }
+    const mk = cleanMarketplaceLinks(markets);
+    if (mk.bad) {
+      showToast(t('my_business.market_invalid', { name: mk.bad }), 'error');
+      return;
+    }
     // Normalize URLs + filter empty social links sebelum send.
     // BE Zod validation reject URL tanpa scheme atau empty string di array.
     const normWebsite = normalizeUrl(websiteUrl);
@@ -238,6 +261,8 @@ export default function OwnerBusinessDetailScreen() {
         waAdmin: waAdmin.replace(/[\s-]/g, '') || null,
         email: email.trim() || null,
         socialUsernames: cleanedSocials,
+        mapsUrl: mapsUrl.trim() ? withScheme(mapsUrl) : null,
+        marketplaceLinks: mk.links,
         isActive,
       },
       {
@@ -522,6 +547,19 @@ export default function OwnerBusinessDetailScreen() {
               />
             </Field>
 
+            <Field label={t('my_business.maps_label')}>
+              <TextInput
+                value={mapsUrl}
+                onChangeText={setMapsUrl}
+                placeholder="https://maps.app.goo.gl/…"
+                autoCapitalize="none"
+                keyboardType="url"
+                maxLength={1000}
+                className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
+              />
+              <Text className="text-[10px] text-neutral-400 mt-1">{t('my_business.maps_hint')}</Text>
+            </Field>
+
             <Field label={t('my_business.website_label')}>
               <TextInput
                 value={websiteUrl}
@@ -567,7 +605,8 @@ export default function OwnerBusinessDetailScreen() {
                     key={p.key}
                     className={`px-3 py-2 flex-row items-center gap-2 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
                   >
-                    <Text className="w-[78px] text-xs font-semibold text-neutral-700">{p.label}</Text>
+                    <BrandIcon glyph={SOCIAL_ICONS[p.key]} size={26} />
+                    <Text className="w-[70px] text-xs font-semibold text-neutral-700">{p.label}</Text>
                     <Text className="text-xs text-neutral-400">@</Text>
                     <TextInput
                       value={socials[p.key] ?? ''}
@@ -587,6 +626,31 @@ export default function OwnerBusinessDetailScreen() {
               <Text className="text-[10px] text-neutral-400 mt-1">
                 {t('my_business.social_username_hint')}
               </Text>
+            </Field>
+
+            {/* Toko online (2.4.7) — link toko di marketplace, semua opsional */}
+            <Field label={t('my_business.market_label')}>
+              <View className="bg-card rounded-2xl border border-neutral-100">
+                {MARKETPLACES.map((m, idx) => (
+                  <View
+                    key={m.key}
+                    className={`px-3 py-2 flex-row items-center gap-2 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+                  >
+                    <BrandIcon glyph={MARKET_ICONS[m.key]} size={26} shape="square" />
+                    <TextInput
+                      value={markets[m.key] ?? ''}
+                      onChangeText={(v) => setMarkets((prev) => ({ ...prev, [m.key]: v }))}
+                      placeholder={`${m.label} — ${m.placeholder}`}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="url"
+                      maxLength={500}
+                      className="flex-1 py-1.5 text-sm text-neutral-900"
+                    />
+                  </View>
+                ))}
+              </View>
+              <Text className="text-[10px] text-neutral-400 mt-1">{t('my_business.market_hint')}</Text>
             </Field>
 
             {/* Katalog (2.4.7) */}

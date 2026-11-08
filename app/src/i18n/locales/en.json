@@ -654,7 +654,8 @@
     "nth_3": "3rd",
     "nth_4": "4th",
     "ended": "Ended",
-    "today_upper": "TODAY"
+    "today_upper": "TODAY",
+    "self_checkin_ends_in": "Self check-in ends in"
   },
   "error": {
     "network": "No internet connection. Please try again.",
@@ -856,7 +857,10 @@
     "profile_pdf_sub": "Download / view full profile",
     "social_section": "Social Media",
     "owner_section": "Business Owner",
-    "disclaimer": "ECC only facilitates businesses run by its members and does not take any profit in any form."
+    "disclaimer": "ECC only facilitates businesses run by its members and does not take any profit in any form.",
+    "shop_section": "Online stores",
+    "tab_info": "Info",
+    "open_maps": "Open in Google Maps"
   },
   "my_business": {
     "title": "My Businesses",
@@ -919,14 +923,20 @@
     "logo_uploaded": "Logo uploaded.",
     "hero_delete_confirm": "Delete hero image?",
     "permission_denied": "Gallery permission denied.",
-    "wa_admin_label": "Admin WhatsApp number",
+    "wa_admin_label": "WhatsApp number",
     "wa_admin_hint": "Buyers will contact this number from the catalog. Format 08… or 62…",
-    "wa_admin_invalid": "Invalid admin WhatsApp number (e.g. 0812xxxxxxx).",
+    "wa_admin_invalid": "Invalid WhatsApp number (e.g. 0812xxxxxxx).",
     "email_label": "Business email",
     "email_invalid": "Invalid email format.",
     "social_username_ph": "username (optional)",
     "social_username_hint": "Just enter the username — links are created automatically. Leave unused ones empty.",
-    "views": "Viewed {{n}} times"
+    "views": "Viewed {{n}} times",
+    "maps_label": "Google Maps link",
+    "maps_hint": "Paste the Share link from Google Maps (optional).",
+    "maps_invalid": "Invalid Google Maps link.",
+    "market_label": "Online stores",
+    "market_hint": "Your store links on marketplaces — all optional. Icons only show for filled ones.",
+    "market_invalid": "Invalid {{name}} link."
   },
   "visit": {
     "title": "Visit",
@@ -2733,11 +2743,14 @@
     "delete_title": "Delete item?",
     "delete_msg": "\"{{name}}\" and its photos will be deleted.",
     "not_found": "Item not found or no longer available.",
-    "wa_admin_btn": "WhatsApp admin",
+    "wa_admin_btn": "WhatsApp",
     "email_btn": "Email",
     "ask_wa": "Ask via WhatsApp",
     "wa_message": "Hi {{usaha}}, I am interested in {{item}} ({{harga}}).\n{{link}}",
     "email_subject": "Question: {{item}}",
-    "views": "{{n}} views"
+    "views": "{{n}} views",
+    "market_label": "Product links on marketplaces",
+    "market_hint": "Optional. Icons only show for filled ones (store links are not used).",
+    "buy_also": "Also available on"
   }
 }

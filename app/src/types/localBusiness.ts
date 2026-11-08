@@ -40,6 +40,9 @@ export type LocalBusiness = {
   items?: LocalItem[];
   /** 2.4.7 — jumlah kunjungan detail (app + web) */
   viewCount?: number;
+  /** 2.4.7 — link toko online & Google Maps */
+  marketplaceLinks?: MarketplaceLinks | null;
+  mapsUrl?: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -60,6 +63,8 @@ export type CreateBusinessPayload = {
   waAdmin?: string | null;
   email?: string | null;
   socialUsernames?: SocialUsernames;
+  marketplaceLinks?: MarketplaceLinks;
+  mapsUrl?: string | null;
 };
 
 /** Payload update — semua opsional, kirim hanya field yang berubah.
@@ -174,6 +179,7 @@ export type LocalItem = {
   isHiddenByAdmin?: boolean;
   urutan: number;
   viewCount?: number;
+  marketplaceLinks?: MarketplaceLinks | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -187,6 +193,7 @@ export type LocalItemPayload = {
   mataUang?: string;
   satuan?: string | null;
   isActive?: boolean;
+  marketplaceLinks?: MarketplaceLinks;
 };
 
 /** Format angka dengan pemisah ribuan tanpa Intl (aman di Hermes lama). */
@@ -215,3 +222,36 @@ export const waNumber = (n: string) => {
   const d = n.replace(/\D/g, '');
   return d.startsWith('0') ? `62${d.slice(1)}` : d;
 };
+
+// ===== Marketplace (2.4.7) — sama dengan validasi server =====
+export const MARKETPLACES = [
+  { key: 'shopee', label: 'Shopee', placeholder: 'shopee.co.id/…', host: /(^|\.)(shopee\.[a-z.]+|shp\.ee)$/i },
+  { key: 'lazada', label: 'Lazada', placeholder: 'lazada.co.id/…', host: /(^|\.)(lazada\.[a-z.]+|lzd\.co)$/i },
+  { key: 'tiktokshop', label: 'TikTok Shop', placeholder: 'tiktok.com/…', host: /(^|\.)(tiktok\.com|tiktokshop\.com)$/i },
+  { key: 'tokopedia', label: 'Tokopedia', placeholder: 'tokopedia.com/…', host: /(^|\.)(tokopedia\.(com|link)|tkp\.me)$/i },
+] as const;
+export type MarketplaceKey = (typeof MARKETPLACES)[number]['key'];
+export type MarketplaceLinks = Partial<Record<MarketplaceKey, string>>;
+
+export function withScheme(v: string): string {
+  const t = v.trim();
+  return !t ? '' : /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
+function hostOf(u: string): string {
+  const m = /^https?:\/\/([^/?#:]+)/i.exec(u);
+  return m ? m[1]!.toLowerCase() : '';
+}
+/** Rapikan & cek link marketplace. Return { links } atau { error: label platform yang salah }. */
+export function cleanMarketplaceLinks(raw: MarketplaceLinks): { links: MarketplaceLinks; bad?: string } {
+  const links: MarketplaceLinks = {};
+  for (const m of MARKETPLACES) {
+    const v = withScheme(raw[m.key] ?? '');
+    if (!v) continue;
+    if (!m.host.test(hostOf(v))) return { links, bad: m.label };
+    links[m.key] = v;
+  }
+  return { links };
+}
+export function isMapsUrl(v: string): boolean {
+  return /^(www\.)?(google\.[a-z.]+|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl)$/i.test(hostOf(withScheme(v)));
+}

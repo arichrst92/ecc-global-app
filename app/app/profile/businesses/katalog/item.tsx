@@ -29,11 +29,16 @@ import { ApiError } from '@/types/api';
 import {
   CURRENCY_SYMBOL,
   LOCAL_CURRENCIES,
+  MARKETPLACES,
+  cleanMarketplaceLinks,
   hargaLabel,
   type LocalHargaTipe,
+  type MarketplaceLinks,
   type LocalItemJenis,
 } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
+import { BrandIcon } from '@/components/market/BrandIcon';
+import { MARKET_ICONS } from '@/components/market/brandIcons';
 import { imageAssetToFile } from '@/utils/pickedImage';
 import type { FileObj } from '@/api/businesses';
 import { nc } from '@/theme/ThemeRoot';
@@ -64,6 +69,7 @@ export default function KatalogItemFormScreen() {
   const [mataUang, setMataUang] = useState('IDR');
   const [satuan, setSatuan] = useState('');
   const [isActive, setIsActive] = useState(true);
+  const [markets, setMarkets] = useState<MarketplaceLinks>({});
   const [localFotos, setLocalFotos] = useState<FileObj[]>([]);
   const [curOpen, setCurOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -79,6 +85,7 @@ export default function KatalogItemFormScreen() {
       setMataUang(item.mataUang);
       setSatuan(item.satuan ?? '');
       setIsActive(item.isActive);
+      setMarkets(item.marketplaceLinks ?? {});
       setLoaded(true);
     }
   }, [item, loaded]);
@@ -139,6 +146,11 @@ export default function KatalogItemFormScreen() {
       showToast(t('katalog.harga_required'), 'error');
       return;
     }
+    const mk = cleanMarketplaceLinks(markets);
+    if (mk.bad) {
+      showToast(t('my_business.market_invalid', { name: mk.bad }), 'error');
+      return;
+    }
     const payload = {
       jenis,
       nama: nama.trim(),
@@ -148,6 +160,8 @@ export default function KatalogItemFormScreen() {
       mataUang,
       satuan: hargaTipe === 'NEGO' ? null : satuan.trim() || null,
       isActive,
+      // Kosong = tidak tampil (tidak memakai link toko usaha).
+      marketplaceLinks: mk.links,
     };
     setBusy(true);
     try {
@@ -335,6 +349,26 @@ export default function KatalogItemFormScreen() {
             placeholder={t('katalog.deskripsi_ph')}
             className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900 min-h-[100px] mb-4"
           />
+
+          <Label text={t('katalog.market_label')} />
+          <View className="bg-card rounded-2xl border border-neutral-100 mb-1">
+            {MARKETPLACES.map((m, idx) => (
+              <View key={m.key} className={`px-3 py-2 flex-row items-center gap-2 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}>
+                <BrandIcon glyph={MARKET_ICONS[m.key]} size={26} shape="square" />
+                <TextInput
+                  value={markets[m.key] ?? ''}
+                  onChangeText={(v) => setMarkets((prev) => ({ ...prev, [m.key]: v }))}
+                  placeholder={`${m.label} — ${m.placeholder}`}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="url"
+                  maxLength={500}
+                  className="flex-1 py-1.5 text-sm text-neutral-900"
+                />
+              </View>
+            ))}
+          </View>
+          <Text className="text-[10px] text-neutral-400 mb-4">{t('katalog.market_hint')}</Text>
 
           <Pressable
             onPress={() => setIsActive(!isActive)}

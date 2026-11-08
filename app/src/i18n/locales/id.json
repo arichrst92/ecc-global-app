@@ -654,7 +654,8 @@
     "nth_3": "ketiga",
     "nth_4": "keempat",
     "ended": "Sudah selesai",
-    "today_upper": "HARI INI"
+    "today_upper": "HARI INI",
+    "self_checkin_ends_in": "Self check-in akan berakhir dalam"
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",
@@ -856,7 +857,10 @@
     "profile_pdf_sub": "Download / lihat profile lengkap",
     "social_section": "Sosial Media",
     "owner_section": "Pemilik Bisnis",
-    "disclaimer": "ECC hanya memfasilitasi bisnis jemaat dan tidak mengambil keuntungan dalam bentuk apa pun."
+    "disclaimer": "ECC hanya memfasilitasi bisnis jemaat dan tidak mengambil keuntungan dalam bentuk apa pun.",
+    "shop_section": "Toko online",
+    "tab_info": "Info",
+    "open_maps": "Buka di Google Maps"
   },
   "my_business": {
     "title": "Bisnis Saya",
@@ -919,14 +923,20 @@
     "logo_uploaded": "Logo berhasil di-upload.",
     "hero_delete_confirm": "Hapus hero image?",
     "permission_denied": "Izin galeri ditolak.",
-    "wa_admin_label": "Nomor WhatsApp admin",
+    "wa_admin_label": "Nomor WhatsApp",
     "wa_admin_hint": "Pembeli akan menghubungi nomor ini dari katalog. Format 08… atau 62…",
-    "wa_admin_invalid": "Nomor WhatsApp admin tidak valid (contoh 0812xxxxxxx).",
+    "wa_admin_invalid": "Nomor WhatsApp tidak valid (contoh 0812xxxxxxx).",
     "email_label": "Email bisnis",
     "email_invalid": "Format email tidak valid.",
     "social_username_ph": "username (opsional)",
     "social_username_hint": "Cukup isi username — link dibuat otomatis. Kosongkan yang tidak dipakai.",
-    "views": "Dilihat {{n}} kali"
+    "views": "Dilihat {{n}} kali",
+    "maps_label": "Link Google Maps",
+    "maps_hint": "Tempel tautan Bagikan dari Google Maps (opsional).",
+    "maps_invalid": "Link Google Maps tidak valid.",
+    "market_label": "Toko online",
+    "market_hint": "Link toko Anda di marketplace — semua opsional. Ikon hanya tampil untuk yang diisi.",
+    "market_invalid": "Link {{name}} tidak valid."
   },
   "visit": {
     "title": "Visit",
@@ -2730,11 +2740,14 @@
     "delete_title": "Hapus item?",
     "delete_msg": "\"{{name}}\" beserta fotonya akan dihapus.",
     "not_found": "Item tidak ditemukan atau sudah tidak tersedia.",
-    "wa_admin_btn": "WhatsApp admin",
+    "wa_admin_btn": "WhatsApp",
     "email_btn": "Email",
     "ask_wa": "Tanya via WhatsApp",
     "wa_message": "Halo {{usaha}}, saya tertarik dengan {{item}} ({{harga}}).\n{{link}}",
     "email_subject": "Tanya: {{item}}",
-    "views": "Dilihat {{n}}x"
+    "views": "Dilihat {{n}}x",
+    "market_label": "Link produk di marketplace",
+    "market_hint": "Opsional. Ikon hanya tampil untuk yang diisi (tidak memakai link toko).",
+    "buy_also": "Beli juga di"
   }
 }

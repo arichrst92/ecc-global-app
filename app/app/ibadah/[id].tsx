@@ -28,7 +28,7 @@ import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import { ReservasiModal } from '@/components/ibadah/ReservasiModal';
 import { useVenueTz } from '@/hooks/useVenueTz';
 import { localRangeIfDifferent, zoneTimeText } from '@/utils/time';
-import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
+import { SelfCheckinCountdown, SelfCheckinEndsCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { useToast } from '@/components/ui/Toast';
 import { ApiError } from '@/types/api';
 import { coordsForSelfCheckin, isRadiusError, SelfCheckinLocationError, showUsherFallback } from '@/utils/selfCheckinLocation';
@@ -364,6 +364,16 @@ export default function IbadahDetailScreen() {
           {!checkinOpenNow && sc?.reason === 'TOO_EARLY' && sc.opensAt ? (
             <SelfCheckinCountdown
               opensAt={sc.opensAt}
+              onDone={() => {
+                setTick((x) => x + 1);
+                selfCheckin.refetch();
+              }}
+            />
+          ) : null}
+          {/* Setelah ibadah selesai: "Self check-in akan berakhir dalam mm:ss" → lalu tombol hilang */}
+          {checkinOpenNow && sc?.closesAt ? (
+            <SelfCheckinEndsCountdown
+              closesAt={sc.closesAt}
               onDone={() => {
                 setTick((x) => x + 1);
                 selfCheckin.refetch();

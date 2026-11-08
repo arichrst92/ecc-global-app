@@ -13,7 +13,7 @@ import { UserCheck } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { SelfCheckinCountdown } from '@/components/ibadah/SelfCheckinCountdown';
+import { SelfCheckinCountdown, SelfCheckinEndsCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import type { SelfCheckinMember, SelfCheckinResult } from '@/api/ibadah';
 import { ApiError } from '@/types/api';
@@ -42,6 +42,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
   onCheckedIn,
   allowAddGuest,
   compact,
+  showEndsCountdown,
 }: {
   queryKey: readonly unknown[];
   fetcher: () => Promise<T>;
@@ -55,6 +56,8 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
   allowAddGuest?: boolean;
   /** Mode kartu (beranda): tanpa margin bawah, diberi jarak atas. */
   compact?: boolean;
+  /** Ibadah: hitung mundur "berakhir dalam mm:ss" setelah ibadah selesai. */
+  showEndsCountdown?: boolean;
 }) {
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
@@ -98,6 +101,17 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
         <SelfCheckinCountdown
           opensAt={d.opensAt}
           className={compact ? '' : 'mb-3'}
+          onDone={() => {
+            setTick((x) => x + 1);
+            q.refetch();
+          }}
+        />
+      ) : null}
+      {isOpen && showEndsCountdown && d.closesAt ? (
+        <SelfCheckinEndsCountdown
+          closesAt={d.closesAt}
+          compact={compact}
+          className="mb-2"
           onDone={() => {
             setTick((x) => x + 1);
             q.refetch();

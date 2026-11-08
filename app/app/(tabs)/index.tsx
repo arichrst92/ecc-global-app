@@ -516,6 +516,7 @@ function TodayServiceCard({
         {checkinClosed ? null : <SelfCheckinBar
           compact
           allowAddGuest
+          showEndsCountdown
           queryKey={['ibadah', 'self-checkin', service.ibadahId]}
           fetcher={() => getSelfCheckin(service.ibadahId)}
           submit={(ids, coords) => postSelfCheckin(service.ibadahId, ids, coords)}
