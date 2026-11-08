@@ -369,20 +369,31 @@ export default function LocalMarketDetailScreen() {
                 </Pressable>
               ) : null}
 
-              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-1">{t('market.owner_section')}</Text>
-              <Pressable
-                onPress={() => router.push(`/jemaat/${biz.owner.id}` as never)}
-                className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
-              >
-                <Avatar name={biz.owner.namaLengkap} fotoUrl={biz.owner.fotoUrl ?? undefined} size={44} />
-                <View className="flex-1 min-w-0">
-                  <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
-                    {biz.owner.namaLengkap}
-                  </Text>
-                  {biz.owner.cabang ? <Text className="text-xs text-neutral-500 mt-0.5">{biz.owner.cabang.nama}</Text> : null}
-                </View>
-                <ChevronRight size={14} color={nc('#A3A3A3')} />
-              </Pressable>
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-1">
+                {(biz.partners ?? []).length > 0 ? t('partner.owner_and_partners') : t('market.owner_section')}
+              </Text>
+              <View className="bg-card rounded-2xl border border-neutral-100">
+                {[{ p: biz.owner, role: t('partner.role_owner') }, ...(biz.partners ?? []).map((p) => ({ p, role: t('partner.badge') }))].map(
+                  ({ p, role }, idx) => (
+                    <Pressable
+                      key={p.id}
+                      onPress={() => router.push(`/jemaat/${p.id}` as never)}
+                      className={`p-4 flex-row items-center gap-3 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+                    >
+                      <Avatar name={p.namaLengkap} fotoUrl={p.fotoUrl ?? undefined} size={40} />
+                      <View className="flex-1 min-w-0">
+                        <Text className="text-sm font-bold text-neutral-900" numberOfLines={1}>
+                          {p.namaLengkap}
+                        </Text>
+                        <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                          {[role, p.cabang?.nama].filter(Boolean).join(' · ')}
+                        </Text>
+                      </View>
+                      <ChevronRight size={14} color={nc('#A3A3A3')} />
+                    </Pressable>
+                  ),
+                )}
+              </View>
             </View>
           )}
 

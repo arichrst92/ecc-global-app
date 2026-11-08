@@ -2751,5 +2751,33 @@
     "market_label": "Link produk di marketplace",
     "market_hint": "Opsional. Ikon hanya tampil untuk yang diisi (tidak memakai link toko).",
     "buy_also": "Beli juga di"
+  },
+  "partner": {
+    "section": "Pemilik & partner",
+    "invite": "Undang partner",
+    "invite_title": "Undang partner",
+    "role_owner": "Pemilik",
+    "badge": "Partner",
+    "pending": "Menunggu jawaban",
+    "hint": "Partner yang menerima undangan bisa mengubah usaha, katalog, dan partner — sama seperti pemilik.",
+    "invited_toast": "Undangan terkirim ke {{name}}",
+    "cancel_invite_title": "Batalkan undangan?",
+    "cancel_invite_body": "Undangan untuk {{name}} akan dibatalkan.",
+    "cancel_invite_confirm": "Batalkan undangan",
+    "remove_title": "Keluarkan partner?",
+    "remove_body": "{{name}} tidak lagi bisa mengelola usaha ini.",
+    "remove_confirm": "Keluarkan",
+    "leave": "Keluar sebagai partner",
+    "leave_title": "Keluar sebagai partner?",
+    "leave_body": "Anda tidak lagi bisa mengelola \"{{name}}\".",
+    "leave_confirm": "Keluar",
+    "left_toast": "Anda keluar sebagai partner",
+    "invitations_title": "Undangan partner",
+    "invitation_body": "{{name}} mengundang Anda menjadi partner. Partner bisa mengubah usaha, katalog, dan partner.",
+    "accept": "Terima",
+    "reject": "Tolak",
+    "accepted_toast": "Anda kini partner usaha ini",
+    "rejected_toast": "Undangan ditolak",
+    "owner_and_partners": "Pemilik & partner"
   }
 }

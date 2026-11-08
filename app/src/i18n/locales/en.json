@@ -2754,5 +2754,33 @@
     "market_label": "Product links on marketplaces",
     "market_hint": "Optional. Icons only show for filled ones (store links are not used).",
     "buy_also": "Also available on"
+  },
+  "partner": {
+    "section": "Owner & partners",
+    "invite": "Invite partner",
+    "invite_title": "Invite partner",
+    "role_owner": "Owner",
+    "badge": "Partner",
+    "pending": "Awaiting response",
+    "hint": "Partners who accept can edit the business, catalog, and partners — same as the owner.",
+    "invited_toast": "Invitation sent to {{name}}",
+    "cancel_invite_title": "Cancel invitation?",
+    "cancel_invite_body": "The invitation for {{name}} will be cancelled.",
+    "cancel_invite_confirm": "Cancel invitation",
+    "remove_title": "Remove partner?",
+    "remove_body": "{{name}} will no longer manage this business.",
+    "remove_confirm": "Remove",
+    "leave": "Leave as partner",
+    "leave_title": "Leave as partner?",
+    "leave_body": "You will no longer manage \"{{name}}\".",
+    "leave_confirm": "Leave",
+    "left_toast": "You left as a partner",
+    "invitations_title": "Partner invitations",
+    "invitation_body": "{{name}} invited you to be a partner. Partners can edit the business, catalog, and partners.",
+    "accept": "Accept",
+    "reject": "Decline",
+    "accepted_toast": "You are now a partner of this business",
+    "rejected_toast": "Invitation declined",
+    "owner_and_partners": "Owner & partners"
   }
 }

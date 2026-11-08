@@ -9,6 +9,9 @@ import type {
   LocalBusiness,
   LocalItem,
   LocalItemPayload,
+  MyLocalBusiness,
+  BusinessInvitation,
+  BusinessPartnerRow,
   UpdateBusinessPayload,
 } from '@/types/localBusiness';
 
@@ -24,7 +27,7 @@ export function createBusiness(payload: CreateBusinessPayload) {
 
 /** GET /admin/me/businesses/:id — owner-only */
 export function getMyBusiness(id: string) {
-  return api.get<LocalBusiness>(`/admin/me/businesses/${id}`);
+  return api.get<MyLocalBusiness>(`/admin/me/businesses/${id}`);
 }
 
 /** PATCH /admin/me/businesses/:id — owner-only, partial update */
@@ -126,4 +129,21 @@ export function deleteItemFoto(bizId: string, itemId: string, url: string) {
 /** POST /admin/me/local-market/:id/item/:itemId/view — hitung kunjungan item */
 export function pingItemView(bizId: string, itemId: string) {
   return api.post<{ ok: true }>(`/admin/me/local-market/${bizId}/item/${itemId}/view`, {}, { suppressErrorReport: true });
+}
+
+// ===== Partner usaha (2.4.7) =====
+export function listBusinessInvitations() {
+  return api.get<BusinessInvitation[]>('/admin/me/businesses/invitations');
+}
+export function respondBusinessInvitation(id: string, accept: boolean) {
+  return api.post<{ id: string; businessId?: string }>(`/admin/me/businesses/invitations/${id}/${accept ? 'accept' : 'reject'}`);
+}
+export function invitePartner(bizId: string, kode: string) {
+  return api.post<BusinessPartnerRow>(`/admin/me/businesses/${bizId}/partners`, { kode });
+}
+export function removePartner(bizId: string, partnerId: string) {
+  return api.delete<{ id: string }>(`/admin/me/businesses/${bizId}/partners/${partnerId}`);
+}
+export function leaveBusiness(bizId: string) {
+  return api.post<{ id: string }>(`/admin/me/businesses/${bizId}/leave`);
 }

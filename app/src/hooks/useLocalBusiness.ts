@@ -25,6 +25,11 @@ import {
   uploadItemFoto,
   deleteItemFoto,
   type FileObj,
+  listBusinessInvitations,
+  respondBusinessInvitation,
+  invitePartner,
+  removePartner,
+  leaveBusiness,
 } from '@/api/businesses';
 import {
   getLocalMarketDetail,
@@ -77,7 +82,8 @@ export function useUpdateBusiness(id: string) {
   return useMutation({
     mutationFn: (payload: UpdateBusinessPayload) => updateBusiness(id, payload),
     onSuccess: (updated) => {
-      qc.setQueryData(['businesses', 'mine', 'detail', id], updated);
+      // Gabung (respon PATCH tidak memuat partners/myRole).
+      qc.setQueryData(['businesses', 'mine', 'detail', id], (old: object | undefined) => ({ ...(old ?? {}), ...updated }));
       qc.invalidateQueries({ queryKey: MY_BIZ_KEY });
       qc.invalidateQueries({ queryKey: MARKET_KEY });
     },
@@ -254,4 +260,46 @@ export function useDeleteItemFoto(bizId: string) {
     mutationFn: ({ itemId, url }: { itemId: string; url: string }) => deleteItemFoto(bizId, itemId, url),
     onSuccess: inv,
   });
+}
+
+// ===== Partner usaha (2.4.7) =====
+const INV_KEY = ['businesses', 'invitations'] as const;
+
+export function useBusinessInvitations() {
+  return useQuery({ queryKey: INV_KEY, queryFn: listBusinessInvitations, staleTime: 30_000 });
+}
+
+export function useRespondInvitation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, accept }: { id: string; accept: boolean }) => respondBusinessInvitation(id, accept),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: INV_KEY });
+      qc.invalidateQueries({ queryKey: MY_BIZ_KEY });
+    },
+  });
+}
+
+function usePartnerInvalidate(bizId: string) {
+  const qc = useQueryClient();
+  return () => {
+    qc.invalidateQueries({ queryKey: ['businesses', 'mine', 'detail', bizId] });
+    qc.invalidateQueries({ queryKey: ['local-market', 'detail', bizId] });
+    qc.invalidateQueries({ queryKey: MY_BIZ_KEY });
+  };
+}
+
+export function useInvitePartner(bizId: string) {
+  const inv = usePartnerInvalidate(bizId);
+  return useMutation({ mutationFn: (kode: string) => invitePartner(bizId, kode), onSuccess: inv });
+}
+
+export function useRemovePartner(bizId: string) {
+  const inv = usePartnerInvalidate(bizId);
+  return useMutation({ mutationFn: (partnerId: string) => removePartner(bizId, partnerId), onSuccess: inv });
+}
+
+export function useLeaveBusiness(bizId: string) {
+  const inv = usePartnerInvalidate(bizId);
+  return useMutation({ mutationFn: () => leaveBusiness(bizId), onSuccess: inv });
 }

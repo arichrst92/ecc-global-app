@@ -34,6 +34,7 @@ import {
   ChevronRight,
   Eye,
   ShoppingBag,
+  UserPlus,
   FileText,
   Image as ImageIcon,
   Trash2,
@@ -42,6 +43,9 @@ import {
 } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
+import { Avatar } from '@/components/ui/Avatar';
+import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
+import { useAuthStore } from '@/stores/auth.store';
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useToast } from '@/components/ui/Toast';
 import {
@@ -51,6 +55,9 @@ import {
   useDeleteBusinessPdf,
   useMyBusinessDetail,
   useUpdateBusiness,
+  useInvitePartner,
+  useRemovePartner,
+  useLeaveBusiness,
   useUploadBusinessHero,
   useUploadBusinessLogo,
   useUploadBusinessPdf,
@@ -110,6 +117,53 @@ export default function OwnerBusinessDetailScreen() {
   const [isActive, setIsActive] = useState(true);
 
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const myJemaatId = useAuthStore((s) => s.user?.jemaatId);
+  const inviteMut = useInvitePartner(id ?? '');
+  const removePartnerMut = useRemovePartner(id ?? '');
+  const leaveMut = useLeaveBusiness(id ?? '');
+  const errMsg = (e: unknown) => (e instanceof ApiError ? e.message : t('error.network'));
+
+  function invite(kode: string) {
+    inviteMut.mutate(kode, {
+      onSuccess: (p) => {
+        setInviteOpen(false);
+        showToast(t('partner.invited_toast', { name: p?.jemaat?.namaLengkap ?? '' }), 'success');
+      },
+      onError: (e) => showToast(errMsg(e), 'error'),
+    });
+  }
+  function askRemovePartner(pid: string, name: string, status: 'PENDING' | 'ACCEPTED') {
+    Alert.alert(
+      status === 'PENDING' ? t('partner.cancel_invite_title') : t('partner.remove_title'),
+      t(status === 'PENDING' ? 'partner.cancel_invite_body' : 'partner.remove_body', { name }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: status === 'PENDING' ? t('partner.cancel_invite_confirm') : t('partner.remove_confirm'),
+          style: 'destructive',
+          onPress: () => removePartnerMut.mutate(pid, { onError: (e) => showToast(errMsg(e), 'error') }),
+        },
+      ],
+    );
+  }
+  function askLeave() {
+    Alert.alert(t('partner.leave_title'), t('partner.leave_body', { name: biz?.nama ?? '' }), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('partner.leave_confirm'),
+        style: 'destructive',
+        onPress: () =>
+          leaveMut.mutate(undefined, {
+            onSuccess: () => {
+              showToast(t('partner.left_toast'), 'success');
+              goBack(router);
+            },
+            onError: (e) => showToast(errMsg(e), 'error'),
+          }),
+      },
+    ]);
+  }
 
   useEffect(() => {
     if (biz) {
@@ -668,6 +722,59 @@ export default function OwnerBusinessDetailScreen() {
               <ChevronRight size={16} color={nc('#A3A3A3')} />
             </Pressable>
 
+            {/* Partner usaha (2.4.7) — hak sama dengan pemilik setelah menerima undangan */}
+            <View className="mb-4">
+              <View className="flex-row items-center mb-2">
+                <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider flex-1">
+                  {t('partner.section')}
+                </Text>
+                <Pressable
+                  onPress={() => setInviteOpen(true)}
+                  className="bg-brand-50 rounded-full px-2.5 py-1 flex-row items-center gap-1"
+                >
+                  <UserPlus size={11} color="#EA580C" />
+                  <Text className="text-[11px] font-bold text-brand-600">{t('partner.invite')}</Text>
+                </Pressable>
+              </View>
+              <View className="bg-card rounded-2xl border border-neutral-100">
+                <View className="p-3 flex-row items-center gap-3">
+                  <Avatar name={biz.owner.namaLengkap} fotoUrl={biz.owner.fotoUrl ?? undefined} size={34} />
+                  <Text className="flex-1 text-sm font-semibold text-neutral-900" numberOfLines={1}>
+                    {biz.owner.namaLengkap}
+                  </Text>
+                  <Text className="text-[11px] font-bold text-brand-600">{t('partner.role_owner')}</Text>
+                </View>
+                {(biz.partners ?? []).map((p) => (
+                  <View key={p.id} className="p-3 flex-row items-center gap-3 border-t border-neutral-100">
+                    <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl ?? undefined} size={34} />
+                    <View className="flex-1 min-w-0">
+                      <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+                        {p.jemaat.namaLengkap}
+                      </Text>
+                      <Text className={`text-[11px] ${p.status === 'PENDING' ? 'text-amber-600' : 'text-neutral-500'}`}>
+                        {p.status === 'PENDING' ? t('partner.pending') : t('partner.badge')}
+                      </Text>
+                    </View>
+                    {p.jemaat.id !== myJemaatId ? (
+                      <Pressable
+                        onPress={() => askRemovePartner(p.id, p.jemaat.namaLengkap, p.status)}
+                        hitSlop={6}
+                        className="w-7 h-7 rounded-full bg-red-50 items-center justify-center"
+                      >
+                        <X size={12} color="#DC2626" />
+                      </Pressable>
+                    ) : null}
+                  </View>
+                ))}
+              </View>
+              <Text className="text-[10px] text-neutral-400 mt-1">{t('partner.hint')}</Text>
+              {biz.myRole === 'PARTNER' ? (
+                <Pressable onPress={askLeave} className="self-start mt-2 px-3 py-1.5 rounded-full border border-red-200">
+                  <Text className="text-xs font-semibold text-red-600">{t('partner.leave')}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+
             {/* PDF profile */}
             <Field label={t('my_business.pdf_label')}>
               {biz.companyProfileUrl ? (
@@ -793,6 +900,14 @@ export default function OwnerBusinessDetailScreen() {
           </View>
         </SafeAreaView>
       </KeyboardSafeView>
+
+      <JemaatSearchModal
+        visible={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        onSubmit={invite}
+        loading={inviteMut.isPending}
+        title={t('partner.invite_title')}
+      />
 
       {/* Delete confirm */}
       <Modal

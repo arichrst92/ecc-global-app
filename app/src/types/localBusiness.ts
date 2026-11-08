@@ -40,6 +40,10 @@ export type LocalBusiness = {
   items?: LocalItem[];
   /** 2.4.7 — jumlah kunjungan detail (app + web) */
   viewCount?: number;
+  /** 2.4.7 — OWNER / PARTNER (hanya di endpoint Usaha Saya) */
+  myRole?: 'OWNER' | 'PARTNER';
+  /** 2.4.7 — partner yang sudah menerima (detail publik) */
+  partners?: BusinessOwner[];
   /** 2.4.7 — link toko online & Google Maps */
   marketplaceLinks?: MarketplaceLinks | null;
   mapsUrl?: string | null;
@@ -256,3 +260,21 @@ export function cleanMarketplaceLinks(raw: MarketplaceLinks): { links: Marketpla
 export function isMapsUrl(v: string): boolean {
   return /^(www\.)?(google\.[a-z.]+|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl)$/i.test(hostOf(withScheme(v)));
 }
+
+// ===== Partner usaha (2.4.7) =====
+export type BusinessPartnerRow = {
+  id: string;
+  status: 'PENDING' | 'ACCEPTED';
+  createdAt: string;
+  respondedAt: string | null;
+  jemaat: BusinessOwner;
+  invitedBy: { id: string; namaLengkap: string };
+};
+/** Detail untuk pemilik/partner: partners = semua (diterima & menunggu). */
+export type MyLocalBusiness = Omit<LocalBusiness, 'partners'> & { partners?: BusinessPartnerRow[] };
+export type BusinessInvitation = {
+  id: string;
+  createdAt: string;
+  invitedBy: { id: string; namaLengkap: string };
+  business: { id: string; nama: string; logoUrl: string | null; industri: string | null; owner: { id: string; namaLengkap: string } };
+};

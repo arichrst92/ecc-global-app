@@ -24,6 +24,7 @@ const KNOWN_ROUTES: RegExp[] = [
   '/visit', `/visit/${ID}`, '/profile', '/settings/change-branch',
   '/ministry', `/ministry/${ID}`, '/feedback', `/feedback/${ID}`,
   '/doa', `/doa/${ID}`, `/doa/assigned/${ID}`, '/notifications', '/tiket', '/spiritual-journey', '/profile/my-service',
+  '/profile/businesses', `/profile/businesses/${ID}`,
 ].map((p) => new RegExp(`^${p.replace(/[()]/g, '\\$&')}/?(\\?.*)?$`));
 
 const isKnownRoute = (url: string) => KNOWN_ROUTES.some((re) => re.test(url));
@@ -167,6 +168,11 @@ function fallbackRoute(notif: InAppNotification): string | null {
     case 'FAMILY_LINK_APPROVED':
     case 'FAMILY_LINK_REJECTED':
       return '/family';
+    case 'BUSINESS_PARTNER_INVITED':
+    case 'BUSINESS_PARTNER_ACCEPTED':
+    case 'BUSINESS_PARTNER_REJECTED':
+    case 'BUSINESS_PARTNER_REMOVED':
+      return '/profile/businesses';
     case 'MINISTRY_DUTY_ASSIGNED':
     case 'MINISTRY_DUTY_REMOVED':
       return '/profile/my-service';
@@ -267,6 +273,13 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
     case 'FAMILY_LINK_APPROVED':
       return 'home-check';
     case 'FAMILY_LINK_REJECTED':
+      return 'group-remove';
+    case 'BUSINESS_PARTNER_INVITED':
+      return 'group-add';
+    case 'BUSINESS_PARTNER_ACCEPTED':
+      return 'home-check';
+    case 'BUSINESS_PARTNER_REJECTED':
+    case 'BUSINESS_PARTNER_REMOVED':
       return 'group-remove';
     case 'MINISTRY_DUTY_ASSIGNED':
       return 'home-check';

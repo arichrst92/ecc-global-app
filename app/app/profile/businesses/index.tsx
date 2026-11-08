@@ -7,10 +7,11 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Plus, Store } from 'lucide-react-native';
+import { ArrowLeft, Handshake, Plus, Store } from 'lucide-react-native';
 
 import { BusinessRow } from '@/components/market/BusinessRow';
-import { useMyBusinesses } from '@/hooks/useLocalBusiness';
+import { useBusinessInvitations, useMyBusinesses, useRespondInvitation } from '@/hooks/useLocalBusiness';
+import { useToast } from '@/components/ui/Toast';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
@@ -21,6 +22,18 @@ export default function MyBusinessesScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const query = useMyBusinesses();
+  const invQ = useBusinessInvitations();
+  const respond = useRespondInvitation();
+  const showToast = useToast((s) => s.show);
+  function answer(id: string, accept: boolean) {
+    respond.mutate(
+      { id, accept },
+      {
+        onSuccess: () => showToast(t(accept ? 'partner.accepted_toast' : 'partner.rejected_toast'), 'success'),
+        onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
+      },
+    );
+  }
 
   return (
     <View className="flex-1 bg-neutral-50">
@@ -57,6 +70,42 @@ export default function MyBusinessesScreen() {
           />
         }
       >
+        {/* Undangan partner (2.4.7) */}
+        {(invQ.data ?? []).length > 0 ? (
+          <View className="mb-4 gap-2.5">
+            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('partner.invitations_title')}</Text>
+            {(invQ.data ?? []).map((inv) => (
+              <View key={inv.id} className="bg-brand-50 border border-brand-100 rounded-2xl p-4">
+                <View className="flex-row items-center gap-2 mb-1">
+                  <Handshake size={16} color="#EA580C" />
+                  <Text className="text-sm font-bold text-neutral-900 flex-1" numberOfLines={1}>
+                    {inv.business.nama}
+                  </Text>
+                </View>
+                <Text className="text-xs text-neutral-600 leading-relaxed mb-3">
+                  {t('partner.invitation_body', { name: inv.invitedBy.namaLengkap })}
+                </Text>
+                <View className="flex-row gap-2">
+                  <Pressable
+                    disabled={respond.isPending}
+                    onPress={() => answer(inv.id, false)}
+                    className="flex-1 py-2.5 rounded-xl border border-neutral-300 bg-card items-center"
+                  >
+                    <Text className="text-sm font-semibold text-neutral-700">{t('partner.reject')}</Text>
+                  </Pressable>
+                  <Pressable
+                    disabled={respond.isPending}
+                    onPress={() => answer(inv.id, true)}
+                    {...gx('flex-1 py-2.5 rounded-xl bg-brand-500 items-center')}
+                  >
+                    <Text className="text-sm font-bold text-white">{t('partner.accept')}</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : null}
+
         {query.isPending ? (
           <View className="items-center py-12">
             <ActivityIndicator color="#F97316" />
@@ -73,19 +122,24 @@ export default function MyBusinessesScreen() {
               <Text className="text-sm font-bold text-white">{t('common.retry')}</Text>
             </Pressable>
           </View>
-        ) : (query.data?.length ?? 0) === 0 ? (
+        ) : (query.data?.length ?? 0) === 0 && (invQ.data ?? []).length === 0 ? (
           <EmptyState onAdd={() => router.push('/profile/businesses/new' as never)} />
         ) : (
           <View className="gap-2.5">
             {(query.data ?? []).map((biz) => (
-              <BusinessRow
-                key={biz.id}
-                business={biz}
-                variant="owner"
-                onPress={() =>
-                  router.push(`/profile/businesses/${biz.id}` as never)
-                }
-              />
+              <View key={biz.id}>
+                <BusinessRow
+                  business={biz}
+                  variant="owner"
+                  onPress={() => router.push(`/profile/businesses/${biz.id}` as never)}
+                />
+                {biz.myRole === 'PARTNER' ? (
+                  <View className="absolute top-2 right-2 bg-violet-100 rounded-full px-2 py-0.5 flex-row items-center gap-1">
+                    <Handshake size={10} color="#6D28D9" />
+                    <Text className="text-[10px] font-bold text-violet-700">{t('partner.badge')}</Text>
+                  </View>
+                ) : null}
+              </View>
             ))}
           </View>
         )}
