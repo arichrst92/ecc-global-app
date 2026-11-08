@@ -9,6 +9,7 @@ Versi sebelumnya di toko: **2.4.6**. Rilis ini **menggabungkan 2.4.7 + 2.4.8** (
 - **Isian tidak tertutup keyboard** — Pesan untuk pemimpin saat minta bergabung homecell (halaman otomatis bergulir ke kolom & tombol) dan kolom industri di filter Local Market.
 - **Detail hadiah CKids di HP lipat / layar lebar** — foto dibatasi tingginya dan isi lembar bisa digulir sampai tombol Tutup; lembar filter Local Market, mata uang katalog, dan pilih cabang memakai pola yang sama (gulir lebih andal di Android).
 - **Semua popup & lembar bisa digulir** — 21 popup/lembar lain (konfirmasi keluar/hapus, Tambah tamu, Tamu walk-in, Ganti no HP, kode jemput, hasil scan, sisip ayat, materi homecell, pilih anak/cabang CKids, Bagikan, aksi lagu, Visit, Bible 365, dll.) kini dibatasi tingginya dan isinya bisa digulir, sehingga tidak terpotong di HP lipat, layar landscape, atau ukuran huruf sistem besar.
+- **QR CKids seragam dengan Kartu QR** — QR anak di CKids memakai kartu yang sama dengan Kartu QR di Beranda/Profil (avatar & nama di atas, QR 220 di kartu putih, "Kode jemaat" besar di bawah); poin anak tampil di bawah nama.
 - **Status bar di halaman ber-hero** — Beranda, detail usaha & item Local Market, detail event, berita, renungan, dan pelayanan: konten tidak lagi menabrak jam/sinyal/baterai saat digulir; tombol di atas foto Local Market selalu di bawah area aman atas.
 
 ### Local Market (usaha jemaat)
@@ -136,3 +137,4 @@ Els App 2.4.8:
 - [ ] Android: Homecell → detail (belum anggota) → ketuk Pesan untuk pemimpin → kolom & tombol Minta bergabung terlihat di atas keyboard
 - [ ] Detail usaha/item Local Market, detail event, berita, renungan, pelayanan, Beranda → gulir ke bawah → konten tidak bertumpuk dengan jam/sinyal/baterai (Android & iPhone ber-notch/Dynamic Island)
 - [ ] HP lipat (dibuka) / tablet: CKids → katalog hadiah → ketuk hadiah → foto tidak memenuhi lembar, isi bisa digulir sampai tombol Tutup; ketuk area gelap menutup lembar, ketuk isi lembar tidak menutup
+- [ ] CKids → Tampilkan QR anak → tampilan kartu sama dengan Beranda → ikon QR (avatar, nama, kartu QR, kode jemaat di bawah); poin anak di bawah nama

@@ -12,10 +12,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Eye, EyeOff, X } from 'lucide-react-native';
-import QRCode from 'react-native-qrcode-svg';
+import { EyeOff, X } from 'lucide-react-native';
 
-import { Avatar } from '@/components/ui/Avatar';
+import { MemberQrCard } from '@/components/qr/MemberQrCard';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMyFamily } from '@/hooks/useFamily';
 import { getMyProfile } from '@/api/me';
@@ -202,66 +201,16 @@ function QrCardItem({
   onReveal: () => void;
   t: (k: string) => string;
 }) {
-  const hasKode = !!card.kode && card.kode.trim().length > 0;
   return (
     <View style={{ width: SCREEN_W }} className="items-center justify-center px-6">
-      {/* Nama di atas QR */}
-      <View className="items-center mb-3">
-        <Avatar
-          name={card.namaLengkap}
-          fotoUrl={card.fotoUrl}
-          size={48}
-          className="bg-white/20 mb-2"
-        />
-        <Text className="text-white text-lg font-bold text-center" numberOfLines={1}>
-          {card.namaLengkap}
-        </Text>
-        {!card.isSelf ? (
-          <Text className="text-white/70 text-xs">{t('qr.family_member')}</Text>
-        ) : null}
-      </View>
-
-      {/* QR Card */}
-      <View className="bg-card rounded-3xl p-5" style={{ elevation: 8 }}>
-        {hasKode ? (
-          <View style={{ opacity: revealed ? 1 : 0.25 }}>
-            <QRCode
-              value={card.kode}
-              size={220}
-              color="#0A0A0A"
-              backgroundColor="#FFFFFF" quietZone={10}
-            />
-          </View>
-        ) : (
-          <View
-            className="items-center justify-center bg-neutral-100 rounded-2xl"
-            style={{ width: 220, height: 220 }}
-          >
-            <Text className="text-neutral-500 text-sm text-center px-4">
-              {t('qr.no_kode')}
-            </Text>
-          </View>
-        )}
-        {!revealed && hasKode ? (
-          <Pressable
-            onPress={onReveal}
-            {...gx('mt-3 py-3 bg-brand-500 rounded-xl flex-row items-center justify-center gap-2')}
-          >
-            <Eye size={16} color="#fff" />
-            <Text className="text-white font-semibold text-sm">
-              {t('qr.reveal_again')}
-            </Text>
-          </Pressable>
-        ) : null}
-      </View>
-
-      {/* Kode jemaat di bawah */}
-      <View className="items-center mt-4">
-        <Text className="text-white/80 text-xs">{t('qr.your_code')}</Text>
-        <Text className="text-white text-2xl font-bold tracking-[0.3em] mt-1">
-          {hasKode ? card.kode : '—'}
-        </Text>
-      </View>
+      <MemberQrCard
+        namaLengkap={card.namaLengkap}
+        fotoUrl={card.fotoUrl}
+        kode={card.kode}
+        subtitle={card.isSelf ? null : t('qr.family_member')}
+        revealed={revealed}
+        onReveal={onReveal}
+      />
     </View>
   );
 }

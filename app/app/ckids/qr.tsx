@@ -12,9 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Baby, ShoppingBag } from 'lucide-react-native';
-import QRCode from 'react-native-qrcode-svg';
 
-import { Avatar } from '@/components/ui/Avatar';
+import { MemberQrCard } from '@/components/qr/MemberQrCard';
 import { useMyChildrenWithBalances } from '@/hooks/useCKids';
 import { useCKidsSelectionStore } from '@/stores/ckids-selection.store';
 import { goBack } from '@/utils/nav';
@@ -72,7 +71,7 @@ export default function CKidsQrScreen() {
   const kode = selected.anak.kode;
 
   return (
-    <View {...gx('flex-1 bg-brand-500')}>
+    <View {...gx('flex-1 bg-brand-600')}>
       <SafeAreaView edges={['top']}>
         <View className="px-4 py-2 flex-row items-center">
           <Pressable
@@ -96,26 +95,13 @@ export default function CKidsQrScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 24, paddingBottom: 48 }}
       >
-        {/* Anak info */}
-        <View className="items-center mb-6">
-          <Avatar size={72} name={selected.anak.namaLengkap} fotoUrl={selected.anak.fotoUrl} />
-          <Text className="text-white text-xl font-bold mt-3">
-            {selected.anak.namaLengkap}
-          </Text>
-          <View className="flex-row items-baseline gap-1 mt-1">
-            <Text className="text-white/90 text-2xl font-bold">{totalBalance}</Text>
-            <Text className="text-white/80 text-sm">{t('ckids.points_unit')}</Text>
-          </View>
-        </View>
-
-        {/* QR card */}
-        <View className="bg-card rounded-3xl p-6 items-center" style={{ elevation: 12 }}>
-          <QRCode value={kode} size={240} color="#0A0A0A" backgroundColor="#FFFFFF" quietZone={10} />
-          <Text className="text-2xl font-bold tracking-widest text-neutral-900 mt-5">
-            {kode}
-          </Text>
-          <Text className="text-xs text-neutral-500 mt-1">{t('ckids.qr_kode_label')}</Text>
-        </View>
+        {/* Kartu QR — sama dengan Kartu QR di Beranda/Profil */}
+        <MemberQrCard
+          namaLengkap={selected.anak.namaLengkap}
+          fotoUrl={selected.anak.fotoUrl}
+          kode={kode}
+          subtitle={`${totalBalance} ${t('ckids.points_unit')}`}
+        />
 
         {/* Instruction */}
         <View className="mt-6 bg-white/15 rounded-2xl p-4">
