@@ -127,19 +127,12 @@ export default function MyBusinessesScreen() {
         ) : (
           <View className="gap-2.5">
             {(query.data ?? []).map((biz) => (
-              <View key={biz.id}>
-                <BusinessRow
-                  business={biz}
-                  variant="owner"
-                  onPress={() => router.push(`/profile/businesses/${biz.id}` as never)}
-                />
-                {biz.myRole === 'PARTNER' ? (
-                  <View className="absolute top-2 right-2 bg-violet-100 rounded-full px-2 py-0.5 flex-row items-center gap-1">
-                    <Handshake size={10} color="#6D28D9" />
-                    <Text className="text-[10px] font-bold text-violet-700">{t('partner.badge')}</Text>
-                  </View>
-                ) : null}
-              </View>
+              <BusinessRow
+                key={biz.id}
+                business={biz}
+                variant="owner"
+                onPress={() => router.push(`/profile/businesses/${biz.id}` as never)}
+              />
             ))}
           </View>
         )}

@@ -99,6 +99,11 @@ export function BusinessRow({ business, onPress, variant = 'public' }: Props) {
         <View className="flex-row items-center gap-2 mt-1.5">
           {isOwner ? (
             <>
+              {business.myRole === 'PARTNER' ? (
+                <View className="px-1.5 py-0.5 rounded-full bg-violet-100">
+                  <Text className="text-[9px] font-bold text-violet-700">{t('partner.badge').toUpperCase()}</Text>
+                </View>
+              ) : null}
               {/* Active/Inactive badge untuk owner variant */}
               <View
                 className={`px-1.5 py-0.5 rounded-full ${

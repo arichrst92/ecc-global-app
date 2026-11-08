@@ -8,7 +8,7 @@
  * PDF: max 5 MB (BE limit), MIME application/pdf only, client-side
  * size validation sebelum upload.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -165,8 +165,12 @@ export default function OwnerBusinessDetailScreen() {
     ]);
   }
 
+  // Isi form SEKALI per usaha — refetch (upload foto, undang partner, dll.)
+  // tidak boleh menimpa ketikan yang belum disimpan.
+  const filledFor = useRef<string | null>(null);
   useEffect(() => {
-    if (biz) {
+    if (biz && filledFor.current !== biz.id) {
+      filledFor.current = biz.id;
       setNama(biz.nama);
       setDeskripsi(biz.deskripsi ?? '');
       setIndustri(biz.industri ?? '');
