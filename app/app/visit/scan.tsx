@@ -38,6 +38,7 @@ import { useNotificationsStore } from '@/stores/notifications.store';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export default function VisitScanScreen() {
   const { t } = useTranslation();
@@ -292,6 +293,7 @@ export default function VisitScanScreen() {
                   />
                 </View>
               </View>
+              <SheetNavSpacer />
             </Pressable>
           </Pressable>
         </KeyboardSafeView>

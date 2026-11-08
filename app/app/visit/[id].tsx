@@ -50,6 +50,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export default function VisitDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -422,6 +423,7 @@ export default function VisitDetailScreen() {
                 fullWidth
                 size="lg"
               />
+              <SheetNavSpacer />
             </Pressable>
           </Pressable>
         </KeyboardSafeView>
@@ -481,6 +483,7 @@ export default function VisitDetailScreen() {
                 fullWidth
                 size="lg"
               />
+              <SheetNavSpacer />
             </Pressable>
           </Pressable>
         </KeyboardSafeView>

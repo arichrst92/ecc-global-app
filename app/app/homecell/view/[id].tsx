@@ -4,7 +4,7 @@
  * - Anggota: info + jadwal berikutnya + daftar anggota + chat pemimpin.
  * - Pemimpin: + atur lokasi Google Maps (untuk "Cari homecell terdekat").
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -41,6 +41,7 @@ import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { jamRange } from '@/utils/jamRange';
 import { SegmenBadges } from '@/components/homecell/HomecellListCard';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 
 export default function HomecellViewScreen() {
   const insets = useSafeAreaInsets();
@@ -60,6 +61,8 @@ export default function HomecellViewScreen() {
   const [lokasiInput, setLokasiInput] = useState('');
   // Modal lokasi naik di atas keyboard (Android edge-to-edge tidak mengecilkan jendela).
   const kbH = useKeyboardHeight();
+  const scrollRef = useRef<ScrollView>(null);
+  const joinCardY = useRef(0);
 
   const errMsg = (e: unknown) => (e instanceof ApiError ? e.message : t('error.generic'));
   const fmtDate = (d: string) =>
@@ -165,7 +168,9 @@ export default function HomecellViewScreen() {
           <Text className="text-sm text-neutral-500 text-center">{t('homecell.detail_not_found')}</Text>
         </View>
       ) : (
+        <KeyboardSafeView className="flex-1">
         <ScrollView
+          ref={scrollRef}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32, gap: 16 }}
         >
@@ -258,11 +263,18 @@ export default function HomecellViewScreen() {
               <Button label={t('hcj.cancel_request')} variant="danger" loading={cancelMut.isPending} onPress={cancel} />
             </View>
           ) : (
-            <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3">
+            <View
+              className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3"
+              onLayout={(e) => {
+                joinCardY.current = e.nativeEvent.layout.y;
+              }}
+            >
               <Text className="text-sm font-semibold text-neutral-800">{t('hcj.join_message_label')}</Text>
               <TextInput
                 value={pesan}
                 onChangeText={setPesan}
+                // Keyboard muncul → gulir supaya kolom pesan & tombol Minta bergabung terlihat.
+                onFocus={() => setTimeout(() => scrollRef.current?.scrollTo({ y: Math.max(0, joinCardY.current - 12), animated: true }), 300)}
                 placeholder={t('hcj.join_message_placeholder')}
                 placeholderTextColor={nc('#A3A3A3')}
                 multiline
@@ -357,6 +369,7 @@ export default function HomecellViewScreen() {
             </View>
           ) : null}
         </ScrollView>
+        </KeyboardSafeView>
       )}
 
       {/* Modal atur lokasi (pemimpin) */}

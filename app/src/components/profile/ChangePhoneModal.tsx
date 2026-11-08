@@ -17,6 +17,7 @@ import { requestPhoneChangeOtp, verifyPhoneChange } from '@/api/me';
 import { ApiError } from '@/types/api';
 import { formatPhoneDisplay, invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export function ChangePhoneModal({
   visible,
@@ -153,6 +154,7 @@ export function ChangePhoneModal({
                 </View>
               </>
             )}
+            <SheetNavSpacer />
           </Pressable>
         </Pressable>
       </KeyboardSafeView>

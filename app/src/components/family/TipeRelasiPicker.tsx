@@ -32,6 +32,7 @@ import { useTipeRelasiGrouped } from '@/hooks/useTipeRelasi';
 import type { TipeRelasi, TipeRelasiCategory } from '@/types/tipeRelasi';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 type Props = {
   value: TipeRelasi | null;
@@ -184,6 +185,7 @@ export function TipeRelasiPicker({ value, onChange, disabled }: Props) {
                 ))}
               </ScrollView>
             )}
+            <SheetNavSpacer />
           </Pressable>
         </Pressable>
       </Modal>

@@ -18,6 +18,7 @@ import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { nc } from '@/theme/ThemeRoot';
 import { TamuKategoriPicker, type TamuKategori } from './TamuKategoriPicker';
 import { cekNama, cekTeks, pertamaGagal } from '@/utils/inputRules';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export function AddTamuModal({
   visible,
@@ -127,6 +128,7 @@ export function AddTamuModal({
             disabled={nama.trim().length < 2 || !e164}
             onPress={() => mut.mutate()}
           />
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
     </Modal>

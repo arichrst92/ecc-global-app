@@ -43,6 +43,7 @@ import { imageAssetToFile } from '@/utils/pickedImage';
 import type { FileObj } from '@/api/businesses';
 import { nc } from '@/theme/ThemeRoot';
 import { cekTeks, pertamaGagal } from '@/utils/inputRules';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 const FOTO_MAX = 4;
 
@@ -422,6 +423,7 @@ export default function KatalogItemFormScreen() {
                 </Pressable>
               ))}
             </ScrollView>
+            <SheetNavSpacer />
           </Pressable>
         </Pressable>
       </Modal>

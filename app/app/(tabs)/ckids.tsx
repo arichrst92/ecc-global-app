@@ -54,6 +54,7 @@ import { env } from '@/config/env';
 import { ageInYears, CKIDS_MAX_AGE } from '@/utils/ckidsAge';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export default function CKidsTabScreen() {
   const { t, i18n } = useTranslation();
@@ -499,6 +500,7 @@ export default function CKidsTabScreen() {
                 );
               })}
             </View>
+            <SheetNavSpacer />
           </Pressable>
         </Pressable>
       </Modal>
@@ -562,6 +564,7 @@ export default function CKidsTabScreen() {
                 );
               })}
             </View>
+            <SheetNavSpacer />
           </Pressable>
         </Pressable>
       </Modal>
@@ -785,6 +788,7 @@ function HadiahDetailModal({
               </Text>
             </Pressable>
           </ScrollView>
+          <SheetNavSpacer />
         </Pressable>
       </Pressable>
     </Modal>

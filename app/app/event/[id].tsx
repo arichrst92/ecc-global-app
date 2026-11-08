@@ -31,6 +31,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { ShareCardModal } from '@/features/share/ShareCardModal';
 import { ArticleShareCard, EventShareCard } from '@/features/share/cards';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export default function EventDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -1344,6 +1345,7 @@ function ParticipationDetailModal({
               </View>
             ) : null}
           </ScrollView>
+          <SheetNavSpacer />
         </View>
       </View>
     </Modal>

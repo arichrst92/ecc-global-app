@@ -29,6 +29,7 @@ Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul n
 
 ### Kenyamanan & tampilan
 - **Keyboard tidak menutupi isian (Android)** di ±40 form & lembar isian.
+- **Tombol bawah lembar (Android)** — tombol Simpan dkk. di 30+ lembar isian/pilihan tidak lagi tertutup bilah navigasi Android (Tambah tamu, Reservasi, Tamu walk-in, Ganti no HP, filter Local Market, materi homecell, dll.). **Pesan untuk pemimpin** saat minta bergabung homecell & isian filter Local Market tidak lagi tertutup keyboard.
 - **Cari jemaat (input manual) layar penuh** — hasil selalu bisa digulir & diketuk (homecell, kehadiran, scanner, grup, keluarga, visit, atur jadwal pelayanan).
 - **Mode gelap** — placeholder semua kolom isian kini terlihat; kartu "Belum ada petugas" tanpa border kuning.
 - **Profil** — ikon Data Diri abu-abu seragam dengan Pengaturan; ikon 🎉 di Spiritual Journey dihapus.
@@ -123,3 +124,5 @@ Els App 2.4.7:
 - [ ] Reservasi ibadah untuk diri sendiri + pasangan → detail ibadah & Reservasi Saya menampilkan 2 tiket (label Keluarga)
 - [ ] Undangan partner ke tanggungan tanpa akun → ditolak "belum punya akun Els App"
 - [ ] Form usaha: ketik nama baru → upload logo sebelum Simpan → ketikan tidak hilang
+- [ ] Android (navigasi 3 tombol): buka Tambah tamu, Reservasi, Ganti no HP, filter Local Market, pilih tanggal → tombol paling bawah terlihat di atas bilah navigasi
+- [ ] Android: Homecell → detail (belum anggota) → ketuk Pesan untuk pemimpin → kolom & tombol Minta bergabung terlihat di atas keyboard

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { nc, isDark } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export function DatePickerModal({
   value,
@@ -105,6 +106,7 @@ export function DatePickerModal({
               if (d) onChange(d);
             }}
           />
+          <SheetNavSpacer />
         </Pressable>
       </Pressable>
     </Modal>

@@ -70,6 +70,7 @@ import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { TamuKategoriPicker, type TamuKategori } from '@/components/tamu/TamuKategoriPicker';
 import { cekNama, cekUsia, cekTeks, pertamaGagal } from '@/utils/inputRules';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export default function GuestHomecellScreen() {
   const insets = useSafeAreaInsets();
@@ -590,6 +591,7 @@ function JoinSheet({
               </>
             ) : null}
           </ScrollView>
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
     </Modal>

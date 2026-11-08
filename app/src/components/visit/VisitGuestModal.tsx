@@ -20,6 +20,7 @@ import { ApiError } from '@/types/api';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { nc } from '@/theme/ThemeRoot';
 import { cekNama, cekTeks, pertamaGagal } from '@/utils/inputRules';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export function VisitGuestModal({
   visible,
@@ -137,6 +138,7 @@ export function VisitGuestModal({
             {err ? <Text className="text-xs text-red-600">{err}</Text> : null}
             <Button label={t('visit.guest_submit')} loading={mut.isPending} disabled={!can} onPress={() => mut.mutate()} fullWidth />
           </ScrollView>
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
     </Modal>

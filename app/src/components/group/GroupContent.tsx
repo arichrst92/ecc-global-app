@@ -46,6 +46,7 @@ import { groupRoot, homecellRoot } from '@/api/groupContent';
 import { ApiError } from '@/types/api';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 type Tab = 'announcements' | 'polls' | 'files';
 
@@ -218,6 +219,7 @@ function Sheet({ visible, title, onClose, children }: { visible: boolean; title:
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 12, paddingBottom: 8 }}>
             {children}
           </ScrollView>
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
     </Modal>

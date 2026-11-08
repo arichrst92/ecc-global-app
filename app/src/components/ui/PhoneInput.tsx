@@ -5,6 +5,7 @@ import { ChevronDown, X } from 'lucide-react-native';
 
 import { COUNTRIES, DEFAULT_COUNTRY, countryFromE164, type Country } from '@/utils/phone';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 type Props = {
   value: string;
@@ -146,6 +147,7 @@ export function PhoneInput({
               </Pressable>
             )}
           />
+          <SheetNavSpacer />
         </View>
       </Modal>
     </View>

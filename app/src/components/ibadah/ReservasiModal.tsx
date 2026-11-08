@@ -19,6 +19,7 @@ import { zoneTimeText } from '@/utils/time';
 import i18nInst from '@/i18n';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 const errMsg = (e: unknown, fallback: string) => (e instanceof Error && e.message ? e.message : fallback);
 
@@ -257,6 +258,7 @@ export function ReservasiModal({
               </View>
             </>
           )}
+          <SheetNavSpacer />
         </View>
       </View>
       <AddTamuModal

@@ -42,6 +42,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { cekTeks, pertamaGagal } from '@/utils/inputRules';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 type Sheet = { mode: 'add' } | { mode: 'edit'; item: Resolusi } | null;
 
@@ -355,6 +356,7 @@ function ResolusiSheet({
               </Pressable>
             ) : null}
           </ScrollView>
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
     </Modal>

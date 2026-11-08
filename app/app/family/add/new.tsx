@@ -27,6 +27,7 @@ import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { cekNama, cekTanggalLahir, pertamaGagal } from '@/utils/inputRules';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export default function FamilyAddNewScreen() {
   const { t } = useTranslation();
@@ -325,6 +326,7 @@ function DatePickerModal({
               if (d) onChange(d);
             }}
           />
+          <SheetNavSpacer />
         </Pressable>
       </Pressable>
     </Modal>

@@ -21,6 +21,7 @@ import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { cekNama, cekNominal, pertamaGagal } from '@/utils/inputRules';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 type Target =
   | { kind: 'event'; eventId: string; tipeBayar: 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS'; nominal?: string | number | null }
@@ -165,6 +166,7 @@ export function WalkInGuestModal({
             disabled={nama.trim().length < 2 || !e164}
             onPress={() => mut.mutate(quotaFull)}
           />
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
     </Modal>

@@ -39,6 +39,8 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 
 type OnlineFilter = 'all' | 'online' | 'offline';
 
@@ -291,6 +293,7 @@ function FilterModal({
       animationType="slide"
       onRequestClose={onClose}
     >
+      <KeyboardSafeView className="flex-1">
       <Pressable onPress={onClose} className="flex-1 bg-black/50 justify-end">
         <Pressable onPress={() => {}} className="bg-card rounded-t-3xl max-h-[85%]">
           {/* Header */}
@@ -420,8 +423,10 @@ function FilterModal({
               </Text>
             </Pressable>
           </View>
+          <SheetNavSpacer />
         </Pressable>
       </Pressable>
+      </KeyboardSafeView>
     </Modal>
   );
 }

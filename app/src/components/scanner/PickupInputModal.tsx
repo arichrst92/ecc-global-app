@@ -22,6 +22,7 @@ import { Baby, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export function PickupInputModal({
   visible,
@@ -127,6 +128,7 @@ export function PickupInputModal({
               size="lg"
             />
           </View>
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
     </Modal>

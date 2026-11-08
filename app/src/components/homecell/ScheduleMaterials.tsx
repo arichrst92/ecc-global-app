@@ -16,6 +16,7 @@ import { env } from '@/config/env';
 import type { HomecellScheduleFile } from '@/types/homecellSchedule';
 import type { PickedFile } from '@/api/homecellSchedule';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 const fileHref = (u: string) => (u.startsWith('http') ? u : `${env.apiBaseUrl}${u}`);
 const sizeLabel = (b: number | null) =>
@@ -172,6 +173,7 @@ export function UploadMaterialModal({
               onSubmit({ file, nama: nama.trim(), deskripsi: deskripsi.trim() || undefined });
             }}
           />
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
     </Modal>

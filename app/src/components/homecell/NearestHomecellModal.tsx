@@ -11,6 +11,7 @@ import { SegmenBadges, StatusBadge, jadwalLabel } from '@/components/homecell/Ho
 import type { HomecellNearestResponse } from '@/types/homecell';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 type Props = {
   visible: boolean;
@@ -124,6 +125,7 @@ export function NearestHomecellModal({ visible, data, joiningId, hasPending, onC
             </Text>
           ) : null}
         </ScrollView>
+        <SheetNavSpacer />
       </View>
     </Modal>
   );

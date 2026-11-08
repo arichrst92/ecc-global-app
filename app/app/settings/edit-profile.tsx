@@ -38,6 +38,7 @@ import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -695,6 +696,7 @@ function DatePickerModal({
               if (d) onChange(d);
             }}
           />
+          <SheetNavSpacer />
         </Pressable>
       </Pressable>
     </Modal>

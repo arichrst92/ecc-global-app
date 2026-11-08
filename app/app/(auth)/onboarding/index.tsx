@@ -58,6 +58,7 @@ import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { cekNama, cekTanggalLahir, cekTeks } from '@/utils/inputRules';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -917,6 +918,7 @@ function DatePickerModal({
               if (d) onChange(d);
             }}
           />
+          <SheetNavSpacer />
         </Pressable>
       </Pressable>
     </Modal>

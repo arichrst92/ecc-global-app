@@ -14,6 +14,7 @@ import { Keyboard, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { nc } from '@/theme/ThemeRoot';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export function ManualInputModal({
   visible,
@@ -115,6 +116,7 @@ export function ManualInputModal({
               size="lg"
             />
           </View>
+          <SheetNavSpacer />
         </View>
       </KeyboardSafeView>
   );

@@ -62,6 +62,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export default function MinistryDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -778,6 +779,7 @@ export default function MinistryDetailScreen() {
                 ))
               )}
             </ScrollView>
+            <SheetNavSpacer />
           </View>
         </View>
       </Modal>
