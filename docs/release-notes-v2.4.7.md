@@ -3,68 +3,75 @@
 Versi sebelumnya: **2.4.6**. Build baru lewat EAS (bukan OTA). Tidak ada modul native baru (hanya tambahan Android app link `/local-market`).
 
 ## Isi rilis
-- **Akses Cepat** — ikon & label sedikit lebih besar (ikon 22→25, label 10→11,5 pt) dengan susunan grid yang sama.
-- **Banner "Sedang menjelajahi" cabang lain** (Beranda, Event, Ibadah) — gradient oranye dengan tulisan putih (sebelumnya kuning dengan label hitam); di Beranda tidak lagi tertutup jam / sinyal / baterai.
-- **Keluarkan anggota homecell dengan alasan** — ⋯ → Keluarkan dari homecell → popup konfirmasi dengan pilihan alasan wajib: *Salah invite member*, *Member sudah tidak aktif*, *Member berpindah homecell*, *Member berpindah kota*, atau *Alasan lain* (diketik). Alasan tampil di anggota nonaktif (app) & riwayat homecell di profil jemaat (Portal). Server kini hanya mengizinkan PIC homecell, PIC/pastor zona, atau admin mengeluarkan anggota.
-- **Keyboard tidak menutupi isian (Android)** — semua form & lembar isian kini naik di atas keyboard di Android (mode layar penuh): login/daftar, edit profil, doa, kritik & saran, resolusi, catatan & Bible 365, visit, tamu, keluarga, group, homecell (jadwal, materi, gabung sebagai tamu, alasan tolak), zona, usaha, hapus akun, scanner (kode manual & jemput), pengumuman/voting, ajukan Spiritual Journey, gabung & tinjau pelayanan, pendaftaran pelayanan, daftar event, dan ulasan di tiket. iOS tetap seperti sebelumnya.
-- **Ubah jadwal pertemuan homecell** — ikon pensil di detail pertemuan: ubah tanggal, jam, lokasi, catatan (form yang sama dengan Buat Jadwal), juga setelah absen tercatat. Untuk PIC homecell, PIC / pastor zona, dan asisten. Tanpa notifikasi ke anggota.
-- **Asisten homecell** — PIC homecell (atau PIC / pastor zona) menunjuk anggota aktif sebagai **asisten** lewat tombol ⋯ di daftar anggota (**Jadikan asisten / Lepas asisten**; jumlah tidak dibatasi). Asisten mendapat notifikasi, badge **Asisten**, dan tombol **Kelola** di halaman homecell untuk: **buat jadwal pertemuan, absen (scan / manual), catat tamu, pengumuman, voting, dan lampiran**. Asisten tidak bisa menambah/mengeluarkan anggota, menghapus jadwal, mengubah info homecell, laporan, atau memproses permintaan bergabung. Keluar dari homecell → status asisten lepas.
-- **Tambah keluarga harus disetujui** — menambah jemaat yang sudah punya akun (scan QR, input kode, Cari jemaat, no HP) kini mengirim **permintaan**; orangnya (atau **wali utamanya** bila ia tanggungan tanpa HP) menyetujui / menolak di menu **Keluarga** dan mendapat notifikasi. Pemohon melihat daftar **Menunggu persetujuan** (bisa dibatalkan) dan notifikasi hasilnya. "Daftarkan Baru" (balita / lansia tanpa HP) tetap langsung. Hasil Cari jemaat menandai orang yang permintaannya masih menunggu.
-- **Pencarian jemaat (input manual) layar penuh** — kolom cari di atas, keyboard tidak menutupi, hasil bisa digulir & diketuk sampai baris terakhir (tambah anggota homecell, kehadiran homecell, scanner ibadah/event, group, keluarga scan, visit, Cari jemaat di Keluarga, dan pilih petugas di Atur jadwal pelayanan).
-- **Spiritual Journey** — catatan pengajuan update tahap kini opsional.
-- **Lokasi homecell** — kolom lokasi (Edit homecell & Atur lokasi) menerima link Google Maps apa pun (tautan Bagikan, link tempat / alamat) atau koordinat; titik dicari otomatis oleh server. Keyboard tidak lagi menutupi kolom / tombol simpan.
-- **Group** — permintaan bergabung hanya tampil untuk PIC group.
-- **Daftar event (konfirmasi)** — ringkasan event menampilkan gambar event sesuai rasio aslinya (ikon 🎉 dihapus).
-- **Atur jadwal pelayanan (mode gelap)** — kartu "Belum ada petugas" tanpa border kuning.
-- **Detail event** — kartu "Tiket Saya" tanpa gambar & judul (sudah ada di atas), cukup peserta, QR, status, dan check-in; ukuran judul bagian, ikon, dan kartu "Tentang Event" diseragamkan dengan detail ibadah.
-- **Katalog Local Market** — pemilik usaha: Usaha Saya → bisnis → **Katalog produk & jasa**: tambah item (Produk / Jasa), nama, deskripsi, sampai 4 foto (dipotong 3:2, foto pertama jadi sampul), harga **Tetap / Mulai dari / By agreement** + **mata uang** (IDR, AUD, SGD, MYR, USD, EUR, NZD, HKD, TWD, CNY, JPY) + satuan, tampil/sembunyikan, urutan naik/turun. Jumlah item per bisnis dibatasi global dari Portal; item langsung tampil (admin Portal bisa menyembunyikan).
-- **Detail bisnis Local Market** — tombol **WhatsApp admin** & **Email**, grid katalog 2 kolom (filter Semua/Produk/Jasa). Detail item: galeri foto 3:2, harga, **Tanya via WhatsApp** (pesan otomatis berisi nama item, harga, dan link), Email, Bagikan link item (pratinjau WhatsApp memakai foto item).
-- **Form usaha** — kolom **Nomor WhatsApp admin** & **Email bisnis**; sosial media cukup isi **username** (Instagram, Facebook, TikTok, YouTube, X, LinkedIn, Threads — semua opsional). Kolom link "Chat WhatsApp" dihapus (digantikan WhatsApp admin); data sosmed lama otomatis terbaca sebagai username.
-- **Self check-in setelah ibadah selesai** — selama masa tenggang 30 menit, tampil hitung mundur **"Self check-in akan berakhir dalam mm:ss"** (Beranda, detail ibadah, dan tiket di Reservasi Saya); saat habis, tombol/geser self check-in langsung hilang.
-- **Local Market: ikon & tab** — detail usaha kini: ikon sosial media (lingkaran) & toko online Shopee/Lazada/TikTok Shop/Tokopedia (kotak) yang bisa diketuk — hanya yang ada datanya; tombol **WhatsApp** & Email; lalu tab **Katalog (n)** | **Info** (deskripsi, lokasi + **Buka di Google Maps**, website, company profile, pemilik). Detail item: baris **Beli juga di** berisi link produk di marketplace (link kosong tidak memakai link toko). Form usaha: kolom **Link Google Maps** & **Toko online** (4 link, dicek domainnya); form item: 4 link produk.
-- **Partner usaha (Local Market)** — di form usaha bagian **Pemilik & partner** → **Undang partner** (cari nama/no HP/kode jemaat). Orangnya mendapat notifikasi dan **Terima / Tolak** di Usaha Saya. Partner yang menerima punya hak sama dengan pemilik (ubah usaha, katalog, partner, hapus usaha); jumlah tidak dibatasi; partner bisa **Keluar sebagai partner**. Detail usaha (tab Info) menampilkan **Pemilik & partner**; Portal menampilkan partner di detail usaha.
-- **Jumlah kunjungan Local Market** — pemilik melihat "Dilihat N kali" di form usaha dan jumlah kunjungan per item di Katalog; Portal menampilkan kunjungan usaha & item. Dihitung dari app + web, pemilik sendiri tidak dihitung, satu pengunjung dihitung sekali per 30 menit, bot pratinjau link diabaikan.
-- **Catatan (tulis / pratinjau)** — kotak isi kini memanjang sampai toolbar di bawah dan ikut memanjang mengikuti isi (halaman yang digulir), tidak lagi terpotong.
-- **Upload foto usaha & katalog** — nama/tipe file diambil dari picker; di versi web foto dikirim sebagai file asli (sebelumnya gagal "File foto wajib (multipart)").
 
-## Syarat server
-Migrasi `20261115090000_family_link_request`, `20261116090000_homecell_asisten`, `20261117090000_homecell_member_alasan_keluar`, `20261118090000_local_market_katalog`, `20261119090000_local_market_view_count`, `20261120090000_local_market_marketplace`, `20261121090000_local_business_partner` + core-api & landing terbaru (katalog `/admin/me/businesses/:id/items…`, `/public/local-market/:id/item/:itemId`, halaman web `/local-market/:id/item/:itemId` dengan OG image) (`PATCH /admin/homecell/:id/schedule/:scheduleId`, `/admin/me/family/requests…`, link-by-* jadi permintaan, catatan SJ opsional, resolver link Google Maps tanpa koordinat, request join group/homecell hanya PIC di app).
-App 2.4.6 ke bawah: menambah keluarga berakun juga menjadi permintaan — app lama menampilkan pesan "Permintaan terkirim…"; persetujuan dilakukan dari app 2.4.7.
+### Local Market (usaha jemaat)
+- **Katalog produk & jasa** — Usaha Saya → usaha → **Katalog produk & jasa**: item Produk / Jasa, nama, deskripsi, sampai 4 foto (dipotong 3:2, foto pertama jadi sampul), harga **Tetap / Mulai dari / By agreement** + **mata uang** (IDR, AUD, SGD, MYR, USD, EUR, NZD, HKD, TWD, CNY, JPY) + satuan, tampil/sembunyikan, urutan naik/turun. Batas item per usaha diatur global di Portal; item langsung tampil (admin Portal bisa menyembunyikan).
+- **Detail usaha baru** — ikon sosial media (lingkaran) & toko online **Shopee / Lazada / TikTok Shop / Tokopedia** (kotak) yang bisa diketuk, hanya yang diisi; tombol **WhatsApp** & **Email**; tombol **Buka lokasi di Google Maps** (bila link diisi); lalu tab **Katalog (n)** | **Info** (deskripsi, lokasi, website, company profile, **Pemilik & partner**). Pernyataan: *"ECC hanya memfasilitasi bisnis jemaat dan tidak mengambil keuntungan dalam bentuk apa pun."*
+- **Detail item** — galeri foto 3:2, harga, **Beli juga di** (link produk di marketplace; link kosong tidak memakai link toko), **Tanya via WhatsApp** (pesan otomatis berisi nama item, harga, dan link), Email, Bagikan.
+- **Bagikan** — usaha & item bisa dibagikan (detail usaha, Usaha Saya, detail item); pratinjau WhatsApp memakai foto sampul / foto item; link terbuka di browser untuk yang belum punya app (dan langsung di app Android 2.4.7).
+- **Form usaha** — Nomor WhatsApp, Email, **Link Google Maps**, sosial media cukup **username** (Instagram, Facebook, TikTok, YouTube, X, LinkedIn, Threads), **Toko online** (4 link, dicek domainnya). Kolom "Chat WhatsApp" lama dihapus; sosmed lama otomatis terbaca sebagai username. Ketikan tidak hilang saat upload foto sebelum Simpan.
+- **Partner usaha** — bagian **Pemilik & partner** → **Undang partner** (cari nama/no HP/kode jemaat yang punya akun). Orangnya mendapat notifikasi dan **Terima / Tolak** di Usaha Saya (perlu app 2.4.7). Partner punya hak sama dengan pemilik (ubah usaha, katalog, partner, hapus usaha), jumlah tidak dibatasi, bisa **Keluar sebagai partner**; badge **Partner** di Usaha Saya.
+- **Jumlah kunjungan** — "Dilihat N kali" di form usaha & per item di Katalog (juga di Portal). Dihitung dari app + web; pemilik/partner tidak dihitung; satu pengunjung sekali per 30 menit; bot pratinjau link diabaikan.
+
+### Homecell
+- **Asisten homecell** — PIC (atau PIC / pastor zona) menunjuk anggota aktif sebagai **asisten** (⋯ → Jadikan / Lepas asisten; tanpa batas). Asisten mendapat notifikasi, badge **Asisten**, dan tombol **Kelola** untuk: buat & ubah jadwal, absen (scan / manual), catat tamu, pengumuman, voting, lampiran. Asisten tidak bisa menambah/mengeluarkan anggota, menghapus jadwal, mengubah info homecell, laporan, atau memproses permintaan bergabung.
+- **Ubah jadwal pertemuan** — ikon pensil di detail pertemuan (tanggal, jam, lokasi, catatan), juga setelah absen tercatat; untuk PIC, PIC / pastor zona, dan asisten; tanpa notifikasi ke anggota.
+- **Keluarkan anggota dengan alasan** — popup konfirmasi dengan alasan wajib (salah invite, tidak aktif, pindah homecell, pindah kota, atau ketik sendiri); alasan tampil di app & riwayat Portal. Hanya PIC homecell, PIC / pastor zona, atau admin. Anggota yang pernah dikeluarkan bisa dimasukkan kembali (juga di grup & pelayanan).
+- **Lokasi** — kolom lokasi menerima link Google Maps apa pun (tautan Bagikan, link tempat) atau koordinat.
+
+### Ibadah & event
+- **Self check-in setelah ibadah selesai** — selama 30 menit tenggang tampil **"Self check-in akan berakhir dalam mm:ss"** (Beranda, detail ibadah, tiket); saat habis, tombol/geser self check-in langsung hilang.
+- **Tiket keluarga** — reservasi ibadah untuk pasangan / orang tua / saudara kini tampil sebagai tiket di detail ibadah & Reservasi Saya (sebelumnya hanya anak, tanggungan, tamu). *(perbaikan server, berlaku juga untuk 2.4.6)*
+- **Detail event** — kartu Tiket Saya lebih ringkas; tipografi seragam dengan detail ibadah; konfirmasi pendaftaran menampilkan gambar event sesuai rasio aslinya; Tiket Saya & Reservasi langsung diperbarui setelah mendaftar.
+
+### Keluarga
+- **Persetujuan tambah keluarga (siap, belum aktif)** — fitur permintaan + setujui/tolak di menu Keluarga sudah ada di 2.4.7, tetapi **dimatikan sementara** di server: menambah keluarga tetap langsung terhubung seperti sebelumnya. Aktifkan nanti dengan `FAMILY_APPROVAL_ENABLED=true` (setelah sebagian besar pengguna memakai 2.4.7).
+
+### Kenyamanan & tampilan
+- **Keyboard tidak menutupi isian (Android)** di ±40 form & lembar isian.
+- **Cari jemaat (input manual) layar penuh** — hasil selalu bisa digulir & diketuk (homecell, kehadiran, scanner, grup, keluarga, visit, atur jadwal pelayanan).
+- **Mode gelap** — placeholder semua kolom isian kini terlihat; kartu "Belum ada petugas" tanpa border kuning.
+- **Profil** — ikon Data Diri abu-abu seragam dengan Pengaturan; ikon 🎉 di Spiritual Journey dihapus.
+- **Akses Cepat** — ikon & label sedikit lebih besar. **Banner "Sedang menjelajahi"** — gradient oranye, tulisan putih, tidak tertutup status bar.
+- **Catatan** — kotak isi memenuhi layar & memanjang mengikuti isi; versi web tidak lagi error saat mengedit.
+- **Spiritual Journey** — catatan pengajuan update tahap opsional. **Group** — permintaan bergabung hanya untuk PIC.
+
+## Syarat server (deploy SEBELUM app dirilis)
+- Migrasi: `20261115090000_family_link_request`, `20261116090000_homecell_asisten`, `20261117090000_homecell_member_alasan_keluar`, `20261118090000_local_market_katalog`, `20261119090000_local_market_view_count`, `20261120090000_local_market_marketplace`, `20261121090000_local_business_partner`.
+- core-api, Portal, dan landing terbaru (katalog, partner, kunjungan, marketplace, link Google Maps, tiket keluarga, web `/local-market/:id[/item/:itemId]` + OG image, whitelist Coming Soon untuk link share berita / renungan / Local Market).
+- `FAMILY_APPROVAL_ENABLED` **tidak** di-set (persetujuan keluarga mati).
 
 ## Google Play — "Yang baru"
 **id-ID**
 ```
 Els App 2.4.7:
-• Tambah keluarga kini perlu persetujuan orangnya
-• PIC homecell bisa menunjuk asisten
-• Setujui / tolak permintaan keluarga di menu Keluarga
-• Pencarian jemaat manual lebih mudah (keyboard tidak menutupi)
-• Katalog produk & jasa di Local Market + tanya via WhatsApp
-• Catatan pengajuan Spiritual Journey opsional
-• Perbaikan kecil
+• Local Market: katalog produk & jasa, tanya via WhatsApp, link Shopee/Lazada/TikTok Shop/Tokopedia, Google Maps, bagikan usaha
+• Partner usaha: kelola usaha bersama
+• Asisten homecell & ubah jadwal pertemuan
+• Hitung mundur self check-in setelah ibadah
+• Keyboard tidak lagi menutupi isian
+• Perbaikan mode gelap & lainnya
 ```
 **en-US**
 ```
 Els App 2.4.7:
-• Adding family now requires their approval
-• Homecell leaders can appoint assistants
-• Approve / decline family requests in the Family menu
-• Easier manual member search (keyboard no longer covers it)
-• Local Market product & service catalog + ask via WhatsApp
-• Spiritual Journey request notes are optional
-• Minor fixes
+• Local Market: product & service catalog, ask via WhatsApp, Shopee/Lazada/TikTok Shop/Tokopedia links, Google Maps, share businesses
+• Business partners: manage a business together
+• Homecell assistants & editable meeting schedules
+• Self check-in countdown after service
+• Keyboard no longer covers input fields
+• Dark mode fixes and more
 ```
 
 ## App Store — "What's New" (en)
 ```
 Els App 2.4.7:
-• Adding family now requires their approval
-• Homecell leaders can appoint assistants
-• Approve / decline family requests in the Family menu
-• Easier manual member search (keyboard no longer covers it)
-• Local Market product & service catalog + ask via WhatsApp
-• Spiritual Journey request notes are optional
-• Minor fixes
+• Local Market: product & service catalog with prices and currencies, ask via WhatsApp, marketplace links (Shopee, Lazada, TikTok Shop, Tokopedia), Google Maps, and share a business or item
+• Business partners: invite fellow members to manage your business together
+• Homecell: appoint assistants and edit meeting schedules
+• Self check-in countdown after the service ends
+• Keyboard no longer covers input fields
+• Dark mode and other fixes
 ```
 
 ## Smoke test
@@ -77,19 +84,20 @@ Els App 2.4.7:
 - [ ] Asisten → homecell (view) → Kelola → Buat jadwal, scan/absen manual, catat tamu, upload lampiran, buat pengumuman & voting berhasil
 - [ ] Asisten tidak melihat tombol tambah anggota, ⋯ anggota, Laporan/Ubah/Potensial member, hapus jadwal
 - [ ] Lepas asisten / anggota dikeluarkan → akses kelola hilang
-- [ ] A cari jemaat B → pilih hubungan → Tambahkan → toast "Permintaan terkirim…", B belum ada di Keluarga A; A melihat B di "Menunggu persetujuan"
+- [ ] (FAMILY_APPROVAL_ENABLED belum diset) A tambah keluarga B lewat Cari jemaat / scan / kode / no HP → langsung terhubung seperti 2.4.6, di app 2.4.6 maupun 2.4.7
+- [ ] *Setelah persetujuan diaktifkan:* A cari jemaat B → pilih hubungan → Tambahkan → toast "Permintaan terkirim…", B belum ada di Keluarga A; A melihat B di "Menunggu persetujuan"
 - [ ] B dapat notifikasi → Keluarga → kartu permintaan → Setujui → A & B saling terhubung (hubungan balik benar), A dapat notifikasi disetujui
 - [ ] Ulangi dengan Tolak → A dapat notifikasi ditolak; A Batalkan permintaan yang masih menunggu
 - [ ] A scan QR / input kode C yang tanggungan (tanpa HP) → permintaan masuk ke wali C
 - [ ] Wali menambahkan tanggungannya sendiri via kode → langsung terhubung
 - [ ] Cari jemaat → orang yang permintaannya menunggu ditandai "Menunggu persetujuan"
-- [ ] App 2.4.6 → tambah keluarga → muncul pesan "Permintaan terkirim…"
+- [ ] *Setelah persetujuan diaktifkan:* App 2.4.6 → tambah keluarga → muncul pesan "Permintaan terkirim…"
 - [ ] Daftarkan Baru (balita) → langsung masuk Keluarga
 - [ ] Tambah anggota homecell → input manual → keyboard tidak menutupi, hasil bisa diketuk (Android & iOS)
 - [ ] Spiritual Journey → ajukan update tanpa catatan → terkirim
 - [ ] Group: Fulltimer non-PIC tidak melihat permintaan bergabung
 - [ ] Portal → Local Market → Batas katalog = 3 → simpan
-- [ ] Pemilik → Usaha Saya → bisnis → isi WA admin (08…), email, username Instagram "@usahaku" → Simpan → detail publik: tombol WhatsApp admin & Email; Sosial Media → instagram.com/usahaku
+- [ ] Pemilik → Usaha Saya → bisnis → isi WA admin (08…), email, username Instagram "@usahaku" → Simpan → detail publik: tombol WhatsApp & Email; Sosial Media → instagram.com/usahaku
 - [ ] Katalog → Tambah item Produk, 2 foto (crop 3:2), harga Tetap IDR 150000 /porsi → tampil "Rp 150.000/porsi"; item Jasa harga By agreement; item USD Mulai dari 20 → "Mulai US$ 20"
 - [ ] Item ke-4 ditolak (batas 3); ubah urutan naik/turun; nonaktifkan item → hilang dari detail publik
 - [ ] Jemaat → detail bisnis → grid katalog & filter Produk/Jasa → detail item → Tanya via WhatsApp membuka chat dengan pesan + link; Email membuka aplikasi email
@@ -109,3 +117,9 @@ Els App 2.4.7:
 - [ ] B mengubah info, katalog, foto, dan mengundang C → berhasil; B Keluar sebagai partner → usaha hilang dari daftar B, pemilik dapat notifikasi
 - [ ] Tolak undangan → pemilik dapat notifikasi ditolak; batalkan undangan yang masih menunggu
 - [ ] Detail usaha (jemaat) → tab Info: Pemilik & partner; Portal → detail usaha: Partner
+- [ ] Detail usaha → ikon Bagikan (kanan atas) & Usaha Saya → ikon Bagikan → link /local-market/{id} terbuka di browser (tidak tertahan Coming Soon), pratinjau memakai foto sampul
+- [ ] Usaha dengan link Google Maps → tombol "Buka lokasi di Google Maps" tampil; tanpa link → tombol tidak ada
+- [ ] Mode gelap: placeholder kolom isian (form usaha, edit profil, hapus akun, cari Local Market) terlihat jelas
+- [ ] Reservasi ibadah untuk diri sendiri + pasangan → detail ibadah & Reservasi Saya menampilkan 2 tiket (label Keluarga)
+- [ ] Undangan partner ke tanggungan tanpa akun → ditolak "belum punya akun Els App"
+- [ ] Form usaha: ketik nama baru → upload logo sebelum Simpan → ketikan tidak hilang
