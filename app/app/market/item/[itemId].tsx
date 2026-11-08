@@ -19,8 +19,10 @@ import { BrandIconLink } from '@/components/market/BrandIcon';
 import { MARKET_ICONS } from '@/components/market/brandIcons';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 
 export default function MarketItemScreen() {
+  const hero = useHeroScroll();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
@@ -82,7 +84,7 @@ export default function MarketItemScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView onScroll={hero.onScroll} scrollEventThrottle={16} className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         <View>
           <ScrollView
             horizontal
@@ -107,7 +109,8 @@ export default function MarketItemScreen() {
               ))}
             </View>
           ) : null}
-          <SafeAreaView edges={['top']} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+          {/* Tombol di atas hero — jarak dari area aman atas (status bar / notch) dihitung pasti. */}
+          <View style={{ position: 'absolute', top: insets.top, left: 0, right: 0 }}>
             <View className="px-4 py-2 flex-row items-center justify-between">
               <Pressable
                 onPress={() => goBack(router)}
@@ -122,7 +125,7 @@ export default function MarketItemScreen() {
                 <Share2 size={18} color="#fff" />
               </Pressable>
             </View>
-          </SafeAreaView>
+          </View>
         </View>
 
         <View className="px-5 pt-4">
@@ -176,6 +179,7 @@ export default function MarketItemScreen() {
           <MarketDisclaimer className="mt-4" />
         </View>
       </ScrollView>
+      <HeroStatusBar scrolled={hero.scrolled} />
 
       {wa || mail ? (
         <View className="bg-card border-t border-neutral-100 px-5 pt-3" style={{ paddingBottom: insets.bottom + 12 }}>

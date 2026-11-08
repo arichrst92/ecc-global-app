@@ -42,8 +42,10 @@ import { BrandIconLink } from '@/components/market/BrandIcon';
 import { MARKET_ICONS, SOCIAL_ICONS } from '@/components/market/brandIcons';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 
 export default function LocalMarketDetailScreen() {
+  const hero = useHeroScroll();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
@@ -119,11 +121,12 @@ export default function LocalMarketDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}>
+      <ScrollView onScroll={hero.onScroll} scrollEventThrottle={16} className="flex-1" contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}>
         {/* Hero */}
         <View className="relative">
           <HeroImage url={biz.heroImageUrl} fallbackEmoji="🏪" emojiSize={56} className="w-full aspect-video" />
-          <SafeAreaView edges={['top']} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+          {/* Tombol di atas hero — jarak dari area aman atas (status bar / notch) dihitung pasti. */}
+          <View style={{ position: 'absolute', top: insets.top, left: 0, right: 0 }}>
             <View className="px-4 py-2 flex-row items-center justify-between">
               <Pressable onPress={() => goBack(router)} className="w-10 h-10 rounded-full bg-black/40 items-center justify-center">
                 <ArrowLeft size={20} color="#fff" />
@@ -142,7 +145,7 @@ export default function LocalMarketDetailScreen() {
                 <Share2 size={18} color="#fff" />
               </Pressable>
             </View>
-          </SafeAreaView>
+          </View>
           {biz.logoUrl ? (
             <View className="absolute -bottom-6 left-5 w-16 h-16 rounded-2xl bg-card border-4 border-white overflow-hidden">
               <Image
@@ -400,6 +403,7 @@ export default function LocalMarketDetailScreen() {
           <MarketDisclaimer className="mt-4" />
         </View>
       </ScrollView>
+      <HeroStatusBar scrolled={hero.scrolled} />
     </View>
   );
 }

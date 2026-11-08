@@ -32,8 +32,10 @@ import { nc } from '@/theme/ThemeRoot';
 import { ShareCardModal } from '@/features/share/ShareCardModal';
 import { ArticleShareCard, EventShareCard } from '@/features/share/cards';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 
 export default function EventDetailScreen() {
+  const hero = useHeroScroll();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const router = useRouter();
@@ -268,7 +270,7 @@ export default function EventDetailScreen() {
           )}
         />
       ) : null}
-      <ScrollView
+      <ScrollView onScroll={hero.onScroll} scrollEventThrottle={16}
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
         stickyHeaderIndices={[]}
@@ -543,6 +545,7 @@ export default function EventDetailScreen() {
           </>
         ) : null}
       </ScrollView>
+      <HeroStatusBar scrolled={hero.scrolled} />
 
       {/* Sticky bottom CTA — conditional based on participation status.
           Hidden untuk guest mode — event read-only, hanya teaser video

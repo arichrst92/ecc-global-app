@@ -63,8 +63,10 @@ import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 
 export default function MinistryDetailScreen() {
+  const hero = useHeroScroll();
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -281,7 +283,7 @@ export default function MinistryDetailScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <ScrollView
+      <ScrollView onScroll={hero.onScroll} scrollEventThrottle={16}
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={<PullRefreshControl onRefresh={() => query.refetch()} tintColor="#F97316" />}
@@ -719,6 +721,7 @@ export default function MinistryDetailScreen() {
         ) : null}
         </View>
       </ScrollView>
+      <HeroStatusBar scrolled={hero.scrolled} />
 
       {/* Join role picker modal — slide-up sheet, pattern konsisten dengan
           event detail modal (app/event/[id].tsx). */}

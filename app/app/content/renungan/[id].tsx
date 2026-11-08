@@ -17,8 +17,10 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { ShareCardModal } from '@/features/share/ShareCardModal';
 import { ArticleShareCard, EventShareCard } from '@/features/share/cards';
+import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 
 export default function RenunganDetailScreen() {
+  const hero = useHeroScroll();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const router = useRouter();
@@ -113,7 +115,7 @@ export default function RenunganDetailScreen() {
           )}
         />
       ) : null}
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView onScroll={hero.onScroll} scrollEventThrottle={16} className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Floating header */}
         <View className="absolute top-0 left-0 right-0 z-10" pointerEvents="box-none">
           <SafeAreaView edges={['top']}>
@@ -205,6 +207,7 @@ export default function RenunganDetailScreen() {
           </>
         ) : null}
       </ScrollView>
+      <HeroStatusBar scrolled={hero.scrolled} />
 
       {/* Bottom prev/next nav */}
       {item ? (

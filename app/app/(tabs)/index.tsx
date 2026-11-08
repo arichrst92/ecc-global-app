@@ -38,6 +38,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
 import { SELF_CHECKIN_GRACE_MS, isOccurrenceEnded } from '@/utils/time';
+import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -55,6 +56,7 @@ export default function HomeScreen() {
 }
 
 function HomeScreenAuthenticated() {
+  const hero = useHeroScroll();
   // Banner "Sedang menjelajahi" tampil (sama dengan syarat di ViewingBanner) → ia yang memberi jarak status bar.
   const vb = useViewingBranch();
   const bannerShown = !vb.isHome && !!vb.branch;
@@ -124,8 +126,7 @@ function HomeScreenAuthenticated() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <StatusBar style="light" />
-      <ScrollView
+      <ScrollView onScroll={hero.onScroll} scrollEventThrottle={16}
         className="flex-1"
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={refresh} tintColor="#F97316" />}
         contentContainerStyle={{ paddingBottom: 32 }}
@@ -377,6 +378,7 @@ function HomeScreenAuthenticated() {
           </Section>
         ) : null}
       </ScrollView>
+      <HeroStatusBar scrolled={hero.scrolled} />
 
       <BranchSwitcherSheet visible={switcherOpen} onClose={() => setSwitcherOpen(false)} />
     </View>
