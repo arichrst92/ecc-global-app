@@ -18,6 +18,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Share,
   Text,
   View,
 } from 'react-native';
@@ -34,6 +35,7 @@ import {
   ChevronRight,
   Eye,
   ShoppingBag,
+  Share2,
   UserPlus,
   FileText,
   Image as ImageIcon,
@@ -68,6 +70,7 @@ import { INDUSTRI_SUGGESTIONS } from '@/types/localBusiness';
 import {
   MARKETPLACES,
   SOCIAL_PLATFORMS,
+  businessShareUrl,
   cleanMarketplaceLinks,
   cleanSocialUsername,
   isMapsUrl,
@@ -397,6 +400,22 @@ export default function OwnerBusinessDetailScreen() {
           <Text className="text-base font-bold text-neutral-900 flex-1" numberOfLines={1}>
             {biz.nama}
           </Text>
+          {/* Bagikan usaha (link web + pratinjau foto sampul) — hanya bila usaha aktif */}
+          {biz.isActive ? (
+            <Pressable
+              onPress={() =>
+                Share.share({
+                  message: [biz.nama, [biz.industri, biz.owner.cabang?.nama].filter(Boolean).join(' · '), businessShareUrl(biz.id)]
+                    .filter(Boolean)
+                    .join('\n'),
+                }).catch(() => {})
+              }
+              accessibilityLabel={t('market.share')}
+              className="w-10 h-10 items-center justify-center"
+            >
+              <Share2 size={19} color={nc('#171717')} />
+            </Pressable>
+          ) : null}
         </View>
       </SafeAreaView>
 
