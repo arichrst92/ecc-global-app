@@ -213,6 +213,18 @@ export default function LocalMarketDetailScreen() {
             </View>
           ) : null}
 
+          {/* Buka lokasi di Google Maps — hanya bila link Maps diisi */}
+          {biz.mapsUrl ? (
+            <Pressable
+              onPress={() => openUrl(biz.mapsUrl!)}
+              accessibilityRole="link"
+              className="mb-4 -mt-2 bg-card border border-neutral-200 rounded-2xl py-3 flex-row items-center justify-center gap-2"
+            >
+              <MapIcon size={16} color="#EA580C" />
+              <Text className="text-sm font-bold text-neutral-800">{t('market.open_location')}</Text>
+            </Pressable>
+          ) : null}
+
           {/* Tab Katalog | Info */}
           {items.length > 0 ? (
             <View className="flex-row border-b border-neutral-200 mb-3">

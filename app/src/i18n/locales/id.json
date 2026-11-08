@@ -860,7 +860,8 @@
     "disclaimer": "ECC hanya memfasilitasi bisnis jemaat dan tidak mengambil keuntungan dalam bentuk apa pun.",
     "shop_section": "Toko online",
     "tab_info": "Info",
-    "open_maps": "Buka di Google Maps"
+    "open_maps": "Buka di Google Maps",
+    "open_location": "Buka lokasi di Google Maps"
   },
   "my_business": {
     "title": "Bisnis Saya",
