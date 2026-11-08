@@ -217,6 +217,7 @@ export function hargaLabel(
 }
 
 export const LANDING_BASE = 'https://eccchurch.global';
+export const businessShareUrl = (bizId: string) => `${LANDING_BASE}/local-market/${bizId}`;
 export const itemShareUrl = (bizId: string, itemId: string) => `${LANDING_BASE}/local-market/${bizId}/item/${itemId}`;
 export const waNumber = (n: string) => {
   const d = n.replace(/\D/g, '');

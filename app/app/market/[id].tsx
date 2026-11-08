@@ -5,7 +5,7 @@
  * tab Katalog | Info supaya halaman tidak memanjang. Ikon hanya untuk data yang ada.
  */
 import { useState } from 'react';
-import { ActivityIndicator, Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ import {
   Mail,
   MapPin,
   MessageCircle,
+  Share2,
   Wifi,
 } from 'lucide-react-native';
 
@@ -31,6 +32,7 @@ import { env } from '@/config/env';
 import {
   MARKETPLACES,
   SOCIAL_PLATFORMS,
+  businessShareUrl,
   hargaLabel,
   usernamesFromLinks,
   waNumber,
@@ -122,9 +124,22 @@ export default function LocalMarketDetailScreen() {
         <View className="relative">
           <HeroImage url={biz.heroImageUrl} fallbackEmoji="🏪" emojiSize={56} className="w-full aspect-video" />
           <SafeAreaView edges={['top']} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-            <View className="px-4 py-2 flex-row items-center">
+            <View className="px-4 py-2 flex-row items-center justify-between">
               <Pressable onPress={() => goBack(router)} className="w-10 h-10 rounded-full bg-black/40 items-center justify-center">
                 <ArrowLeft size={20} color="#fff" />
+              </Pressable>
+              <Pressable
+                onPress={() =>
+                  Share.share({
+                    message: [biz.nama, [biz.industri, biz.owner.cabang?.nama].filter(Boolean).join(' · '), businessShareUrl(biz.id)]
+                      .filter(Boolean)
+                      .join('\n'),
+                  }).catch(() => {})
+                }
+                accessibilityLabel={t('market.share')}
+                className="w-10 h-10 rounded-full bg-black/40 items-center justify-center"
+              >
+                <Share2 size={18} color="#fff" />
               </Pressable>
             </View>
           </SafeAreaView>
