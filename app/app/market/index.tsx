@@ -294,8 +294,9 @@ function FilterModal({
       onRequestClose={onClose}
     >
       <KeyboardSafeView className="flex-1">
-      <Pressable onPress={onClose} className="flex-1 bg-black/50 justify-end">
-        <Pressable onPress={() => {}} className="bg-card rounded-t-3xl max-h-[85%]">
+      <View className="flex-1 justify-end">
+<Pressable onPress={onClose} className="absolute inset-0 bg-black/50" />
+        <View className="bg-card rounded-t-3xl max-h-[85%]">
           {/* Header */}
           <View className="flex-row items-center justify-between p-5 pb-3 border-b border-neutral-100">
             <Text className="text-lg font-bold text-neutral-900 flex-1">
@@ -424,8 +425,8 @@ function FilterModal({
             </Pressable>
           </View>
           <SheetNavSpacer />
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
       </KeyboardSafeView>
     </Modal>
   );

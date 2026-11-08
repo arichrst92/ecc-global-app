@@ -7,6 +7,7 @@ Versi sebelumnya di toko: **2.4.6**. Rilis ini **menggabungkan 2.4.7 + 2.4.8** (
 ### Perbaikan 2.4.8 (setelah uji 2.4.7)
 - **Tombol bawah lembar tidak tertutup navigasi Android** — 31 lembar isian/pilihan (Tambah tamu, Reservasi, Tamu walk-in, Ganti no HP, Pilih tanggal, filter Local Market, materi homecell, scanner, dll.) memberi ruang setinggi bilah navigasi; HP bertombol fisik tidak mendapat celah tambahan.
 - **Isian tidak tertutup keyboard** — Pesan untuk pemimpin saat minta bergabung homecell (halaman otomatis bergulir ke kolom & tombol) dan kolom industri di filter Local Market.
+- **Detail hadiah CKids di HP lipat / layar lebar** — foto dibatasi tingginya dan isi lembar bisa digulir sampai tombol Tutup; lembar filter Local Market, mata uang katalog, dan pilih cabang memakai pola yang sama (gulir lebih andal di Android).
 - **Status bar di halaman ber-hero** — Beranda, detail usaha & item Local Market, detail event, berita, renungan, dan pelayanan: konten tidak lagi menabrak jam/sinyal/baterai saat digulir; tombol di atas foto Local Market selalu di bawah area aman atas.
 
 ### Local Market (usaha jemaat)
@@ -133,3 +134,4 @@ Els App 2.4.8:
 - [ ] Android (navigasi 3 tombol): buka Tambah tamu, Reservasi, Ganti no HP, filter Local Market, pilih tanggal → tombol paling bawah terlihat di atas bilah navigasi
 - [ ] Android: Homecell → detail (belum anggota) → ketuk Pesan untuk pemimpin → kolom & tombol Minta bergabung terlihat di atas keyboard
 - [ ] Detail usaha/item Local Market, detail event, berita, renungan, pelayanan, Beranda → gulir ke bawah → konten tidak bertumpuk dengan jam/sinyal/baterai (Android & iPhone ber-notch/Dynamic Island)
+- [ ] HP lipat (dibuka) / tablet: CKids → katalog hadiah → ketuk hadiah → foto tidak memenuhi lembar, isi bisa digulir sampai tombol Tutup; ketuk area gelap menutup lembar, ketuk isi lembar tidak menutup

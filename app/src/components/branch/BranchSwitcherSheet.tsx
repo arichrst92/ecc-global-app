@@ -44,9 +44,9 @@ export function BranchSwitcherSheet({ visible, onClose }: Props) {
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable onPress={onClose} className="flex-1 bg-black/50 justify-end">
-        <Pressable
-          onPress={() => {}}
+      <View className="flex-1 justify-end">
+<Pressable onPress={onClose} className="absolute inset-0 bg-black/50" />
+        <View
           className="bg-card rounded-t-3xl"
           // minHeight supaya sheet tidak collapse ke title saja di iOS,
           // maxHeight 85% biar gak full-screen nutupin status bar
@@ -116,8 +116,8 @@ export function BranchSwitcherSheet({ visible, onClose }: Props) {
               </View>
             </ScrollView>
           </SafeAreaView>
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }

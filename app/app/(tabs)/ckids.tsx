@@ -23,6 +23,7 @@ import {
   ScrollView,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { formatInstantDate } from '@/utils/time';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -656,6 +657,10 @@ function HadiahDetailModal({
   onClose: () => void;
 }) {
   const { t } = useTranslation();
+  // Foto dibatasi tingginya supaya di layar lebar (HP fold dibuka, tablet) foto
+  // persegi tidak memenuhi seluruh lembar.
+  const { width: winW, height: winH } = useWindowDimensions();
+  const fotoH = Math.min(winW - 40, winH * 0.38, 320);
   if (!item) return null;
   const canAfford = currentBalance >= item.pointCost;
   const inStock = item.stock > 0;
@@ -663,12 +668,9 @@ function HadiahDetailModal({
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable
-        onPress={onClose}
-        className="flex-1 bg-black/60 justify-end"
-      >
-        <Pressable
-          onPress={() => {}}
+      <View className="flex-1 justify-end">
+<Pressable onPress={onClose} className="absolute inset-0 bg-black/60" />
+        <View
           className="bg-card rounded-t-3xl"
           style={{ maxHeight: '85%' }}
         >
@@ -676,9 +678,9 @@ function HadiahDetailModal({
             <View className="w-10 h-1 bg-neutral-300 rounded-full" />
           </View>
 
-          <ScrollView className="px-5 pb-6" showsVerticalScrollIndicator={false}>
+          <ScrollView className="px-5" contentContainerStyle={{ paddingBottom: 24 }} style={{ flexShrink: 1 }} showsVerticalScrollIndicator={false}>
             {/* Foto besar */}
-            <View className="aspect-square rounded-2xl bg-neutral-100 items-center justify-center overflow-hidden mb-4">
+            <View className="rounded-2xl bg-neutral-100 items-center justify-center overflow-hidden mb-4" style={{ width: '100%', height: fotoH }}>
               {item.fotoUrl ? (
                 <Image
                   source={{
@@ -789,8 +791,8 @@ function HadiahDetailModal({
             </Pressable>
           </ScrollView>
           <SheetNavSpacer />
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }

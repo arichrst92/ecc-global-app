@@ -404,8 +404,9 @@ export default function KatalogItemFormScreen() {
 
       {/* Pilih mata uang */}
       <Modal visible={curOpen} transparent animationType="slide" onRequestClose={() => setCurOpen(false)}>
-        <Pressable onPress={() => setCurOpen(false)} className="flex-1 bg-black/50 justify-end">
-          <Pressable onPress={() => {}} className="bg-card rounded-t-3xl pt-4 pb-8">
+        <View className="flex-1 justify-end">
+<Pressable onPress={() => setCurOpen(false)} className="absolute inset-0 bg-black/50" />
+          <View className="bg-card rounded-t-3xl pt-4 pb-8">
             <Text className="text-base font-bold text-neutral-900 px-5 mb-2">{t('katalog.currency_title')}</Text>
             <ScrollView style={{ maxHeight: 420 }}>
               {LOCAL_CURRENCIES.map((c) => (
@@ -424,8 +425,8 @@ export default function KatalogItemFormScreen() {
               ))}
             </ScrollView>
             <SheetNavSpacer />
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </Modal>
     </View>
   );
