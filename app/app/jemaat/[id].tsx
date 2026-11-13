@@ -45,6 +45,7 @@ import { goBack } from '@/utils/nav';
 import { parseLocalDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { dateLocale, hariLabel } from '@/utils/hari';
 
 type CacheFallback = {
   source: 'family' | 'homecell';
@@ -242,7 +243,7 @@ function FullProfile({
     ? [
         profile.pernikahan.statusPernikahan,
         profile.pernikahan.tanggalPernikahan
-          ? parseLocalDate(profile.pernikahan.tanggalPernikahan).toLocaleDateString('id-ID', {
+          ? parseLocalDate(profile.pernikahan.tanggalPernikahan).toLocaleDateString(dateLocale(), {
               day: 'numeric',
               month: 'long',
               year: 'numeric',
@@ -413,7 +414,7 @@ function FullProfile({
                 <View className="flex-row items-center gap-2">
                   <Calendar size={14} color="#7C3AED" />
                   <Text className="text-xs text-neutral-700">
-                    {[hc.hari ? titleCase(hc.hari) : null, hc.jam].filter(Boolean).join(' · ')}
+                    {[hc.hari ? hariLabel(hc.hari) : null, hc.jam].filter(Boolean).join(' · ')}
                   </Text>
                 </View>
               ) : null}
@@ -646,10 +647,6 @@ function formatBirthMonthDay(mmdd: string): string {
   const [mm, dd] = mmdd.split('-').map((s) => parseInt(s, 10));
   if (!mm || !dd) return mmdd;
   const tmp = new Date(2000, mm - 1, dd);
-  return tmp.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
+  return tmp.toLocaleDateString(dateLocale(), { day: 'numeric', month: 'long' });
 }
 
-/** "MINGGU" → "Minggu" */
-function titleCase(v: string): string {
-  return v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
-}

@@ -45,6 +45,7 @@ import { HomecellTamuSection } from '@/components/homecell/HomecellTamuSection';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { listHomecellTamu } from '@/api/tamu';
 import { setHomecellAsisten } from '@/api/homecell';
+import { dateLocale, hariLabel } from '@/utils/hari';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -312,7 +313,7 @@ export default function HomecellDetailScreen() {
             <View className="flex-row items-center gap-2 pt-3 border-t border-neutral-100">
               <Clock size={14} color={nc('#737373')} />
               <Text className="text-sm text-neutral-700">
-                {homecell.hari}
+                {hariLabel(homecell.hari)}
                 {homecell.jam ? ` · ${homecell.jam}` : ''}
               </Text>
             </View>
@@ -716,7 +717,7 @@ function MemberRow({
           <Text className="text-[10px] text-red-600 mt-0.5 font-semibold">
             {t('homecell.member_inactive')}
             {member.tanggalKeluar
-              ? ` · ${parseLocalDate(member.tanggalKeluar).toLocaleDateString('id-ID')}`
+              ? ` · ${parseLocalDate(member.tanggalKeluar).toLocaleDateString(dateLocale())}`
               : ''}
             {member.alasanKeluar ? ` · ${member.alasanKeluar}` : ''}
           </Text>

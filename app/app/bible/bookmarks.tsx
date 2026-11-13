@@ -9,6 +9,7 @@ import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
 import { bookName } from '@/utils/bibleNames';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { dateLocale } from '@/utils/hari';
 
 export default function BibleBookmarksScreen() {
   const insets = useSafeAreaInsets();
@@ -81,7 +82,7 @@ export default function BibleBookmarksScreen() {
                         </Text>
                       ) : null}
                       <Text className="text-[10px] text-neutral-400 mt-1">
-                        {new Date(b.createdAt).toLocaleDateString('id-ID')}
+                        {new Date(b.createdAt).toLocaleDateString(dateLocale())}
                       </Text>
                     </Pressable>
                     <Pressable

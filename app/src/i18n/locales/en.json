@@ -20,7 +20,14 @@
     "account_number": "Account Number",
     "share_signature": "— ELS Global App",
     "refresh": "Refresh",
-    "edit": "Edit"
+    "edit": "Edit",
+    "day_MINGGU": "Sunday",
+    "day_SENIN": "Monday",
+    "day_SELASA": "Tuesday",
+    "day_RABU": "Wednesday",
+    "day_KAMIS": "Thursday",
+    "day_JUMAT": "Friday",
+    "day_SABTU": "Saturday"
   },
   "nav": {
     "home": "Home",
@@ -1255,7 +1262,8 @@
     "remove_member_btn": "Remove from homecell",
     "peran_pic": "PIC",
     "peran_zone_leader": "Zone Leader",
-    "peran_pastor": "Pastor"
+    "peran_pastor": "Pastor",
+    "schedule_no_attendance": "No one has checked in yet"
   },
   "jemaat": {
     "detail_title": "Member Profile",
@@ -2396,7 +2404,8 @@
     "vokal": "Vocal",
     "cover": "Cover",
     "lyrics": "Lyrics",
-    "queue": "Queue"
+    "queue": "Queue",
+    "play_error": "This song can't be played. Check your internet connection."
   },
   "tiket": {
     "swipe": "Swipe to check in",

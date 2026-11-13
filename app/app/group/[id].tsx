@@ -66,6 +66,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { hariLabel } from '@/utils/hari';
 
 export default function GroupDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -309,7 +310,7 @@ export default function GroupDetailScreen() {
             <View className="flex-row items-center gap-3">
               <Calendar size={16} color={nc('#737373')} />
               <Text className="text-sm text-neutral-700 flex-1">
-                {[group.hari, group.jam].filter(Boolean).join(' · ')}
+                {[hariLabel(group.hari), group.jam].filter(Boolean).join(' · ')}
               </Text>
             </View>
           ) : null}

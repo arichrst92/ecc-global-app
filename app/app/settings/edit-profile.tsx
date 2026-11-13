@@ -39,6 +39,7 @@ import { parseLocalDate, toIsoDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { dateLocale } from '@/utils/hari';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -438,7 +439,7 @@ export default function EditProfileScreen() {
               <Text
                 className={`text-base ${dob ? 'text-neutral-900' : 'text-neutral-400'}`}
               >
-                {dob ? dob.toLocaleDateString('id-ID', {
+                {dob ? dob.toLocaleDateString(dateLocale(), {
                   day: '2-digit',
                   month: 'long',
                   year: 'numeric',
@@ -493,7 +494,7 @@ export default function EditProfileScreen() {
                   >
                     <Text className={`text-base ${tglNikah ? 'text-neutral-900' : 'text-neutral-400'}`}>
                       {tglNikah
-                        ? tglNikah.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+                        ? tglNikah.toLocaleDateString(dateLocale(), { day: '2-digit', month: 'long', year: 'numeric' })
                         : t('edit_profile.marriage_date_placeholder')}
                     </Text>
                     <CalendarIcon size={18} color={nc('#737373')} />

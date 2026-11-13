@@ -36,6 +36,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { cekHuruf, cekTeks, pertamaGagal } from '@/utils/inputRules';
+import { hariOptions } from '@/utils/hari';
 
 const JENIS_OPTIONS: GroupJenis[] = [
   'FAMILY',
@@ -45,16 +46,6 @@ const JENIS_OPTIONS: GroupJenis[] = [
   'LAINNYA',
 ];
 
-const HARI_OPTIONS = [
-  { value: '', label: '—' },
-  { value: 'MINGGU', label: 'Minggu' },
-  { value: 'SENIN', label: 'Senin' },
-  { value: 'SELASA', label: 'Selasa' },
-  { value: 'RABU', label: 'Rabu' },
-  { value: 'KAMIS', label: 'Kamis' },
-  { value: 'JUMAT', label: 'Jumat' },
-  { value: 'SABTU', label: 'Sabtu' },
-];
 
 type FieldErrors = Partial<{
   nama: string;
@@ -242,7 +233,7 @@ export default function CreateGroupScreen() {
                   label={t('group.field_hari')}
                   placeholder="—"
                   value={hari}
-                  options={HARI_OPTIONS}
+                  options={hariOptions()}
                   onChange={setHari}
                   modalTitle={t('group.field_hari')}
                 />

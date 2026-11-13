@@ -39,6 +39,7 @@ import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
 import { SELF_CHECKIN_GRACE_MS, isOccurrenceEnded } from '@/utils/time';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
+import { rupiahShort } from '@/utils/hari';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -263,7 +264,7 @@ function HomeScreenAuthenticated() {
                   ? t('event.free')
                   : isBebas
                     ? lang === 'id' ? 'Persembahan' : 'Donation'
-                    : `Rp ${(Number(e.nominal) / 1000).toLocaleString('id-ID')}rb`;
+                    : rupiahShort(Number(e.nominal));
                 const priceColorClass = isFree
                   ? 'text-emerald-600'
                   : isBebas

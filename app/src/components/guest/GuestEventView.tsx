@@ -24,13 +24,13 @@ import { formatDate } from '@/utils/date';
 import type { PublicEventItem } from '@/types/publicGuest';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { rupiahShort } from '@/utils/hari';
 
 function priceLabel(e: PublicEventItem, t: (k: string) => string, lang: string): string {
   if (e.tipeBayar === 'GRATIS') return t('event.free');
   if (e.tipeBayar === 'NOMINAL_BEBAS') return lang === 'id' ? 'Persembahan' : 'Donation';
   const num = Number(e.nominal ?? 0);
-  if (num >= 1000) return `Rp ${(num / 1000).toLocaleString('id-ID')}rb`;
-  return `Rp ${num.toLocaleString('id-ID')}`;
+  return rupiahShort(num);
 }
 
 /**

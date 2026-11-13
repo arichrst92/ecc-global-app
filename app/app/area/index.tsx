@@ -33,6 +33,7 @@ import { ATTENDANCE_TIERS, attendanceTier } from '@/utils/homecellSegmen';
 import { SegmenBadges } from '@/components/homecell/HomecellListCard';
 import { ReportSheet } from '@/components/homecell/ReportSheet';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { hariLabel } from '@/utils/hari';
 
 /**
  * Zona — daftar zona yang user-nya PIC atau pastor (pastor bisa punya
@@ -415,7 +416,7 @@ function HomecellRow({
             <View className="flex-row items-center gap-1">
               <Clock size={11} color={nc('#A3A3A3')} />
               <Text className="text-xs text-neutral-500">
-                {homecell.hari}
+                {hariLabel(homecell.hari)}
                 {homecell.jam ? ` · ${homecell.jam}` : ''}
               </Text>
             </View>

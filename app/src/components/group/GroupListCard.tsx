@@ -13,6 +13,7 @@ import { GROUP_JENIS_LABELS, type GroupJenis } from '@/types/group';
 import { formatDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { hariLabel } from '@/utils/hari';
 
 export type GroupListCardData = {
   nama: string;
@@ -43,7 +44,7 @@ export function GroupListCard({
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'en' ? 'en' : 'id';
   const jenisInfo = GROUP_JENIS_LABELS[group.jenis];
-  const jadwal = [group.hari, group.jam].filter(Boolean).join(' · ');
+  const jadwal = [hariLabel(group.hari), group.jam].filter(Boolean).join(' · ');
 
   return (
     <Pressable onPress={onPress} className="bg-card rounded-2xl border border-neutral-100 overflow-hidden active:opacity-90">

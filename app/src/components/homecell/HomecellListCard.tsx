@@ -7,11 +7,11 @@ import { ChevronRight, Clock, MapPin, Navigation, User, Users } from 'lucide-rea
 import type { HomecellListItem } from '@/types/homecell';
 import { nc } from '@/theme/ThemeRoot';
 import { homecellKategoriLabel, homecellUsiaLabel } from '@/utils/homecellSegmen';
+import { hariLabel as hariDay } from '@/utils/hari';
 
 /** "SENIN" → "Senin" */
 export function hariLabel(hari: string | null): string | null {
-  if (!hari) return null;
-  return hari.charAt(0) + hari.slice(1).toLowerCase();
+  return hari ? hariDay(hari) : null;
 }
 
 export function jadwalLabel(h: { hari: string | null; jam: string | null }): string | null {

@@ -401,7 +401,7 @@ export default function ScheduleDetailScreen() {
           <View className="bg-card rounded-2xl p-5 border border-dashed border-neutral-300 items-center mb-5">
             <CheckCircle2 size={24} color={nc('#A3A3A3')} />
             <Text className="text-sm text-neutral-500 text-center mt-2">
-              Belum ada yang hadir
+              {t('homecell.schedule_no_attendance')}
             </Text>
           </View>
         ) : (

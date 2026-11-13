@@ -14,6 +14,7 @@ import { create } from 'zustand';
 import { getWorshipPlayUrl, reportWorshipPlayed, type WorshipMode, type WorshipTrack } from '@/api/worship';
 import { localUriOf } from '@/lib/worshipDownloads';
 import { addBreadcrumb, reportError } from '@/services/errorReporting';
+import i18n from '@/i18n';
 
 const PLAY_COUNT_AFTER_SEC = 30;
 
@@ -173,7 +174,7 @@ export const useWorshipPlayer = create<State>((set, get) => {
       if (autoplay) p.play();
       set({ loading: false });
     } catch (e) {
-      set({ loading: false, error: 'Lagu tidak bisa diputar. Periksa koneksi internet.' });
+      set({ loading: false, error: i18n.t('worship.play_error') });
       // Masuk ke Diagnostics portal (kecuali error jaringan yang sudah dicatat api client).
       reportError(e, { source: 'worship-player', songId: track.id, mode, offline: !!localUriOf(track.id, mode) });
     }

@@ -64,6 +64,7 @@ import { nc, isDark } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
+import { dateLocale } from '@/utils/hari';
 
 export default function MinistryDetailScreen() {
   const hero = useHeroScroll();
@@ -713,7 +714,7 @@ export default function MinistryDetailScreen() {
                 <CheckCircle2 size={20} color={w.fg} />
                 <Text className="text-xs flex-1" style={{ color: w.fg }}>
                   {ministry.myMembership.posisi || '—'} · {t('ministry.since_label')}{' '}
-                  {parseLocalDate(ministry.myMembership.sinceDate).toLocaleDateString('id-ID')}
+                  {parseLocalDate(ministry.myMembership.sinceDate).toLocaleDateString(dateLocale())}
                 </Text>
               </View>
             ) : null}

@@ -26,6 +26,7 @@ import type { EventListItem, TipeBayar } from '@/types/event';
 import { formatScheduleWithZone, ymdInTz } from '@/utils/time';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { rupiahShort } from '@/utils/hari';
 
 type Filter = 'all' | 'GRATIS' | 'PAID';
 
@@ -34,8 +35,7 @@ function priceLabel(e: EventListItem, t: (k: string) => string, lang: string): s
   if (e.tipeBayar === 'NOMINAL_BEBAS') return lang === 'id' ? 'Persembahan' : 'Donation';
   // NOMINAL_TETAP — format Rp Nrb
   const num = Number(e.nominal);
-  if (num >= 1000) return `Rp ${(num / 1000).toLocaleString('id-ID')}rb`;
-  return `Rp ${num.toLocaleString('id-ID')}`;
+  return rupiahShort(num);
 }
 
 function heroEmoji(_e: EventListItem): string {

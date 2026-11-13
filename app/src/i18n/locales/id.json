@@ -20,7 +20,14 @@
     "account_number": "Nomor Rekening",
     "share_signature": "— ELS Global App",
     "refresh": "Muat ulang",
-    "edit": "Ubah"
+    "edit": "Ubah",
+    "day_MINGGU": "Minggu",
+    "day_SENIN": "Senin",
+    "day_SELASA": "Selasa",
+    "day_RABU": "Rabu",
+    "day_KAMIS": "Kamis",
+    "day_JUMAT": "Jumat",
+    "day_SABTU": "Sabtu"
   },
   "nav": {
     "home": "Beranda",
@@ -1255,7 +1262,8 @@
     "remove_member_btn": "Keluarkan dari homecell",
     "peran_pic": "PIC",
     "peran_zone_leader": "Zone Leader",
-    "peran_pastor": "Pastor"
+    "peran_pastor": "Pastor",
+    "schedule_no_attendance": "Belum ada yang hadir"
   },
   "jemaat": {
     "detail_title": "Profil Jemaat",
@@ -2393,7 +2401,8 @@
     "vokal": "Vokal",
     "cover": "Cover",
     "lyrics": "Lirik",
-    "queue": "Antrian"
+    "queue": "Antrian",
+    "play_error": "Lagu tidak bisa diputar. Periksa koneksi internet."
   },
   "tiket": {
     "swipe": "Geser untuk check-in",

@@ -44,6 +44,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
 import { isOccurrenceEnded } from '@/utils/time';
+import { hariLabel } from '@/utils/hari';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -236,7 +237,7 @@ export default function IbadahDetailScreen() {
                 icon={<Calendar size={18} color="#EA580C" />}
                 label={t('ibadah.schedule')}
                 value={(() => {
-                  const day = ibadah.hari ? ibadah.hari.charAt(0) + ibadah.hari.slice(1).toLowerCase() : '';
+                  const day = hariLabel(ibadah.hari);
                   if (ibadah.tipeJadwal === 'WEEKLY' && day) return t('ibadah.every_day', { day });
                   if (ibadah.tipeJadwal === 'BIWEEKLY' && day) return t('ibadah.every_other_day', { day });
                   if (ibadah.tipeJadwal === 'MONTHLY' && day && ibadah.mingguKe)
