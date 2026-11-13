@@ -59,11 +59,22 @@ import { ApiError } from '@/types/api';
 import { useAuthStore } from '@/stores/auth.store';
 import { useHomecellDetail } from '@/hooks/useHomecell';
 import { formatDateWithDay } from '@/utils/date';
-import type { HomecellAttendance } from '@/types/homecellSchedule';
+import type { HomecellAttendance, HomecellPeran } from '@/types/homecellSchedule';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { jamRange } from '@/utils/jamRange';
+
+/** Label pemimpin (PIC / Zone Leader / Pastor) di samping nama. */
+function PeranChip({ peran }: { peran?: HomecellPeran | null }) {
+  const { t } = useTranslation();
+  if (!peran) return null;
+  return (
+    <View className="bg-brand-50 border border-brand-200 rounded-full px-2 py-0.5">
+      <Text className="text-[10px] font-bold text-brand-700">{t(`homecell.peran_${peran.toLowerCase()}`)}</Text>
+    </View>
+  );
+}
 
 export default function ScheduleDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -407,9 +418,12 @@ export default function ScheduleDetailScreen() {
                   size={40}
                 />
                 <View className="flex-1 min-w-0">
-                  <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
-                    {a.jemaat.namaLengkap}
-                  </Text>
+                  <View className="flex-row items-center gap-1.5">
+                    <Text className="text-sm font-semibold text-neutral-900 shrink" numberOfLines={1}>
+                      {a.jemaat.namaLengkap}
+                    </Text>
+                    <PeranChip peran={a.peran} />
+                  </View>
                   <Text className="text-xs text-neutral-500 mt-0.5">
                     {new Date(a.scannedAt).toLocaleTimeString(lang === 'id' ? 'id-ID' : 'en-US', {
                       hour: '2-digit',
@@ -443,9 +457,12 @@ export default function ScheduleDetailScreen() {
                     <UserX size={18} color={nc('#A3A3A3')} />
                   </View>
                   <View className="flex-1 min-w-0">
-                    <Text className="text-sm font-medium text-neutral-700" numberOfLines={1}>
-                      {m.namaLengkap}
-                    </Text>
+                    <View className="flex-row items-center gap-1.5">
+                      <Text className="text-sm font-medium text-neutral-700 shrink" numberOfLines={1}>
+                        {m.namaLengkap}
+                      </Text>
+                      <PeranChip peran={m.peran} />
+                    </View>
                     <Text className="text-xs text-neutral-400 mt-0.5">{m.kode ?? '—'}</Text>
                   </View>
                 </View>
@@ -618,12 +635,15 @@ export default function ScheduleDetailScreen() {
                           <Square size={22} color={nc('#A3A3A3')} />
                         )}
                         <View className="flex-1 min-w-0">
-                          <Text
-                            className="text-sm font-semibold text-neutral-900"
-                            numberOfLines={1}
-                          >
-                            {m.namaLengkap}
-                          </Text>
+                          <View className="flex-row items-center gap-1.5">
+                            <Text
+                              className="text-sm font-semibold text-neutral-900 shrink"
+                              numberOfLines={1}
+                            >
+                              {m.namaLengkap}
+                            </Text>
+                            <PeranChip peran={m.peran} />
+                          </View>
                           <Text className="text-xs text-neutral-400 mt-0.5">{m.kode ?? '—'}</Text>
                         </View>
                       </Pressable>

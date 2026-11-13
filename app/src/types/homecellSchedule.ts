@@ -46,7 +46,12 @@ export type HomecellAttendance = {
   scannedBy: string;
   scanner: { namaLengkap: string };
   source: 'QR_SCAN' | 'MANUAL';
+  /** Pemimpin yang diabsen (bukan anggota biasa). Null = anggota. */
+  peran?: HomecellPeran | null;
 };
+
+/** PIC homecell, Zone Leader, atau Pastor zona — bisa diabsen walau bukan anggota. */
+export type HomecellPeran = 'PIC' | 'ZONE_LEADER' | 'PASTOR';
 
 /** File materi pertemuan (PDF/gambar/dokumen) — diupload PIC/admin. */
 export type HomecellScheduleFile = {
@@ -70,6 +75,7 @@ export type HomecellScheduleDetail = HomecellSchedule & {
     namaLengkap: string;
     /** Bisa null — jemaat lama yang belum punya kode. */
     kode: string | null;
+    peran?: HomecellPeran | null;
   }>;
   tamuAttendances?: HomecellTamuAttendance[];
   /** Tamu homecell yang belum ditandai hadir di pertemuan ini. */

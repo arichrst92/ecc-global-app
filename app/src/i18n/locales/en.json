@@ -1252,7 +1252,10 @@
     "remove_reason_pindah_kota": "Member moved to another city",
     "remove_reason_lain": "Other reason",
     "remove_reason_lain_ph": "Type the reason…",
-    "remove_member_btn": "Remove from homecell"
+    "remove_member_btn": "Remove from homecell",
+    "peran_pic": "PIC",
+    "peran_zone_leader": "Zone Leader",
+    "peran_pastor": "Pastor"
   },
   "jemaat": {
     "detail_title": "Member Profile",

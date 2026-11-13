@@ -1252,7 +1252,10 @@
     "remove_reason_pindah_kota": "Member berpindah kota",
     "remove_reason_lain": "Alasan lain",
     "remove_reason_lain_ph": "Ketik alasannya…",
-    "remove_member_btn": "Keluarkan dari homecell"
+    "remove_member_btn": "Keluarkan dari homecell",
+    "peran_pic": "PIC",
+    "peran_zone_leader": "Zone Leader",
+    "peran_pastor": "Pastor"
   },
   "jemaat": {
     "detail_title": "Profil Jemaat",
