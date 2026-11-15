@@ -28,6 +28,10 @@ type SignupState = {
   cabangId: string;
   /** Pilih sub-role Jemaat. '' = belum dipilih (form validation will catch). */
   jenisJemaat: JenisJemaat | '';
+  /** Email opsional (layar 1) — OTP cadangan + disimpan saat register. */
+  email: string;
+  /** OTP juga dikirim ke email (WhatsApp sedang antre). */
+  otpViaEmail: boolean;
 
   setNoHp: (v: string) => void;
   setOtpVerified: (validForSeconds: number) => void;
@@ -43,6 +47,8 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
   jenisKelamin: '',
   cabangId: '',
   jenisJemaat: '',
+  email: '',
+  otpViaEmail: false,
 };
 
 export const useSignupStore = create<SignupState>((set) => ({

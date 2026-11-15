@@ -15,6 +15,7 @@ import { ArrowLeft, UserPlus } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
+import { TextField } from '@/components/ui/TextField';
 import { Stepper } from '@/components/ui/Stepper';
 import { useToast } from '@/components/ui/Toast';
 import { requestOtp } from '@/api/auth';
@@ -30,20 +31,29 @@ export default function SignupPhoneScreen() {
   const showToast = useToast((s) => s.show);
   const reset = useSignupStore((s) => s.reset);
   const setNoHp = useSignupStore((s) => s.setNoHp);
+  const setField = useSignupStore((s) => s.setField);
 
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState(() => useSignupStore.getState().email);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: async (e164: string) => requestOtp({ noHp: e164, purpose: 'ENROLLMENT' }),
-    onSuccess: (_data, e164) => {
+    mutationFn: async (e164: string) =>
+      requestOtp({ noHp: e164, purpose: 'ENROLLMENT', email: email.trim() || undefined }),
+    onSuccess: (data, e164) => {
       setNoHp(e164);
-      showToast(t('auth.otp_sent'), 'success');
+      setField('email', email.trim());
+      const viaEmail = !!data?.channel?.includes('email');
+      setField('otpViaEmail', viaEmail);
+      showToast(viaEmail ? t('auth.otp_sent_email') : t('auth.otp_sent'), 'success');
       router.push('/(auth)/signup/otp');
     },
     onError: (err) => {
       if (err instanceof ApiError) {
-        if (err.code === 'CONFLICT') {
+        if (err.code === 'CONFLICT' && /email/i.test(err.message)) {
+          setEmailError(err.message);
+        } else if (err.code === 'CONFLICT') {
           setError(t('signup.error_already_registered'));
         } else if (err.code === 'TOO_MANY_REQUESTS') {
           setError(t('auth.error_rate_limited'));
@@ -58,9 +68,15 @@ export default function SignupPhoneScreen() {
 
   function submit() {
     setError(null);
+    setEmailError(null);
     const e164 = normalizePhone(phone);
     if (!e164) {
       setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
+      return;
+    }
+    const em = email.trim();
+    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) {
+      setEmailError(t('signup.email_invalid'));
       return;
     }
     mutation.mutate(e164);
@@ -110,6 +126,26 @@ export default function SignupPhoneScreen() {
             autoFocus
             editable={!mutation.isPending}
           />
+
+          <View className="mt-4">
+            <TextField
+              label={t('signup.email_label')}
+              placeholder={t('signup.email_placeholder')}
+              value={email}
+              onChangeText={(v) => {
+                setEmail(v);
+                setEmailError(null);
+              }}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
+              helper={!emailError ? t('signup.email_helper') : undefined}
+              error={emailError ?? undefined}
+              editable={!mutation.isPending}
+            />
+          </View>
         </ScrollView>
 
         <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">

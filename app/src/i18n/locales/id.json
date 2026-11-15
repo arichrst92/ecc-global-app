@@ -79,6 +79,7 @@
     "otp_verify": "Verifikasi",
     "otp_sent": "OTP terkirim ke WhatsApp Anda",
     "otp_resent": "OTP dikirim ulang",
+    "otp_sent_email": "OTP dikirim — cek juga email Anda",
     "otp_resent_email": "OTP dikirim ulang — cek juga email Anda",
     "otp_email_note": "Pengiriman OTP lewat WhatsApp sedang dalam antrean. Untuk mempercepat proses, kami kirimkan kode OTP Anda lewat email.",
     "login_success": "Berhasil masuk",
@@ -236,7 +237,11 @@
     "q_jenis_jemaat_sub": "Bantu kami kenal Anda lebih baik.",
     "jemaat_tetap": "Ya, saya jemaat tetap",
     "new_comer": "Saya ingin mencoba dulu",
-    "error_jenis_jemaat_required": "Pilih salah satu"
+    "error_jenis_jemaat_required": "Pilih salah satu",
+    "email_label": "Email (opsional)",
+    "email_placeholder": "nama@email.com",
+    "email_helper": "Disarankan — kode OTP juga dikirim ke email bila WhatsApp sedang antre, dan untuk masuk dengan email.",
+    "email_invalid": "Format email tidak valid"
   },
   "home": {
     "greeting": "Halo,",

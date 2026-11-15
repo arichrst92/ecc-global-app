@@ -7,6 +7,8 @@ export type OtpPurpose = 'LOGIN' | 'ENROLLMENT' | 'ONBOARDING_ADD_NOHP';
 export type RequestOtpPayload = {
   noHp: string; // E.164 format
   purpose?: OtpPurpose; // default LOGIN
+  /** Opsional, khusus ENROLLMENT: OTP ikut dikirim ke email ini bila WhatsApp antre. */
+  email?: string;
 };
 
 export type VerifyOtpPayload = {

@@ -79,6 +79,7 @@
     "otp_verify": "Verify",
     "otp_sent": "OTP sent to your WhatsApp",
     "otp_resent": "OTP resent",
+    "otp_sent_email": "OTP sent — check your email too",
     "otp_resent_email": "OTP resent — check your email too",
     "otp_email_note": "WhatsApp OTP delivery is currently queued. To speed things up, we have sent your OTP code to your email.",
     "login_success": "Signed in",
@@ -236,7 +237,11 @@
     "q_jenis_jemaat_sub": "Help us know you better.",
     "jemaat_tetap": "Yes, I'm a regular member",
     "new_comer": "I'm just trying it out",
-    "error_jenis_jemaat_required": "Please choose one"
+    "error_jenis_jemaat_required": "Please choose one",
+    "email_label": "Email (optional)",
+    "email_placeholder": "name@email.com",
+    "email_helper": "Recommended — the OTP is also sent to your email if WhatsApp is queued, and lets you sign in with email.",
+    "email_invalid": "Invalid email format"
   },
   "home": {
     "greeting": "Hi,",

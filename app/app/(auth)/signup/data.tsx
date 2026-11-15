@@ -38,6 +38,7 @@ export default function SignupDataScreen() {
 
   // Get state via individual selectors untuk reactivity
   const noHp = useSignupStore((s) => s.noHp);
+  const signupEmail = useSignupStore((s) => s.email);
   const namaLengkap = useSignupStore((s) => s.namaLengkap);
   const jenisKelamin = useSignupStore((s) => s.jenisKelamin);
   const cabangId = useSignupStore((s) => s.cabangId);
@@ -84,6 +85,7 @@ export default function SignupDataScreen() {
         namaLengkap,
         jenisKelamin: jenisKelamin as 'L' | 'P',
         cabangId,
+        email: signupEmail || undefined,
         // Per BE request 2026-05-23 (M23): signup-time jenis jemaat
         // assignment. Mobile cuma ask jenisJemaat (Tetap vs NewComer);
         // fulltimer status di-assign manual oleh admin di portal.
