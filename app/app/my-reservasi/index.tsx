@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Baby, CalendarCheck, CalendarDays, Church, Ticket } from 'lucide-react-native';
+import { ArrowLeft, Baby, CalendarDays, Church, Ticket } from 'lucide-react-native';
 
 import { useMyReservasi } from '@/hooks/useMyReservasi';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
@@ -26,6 +26,7 @@ import { NotificationBell } from '@/components/NotificationBell';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type Seg = 'ibadah' | 'event';
 type Tab = 'active' | 'history';
@@ -146,9 +147,7 @@ export function MyReservasiView({ inTab = false }: { inTab?: boolean }) {
           </View>
         ) : empty ? (
           <View className="items-center py-16 px-8">
-            <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              {seg === 'ibadah' ? <CalendarCheck size={28} color={nc('#A3A3A3')} /> : <Ticket size={28} color={nc('#A3A3A3')} />}
-            </View>
+            <ElsEmptyIcon size={64} className="mb-3" />
             <Text className="text-sm font-bold text-neutral-900 text-center mb-1">
               {seg === 'ibadah'
                 ? t(tab === 'active' ? 'my_reservasi.empty_title' : 'my_reservasi.empty_history_title')

@@ -55,11 +55,14 @@ export function EventTicketCard({
   onPress,
   notchColor,
   compact,
+  onCancelled,
 }: {
   ticket: EventTiket;
   variant?: 'list' | 'full';
   onPress?: () => void;
   notchColor?: string;
+  /** Dipanggil setelah tiket berhasil dibatalkan (mis. layar tiket → kembali ke Reservasi). */
+  onCancelled?: () => void;
   /** Di halaman detail event: tanpa gambar & judul/tanggal (sudah tampil di atas). */
   compact?: boolean;
 }) {
@@ -85,6 +88,7 @@ export function EventTicketCard({
     mutationFn: () => cancelMyEventTicket(tk.id),
     onSuccess: () => {
       showToast(t('tiket.event_cancelled'), 'success');
+      onCancelled?.();
       void qc.invalidateQueries({ queryKey: ['event-tiket'] });
       void qc.invalidateQueries({ queryKey: ['event'] });
     },

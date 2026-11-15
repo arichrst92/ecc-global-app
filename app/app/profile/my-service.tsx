@@ -10,7 +10,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CalendarDays, Church, Clock, HeartHandshake, MapPin, ScanLine, StickyNote, Ticket, Users } from 'lucide-react-native';
+import { ArrowLeft, CalendarDays, Church, Clock, MapPin, ScanLine, StickyNote, Ticket, Users } from 'lucide-react-native';
 
 import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { getMyServiceSchedule } from '@/api/ministry';
@@ -24,6 +24,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type Tab = 'upcoming' | 'history';
 
@@ -126,9 +127,7 @@ export default function MyServiceScreen() {
           </View>
         ) : total === 0 ? (
           <View className="py-16 items-center px-6">
-            <View className="w-16 h-16 rounded-2xl bg-brand-50 items-center justify-center mb-3">
-              <HeartHandshake size={28} color="#EA580C" />
-            </View>
+            <ElsEmptyIcon size={64} className="mb-3" />
             <Text className="text-sm font-bold text-neutral-900 text-center mb-1">
               {t(tab === 'upcoming' ? 'service.empty_title' : 'service.empty_history')}
             </Text>

@@ -9,7 +9,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, Hourglass, Plus, UserPlus, Users } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, Hourglass, Plus, UserPlus } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { useFamilyRequestAction, useFamilyRequests, useMyFamily } from '@/hooks/useFamily';
@@ -21,6 +21,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 function roleLabel(role: FamilyRole, t: (k: string) => string): string {
   switch (role) {
@@ -234,9 +235,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   const { t } = useTranslation();
   return (
     <View className="items-center py-16 px-8">
-      <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-4">
-        <Users size={32} color={nc('#A3A3A3')} />
-      </View>
+      <ElsEmptyIcon size={80} className="mb-4" />
       <Text className="text-lg font-semibold text-neutral-700">
         {t('family.empty_title')}
       </Text>

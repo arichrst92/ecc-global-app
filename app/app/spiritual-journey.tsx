@@ -8,7 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CalendarDays, Check, ChevronRight, Footprints, Lock } from 'lucide-react-native';
+import { ArrowLeft, CalendarDays, Check, ChevronRight, Lock } from 'lucide-react-native';
 
 import { getMyJourney, type JourneyStep } from '@/api/spiritualJourney';
 import { MY_JOURNEY_KEY } from '@/components/spiritual/JourneyCard';
@@ -20,6 +20,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 export default function SpiritualJourneyScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -57,7 +58,7 @@ export default function SpiritualJourneyScreen() {
           </View>
         ) : d.total === 0 ? (
           <View className="py-16 items-center px-8">
-            <Footprints size={32} color={nc('#A3A3A3')} />
+            <ElsEmptyIcon size={56} />
             <Text className="text-sm text-neutral-500 text-center mt-3">{t('journey.empty')}</Text>
           </View>
         ) : (

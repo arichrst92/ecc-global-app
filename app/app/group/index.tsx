@@ -37,6 +37,7 @@ import { GroupListCard } from '@/components/group/GroupListCard';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 const JENIS_FILTER_OPTIONS: Array<{ value: '' | GroupJenis; labelKey: string }> = [
   { value: '', labelKey: 'group.filter_all' },
@@ -190,7 +191,7 @@ export default function GroupListScreen() {
           </View>
         ) : groups.length === 0 ? (
           <View className="items-center py-16 px-8">
-            <Text className="text-4xl mb-3">🔍</Text>
+            <ElsEmptyIcon size={64} className="mb-3" />
             <Text className="text-sm font-semibold text-neutral-900 text-center mb-1">
               {t('group.empty_title')}
             </Text>

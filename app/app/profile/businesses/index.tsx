@@ -7,7 +7,7 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Handshake, Plus, Store } from 'lucide-react-native';
+import { ArrowLeft, Handshake, Plus } from 'lucide-react-native';
 
 import { BusinessRow } from '@/components/market/BusinessRow';
 import { useBusinessInvitations, useMyBusinesses, useRespondInvitation } from '@/hooks/useLocalBusiness';
@@ -16,6 +16,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function MyBusinessesScreen() {
   const insets = useSafeAreaInsets();
@@ -145,9 +146,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   const { t } = useTranslation();
   return (
     <View className="items-center py-16 px-8">
-      <View className="w-20 h-20 rounded-2xl bg-brand-50 items-center justify-center mb-3">
-        <Store size={36} color="#EA580C" />
-      </View>
+      <ElsEmptyIcon size={80} className="mb-3" />
       <Text className="text-lg font-bold text-neutral-900 text-center">
         {t('my_business.empty_title')}
       </Text>

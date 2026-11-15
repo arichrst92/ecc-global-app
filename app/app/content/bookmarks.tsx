@@ -3,12 +3,13 @@ import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Bookmark, X } from 'lucide-react-native';
+import { ArrowLeft, X } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { useBookmarksStore, type BookmarkItem } from '@/stores/bookmarks.store';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function BookmarksScreen() {
   const insets = useSafeAreaInsets();
@@ -58,9 +59,7 @@ export default function BookmarksScreen() {
         ItemSeparatorComponent={() => <View className="h-3" />}
         ListEmptyComponent={
           <View className="items-center py-20 px-8">
-            <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              <Bookmark size={28} color={nc('#A3A3A3')} />
-            </View>
+            <ElsEmptyIcon size={64} className="mb-3" />
             <Text className="text-lg font-semibold text-neutral-700">
               {t('content.bookmarks_empty_title')}
             </Text>

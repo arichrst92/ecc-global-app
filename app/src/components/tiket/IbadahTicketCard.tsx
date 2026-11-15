@@ -41,11 +41,14 @@ export function IbadahTicketCard({
   variant = 'list',
   onPress,
   notchColor,
+  onCancelled,
 }: {
   reservasi: MyReservasi;
   variant?: 'list' | 'full';
   onPress?: () => void;
   notchColor?: string;
+  /** Dipanggil setelah reservasi berhasil dibatalkan (mis. layar tiket → kembali ke Reservasi). */
+  onCancelled?: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
@@ -68,6 +71,7 @@ export function IbadahTicketCard({
     mutationFn: () => cancelMyReservasi(r.id),
     onSuccess: () => {
       showToast(t('reservasi.cancelled'), 'success');
+      onCancelled?.();
       void qc.invalidateQueries({ queryKey: ['my-reservasi'] });
       void qc.invalidateQueries({ queryKey: ['reservasi-options'] });
     },

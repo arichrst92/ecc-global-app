@@ -4,7 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, MessageSquareText, Plus } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, Plus } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { listMyFeedback } from '@/api/feedback';
@@ -13,6 +13,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function MyFeedbackScreen() {
   const { t, i18n } = useTranslation();
@@ -47,9 +48,7 @@ export default function MyFeedbackScreen() {
           <ActivityIndicator color="#F97316" style={{ marginTop: 40 }} />
         ) : rows.length === 0 ? (
           <View className="items-center py-14 px-6">
-            <View className="w-14 h-14 rounded-2xl bg-brand-50 items-center justify-center mb-3">
-              <MessageSquareText size={26} color="#EA580C" />
-            </View>
+            <ElsEmptyIcon size={56} className="mb-3" />
             <Text className="text-base font-bold text-neutral-900 text-center">{t('feedback.empty_title')}</Text>
             <Text className="text-sm text-neutral-500 text-center mt-1 mb-5">{t('feedback.empty_body')}</Text>
             <Button label={t('feedback.send_new')} onPress={() => router.push('/feedback/new' as never)} />

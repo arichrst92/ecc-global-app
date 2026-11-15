@@ -2,7 +2,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Bookmark, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, Trash2 } from 'lucide-react-native';
 
 import { useBibleStore } from '@/stores/bible.store';
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
@@ -10,6 +10,7 @@ import { bookName } from '@/utils/bibleNames';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { dateLocale } from '@/utils/hari';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function BibleBookmarksScreen() {
   const insets = useSafeAreaInsets();
@@ -46,9 +47,7 @@ export default function BibleBookmarksScreen() {
       >
         {bookmarks.length === 0 ? (
           <View className="items-center py-16 px-8">
-            <View className="w-20 h-20 rounded-2xl bg-amber-50 items-center justify-center mb-3">
-              <Bookmark size={32} color="#D97706" />
-            </View>
+            <ElsEmptyIcon size={80} className="mb-3" />
             <Text className="text-lg font-semibold text-neutral-700 text-center">
               {t('bible.bookmarks_title')}
             </Text>

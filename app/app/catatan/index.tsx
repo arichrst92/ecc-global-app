@@ -9,7 +9,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, BookOpen, Lock, Mic, NotebookPen, Plus, Search, X } from 'lucide-react-native';
+import { ArrowLeft, BookOpen, Lock, Mic, Plus, Search, X } from 'lucide-react-native';
 
 import { CATATAN_KEY, listCatatan, type Catatan } from '@/api/catatan';
 import { listBible365Notes, type Bible365JournalItem } from '@/api/bible365';
@@ -21,6 +21,7 @@ import { goBack } from '@/utils/nav';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type Filter = 'all' | 'khotbah' | 'b365';
 type Row = { kind: 'k'; date: string; key: string; n: Catatan } | { kind: 'b'; date: string; key: string; n: Bible365JournalItem };
@@ -139,9 +140,7 @@ export default function CatatanListScreen() {
             <ActivityIndicator color="#EA580C" style={{ marginTop: 40 }} />
           ) : (
             <View className="items-center py-16 px-8">
-              <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-                <NotebookPen size={28} color={nc('#A3A3A3')} />
-              </View>
+              <ElsEmptyIcon size={64} className="mb-3" />
               <Text className="text-sm font-bold text-neutral-900">{q ? t('catatan.search_empty') : t('catatan.empty')}</Text>
               {q ? null : <Text className="text-xs text-neutral-500 text-center mt-1">{t('catatan.empty_body')}</Text>}
             </View>

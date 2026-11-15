@@ -8,7 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, EyeOff, HandHeart, Plus } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, EyeOff, Plus } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -25,6 +25,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type MainTab = 'mine' | 'assigned';
 
@@ -138,9 +139,7 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
       ) : rows.length === 0 ? (
         filter === 'aktif' ? (
           <View className="items-center py-14 px-6">
-            <View className="w-14 h-14 rounded-2xl bg-brand-50 items-center justify-center mb-3">
-              <HandHeart size={26} color="#EA580C" />
-            </View>
+            <ElsEmptyIcon size={56} className="mb-3" />
             <Text className="text-base font-bold text-neutral-900 text-center">{t('doa.empty_title')}</Text>
             <Text className="text-sm text-neutral-500 text-center mt-1 mb-5">{t('doa.empty_body')}</Text>
             <Button label={t('doa.new')} onPress={() => router.push('/doa/form' as never)} />

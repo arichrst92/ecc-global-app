@@ -4,7 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, NotebookPen } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 
 import { listBible365Notes } from '@/api/bible365';
 import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
@@ -12,6 +12,7 @@ import { useBookNames } from '@/utils/bibleNames';
 import { formatDateWithDay } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function Bible365JournalScreen() {
   const { t, i18n } = useTranslation();
@@ -53,9 +54,7 @@ export default function Bible365JournalScreen() {
             <ActivityIndicator color="#F97316" style={{ marginTop: 40 }} />
           ) : (
             <View className="items-center py-16 px-8">
-              <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-                <NotebookPen size={28} color={nc('#A3A3A3')} />
-              </View>
+              <ElsEmptyIcon size={64} className="mb-3" />
               <Text className="text-sm font-bold text-neutral-900">{t('b365.journal_empty')}</Text>
               <Text className="text-xs text-neutral-500 text-center mt-1">{t('b365.journal_empty_body')}</Text>
             </View>

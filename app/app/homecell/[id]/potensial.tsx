@@ -4,7 +4,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ChevronRight, MapPin, MessageCircle, Minus, Phone, Plus, UserSearch } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, MapPin, MessageCircle, Minus, Phone, Plus } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
@@ -12,6 +12,7 @@ import { listPotensialMember, type PotensialMemberItem } from '@/api/homecell';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 const RADIUS_MIN = 0.5;
 const RADIUS_MAX = 50;
@@ -117,9 +118,7 @@ export default function HomecellPotensialScreen() {
             </Text>
             {data.data.length === 0 ? (
               <View className="items-center py-12 px-6">
-                <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-                  <UserSearch size={28} color={nc('#A3A3A3')} />
-                </View>
+                <ElsEmptyIcon size={64} className="mb-3" />
                 <Text className="text-sm text-neutral-500 text-center">{t('homecell.potensial_empty')}</Text>
               </View>
             ) : (

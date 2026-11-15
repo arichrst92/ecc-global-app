@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Church, ChevronRight, ChevronsUpDown, RefreshCw, Ticket } from 'lucide-react-native';
+import { Calendar, ChevronRight, ChevronsUpDown, RefreshCw, Ticket } from 'lucide-react-native';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
@@ -23,6 +23,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
 import { isOccurrenceEnded } from '@/utils/time';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 
@@ -228,9 +229,7 @@ function EmptyState() {
   const { t } = useTranslation();
   return (
     <View className="items-center py-20 px-8">
-      <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-        <Church size={28} color={nc('#A3A3A3')} />
-      </View>
+      <ElsEmptyIcon size={64} className="mb-3" />
       <Text className="text-lg font-semibold text-neutral-700">{t('ibadah.empty_title')}</Text>
       <Text className="text-sm text-neutral-500 text-center mt-1">{t('ibadah.empty_msg')}</Text>
     </View>

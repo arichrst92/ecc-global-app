@@ -65,6 +65,7 @@ import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 import { dateLocale } from '@/utils/hari';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function MinistryDetailScreen() {
   const hero = useHeroScroll();
@@ -647,7 +648,7 @@ export default function MinistryDetailScreen() {
             </View>
           ) : (
             <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
-              <CalendarDays size={24} color={nc('#A3A3A3')} />
+              <ElsEmptyIcon size={48} />
               <Text className="text-sm text-neutral-500 text-center mt-2">{t('ministry.jadwal_tab_empty')}</Text>
               {ministry.myMembership ? (
                 <Pressable onPress={() => router.push('/profile/my-service' as never)} className="mt-3 px-3 py-1.5 rounded-full border border-brand-200 bg-brand-50">

@@ -13,7 +13,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, CalendarClock, ChevronRight, HeartHandshake } from 'lucide-react-native';
+import { ArrowLeft, CalendarClock, ChevronRight } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { MinistryIcon, taglineOf } from '@/components/ministry/MinistryIcon';
@@ -27,6 +27,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { isDark, nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type Filter = 'ALL' | 'MINE' | 'BUKA';
 
@@ -206,9 +207,7 @@ export default function MinistryListScreen() {
           </View>
         ) : shown.length === 0 ? (
           <View className="bg-card rounded-2xl p-5 border border-neutral-100 items-center">
-            <View className="w-14 h-14 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              <HeartHandshake size={28} color={nc('#A3A3A3')} />
-            </View>
+            <ElsEmptyIcon size={56} className="mb-3" />
             <Text className="text-sm font-semibold text-neutral-700 text-center">{t('ministry.empty_all_title')}</Text>
             <Text className="text-xs text-neutral-500 text-center mt-1 leading-relaxed">{t('ministry.empty_all_msg')}</Text>
           </View>

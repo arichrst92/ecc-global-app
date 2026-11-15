@@ -56,6 +56,7 @@ import { ageInYears, CKIDS_MAX_AGE } from '@/utils/ckidsAge';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function CKidsTabScreen() {
   const { t, i18n } = useTranslation();
@@ -202,9 +203,7 @@ export default function CKidsTabScreen() {
     return (
       <SafeAreaView className="flex-1 bg-card" edges={['top']}>
         <View className="flex-1 items-center justify-center px-8">
-          <View className="w-20 h-20 rounded-3xl bg-brand-50 items-center justify-center mb-4">
-            <Baby size={40} color="#F97316" />
-          </View>
+          <ElsEmptyIcon size={80} className="mb-4" />
           <Text className="text-lg font-bold text-neutral-900 text-center mb-2">
             {t('ckids.empty_title')}
           </Text>
@@ -413,7 +412,7 @@ export default function CKidsTabScreen() {
             </View>
           ) : (
             <View className="items-center py-8">
-              <Gift size={32} color={nc('#D4D4D4')} />
+              <ElsEmptyIcon size={56} />
               <Text className="text-xs text-neutral-500 mt-2">
                 {t('ckids.katalog_empty')}
               </Text>

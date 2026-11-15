@@ -53,6 +53,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 /* ==============================================================
  * ICON RENDERER
@@ -327,9 +328,7 @@ function EmptyState() {
   const { t } = useTranslation();
   return (
     <View className="flex-1 items-center justify-center px-8">
-      <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-4">
-        <Bell size={32} color={nc('#A3A3A3')} />
-      </View>
+      <ElsEmptyIcon size={80} className="mb-4" />
       <Text className="text-lg font-semibold text-neutral-700">
         {t('notifications.empty_title')}
       </Text>

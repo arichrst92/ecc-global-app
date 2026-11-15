@@ -14,6 +14,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type Tab = 'news' | 'renungan';
 
@@ -257,13 +258,7 @@ function EmptyState({ type }: { type: Tab }) {
   const { t } = useTranslation();
   return (
     <View className="items-center py-20 px-8">
-      <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-        {type === 'news' ? (
-          <Newspaper size={28} color={nc('#A3A3A3')} />
-        ) : (
-          <BookOpen size={28} color={nc('#A3A3A3')} />
-        )}
-      </View>
+      <ElsEmptyIcon size={64} className="mb-3" />
       <Text className="text-lg font-semibold text-neutral-700">
         {type === 'news' ? t('content.empty_news') : t('content.empty_renungan')}
       </Text>

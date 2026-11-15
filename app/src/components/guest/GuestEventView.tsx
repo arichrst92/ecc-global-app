@@ -25,6 +25,7 @@ import type { PublicEventItem } from '@/types/publicGuest';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { rupiahShort } from '@/utils/hari';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 function priceLabel(e: PublicEventItem, t: (k: string) => string, lang: string): string {
   if (e.tipeBayar === 'GRATIS') return t('event.free');
@@ -107,7 +108,7 @@ export function GuestEventView() {
 
         {items.length === 0 && !eventsQuery.isPending ? (
           <View className="items-center py-12">
-            <CalendarDays size={36} color={nc('#A3A3A3')} />
+            <ElsEmptyIcon size={56} />
             <Text className="text-sm text-neutral-500 mt-3">{t('event.empty_msg')}</Text>
           </View>
         ) : null}

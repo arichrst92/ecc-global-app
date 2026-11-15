@@ -19,7 +19,7 @@ import { TextInput } from '@/components/ui/ThemedTextInput';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Bell, ChevronRight, Hourglass, Locate, MapPin, Search, Settings2 } from 'lucide-react-native';
+import { ArrowLeft, Bell, ChevronRight, Hourglass, Locate, Search, Settings2 } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -41,6 +41,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function HomecellHubScreen() {
   const insets = useSafeAreaInsets();
@@ -294,7 +295,7 @@ export default function HomecellHubScreen() {
                   </View>
                 ) : (browse.data ?? []).length === 0 ? (
                   <View className="items-center py-10 px-6">
-                    <MapPin size={28} color={nc('#A3A3A3')} />
+                    <ElsEmptyIcon size={48} />
                     <Text className="text-sm text-neutral-500 text-center mt-2">{t('hcj.list_empty')}</Text>
                   </View>
                 ) : (

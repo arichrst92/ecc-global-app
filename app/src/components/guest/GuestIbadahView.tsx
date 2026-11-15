@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Church, ChevronsUpDown, MapPin, Video } from 'lucide-react-native';
+import { Church, MapPin, Video } from 'lucide-react-native';
 
 import { GuestModeBanner } from '@/components/GuestModeBanner';
 import { Picker } from '@/components/ui/Picker';
@@ -19,6 +19,7 @@ import { useNowTick } from '@/hooks/useNowTick';
 import i18nInst from '@/i18n';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 /**
  * Ibadah list untuk guest — read-only, no check-in button.
@@ -112,7 +113,7 @@ export function GuestIbadahView() {
 
         {items.length === 0 && !ibadahQuery.isPending ? (
           <View className="items-center py-12">
-            <Calendar size={36} color={nc('#A3A3A3')} />
+            <ElsEmptyIcon size={56} />
             <Text className="text-sm text-neutral-500 mt-3">{t('ibadah.empty_msg')}</Text>
           </View>
         ) : null}

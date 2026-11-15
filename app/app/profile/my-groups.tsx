@@ -24,6 +24,7 @@ import { GroupListCard } from '@/components/group/GroupListCard';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function MyGroupsScreen() {
   const insets = useSafeAreaInsets();
@@ -90,7 +91,7 @@ export default function MyGroupsScreen() {
           </View>
         ) : memberships.length === 0 ? (
           <View className="items-center py-16 px-8">
-            <Text className="text-5xl mb-4">👥</Text>
+            <ElsEmptyIcon size={64} className="mb-4" />
             <Text className="text-base font-bold text-neutral-900 text-center mb-2">
               {t('group.my_empty_title')}
             </Text>

@@ -27,6 +27,7 @@ import { formatScheduleWithZone, ymdInTz } from '@/utils/time';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { rupiahShort } from '@/utils/hari';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type Filter = 'all' | 'GRATIS' | 'PAID';
 
@@ -283,9 +284,7 @@ function EmptyState({ filtered }: { filtered: boolean }) {
   const { t } = useTranslation();
   return (
     <View className="items-center py-20 px-8">
-      <View className="w-16 h-16 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-        <CalendarDays size={28} color={nc('#A3A3A3')} />
-      </View>
+      <ElsEmptyIcon size={64} className="mb-3" />
       <Text className="text-lg font-semibold text-neutral-700">
         {filtered ? t('event.empty_filter_title') : t('event.empty_title')}
       </Text>

@@ -9,15 +9,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  ArrowLeft,
-  CalendarDays,
-  ChevronRight,
-  Church,
-  Clock,
-  MapPin,
-  ScanLine,
-} from 'lucide-react-native';
+import { ArrowLeft, CalendarDays, ChevronRight, Church, Clock, MapPin } from 'lucide-react-native';
 
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { formatDate, todayIso } from '@/utils/date';
@@ -27,6 +19,7 @@ import i18nInst from '@/i18n';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function ScannerPickerScreen() {
   const insets = useSafeAreaInsets();
@@ -85,9 +78,7 @@ export default function ScannerPickerScreen() {
           </View>
         ) : isEmpty ? (
           <View className="items-center py-16 px-8">
-            <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              <ScanLine size={32} color={nc('#A3A3A3')} />
-            </View>
+            <ElsEmptyIcon size={80} className="mb-3" />
             <Text className="text-lg font-semibold text-neutral-700 text-center">
               {t('scanner.empty_title')}
             </Text>

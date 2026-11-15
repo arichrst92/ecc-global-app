@@ -19,7 +19,7 @@ import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Inbox, MapPin, MessageSquareQuote, Phone, UserRound } from 'lucide-react-native';
+import { ArrowLeft, MapPin, MessageSquareQuote, Phone, UserRound } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -38,6 +38,7 @@ import type { HomecellGuestRequestRow, HomecellJoinRequestRow } from '@/types/ho
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function HomecellRequestsScreen() {
   const insets = useSafeAreaInsets();
@@ -137,7 +138,7 @@ export default function HomecellRequestsScreen() {
           </View>
         ) : rows.length === 0 && guestRows.length === 0 ? (
           <View className="items-center py-16 px-8">
-            <Inbox size={32} color={nc('#A3A3A3')} />
+            <ElsEmptyIcon size={56} />
             <Text className="text-sm text-neutral-500 text-center mt-2">{t('hcj.requests_empty')}</Text>
           </View>
         ) : (

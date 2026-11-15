@@ -71,6 +71,7 @@ import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { TamuKategoriPicker, type TamuKategori } from '@/components/tamu/TamuKategoriPicker';
 import { cekNama, cekUsia, cekTeks, pertamaGagal } from '@/utils/inputRules';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function GuestHomecellScreen() {
   const insets = useSafeAreaInsets();
@@ -264,7 +265,7 @@ export default function GuestHomecellScreen() {
           </View>
         ) : (browse.data ?? []).length === 0 ? (
           <View className="items-center py-10 px-6">
-            <MapPin size={28} color={nc('#A3A3A3')} />
+            <ElsEmptyIcon size={48} />
             <Text className="text-sm text-neutral-500 text-center mt-2">{t('hcj.list_empty')}</Text>
           </View>
         ) : (

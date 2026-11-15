@@ -8,7 +8,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'rea
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowDown, ArrowLeft, ArrowUp, Eye, EyeOff, Plus, ShoppingBag } from 'lucide-react-native';
+import { ArrowDown, ArrowLeft, ArrowUp, Eye, EyeOff, Plus } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
@@ -19,6 +19,7 @@ import { hargaLabel, type LocalItem } from '@/types/localBusiness';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function KatalogOwnerScreen() {
   const insets = useSafeAreaInsets();
@@ -99,9 +100,7 @@ export default function KatalogOwnerScreen() {
 
           {items.length === 0 ? (
             <View className="bg-card rounded-2xl p-8 border border-neutral-100 items-center">
-              <View className="w-14 h-14 rounded-2xl bg-brand-50 items-center justify-center mb-3">
-                <ShoppingBag size={24} color="#EA580C" />
-              </View>
+              <ElsEmptyIcon size={56} className="mb-3" />
               <Text className="text-sm font-semibold text-neutral-900 text-center">{t('katalog.empty_owner')}</Text>
               <Text className="text-xs text-neutral-500 text-center mt-1">{t('katalog.empty_owner_sub')}</Text>
             </View>

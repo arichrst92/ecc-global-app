@@ -20,14 +20,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import {
-  ArrowLeft,
-  Check,
-  Search,
-  SlidersHorizontal,
-  Store,
-  X,
-} from 'lucide-react-native';
+import { ArrowLeft, Check, Search, SlidersHorizontal, X } from 'lucide-react-native';
 
 import { BusinessRow } from '@/components/market/BusinessRow';
 import { MarketDisclaimer } from '@/components/market/MarketDisclaimer';
@@ -41,6 +34,7 @@ import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type OnlineFilter = 'all' | 'online' | 'offline';
 
@@ -528,9 +522,7 @@ function EmptyState({ onSeeAll }: { onSeeAll: () => void }) {
   const { t } = useTranslation();
   return (
     <View className="flex-1 items-center justify-center px-8">
-      <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-        <Store size={36} color={nc('#A3A3A3')} />
-      </View>
+      <ElsEmptyIcon size={80} className="mb-3" />
       <Text className="text-lg font-bold text-neutral-900 text-center">
         {t('market.empty_title')}
       </Text>

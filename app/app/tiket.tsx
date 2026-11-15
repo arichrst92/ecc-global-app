@@ -202,9 +202,19 @@ export default function TiketScreen() {
                 keyboardShouldPersistTaps="handled"
               >
                 {item.kind === 'event' ? (
-                  <EventTicketCard ticket={item.t} variant="full" notchColor={BG} />
+                  <EventTicketCard
+                    ticket={item.t}
+                    variant="full"
+                    notchColor={BG}
+                    onCancelled={() => goBack(router, '/my-reservasi')}
+                  />
                 ) : (
-                  <IbadahTicketCard reservasi={item.r} variant="full" notchColor={BG} />
+                  <IbadahTicketCard
+                    reservasi={item.r}
+                    variant="full"
+                    notchColor={BG}
+                    onCancelled={() => goBack(router, '/my-reservasi')}
+                  />
                 )}
                 <Text className="text-white/90 text-[11px] text-center mt-3">{t('tiket.bright_hint')}</Text>
                 <View className="flex-row gap-2 mt-3">

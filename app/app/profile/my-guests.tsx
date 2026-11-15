@@ -10,7 +10,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Church, Phone, Ticket, Trash2, UserCheck, UserPlus, Users } from 'lucide-react-native';
+import { ArrowLeft, Church, Phone, Ticket, Trash2, UserCheck, UserPlus } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -25,6 +25,7 @@ import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { tamuKategoriLabel } from '@/components/tamu/TamuKategoriPicker';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 const STATUS_STYLE: Record<TamuStatus, { bg: string; fg: string }> = {
   DIUNDANG: { bg: 'bg-neutral-100', fg: 'text-neutral-700' },
@@ -96,9 +97,7 @@ export default function MyGuestsScreen() {
           </View>
         ) : rows.length === 0 ? (
           <View className="py-16 items-center px-6">
-            <View className="w-16 h-16 rounded-2xl bg-violet-50 items-center justify-center mb-3">
-              <Users size={28} color="#7C3AED" />
-            </View>
+            <ElsEmptyIcon size={64} className="mb-3" />
             <Text className="text-sm font-bold text-neutral-900 text-center mb-1">{t('guests.empty_title')}</Text>
             <Text className="text-xs text-neutral-500 text-center">{t('guests.empty_body')}</Text>
           </View>

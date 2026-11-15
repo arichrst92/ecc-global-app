@@ -5,24 +5,7 @@ import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  AlertTriangle,
-  ArrowLeft,
-  CalendarPlus,
-  Calendar as CalendarIcon,
-  Clock,
-  MapPin,
-  MessageCircle,
-  Trash2,
-  UserPlus,
-  Users,
-  Pencil,
-  FileText,
-  UserSearch,
-  MoreHorizontal,
-  ShieldCheck,
-  Check,
-} from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, CalendarPlus, Clock, MapPin, MessageCircle, UserPlus, Users, Pencil, FileText, UserSearch, MoreHorizontal, ShieldCheck, Check } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -46,6 +29,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { listHomecellTamu } from '@/api/tamu';
 import { setHomecellAsisten } from '@/api/homecell';
 import { dateLocale, hariLabel } from '@/utils/hari';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 export default function HomecellDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -463,7 +447,7 @@ export default function HomecellDetailScreen() {
               </View>
             ) : (
               <View className="bg-card rounded-2xl p-5 border border-dashed border-neutral-300 items-center">
-                <CalendarIcon size={28} color={nc('#A3A3A3')} />
+                <ElsEmptyIcon size={48} />
                 <Text className="text-sm text-neutral-500 text-center mt-2">
                   {t('homecell.schedules_empty')}
                 </Text>
@@ -528,7 +512,7 @@ export default function HomecellDetailScreen() {
             {activeMembers.length > 0 ? <AttendanceSummary members={activeMembers} /> : null}
             {activeMembers.length === 0 ? (
               <View className="bg-card rounded-2xl p-6 border border-dashed border-neutral-300 items-center">
-                <Users size={28} color={nc('#A3A3A3')} />
+                <ElsEmptyIcon size={48} />
                 <Text className="text-sm text-neutral-500 text-center mt-2">
                   {t('homecell.members_empty')}
                 </Text>

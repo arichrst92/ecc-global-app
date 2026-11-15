@@ -19,7 +19,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Handshake, MapPin, Plus, QrCode, Sparkles } from 'lucide-react-native';
+import { ArrowLeft, MapPin, Plus, QrCode, Sparkles } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { useMyVisits } from '@/hooks/useVisit';
@@ -29,6 +29,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type RoleFilter = 'all' | 'initiator' | 'target';
 
@@ -266,9 +267,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
   const { t } = useTranslation();
   return (
     <View className="flex-1 items-center justify-center px-8">
-      <View className="w-20 h-20 rounded-2xl bg-brand-50 items-center justify-center mb-3">
-        <Handshake size={36} color="#EA580C" />
-      </View>
+      <ElsEmptyIcon size={80} className="mb-3" />
       <Text className="text-lg font-bold text-neutral-900 text-center">
         {t('visit.empty_title')}
       </Text>
