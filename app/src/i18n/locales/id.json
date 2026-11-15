@@ -1622,7 +1622,7 @@
     "field_hari": "Hari",
     "field_jam": "Jam",
     "field_alamat": "Alamat",
-    "field_alamat_placeholder": "Alamat lokasi meeting (opsional)",
+    "field_alamat_placeholder": "Alamat lokasi pertemuan (opsional)",
     "field_isPublic": "Group Publik",
     "field_isPublic_public_hint": "Group visible di listing, siapa saja bisa self-join.",
     "field_isPublic_private_hint": "Group hidden dari listing, join hanya via kode invitation.",

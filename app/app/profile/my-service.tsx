@@ -36,6 +36,8 @@ export default function MyServiceScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('upcoming');
+  // Ibadah & event dipisah dalam 2 tab (tidak digabung).
+  const [kind, setKind] = useState<'ibadah' | 'event'>('ibadah');
   const venueTz = useVenueTz();
 
   const range = tab === 'upcoming' ? { from: todayIso(), to: addDaysIso(60) } : { from: addDaysIso(-90), to: addDaysIso(-1) };
@@ -45,17 +47,19 @@ export default function MyServiceScreen() {
   });
   useRefetchOnFocus(() => q.refetch());
 
-  // Gabung roster ibadah + event, kelompokkan per tanggal.
+  const nIbadah = q.data?.assignments?.length ?? 0;
+  const nEvent = q.data?.events?.length ?? 0;
+  // Roster ibadah ATAU petugas event (sesuai tab), kelompokkan per tanggal.
   const groups = useMemo(() => {
-    const items: Item[] = [
-      ...(q.data?.assignments ?? []).map((a) => ({ kind: 'ibadah' as const, date: a.tanggal.slice(0, 10), a })),
-      ...(q.data?.events ?? []).map((e) => ({ kind: 'event' as const, date: e.tanggalMulai.slice(0, 10), e })),
-    ];
+    const items: Item[] =
+      kind === 'ibadah'
+        ? (q.data?.assignments ?? []).map((a) => ({ kind: 'ibadah' as const, date: a.tanggal.slice(0, 10), a }))
+        : (q.data?.events ?? []).map((e) => ({ kind: 'event' as const, date: e.tanggalMulai.slice(0, 10), e }));
     items.sort((x, y) => (tab === 'upcoming' ? x.date.localeCompare(y.date) : y.date.localeCompare(x.date)));
     const map = new Map<string, Item[]>();
     for (const it of items) map.set(it.date, [...(map.get(it.date) ?? []), it]);
     return [...map.entries()];
-  }, [q.data, tab]);
+  }, [q.data, tab, kind]);
   const total = groups.reduce((n, [, xs]) => n + xs.length, 0);
 
   return (
@@ -82,6 +86,25 @@ export default function MyServiceScreen() {
               </Text>
             </Pressable>
           ))}
+        </View>
+        <View className="flex-row bg-neutral-100 rounded-xl p-1 mx-4 mb-3">
+          {(['ibadah', 'event'] as const).map((k) => {
+            const on = kind === k;
+            return (
+              <Pressable
+                key={k}
+                onPress={() => setKind(k)}
+                className={`flex-1 py-2 rounded-lg items-center ${on ? 'bg-card' : ''}`}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: on }}
+              >
+                <Text className={`text-sm font-semibold ${on ? 'text-brand-600' : 'text-neutral-500'}`}>
+                  {t(k === 'ibadah' ? 'ministry.jadwal_ibadah' : 'ministry.jadwal_event')}
+                  {q.data ? ` (${k === 'ibadah' ? nIbadah : nEvent})` : ''}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
       </SafeAreaView>
 

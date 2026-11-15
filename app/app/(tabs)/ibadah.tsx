@@ -13,6 +13,8 @@ import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
 import { NotificationBell } from '@/components/NotificationBell';
 import { ViewingBanner } from '@/components/branch/ViewingBanner';
 import { GuestIbadahView } from '@/components/guest/GuestIbadahView';
+import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
+import type { IbadahOkupansi } from '@/types/ibadah';
 import { getIbadahCalendar } from '@/api/ibadah';
 import { useAuthStore } from '@/stores/auth.store';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
@@ -155,7 +157,7 @@ function DateSection({
   onTapItem,
 }: {
   date: string;
-  items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null }[];
+  items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null; okupansi?: IbadahOkupansi | null }[];
   onTapItem: (id: string) => void;
 }) {
   const { i18n, t } = useTranslation();
@@ -210,6 +212,8 @@ function DateSection({
               <Text className="text-xs text-neutral-400 mt-1">
                 {formatScheduleWithZone({ ymd: date, start: item.jamMulai, end: item.jamSelesai, tz: venueTz, lang, withDate: false })}
               </Text>
+              {/* Kuota seat pertemuan — sama dengan detail ibadah (hanya bila seat diisi) */}
+              <OccupancyBar data={item.okupansi} compact />
             </View>
             <ChevronRight size={16} color={nc('#A3A3A3')} />
           </Pressable>

@@ -47,6 +47,8 @@ export default function MinistryJadwalScreen() {
   const insets = useSafeAreaInsets();
   const [cabangId, setCabangId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Editing | null>(null);
+  // Ibadah & event dipisah dalam 2 tab.
+  const [tab, setTab] = useState<'ibadah' | 'event'>('ibadah');
 
   const q = useQuery({
     queryKey: ['ministry', 'jadwal', id, cabangId ?? 'auto'],
@@ -100,6 +102,27 @@ export default function MinistryJadwalScreen() {
             })}
           </ScrollView>
         ) : null}
+        {d ? (
+          <View className="flex-row bg-neutral-100 rounded-xl p-1 mx-4 mb-3">
+            {(['ibadah', 'event'] as const).map((k) => {
+              const on = tab === k;
+              const n = k === 'ibadah' ? d.ibadah.length : d.events.length;
+              return (
+                <Pressable
+                  key={k}
+                  onPress={() => setTab(k)}
+                  className={`flex-1 py-2 rounded-lg items-center ${on ? 'bg-card' : ''}`}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: on }}
+                >
+                  <Text className={`text-sm font-semibold ${on ? 'text-brand-600' : 'text-neutral-500'}`}>
+                    {t(k === 'ibadah' ? 'ministry.jadwal_ibadah' : 'ministry.jadwal_event')} ({n})
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : null}
       </SafeAreaView>
 
       <ScrollView
@@ -118,8 +141,7 @@ export default function MinistryJadwalScreen() {
             <Text className="text-xs text-neutral-500 mb-3 leading-relaxed">
               {t('ministry.jadwal_intro', { cabang: d.cabang.find((c) => c.id === d.cabangId)?.nama ?? '' })}
             </Text>
-            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('ministry.jadwal_ibadah')}</Text>
-            {byDate.length === 0 ? (
+            {tab === 'ibadah' ? (byDate.length === 0 ? (
               <Text className="text-sm text-neutral-500 bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
                 {t('ministry.jadwal_ibadah_empty')}
               </Text>
@@ -141,9 +163,7 @@ export default function MinistryJadwalScreen() {
                   </View>
                 </View>
               ))
-            )}
-            <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider mt-3 mb-2">{t('ministry.jadwal_event')}</Text>
-            {d.events.length === 0 ? (
+            )) : d.events.length === 0 ? (
               <Text className="text-sm text-neutral-500 bg-card rounded-2xl p-4 border border-neutral-100">{t('ministry.jadwal_event_empty')}</Text>
             ) : (
               <View className="gap-2">

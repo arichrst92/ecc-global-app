@@ -63,6 +63,8 @@ export type IbadahOccurrence = {
   linkOnline?: string | null;
   cabang: CabangRef;
   kategoriIbadah?: KategoriIbadah | null;
+  /** Okupansi seat pertemuan ini (sama dengan detail). null/absen = seat belum diisi / server lama. */
+  okupansi?: IbadahOkupansi | null;
 };
 
 /** Detail dari GET /admin/ibadah/:id — punya petugas + pelayanan */
