@@ -16,6 +16,7 @@ import {
   Check,
   ChevronRight,
   Languages,
+  NotebookPen,
   Share2,
   Sparkles,
 } from 'lucide-react-native';
@@ -249,6 +250,25 @@ export default function BibleHomeScreen() {
               </Text>
             </View>
             <ChevronRight size={20} color="#fff" />
+          </Pressable>
+        ) : null}
+
+        {/* Catatan saya (khotbah, renungan, ayat) */}
+        {!isGuest ? (
+          <Pressable
+            onPress={() => router.push('/catatan' as never)}
+            className="bg-card rounded-2xl p-4 flex-row items-center gap-3 border border-neutral-100 mb-4"
+          >
+            <View className="w-12 h-12 rounded-xl bg-emerald-50 items-center justify-center">
+              <NotebookPen size={22} color="#059669" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-neutral-900">{t('catatan.title')}</Text>
+              <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={2}>
+                {t('catatan.menu_sub')}
+              </Text>
+            </View>
+            <ChevronRight size={16} color={nc('#A3A3A3')} />
           </Pressable>
         ) : null}
 
