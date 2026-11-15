@@ -2804,5 +2804,13 @@
     "accepted_toast": "You are now a partner of this business",
     "rejected_toast": "Invitation declined",
     "owner_and_partners": "Owner & partners"
+  },
+  "upload": {
+    "ratio": "Ratio {{ratio}}",
+    "any_ratio": "Any ratio (photo / screenshot)",
+    "min_size": "recommended {{size}}",
+    "max": "max {{mb}} MB",
+    "label_hero": "Cover",
+    "label_logo": "Logo"
   }
 }

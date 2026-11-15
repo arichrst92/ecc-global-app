@@ -2801,5 +2801,13 @@
     "accepted_toast": "Anda kini partner usaha ini",
     "rejected_toast": "Undangan ditolak",
     "owner_and_partners": "Pemilik & partner"
+  },
+  "upload": {
+    "ratio": "Rasio {{ratio}}",
+    "any_ratio": "Rasio bebas (foto / screenshot)",
+    "min_size": "disarankan {{size}}",
+    "max": "maks {{mb}} MB",
+    "label_hero": "Sampul",
+    "label_logo": "Logo"
   }
 }

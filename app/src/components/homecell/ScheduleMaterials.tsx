@@ -17,6 +17,7 @@ import type { HomecellScheduleFile } from '@/types/homecellSchedule';
 import type { PickedFile } from '@/api/homecellSchedule';
 import { nc } from '@/theme/ThemeRoot';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { UploadHint } from '@/components/ui/UploadHint';
 
 const fileHref = (u: string) => (u.startsWith('http') ? u : `${env.apiBaseUrl}${u}`);
 const sizeLabel = (b: number | null) =>
@@ -143,7 +144,7 @@ export function UploadMaterialModal({
               {file ? file.name : t('hcj.materi_pick')}
             </Text>
           </Pressable>
-          <Text className="text-[11px] text-neutral-500 -mt-1">{t('hcj.materi_types')}</Text>
+          <UploadHint spec="homecellMaterial" className="-mt-1" />
 
           <Text className="text-sm font-semibold text-neutral-800">{t('hcj.materi_name')}</Text>
           <TextInput

@@ -44,6 +44,7 @@ import type { FileObj } from '@/api/businesses';
 import { nc } from '@/theme/ThemeRoot';
 import { cekTeks, pertamaGagal } from '@/utils/inputRules';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { UploadHint } from '@/components/ui/UploadHint';
 
 const FOTO_MAX = 4;
 
@@ -273,6 +274,7 @@ export default function KatalogItemFormScreen() {
               ) : null}
             </View>
           </ScrollView>
+          <UploadHint spec="katalogItem" className="mb-1" />
           <Text className="text-[10px] text-neutral-400 mb-4">{t('katalog.foto_hint')}</Text>
 
           <Label text={t('katalog.jenis_label')} />

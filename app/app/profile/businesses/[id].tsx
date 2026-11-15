@@ -85,6 +85,7 @@ import { imageAssetToFile } from '@/utils/pickedImage';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { cekHuruf, cekTeks, cekUrl, pertamaGagal } from '@/utils/inputRules';
+import { UploadHint } from '@/components/ui/UploadHint';
 
 export default function OwnerBusinessDetailScreen() {
   const { t } = useTranslation();
@@ -494,6 +495,10 @@ export default function OwnerBusinessDetailScreen() {
           </View>
 
           <View className="px-5 mt-8">
+            <View className="gap-0.5 mb-2">
+              <UploadHint spec="businessHero" label={t('upload.label_hero')} />
+              <UploadHint spec="businessLogo" label={t('upload.label_logo')} />
+            </View>
             <View className="flex-row items-center gap-1.5 mb-2 self-end">
               <Eye size={13} color={nc('#737373')} />
               <Text className="text-xs text-neutral-500">
@@ -849,9 +854,7 @@ export default function OwnerBusinessDetailScreen() {
                         ? t('my_business.pdf_uploading')
                         : t('my_business.pdf_upload_cta')}
                     </Text>
-                    <Text className="text-xs text-neutral-500 mt-0.5">
-                      {t('my_business.pdf_max_size')}
-                    </Text>
+                    <UploadHint spec="companyPdf" className="mt-0.5" />
                   </View>
                 </Pressable>
               )}

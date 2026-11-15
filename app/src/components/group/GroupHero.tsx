@@ -12,6 +12,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useDeleteGroupHero, useUploadGroupHero } from '@/hooks/useGroupContent';
 import { ApiError } from '@/types/api';
 import { nc } from '@/theme/ThemeRoot';
+import { UploadHint } from '@/components/ui/UploadHint';
 
 export const groupImageHref = (u: string) => (u.startsWith('http') ? u : `${env.apiBaseUrl}${u}`);
 
@@ -73,6 +74,7 @@ export function GroupHero({
   }
 
   return (
+    <>
     <View style={{ aspectRatio: 16 / 9 }} className="w-full bg-brand-50 overflow-hidden">
       {heroImageUrl ? (
         <Image source={{ uri: groupImageHref(heroImageUrl) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
@@ -113,5 +115,7 @@ export function GroupHero({
         </View>
       ) : null}
     </View>
+    {canEdit ? <UploadHint spec="groupHero" className="px-4 pt-2" /> : null}
+    </>
   );
 }

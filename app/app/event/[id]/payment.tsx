@@ -20,6 +20,7 @@ import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { UploadHint } from '@/components/ui/UploadHint';
 
 type PickedImage = {
   uri: string;
@@ -424,6 +425,7 @@ export default function EventPaymentScreen() {
                 {t('event.take_photo')}
               </Text>
             </Pressable>
+            <UploadHint spec="buktiTransfer" center className="mt-1" />
           </View>
         )}
       </ScrollView>

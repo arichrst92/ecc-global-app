@@ -40,6 +40,7 @@ import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 import { dateLocale } from '@/utils/hari';
+import { UploadHint } from '@/components/ui/UploadHint';
 
 /**
  * Edit Profile — form untuk update /admin/me ATAU update dependent family member.
@@ -322,6 +323,7 @@ export default function EditProfileScreen() {
                 <Camera size={14} color="#fff" />
               </View>
             </Pressable>
+            <UploadHint spec="profile" center className="mt-2 px-6" />
             {fotoMutation.isPending ? (
               <Text className="text-xs text-neutral-500 mt-2">
                 {t('common.loading')}
