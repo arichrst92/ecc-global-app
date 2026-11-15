@@ -5,13 +5,15 @@
  * Hero mengikuti ukuran upload portal (3:2, 1600×1067). QR = kode jemaat.
  * Geser check-in hanya kalau event mengizinkan self check-in & sudah lunas.
  */
-import { Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, CreditCard, MapPin } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
-import type { EventTiket } from '@/api/tiket';
+import { cancelMyEventTicket, type EventTiket } from '@/api/tiket';
+import { useToast } from '@/components/ui/Toast';
 import { formatDateWithDay } from '@/utils/date';
 import { localTime, zoneTimeText } from '@/utils/time';
 import { formatRadius } from '@/utils/selfCheckinLocation';
@@ -77,6 +79,22 @@ export function EventTicketCard({
     venue: tk.selfCheckin.venue,
   });
   const hadir = tk.status === 'HADIR';
+  const qc = useQueryClient();
+  const showToast = useToast((s) => s.show);
+  const cancel = useMutation({
+    mutationFn: () => cancelMyEventTicket(tk.id),
+    onSuccess: () => {
+      showToast(t('tiket.event_cancelled'), 'success');
+      void qc.invalidateQueries({ queryKey: ['event-tiket'] });
+      void qc.invalidateQueries({ queryKey: ['event'] });
+    },
+    onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
+  });
+  const askCancel = () =>
+    Alert.alert(t('tiket.event_cancel_title'), t('tiket.event_cancel_body', { name: tk.jemaat.namaLengkap, event: ev.judul }), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('reservasi.cancel_confirm'), style: 'destructive', onPress: () => cancel.mutate() },
+    ]);
   const relasi = tk.relasi ? <RelasiBadge label={tk.relasi} tamu={tk.jemaat.isTamu} /> : null;
 
   const header = (
@@ -191,6 +209,25 @@ export function EventTicketCard({
           <Hint text={t('tiket.radius_note', { radius: formatRadius(tk.selfCheckin.venue.radiusM ?? 0) })} />
         ) : null}
         <InlineError text={ck.error} />
+      </View>
+    );
+  }
+
+  // Batalkan tiket (gratis / belum bayar, sebelum event mulai) — di bawah aksi lain.
+  if (tk.canCancel && tk.status !== 'BATAL' && !hadir && !tk.ended) {
+    const cancelBtn = (
+      <Pressable
+        onPress={askCancel}
+        disabled={cancel.isPending}
+        className="self-center mt-2.5 px-3 py-1 rounded-full border border-red-200"
+      >
+        <Text className="text-[11px] font-semibold text-red-600">{cancel.isPending ? '…' : t('reservasi.cancel_btn')}</Text>
+      </Pressable>
+    );
+    footer = (
+      <View>
+        {footer}
+        {cancelBtn}
       </View>
     );
   }

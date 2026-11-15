@@ -15,6 +15,8 @@ export type EventTiket = {
   checkinMethod: string | null;
   payment: TicketPayment;
   totalBayar: number;
+  /** Boleh dibatalkan sendiri (gratis/belum bayar, event belum mulai). Server lama: undefined. */
+  canCancel?: boolean;
   isSelf: boolean;
   relasi: string | null;
   ended: boolean;
@@ -54,3 +56,7 @@ export async function listMyEventTickets(scope: TicketScope, eventId?: string): 
   syncServerClock(res.serverNow, startedAt);
   return res.tickets;
 }
+
+/** POST /admin/me/event-tiket/:id/cancel — batalkan tiket event (saya / keluarga / tamu saya). */
+export const cancelMyEventTicket = (id: string) =>
+  api.post<{ id: string; status: string }>(`/admin/me/event-tiket/${id}/cancel`, {});

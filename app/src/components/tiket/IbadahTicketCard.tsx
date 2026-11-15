@@ -178,7 +178,20 @@ export function IbadahTicketCard({
     } else if (r.pickedUpAt) {
       footer = <SwipeToCheckin state="DONE" label={t('tiket.pickup_done', { time: localTime(r.pickedUpAt) })} onConfirm={() => {}} />;
     } else if (!hadir) {
-      footer = <Hint text={t('tiket.desk_kids')} />;
+      footer = (
+        <View>
+          <Hint text={t('tiket.desk_kids')} />
+          {r.canCancel ? (
+            <Pressable
+              onPress={askCancel}
+              disabled={cancel.isPending}
+              className="self-center mt-2.5 px-3 py-1 rounded-full border border-red-200"
+            >
+              <Text className="text-[11px] font-semibold text-red-600">{cancel.isPending ? '…' : t('reservasi.cancel_btn')}</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      );
     }
   } else if (hadir) {
     const needCheckout = r.ibadah.requiresCheckout && !r.checkedOutAt;

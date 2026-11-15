@@ -2459,7 +2459,10 @@
     "cancel_checkin_title": "Batalkan check-in?",
     "cancel_checkin_body": "Check-in {{name}} akan dibatalkan. Pakai ini bila salah check-in (mis. yang bersangkutan tidak hadir). Bisa sampai 30 menit setelah ibadah selesai.",
     "cancel_checkin_confirm": "Ya, batalkan",
-    "checkin_cancelled": "Check-in dibatalkan"
+    "checkin_cancelled": "Check-in dibatalkan",
+    "event_cancelled": "Tiket event dibatalkan",
+    "event_cancel_title": "Batalkan tiket?",
+    "event_cancel_body": "Tiket {{name}} untuk {{event}} akan dibatalkan dan kursinya dilepas."
   },
   "appearance": {
     "title": "Tampilan",

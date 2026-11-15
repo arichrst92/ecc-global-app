@@ -2462,7 +2462,10 @@
     "cancel_checkin_title": "Undo check-in?",
     "cancel_checkin_body": "{{name}}'s check-in will be cancelled. Use this if the check-in was a mistake (e.g. they are not here). Available until 30 minutes after the service ends.",
     "cancel_checkin_confirm": "Yes, undo",
-    "checkin_cancelled": "Check-in cancelled"
+    "checkin_cancelled": "Check-in cancelled",
+    "event_cancelled": "Event ticket cancelled",
+    "event_cancel_title": "Cancel ticket?",
+    "event_cancel_body": "The ticket for {{name}} at {{event}} will be cancelled and the seat released."
   },
   "appearance": {
     "title": "Appearance",
