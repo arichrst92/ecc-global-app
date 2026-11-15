@@ -79,6 +79,8 @@
     "otp_verify": "Verify",
     "otp_sent": "OTP sent to your WhatsApp",
     "otp_resent": "OTP resent",
+    "otp_resent_email": "OTP resent — check your email too",
+    "otp_email_note": "WhatsApp OTP delivery is currently queued. To speed things up, we have sent your OTP code to your email.",
     "login_success": "Signed in",
     "logout": "Sign Out",
     "logout_confirm_title": "Sign Out",

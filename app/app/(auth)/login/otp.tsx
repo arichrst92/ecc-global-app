@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ShieldCheck } from 'lucide-react-native';
+import { ArrowLeft, Mail, ShieldCheck } from 'lucide-react-native';
 
 import { OtpInput } from '@/components/ui/OtpInput';
 import { useToast } from '@/components/ui/Toast';
@@ -22,7 +22,9 @@ export default function LoginOtpScreen() {
   const router = useRouter();
   const showToast = useToast((s) => s.show);
   const login = useAuthStore((s) => s.login);
-  const { noHp } = useLocalSearchParams<{ noHp: string }>();
+  const { noHp, viaEmail: viaEmailParam } = useLocalSearchParams<{ noHp: string; viaEmail?: string }>();
+  // OTP juga dikirim ke email (WhatsApp sedang antre) → tampilkan keterangan.
+  const [viaEmail, setViaEmail] = useState(viaEmailParam === '1');
 
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SEC);
   const [error, setError] = useState<string | null>(null);
@@ -56,9 +58,11 @@ export default function LoginOtpScreen() {
 
   const resendMutation = useMutation({
     mutationFn: async () => requestOtp({ noHp, purpose: 'LOGIN' }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       setCooldown(RESEND_COOLDOWN_SEC);
-      showToast(t('auth.otp_resent'), 'success');
+      const email = !!data?.channel?.includes('email');
+      if (email) setViaEmail(true);
+      showToast(email ? t('auth.otp_resent_email') : t('auth.otp_resent'), 'success');
     },
     onError: (err) => {
       const msg = err instanceof ApiError ? err.message : t('error.network');
@@ -80,7 +84,14 @@ export default function LoginOtpScreen() {
         </View>
         <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.otp_title')}</Text>
         <Text className="text-neutral-500 text-sm">{t('auth.otp_sub')}</Text>
-        <Text className="text-neutral-900 font-semibold mb-7 mt-1">{formatPhoneDisplay(noHp)}</Text>
+        <Text className={`text-neutral-900 font-semibold mt-1 ${viaEmail ? 'mb-4' : 'mb-7'}`}>{formatPhoneDisplay(noHp)}</Text>
+
+        {viaEmail ? (
+          <View className="flex-row gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mb-6">
+            <Mail size={18} color="#B45309" style={{ marginTop: 1 }} />
+            <Text className="flex-1 text-sm leading-5 text-amber-900">{t('auth.otp_email_note')}</Text>
+          </View>
+        ) : null}
 
         <OtpInput
           onComplete={(code) => {

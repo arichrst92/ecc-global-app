@@ -26,7 +26,10 @@ import type { User } from '@/types/api';
  * - 429 TOO_MANY_REQUESTS: rate limit hit
  */
 export function requestOtp(payload: RequestOtpPayload) {
-  return api.post<{ message: string }>('/auth/otp/request', payload, { skipAuth: true });
+  // data.channel ada bila OTP (juga) dikirim lewat email — WhatsApp sedang antre/terganggu.
+  return api.post<{ channel?: 'email' | 'whatsapp+email'; expiresIn?: number } | null>('/auth/otp/request', payload, {
+    skipAuth: true,
+  });
 }
 
 /**

@@ -36,8 +36,9 @@ export default function LoginPhoneScreen() {
 
   const mutation = useMutation({
     mutationFn: async (e164: string) => requestOtp({ noHp: e164, purpose: 'LOGIN' }),
-    onSuccess: (_data, e164) => {
-      router.push({ pathname: '/(auth)/login/otp', params: { noHp: e164 } });
+    onSuccess: (data, e164) => {
+      const viaEmail = !!data?.channel?.includes('email');
+      router.push({ pathname: '/(auth)/login/otp', params: { noHp: e164, viaEmail: viaEmail ? '1' : '0' } });
     },
     onError: (err) => {
       if (err instanceof ApiError) {

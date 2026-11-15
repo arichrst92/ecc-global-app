@@ -79,6 +79,8 @@
     "otp_verify": "Verifikasi",
     "otp_sent": "OTP terkirim ke WhatsApp Anda",
     "otp_resent": "OTP dikirim ulang",
+    "otp_resent_email": "OTP dikirim ulang — cek juga email Anda",
+    "otp_email_note": "Pengiriman OTP lewat WhatsApp sedang dalam antrean. Untuk mempercepat proses, kami kirimkan kode OTP Anda lewat email.",
     "login_success": "Berhasil masuk",
     "logout": "Keluar",
     "logout_confirm_title": "Keluar dari Akun",
