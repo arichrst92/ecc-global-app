@@ -65,6 +65,8 @@ export type IbadahOccurrence = {
   kategoriIbadah?: KategoriIbadah | null;
   /** Okupansi seat pertemuan ini (sama dengan detail). null/absen = seat belum diisi / server lama. */
   okupansi?: IbadahOkupansi | null;
+  /** Batas reservasi pertemuan ini (= jam mulai). Server lama: absen. */
+  reservasiClosesAt?: string;
 };
 
 /** Detail dari GET /admin/ibadah/:id — punya petugas + pelayanan */
@@ -82,6 +84,8 @@ export type IbadahDetail = IbadahListItem & {
   petugas?: IbadahPetugas[];
   kapasitasSeat?: number | null;
   okupansi?: IbadahOkupansi | null;
+  /** Batas reservasi pertemuan ?tanggal= (= jam mulai). */
+  reservasiClosesAt?: string | null;
 };
 
 export type IbadahPetugas = {

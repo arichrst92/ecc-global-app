@@ -45,6 +45,7 @@ import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
 import { isOccurrenceEnded } from '@/utils/time';
 import { hariLabel } from '@/utils/hari';
+import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -383,6 +384,13 @@ export default function IbadahDetailScreen() {
                 setTick((x) => x + 1);
                 selfCheckin.refetch();
               }}
+            />
+          ) : null}
+          {!ended ? (
+            <DeadlineCountdown
+              closesAt={ibadah?.reservasiClosesAt}
+              kind={ibadah?.isKidsIbadah ? 'kids' : 'ibadah'}
+              className="mb-2"
             />
           ) : null}
           <View className="flex-row gap-2">

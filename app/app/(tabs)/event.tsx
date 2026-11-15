@@ -28,6 +28,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { rupiahShort } from '@/utils/hari';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
+import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 
 type Filter = 'all' | 'GRATIS' | 'PAID';
 
@@ -275,6 +276,7 @@ function EventCard({
             </Text>
           </View>
         )}
+        <DeadlineCountdown closesAt={event.registrationClosesAt} kind="event" compact className="mt-2" />
       </View>
     </Pressable>
   );

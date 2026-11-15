@@ -14,6 +14,8 @@ type CabangRef = { id: string; nama: string; /** Zona waktu cabang (IANA). */ ti
 
 /** Item dari GET /admin/event (list, paginated) */
 export type EventListItem = {
+  /** Batas pendaftaran online (= event mulai). Server lama: absen. */
+  registrationClosesAt?: string | null;
   id: string;
   judul: string;
   slug: string;

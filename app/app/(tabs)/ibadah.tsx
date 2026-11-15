@@ -24,6 +24,7 @@ import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
 import { isOccurrenceEnded } from '@/utils/time';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
+import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 
 const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 
@@ -158,7 +159,7 @@ function DateSection({
   onTapItem,
 }: {
   date: string;
-  items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null; okupansi?: IbadahOkupansi | null }[];
+  items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null; okupansi?: IbadahOkupansi | null; reservasiClosesAt?: string }[];
   onTapItem: (id: string) => void;
 }) {
   const { i18n, t } = useTranslation();
@@ -215,6 +216,8 @@ function DateSection({
               </Text>
               {/* Kuota seat pertemuan — sama dengan detail ibadah (hanya bila seat diisi) */}
               <OccupancyBar data={item.okupansi} compact />
+              {/* Batas reservasi (DD:hh:mm) — pertemuan yang belum selesai */}
+              {!ended ? <DeadlineCountdown closesAt={item.reservasiClosesAt} kind="ibadah" compact className="mt-1.5" /> : null}
             </View>
             <ChevronRight size={16} color={nc('#A3A3A3')} />
           </Pressable>

@@ -33,6 +33,8 @@ import { ShareCardModal } from '@/features/share/ShareCardModal';
 import { ArticleShareCard, EventShareCard } from '@/features/share/cards';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
+import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
+import { serverNowMs } from '@/utils/serverClock';
 
 export default function EventDetailScreen() {
   const hero = useHeroScroll();
@@ -53,6 +55,8 @@ export default function EventDetailScreen() {
   const familyQuery = useMyEventParticipations(id);
   const familyParticipations: EventParticipation[] = familyQuery.data ?? [];
   // Tiket saya / keluarga / tamu di event ini (geser check-in per tiket).
+  // Pendaftaran online tutup saat event mulai (server: REGISTRATION_CLOSED).
+  const regClosed = !!event?.registrationClosesAt && serverNowMs() >= new Date(event.registrationClosesAt).getTime();
   const ticketsQuery = useQuery({
     queryKey: ['event-tiket', 'upcoming', id ?? null],
     queryFn: () => listMyEventTickets('upcoming', id),
@@ -624,6 +628,7 @@ export default function EventDetailScreen() {
                   <Text className="flex-1 text-xs text-amber-900 leading-5">{event.eligibilityMessage}</Text>
                 </View>
               ) : null}
+              <DeadlineCountdown closesAt={event.registrationClosesAt} kind="event" className="mb-3" />
               <View className="flex-row items-center gap-3">
                 <View>
                   <Text className="text-xs text-neutral-500">{t('event.fee_label')}</Text>
@@ -632,14 +637,16 @@ export default function EventDetailScreen() {
                 <View className="flex-1">
                   <Button
                     label={
-                      isFull
+                      regClosed
+                        ? t('event.registration_closed_btn')
+                        : isFull
                         ? t('event.quota_full')
                         : familyParticipations.length > 0 || participation
                           ? t('event.register_family_more')
                           : t('event.register_now')
                     }
                     onPress={() => router.push(`/event/${id}/register`)}
-                    disabled={isFull}
+                    disabled={isFull || regClosed}
                     fullWidth
                     size="lg"
                     rightIcon={<ArrowRight size={16} color="#fff" />}

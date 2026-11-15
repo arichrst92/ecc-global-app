@@ -603,7 +603,8 @@
     "donasi_batal": "Dibatalkan",
     "lihat_bukti": "lihat bukti",
     "not_found_title": "Event tidak tersedia",
-    "not_found_body": "Event ini sudah dihapus atau tidak lagi dipublikasikan."
+    "not_found_body": "Event ini sudah dihapus atau tidak lagi dipublikasikan.",
+    "registration_closed_btn": "Pendaftaran online ditutup"
   },
   "branch": {
     "active_label": "Cabang aktif",
@@ -2809,5 +2810,13 @@
     "max": "maks {{mb}} MB",
     "label_hero": "Sampul",
     "label_logo": "Logo"
+  },
+  "deadline": {
+    "ibadah_label": "Batas reservasi",
+    "event_label": "Batas pendaftaran online",
+    "unit_hint": "hari : jam : menit",
+    "ibadah_closed": "Reservasi ditutup karena ibadah sudah dimulai — gunakan self check-in di app saat hadir.",
+    "kids_closed": "Reservasi ditutup karena ibadah sudah dimulai — check-in anak langsung di meja CKids.",
+    "event_closed": "Pendaftaran online ditutup karena event sudah dimulai — silakan registrasi walk-in di lokasi melalui petugas."
   }
 }
