@@ -67,7 +67,11 @@ export default function IbadahDetailScreen() {
   const ibadah = query.data;
   // Tiket reservasi saya / keluarga / tamu untuk ibadah ini (aktif).
   const myTicketsQ = useMyReservasi({ ibadahId: id, activeOnly: true }, { enabled: !!id });
-  const myTickets = (myTicketsQ.data ?? []).filter((r) => r.status !== 'CANCEL');
+  // Hanya tiket untuk pertemuan (tanggal) yang sedang dibuka — tiket tanggal
+  // lain dari ibadah yang sama tidak ikut tampil.
+  const myTickets = (myTicketsQ.data ?? []).filter(
+    (r) => r.status !== 'CANCEL' && (!tanggal || r.tanggalIbadah.slice(0, 10) === tanggal.slice(0, 10)),
+  );
   // Jam jadwal = jam dinding cabang + label zona (mis. Waktu Kuala Lumpur);
   // bila zona HP berbeda, jam setempat ditampilkan sebagai keterangan.
   const branchTz = useVenueTz(ibadah?.cabang?.id);
