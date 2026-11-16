@@ -2818,5 +2818,12 @@
     "ibadah_closed": "Reservasi ditutup karena ibadah sudah dimulai — gunakan self check-in di app saat hadir.",
     "kids_closed": "Reservasi ditutup karena ibadah sudah dimulai — check-in anak langsung di meja CKids.",
     "event_closed": "Pendaftaran online ditutup karena event sudah dimulai — silakan registrasi walk-in di lokasi melalui petugas."
+  },
+  "announcement": {
+    "label": "Pengumuman",
+    "close": "Tutup",
+    "counter": "{{i}} dari {{n}} pengumuman",
+    "not_found": "Pengumuman tidak ditemukan.",
+    "title": "Pengumuman"
   }
 }

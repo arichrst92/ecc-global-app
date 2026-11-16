@@ -29,6 +29,7 @@ import {
   Home,
   MapPin,
   MapPinOff,
+  Megaphone,
   Sliders,
   Star,
   Ticket,
@@ -90,6 +91,8 @@ function NotifIcon({ iconKey, color }: { iconKey: NotifIconKey; color: string })
       return <MapPin size={18} color={color} />;
     case 'map-x':
       return <MapPinOff size={18} color={color} />;
+    case 'megaphone':
+      return <Megaphone size={18} color={color} />;
     default:
       return <Bell size={18} color={color} />;
   }
@@ -292,6 +295,9 @@ function NotifRow({
         <NotifIcon iconKey={iconKey} color={colors.fg} />
       </View>
       <View className="flex-1 min-w-0">
+        {item.type === 'ANNOUNCEMENT' ? (
+          <Text className="text-[10px] font-bold text-brand-700 uppercase tracking-wider">{t('announcement.label')}</Text>
+        ) : null}
         <View className="flex-row items-start gap-2">
           <Text
             className={`flex-1 text-sm font-semibold ${

@@ -2821,5 +2821,12 @@
     "ibadah_closed": "Reservations are closed because the service has started — use self check-in in the app when you arrive.",
     "kids_closed": "Reservations are closed because the service has started — check your child in at the CKids desk.",
     "event_closed": "Online registration is closed because the event has started — please register as a walk-in at the venue with our staff."
+  },
+  "announcement": {
+    "label": "Announcement",
+    "close": "Close",
+    "counter": "{{i}} of {{n}} announcements",
+    "not_found": "Announcement not found.",
+    "title": "Announcement"
   }
 }

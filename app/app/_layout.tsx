@@ -22,6 +22,7 @@ import '@/i18n';
 import '@/utils/webAlertPolyfill';
 import { useAuthStore } from '@/stores/auth.store';
 import { ConsentGate } from '@/features/consent/ConsentGate';
+import { AnnouncementPopupHost } from '@/components/announcement/AnnouncementPopupHost';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useBranchStore } from '@/stores/branch.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
@@ -358,6 +359,8 @@ function RootLayoutNav() {
       </Stack>
       {/* Kepatuhan no. 2 — minta persetujuan S&K/Privasi versi terbaru */}
       <ConsentGate />
+      {/* Pengumuman dari Portal (Broadcast → Announcement) — popup sekali */}
+      <AnnouncementPopupHost />
     </ThemeProvider>
   );
 }

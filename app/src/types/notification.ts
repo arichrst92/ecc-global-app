@@ -37,6 +37,7 @@ export type InAppNotifType =
   | 'VISIT_RECORDED'
   | 'BRANCH_CHANGE_APPROVED'
   | 'BRANCH_CHANGE_REJECTED'
+  | 'ANNOUNCEMENT'
   // Ministry join approval (docs/backend-request-ministry-join-approval.md)
   | 'MINISTRY_JOIN_REQUESTED'
   | 'MINISTRY_JOIN_APPROVED'

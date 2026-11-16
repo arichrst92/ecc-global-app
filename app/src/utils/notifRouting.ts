@@ -25,6 +25,7 @@ const KNOWN_ROUTES: RegExp[] = [
   '/ministry', `/ministry/${ID}`, '/feedback', `/feedback/${ID}`,
   '/doa', `/doa/${ID}`, `/doa/assigned/${ID}`, '/notifications', '/tiket', '/spiritual-journey', '/profile/my-service',
   '/profile/businesses', `/profile/businesses/${ID}`,
+  `/announcement/${ID}`,
 ].map((p) => new RegExp(`^${p.replace(/[()]/g, '\\$&')}/?(\\?.*)?$`));
 
 const isKnownRoute = (url: string) => KNOWN_ROUTES.some((re) => re.test(url));
@@ -204,6 +205,7 @@ export type NotifIconKey =
   | 'user-eye'
   | 'map-check'
   | 'map-x'
+  | 'megaphone'
   | 'bell';
 
 export function notifIconKey(type: InAppNotifType): NotifIconKey {
@@ -285,6 +287,8 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'home-check';
     case 'MINISTRY_DUTY_REMOVED':
       return 'group-remove';
+    case 'ANNOUNCEMENT':
+      return 'megaphone';
     default:
       return 'bell';
   }
@@ -325,6 +329,8 @@ export function notifIconColors(key: NotifIconKey): {
       return { bgClass: 'bg-green-50', fg: '#16a34a' };
     case 'map-x':
       return { bgClass: 'bg-red-50', fg: nc('#b91c1c') };
+    case 'megaphone':
+      return { bgClass: 'bg-brand-50', fg: '#EA580C' };
     default:
       return { bgClass: 'bg-neutral-100', fg: nc('#525252') };
   }
