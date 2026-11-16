@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import { env } from '@/config/env';
+import { BrandImagePlaceholder } from '@/components/ui/BrandImagePlaceholder';
 
 type Props = {
   /** Path relatif dari BE (mis. /uploads/...) atau URL absolute */
@@ -117,14 +118,15 @@ export function HeroImage({
     );
   }
 
-  // Fallback — emoji centered. Untuk fitToWidth pakai fallbackAspect biar
-  // layout konsisten (gak tiba-tiba kosong / collapse).
+  // Fallback — gradient oranye + logo Els App (seragam di semua konten).
+  // fallbackEmoji tidak dipakai lagi (dipertahankan untuk kompatibilitas prop).
+  // Untuk fitToWidth pakai fallbackAspect biar layout konsisten.
+  void fallbackEmoji;
   return (
-    <View
-      className={`${className ?? ''} items-center justify-center bg-brand-300`}
+    <BrandImagePlaceholder
+      className={className}
       style={[style, fitToWidth ? { aspectRatio: fallbackAspect } : null]}
-    >
-      <Text className="text-neutral-900" style={{ fontSize: emojiSize }}>{fallbackEmoji}</Text>
-    </View>
+      logoSize={emojiSize}
+    />
   );
 }

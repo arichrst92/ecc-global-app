@@ -13,6 +13,7 @@ import { useDeleteGroupHero, useUploadGroupHero } from '@/hooks/useGroupContent'
 import { ApiError } from '@/types/api';
 import { nc } from '@/theme/ThemeRoot';
 import { UploadHint } from '@/components/ui/UploadHint';
+import { BrandImagePlaceholder } from '@/components/ui/BrandImagePlaceholder';
 
 export const groupImageHref = (u: string) => (u.startsWith('http') ? u : `${env.apiBaseUrl}${u}`);
 
@@ -79,13 +80,11 @@ export function GroupHero({
       {heroImageUrl ? (
         <Image source={{ uri: groupImageHref(heroImageUrl) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
       ) : (
-        <View className="flex-1 items-center justify-center">
-          <Text className="text-neutral-900 text-6xl">{emoji}</Text>
-        </View>
+        <BrandImagePlaceholder className="flex-1" logoSize={64} />
       )}
       {heroImageUrl ? <View className="absolute inset-0 bg-black/30" /> : null}
       <View className="absolute left-4 right-4 bottom-3">
-        <Text className={`text-xl font-bold ${heroImageUrl ? 'text-white' : 'text-brand-800'}`} numberOfLines={2}>
+        <Text className="text-xl font-bold text-white" numberOfLines={2}>
           {nama}
         </Text>
         {!isPublic ? (

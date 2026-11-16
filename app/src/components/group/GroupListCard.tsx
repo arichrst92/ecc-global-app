@@ -14,6 +14,7 @@ import { formatDate } from '@/utils/date';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { hariLabel } from '@/utils/hari';
+import { BrandImagePlaceholder } from '@/components/ui/BrandImagePlaceholder';
 
 export type GroupListCardData = {
   nama: string;
@@ -57,9 +58,7 @@ export function GroupListCard({
             resizeMode="cover"
           />
         ) : (
-          <View className="absolute inset-0 items-center justify-center">
-            <Text className="text-neutral-900" style={{ fontSize: 44 }}>{jenisInfo.emoji}</Text>
-          </View>
+          <BrandImagePlaceholder className="absolute inset-0" logoSize={48} />
         )}
         <View className="absolute top-2.5 left-2.5 right-2.5 flex-row items-center gap-1.5">
           <View className="flex-row items-center gap-1 bg-white/95 px-2 py-1 rounded-full">

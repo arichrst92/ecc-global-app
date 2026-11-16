@@ -7,10 +7,10 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { ImageOff } from 'lucide-react-native';
 
 import { env } from '@/config/env';
 import { nc } from '@/theme/ThemeRoot';
+import { BrandImagePlaceholder } from '@/components/ui/BrandImagePlaceholder';
 
 /**
  * Image wrapper dengan graceful fallback kalau:
@@ -20,7 +20,7 @@ import { nc } from '@/theme/ThemeRoot';
  * Auto-prepend base API URL kalau path relative (starts with "/") — BE
  * kadang return absolute URL, kadang relative path. Defensive untuk both.
  *
- * Render placeholder neutral box dengan icon ImageOff kalau gagal.
+ * Render placeholder gradient oranye + logo Els App kalau kosong / gagal.
  */
 type Props = Omit<ImageProps, 'source'> & {
   /** URI string, atau null/undefined → fallback placeholder. Bisa absolute
@@ -51,17 +51,11 @@ export function SafeImage({ uri, containerStyle, placeholderBg = nc('#F5F5F5'), 
   const shouldShowPlaceholder = !hasUri || failed;
 
   if (shouldShowPlaceholder) {
-    return (
-      <View
-        style={[
-          { backgroundColor: placeholderBg, alignItems: 'center', justifyContent: 'center' },
-          containerStyle,
-          style as object,
-        ]}
-      >
-        <ImageOff size={32} color={nc('#A3A3A3')} />
-      </View>
-    );
+    // Gambar konten kosong / gagal → gradient oranye + logo Els App.
+    void placeholderBg;
+    const dim = (style ?? {}) as { width?: number; height?: number };
+    const logo = typeof dim.width === 'number' && typeof dim.height === 'number' ? Math.min(dim.width, dim.height) * 0.42 : 48;
+    return <BrandImagePlaceholder style={[containerStyle, style as object]} logoSize={logo} />;
   }
 
   const fullUri = normalizeUri(uri!);
