@@ -6,17 +6,17 @@
  *
  * Format: markdown ringan via toolbar (tebal, miring, judul, poin, nomor,
  * kutipan, stabilo, ayat, gambar). Tanpa modul native.
- * Gambar (2.4.9): kamera / galeri → diunggah → disisipkan di posisi kursor
- * sebagai baris `![gambar](url)`, tampil menyatu dengan teks di Pratinjau &
- * tampilan baca; daftar gambar di atas kotak tulis (ketuk × untuk hapus).
- * Di kotak tulis baris gambar tampil sebagai penanda pendek "[Gambar n]"
- * (teks tersimpan tetap markdown asli) — lihat imageView().
+ *
+ * 2.4.9 — "ketuk untuk mengedit": catatan selalu tampil rapi (tanpa tab
+ * Tulis/Pratinjau). Ketuk satu paragraf → hanya paragraf itu yang menjadi kotak
+ * ketik; selesai (tutup keyboard / ketuk paragraf lain) → tampil rapi lagi.
+ * Gambar (kamera / galeri) tampil langsung sebagai gambar; ketuk × untuk hapus.
+ * Teks tersimpan tetap markdown yang sama (kompatibel dengan 2.4.8).
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Platform,
   Pressable,
   ScrollView,
@@ -49,7 +49,7 @@ import {
 
 import * as ImagePicker from 'expo-image-picker';
 import { AyatInsertModal } from '@/components/catatan/AyatInsertModal';
-import { CatatanRender, catatanImgSrc } from '@/components/catatan/CatatanRender';
+import { CatatanRender } from '@/components/catatan/CatatanRender';
 import { imageAssetToFile } from '@/utils/pickedImage';
 import { DatePickerModal } from '@/components/ui/DatePickerModal';
 import { useToast } from '@/components/ui/Toast';
@@ -57,15 +57,14 @@ import { CATATAN_KEY, createCatatan, getCatatan, updateCatatan, uploadCatatanIma
 import { useCatatanBridge, type AyatInsert } from '@/stores/catatanBridge.store';
 import { useAuthStore } from '@/stores/auth.store';
 import {
-  applyDisplayEdit,
+  blockRanges,
   continueList,
-  dispToRaw,
-  imageView,
   imagesOf,
-  rawToDisp,
   insertBlock,
+  removeRange,
   toggleLinePrefix,
   wrapInline,
+  type BlockRange,
   type Edit,
   type Sel,
 } from '@/utils/catatanMarkdown';
@@ -94,7 +93,8 @@ export default function CatatanEditScreen() {
   const [ayat, setAyat] = useState<string[]>([]);
   const [pengkhotbah, setPengkhotbah] = useState('');
   const [tanggal, setTanggal] = useState(ymdLocal(new Date()));
-  const [tab, setTab] = useState<'write' | 'preview'>('write');
+  // Paragraf yang sedang diketik: posisi & panjang di teks asli (null = semua tampil rapi).
+  const [active, setActive] = useState<{ start: number; len: number } | null>(null);
   const [sel, setSel] = useState<Sel>({ start: 0, end: 0 });
   const [forcedSel, setForcedSel] = useState<Sel | undefined>(undefined);
   const [ayatOpen, setAyatOpen] = useState(false);
@@ -108,6 +108,15 @@ export default function CatatanEditScreen() {
   const [bodyH, setBodyH] = useState(0);
   const selRef = useRef(sel);
   selRef.current = sel;
+  const isiRef = useRef(isi);
+  isiRef.current = isi;
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  // Ketukan toolbar / paragraf lain sesaat sebelum blur → jangan tutup mode ketik.
+  const keepRef = useRef(0);
+  const keep = () => {
+    keepRef.current = Date.now();
+  };
 
   // ----- Muat catatan / draf -----
   const existing = useQuery({ queryKey: [...CATATAN_KEY, 'detail', id], queryFn: () => getCatatan(id!), enabled: !!id });
@@ -187,13 +196,14 @@ export default function CatatanEditScreen() {
     setAyat((prev) => (prev.includes(a.ref) ? prev : [...prev, a.ref].slice(0, 20)));
     if (a.quote) {
       setIsi((prev) => {
-        const cur = selRef.current;
+        // Sedang mengetik → di posisi kursor; tidak → di akhir catatan.
+        const cur = activeRef.current ? selRef.current : { start: prev.length, end: prev.length };
         const at = cur.end <= prev.length ? cur : { start: prev.length, end: prev.length };
         const e = insertBlock(prev, at, a.quote);
         setSel(e.sel);
-        setForcedSel(e.sel);
         return e.text;
       });
+      setActive(null);
     }
   }, []);
 
@@ -208,8 +218,6 @@ export default function CatatanEditScreen() {
   // ----- Gambar (kamera / galeri) -----
   const [uploading, setUploading] = useState(false);
   const images = imagesOf(isi);
-  // Kotak tulis: baris gambar → "[Gambar n]" (nomor sama dengan thumbnail).
-  const view = useMemo(() => imageView(isi, (n) => `[${t('catatan.img_token', { n })}]`), [isi, t]);
   async function addImage(source: 'camera' | 'library') {
     if (images.length >= 30) return showToast(t('catatan.img_max'), 'error');
     const perm =
@@ -222,7 +230,17 @@ export default function CatatanEditScreen() {
     setUploading(true);
     try {
       const { url } = await uploadCatatanImage(await imageAssetToFile(a, 'catatan.jpg'));
-      apply((x, s) => insertBlock(x, s, `![${t('catatan.img_alt')}](${url})`));
+      const md = `![${t('catatan.img_alt')}](${url})`;
+      touch();
+      // Sisip di posisi kursor (bila sedang mengetik) atau di akhir catatan.
+      setIsi((prev) => {
+        const cur = activeRef.current ? selRef.current : { start: prev.length, end: prev.length };
+        const at = cur.end <= prev.length ? cur : { start: prev.length, end: prev.length };
+        const e = insertBlock(prev, at, md);
+        setSel(e.sel);
+        return e.text;
+      });
+      setActive(null);
     } catch (e) {
       showToast(e instanceof ApiError ? e.message : t('catatan.img_failed'), 'error');
     } finally {
@@ -238,50 +256,77 @@ export default function CatatanEditScreen() {
       { text: t('common.cancel'), style: 'cancel' },
     ]);
   }
-  function removeImage(url: string) {
+  function removeBlock(start: number, end: number) {
     touch();
-    // Hapus baris gambar beserta satu baris kosong sesudahnya (bila ada).
-    setIsi((prev) =>
-      prev
-        .split('\n')
-        .filter((l) => !(l.trim().startsWith('![') && l.includes(`(${url})`)))
-        .join('\n')
-        .replace(/\n{3,}/g, '\n\n'),
-    );
+    setActive(null);
+    setIsi((prev) => removeRange(prev, start, end));
+  }
+
+  // ----- Mode ketik per paragraf -----
+  function startEdit(start: number, end: number, cursor = end) {
+    keep();
+    setActive({ start, len: end - start });
+    const c = { start: cursor, end: cursor };
+    setSel(c);
+    setForcedSel(c);
+  }
+  /** Mulai mengetik di akhir: paragraf teks terakhir, atau paragraf baru. */
+  function startEditAtEnd() {
+    startEditAtEndOf(isi);
+  }
+  function startEditAtEndOf(text: string) {
+    const blocks = blockRanges(text);
+    const last = blocks[blocks.length - 1];
+    if (last && !last.img && !text.slice(last.end).trim()) return startEdit(last.start, last.end);
+    const base = text.replace(/\s+$/, '');
+    const next = base ? `${base}\n\n` : '';
+    if (next !== text) setIsi(next);
+    startEdit(next.length, next.length);
+  }
+  function endEdit() {
+    const a = activeRef.current;
+    if (!a) return;
+    const cur = isiRef.current;
+    // Paragraf yang dikosongkan → buang beserta baris kosongnya.
+    if (!cur.slice(a.start, a.start + a.len).trim()) {
+      const next = removeRange(cur, a.start, a.start + a.len);
+      if (next !== cur) setIsi(next);
+    }
+    setActive(null);
   }
 
   // ----- Toolbar -----
   function apply(fn: (text: string, s: Sel) => Edit) {
+    if (!active) return startEditAtEnd();
     touch();
+    keep();
     const e = fn(isi, sel);
     setIsi(e.text);
+    setActive({ start: active.start, len: Math.max(0, active.len + e.text.length - isi.length) });
     setSel(e.sel);
     setForcedSel(e.sel);
-    if (tab !== 'write') setTab('write');
     requestAnimationFrame(() => bodyRef.current?.focus());
   }
 
-  function onChangeBody(nextDisplay: string) {
+  function onChangeBody(nextLocal: string) {
+    if (!active) return;
     touch();
-    // Perubahan di tampilan (penanda gambar) → teks asli + kursor (koordinat asli).
-    const { text: next, cursor } = applyDisplayEdit(isi, view, nextDisplay);
+    const before = isi.slice(0, active.start);
+    const after = isi.slice(active.start + active.len);
+    const next = before + nextLocal + after;
+    // Kursor setelah perubahan ≈ posisi akhir seleksi lama + selisih panjang.
+    const cursor = sel.start + (next.length - isi.length) + (sel.end - sel.start);
     const cont = continueList(isi, next, cursor);
     if (cont) {
       setIsi(cont.text);
+      setActive({ start: active.start, len: cont.text.length - before.length - after.length });
       setSel(cont.sel);
       setForcedSel(cont.sel);
     } else {
       setIsi(next);
-      // Penanda gambar terhapus utuh / ketikan dipindah → kursor perlu dipaksa.
-      const shownNext = imageView(next, (n) => `[${t('catatan.img_token', { n })}]`).display;
-      if (shownNext !== nextDisplay) {
-        const c = { start: cursor, end: cursor };
-        setSel(c);
-        setForcedSel(c);
-      }
+      setActive({ start: active.start, len: nextLocal.length });
     }
   }
-  const forcedDisp = forcedSel ? { start: rawToDisp(view, forcedSel.start), end: rawToDisp(view, forcedSel.end) } : undefined;
 
   // ----- Simpan -----
   const payload = (): CatatanInput => ({
@@ -330,6 +375,62 @@ export default function CatatanEditScreen() {
       </View>
     );
   }
+
+  const activeText = active ? isi.slice(active.start, active.start + active.len) : '';
+  const forcedLocal =
+    forcedSel && active
+      ? { start: Math.max(0, forcedSel.start - active.start), end: Math.max(0, forcedSel.end - active.start) }
+      : undefined;
+  const webH = 26 * (activeText.split('\n').length + Math.floor(activeText.length / 42)) + 16;
+
+  /** Pindah mengetik ke paragraf lain (null = di akhir). Paragraf aktif yang kosong dibuang. */
+  function switchTo(b: BlockRange | null) {
+    keep();
+    let text = isi;
+    let start = b?.start ?? 0;
+    let end = b?.end ?? 0;
+    if (active && !activeText.trim()) {
+      text = removeRange(isi, active.start, active.start + active.len);
+      if (b && b.start > active.start) {
+        start += text.length - isi.length;
+        end += text.length - isi.length;
+      }
+      if (text !== isi) setIsi(text);
+    }
+    if (!b) {
+      isiRef.current = text;
+      return startEditAtEndOf(text);
+    }
+    startEdit(start, end);
+  }
+
+  const renderBlocks = (bs: BlockRange[]) =>
+    bs.map((b) =>
+      b.img ? (
+        <View key={`b${b.start}`} className="my-1">
+          <CatatanRender text={isi.slice(b.start, b.end)} />
+          <Pressable
+            onPressIn={keep}
+            onPress={() => removeBlock(b.start, b.end)}
+            hitSlop={8}
+            accessibilityLabel={t('common.delete')}
+            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-neutral-900/70 items-center justify-center"
+          >
+            <X size={16} color="#fff" />
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable
+          key={`b${b.start}`}
+          onPressIn={keep}
+          onPress={() => switchTo(b)}
+          accessibilityHint={t('catatan.tap_to_edit')}
+          className="rounded-lg py-0.5 active:bg-neutral-100"
+        >
+          <CatatanRender text={isi.slice(b.start, b.end)} />
+        </Pressable>
+      ),
+    );
 
   const tools: { key: string; icon: React.ReactNode; onPress: () => void; label: string }[] = [
     { key: 'b', icon: <Bold size={18} color={nc('#262626')} />, onPress: () => apply((x, s) => wrapInline(x, s, '**')), label: t('catatan.tool_bold') },
@@ -423,84 +524,63 @@ export default function CatatanEditScreen() {
             </Pressable>
           </View>
 
-          {/* Tulis / Pratinjau */}
-          <View className="flex-row bg-neutral-100 rounded-xl p-1 mt-4 mb-2">
-            {(['write', 'preview'] as const).map((k) => (
-              <Pressable key={k} onPress={() => setTab(k)} className={`flex-1 py-1.5 rounded-lg items-center ${tab === k ? 'bg-card' : ''}`}>
-                <Text className={`text-xs font-semibold ${tab === k ? 'text-neutral-900' : 'text-neutral-500'}`}>
-                  {k === 'write' ? t('catatan.tab_write') : t('catatan.tab_preview')}
-                </Text>
+          {/* Isi catatan — selalu tampil rapi; ketuk paragraf untuk mengedit */}
+          <View className="bg-card rounded-2xl border border-neutral-100 px-4 py-3 mt-4" style={{ minHeight: 280 }}>
+            {renderBlocks(blockRanges(active ? isi.slice(0, active.start) : isi))}
+            {active ? (
+              <>
+                <TextInput
+                  key={`edit-${active.start}`}
+                  ref={bodyRef}
+                  autoFocus
+                  value={activeText}
+                  onChangeText={onChangeBody}
+                  onSelectionChange={(e) => {
+                    const d = e.nativeEvent.selection;
+                    setSel({ start: active.start + d.start, end: active.start + d.end });
+                    if (forcedSel) setForcedSel(undefined);
+                  }}
+                  selection={forcedLocal}
+                  onBlur={() => {
+                    // Tutup keyboard / ketuk di luar → tampil rapi lagi (kecuali ketukan toolbar).
+                    setTimeout(() => {
+                      if (Date.now() - keepRef.current < 450) return;
+                      endEdit();
+                    }, 250);
+                  }}
+                  multiline
+                  textAlignVertical="top"
+                  placeholder={t('catatan.isi_placeholder')}
+                  placeholderTextColor={nc('#A3A3A3')}
+                  maxLength={Math.max(activeText.length, 20000 - (isi.length - activeText.length))}
+                  // Native: kotak memanjang mengikuti isi. Web: contentSize = scrollHeight textarea
+                  // (loop render bila dipakai) → tinggi diperkirakan dari jumlah baris.
+                  onContentSizeChange={
+                    Platform.OS === 'web'
+                      ? undefined
+                      : (e) => {
+                          const h = Math.ceil(e.nativeEvent.contentSize.height) + 12;
+                          setBodyH((prev) => (Math.abs(prev - h) < 2 ? prev : h));
+                        }
+                  }
+                  className="text-base text-neutral-900 leading-relaxed bg-brand-50/60 rounded-lg px-2 py-1.5 -mx-2 my-1"
+                  style={{ minHeight: Platform.OS === 'web' ? webH : Math.max(48, bodyH) }}
+                />
+                {renderBlocks(blockRanges(isi.slice(active.start + active.len), active.start + active.len))}
+              </>
+            ) : null}
+            {uploading ? (
+              <View className="h-24 rounded-xl bg-neutral-100 items-center justify-center my-2">
+                <ActivityIndicator color="#EA580C" />
+              </View>
+            ) : null}
+            {!active ? (
+              <Pressable onPressIn={keep} onPress={() => switchTo(null)} className="flex-1 py-2" style={{ minHeight: isi.trim() ? 64 : 240 }}>
+                <Text className="text-base text-neutral-400">{isi.trim() ? t('catatan.tap_to_write') : t('catatan.isi_placeholder')}</Text>
               </Pressable>
-            ))}
+            ) : null}
           </View>
-
-          {tab === 'write' && (images.length || uploading) ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              // Jangan ikut melar mengisi layar (web: ScrollView flexGrow 1 → kotak tulis terdorong ke bawah).
-              style={{ flexGrow: 0, flexShrink: 0 }}
-              contentContainerStyle={{ gap: 8, paddingTop: 6, paddingRight: 6, paddingBottom: 8 }}
-            >
-              {images.map((u, i) => (
-                <View key={u} style={{ width: 72, height: 72 }}>
-                  <Image source={{ uri: catatanImgSrc(u) }} style={{ width: 72, height: 72, borderRadius: 10, backgroundColor: '#F5F5F5' }} />
-                  <View className="absolute left-1 bottom-1 px-1.5 rounded-md bg-neutral-900/70">
-                    <Text className="text-[10px] font-bold text-white">{i + 1}</Text>
-                  </View>
-                  <Pressable
-                    onPress={() => removeImage(u)}
-                    hitSlop={8}
-                    accessibilityLabel={t('common.delete')}
-                    className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-neutral-900/80 items-center justify-center"
-                  >
-                    <X size={13} color="#fff" />
-                  </Pressable>
-                </View>
-              ))}
-              {uploading ? (
-                <View style={{ width: 72, height: 72 }} className="rounded-[10px] bg-neutral-100 items-center justify-center">
-                  <ActivityIndicator color="#EA580C" />
-                </View>
-              ) : null}
-            </ScrollView>
-          ) : null}
-          {tab === 'write' ? (
-            <TextInput
-              ref={bodyRef}
-              value={view.display}
-              onChangeText={onChangeBody}
-              onSelectionChange={(e) => {
-                const d = e.nativeEvent.selection;
-                setSel({ start: dispToRaw(view, d.start), end: dispToRaw(view, d.end) });
-                if (forcedSel) setForcedSel(undefined);
-              }}
-              selection={forcedDisp}
-              multiline
-              textAlignVertical="top"
-              placeholder={t('catatan.isi_placeholder')}
-              placeholderTextColor={nc('#A3A3A3')}
-              maxLength={20000}
-              // Native: kotak memanjang mengikuti isi (contentSize = teks saja, + padding).
-              // Web: TIDAK dipakai — contentSize di web = scrollHeight textarea yang ikut
-              // membesar saat minHeight diubah → loop render (React #185). Di web kotak
-              // cukup mengisi layar (flex-1) dan menggulir di dalam.
-              onContentSizeChange={
-                Platform.OS === 'web'
-                  ? undefined
-                  : (e) => {
-                      const h = Math.ceil(e.nativeEvent.contentSize.height) + 34;
-                      setBodyH((prev) => (Math.abs(prev - h) < 2 ? prev : h));
-                    }
-              }
-              className="flex-1 bg-card rounded-2xl border border-neutral-100 p-4 text-base text-neutral-900 leading-relaxed"
-              style={{ minHeight: Math.max(280, bodyH) }}
-            />
-          ) : (
-            <View className="flex-1 bg-card rounded-2xl border border-neutral-100 p-4" style={{ minHeight: 280 }}>
-              {isi.trim() ? <CatatanRender text={isi} /> : <Text className="text-sm text-neutral-400">{t('catatan.preview_empty')}</Text>}
-            </View>
-          )}
+          {isi.trim() && !active ? <Text className="text-[11px] text-neutral-400 mt-2">{t('catatan.tap_to_edit')}</Text> : null}
           <Text className="text-[11px] text-neutral-400 mt-2">{t('catatan.private_hint')}</Text>
         </ScrollView>
 
@@ -508,12 +588,19 @@ export default function CatatanEditScreen() {
         <SafeAreaView edges={['bottom']} className="bg-card border-t border-neutral-200">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="always" contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 6, gap: 4 }}>
             {tools.map((x) => (
-              <Pressable key={x.key} onPress={x.onPress} accessibilityLabel={x.label} className="w-11 h-10 rounded-lg items-center justify-center active:bg-neutral-100">
+              <Pressable
+                key={x.key}
+                onPressIn={keep}
+                onPress={x.onPress}
+                accessibilityLabel={x.label}
+                className={`w-11 h-10 rounded-lg items-center justify-center active:bg-neutral-100 ${active ? '' : 'opacity-40'}`}
+              >
                 {x.icon}
               </Pressable>
             ))}
             <View className="w-px bg-neutral-200 mx-1 my-2" />
             <Pressable
+              onPressIn={keep}
               onPress={pickImage}
               disabled={uploading}
               accessibilityLabel={t('catatan.img_title')}
@@ -522,7 +609,7 @@ export default function CatatanEditScreen() {
               {uploading ? <ActivityIndicator size="small" color="#EA580C" /> : <ImagePlus size={16} color={nc('#404040')} />}
               <Text className="text-xs font-bold text-neutral-700">{t('catatan.tool_image')}</Text>
             </Pressable>
-            <Pressable onPress={() => setAyatOpen(true)} className="flex-row items-center gap-1.5 px-3 h-10 rounded-lg bg-brand-50">
+            <Pressable onPressIn={keep} onPress={() => setAyatOpen(true)} className="flex-row items-center gap-1.5 px-3 h-10 rounded-lg bg-brand-50">
               <BookOpen size={16} color="#EA580C" />
               <Text className="text-xs font-bold text-brand-700">{t('catatan.tool_ayat')}</Text>
             </Pressable>

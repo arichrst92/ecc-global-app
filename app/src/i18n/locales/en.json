@@ -2830,7 +2830,8 @@
     "img_permission": "Camera / photo access denied. Enable it in your phone Settings.",
     "img_failed": "Image upload failed. Please try again.",
     "img_max": "Up to 30 images per note.",
-    "img_token": "Image {{n}}"
+    "tap_to_edit": "Tap a paragraph to edit it.",
+    "tap_to_write": "Tap to write…"
   },
   "input_rules": {
     "nama_wajib": "Name is required.",

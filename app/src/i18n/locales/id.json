@@ -2824,7 +2824,8 @@
     "img_permission": "Izin kamera / galeri ditolak. Aktifkan di Pengaturan HP.",
     "img_failed": "Gambar gagal diunggah. Coba lagi.",
     "img_max": "Maksimal 30 gambar per catatan.",
-    "img_token": "Gambar {{n}}"
+    "tap_to_edit": "Ketuk paragraf untuk mengedit.",
+    "tap_to_write": "Ketuk untuk menulis…"
   },
   "input_rules": {
     "nama_wajib": "Nama wajib diisi.",
