@@ -37,7 +37,8 @@
     "profile": "Profil",
     "scanner": "Scanner",
     "ckids": "CKids",
-    "reservasi": "Reservasi"
+    "reservasi": "Reservasi",
+    "resolusi": "Resolusi"
   },
   "onboarding": {
     "slide1_title": "Selamat Datang di Keluarga ECC",
@@ -1733,9 +1734,9 @@
   },
   "ckids": {
     "tab_title": "CKids — Point & Hadiah Anak",
-    "empty_title": "Belum ada anak terdaftar",
-    "empty_body": "Tambahkan anak Anda (usia 13 tahun ke bawah, lengkap dengan tanggal lahir) di menu Keluarga untuk mengaktifkan CKids.",
-    "add_child_cta": "Tambah Anak",
+    "empty_title": "Belum ada data anak",
+    "empty_body": "Untuk melihat menu CKids, tambahkan anak berusia {{max}} tahun ke bawah di menu Keluarga.",
+    "add_child_cta": "Tambah anak",
     "selected_anak": "Anak Aktif",
     "no_selection": "Pilih anak…",
     "select_anak_title": "Pilih Anak",
@@ -1778,7 +1779,12 @@
     "age_years_other": "{{count}} tahun",
     "age_years": "{{count}} tahun",
     "age_rule_info": "Yang tampil di CKids hanya anak usia {{max}} tahun ke bawah (dihitung dari tanggal lahir di menu Keluarga).",
-    "katalog_error": "Katalog hadiah gagal dimuat. Coba lagi."
+    "katalog_error": "Katalog hadiah gagal dimuat. Coba lagi.",
+    "empty_dob_hint": "Isi tanggal lahir anak supaya usianya terbaca. Anak yang sudah terdaftar tanpa tanggal lahir belum tampil di sini.",
+    "empty_open_family": "Buka menu Keluarga",
+    "tab_sub": "Check-in & poin anak",
+    "guest_title": "CKids untuk anak Anda",
+    "guest_body": "Daftar atau masuk, lalu tambahkan anak di menu Keluarga untuk memakai CKids."
   },
   "my_reservasi": {
     "title": "Reservasi Saya",
@@ -2436,7 +2442,9 @@
     "kategori_FINANCE": "Keuangan",
     "kategori_MINISTRY": "Pelayanan",
     "kategori_PERSONAL_GROWTH": "Pengembangan Diri",
-    "kategori_OTHER": "Lainnya"
+    "kategori_OTHER": "Lainnya",
+    "guest_title": "Tulis resolusi tahun ini",
+    "guest_body": "Daftar atau masuk untuk menyimpan resolusi dan menandai yang sudah tercapai."
   },
   "worship": {
     "downloading": "Mengunduh…",

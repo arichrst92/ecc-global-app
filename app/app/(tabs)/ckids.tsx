@@ -57,6 +57,8 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
+import { GuestTabPrompt } from '@/components/guest/GuestTabPrompt';
+import { useAuthStore } from '@/stores/auth.store';
 
 export default function CKidsTabScreen() {
   const { t, i18n } = useTranslation();
@@ -64,6 +66,7 @@ export default function CKidsTabScreen() {
   const router = useRouter();
 
   const { children: myChildren, isPending: childrenPending, isEmpty } = useMyChildren();
+  const isGuest = useAuthStore((st) => st.isGuest);
   /** "8 tahun" dari tanggal lahir; null kalau belum diisi. */
   const ageText = (tgl: string | null | undefined) => {
     const a = ageInYears(tgl);
@@ -198,24 +201,30 @@ export default function CKidsTabScreen() {
     Promise.all([katalogQuery.refetch(), historyQuery.refetch()]),
   );
 
-  // Empty state — user tidak punya anak (bisa via family relations)
+  // Mode tamu → ajakan daftar (CKids memakai data Keluarga di akun).
+  if (isGuest) return <GuestTabPrompt title={t('ckids.guest_title')} body={t('ckids.guest_body')} />;
+
+  // Tab CKids selalu tampil. Belum ada anak ≤ CKIDS_MAX_AGE tahun (atau tanggal
+  // lahirnya belum diisi) → jelaskan cara menambahkan anak di Keluarga.
   if (!childrenPending && isEmpty) {
     return (
       <SafeAreaView className="flex-1 bg-card" edges={['top']}>
-        <View className="flex-1 items-center justify-center px-8">
-          <ElsEmptyIcon size={80} className="mb-4" />
-          <Text className="text-lg font-bold text-neutral-900 text-center mb-2">
-            {t('ckids.empty_title')}
-          </Text>
-          <Text className="text-sm text-neutral-500 text-center mb-6">
-            {t('ckids.empty_body')}
-          </Text>
-          <Button
-            label={t('ckids.add_child_cta')}
-            onPress={() => router.push('/family/add' as never)}
-            variant="secondary"
-          />
+        <View className="px-5 pt-3 pb-2.5 border-b border-neutral-100">
+          <Text className="text-lg font-bold text-neutral-900">CKids</Text>
+          <Text className="text-xs text-neutral-500">{t('ckids.tab_sub')}</Text>
         </View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32, paddingVertical: 32 }}>
+          <ElsEmptyIcon size={80} className="mb-4" />
+          <Text className="text-lg font-bold text-neutral-900 text-center mb-2">{t('ckids.empty_title')}</Text>
+          <Text className="text-sm text-neutral-500 text-center leading-5 mb-6">
+            {t('ckids.empty_body', { max: CKIDS_MAX_AGE })}
+          </Text>
+          <Button label={t('ckids.add_child_cta')} onPress={() => router.push('/family/add' as never)} />
+          <Text className="text-xs text-neutral-400 text-center leading-4 mt-4">{t('ckids.empty_dob_hint')}</Text>
+          <Pressable onPress={() => router.push('/family' as never)} hitSlop={8} className="mt-3">
+            <Text className="text-xs font-semibold text-brand-600">{t('ckids.empty_open_family')}</Text>
+          </Pressable>
+        </ScrollView>
       </SafeAreaView>
     );
   }

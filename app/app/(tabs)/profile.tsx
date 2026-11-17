@@ -130,7 +130,7 @@ function ProfileTabAuthenticated() {
               <View className="flex-row items-center gap-2">
                 {/* Resolusi Tahunan — diakses dari header Profil (sebelah Kalender) */}
                 <Pressable
-                  onPress={() => router.push('/resolusi' as never)}
+                  onPress={() => router.push('/(tabs)/resolution' as never)}
                   className="bg-white/15 rounded-full p-2"
                   accessibilityRole="button"
                   accessibilityLabel={t('profile.resolusi_menu')}

@@ -1,10 +1,8 @@
 import { Tabs } from 'expo-router';
-import { Baby, CalendarDays, Church, HandHeart, Home, Ticket, UserRound } from 'lucide-react-native';
+import { Baby, CalendarDays, Church, HandHeart, Home, Target, Ticket, UserRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useMyChildren } from '@/hooks/useCKids';
-import { useAuthStore } from '@/stores/auth.store';
 import { isDark, nc } from '@/theme/ThemeRoot';
 
 export default function TabsLayout() {
@@ -14,16 +12,10 @@ export default function TabsLayout() {
   // supaya tab bar tidak overlap dengan system UI
   const bottomInset = insets.bottom;
 
-  // Conditional CKids tab visibility — hanya tampil kalau user punya minimal 1
-  // anak (via family relations role=CHILD). Kalau tidak ada anak, tab tetap
-  // registered ke router (accessible via deeplink) tapi hidden dari tab bar.
-  // Per BE notice ckids-mobile-tab 2026-08-01.
-  const { children: myChildren, isPending: childrenPending } = useMyChildren();
-  // Mode tamu: tab CKids tidak pernah tampil (data keluarga bisa tersisa di cache
-  // dari sesi login sebelumnya).
-  const isGuest = useAuthStore((st) => st.isGuest);
-  const showCKidsTab = !isGuest && !childrenPending && myChildren.length > 0;
-
+  // Menu bawah (2026-12): Beranda · Resolusi · Reservasi · CKids · Profil.
+  // CKids selalu tampil — tanpa anak ≤ 13 tahun, halamannya menjelaskan cara
+  // menambahkan anak. Event tidak lagi di menu bawah: dibuka dari Beranda
+  // (Quick Access & "Lihat semua") dan Reservasi Saya; route /(tabs)/event tetap.
   return (
     <Tabs
       screenOptions={{
@@ -49,10 +41,10 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="event"
+        name="resolution"
         options={{
-          title: t('nav.event'),
-          tabBarIcon: ({ color, size }) => <CalendarDays color={color} size={size} />,
+          title: t('nav.resolusi'),
+          tabBarIcon: ({ color, size }) => <Target color={color} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -67,11 +59,22 @@ export default function TabsLayout() {
         options={{
           title: t('nav.ckids'),
           tabBarIcon: ({ color, size }) => <Baby color={color} size={size} />,
-          // Hidden kalau user tidak punya anak — route tetap accessible via
-          // deeplink /ckids atau nested route dari profil.
-          href: showCKidsTab ? undefined : null,
-          // Custom pink accent kalau tampil (subtle differentiation)
-          tabBarActiveTintColor: '#F97316',
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: t('nav.profile'),
+          tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="event"
+        options={{
+          title: t('nav.event'),
+          tabBarIcon: ({ color, size }) => <CalendarDays color={color} size={size} />,
+          // Tidak di menu bawah — dibuka dari Beranda / Reservasi Saya / deeplink.
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -95,13 +98,6 @@ export default function TabsLayout() {
           // ikut pattern sama supaya cross-platform behavior identik).
           // Route tetap registered supaya deeplink /persembahan tetap handled.
           href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: t('nav.profile'),
-          tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />,
         }}
       />
     </Tabs>

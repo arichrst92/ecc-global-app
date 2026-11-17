@@ -37,7 +37,8 @@
     "profile": "Profile",
     "scanner": "Scanner",
     "ckids": "CKids",
-    "reservasi": "Bookings"
+    "reservasi": "Bookings",
+    "resolusi": "Resolution"
   },
   "onboarding": {
     "slide1_title": "Welcome to the ECC Family",
@@ -1737,9 +1738,9 @@
   },
   "ckids": {
     "tab_title": "CKids — Kids Points & Rewards",
-    "empty_title": "No children registered",
-    "empty_body": "Add your children (aged 13 and under, with date of birth) in Family to activate CKids.",
-    "add_child_cta": "Add Child",
+    "empty_title": "No children added yet",
+    "empty_body": "To use CKids, add a child aged {{max}} or under in Family.",
+    "add_child_cta": "Add a child",
     "selected_anak": "Active Child",
     "no_selection": "Choose a child…",
     "select_anak_title": "Choose Child",
@@ -1782,7 +1783,12 @@
     "age_years_other": "{{count}} years old",
     "age_years": "{{count}} years old",
     "age_rule_info": "CKids only shows children aged {{max}} and under (based on the date of birth in Family).",
-    "katalog_error": "Couldn't load the gift catalog. Please try again."
+    "katalog_error": "Couldn't load the gift catalog. Please try again.",
+    "empty_dob_hint": "Fill in your child's date of birth so their age is recognised. Children registered without a date of birth don't appear here yet.",
+    "empty_open_family": "Open Family",
+    "tab_sub": "Children's check-in & points",
+    "guest_title": "CKids for your children",
+    "guest_body": "Sign up or sign in, then add your children in Family to use CKids."
   },
   "my_reservasi": {
     "title": "My Reservations",
@@ -2442,7 +2448,9 @@
     "kategori_FINANCE": "Finances",
     "kategori_MINISTRY": "Ministry",
     "kategori_PERSONAL_GROWTH": "Personal Growth",
-    "kategori_OTHER": "Other"
+    "kategori_OTHER": "Other",
+    "guest_title": "Write this year's resolutions",
+    "guest_body": "Sign up or sign in to save your resolutions and tick off the ones you achieve."
   },
   "worship": {
     "downloading": "Downloading…",

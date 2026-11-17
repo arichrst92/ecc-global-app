@@ -80,10 +80,13 @@ export function useMyChildren() {
  * BE cache-control 60s — mobile bisa cache selaras.
  */
 export function useMyChildrenPoints() {
+  // Tab CKids kini selalu tampil (juga untuk tamu) → jangan panggil API tanpa akun.
+  const isGuest = useAuthStore((st) => st.isGuest);
   return useQuery({
     queryKey: CKIDS_KEYS.childrenPoints(),
     queryFn: getMyChildrenPoints,
     staleTime: 60_000,
+    enabled: !isGuest,
   });
 }
 
