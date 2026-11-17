@@ -16,7 +16,7 @@ import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
-import { formatDateWithDay } from '@/utils/date';
+import { formatDateWithDay, toIsoDate } from '@/utils/date';
 
 export default function AnnouncementDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -51,7 +51,7 @@ export default function AnnouncementDetailScreen() {
           <View className="w-full bg-card rounded-3xl overflow-hidden border border-neutral-100" style={{ maxWidth: 560 }}>
             <AnnouncementHead a={a} bannerMaxH={height * 0.3} />
             <View className="px-4 pt-3 pb-4">
-              {a.sentAt ? <Text className="text-[11px] text-neutral-500 mb-2">{formatDateWithDay(a.sentAt.slice(0, 10), i18n.language)}</Text> : null}
+              {a.sentAt ? <Text className="text-[11px] text-neutral-500 mb-2">{formatDateWithDay(toIsoDate(new Date(a.sentAt)), i18n.language)}</Text> : null}
               <AnnouncementMarkdown source={a.isi} />
             </View>
             {a.links.length ? (

@@ -52,13 +52,14 @@ export default function SignupPhoneScreen() {
   };
 
   const mutation = useMutation({
-    mutationFn: async (target: string) =>
-      channel === 'email'
+    // Saluran ikut dikirim sebagai variabel → tidak tertukar bila tab diganti saat menunggu.
+    mutationFn: async ({ ch, target }: { ch: 'whatsapp' | 'email'; target: string }) =>
+      ch === 'email'
         ? requestEmailOtp({ email: target, purpose: 'ENROLLMENT_EMAIL' })
         : requestOtp({ noHp: target, purpose: 'ENROLLMENT' }),
-    onSuccess: (data, target) => {
-      setField('channel', channel);
-      if (channel === 'email') {
+    onSuccess: (data, { ch, target }) => {
+      setField('channel', ch);
+      if (ch === 'email') {
         setNoHp('');
         setField('email', target);
         setField('otpViaEmail', false);
@@ -73,9 +74,10 @@ export default function SignupPhoneScreen() {
       }
       router.push('/(auth)/signup/otp');
     },
-    onError: (err) => {
+    onError: (err, { ch }) => {
       if (!(err instanceof ApiError)) {
-        setError(t('error.network'));
+        if (ch === 'email') setEmailError(t('error.network'));
+        else setError(t('error.network'));
         return;
       }
       const code = err.code as string;
@@ -84,12 +86,12 @@ export default function SignupPhoneScreen() {
       } else if (code === 'EMAIL_UNAVAILABLE' || code === 'EMAIL_SIGNUP_DISABLED') {
         setDown('email');
       } else if (err.code === 'CONFLICT' && /email/i.test(err.message)) {
-        setEmailError(channel === 'email' ? t('signup.email_already_registered') : err.message);
+        setEmailError(ch === 'email' ? t('signup.email_already_registered') : err.message);
       } else if (err.code === 'CONFLICT') {
         setError(t('signup.error_already_registered'));
       } else if (err.code === 'TOO_MANY_REQUESTS') {
         setError(t('auth.error_rate_limited'));
-      } else if (channel === 'email') {
+      } else if (ch === 'email') {
         setEmailError(err.message);
       } else {
         setError(err.message);
@@ -107,7 +109,7 @@ export default function SignupPhoneScreen() {
         setEmailError(t('signup.email_invalid'));
         return;
       }
-      mutation.mutate(em);
+      mutation.mutate({ ch: 'email', target: em });
       return;
     }
     const e164 = normalizePhone(phone);
@@ -115,7 +117,7 @@ export default function SignupPhoneScreen() {
       setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
       return;
     }
-    mutation.mutate(e164);
+    mutation.mutate({ ch: 'whatsapp', target: e164 });
   }
 
   function handleBack() {
@@ -155,7 +157,7 @@ export default function SignupPhoneScreen() {
               { value: 'whatsapp', label: t('signup.channel_whatsapp') },
               { value: 'email', label: t('signup.channel_email') },
             ]}
-            onChange={switchChannel}
+            onChange={(c) => !mutation.isPending && switchChannel(c)}
           />
 
           <View className="mt-4">

@@ -71,7 +71,7 @@ export default function IbadahDetailScreen() {
   // Hanya tiket untuk pertemuan (tanggal) yang sedang dibuka — tiket tanggal
   // lain dari ibadah yang sama tidak ikut tampil.
   const myTickets = (myTicketsQ.data ?? []).filter(
-    (r) => r.status !== 'CANCEL' && (!tanggal || r.tanggalIbadah.slice(0, 10) === tanggal.slice(0, 10)),
+    (r) => r.status !== 'CANCEL' && (!tanggal || (r.tanggalIbadah ?? '').slice(0, 10) === tanggal.slice(0, 10)),
   );
   // Jam jadwal = jam dinding cabang + label zona (mis. Waktu Kuala Lumpur);
   // bila zona HP berbeda, jam setempat ditampilkan sebagai keterangan.

@@ -9,6 +9,8 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, ShieldAlert, X } from 'lucide-react-native';
 
+import { useQuery } from '@tanstack/react-query';
+import { getMyProfile } from '@/api/me';
 import { useAuthStore } from '@/stores/auth.store';
 import { storage } from '@/utils/storage';
 
@@ -20,7 +22,16 @@ export function ContactHint({ className = '', dismissible = false }: { className
   const { t } = useTranslation();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const isGuest = useAuthStore((s) => s.isGuest);
   const [hidden, setHidden] = useState(dismissible);
+  // Data login yang tersimpan bisa basi (kontak ditambah di Portal / perangkat
+  // lain) → pakai profil terbaru bila sudah dimuat.
+  const me = useQuery({
+    queryKey: ['me', 'contact-hint'],
+    queryFn: getMyProfile,
+    enabled: !!user && !isGuest,
+    staleTime: 5 * 60_000,
+  });
 
   useEffect(() => {
     if (!dismissible) return;
@@ -30,8 +41,10 @@ export function ContactHint({ className = '', dismissible = false }: { className
     });
   }, [dismissible]);
 
-  if (!user || hidden) return null;
-  const missing = !user.email ? 'email' : !user.noHp ? 'wa' : null;
+  if (!user || isGuest || hidden) return null;
+  // Tunggu profil terbaru supaya tidak berkedip / salah tampil.
+  if (!me.data) return null;
+  const missing = !me.data.email ? 'email' : !me.data.noHp ? 'wa' : null;
   if (!missing) return null;
   return (
     <Pressable
