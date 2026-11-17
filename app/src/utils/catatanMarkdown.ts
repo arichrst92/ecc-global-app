@@ -4,6 +4,7 @@
  *
  *   # Judul bagian      - poin      1. nomor      > kutipan
  *   **tebal**   _miring_   ==stabilo==
+ *   ![gambar](/uploads/catatan/…)   — gambar (satu baris sendiri, 2.4.9)
  */
 export type Inline = { text: string; bold?: boolean; italic?: boolean; mark?: boolean };
 export type Block =
@@ -12,7 +13,14 @@ export type Block =
   | { type: 'ol'; n: string; inl: Inline[] }
   | { type: 'quote'; inl: Inline[] }
   | { type: 'p'; inl: Inline[] }
+  | { type: 'img'; url: string }
   | { type: 'gap' };
+
+/** Baris gambar: ![keterangan](url). */
+export const IMG_LINE = /^!\[[^\]]*\]\(([^)\s]+)\)$/;
+/** Semua URL gambar di catatan. */
+export const imagesOf = (src: string) =>
+  src.split('\n').map((l) => l.trim().match(IMG_LINE)?.[1]).filter((u): u is string => !!u);
 
 const TOKEN = /(\*\*[^*\n]+?\*\*|==[^=\n]+?==|_[^_\n]+?_)/g;
 const WORD = /[A-Za-z0-9]/;
@@ -48,7 +56,8 @@ export function parseBlocks(src: string): Block[] {
     let m: RegExpMatchArray | null;
     if (!line.trim()) {
       if (blocks.length && blocks[blocks.length - 1]!.type !== 'gap') blocks.push({ type: 'gap' });
-    } else if ((m = line.match(/^#{1,3}\s+(.*)$/))) blocks.push({ type: 'h', inl: parseInline(m[1]!) });
+    } else if ((m = line.trim().match(IMG_LINE))) blocks.push({ type: 'img', url: m[1]! });
+    else if ((m = line.match(/^#{1,3}\s+(.*)$/))) blocks.push({ type: 'h', inl: parseInline(m[1]!) });
     else if ((m = line.match(/^\s*[-•*]\s+(.*)$/))) blocks.push({ type: 'li', inl: parseInline(m[1]!) });
     else if ((m = line.match(/^\s*(\d+)[.)]\s+(.*)$/))) blocks.push({ type: 'ol', n: m[1]!, inl: parseInline(m[2]!) });
     else if ((m = line.match(/^>\s?(.*)$/))) blocks.push({ type: 'quote', inl: parseInline(m[1]!) });
@@ -62,6 +71,7 @@ export function parseBlocks(src: string): Block[] {
 export function plainText(src: string): string {
   return src
     .split('\n')
+    .filter((l) => !IMG_LINE.test(l.trim())) // gambar tidak ikut di teks polos
     .map((l) => l.replace(/^#{1,3}\s+/, '').replace(/^>\s?/, '“').replace(/^\s*[-*]\s+/, '• '))
     .join('\n')
     .replace(/\*\*([^*\n]+?)\*\*/g, '$1')

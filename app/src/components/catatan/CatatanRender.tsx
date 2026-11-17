@@ -1,6 +1,42 @@
 /** Render markdown ringan Catatan saya (lihat utils/catatanMarkdown). */
-import { Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, Modal, Pressable, Text, View } from 'react-native';
+import { X } from 'lucide-react-native';
+import { env } from '@/config/env';
 import { parseBlocks, type Inline } from '@/utils/catatanMarkdown';
+
+export const catatanImgSrc = (u: string) => (/^https?:\/\//.test(u) ? u : `${env.apiBaseUrl}${u}`);
+
+/** Gambar di catatan — lebar penuh, tinggi mengikuti rasio asli; ketuk untuk layar penuh. */
+export function NoteImage({ url }: { url: string }) {
+  const [ratio, setRatio] = useState(4 / 3);
+  const [full, setFull] = useState(false);
+  const src = catatanImgSrc(url);
+  return (
+    <>
+      <Pressable onPress={() => setFull(true)} className="my-1.5">
+        <Image
+          source={{ uri: src }}
+          onLoad={(e) => {
+            const s = (e.nativeEvent as { source?: { width?: number; height?: number } }).source;
+            if (s?.width && s?.height) setRatio(s.width / s.height);
+          }}
+          style={{ width: '100%', aspectRatio: ratio, borderRadius: 12, backgroundColor: '#F5F5F5' }}
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+        />
+      </Pressable>
+      <Modal visible={full} transparent animationType="fade" onRequestClose={() => setFull(false)} statusBarTranslucent>
+        <Pressable onPress={() => setFull(false)} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.92)', justifyContent: 'center' }}>
+          <Image source={{ uri: src }} style={{ width: '100%', height: '80%' }} resizeMode="contain" />
+          <View style={{ position: 'absolute', top: 48, right: 20 }}>
+            <X size={26} color="#fff" />
+          </View>
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
 
 function Spans({ inl }: { inl: Inline[] }) {
   return (
@@ -26,6 +62,8 @@ export function CatatanRender({ text, size = 'base' }: { text: string; size?: 's
         switch (b.type) {
           case 'gap':
             return <View key={i} style={{ height: 10 }} />;
+          case 'img':
+            return <NoteImage key={i} url={b.url} />;
           case 'h':
             return (
               <Text key={i} className="text-lg font-bold text-neutral-900 mt-2 mb-1">

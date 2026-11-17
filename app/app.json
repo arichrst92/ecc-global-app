@@ -165,8 +165,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Els App membutuhkan akses galeri foto untuk mengunggah foto profil, bukti pembayaran event, foto group, dan foto usaha Anda di Local Market.",
-          "cameraPermission": "Els App membutuhkan akses kamera untuk scan QR jemaat saat check-in ibadah, event, dan menambah anggota keluarga/group."
+          "photosPermission": "Els App membutuhkan akses galeri foto untuk mengunggah foto profil, bukti pembayaran event, foto group, foto usaha Anda di Local Market, dan gambar di Catatan saya.",
+          "cameraPermission": "Els App membutuhkan akses kamera untuk scan QR jemaat saat check-in ibadah, event, dan menambah anggota keluarga/group, serta mengambil foto bukti pembayaran dan gambar di Catatan saya."
         }
       ],
       [

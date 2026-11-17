@@ -2810,7 +2810,15 @@
     "empty": "No notes yet",
     "empty_body": "Jot down sermon points during the service, or tap a verse in the Bible → To note.",
     "badge_khotbah": "Sermon",
-    "badge_b365": "Bible 365 · Day {{day}}"
+    "badge_b365": "Bible 365 · Day {{day}}",
+    "tool_image": "Image",
+    "img_title": "Add image",
+    "img_camera": "Take photo",
+    "img_library": "Choose from gallery",
+    "img_alt": "image",
+    "img_permission": "Camera / photo access denied. Enable it in your phone Settings.",
+    "img_failed": "Image upload failed. Please try again.",
+    "img_max": "Up to 30 images per note."
   },
   "input_rules": {
     "nama_wajib": "Name is required.",

@@ -5,12 +5,16 @@
  *   /catatan/edit?ref=&quote= → catatan baru berisi ayat (dari halaman Alkitab)
  *
  * Format: markdown ringan via toolbar (tebal, miring, judul, poin, nomor,
- * kutipan, stabilo, ayat). Tanpa modul native.
+ * kutipan, stabilo, ayat, gambar). Tanpa modul native.
+ * Gambar (2.4.9): kamera / galeri → diunggah → disisipkan di posisi kursor
+ * sebagai baris `![gambar](url)`, tampil menyatu dengan teks di Pratinjau &
+ * tampilan baca; daftar gambar di atas kotak tulis (ketuk × untuk hapus).
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   Platform,
   Pressable,
   ScrollView,
@@ -31,6 +35,7 @@ import {
   CalendarDays,
   Heading,
   Highlighter,
+  ImagePlus,
   Italic,
   List,
   ListOrdered,
@@ -40,15 +45,18 @@ import {
   X,
 } from 'lucide-react-native';
 
+import * as ImagePicker from 'expo-image-picker';
 import { AyatInsertModal } from '@/components/catatan/AyatInsertModal';
-import { CatatanRender } from '@/components/catatan/CatatanRender';
+import { CatatanRender, catatanImgSrc } from '@/components/catatan/CatatanRender';
+import { imageAssetToFile } from '@/utils/pickedImage';
 import { DatePickerModal } from '@/components/ui/DatePickerModal';
 import { useToast } from '@/components/ui/Toast';
-import { CATATAN_KEY, createCatatan, getCatatan, updateCatatan, type CatatanInput } from '@/api/catatan';
+import { CATATAN_KEY, createCatatan, getCatatan, updateCatatan, uploadCatatanImage, type CatatanInput } from '@/api/catatan';
 import { useCatatanBridge, type AyatInsert } from '@/stores/catatanBridge.store';
 import { useAuthStore } from '@/stores/auth.store';
 import {
   continueList,
+  imagesOf,
   insertBlock,
   toggleLinePrefix,
   wrapInline,
@@ -190,6 +198,49 @@ export default function CatatanEditScreen() {
       if (items.length) showToast(t('catatan.ayat_added', { count: items.length }), 'success');
     }, [bridgeTake, applyAyat, showToast, t]),
   );
+
+  // ----- Gambar (kamera / galeri) -----
+  const [uploading, setUploading] = useState(false);
+  const images = imagesOf(isi);
+  async function addImage(source: 'camera' | 'library') {
+    if (images.length >= 30) return showToast(t('catatan.img_max'), 'error');
+    const perm =
+      source === 'camera' ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return showToast(t('catatan.img_permission'), 'error');
+    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.8, allowsEditing: false };
+    const r = source === 'camera' ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
+    const a = r.canceled ? null : r.assets[0];
+    if (!a) return;
+    setUploading(true);
+    try {
+      const { url } = await uploadCatatanImage(await imageAssetToFile(a, 'catatan.jpg'));
+      apply((x, s) => insertBlock(x, s, `![${t('catatan.img_alt')}](${url})`));
+    } catch (e) {
+      showToast(e instanceof ApiError ? e.message : t('catatan.img_failed'), 'error');
+    } finally {
+      setUploading(false);
+    }
+  }
+  function pickImage() {
+    if (uploading) return;
+    if (Platform.OS === 'web') return void addImage('library');
+    Alert.alert(t('catatan.img_title'), undefined, [
+      { text: t('catatan.img_camera'), onPress: () => void addImage('camera') },
+      { text: t('catatan.img_library'), onPress: () => void addImage('library') },
+      { text: t('common.cancel'), style: 'cancel' },
+    ]);
+  }
+  function removeImage(url: string) {
+    touch();
+    // Hapus baris gambar beserta satu baris kosong sesudahnya (bila ada).
+    setIsi((prev) =>
+      prev
+        .split('\n')
+        .filter((l) => !(l.trim().startsWith('![') && l.includes(`(${url})`)))
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n'),
+    );
+  }
 
   // ----- Toolbar -----
   function apply(fn: (text: string, s: Sel) => Edit) {
@@ -367,6 +418,28 @@ export default function CatatanEditScreen() {
             ))}
           </View>
 
+          {tab === 'write' && (images.length || uploading) ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 8 }}>
+              {images.map((u) => (
+                <View key={u} style={{ width: 72, height: 72 }}>
+                  <Image source={{ uri: catatanImgSrc(u) }} style={{ width: 72, height: 72, borderRadius: 10, backgroundColor: '#F5F5F5' }} />
+                  <Pressable
+                    onPress={() => removeImage(u)}
+                    hitSlop={8}
+                    accessibilityLabel={t('common.delete')}
+                    className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-neutral-900/80 items-center justify-center"
+                  >
+                    <X size={13} color="#fff" />
+                  </Pressable>
+                </View>
+              ))}
+              {uploading ? (
+                <View style={{ width: 72, height: 72 }} className="rounded-[10px] bg-neutral-100 items-center justify-center">
+                  <ActivityIndicator color="#EA580C" />
+                </View>
+              ) : null}
+            </ScrollView>
+          ) : null}
           {tab === 'write' ? (
             <TextInput
               ref={bodyRef}
@@ -414,6 +487,15 @@ export default function CatatanEditScreen() {
               </Pressable>
             ))}
             <View className="w-px bg-neutral-200 mx-1 my-2" />
+            <Pressable
+              onPress={pickImage}
+              disabled={uploading}
+              accessibilityLabel={t('catatan.img_title')}
+              className="flex-row items-center gap-1.5 px-3 h-10 rounded-lg bg-neutral-100"
+            >
+              {uploading ? <ActivityIndicator size="small" color="#EA580C" /> : <ImagePlus size={16} color={nc('#404040')} />}
+              <Text className="text-xs font-bold text-neutral-700">{t('catatan.tool_image')}</Text>
+            </Pressable>
             <Pressable onPress={() => setAyatOpen(true)} className="flex-row items-center gap-1.5 px-3 h-10 rounded-lg bg-brand-50">
               <BookOpen size={16} color="#EA580C" />
               <Text className="text-xs font-bold text-brand-700">{t('catatan.tool_ayat')}</Text>

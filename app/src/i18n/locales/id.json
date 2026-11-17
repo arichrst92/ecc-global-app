@@ -2804,7 +2804,15 @@
     "empty": "Belum ada catatan",
     "empty_body": "Catat poin khotbah saat ibadah, atau tekan ayat di Alkitab → Ke catatan.",
     "badge_khotbah": "Khotbah",
-    "badge_b365": "Bible 365 · Hari {{day}}"
+    "badge_b365": "Bible 365 · Hari {{day}}",
+    "tool_image": "Gambar",
+    "img_title": "Tambah gambar",
+    "img_camera": "Ambil foto",
+    "img_library": "Pilih dari galeri",
+    "img_alt": "gambar",
+    "img_permission": "Izin kamera / galeri ditolak. Aktifkan di Pengaturan HP.",
+    "img_failed": "Gambar gagal diunggah. Coba lagi.",
+    "img_max": "Maksimal 30 gambar per catatan."
   },
   "input_rules": {
     "nama_wajib": "Nama wajib diisi.",

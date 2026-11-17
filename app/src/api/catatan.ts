@@ -37,3 +37,12 @@ export const getCatatan = (id: string) => api.get<Catatan>(`${B}/${id}`);
 export const createCatatan = (input: CatatanInput) => api.post<Catatan>(B, input);
 export const updateCatatan = (id: string, input: Partial<CatatanInput>) => api.patch<Catatan>(`${B}/${id}`, input);
 export const deleteCatatan = (id: string) => api.delete<void>(`${B}/${id}`);
+
+/** Unggah gambar catatan (2.4.9) → URL untuk disisipkan sebagai `![gambar](url)`. */
+export function uploadCatatanImage(file: { uri: string; name: string; type: string; file?: Blob }) {
+  const fd = new FormData();
+  if (file.file) fd.append('foto', file.file, file.name);
+  // @ts-expect-error RN FormData menerima objek file { uri, name, type }
+  else fd.append('foto', { uri: file.uri, name: file.name, type: file.type });
+  return api.upload<{ url: string }>(`${B}/gambar`, fd);
+}
