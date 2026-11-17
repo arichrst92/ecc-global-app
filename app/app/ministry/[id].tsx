@@ -145,8 +145,8 @@ export default function MinistryDetailScreen() {
         );
       },
       onError: (err) => {
-        if (err instanceof ApiError && /ditutup|closed/i.test(err.message ?? '')) {
-          // 2.4.6 — pendaftaran cabang ditutup
+        if (err instanceof ApiError && ((err.code as string) === 'PENDAFTARAN_TUTUP' || /ditutup|closed|belum dibuka/i.test(err.message ?? ''))) {
+          // Pendaftaran cabang ditutup / belum dibuka
           showToast(err.message, 'info');
           query.refetch();
           return;
@@ -271,6 +271,10 @@ export default function MinistryDetailScreen() {
       </View>
     );
   }
+
+  // Gabung hanya di cabang yang MEMBUKA pendaftaran ministry ini. Server lama
+  // tanpa info pendaftaran → ikut isOpen seperti sebelumnya.
+  const canJoinHere = ministry.isOpen && (ministry.pendaftaran ? ministry.pendaftaran.status === 'BUKA' : true);
 
   // Koordinator (pemegang otoritas) — badge per anggota untuk cabang yang dilihat.
   const coordinators = ministry.coordinators ?? [];
@@ -431,7 +435,7 @@ export default function MinistryDetailScreen() {
         ) : null}
 
         {/* Ajakan bergabung (bukan anggota) */}
-        {!ministry.myMembership && !isPendingRequest && ministry.isOpen ? (
+        {!ministry.myMembership && !isPendingRequest && canJoinHere ? (
           <View className="bg-card rounded-2xl border p-4 mb-3" style={{ borderColor: w.bg }}>
             <View className="flex-row items-center gap-2">
               <Text className="text-sm font-bold text-neutral-900 flex-1">{t('ministry.join_invite_title')}</Text>
@@ -457,12 +461,14 @@ export default function MinistryDetailScreen() {
             />
           </View>
         ) : null}
-        {!ministry.myMembership && !ministry.isOpen ? (
+        {!ministry.myMembership && !isPendingRequest && !canJoinHere ? (
           <View className="bg-neutral-100 rounded-2xl p-3 mb-3">
             <Text className="text-xs text-neutral-600 leading-relaxed text-center">
               {ministry.pendaftaran?.status === 'TUTUP'
                 ? t('ministry.pend_closed_notice', { cabang: ministry.pendaftaran.cabangNama ?? '' })
-                : t('ministry.closed_notice')}
+                : ministry.pendaftaran?.status === 'MENERIMA'
+                  ? t('ministry.pend_not_open_notice', { cabang: ministry.pendaftaran.cabangNama ?? '' })
+                  : t('ministry.closed_notice')}
             </Text>
           </View>
         ) : null}

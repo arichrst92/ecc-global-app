@@ -1215,10 +1215,10 @@
     "jadwal_tab_mine": "See My Ministry Schedule",
     "qa_pendaftaran": "Sign-ups",
     "pend_title": "Sign-ups per branch",
-    "pend_intro": "Control new member sign-ups in your branches. No notification — members see the \"Open for sign-up\" badge.",
+    "pend_intro": "Members can only sign up in branches you open. No notification — members see the \"Open for sign-up\" badge.",
     "pend_status_buka": "Open for sign-up",
     "pend_status_tutup": "Closed",
-    "pend_status_default": "Accepting",
+    "pend_status_default": "Not open",
     "pend_sampai": "until {{tanggal}}",
     "pend_catatan_ph": "Note for applicants, e.g. 2 camera operators needed",
     "pend_tutup_otomatis": "Close automatically",
@@ -1237,7 +1237,8 @@
     "jadwal_scan_toggle": "Check-in scan access",
     "jadwal_n_scan": "{{count}} servants can scan check-in",
     "jadwal_scan_hint_ibadah": "Tap \"Give scan access\" so the servant can scan members' check-in QR at this service (Scanner menu in the app). Tap again to revoke, then Save.",
-    "jadwal_scan_hint_event": "Tap \"Give scan access\" so the servant can scan participants' check-in QR at this event (Scanner menu in the app). Tap again to revoke, then Save."
+    "jadwal_scan_hint_event": "Tap \"Give scan access\" so the servant can scan participants' check-in QR at this event (Scanner menu in the app). Tap again to revoke, then Save.",
+    "pend_not_open_notice": "Sign-ups for this ministry in {{cabang}} are not open yet. Contact the ministry coordinator if you would like to serve."
   },
   "homecell": {
     "title": "My Homecells",
