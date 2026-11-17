@@ -1448,9 +1448,17 @@
     "legend_birthday": "Birthday",
     "label_ibadah": "Service",
     "label_event": "Event",
-    "birthday_age": "{{age}}'s birthday",
+    "birthday_age": "Turns {{age}}",
     "empty_day": "No agenda for this day.",
-    "past_event": "Past"
+    "past_event": "Past",
+    "legend_homecell": "Homecell",
+    "label_meeting": "Homecell gathering",
+    "label_meeting_zone": "Homecell gathering · zone",
+    "birthday": "Birthday",
+    "src_family": "Family",
+    "src_homecell": "Homecell",
+    "src_zona": "Zone",
+    "src_ministry": "Ministry"
   },
   "check_update": {
     "title": "Check for Updates",

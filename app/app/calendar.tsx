@@ -4,7 +4,11 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CalendarDays, Cake, Church, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, CalendarDays, Cake, Church, ChevronLeft, ChevronRight, Users } from 'lucide-react-native';
+import { getCalendarExtra } from '@/api/me';
+import { Avatar } from '@/components/ui/Avatar';
+import { jamRange } from '@/utils/jamRange';
+import { useAuthStore } from '@/stores/auth.store';
 
 import { useEventList } from '@/hooks/useEvents';
 import { useMyFamily } from '@/hooks/useFamily';
@@ -28,14 +32,36 @@ import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
  * - useMonthlyEvents(year, month) — semua event di cabang user
  * - useMonthlyIbadah(year, month) — semua ibadah di cabang
  * - useMyFamily — birthday filtered dari tanggalLahir, recur tahunan
+ * - /admin/me/calendar-extra (2.4.9) — ulang tahun anggota homecell, zona yang
+ *   dipimpin/digembalakan, & rekan ministry di cabang home (ikut Privasi) +
+ *   pertemuan homecell saya / homecell di zona saya
  *
- * Indicator dots di grid: emerald=event, amber=ibadah, pink=birthday.
+ * Indicator dots di grid: amber=ibadah, emerald=event, violet=homecell, pink=birthday.
  */
 
 type DayItem =
   | { type: 'event'; id: string; title: string; date: string }
   | { type: 'ibadah'; id: string; title: string; date: string; time?: string; kategori?: string }
-  | { type: 'birthday'; jemaatId: string; nama: string; age: number };
+  | {
+      type: 'birthday';
+      jemaatId: string;
+      nama: string;
+      /** null = usia disembunyikan (Privasi). */
+      age: number | null;
+      source: 'FAMILY' | 'HOMECELL' | 'ZONA' | 'MINISTRY';
+      context?: string;
+      fotoUrl?: string | null;
+    }
+  | {
+      type: 'meeting';
+      id: string;
+      homecellId: string;
+      title: string;
+      time: string;
+      lokasi: string;
+      zone: boolean;
+      canManage: boolean;
+    };
 
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets();
@@ -127,11 +153,22 @@ export default function CalendarScreen() {
   // (cuma dots yang bergantung data), jadi loading indicator kecil di header
   // saja — tidak block seluruh layout (konsisten dengan pattern ministry list
   // tapi lebih ringan karena grid punya value tanpa data juga).
+  // Ulang tahun homecell / zona / ministry + pertemuan homecell (login saja).
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const extraQuery = useQuery({
+    queryKey: ['calendar', 'extra', monthStart, monthEnd],
+    queryFn: () => getCalendarExtra(monthStart, monthEnd),
+    enabled: !isGuest,
+    staleTime: 10 * 60_000,
+    retry: 1,
+  });
+
   const isPending = eventsQuery.isPending || ibadahQuery.isPending || familyQuery.isPending;
+  // Server lama tanpa endpoint kalender → abaikan (bukan error di layar).
   const isError = eventsQuery.isError || ibadahQuery.isError || familyQuery.isError;
 
   function refetchAll() {
-    return Promise.all([eventsQuery.refetch(), ibadahQuery.refetch(), familyQuery.refetch()]);
+    return Promise.all([eventsQuery.refetch(), ibadahQuery.refetch(), familyQuery.refetch(), extraQuery.refetch()]);
   }
 
   // Index items by day (1-31) — filter client-side ke month yang aktif
@@ -199,12 +236,55 @@ export default function CalendarScreen() {
           jemaatId: rel.jemaat.id,
           nama: rel.jemaat.namaLengkap,
           age,
+          source: 'FAMILY',
+          fotoUrl: rel.jemaat.fotoUrl ?? null,
         });
       }
     });
 
+    // Ulang tahun homecell / zona / ministry — keluarga sudah tercatat di atas.
+    const familyIds = new Set((familyQuery.data ?? []).map((r) => r.jemaat.id));
+    (extraQuery.data?.birthdays ?? []).forEach((b) => {
+      if (familyIds.has(b.jemaatId)) return;
+      const d = parseLocalDate(b.date);
+      if (d.getFullYear() !== year || d.getMonth() !== month) return;
+      const day = d.getDate();
+      if (!map.has(day)) map.set(day, []);
+      map.get(day)!.push({
+        type: 'birthday',
+        jemaatId: b.jemaatId,
+        nama: b.nama,
+        age: b.age,
+        source: b.source,
+        context: b.context,
+        fotoUrl: b.fotoUrl,
+      });
+    });
+
+    // Pertemuan homecell (saya / zona saya).
+    (extraQuery.data?.meetings ?? []).forEach((m) => {
+      const d = parseLocalDate(m.date);
+      if (d.getFullYear() !== year || d.getMonth() !== month) return;
+      const day = d.getDate();
+      if (!map.has(day)) map.set(day, []);
+      map.get(day)!.push({
+        type: 'meeting',
+        id: m.id,
+        homecellId: m.homecellId,
+        title: m.homecellNama,
+        time: m.jamMulai ? jamRange(m.jamMulai, m.jamSelesai) : '',
+        lokasi: m.lokasi,
+        zone: m.scope === 'ZONA',
+        canManage: m.canManage,
+      });
+    });
+
+    // Urutan dalam satu hari: ibadah, event, pertemuan homecell, ulang tahun.
+    const rank = { ibadah: 0, event: 1, meeting: 2, birthday: 3 } as const;
+    for (const list of map.values()) list.sort((a, b) => rank[a.type] - rank[b.type]);
+
     return map;
-  }, [year, month, eventsQuery.data, ibadahQuery.data, familyQuery.data]);
+  }, [year, month, eventsQuery.data, ibadahQuery.data, familyQuery.data, extraQuery.data]);
 
   function prevMonth() {
     if (month === 0) {
@@ -334,6 +414,7 @@ export default function CalendarScreen() {
               const hasEvent = items.some((i) => i.type === 'event');
               const hasIbadah = items.some((i) => i.type === 'ibadah');
               const hasBirthday = items.some((i) => i.type === 'birthday');
+              const hasMeeting = items.some((i) => i.type === 'meeting');
               return (
                 <Pressable
                   key={day}
@@ -382,6 +463,16 @@ export default function CalendarScreen() {
                           }}
                         />
                       ) : null}
+                      {hasMeeting ? (
+                        <View
+                          style={{
+                            width: 4,
+                            height: 4,
+                            borderRadius: 2,
+                            backgroundColor: isSelected ? '#fff' : '#7C3AED',
+                          }}
+                        />
+                      ) : null}
                       {hasBirthday ? (
                         <View
                           style={{
@@ -401,9 +492,10 @@ export default function CalendarScreen() {
         </View>
 
         {/* Legend */}
-        <View className="flex-row gap-3 justify-center mt-3 mb-4">
+        <View className="flex-row flex-wrap gap-x-3 gap-y-1.5 justify-center mt-3 mb-4">
           <LegendDot color="#D97706" label={t('calendar.legend_ibadah')} />
           <LegendDot color="#059669" label={t('calendar.legend_event')} />
+          <LegendDot color="#7C3AED" label={t('calendar.legend_homecell')} />
           <LegendDot color="#EC4899" label={t('calendar.legend_birthday')} />
         </View>
 
@@ -436,7 +528,9 @@ export default function CalendarScreen() {
                     const stableKey =
                       item.type === 'birthday'
                         ? `birthday-${item.jemaatId}-${i}`
-                        : item.type === 'ibadah'
+                        : item.type === 'meeting'
+                          ? `meeting-${item.id}`
+                          : item.type === 'ibadah'
                           ? `ibadah-${item.id}-${item.time ?? ''}-${i}`
                           : `event-${item.id}-${i}`;
                     return (
@@ -541,20 +635,62 @@ function ItemRow({
       </Pressable>
     );
   }
+  if (item.type === 'meeting') {
+    return (
+      <Pressable
+        onPress={() =>
+          router.push((item.canManage ? `/homecell/${item.homecellId}/schedule/${item.id}` : `/homecell/view/${item.homecellId}`) as never)
+        }
+        className={`bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100 ${isPast ? 'opacity-60' : ''}`}
+      >
+        <View className="w-10 h-10 rounded-xl bg-violet-50 items-center justify-center">
+          <Users size={18} color="#7C3AED" />
+        </View>
+        <View className="flex-1 min-w-0">
+          <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text className="text-xs text-neutral-500" numberOfLines={2}>
+            {item.zone ? t('calendar.label_meeting_zone') : t('calendar.label_meeting')}
+            {item.time ? ` · ${item.time}` : ''}
+            {item.lokasi ? ` · ${item.lokasi}` : ''}
+          </Text>
+        </View>
+      </Pressable>
+    );
+  }
   // birthday
+  const src =
+    item.source === 'FAMILY'
+      ? t('calendar.src_family')
+      : item.source === 'HOMECELL'
+        ? t('calendar.src_homecell')
+        : item.source === 'ZONA'
+          ? t('calendar.src_zona')
+          : t('calendar.src_ministry');
   return (
-    <View className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100">
-      <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
-        <Cake size={18} color="#EC4899" />
-      </View>
-      <View className="flex-1">
+    <Pressable
+      onPress={() => router.push(`/jemaat/${item.jemaatId}` as never)}
+      className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
+    >
+      {item.fotoUrl ? (
+        <Avatar name={item.nama} fotoUrl={item.fotoUrl} size={40} />
+      ) : (
+        <View className="w-10 h-10 rounded-xl bg-pink-50 items-center justify-center">
+          <Cake size={18} color="#EC4899" />
+        </View>
+      )}
+      <View className="flex-1 min-w-0">
         <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
           {item.nama}
         </Text>
-        <Text className="text-xs text-neutral-500">
-          {t('calendar.birthday_age', { age: item.age })}
+        <Text className="text-xs text-neutral-500" numberOfLines={1}>
+          {item.age ? t('calendar.birthday_age', { age: item.age }) : t('calendar.birthday')}
+          {` · ${src}`}
+          {item.context ? ` · ${item.context}` : ''}
         </Text>
       </View>
-    </View>
+      <Cake size={16} color="#EC4899" />
+    </Pressable>
   );
 }

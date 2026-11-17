@@ -1446,7 +1446,15 @@
     "label_event": "Event",
     "birthday_age": "Ulang tahun ke-{{age}}",
     "empty_day": "Tidak ada agenda di hari ini.",
-    "past_event": "Sudah lewat"
+    "past_event": "Sudah lewat",
+    "legend_homecell": "Homecell",
+    "label_meeting": "Pertemuan homecell",
+    "label_meeting_zone": "Pertemuan homecell · zona",
+    "birthday": "Ulang tahun",
+    "src_family": "Keluarga",
+    "src_homecell": "Homecell",
+    "src_zona": "Zona",
+    "src_ministry": "Ministry"
   },
   "check_update": {
     "title": "Cek Update",

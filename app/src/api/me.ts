@@ -168,3 +168,33 @@ export function requestEmailChangeOtp(email: string) {
 export function verifyEmailChange(email: string, kode: string) {
   return api.post<{ id: string; email: string; emailVerifiedAt: string }>('/admin/me/email/verify', { email, kode });
 }
+
+/** Kalender (BE 2.4.9): ulang tahun homecell/zona/ministry + pertemuan homecell. */
+export type CalendarBirthday = {
+  jemaatId: string;
+  nama: string;
+  fotoUrl: string | null;
+  /** Tanggal ulang tahun di rentang yang diminta (YYYY-MM-DD). */
+  date: string;
+  /** null = usia disembunyikan (Privasi: tanggal lahir). */
+  age: number | null;
+  source: 'HOMECELL' | 'ZONA' | 'MINISTRY';
+  /** Nama homecell / ministry. */
+  context: string;
+};
+export type CalendarMeeting = {
+  id: string;
+  date: string;
+  jamMulai: string | null;
+  jamSelesai: string | null;
+  lokasi: string;
+  homecellId: string;
+  homecellNama: string;
+  scope: 'MINE' | 'ZONA';
+  canManage: boolean;
+};
+export function getCalendarExtra(from: string, to: string) {
+  return api.get<{ birthdays: CalendarBirthday[]; meetings: CalendarMeeting[] }>(
+    `/admin/me/calendar-extra?from=${from}&to=${to}`,
+  );
+}
