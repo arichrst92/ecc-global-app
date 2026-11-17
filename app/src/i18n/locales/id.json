@@ -2890,7 +2890,8 @@
     "hours_one": "{{count}} jam",
     "hours_other": "{{count}} jam",
     "minutes_one": "{{count}} menit",
-    "minutes_other": "{{count}} menit"
+    "minutes_other": "{{count}} menit",
+    "closes_in": "Tutup dalam"
   },
   "announcement": {
     "label": "Pengumuman",

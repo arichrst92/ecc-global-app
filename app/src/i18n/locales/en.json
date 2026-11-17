@@ -2893,7 +2893,8 @@
     "hours_one": "{{count}} hour",
     "hours_other": "{{count}} hours",
     "minutes_one": "{{count}} minute",
-    "minutes_other": "{{count}} minutes"
+    "minutes_other": "{{count}} minutes",
+    "closes_in": "Closes in"
   },
   "announcement": {
     "label": "Announcement",
