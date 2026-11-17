@@ -2882,10 +2882,15 @@
   "deadline": {
     "ibadah_label": "Batas reservasi",
     "event_label": "Batas pendaftaran online",
-    "unit_hint": "hari : jam : menit",
     "ibadah_closed": "Reservasi ditutup karena ibadah sudah dimulai — gunakan self check-in di app saat hadir.",
     "kids_closed": "Reservasi ditutup karena ibadah sudah dimulai — check-in anak langsung di meja CKids.",
-    "event_closed": "Pendaftaran online ditutup karena event sudah dimulai — silakan registrasi walk-in di lokasi melalui petugas."
+    "event_closed": "Pendaftaran online ditutup karena event sudah dimulai — silakan registrasi walk-in di lokasi melalui petugas.",
+    "days_one": "{{count}} hari",
+    "days_other": "{{count}} hari",
+    "hours_one": "{{count}} jam",
+    "hours_other": "{{count}} jam",
+    "minutes_one": "{{count}} menit",
+    "minutes_other": "{{count}} menit"
   },
   "announcement": {
     "label": "Pengumuman",

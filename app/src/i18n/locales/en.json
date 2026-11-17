@@ -2885,10 +2885,15 @@
   "deadline": {
     "ibadah_label": "Reservation closes in",
     "event_label": "Online registration closes in",
-    "unit_hint": "days : hours : minutes",
     "ibadah_closed": "Reservations are closed because the service has started — use self check-in in the app when you arrive.",
     "kids_closed": "Reservations are closed because the service has started — check your child in at the CKids desk.",
-    "event_closed": "Online registration is closed because the event has started — please register as a walk-in at the venue with our staff."
+    "event_closed": "Online registration is closed because the event has started — please register as a walk-in at the venue with our staff.",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "hours_one": "{{count}} hour",
+    "hours_other": "{{count}} hours",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes"
   },
   "announcement": {
     "label": "Announcement",

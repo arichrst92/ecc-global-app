@@ -1,5 +1,6 @@
 /**
- * Countdown batas reservasi / pendaftaran (DD:hh:mm) — jam server.
+ * Countdown batas reservasi / pendaftaran ("2 hari 5 jam 30 menit" /
+ * "2 days 5 hours 30 minutes") — jam server. Satuan depan yang 0 tidak ditulis.
  *  - Ibadah: reservasi ditutup saat jam mulai → setelahnya self check-in
  *    (ibadah anak: check-in di meja CKids).
  *  - Event: pendaftaran online ditutup saat event mulai → walk-in di lokasi.
@@ -23,7 +24,6 @@ function useNowMinute() {
   return now;
 }
 
-const pad = (n: number) => String(n).padStart(2, '0');
 
 export function DeadlineCountdown({
   closesAt,
@@ -57,7 +57,12 @@ export function DeadlineCountdown({
   const dd = Math.floor(totalMin / 1440);
   const hh = Math.floor((totalMin % 1440) / 60);
   const mm = totalMin % 60;
-  const value = `${pad(dd)}:${pad(hh)}:${pad(mm)}`;
+  // Satuan depan yang 0 dilewati: "5 jam 30 menit", "30 menit".
+  const parts: string[] = [];
+  if (dd > 0) parts.push(t('deadline.days', { count: dd }));
+  if (dd > 0 || hh > 0) parts.push(t('deadline.hours', { count: hh }));
+  parts.push(t('deadline.minutes', { count: mm }));
+  const value = parts.join(' ');
   const urgent = left < 3 * 3_600_000; // < 3 jam
   const label = kind === 'event' ? t('deadline.event_label') : t('deadline.ibadah_label');
 
@@ -82,14 +87,13 @@ export function DeadlineCountdown({
       <Timer size={18} color={urgent ? '#DC2626' : '#EA580C'} />
       <View className="flex-1">
         <Text className={`text-xs ${urgent ? 'text-red-700' : 'text-brand-800'}`}>{label}</Text>
-        <Text className="text-[10px] text-neutral-500">{t('deadline.unit_hint')}</Text>
+        <Text
+          className={`text-base font-bold mt-0.5 ${urgent ? 'text-red-600' : 'text-brand-700'}`}
+          style={{ fontVariant: ['tabular-nums'] }}
+        >
+          {value}
+        </Text>
       </View>
-      <Text
-        className={`text-xl font-bold ${urgent ? 'text-red-600' : 'text-brand-700'}`}
-        style={{ fontVariant: ['tabular-nums'] }}
-      >
-        {value}
-      </Text>
     </View>
   );
 }
