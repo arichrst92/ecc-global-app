@@ -730,7 +730,11 @@
     "nth_4": "keempat",
     "ended": "Sudah selesai",
     "today_upper": "HARI INI",
-    "self_checkin_ends_in": "Self check-in akan berakhir dalam"
+    "self_checkin_ends_in": "Self check-in akan berakhir dalam",
+    "team_all_one": "Lihat semua ({{count}})",
+    "team_all_other": "Lihat semua ({{count}})",
+    "team_all": "Lihat semua ({{count}})",
+    "team_less": "Tampilkan lebih sedikit"
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

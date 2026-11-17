@@ -730,7 +730,11 @@
     "nth_4": "4th",
     "ended": "Ended",
     "today_upper": "TODAY",
-    "self_checkin_ends_in": "Self check-in ends in"
+    "self_checkin_ends_in": "Self check-in ends in",
+    "team_all_one": "Show all ({{count}})",
+    "team_all_other": "Show all ({{count}})",
+    "team_all": "Show all ({{count}})",
+    "team_less": "Show less"
   },
   "error": {
     "network": "No internet connection. Please try again.",
