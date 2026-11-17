@@ -1226,7 +1226,13 @@
     "pend_closed": "Pendaftaran ditutup",
     "pend_closed_notice": "Pendaftaran di {{cabang}} sedang ditutup.",
     "filter_buka": "Buka pendaftaran ({{count}})",
-    "requests_none": "Belum ada permintaan bergabung yang menunggu."
+    "requests_none": "Belum ada permintaan bergabung yang menunggu.",
+    "jadwal_scan_on": "Bisa scan check-in",
+    "jadwal_scan_off": "Beri akses scan",
+    "jadwal_scan_toggle": "Akses scan check-in",
+    "jadwal_n_scan": "{{count}} petugas bisa scan check-in",
+    "jadwal_scan_hint_ibadah": "Ketuk \"Beri akses scan\" agar petugas bisa scan QR check-in jemaat di ibadah ini (menu Scanner di app). Ketuk lagi untuk mencabut, lalu Simpan.",
+    "jadwal_scan_hint_event": "Ketuk \"Beri akses scan\" agar petugas bisa scan QR check-in peserta event ini (menu Scanner di app). Ketuk lagi untuk mencabut, lalu Simpan."
   },
   "homecell": {
     "title": "Homecell Saya",

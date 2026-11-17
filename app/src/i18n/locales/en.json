@@ -1226,7 +1226,13 @@
     "pend_closed": "Sign-ups closed",
     "pend_closed_notice": "Sign-ups in {{cabang}} are closed for now.",
     "filter_buka": "Open for sign-up ({{count}})",
-    "requests_none": "No pending join requests."
+    "requests_none": "No pending join requests.",
+    "jadwal_scan_on": "Can scan check-in",
+    "jadwal_scan_off": "Give scan access",
+    "jadwal_scan_toggle": "Check-in scan access",
+    "jadwal_n_scan": "{{count}} servants can scan check-in",
+    "jadwal_scan_hint_ibadah": "Tap \"Give scan access\" so the servant can scan members' check-in QR at this service (Scanner menu in the app). Tap again to revoke, then Save.",
+    "jadwal_scan_hint_event": "Tap \"Give scan access\" so the servant can scan participants' check-in QR at this event (Scanner menu in the app). Tap again to revoke, then Save."
   },
   "homecell": {
     "title": "My Homecells",

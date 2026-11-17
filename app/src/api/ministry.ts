@@ -171,7 +171,8 @@ export async function getMyServiceSchedule(
 
 export type JadwalPerson = { id: string; namaLengkap: string; fotoUrl: string | null };
 export type JadwalRole = { id: string; nama: string; level: number };
-export type JadwalPetugas = { id: string; jemaat: JadwalPerson; role: JadwalRole };
+/** canScanAttendance: akses scan check-in (absensi) di ibadah / event ini (BE 2026-12). */
+export type JadwalPetugas = { id: string; jemaat: JadwalPerson; role: JadwalRole; canScanAttendance?: boolean };
 export type JadwalIbadah = {
   key: string;
   ibadahId: string;
@@ -200,7 +201,7 @@ export type MinistryJadwal = {
   events: JadwalEvent[];
   members: { jemaat: JadwalPerson & { cabang: { id: string; nama: string } }; role: JadwalRole }[];
 };
-export type PetugasInput = { jemaatId: string; pelayananRoleId: string };
+export type PetugasInput = { jemaatId: string; pelayananRoleId: string; canScanAttendance?: boolean };
 
 /** GET /admin/ministry/:id/jadwal — hanya pemegang otoritas (per cabang). */
 export function getMinistryJadwal(id: string, cabangId?: string | null) {

@@ -14,7 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CalendarDays, ChevronRight, Plus, RotateCcw, Search, UserCheck, Users, X } from 'lucide-react-native';
+import { ArrowLeft, CalendarDays, ChevronRight, Plus, RotateCcw, ScanLine, Search, UserCheck, Users, X } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
@@ -38,7 +38,7 @@ import { gx } from '@/theme/gradient';
 import { isDark, nc } from '@/theme/ThemeRoot';
 
 type Editing = { kind: 'ibadah'; item: JadwalIbadah } | { kind: 'event'; item: JadwalEvent };
-type Draft = { jemaatId: string; namaLengkap: string; fotoUrl: string | null; roleId: string };
+type Draft = { jemaatId: string; namaLengkap: string; fotoUrl: string | null; roleId: string; canScan: boolean };
 
 export default function MinistryJadwalScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -157,6 +157,7 @@ export default function MinistryJadwalScreen() {
                         sub={`${x.jamMulai}–${x.jamSelesai}${x.source === 'TANGGAL' ? ` · ${t('ministry.jadwal_khusus')}` : ''}`}
                         count={x.petugas.length}
                         names={x.petugas.map((p) => p.jemaat.namaLengkap)}
+                        scanCount={x.petugas.filter((p) => p.canScanAttendance).length}
                         onPress={() => setEditing({ kind: 'ibadah', item: x })}
                       />
                     ))}
@@ -174,6 +175,7 @@ export default function MinistryJadwalScreen() {
                     sub={`${formatDateWithDay(e.tanggalMulai.slice(0, 10), i18n.language)}${e.jamMulai ? ` · ${e.jamMulai}` : ''}`}
                     count={e.petugas.length}
                     names={e.petugas.map((p) => p.jemaat.namaLengkap)}
+                    scanCount={e.petugas.filter((p) => p.canScanAttendance).length}
                     onPress={() => setEditing({ kind: 'event', item: e })}
                   />
                 ))}
@@ -188,7 +190,21 @@ export default function MinistryJadwalScreen() {
   );
 }
 
-function SlotCard({ title, sub, count, names, onPress }: { title: string; sub: string; count: number; names: string[]; onPress: () => void }) {
+function SlotCard({
+  title,
+  sub,
+  count,
+  names,
+  scanCount = 0,
+  onPress,
+}: {
+  title: string;
+  sub: string;
+  count: number;
+  names: string[];
+  scanCount?: number;
+  onPress: () => void;
+}) {
   const { t } = useTranslation();
   return (
     <Pressable
@@ -209,6 +225,12 @@ function SlotCard({ title, sub, count, names, onPress }: { title: string; sub: s
         <Text className={`text-xs mt-0.5 ${count ? 'text-emerald-700' : 'text-amber-700 font-semibold'}`} numberOfLines={1}>
           {count ? `${t('ministry.jadwal_n_petugas', { count })} · ${names.join(', ')}` : t('ministry.jadwal_belum_ada')}
         </Text>
+        {scanCount ? (
+          <View className="flex-row items-center gap-1 mt-0.5">
+            <ScanLine size={11} color="#2563EB" />
+            <Text className="text-[11px] text-blue-700">{t('ministry.jadwal_n_scan', { count: scanCount })}</Text>
+          </View>
+        ) : null}
       </View>
       <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
@@ -226,12 +248,14 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
     namaLengkap: p.jemaat.namaLengkap,
     fotoUrl: p.jemaat.fotoUrl,
     roleId: p.role.id,
+    canScan: !!p.canScanAttendance,
   }));
   const [draft, setDraft] = useState<Draft[]>(init);
   const [scope, setScope] = useState<'TANGGAL' | 'DEFAULT'>('TANGGAL');
   const [picking, setPicking] = useState(false);
   const [roleFor, setRoleFor] = useState<string | null>(null);
-  const dirty = JSON.stringify(draft.map((x) => [x.jemaatId, x.roleId])) !== JSON.stringify(init.map((x) => [x.jemaatId, x.roleId]));
+  const sig = (l: Draft[]) => JSON.stringify(l.map((x) => [x.jemaatId, x.roleId, x.canScan]));
+  const dirty = sig(draft) !== sig(init);
 
   const tanggal = editing.kind === 'ibadah' ? editing.item.tanggal : editing.item.tanggalMulai.slice(0, 10);
   const title = editing.kind === 'ibadah' ? editing.item.nama : editing.item.judul;
@@ -242,7 +266,7 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
 
   const save = useMutation({
     mutationFn: async (mode: 'SAVE' | 'RESET') => {
-      const petugas = draft.map((x) => ({ jemaatId: x.jemaatId, pelayananRoleId: x.roleId }));
+      const petugas = draft.map((x) => ({ jemaatId: x.jemaatId, pelayananRoleId: x.roleId, canScanAttendance: x.canScan }));
       if (editing.kind === 'event') return saveEventJadwal(ministryId, editing.item.eventId, petugas);
       return saveIbadahJadwal(ministryId, editing.item.ibadahId, {
         tanggal,
@@ -293,7 +317,7 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
             tanggal={tanggal}
             taken={new Set(draft.map((x) => x.jemaatId))}
             onPick={(m) => {
-              setDraft((cur) => [...cur, { jemaatId: m.jemaat.id, namaLengkap: m.jemaat.namaLengkap, fotoUrl: m.jemaat.fotoUrl, roleId: m.role.id }]);
+              setDraft((cur) => [...cur, { jemaatId: m.jemaat.id, namaLengkap: m.jemaat.namaLengkap, fotoUrl: m.jemaat.fotoUrl, roleId: m.role.id, canScan: false }]);
               setPicking(false);
             }}
             onBack={() => setPicking(false)}
@@ -321,6 +345,12 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
                   {scope === 'TANGGAL' ? t('ministry.jadwal_scope_tanggal_hint') : t('ministry.jadwal_scope_default_hint')}
                 </Text>
               ) : null}
+              <View className="flex-row gap-2 items-start mb-3 px-1">
+                <ScanLine size={13} color="#2563EB" style={{ marginTop: 1 }} />
+                <Text className="flex-1 text-[11px] text-neutral-500 leading-4">
+                  {editing.kind === 'ibadah' ? t('ministry.jadwal_scan_hint_ibadah') : t('ministry.jadwal_scan_hint_event')}
+                </Text>
+              </View>
 
               {sorted.length === 0 ? (
                 <View className="bg-card rounded-2xl p-5 border border-dashed border-neutral-300 items-center mb-3">
@@ -337,11 +367,28 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
                           <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
                             {x.namaLengkap}
                           </Text>
-                          <Pressable onPress={() => setRoleFor(roleFor === x.jemaatId ? null : x.jemaatId)} className="self-start mt-0.5">
-                            <Text className="text-xs font-semibold text-brand-700">
-                              {roleById.get(x.roleId)?.nama ?? '—'} ▾
-                            </Text>
-                          </Pressable>
+                          <View className="flex-row flex-wrap items-center gap-2 mt-0.5">
+                            <Pressable onPress={() => setRoleFor(roleFor === x.jemaatId ? null : x.jemaatId)}>
+                              <Text className="text-xs font-semibold text-brand-700">
+                                {roleById.get(x.roleId)?.nama ?? '—'} ▾
+                              </Text>
+                            </Pressable>
+                            {/* Otoritas scan check-in (absensi) — ketuk untuk beri / cabut. */}
+                            <Pressable
+                              onPress={() => setDraft((cur) => cur.map((y) => (y.jemaatId === x.jemaatId ? { ...y, canScan: !y.canScan } : y)))}
+                              className={`flex-row items-center gap-1 px-2 py-0.5 rounded-full border ${
+                                x.canScan ? 'bg-blue-50 border-blue-300' : 'bg-card border-neutral-200'
+                              }`}
+                              accessibilityRole="switch"
+                              accessibilityState={{ checked: x.canScan }}
+                              accessibilityLabel={t('ministry.jadwal_scan_toggle')}
+                            >
+                              <ScanLine size={11} color={x.canScan ? '#1D4ED8' : nc('#737373')} />
+                              <Text className={`text-[11px] font-semibold ${x.canScan ? 'text-blue-700' : 'text-neutral-500'}`}>
+                                {x.canScan ? t('ministry.jadwal_scan_on') : t('ministry.jadwal_scan_off')}
+                              </Text>
+                            </Pressable>
+                          </View>
                         </View>
                         <Pressable
                           onPress={() => setDraft((cur) => cur.filter((y) => y.jemaatId !== x.jemaatId))}
