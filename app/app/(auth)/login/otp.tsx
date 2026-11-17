@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, KeyRound, Mail, ShieldCheck } from 'lucide-react-native';
 
 import { OtpInput } from '@/components/ui/OtpInput';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useToast } from '@/components/ui/Toast';
 import { SpamHint } from '@/components/auth/SpamHint';
 import { requestEmailOtp, requestOtp, verifyEmailOtpLogin, verifyOtpLogin } from '@/api/auth';
@@ -97,8 +98,9 @@ export default function LoginOtpScreen() {
         </Pressable>
       </View>
 
+      <KeyboardSafeView className="flex-1">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
-        <View className="w-16 h-16 rounded-2xl bg-brand-50 items-center justify-center mb-5 mt-2">
+        <View className="w-14 h-14 rounded-2xl bg-brand-50 items-center justify-center mb-4 mt-2">
           {adminMode ? <KeyRound size={28} color="#EA580C" /> : byEmail ? <Mail size={28} color="#EA580C" /> : <ShieldCheck size={28} color="#EA580C" />}
         </View>
         <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.otp_title')}</Text>
@@ -106,17 +108,6 @@ export default function LoginOtpScreen() {
           {adminMode ? t('auth.otp_admin_note') : byEmail ? t('auth.otp_sub_email') : t('auth.otp_sub')}
         </Text>
         <Text className="text-neutral-900 font-semibold mt-1 mb-4">{byEmail ? email : formatPhoneDisplay(noHp)}</Text>
-
-        {!adminMode && byEmail ? <SpamHint className="mb-6" /> : null}
-        {!adminMode && !byEmail && viaEmail ? (
-          <View className="flex-row gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mb-6">
-            <Mail size={18} color="#B45309" style={{ marginTop: 1 }} />
-            <Text className="flex-1 text-sm leading-5 text-amber-900">
-              {t('auth.otp_email_note')} {t('auth.spam_hint')}
-            </Text>
-          </View>
-        ) : null}
-        {adminMode || (!byEmail && !viaEmail) ? <View className="mb-3" /> : null}
 
         <OtpInput
           key={otpKey}
@@ -129,6 +120,16 @@ export default function LoginOtpScreen() {
         />
 
         {error ? <Text className="text-sm text-red-600 mt-3 text-center">{error}</Text> : null}
+        {!adminMode && byEmail ? <SpamHint className="mt-5" /> : null}
+        {!adminMode && !byEmail && viaEmail ? (
+          <View className="flex-row gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mt-5">
+            <Mail size={18} color="#B45309" style={{ marginTop: 1 }} />
+            <Text className="flex-1 text-sm leading-5 text-amber-900">
+              {t('auth.otp_email_note')} {t('auth.spam_hint')}
+            </Text>
+          </View>
+        ) : null}
+
 
         {/* Resend */}
         <View className="items-center mt-8">
@@ -156,6 +157,7 @@ export default function LoginOtpScreen() {
           </View>
         ) : null}
       </ScrollView>
+      </KeyboardSafeView>
     </SafeAreaView>
   );
 }

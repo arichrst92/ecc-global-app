@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Mail, ShieldCheck } from 'lucide-react-native';
 
 import { OtpInput } from '@/components/ui/OtpInput';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { Stepper } from '@/components/ui/Stepper';
 import { useToast } from '@/components/ui/Toast';
 import { SpamHint } from '@/components/auth/SpamHint';
@@ -91,28 +92,16 @@ export default function SignupOtpScreen() {
         </Pressable>
       </View>
 
+      <KeyboardSafeView className="flex-1">
       <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         <Stepper current={2} total={3} />
 
-        <View className="w-16 h-16 rounded-2xl bg-emerald-50 items-center justify-center mb-5 mt-4">
+        <View className="w-14 h-14 rounded-2xl bg-emerald-50 items-center justify-center mb-4 mt-3">
           {viaEmailChannel ? <Mail size={28} color="#059669" /> : <ShieldCheck size={28} color="#059669" />}
         </View>
         <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.otp_title')}</Text>
         <Text className="text-neutral-500 text-sm">{viaEmailChannel ? t('signup.otp_sub_email') : t('auth.otp_sub')}</Text>
         <Text className="text-neutral-900 font-semibold mt-1 mb-4">{viaEmailChannel ? signupEmail : formatPhoneDisplay(noHp)}</Text>
-
-        {viaEmailChannel ? (
-          <SpamHint className="mb-6" />
-        ) : otpViaEmail ? (
-          <View className="flex-row gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mb-6">
-            <Mail size={18} color="#B45309" style={{ marginTop: 1 }} />
-            <Text className="flex-1 text-sm leading-5 text-amber-900">
-              {t('auth.otp_email_note')} {t('auth.spam_hint')}
-            </Text>
-          </View>
-        ) : (
-          <View className="mb-3" />
-        )}
 
         <OtpInput
           key={otpKey}
@@ -125,6 +114,17 @@ export default function SignupOtpScreen() {
         />
 
         {error ? <Text className="text-sm text-red-600 mt-3 text-center">{error}</Text> : null}
+        {viaEmailChannel ? (
+          <SpamHint className="mt-5" />
+        ) : otpViaEmail ? (
+          <View className="flex-row gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mt-5">
+            <Mail size={18} color="#B45309" style={{ marginTop: 1 }} />
+            <Text className="flex-1 text-sm leading-5 text-amber-900">
+              {t('auth.otp_email_note')} {t('auth.spam_hint')}
+            </Text>
+          </View>
+        ) : null}
+
 
         <View className="items-center mt-8">
           {cooldown > 0 ? (
@@ -138,6 +138,7 @@ export default function SignupOtpScreen() {
           )}
         </View>
       </ScrollView>
+      </KeyboardSafeView>
     </SafeAreaView>
   );
 }

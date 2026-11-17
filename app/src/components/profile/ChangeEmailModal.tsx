@@ -142,10 +142,10 @@ export function ChangeEmailModal({
               ) : (
                 <>
                   <Text className="text-sm text-neutral-700 mb-3 leading-relaxed">{t('change_email.otp_hint', { email: target })}</Text>
-                  <SpamHint className="mb-4" />
                   <OtpInput key={otpKey} onComplete={(c) => verify.mutate(c)} disabled={verify.isPending} />
                   {verify.isPending ? <ActivityIndicator color="#F97316" style={{ marginTop: 12 }} /> : null}
                   {error ? <Text className="text-xs text-red-600 mt-3 text-center">{error}</Text> : null}
+                  <SpamHint className="mt-4" />
                   <View className="flex-row justify-between mt-5">
                     {!verifyOnly ? (
                       <Pressable

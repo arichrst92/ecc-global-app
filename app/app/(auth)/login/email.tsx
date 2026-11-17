@@ -139,7 +139,7 @@ export default function LoginEmailScreen() {
   }
 
   /** Kode masuk dari admin cabang → layar input kode (email). */
-  function useAdminCode() {
+  function openAdminCode() {
     const trimmed = email.trim().toLowerCase();
     if (!EMAIL_REGEX.test(trimmed)) {
       setError(t('auth.email.error_invalid_format'));
@@ -158,7 +158,7 @@ export default function LoginEmailScreen() {
   ) : null;
 
   const adminLink = (
-    <Pressable onPress={useAdminCode} className="mt-5 flex-row items-center justify-center gap-1.5 py-2">
+    <Pressable onPress={openAdminCode} className="mt-5 flex-row items-center justify-center gap-1.5 py-2">
       <KeyRound size={14} color="#EA580C" />
       <Text className="text-sm font-semibold text-brand-600">{t('auth.admin_code_link')}</Text>
     </Pressable>

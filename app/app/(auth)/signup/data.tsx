@@ -15,6 +15,7 @@ import { register, registerMatch, requestClaimOtp } from '@/api/auth';
 import { OtpInput } from '@/components/ui/OtpInput';
 import { DatePickerModal } from '@/components/ui/DatePickerModal';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SpamHint } from '@/components/auth/SpamHint';
 import { parseLocalDate, toIsoDate, formatDate } from '@/utils/date';
 import { useAuthStore } from '@/stores/auth.store';
@@ -61,6 +62,8 @@ export default function SignupDataScreen() {
   const [showDob, setShowDob] = useState(false);
   /** Data jemaat lama yang mungkin milik pendaftar (hasil /auth/register/match). */
   const [match, setMatch] = useState<RegisterMatch | null>(null);
+  /** Kode klaim data lama salah / kedaluwarsa → ditampilkan di sheet, bukan alert global. */
+  const [claimError, setClaimError] = useState<{ msg: string; n: number } | null>(null);
   const expiredShown = useRef(false);
 
   /** Waktu habis / OTP tidak berlaku → ulang dari awal dengan tumpukan layar bersih. */
@@ -135,7 +138,12 @@ export default function SignupDataScreen() {
       await login(data.accessToken, data.refreshToken, data.user);
       router.replace('/(auth)/signup/success');
     },
-    onError: (err) => {
+    onError: (err, claim) => {
+      // Gagal saat klaim data lama (kode salah, dsb.) → tetap di sheet.
+      if (claim && err instanceof ApiError && err.code !== 'CONFLICT') {
+        setClaimError((c) => ({ msg: err.code === 'UNAUTHORIZED' ? t('auth.error_otp_invalid') : err.message, n: (c?.n ?? 0) + 1 }));
+        return;
+      }
       if (err instanceof ApiError) {
         if (err.code === 'VALIDATION_ERROR' && err.details?.fieldErrors) {
           const fe = err.details.fieldErrors;
@@ -227,6 +235,7 @@ export default function SignupDataScreen() {
         </Pressable>
       </View>
 
+      <KeyboardSafeView className="flex-1">
       <ScrollView className="flex-1 px-5" keyboardShouldPersistTaps="handled">
         <Stepper current={3} total={3} />
 
@@ -387,6 +396,7 @@ export default function SignupDataScreen() {
           size="lg"
         />
       </View>
+      </KeyboardSafeView>
 
       {showDob ? (
         <DatePickerModal
@@ -404,8 +414,15 @@ export default function SignupDataScreen() {
           match={match}
           payload={matchPayload()}
           registering={mutation.isPending}
-          onRegister={(claim) => mutation.mutate(claim)}
-          onClose={() => setMatch(null)}
+          claimError={claimError}
+          onRegister={(claim) => {
+            setClaimError(null);
+            mutation.mutate(claim);
+          }}
+          onClose={() => {
+            setClaimError(null);
+            setMatch(null);
+          }}
         />
       ) : null}
     </SafeAreaView>
@@ -422,12 +439,14 @@ function OldRecordSheet({
   match,
   payload,
   registering,
+  claimError,
   onRegister,
   onClose,
 }: {
   match: RegisterMatch;
   payload: RegisterMatchPayload;
   registering: boolean;
+  claimError: { msg: string; n: number } | null;
   onRegister: (claim?: { claimJemaatId: string; claimKode: string }) => void;
   onClose: () => void;
 }) {
@@ -446,9 +465,16 @@ function OldRecordSheet({
     onError: (e) => setError(e instanceof ApiError ? e.message : t('error.network')),
   });
 
+  // Kode klaim salah → kosongkan kolom kode supaya bisa diketik ulang.
+  useEffect(() => {
+    if (claimError) setOtpKey((k) => k + 1);
+  }, [claimError]);
+
   const busy = registering || sendCode.isPending;
+  const shownError = error ?? claimError?.msg ?? null;
   return (
     <Modal visible transparent animationType="slide" onRequestClose={() => !busy && onClose()}>
+      <KeyboardSafeView style={{ flex: 1 }}>
       <View className="flex-1 justify-end">
         <Pressable onPress={() => !busy && onClose()} className="absolute inset-0 bg-black/50" />
         <View className="bg-card rounded-t-3xl px-5 pt-4 pb-6" style={{ maxHeight: '90%' }}>
@@ -468,7 +494,7 @@ function OldRecordSheet({
                 <Text className="text-sm text-neutral-700 leading-5">
                   {t('signup.match_msg', { nama: match.namaMasked, cabang: match.cabang ?? 'ECC' })}
                 </Text>
-                {error ? <Text className="text-xs text-red-600 mt-3">{error}</Text> : null}
+                {shownError ? <Text className="text-xs text-red-600 mt-3">{shownError}</Text> : null}
                 <View className="mt-5 gap-2">
                   <Button
                     label={t('signup.match_yes')}
@@ -501,7 +527,7 @@ function OldRecordSheet({
                 <Text className="text-sm text-neutral-700 leading-5 mb-3">
                   {t('signup.match_claim_msg', { email: match.emailMasked ?? '' })}
                 </Text>
-                <SpamHint className="mb-4" />
+                {/* Kolom kode di atas supaya tidak tertutup keyboard di layar kecil. */}
                 <OtpInput
                   key={otpKey}
                   onComplete={(kode) => {
@@ -512,7 +538,8 @@ function OldRecordSheet({
                   disabled={registering}
                 />
                 {registering ? <ActivityIndicator color="#F97316" style={{ marginTop: 12 }} /> : null}
-                {error ? <Text className="text-xs text-red-600 mt-3 text-center">{error}</Text> : null}
+                {shownError ? <Text className="text-xs text-red-600 mt-3 text-center">{shownError}</Text> : null}
+                <SpamHint className="mt-4" />
                 <View className="flex-row justify-between mt-5">
                   <Pressable onPress={() => onRegister(undefined)} disabled={registering} hitSlop={8}>
                     <Text className="text-sm text-neutral-600">{t('signup.match_skip')}</Text>
@@ -529,6 +556,7 @@ function OldRecordSheet({
           <SheetNavSpacer />
         </View>
       </View>
+      </KeyboardSafeView>
     </Modal>
   );
 }
