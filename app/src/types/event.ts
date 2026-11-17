@@ -52,6 +52,15 @@ export type EventListItem = {
  * truth untuk participation status — local store dipakai untuk offline cache. */
 export type EventDetail = EventListItem & {
   deskripsi: string; // markdown
+  /** Tim pelayanan event (BE 2026-12) — bentuk sama dengan petugas ibadah. */
+  petugas?: Array<{
+    id: string;
+    pelayananNama: string;
+    pelayananIkon: string | null;
+    pelayananWarna: string | null;
+    role: string;
+    jemaat: { id: string; namaLengkap: string; fotoUrl: string | null };
+  }>;
   qrisImageUrl?: string | null;
   bankNama?: string | null;
   bankNomor?: string | null;

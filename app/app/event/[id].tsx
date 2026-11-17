@@ -8,6 +8,8 @@ import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, Che
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
+import { Avatar } from '@/components/ui/Avatar';
+import { MinistryChip } from '@/components/ministry/MinistryIcon';
 import { useToast } from '@/components/ui/Toast';
 import { getEventSelfCheckin, postEventSelfCheckin, selfCancelParticipation } from '@/api/event';
 import { SelfCheckinBar } from '@/components/checkin/SelfCheckinBar';
@@ -512,6 +514,34 @@ export default function EventDetailScreen() {
                     <Text className="text-sm font-semibold text-neutral-700">{t('event.about_event')}</Text>
                   </View>
                   <Text className="text-sm text-neutral-700 leading-relaxed">{event.deskripsi}</Text>
+                </View>
+              ) : null}
+
+              {/* Tim pelayanan — ketuk nama → profil (sama seperti detail ibadah) */}
+              {event.petugas && event.petugas.length > 0 ? (
+                <View className="mt-4 bg-card rounded-2xl p-4 border border-neutral-100">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <Users size={16} color={nc('#525252')} />
+                    <Text className="text-sm font-semibold text-neutral-700">{t('ibadah.team')}</Text>
+                  </View>
+                  <View className="gap-2.5">
+                    {event.petugas.map((p) => (
+                      <Pressable
+                        key={p.id}
+                        onPress={() => router.push(`/jemaat/${p.jemaat.id}` as never)}
+                        className="flex-row items-center gap-3"
+                      >
+                        <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl} size={32} />
+                        <View className="flex-1">
+                          <Text className="text-sm font-medium text-neutral-900">{p.jemaat.namaLengkap}</Text>
+                          <View className="flex-row items-center gap-1.5 mt-0.5">
+                            <MinistryChip nama={p.pelayananNama} ikon={p.pelayananIkon} warna={p.pelayananWarna} />
+                            <Text className="text-xs text-neutral-500">{p.role}</Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
                 </View>
               ) : null}
 
