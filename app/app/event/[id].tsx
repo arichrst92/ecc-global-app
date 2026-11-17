@@ -19,7 +19,9 @@ import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { useAuthStore } from '@/stores/auth.store';
 import { ApiError } from '@/types/api';
-import { formatDate } from '@/utils/date';
+import { formatDate, formatDateWithDay } from '@/utils/date';
+import { eventPriceTone } from '@/utils/eventPrice';
+import { AnnouncementMarkdown } from '@/components/announcement/AnnouncementMarkdown';
 import { useVenueTz } from '@/hooks/useVenueTz';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { localRangeIfDifferent, tzZoneLabel, ymdInTz, zoneTimeText } from '@/utils/time';
@@ -339,20 +341,12 @@ export default function EventDetailScreen() {
         ) : event ? (
           <>
             {/* Hero block — pakai heroImageUrl kalau ada */}
-            <HeroImage
-              url={event.heroImageUrl}
-              fallbackEmoji="🎉"
-              emojiSize={96}
-              className="h-72"
-            />
+            {/* Gambar utama mengikuti rasio asli (tidak terpotong) — sama dengan daftar & tiket. */}
+            <HeroImage url={event.heroImageUrl} fallbackEmoji="🎉" emojiSize={96} fitToWidth />
 
             <View className="bg-neutral-50 -mt-5 rounded-t-3xl pt-5 px-5 pb-5">
-              <View
-                className={`px-2.5 py-1 rounded-full self-start ${isFree ? 'bg-emerald-50' : 'bg-amber-50'} mb-2`}
-              >
-                <Text
-                  className={`text-xs font-semibold ${isFree ? 'text-emerald-700' : 'text-amber-700'}`}
-                >
+              <View className={`px-2.5 py-1 rounded-full self-start ${eventPriceTone(event.tipeBayar).soft} mb-2`}>
+                <Text className={`text-xs font-semibold ${eventPriceTone(event.tipeBayar).text}`}>
                   {priceLabel}
                 </Text>
               </View>
@@ -360,21 +354,19 @@ export default function EventDetailScreen() {
 
               {/* Meta */}
               <View className="mt-4 gap-2.5">
-                <MetaRow
-                  icon={<Calendar size={18} color="#EA580C" />}
-                  primary={`${formatDate(event.tanggalMulai, lang)}${
-                    event.tanggalSelesai !== event.tanggalMulai
-                      ? ` - ${formatDate(event.tanggalSelesai, lang)}`
-                      : ''
-                  }`}
-                  secondary={
-                    event.tanggalSelesai !== event.tanggalMulai
-                      ? lang === 'id'
-                        ? 'Multi-day'
-                        : 'Multi-day'
-                      : null
-                  }
-                />
+                {(() => {
+                  // Format sama dengan tiket & daftar: "Jumat, 12 Des 2026 – Minggu, 14 Des 2026".
+                  const s = ymdInTz(event.tanggalMulai, venueTz);
+                  const e = ymdInTz(event.tanggalSelesai || event.tanggalMulai, venueTz);
+                  const days = Math.round((Date.parse(`${e}T00:00:00Z`) - Date.parse(`${s}T00:00:00Z`)) / 86_400_000) + 1;
+                  return (
+                    <MetaRow
+                      icon={<Calendar size={18} color="#EA580C" />}
+                      primary={`${formatDateWithDay(s, lang)}${e !== s ? ` – ${formatDateWithDay(e, lang)}` : ''}`}
+                      secondary={days > 1 ? t('event.days_count', { count: days }) : null}
+                    />
+                  );
+                })()}
                 {/* Jam mulai - selesai — prefer BE jamMulai/jamSelesai (BE patch 2026-05-22a),
                     fallback ke parse dari ISO untuk event lama */}
                 {(() => {
@@ -422,6 +414,65 @@ export default function EventDetailScreen() {
                   />
                 )}
               </View>
+
+              {/* Syarat ikut event — selalu terlihat (bukan hanya saat tidak memenuhi). */}
+              {event.requirementLabels && event.requirementLabels.length > 0 ? (
+                <View
+                  className={`mt-4 rounded-2xl p-3.5 border ${
+                    event.myEligible === false ? 'bg-amber-50 border-amber-200' : 'bg-card border-neutral-100'
+                  }`}
+                >
+                  <View className="flex-row items-center gap-2">
+                    <ShieldAlert size={16} color={event.myEligible === false ? nc('#B45309') : '#EA580C'} />
+                    <Text className="flex-1 text-sm font-semibold text-neutral-900">{t('event.requirements_title')}</Text>
+                    {event.myEligible === true ? (
+                      <View className="flex-row items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        <Check size={11} color="#047857" />
+                        <Text className="text-[10px] font-bold text-emerald-700">{t('event.requirements_met')}</Text>
+                      </View>
+                    ) : event.myEligible === false ? (
+                      <View className="bg-amber-100 px-2 py-0.5 rounded-full">
+                        <Text className="text-[10px] font-bold text-amber-800">{t('event.requirements_not_met')}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  <View className="flex-row flex-wrap gap-1.5 mt-2">
+                    {event.requirementLabels.map((r) => (
+                      <View key={r} className="bg-neutral-100 rounded-full px-2.5 py-1">
+                        <Text className="text-xs text-neutral-700">{r}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ) : null}
+
+              {/* Info pembayaran (event berbayar tetap) — terlihat sebelum mendaftar. */}
+              {event.tipeBayar === 'NOMINAL_TETAP' && (event.bankNomor || event.qrisImageUrl) ? (
+                <View className="mt-4 bg-card rounded-2xl p-3.5 border border-neutral-100">
+                  <View className="flex-row items-center gap-2">
+                    <Receipt size={16} color="#EA580C" />
+                    <Text className="flex-1 text-sm font-semibold text-neutral-900">{t('event.payment_info_title')}</Text>
+                  </View>
+                  {event.bankNama && event.bankNomor ? (
+                    <View className="mt-2">
+                      <Text className="text-xs text-neutral-500">
+                        {event.bankNama}
+                        {event.bankAtasNama ? ` · a.n. ${event.bankAtasNama}` : ''}
+                      </Text>
+                      <Text className="text-base font-bold text-neutral-900 tracking-wider" selectable>
+                        {event.bankNomor}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {event.qrisImageUrl ? (
+                    <View className="flex-row items-center gap-3 mt-2">
+                      <Image source={{ uri: `${env.apiBaseUrl}${event.qrisImageUrl}` }} style={{ width: 72, height: 72 }} resizeMode="contain" />
+                      <Text className="flex-1 text-xs text-neutral-500">{t('event.payment_info_qris')}</Text>
+                    </View>
+                  ) : null}
+                  <Text className="text-[11px] text-neutral-400 mt-2">{t('event.payment_info_hint')}</Text>
+                </View>
+              ) : null}
 
               {/* Participation trackers — satu card per participation (self +
                   family). Per BE update 2026-08-31 family-multi. Clickable →
@@ -512,7 +563,8 @@ export default function EventDetailScreen() {
                     <FileText size={16} color={nc('#525252')} />
                     <Text className="text-sm font-semibold text-neutral-700">{t('event.about_event')}</Text>
                   </View>
-                  <Text className="text-sm text-neutral-700 leading-relaxed">{event.deskripsi}</Text>
+                  {/* Deskripsi ditulis dengan markdown di Portal → dirender (tebal, poin, tautan). */}
+                  <AnnouncementMarkdown source={event.deskripsi} compact />
                 </View>
               ) : null}
 

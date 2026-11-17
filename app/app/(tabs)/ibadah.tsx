@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Calendar, ChevronRight, ChevronsUpDown, RefreshCw, Ticket } from 'lucide-react-native';
+import { Calendar, ChevronRight, ChevronsUpDown, RefreshCw, Ticket, Video } from 'lucide-react-native';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 
 import { BranchSwitcherSheet } from '@/components/branch/BranchSwitcherSheet';
@@ -25,6 +25,7 @@ import { useNowTick } from '@/hooks/useNowTick';
 import { isOccurrenceEnded } from '@/utils/time';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
+import { getStreamLink } from '@/utils/ibadahOnline';
 
 const DEFAULT_RANGE_DAYS = 30; // Tampilkan 30 hari ke depan
 
@@ -159,7 +160,7 @@ function DateSection({
   onTapItem,
 }: {
   date: string;
-  items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null; okupansi?: IbadahOkupansi | null; reservasiClosesAt?: string }[];
+  items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null; okupansi?: IbadahOkupansi | null; reservasiClosesAt?: string; isOnline?: boolean; linkOnline?: string | null }[];
   onTapItem: (id: string) => void;
 }) {
   const { i18n, t } = useTranslation();
@@ -206,8 +207,15 @@ function DateSection({
                     <Text className="text-[10px] font-bold text-neutral-700">{t('ibadah.ended')}</Text>
                   </View>
                 ) : null}
+                {/* Ibadah online (ada link) — sama syaratnya dengan tombol Akses Online. */}
+                {item.isOnline && getStreamLink(item) ? (
+                  <View className="flex-row items-center gap-1 bg-emerald-50 rounded-full px-2 py-0.5">
+                    <Video size={10} color="#047857" />
+                    <Text className="text-[10px] font-bold text-emerald-700">{t('ibadah.online_badge')}</Text>
+                  </View>
+                ) : null}
               </View>
-              <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+              <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={2}>
                 {item.kategoriIbadah?.nama ? `${item.kategoriIbadah.nama} · ` : ''}
                 {item.lokasi}
               </Text>

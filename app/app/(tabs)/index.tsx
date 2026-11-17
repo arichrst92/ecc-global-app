@@ -42,6 +42,8 @@ import { SELF_CHECKIN_GRACE_MS, isOccurrenceEnded } from '@/utils/time';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 import { rupiahShort } from '@/utils/hari';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
+import { eventPriceLabel, eventPriceTone } from '@/utils/eventPrice';
+import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -261,19 +263,9 @@ function HomeScreenAuthenticated() {
               contentContainerStyle={{ gap: 12, paddingRight: 5 }}
             >
               {(eventsQuery.data ?? []).map((e) => {
-                const isFree = e.tipeBayar === 'GRATIS';
-                const isBebas = e.tipeBayar === 'NOMINAL_BEBAS';
-                // Color: GRATIS hijau, NOMINAL_BEBAS biru (sukarela), NOMINAL_TETAP amber (berbayar)
-                const priceText = isFree
-                  ? t('event.free')
-                  : isBebas
-                    ? lang === 'id' ? 'Persembahan' : 'Donation'
-                    : rupiahShort(Number(e.nominal));
-                const priceColorClass = isFree
-                  ? 'text-emerald-600'
-                  : isBebas
-                    ? 'text-blue-600'
-                    : 'text-amber-600';
+                // Warna & label sama dengan daftar/detail event (utils/eventPrice).
+                const priceText = eventPriceLabel(e, t);
+                const priceColorClass = eventPriceTone(e.tipeBayar).fg;
                 return (
                   <Pressable
                     key={e.id}
@@ -304,6 +296,29 @@ function HomeScreenAuthenticated() {
                       <Text className={`text-xs font-semibold mt-1 ${priceColorClass}`}>
                         {priceText}
                       </Text>
+                      {/* Lokasi, kuota, batas pendaftaran — sama dengan daftar event */}
+                      {e.lokasi && e.lokasi.trim() ? (
+                        <View className="flex-row items-center gap-1 mt-1">
+                          <MapPin size={11} color={nc('#A3A3A3')} />
+                          <Text className="text-[11px] text-neutral-500 flex-1" numberOfLines={1}>
+                            {e.lokasi}
+                          </Text>
+                        </View>
+                      ) : null}
+                      {e.quotaPeserta ? (
+                        <View className="flex-row items-center gap-1.5 mt-1.5">
+                          <View className="flex-1 h-1 bg-neutral-100 rounded-full overflow-hidden">
+                            <View
+                              className={`h-full rounded-full ${e.pesertaCount >= e.quotaPeserta ? 'bg-red-500' : 'bg-brand-500'}`}
+                              style={{ width: `${Math.min(100, Math.round((e.pesertaCount / e.quotaPeserta) * 100))}%` }}
+                            />
+                          </View>
+                          <Text className="text-[10px] text-neutral-500">
+                            {e.pesertaCount}/{e.quotaPeserta}
+                          </Text>
+                        </View>
+                      ) : null}
+                      <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact className="mt-1.5" />
                     </View>
                   </Pressable>
                 );

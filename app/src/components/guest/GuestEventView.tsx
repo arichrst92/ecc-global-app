@@ -29,7 +29,7 @@ import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 function priceLabel(e: PublicEventItem, t: (k: string) => string, lang: string): string {
   if (e.tipeBayar === 'GRATIS') return t('event.free');
-  if (e.tipeBayar === 'NOMINAL_BEBAS') return lang === 'id' ? 'Persembahan' : 'Donation';
+  if (e.tipeBayar === 'NOMINAL_BEBAS') return t('event.price_voluntary');
   const num = Number(e.nominal ?? 0);
   return rupiahShort(num);
 }

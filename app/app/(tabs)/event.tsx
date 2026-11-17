@@ -26,18 +26,14 @@ import type { EventListItem, TipeBayar } from '@/types/event';
 import { formatScheduleWithZone, ymdInTz } from '@/utils/time';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
-import { rupiahShort } from '@/utils/hari';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
+import { eventPriceLabel, eventPriceTone } from '@/utils/eventPrice';
 
 type Filter = 'all' | 'GRATIS' | 'PAID';
 
-function priceLabel(e: EventListItem, t: (k: string) => string, lang: string): string {
-  if (e.tipeBayar === 'GRATIS') return t('event.free');
-  if (e.tipeBayar === 'NOMINAL_BEBAS') return lang === 'id' ? 'Persembahan' : 'Donation';
-  // NOMINAL_TETAP — format Rp Nrb
-  const num = Number(e.nominal);
-  return rupiahShort(num);
+function priceLabel(e: EventListItem, t: (k: string) => string, _lang: string): string {
+  return eventPriceLabel(e, t);
 }
 
 function heroEmoji(_e: EventListItem): string {
@@ -214,11 +210,7 @@ function EventCard({
       {/* Hero block — fit-to-width, tinggi proporsional sesuai aspect rasio image */}
       <View className="relative">
         <HeroImage url={event.heroImageUrl} fallbackEmoji={emoji} fitToWidth />
-        <View
-          className={`absolute top-3 right-3 px-2.5 py-1 rounded-full ${
-            isFree ? 'bg-emerald-500' : 'bg-amber-500'
-          }`}
-        >
+        <View className={`absolute top-3 right-3 px-2.5 py-1 rounded-full ${eventPriceTone(event.tipeBayar).solid}`}>
           <Text className="text-xs text-white font-semibold">{priceText}</Text>
         </View>
         {isFull ? (
