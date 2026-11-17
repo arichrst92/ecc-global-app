@@ -371,7 +371,10 @@
     "badge_unverified": "Not verified",
     "badge_guardian": "Added by guardian",
     "badge_admin": "Added by admin",
-    "contact_add": "Add"
+    "contact_add": "Add",
+    "zona_role_leader": "Zone Leader",
+    "zona_role_pastor": "Zone pastor",
+    "zona_homecells": "{{count}} homecells"
   },
   "family": {
     "title": "My Family",

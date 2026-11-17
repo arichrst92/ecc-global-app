@@ -371,7 +371,10 @@
     "badge_unverified": "Belum terverifikasi",
     "badge_guardian": "Diinput wali",
     "badge_admin": "Diinput admin",
-    "contact_add": "Tambah"
+    "contact_add": "Tambah",
+    "zona_role_leader": "Zone Leader",
+    "zona_role_pastor": "Pastor zona",
+    "zona_homecells": "{{count}} homecell"
   },
   "family": {
     "title": "Keluarga Saya",

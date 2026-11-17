@@ -39,6 +39,7 @@ import {
   Footprints,
   CalendarClock,
   Settings,
+  MapPinned,
 } from 'lucide-react-native';
 import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { useRouter } from 'expo-router';
@@ -60,7 +61,7 @@ import { useLogout } from '@/hooks/useLogout';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { getMyProfile, getMySertifikat, sertifikatFileUrl } from '@/api/me';
-import { useMyHomecellOverview } from '@/hooks/useHomecell';
+import { useManagedAreas, useMyHomecellOverview } from '@/hooks/useHomecell';
 import * as WebBrowser from 'expo-web-browser';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { gx } from '@/theme/gradient';
@@ -675,6 +676,9 @@ function HomecellProfileCard() {
   const { t } = useTranslation();
   const router = useRouter();
   const q = useMyHomecellOverview();
+  // Zona yang dipimpin (Zone Leader / Pastor) — sering bukan anggota homecell mana pun.
+  const areasQ = useManagedAreas();
+  const zonas = areasQ.data ?? [];
   const rows = [
     ...(q.data?.managed ?? []).map((h) => ({ h, role: 'LEADER' as const })),
     ...(q.data?.memberships ?? []).map((m) => ({ h: m.homecell, role: 'MEMBER' as const })),
@@ -682,7 +686,32 @@ function HomecellProfileCard() {
 
   return (
     <View className="mb-4">
-      {rows.length === 0 ? (
+      {zonas.length ? (
+        <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden mb-3">
+          {zonas.map((z, idx) => (
+            <Pressable
+              key={`zona-${z.id}`}
+              onPress={() => router.push('/area' as never)}
+              className={`flex-row items-center gap-3 p-4 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}
+            >
+              <View className="w-10 h-10 rounded-xl bg-orange-50 items-center justify-center">
+                <MapPinned size={18} color="#EA580C" />
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-sm font-semibold text-neutral-900" numberOfLines={1}>
+                  {z.nama}
+                </Text>
+                <Text className="text-xs text-neutral-500 mt-0.5" numberOfLines={1}>
+                  {z.myRole === 'PASTOR' ? t('profile.zona_role_pastor') : t('profile.zona_role_leader')} ·{' '}
+                  {t('profile.zona_homecells', { count: z.homecellCount })}
+                </Text>
+              </View>
+              <ChevronRight size={14} color={nc('#A3A3A3')} />
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+      {rows.length === 0 && zonas.length ? null : rows.length === 0 ? (
         <Pressable
           onPress={() => router.push('/homecell')}
           className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
