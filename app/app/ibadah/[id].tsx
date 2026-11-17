@@ -43,6 +43,7 @@ import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
 import { isOccurrenceEnded } from '@/utils/time';
 import { hariLabel } from '@/utils/hari';
+import { useScreenInterval } from '@/hooks/useScreenInterval';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 
 export default function IbadahDetailScreen() {
@@ -88,7 +89,7 @@ export default function IbadahDetailScreen() {
     queryKey: ['ibadah', 'self-checkin', id],
     queryFn: () => getSelfCheckin(id),
     enabled: !!id,
-    refetchInterval: 60_000,
+    refetchInterval: useScreenInterval(60_000),
     staleTime: 30_000,
   });
   const queryClient = useQueryClient();

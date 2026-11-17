@@ -70,7 +70,7 @@ export default function NewScheduleScreen() {
   const mutation = useCreateSchedule(id);
   const updateMut = useUpdateSchedule(id, edit ?? '');
   // Mode ubah: isi form dari jadwal yang ada (sekali saja).
-  const existing = useHomecellSchedule(id, edit);
+  const existing = useHomecellSchedule(id, edit, false);
   const [filled, setFilled] = useState(false);
   useEffect(() => {
     const d = existing.data;

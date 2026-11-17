@@ -7,7 +7,7 @@
  * closesAt null/absen (server lama) → tidak tampil.
  */
 import { useEffect, useState } from 'react';
-import { Text, View, useWindowDimensions } from 'react-native';
+import { AppState, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Timer, TimerOff } from 'lucide-react-native';
 import { serverNowMs } from '@/utils/serverClock';
@@ -18,8 +18,16 @@ type Kind = 'ibadah' | 'kids' | 'event';
 function useNowMinute() {
   const [now, setNow] = useState(() => serverNowMs());
   useEffect(() => {
-    const id = setInterval(() => setNow(serverNowMs()), 15_000);
-    return () => clearInterval(id);
+    const id = setInterval(() => {
+      if (AppState.currentState === 'active') setNow(serverNowMs());
+    }, 15_000);
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') setNow(serverNowMs());
+    });
+    return () => {
+      clearInterval(id);
+      sub.remove();
+    };
   }, []);
   return now;
 }

@@ -9,7 +9,7 @@
  * - Ketuk tiket → tampilan penuh (/tiket) dengan QR besar.
  */
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, AppState, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -26,6 +26,7 @@ import { NotificationBell } from '@/components/NotificationBell';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { useIsFocused } from '@react-navigation/native';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 type Seg = 'ibadah' | 'event';
@@ -223,12 +224,16 @@ export function MyReservasiView({ inTab = false }: { inTab?: boolean }) {
   );
 }
 
+/** Polling 20 dtk — hanya saat layar terlihat & app aktif (bukan di background). */
 function usePolling(enabled: boolean, refetch: () => unknown) {
   const ref = useRef(refetch);
   ref.current = refetch;
+  const focused = useIsFocused();
   useEffect(() => {
-    if (!enabled) return;
-    const id = setInterval(() => ref.current(), 20_000);
+    if (!enabled || !focused) return;
+    const id = setInterval(() => {
+      if (AppState.currentState === 'active') ref.current();
+    }, 20_000);
     return () => clearInterval(id);
-  }, [enabled]);
+  }, [enabled, focused]);
 }

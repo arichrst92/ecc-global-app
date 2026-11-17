@@ -1,7 +1,7 @@
 import '../global.css';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { ThemeRoot, isDark } from '@/theme/ThemeRoot';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, focusManager } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useFonts } from 'expo-font';
 import {
@@ -14,7 +14,9 @@ import {
 } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { AppState, Platform } from 'react-native';
+import { useWorshipPlayer } from '@/stores/worship-player.store';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '@/i18n';
@@ -76,6 +78,17 @@ SplashScreen.preventAutoHideAsync();
 // gcTime 25 jam — perlu lebih lama dari maxAge persist (24 jam) supaya React
 // Query tidak garbage-collect query yang sedang di-persist. Otherwise pas
 // restore, query yang baru di-write akan langsung di-evict.
+// React Native tidak punya event "window focus" — tanpa ini react-query menganggap
+// app selalu aktif: polling (refetchInterval) tetap berjalan saat app di
+// background (mis. memutar ECC Worship) dan refetchOnWindowFocus tidak pernah
+// terpicu saat app dibuka kembali.
+if (Platform.OS !== 'web') {
+  focusManager.setEventListener((handleFocus) => {
+    const sub = AppState.addEventListener('change', (s) => handleFocus(s === 'active'));
+    return () => sub.remove();
+  });
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -229,6 +242,13 @@ function AppEffects() {
   useEffect(() => {
     setAnalyticsMode(hasToken && !isGuest ? 'login' : 'tamu');
   }, [hasToken, isGuest]);
+  // Sesi berakhir otomatis (token kedaluwarsa → logout dari api client):
+  // hentikan ECC Worship supaya tidak terus memutar & memanggil API tanpa akun.
+  const hadToken = useRef(hasToken);
+  useEffect(() => {
+    if (hadToken.current && !hasToken) useWorshipPlayer.getState().close();
+    hadToken.current = hasToken;
+  }, [hasToken]);
 
   // Pre-warm /public/app-config — meskipun field-nya (faceMatchThreshold,
   // lowConfidenceWarnThreshold) sudah dormant pasca face login removal,

@@ -8,6 +8,7 @@
  * - Hitung "diputar" setelah ≥ 30 detik (sekali per lagu per pemutaran).
  * - File unduhan dipakai bila ada (offline).
  */
+import { AppState } from 'react-native';
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer, type AudioStatus } from 'expo-audio';
 import { create } from 'zustand';
 
@@ -125,7 +126,16 @@ export const useWorshipPlayer = create<State>((set, get) => {
       pendingSeek = null;
       void player?.seekTo(t);
     }
-    set({ playing: st.playing, buffering: st.isBuffering, currentTime: st.currentTime, duration: st.duration || get().duration });
+    // Status datang tiap 250 ms. Saat app di background (musik tetap jalan) layar
+    // tidak terlihat → jangan perbarui posisi (hindari render 4×/detik tanpa guna);
+    // hanya perubahan putar/jeda/buffer yang dicatat. Posisi segar lagi saat app aktif.
+    const fg = AppState.currentState === 'active';
+    const prev = get();
+    if (fg) {
+      set({ playing: st.playing, buffering: st.isBuffering, currentTime: st.currentTime, duration: st.duration || prev.duration });
+    } else if (prev.playing !== st.playing || prev.buffering !== st.isBuffering) {
+      set({ playing: st.playing, buffering: st.isBuffering });
+    }
     const cur = get().current();
     // Pasang ulang judul/album setelah audio ter-load — native kadang
     // menimpa info layar kunci saat item baru disiapkan.

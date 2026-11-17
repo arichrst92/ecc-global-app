@@ -12,6 +12,7 @@ import {
   walkInReservasi,
   getActiveToday,
 } from '@/api/scanner';
+import { useScreenInterval } from '@/hooks/useScreenInterval';
 import type {
   ReservasiPickupPayload,
   WalkInReservasiPayload,
@@ -78,7 +79,7 @@ export function useIbadahCheckinStats(
     queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
     queryFn: () => getIbadahCheckinStats(ibadahId, tanggalIbadah),
     enabled: !!ibadahId && !!tanggalIbadah && enabled,
-    refetchInterval: 10_000,
+    refetchInterval: useScreenInterval(10_000),
     staleTime: 5_000,
   });
 }
@@ -89,7 +90,7 @@ export function useEventCheckinStats(eventId: string, enabled = true) {
     queryKey: ['scanner', 'stats', 'event', eventId],
     queryFn: () => getEventCheckinStats(eventId),
     enabled: !!eventId && enabled,
-    refetchInterval: 10_000,
+    refetchInterval: useScreenInterval(10_000),
     staleTime: 5_000,
   });
 }

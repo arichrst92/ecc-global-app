@@ -23,6 +23,7 @@ import {
   markTamuHadir,
   unmarkTamuHadir,
 } from '@/api/homecellSchedule';
+import { useScreenInterval } from '@/hooks/useScreenInterval';
 import type {
   CreateSchedulePayload,
 } from '@/types/homecellSchedule';
@@ -40,7 +41,10 @@ export function useHomecellSchedules(homecellId: string | undefined) {
 export function useHomecellSchedule(
   homecellId: string | undefined,
   scheduleId: string | undefined,
+  /** false = tanpa polling (mis. form ubah jadwal). */
+  poll = true,
 ) {
+  const interval = useScreenInterval(poll ? 15_000 : false);
   return useQuery({
     queryKey: ['homecell', homecellId, 'schedule', scheduleId],
     queryFn: () => getScheduleDetail(homecellId!, scheduleId!),
@@ -48,7 +52,7 @@ export function useHomecellSchedule(
     staleTime: 30_000,
     // Refetch tiap 15s saat screen active — supaya saat PIC scan banyak
     // member berturut, attendance list auto-update di background.
-    refetchInterval: 15_000,
+    refetchInterval: interval,
     retry: 1,
   });
 }

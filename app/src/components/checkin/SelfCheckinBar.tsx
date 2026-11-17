@@ -20,6 +20,7 @@ import { ApiError } from '@/types/api';
 import { useRouter } from 'expo-router';
 import { coordsForSelfCheckin, isRadiusError, SelfCheckinLocationError, showUsherFallback } from '@/utils/selfCheckinLocation';
 import { selfCheckinOpenNow, serverNowMs } from '@/utils/serverClock';
+import { useScreenInterval } from '@/hooks/useScreenInterval';
 import { nc } from '@/theme/ThemeRoot';
 
 export type SelfCheckinData = {
@@ -62,7 +63,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
   const queryClient = useQueryClient();
-  const q = useQuery({ queryKey, queryFn: fetcher, enabled, refetchInterval: 60_000, staleTime: 30_000 });
+  const q = useQuery({ queryKey, queryFn: fetcher, enabled, refetchInterval: useScreenInterval(60_000), staleTime: 30_000 });
   const router = useRouter();
   // Self check-in dengan radius → ambil GPS segar dulu; server cek radius.
   const mut = useMutation({
