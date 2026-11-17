@@ -1,4 +1,4 @@
-/** Pengaturan → Privasi → "Pesan WhatsApp" (kepatuhan no. 19). */
+/** Pengaturan → Privasi → "Pesan WhatsApp & email" (kepatuhan no. 19) — berlaku juga untuk notifikasi email (2026-12). */
 import { Switch, Text, View } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
