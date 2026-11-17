@@ -154,13 +154,18 @@ export default function LoginEmailScreen() {
       <Pressable onPress={() => router.replace('/(auth)/login')} className="mt-3 self-start rounded-lg bg-amber-600 px-3 py-2">
         <Text className="text-sm font-semibold text-white">{t('auth.email.down_cta')}</Text>
       </Pressable>
+      {/* Jalan terakhir — hanya ditawarkan saat email gangguan. */}
+      <Pressable onPress={openAdminCode} hitSlop={6} className="mt-3 flex-row items-center gap-1.5">
+        <KeyRound size={13} color="#92400E" />
+        <Text className="text-xs text-amber-900 underline">{t('auth.admin_code_link')}</Text>
+      </Pressable>
     </View>
   ) : null;
 
+  /** Tautan kecil & netral: kode admin hanya untuk keadaan darurat, bukan cara masuk biasa. */
   const adminLink = (
-    <Pressable onPress={openAdminCode} className="mt-5 flex-row items-center justify-center gap-1.5 py-2">
-      <KeyRound size={14} color="#EA580C" />
-      <Text className="text-sm font-semibold text-brand-600">{t('auth.admin_code_link')}</Text>
+    <Pressable onPress={openAdminCode} hitSlop={6} className="mt-6 items-center py-1">
+      <Text className="text-xs text-neutral-500 underline">{t('auth.admin_code_link')}</Text>
     </Pressable>
   );
 
@@ -289,7 +294,6 @@ export default function LoginEmailScreen() {
                 </Text>
               </View>
               {emailDownBox}
-              {adminLink}
             </>
           )}
         </ScrollView>

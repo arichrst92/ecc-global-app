@@ -147,9 +147,8 @@ export default function LoginOtpScreen() {
         {/* Jalan terakhir: kode dari admin cabang */}
         {!adminMode ? (
           <View className="items-center mt-6">
-            <Pressable onPress={() => setShowAdminHelp((v) => !v)} hitSlop={8} className="flex-row items-center gap-1.5">
-              <KeyRound size={14} color={nc('#737373')} />
-              <Text className="text-sm text-neutral-600 underline">{t('auth.admin_code_link')}</Text>
+            <Pressable onPress={() => setShowAdminHelp((v) => !v)} hitSlop={8}>
+              <Text className="text-xs text-neutral-500 underline">{t('auth.admin_code_link')}</Text>
             </Pressable>
             {showAdminHelp ? (
               <Text className="text-xs text-neutral-500 text-center mt-2 leading-5 px-2">{t('auth.admin_code_help')}</Text>
