@@ -27,7 +27,9 @@ Versi sebelumnya di toko: **2.4.8**. Build baru lewat EAS (bukan OTA). Tidak ada
 - **Pengingat ibadah / event H-1 & ucapan ulang tahun di feed app** (bila diaktifkan di Portal → Saluran notifikasi), dengan ikon tiket & hadiah.
 
 ### Ibadah, event & reservasi
-- **Hitung mundur batas reservasi / pendaftaran** (DD:hh:mm) di ibadah & event; tombol daftar event nonaktif setelah dimulai (walk-in).
+- **Hitung mundur batas reservasi / pendaftaran** ("2 hari 5 jam 30 menit" / "2 days 5 hours 30 minutes") di ibadah & event, rapi di layar kecil; tombol daftar event nonaktif setelah dimulai (walk-in).
+- **Petugas Pelayanan** tampil di detail event.
+- **Akses scan check-in** bisa diberi / dicabut koordinator langsung di Jadwal ministry.
 - **Batalkan reservasi** CKids & tiket event; setelah batal kembali ke Reservasi Saya.
 - **Detail ibadah** hanya menampilkan tiket untuk tanggal pertemuan itu; kuota seat di daftar ibadah.
 - **Jadwal pelayanan** dipisah tab Ibadah & Event.
