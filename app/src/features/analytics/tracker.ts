@@ -19,11 +19,27 @@ import { env } from '@/config/env';
 const K_INSTALL = 'ecc.analytics.installId';
 const K_OPTOUT = 'ecc.analytics.optOut';
 const K_PENDING = 'ecc.analytics.pending.v1';
+/** Batch yang belum terkonfirmasi server: { id, views } — dikirim ulang dengan ID yang sama. */
+const K_RETRY = 'ecc.analytics.retry.v2';
 const FLUSH_MS = 30_000;
 const API_SAMPLE = 0.2;
 const MAX_VIEW_SEC = 30 * 60;
 
 type ViewAgg = { date: string; route: string; count: number; durSec: number };
+type Batch = { id: string; views: ViewAgg[] };
+
+/**
+ * Rute penghubung (deep link / tautan lama) yang langsung dialihkan ke layar
+ * aslinya — tidak dicatat supaya satu buka halaman tidak terhitung dua kali.
+ */
+const REDIRECT_ROUTES = new Set([
+  '/news/[id]',
+  '/renungan/[id]',
+  '/event/[id]/pembayaran',
+  '/local-market/[id]',
+  '/local-market/[id]/item/[itemId]',
+  '/worship/song/[id]',
+]);
 type ApiSample = { m: string; p: string; ms: number; s: number; t: number };
 
 const state = {
@@ -37,6 +53,8 @@ const state = {
   routeSince: 0,
   foreground: true,
   views: new Map<string, ViewAgg>(),
+  /** Batch gagal terkirim — dikirim ulang apa adanya (ID sama) sebelum batch baru. */
+  retry: null as Batch | null,
   api: [] as ApiSample[],
   timer: null as ReturnType<typeof setInterval> | null,
   sending: false,
@@ -82,16 +100,23 @@ function addView(route: string) {
 async function send(background = false) {
   if (!active() || state.sending) return;
   closeCurrent();
-  const views = [...state.views.values()].filter((v) => v.count > 0 || v.durSec > 0).slice(0, 100);
+  // Batch yang belum terkonfirmasi dikirim ulang dengan ID yang sama → server
+  // tidak menghitungnya dua kali walau kiriman sebelumnya ternyata sudah masuk.
+  let batch = state.retry;
+  if (!batch) {
+    const views = [...state.views.values()].filter((v) => v.count > 0 || v.durSec > 0).slice(0, 100);
+    state.views.clear();
+    batch = { id: randomId(), views };
+  }
   const api = state.api.splice(0, 200);
-  state.views.clear();
   const body = {
     installId: state.installId,
+    batchId: batch.id,
     platform,
     appVersion,
     mode: state.mode,
     route: background || !state.foreground ? null : state.route,
-    views,
+    views: batch.views,
     api,
   };
   state.sending = true;
@@ -103,19 +128,14 @@ async function send(background = false) {
       // Web: tetap terkirim saat tab ditutup / disembunyikan.
       ...(platform === 'web' ? { keepalive: true } : {}),
     });
-    if (res.status >= 500) throw new Error(`telemetry ${res.status}`);
+    // 429 / 5xx → coba lagi nanti; 400 (data tidak valid) → buang.
+    if (res.status >= 500 || res.status === 429) throw new Error(`telemetry ${res.status}`);
+    state.retry = null;
+    void AsyncStorage.removeItem(K_RETRY).catch(() => {});
   } catch {
-    // Gagal (offline) → kembalikan kunjungan, simpan untuk nanti. Sampel API dibuang.
-    for (const v of views) {
-      const key = `${v.date}|${v.route}`;
-      const cur = state.views.get(key);
-      if (cur) {
-        cur.count += v.count;
-        cur.durSec += v.durSec;
-      } else state.views.set(key, { ...v });
-    }
-    if (state.views.size > 300) state.views = new Map([...state.views].slice(-300));
-    void AsyncStorage.setItem(K_PENDING, JSON.stringify([...state.views.values()])).catch(() => {});
+    // Gagal (offline) → simpan batch ini untuk dikirim ulang. Sampel API dibuang.
+    state.retry = batch.views.length ? batch : null;
+    if (state.retry) void AsyncStorage.setItem(K_RETRY, JSON.stringify(state.retry)).catch(() => {});
   } finally {
     state.sending = false;
   }
@@ -146,13 +166,14 @@ export async function initAnalytics() {
     }
     state.installId = id;
     state.optOut = (await AsyncStorage.getItem(K_OPTOUT)) === '1';
-    const pending = await AsyncStorage.getItem(K_PENDING);
-    if (pending) {
-      for (const v of JSON.parse(pending) as ViewAgg[]) {
-        if (v && v.route && v.date) state.views.set(`${v.date}|${v.route}`, v);
-      }
-      await AsyncStorage.removeItem(K_PENDING);
+    const retry = await AsyncStorage.getItem(K_RETRY);
+    if (retry) {
+      const b = JSON.parse(retry) as Batch;
+      if (b && typeof b.id === 'string' && Array.isArray(b.views)) state.retry = b;
     }
+    // Format lama (≤ 2.4.8): kunjungan tertunda yang tidak pernah dihapus setelah
+    // berhasil terkirim → bisa terhitung dua kali. Dibuang, tidak dikirim ulang.
+    await AsyncStorage.removeItem(K_PENDING);
   } catch {
     state.installId = state.installId || randomId();
   }
@@ -167,7 +188,7 @@ export async function initAnalytics() {
 
 /** Halaman (pola route expo-router, mis. /event/[id]) yang sedang dibuka. */
 export function trackScreen(route: string) {
-  if (route === state.route) return;
+  if (route === state.route || REDIRECT_ROUTES.has(route)) return;
   if (!state.ready) {
     // Layar pertama sebelum init selesai — dicatat setelah siap.
     state.route = route;
@@ -207,6 +228,8 @@ export async function setAnalyticsEnabled(enabled: boolean) {
   if (!enabled) {
     state.views.clear();
     state.api.length = 0;
+    state.retry = null;
+    await AsyncStorage.removeItem(K_RETRY).catch(() => {});
   }
   await AsyncStorage.setItem(K_OPTOUT, enabled ? '0' : '1').catch(() => {});
 }
