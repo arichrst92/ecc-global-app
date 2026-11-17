@@ -140,7 +140,13 @@ export default function SignupDataScreen() {
     },
     onError: (err, claim) => {
       // Gagal saat klaim data lama (kode salah, dsb.) → tetap di sheet.
-      if (claim && err instanceof ApiError && err.code !== 'CONFLICT') {
+      if (claim && err instanceof ApiError && err.code === 'CONFLICT') {
+        // Data lama sudah memakai nomor lain, dsb. → tutup sheet, jelaskan.
+        setMatch(null);
+        Alert.alert(t('signup.claim_failed_title'), err.message);
+        return;
+      }
+      if (claim && err instanceof ApiError) {
         setClaimError((c) => ({ msg: err.code === 'UNAUTHORIZED' ? t('auth.error_otp_invalid') : err.message, n: (c?.n ?? 0) + 1 }));
         return;
       }
@@ -452,6 +458,8 @@ function OldRecordSheet({
 }) {
   const { t } = useTranslation();
   const [step, setStep] = useState<'ask' | 'noemail' | 'code'>('ask');
+  /** Email gangguan saat kirim kode klaim → lanjut daftar, admin menyatukan. */
+  const [emailDown, setEmailDown] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [otpKey, setOtpKey] = useState(0);
 
@@ -462,7 +470,14 @@ function OldRecordSheet({
       setStep('code');
       setOtpKey((k) => k + 1);
     },
-    onError: (e) => setError(e instanceof ApiError ? e.message : t('error.network')),
+    onError: (e) => {
+      if (e instanceof ApiError && (e.code as string) === 'EMAIL_UNAVAILABLE') {
+        setEmailDown(true);
+        setStep('noemail');
+        return;
+      }
+      setError(e instanceof ApiError ? e.message : t('error.network'));
+    },
   });
 
   // Kode klaim salah → kosongkan kolom kode supaya bisa diketik ulang.
@@ -517,7 +532,9 @@ function OldRecordSheet({
               </>
             ) : step === 'noemail' ? (
               <>
-                <Text className="text-sm text-neutral-700 leading-5">{t('signup.match_noemail_msg')}</Text>
+                <Text className="text-sm text-neutral-700 leading-5">
+                  {emailDown ? t('signup.match_email_down') : t('signup.match_noemail_msg')}
+                </Text>
                 <View className="mt-5">
                   <Button label={t('signup.match_continue')} onPress={() => onRegister(undefined)} loading={registering} fullWidth size="lg" />
                 </View>
