@@ -31,6 +31,10 @@ export type PicArea = {
   homecellCount: number;
   /** Peran user di zona ini — PASTOR hanya melihat (tidak mengubah zona). */
   myRole?: 'PIC' | 'PASTOR';
+  /** Zone Leader zona ini (BE 2.4.9). */
+  zoneLeader?: { id: string; namaLengkap: string; fotoUrl: string | null } | null;
+  /** Ringkasan untuk kartu Beranda (BE 2.4.9) — server lama: tidak ada. */
+  stats?: { homecells: number; members: number; met7: number; notMet14: number; noSchedule: number };
 };
 
 /** Member row di homecell (returned dari add by-kode + di list members) */

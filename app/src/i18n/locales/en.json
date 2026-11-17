@@ -2006,7 +2006,17 @@
     "asisten_set": "Assistant assigned",
     "asisten_unset": "Assistant removed",
     "member_menu": "Member options",
-    "you_are_asisten": "You are an assistant of this homecell — help with schedules, attendance, guests, announcements, polls & attachments."
+    "you_are_asisten": "You are an assistant of this homecell — help with schedules, attendance, guests, announcements, polls & attachments.",
+    "spot_label_zone_leader": "Zone you lead",
+    "spot_label_zone_pastor": "Zone you supervise",
+    "zone_stat_homecells": "Homecells",
+    "zone_stat_members": "Members",
+    "zone_stat_met7": "Met in 7 days",
+    "zone_not_met": "{{count}} not met in 14+ days",
+    "zone_no_schedule": "{{count}} with no schedule",
+    "zone_all_good": "All homecells are meeting",
+    "zone_leader": "Zone Leader: {{name}}",
+    "spot_carousel_hint": "Swipe to see {{count}} more cards"
   },
   "gc": {
     "tab_announcements": "Announcements",

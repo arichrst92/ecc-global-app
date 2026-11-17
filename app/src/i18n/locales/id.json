@@ -2000,7 +2000,17 @@
     "asisten_set": "Asisten ditunjuk",
     "asisten_unset": "Asisten dilepas",
     "member_menu": "Pilihan anggota",
-    "you_are_asisten": "Anda asisten homecell ini — bantu jadwal, absen, tamu, pengumuman, voting & lampiran."
+    "you_are_asisten": "Anda asisten homecell ini — bantu jadwal, absen, tamu, pengumuman, voting & lampiran.",
+    "spot_label_zone_leader": "Zona yang Anda pimpin",
+    "spot_label_zone_pastor": "Zona yang Anda gembalakan",
+    "zone_stat_homecells": "Homecell",
+    "zone_stat_members": "Anggota",
+    "zone_stat_met7": "Bertemu 7 hari",
+    "zone_not_met": "{{count}} belum bertemu > 14 hari",
+    "zone_no_schedule": "{{count}} tanpa jadwal",
+    "zone_all_good": "Semua homecell aktif bertemu",
+    "zone_leader": "Zone Leader: {{name}}",
+    "spot_carousel_hint": "Geser untuk melihat {{count}} kartu lainnya"
   },
   "gc": {
     "tab_announcements": "Pengumuman",
