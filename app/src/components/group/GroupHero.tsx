@@ -4,6 +4,7 @@
  */
 import { Alert, ActivityIndicator, Image, Pressable, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { launchImageLibraryCropped } from '@/components/ui/ImageCropHost';
 import { useTranslation } from 'react-i18next';
 import { Camera, Lock, Trash2 } from 'lucide-react-native';
 
@@ -45,12 +46,8 @@ export function GroupHero({
       showToast(t('gc.hero_permission'), 'error');
       return;
     }
-    const r = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.85,
-    });
+    // Android: crop di dalam app (layar crop bawaan kadang tanpa tombol Batal/Pilih).
+    const r = await launchImageLibraryCropped({ aspect: [16, 9], quality: 0.85 });
     const a = r.canceled ? null : r.assets[0];
     if (!a) return;
     const name = a.fileName ?? a.uri.split('/').pop() ?? 'hero.jpg';

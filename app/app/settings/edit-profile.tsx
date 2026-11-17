@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Calendar as CalendarIcon, Camera, Pencil } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { launchImageLibraryCropped } from '@/components/ui/ImageCropHost';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -272,12 +273,8 @@ export default function EditProfileScreen() {
       showToast(t('edit_profile.foto_permission'), 'error');
       return;
     }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+    // Android: crop di dalam app (layar crop bawaan kadang tanpa tombol Batal/Pilih).
+    const result = await launchImageLibraryCropped({ aspect: [1, 1], quality: 0.8, maxWidth: 1000 });
     if (!result.canceled && result.assets[0]) {
       fotoMutation.mutate(result.assets[0]);
     }

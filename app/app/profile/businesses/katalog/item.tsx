@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
+import { launchImageLibraryCropped } from '@/components/ui/ImageCropHost';
 import { ArrowLeft, Camera, Check, ChevronDown, Trash2, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
@@ -107,12 +108,8 @@ export default function KatalogItemFormScreen() {
       showToast(t('my_business.permission_denied'), 'error');
       return;
     }
-    const r = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [3, 2],
-      quality: 0.85,
-    });
+    // Android: crop di dalam app (layar crop bawaan kadang tanpa tombol Batal/Pilih).
+    const r = await launchImageLibraryCropped({ aspect: [3, 2], quality: 0.85 });
     if (r.canceled || !r.assets[0]) return;
     const file = await imageAssetToFile(r.assets[0]);
     if (isEdit && itemId) {

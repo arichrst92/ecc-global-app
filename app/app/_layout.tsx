@@ -23,6 +23,7 @@ import '@/utils/webAlertPolyfill';
 import { useAuthStore } from '@/stores/auth.store';
 import { ConsentGate } from '@/features/consent/ConsentGate';
 import { AnnouncementPopupHost } from '@/components/announcement/AnnouncementPopupHost';
+import { ImageCropHost } from '@/components/ui/ImageCropHost';
 import { usePreferencesStore } from '@/stores/preferences.store';
 import { useBranchStore } from '@/stores/branch.store';
 import { useEventFlowStore } from '@/stores/event-flow.store';
@@ -184,6 +185,8 @@ export default function RootLayout() {
           </ForceUpdateGate>
         </MaintenanceGate>
         <ShareCardHost />
+        {/* Crop gambar di dalam app (Android) — pengganti layar crop bawaan */}
+        <ImageCropHost />
         <ToastContainer />
         </ThemeRoot>
       </PersistQueryClientProvider>

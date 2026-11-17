@@ -2923,5 +2923,13 @@
     "success": "Email tersimpan dan terverifikasi",
     "verify_now": "Verifikasi email ini sekarang",
     "field_hint": "Email terverifikasi bisa dipakai untuk masuk saat WhatsApp gangguan."
+  },
+  "crop": {
+    "title": "Atur gambar",
+    "hint": "Geser untuk mengatur posisi, cubit dengan dua jari atau ketuk − / + untuk zoom.",
+    "cancel": "Batal",
+    "use": "Gunakan",
+    "zoom_in": "Perbesar",
+    "zoom_out": "Perkecil"
   }
 }

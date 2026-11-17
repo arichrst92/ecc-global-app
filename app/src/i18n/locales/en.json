@@ -2929,5 +2929,13 @@
     "success": "Email saved and verified",
     "verify_now": "Verify this email now",
     "field_hint": "A verified email can be used to sign in when WhatsApp has issues."
+  },
+  "crop": {
+    "title": "Adjust image",
+    "hint": "Drag to reposition, pinch with two fingers or tap − / + to zoom.",
+    "cancel": "Cancel",
+    "use": "Use photo",
+    "zoom_in": "Zoom in",
+    "zoom_out": "Zoom out"
   }
 }

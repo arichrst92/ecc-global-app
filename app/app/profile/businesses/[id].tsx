@@ -28,6 +28,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
+import { launchImageLibraryCropped } from '@/components/ui/ImageCropHost';
 import * as DocumentPicker from 'expo-document-picker';
 import {
   ArrowLeft,
@@ -234,12 +235,12 @@ export default function OwnerBusinessDetailScreen() {
       showToast(t('my_business.permission_denied'), 'error');
       return;
     }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      // Logo: square crop; Hero: 16:9 wide crop
-      allowsEditing: true,
+    // Logo: persegi; Hero: 16:9. Android: crop di dalam app (layar crop
+    // bawaan kadang tanpa tombol Batal/Pilih).
+    const result = await launchImageLibraryCropped({
       aspect: target === 'logo' ? [1, 1] : [16, 9],
       quality: 0.85,
+      maxWidth: target === 'logo' ? 1000 : 1600,
     });
     if (result.canceled || !result.assets[0]) return;
     const fileObj = await imageAssetToFile(result.assets[0], `${target}.jpg`);
