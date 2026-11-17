@@ -43,11 +43,7 @@ const MIN_COLS = 4;
 const MIN_TILE_WIDTH = 84;
 
 /**
- * Quick Access grid di dashboard (grid 4 kolom, dikelompokkan per tema):
- *   1. Ibadah, Event, Beri, Berita
- *   2. Renungan, Alkitab, Doa, Worship
- *   3. Keluarga, Tamu, Group, Homecell
- *   4. Ministry, (Area — PIC area), Visit, Local Market
+ * Quick Access grid di dashboard (min 4 kolom), urutan lihat `tiles`.
  * Jumlah kolom menyesuaikan lebar layar (min 4); tile mengalir ke kanan
  * lalu turun, baris terakhir dibiarkan apa adanya (tanpa placeholder).
  * Scanner → ikon di header Home; Kalender & Resolusi → header Profil.
@@ -69,16 +65,16 @@ export function QuickAccess() {
 
   const go = (href: string) => () => router.push(href as never);
 
+  // Urutan (2026-12): Bible · Services · Homecell · Ministry · Family · Prayer ·
+  // Worship · Giving · Devotion · Zone · Groups · Guests · Visit · Local Market ·
+  // News · Events. Worship hanya tampil bila sudah ada lagu.
   const tiles: QuickAccessTile[] = [
-    { key: 'ibadah', icon: Church, label: t('quickaccess.ibadah'), onPress: go('/(tabs)/ibadah') },
-    { key: 'event', icon: CalendarDays, label: t('quickaccess.event'), onPress: go('/(tabs)/event') },
-    // Persembahan: web per-cabang (iOS Safari; Android in-app browser) —
-    // halaman web punya tombol "Kembali ke Els App". Lihat utils/giving.ts.
-    { key: 'persembahan', icon: HandHeart, label: t('quickaccess.persembahan'), onPress: () => void openGiving(viewingBranch?.kode) },
-    { key: 'berita', icon: Newspaper, label: t('quickaccess.berita'), onPress: go('/content?tab=news') },
-
-    { key: 'renungan', icon: BookOpen, label: t('quickaccess.renungan'), onPress: go('/content?tab=renungan') },
     { key: 'bible', icon: Sparkles, label: t('quickaccess.bible'), onPress: go('/bible') },
+    { key: 'ibadah', icon: Church, label: t('quickaccess.ibadah'), onPress: go('/(tabs)/ibadah') },
+    // Homecell — untuk SEMUA jemaat (anggota: lihat; belum punya: cari & minta bergabung; PIC: kelola).
+    { key: 'homecell', icon: House, label: t('quickaccess.homecell'), onPress: go('/homecell') },
+    { key: 'ministry', icon: HeartHandshake, label: t('quickaccess.ministry'), onPress: go('/ministry') },
+    { key: 'family', icon: Users, label: t('quickaccess.family'), onPress: go('/family') },
     {
       key: 'doa',
       icon: HandHelping,
@@ -87,18 +83,18 @@ export function QuickAccess() {
       badge: pendingDoa > 0 ? (pendingDoa > 99 ? '99+' : String(pendingDoa)) : undefined,
     },
     ...(showWorship ? [{ key: 'worship', icon: Music, label: t('quickaccess.worship'), onPress: go('/worship') }] : []),
-
-    { key: 'family', icon: Users, label: t('quickaccess.family'), onPress: go('/family') },
-    { key: 'tamu', icon: UserPlus, label: t('quickaccess.tamu'), onPress: go('/profile/my-guests') },
-    { key: 'group', icon: UsersRound, label: t('quickaccess.group'), onPress: go('/profile/my-groups') },
-    // Homecell — untuk SEMUA jemaat (anggota: lihat; belum punya: cari & minta bergabung; PIC: kelola).
-    { key: 'homecell', icon: House, label: t('quickaccess.homecell'), onPress: go('/homecell') },
-
-    { key: 'ministry', icon: HeartHandshake, label: t('quickaccess.ministry'), onPress: go('/ministry') },
+    // Persembahan: web per-cabang (iOS Safari; Android in-app browser) —
+    // halaman web punya tombol "Kembali ke Els App". Lihat utils/giving.ts.
+    { key: 'persembahan', icon: HandHeart, label: t('quickaccess.persembahan'), onPress: () => void openGiving(viewingBranch?.kode) },
+    { key: 'renungan', icon: BookOpen, label: t('quickaccess.renungan'), onPress: go('/content?tab=renungan') },
     // Zona — untuk SEMUA jemaat (2.4.6): PIC/pastor kelola, lainnya lihat zona homecell-nya.
     { key: 'area', icon: MapPinned, label: t('quickaccess.area'), onPress: go('/area') },
+    { key: 'group', icon: UsersRound, label: t('quickaccess.group'), onPress: go('/profile/my-groups') },
+    { key: 'tamu', icon: UserPlus, label: t('quickaccess.tamu'), onPress: go('/profile/my-guests') },
     { key: 'visit', icon: Handshake, label: t('quickaccess.visit'), onPress: go('/visit') },
     { key: 'market', icon: Store, label: t('quickaccess.market'), onPress: go('/market') },
+    { key: 'berita', icon: Newspaper, label: t('quickaccess.berita'), onPress: go('/content?tab=news') },
+    { key: 'event', icon: CalendarDays, label: t('quickaccess.event'), onPress: go('/(tabs)/event') },
   ];
 
   // Lebar grid diukur langsung (bukan lebar window) supaya tetap benar di
