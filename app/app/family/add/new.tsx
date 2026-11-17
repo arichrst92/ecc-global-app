@@ -16,6 +16,8 @@ import { ArrowLeft, Calendar as CalendarIcon, Info, UserPlus } from 'lucide-reac
 
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
+import { PhoneInput } from '@/components/ui/PhoneInput';
+import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { TipeRelasiPicker } from '@/components/family/TipeRelasiPicker';
 import { useToast } from '@/components/ui/Toast';
 import { useRegisterNewFamily } from '@/hooks/useFamily';
@@ -30,9 +32,14 @@ import { cekNama, cekTanggalLahir, pertamaGagal } from '@/utils/inputRules';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 
 export default function FamilyAddNewScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const [nama, setNama] = useState('');
+  // Kontak opsional (2026-12): diisi → anggota bisa masuk sendiri; kosong → tanggungan.
+  const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [namaError, setNamaError] = useState<string | null>(null);
   const [gender, setGender] = useState<'L' | 'P' | null>(null);
   const [tipe, setTipe] = useState<TipeRelasi | null>(null);
@@ -53,13 +60,30 @@ export default function FamilyAddNewScreen() {
       return;
     }
     if (!tipe) return;
+    setPhoneError(null);
+    setEmailError(null);
+    let noHp: string | null = null;
+    if (phone.trim()) {
+      noHp = normalizePhone(phone);
+      if (!noHp) {
+        setPhoneError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
+        return;
+      }
+    }
+    const em = email.trim().toLowerCase();
+    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) {
+      setEmailError(t('signup.email_invalid'));
+      return;
+    }
     registerMutation.mutate(
       {
         namaLengkap: nama.trim(),
         tipeRelasiId: tipe.id,
         jenisKelamin: gender,
         tanggalLahir: tanggalLahir || null,
-        noHp: null, // dependent — no phone
+        // Tanpa nomor & email → tanggungan (dikelola wali).
+        noHp,
+        email: em || null,
       },
       {
         onSuccess: (data) => {
@@ -70,7 +94,10 @@ export default function FamilyAddNewScreen() {
           router.replace('/family');
         },
         onError: (err) => {
-          if (err instanceof ApiError) {
+          if (err instanceof ApiError && err.code === 'CONFLICT') {
+            if (/email/i.test(err.message)) setEmailError(err.message);
+            else setPhoneError(err.message);
+          } else if (err instanceof ApiError) {
             Alert.alert(t('error.generic'), err.message);
           } else {
             Alert.alert(t('error.network'));
@@ -192,10 +219,42 @@ export default function FamilyAddNewScreen() {
             />
           </View>
 
+          {/* Kontak opsional — untuk anggota dewasa yang ingin masuk sendiri. */}
+          <View className="mt-5 rounded-2xl border border-neutral-200 p-4">
+            <Text className="text-sm font-semibold text-neutral-900">{t('family.contact_title')}</Text>
+            <Text className="text-xs text-neutral-500 mt-0.5 mb-3 leading-4">{t('family.contact_sub')}</Text>
+            <PhoneInput
+              value={phone}
+              onChangeText={(v) => {
+                setPhone(v);
+                setPhoneError(null);
+              }}
+              label={t('family.phone_label_opt')}
+              error={phoneError ?? undefined}
+              editable={!registerMutation.isPending}
+            />
+            <View className="mt-3">
+              <TextField
+                label={t('family.email_label_opt')}
+                placeholder="nama@email.com"
+                value={email}
+                onChangeText={(v) => {
+                  setEmail(v);
+                  setEmailError(null);
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                error={emailError ?? undefined}
+                editable={!registerMutation.isPending}
+              />
+            </View>
+          </View>
+
           <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
             <Info size={16} color={nc('#92400e')} />
             <Text className="text-xs text-amber-800 flex-1">
-              {t('family.dependent_notice')}
+              {phone.trim() || email.trim() ? t('family.contact_notice') : t('family.dependent_notice')}
             </Text>
           </View>
         </ScrollView>

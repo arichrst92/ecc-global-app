@@ -409,7 +409,7 @@
     "phone_not_found_title": "Nomor tidak ditemukan",
     "phone_not_found_msg": "Nomor ini belum terdaftar di ECC. Coba opsi 'Daftarkan Baru' atau ajak mereka sign-up dulu.",
     "add_new_title": "Daftarkan Anggota Baru",
-    "add_new_intro": "Untuk anak balita atau lansia tanpa HP — Anda akan jadi wali yang mengelola akun mereka.",
+    "add_new_intro": "Untuk anggota keluarga yang belum punya akun Els App. Tanpa nomor WhatsApp / email, Anda menjadi wali yang mengelola akunnya.",
     "nama_lengkap": "Nama Lengkap",
     "nama_placeholder": "Nama lengkap sesuai akta",
     "nama_required": "Nama wajib diisi",
@@ -487,7 +487,12 @@
     "req_waiting": "menunggu persetujuan",
     "req_waiting_guardian": "menunggu persetujuan wali",
     "req_cancel": "Batalkan",
-    "req_cancelled": "Permintaan dibatalkan."
+    "req_cancelled": "Permintaan dibatalkan.",
+    "contact_title": "Kontak (opsional)",
+    "contact_sub": "Isi bila anggota keluarga ini dewasa dan ingin masuk Els App sendiri. Kosongkan untuk anak / lansia yang dikelola oleh Anda.",
+    "phone_label_opt": "Nomor WhatsApp (opsional)",
+    "email_label_opt": "Email (opsional)",
+    "contact_notice": "Anggota ini bisa masuk sendiri dengan OTP WhatsApp atau link masuk lewat email di atas. Pastikan kontaknya benar — kode dan link masuk hanya dikirim ke sana."
   },
   "placeholder": {
     "persembahan_msg": "Info rekening dan QRIS untuk persembahan. Akan tersedia di M4."

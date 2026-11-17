@@ -409,7 +409,7 @@
     "phone_not_found_title": "Phone not found",
     "phone_not_found_msg": "This phone is not registered in ECC. Try 'Register New' or invite them to sign up first.",
     "add_new_title": "Register New Member",
-    "add_new_intro": "For children or elderly without a phone — you will be their guardian managing the account.",
+    "add_new_intro": "For family members who do not have an Els App account yet. Without a WhatsApp number / email, you become the guardian who manages their account.",
     "nama_lengkap": "Full Name",
     "nama_placeholder": "Full legal name",
     "nama_required": "Name is required",
@@ -487,7 +487,12 @@
     "req_waiting": "awaiting approval",
     "req_waiting_guardian": "awaiting guardian approval",
     "req_cancel": "Cancel",
-    "req_cancelled": "Request cancelled."
+    "req_cancelled": "Request cancelled.",
+    "contact_title": "Contact (optional)",
+    "contact_sub": "Fill this in if this family member is an adult who wants to sign in to Els App themselves. Leave it empty for children / elderly members you manage.",
+    "phone_label_opt": "WhatsApp number (optional)",
+    "email_label_opt": "Email (optional)",
+    "contact_notice": "This member can sign in themselves with WhatsApp OTP or a sign-in link sent to the email above. Make sure the contact is correct — codes and sign-in links are only sent there."
   },
   "placeholder": {
     "persembahan_msg": "Bank accounts and QRIS for giving. Coming in M4."

@@ -124,6 +124,8 @@ export type RegisterNewFamilyPayload = {
   jenisKelamin?: 'L' | 'P' | null;
   alamat?: string | null;
   noHp?: string | null;
+  /** Opsional (BE 2026-12): anggota dewasa bisa masuk sendiri lewat email. */
+  email?: string | null;
   cabangId?: string | null;
 } & RelationDiscriminator;
 
