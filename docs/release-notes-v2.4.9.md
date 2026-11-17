@@ -4,6 +4,22 @@ Versi sebelumnya di toko: **2.4.8**. Build baru lewat EAS (bukan OTA). Tidak ada
 
 ## Isi rilis
 
+### Navigasi & Beranda
+- **Menu bawah baru: Beranda · Resolusi · Reservasi · CKids · Profil.** Event pindah ke Beranda (6 event mendatang, 90 hari) & Akses Cepat. Tab **CKids selalu tampil** (ajakan tambah anak bila belum ada); mode tamu: tab yang butuh akun mengajak masuk/daftar.
+- **Carousel Homecell & Zona** di Beranda — homecell yang dipimpin + **Zona yang Anda pimpin** / **Zona yang Anda gembalakan** (pastor): jumlah homecell, anggota, bertemu 7 hari, belum bertemu > 14 hari, tanpa jadwal.
+- **Urutan Akses Cepat baru**: Alkitab, Ibadah, Homecell, Ministry, Keluarga, Group, Worship, Renungan, Doa, Beri, Event, Berita, Zona, Visit, Tamu, Local Market.
+
+### Catatan & kalender
+- **Catatan saya: gambar** dari kamera / galeri menyatu dengan teks; editor **"ketuk paragraf untuk mengedit"** — catatan selalu tampil rapi (tanpa tab Tulis/Pratinjau). Format tersimpan tetap sama (kompatibel 2.4.8).
+- **Kalender**: ulang tahun anggota homecell / ministry / zona (ikut privasi) + pertemuan homecell.
+- **Crop gambar Android**: layar "Atur gambar" sendiri dengan tombol **Batal / Gunakan** (di beberapa HP tombol bawaan tidak muncul).
+
+### Ibadah, event & ministry (tambahan)
+- **Event sukarela** (istilah "donasi" → "sukarela"), **syarat peserta** & **info pembayaran** di detail, tanggal rentang untuk event beberapa hari, deskripsi markdown.
+- **Label Online** di jadwal ibadah; **Petugas Pelayanan** dikelompokkan per ministry (rapi di HP kecil).
+- **Gabung ministry hanya di cabang yang membuka pendaftaran** — selain itu tampil "Pendaftaran di {cabang} belum dibuka".
+- **Hemat baterai**: refresh data berhenti saat app di latar belakang, pemutar worship tidak polling saat tersembunyi, keluar akun menghentikan pemutar.
+
 ### Masuk & daftar (WhatsApp / email)
 - **Daftar dengan WhatsApp atau email** — layar pertama punya pilihan **WhatsApp | Email**. Email memakai kode 6 digit (berlaku 10 menit). Bila salah satu saluran gangguan, muncul saran pindah ke saluran lain. Kolom email opsional di daftar WhatsApp dihapus (sudah ada tab Email).
 - **Data jemaat lama** — tanggal lahir (dianjurkan) di data diri. Bila ada data lama yang mirip (nama, tanggal lahir & cabang sama): layar **"Apakah ini Anda?"** → kode ke email data lama untuk menyambungkan, atau lanjut daftar (admin cabang menyatukan).
@@ -44,6 +60,8 @@ Versi sebelumnya di toko: **2.4.8**. Build baru lewat EAS (bukan OTA). Tidak ada
 - Migrasi s.d. `20261206090100_notification_channels` (termasuk `20261203090000_announcement`, `20261205090000_otp_purpose_dual_channel`, `20261205090100_auth_dual_channel`, `20261206090000_in_app_reminder_types`).
 - core-api & Portal terbaru (OTP email, kode admin, deteksi data lama, kontak terverifikasi, saluran notifikasi, Announcement), landing `/pengumuman/[slug]`.
 - Saklar Portal **"Kirim kode daftar ke email bila WhatsApp gagal (app lama)"** tetap **menyala** sampai 2.4.9 tersedia di toko.
+- core-api terbaru juga: kalender ulang tahun (`/me/calendar-extra`), ringkasan zona, unggah gambar catatan, aturan event (RBAC, sukarela, kuota), aturan pendaftaran ministry.
+- ⚠ **Pendaftaran ministry default = belum dibuka** (berlaku juga untuk app 2.4.8): koordinator perlu **Buka pendaftaran** per cabang di ministry yang menerima anggota baru.
 
 ## Setelah rilis
 1. Pantau versi app di Portal → WhatsApp Config → Gateway & OTP (daftar versi aktif).
@@ -54,32 +72,36 @@ Versi sebelumnya di toko: **2.4.8**. Build baru lewat EAS (bukan OTA). Tidak ada
 **id-ID**
 ```
 Els App 2.4.9:
-• Daftar dengan WhatsApp atau email; masuk dengan email lebih andal
-• Lengkapi kontak (WhatsApp & email) di profil dengan verifikasi kode
-• Pengumuman gereja langsung di aplikasi
-• Hitung mundur batas reservasi & batalkan tiket
-• Tampilan kosong & gambar default baru, petunjuk unggah foto
+• Menu bawah baru: Beranda, Resolusi, Reservasi, CKids, Profil
+• Daftar & masuk dengan WhatsApp atau email
+• Ringkasan homecell & zona di Beranda
+• Catatan khotbah dengan gambar, tampil rapi saat ditulis
+• Kalender ulang tahun anggota & pertemuan homecell
+• Pengumuman gereja, event sukarela, hitung mundur reservasi
 • Perbaikan & penyempurnaan lainnya
 ```
 **en-US**
 ```
 Els App 2.4.9:
-• Sign up with WhatsApp or email; more reliable email sign-in
-• Complete your contacts (WhatsApp & email) in Profile with code verification
-• Church announcements right in the app
-• Reservation deadline countdown & ticket cancellation
-• New empty states & default images, photo upload hints
+• New bottom menu: Home, Resolution, Bookings, CKids, Profile
+• Sign up and sign in with WhatsApp or email
+• Homecell & zone summary on Home
+• Sermon notes with images, formatted as you write
+• Calendar with members' birthdays & homecell meetings
+• Church announcements, voluntary events, booking countdown
 • Other fixes and improvements
 ```
 
 ## App Store — "What's New" (en)
 ```
 Els App 2.4.9:
-• Sign up with WhatsApp or email, with a 6-digit code
+• New bottom menu: Home, Resolution, Bookings, CKids, Profile
+• Sign up and sign in with WhatsApp or email, with a 6-digit code
 • Add and verify your WhatsApp number and email in Profile
-• Church announcements as in-app popups and pages
-• Countdown to reservation deadlines and cancel tickets
-• Refreshed empty states, default images, and upload hints
+• Homecell & zone summary cards on Home for leaders and pastors
+• Sermon notes with photos, neatly formatted as you write
+• Calendar with members' birthdays and homecell meetings
+• Church announcements, voluntary-contribution events, booking countdowns
 • Fixes and improvements
 ```
 
@@ -107,3 +129,12 @@ Els App 2.4.9:
 - [ ] Portal → Saluran notifikasi → In-app pada Pengingat ibadah H-1 → reservasi besok → pagi berikutnya notifikasi pengingat muncul sekali
 - [ ] Detail ibadah/event → hitung mundur batas reservasi berjalan; event sudah mulai → tombol daftar nonaktif
 - [ ] Batalkan tiket event & reservasi CKids → kembali ke Reservasi Saya
+
+**Tambahan 2.4.9 (akhir)**
+- [ ] Menu bawah 5 tab; Event dibuka dari Beranda (6 event) & Akses Cepat; tab CKids tanpa anak → "Tambah anak"
+- [ ] Pemimpin homecell / Zone Leader / Pastor zona → carousel homecell & zona di Beranda, angka ringkasan wajar
+- [ ] Catatan: ketuk paragraf → edit → tutup keyboard → tampil rapi; Gambar dari kamera & galeri tampil di catatan, × menghapus; catatan lama dari 2.4.8 terbuka normal
+- [ ] Android: pilih foto (Local Market / profil / catatan) → layar Atur gambar → Batal & Gunakan terlihat
+- [ ] Kalender: ulang tahun anggota homecell/ministry & pertemuan homecell tampil
+- [ ] Ministry di cabang yang belum dibuka → tidak ada tombol Gabung; setelah koordinator Buka pendaftaran → tombol muncul
+- [ ] Event sukarela → daftar tanpa wajib bayar, tiket langsung aktif; event berbayar → unggah bukti → aktif setelah diverifikasi
