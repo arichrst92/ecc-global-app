@@ -158,3 +158,13 @@ export function requestPhoneChangeOtp(noHp: string) {
 export function verifyPhoneChange(noHp: string, kode: string) {
   return api.post<{ id: string; noHp: string }>('/admin/me/phone/verify', { noHp, kode });
 }
+
+/** POST /admin/me/email/request-otp — kode verifikasi ke email baru (atau email sekarang yang belum terverifikasi). */
+export function requestEmailChangeOtp(email: string) {
+  return api.post<{ email: string; expiresIn: number }>('/admin/me/email/request-otp', { email });
+}
+
+/** POST /admin/me/email/verify — simpan email + tandai terverifikasi. */
+export function verifyEmailChange(email: string, kode: string) {
+  return api.post<{ id: string; email: string; emailVerifiedAt: string }>('/admin/me/email/verify', { email, kode });
+}

@@ -16,7 +16,12 @@ export type ApiErrorCode =
   | 'CONSTRAINT_UNIQUE'
   | 'CONSTRAINT_RELATION'
   | 'TOO_MANY_REQUESTS'
-  | 'INTERNAL_ERROR';
+  | 'INTERNAL_ERROR'
+  // 503 — saluran pengiriman kode sedang gangguan (BE 2026-12)
+  | 'SERVICE_UNAVAILABLE'
+  | 'WHATSAPP_UNAVAILABLE'
+  | 'EMAIL_UNAVAILABLE'
+  | 'EMAIL_SIGNUP_DISABLED';
 
 export type ApiErrorBody = {
   success: false;

@@ -47,12 +47,12 @@ export default function WelcomeScreen() {
     {
       // Magic link email login — untuk jemaat legacy dgn noHp invalid, atau
       // sebagai fallback kalau HP hilang. Per BE notice magic-link 2026-07-28.
+      // Web (2026-12): kode OTP 6 digit lewat email (magic link hanya untuk app).
       label: t('auth.signin_email'),
-      sub: IS_WEB ? t('auth.signin_email_mobile_only') : t('auth.signin_email_sub'),
-      icon: <Mail size={20} color={IS_WEB ? nc('#A3A3A3') : '#EA580C'} />,
-      iconBg: IS_WEB ? 'bg-neutral-100' : 'bg-brand-50',
+      sub: IS_WEB ? t('auth.signin_email_code_sub') : t('auth.signin_email_sub'),
+      icon: <Mail size={20} color="#EA580C" />,
+      iconBg: 'bg-brand-50',
       variant: 'secondary',
-      disabled: IS_WEB,
       onPress: () => router.push('/(auth)/login/email' as never),
     },
   ];

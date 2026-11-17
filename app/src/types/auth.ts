@@ -39,8 +39,13 @@ export type JenisJemaat = 'JEMAAT_TETAP' | 'NEW_COMER';
  * via portal (mobile tidak ask).
  */
 export type RegisterPayload = {
-  // Required
-  noHp: string;
+  /** Wajib untuk daftar WhatsApp (default). Daftar email tidak mengirim noHp. */
+  noHp?: string;
+  /** Saluran OTP pendaftaran. Default 'whatsapp' (BE). */
+  otpChannel?: 'whatsapp' | 'email';
+  /** Klaim data lama (hasil /auth/register/match + kode ke email data lama). */
+  claimJemaatId?: string;
+  claimKode?: string;
   namaLengkap: string;
   jenisKelamin: 'L' | 'P';
   cabangId: string;
@@ -118,7 +123,38 @@ export type EnrollmentVerifyResponse = {
   noHp: string;
   pendingRegistration: true;
   nextStep: 'POST /auth/register';
-  validForSeconds: number; // default 900 (15 menit)
+  validForSeconds: number; // 3600 (60 menit) sejak BE 2026-12
+};
+
+/** OTP 6 digit lewat email: daftar dengan email / masuk dengan email (web, kode admin). */
+export type EmailOtpPurpose = 'ENROLLMENT_EMAIL' | 'LOGIN_EMAIL';
+
+export type EmailEnrollmentVerifyResponse = {
+  otpVerified: true;
+  purpose: 'ENROLLMENT_EMAIL';
+  email: string;
+  pendingRegistration: true;
+  validForSeconds: number;
+};
+
+/** POST /auth/register/match — data jemaat lama yang mungkin milik pendaftar. */
+export type RegisterMatchPayload = {
+  otpChannel: 'whatsapp' | 'email';
+  noHp?: string;
+  email?: string;
+  namaLengkap: string;
+  tanggalLahir: string; // YYYY-MM-DD
+  cabangId: string;
+  claimJemaatId?: string;
+};
+
+export type RegisterMatch = {
+  jemaatId: string;
+  namaMasked: string;
+  cabang: string | null;
+  emailMasked: string | null;
+  /** true = bisa diklaim lewat kode ke email data lama. */
+  canClaim: boolean;
 };
 
 /**

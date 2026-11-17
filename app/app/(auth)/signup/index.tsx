@@ -1,30 +1,33 @@
 import { useState } from 'react';
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, UserPlus } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, UserPlus } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { PhoneInput } from '@/components/ui/PhoneInput';
 import { TextField } from '@/components/ui/TextField';
 import { Stepper } from '@/components/ui/Stepper';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useToast } from '@/components/ui/Toast';
-import { requestOtp } from '@/api/auth';
+import { requestEmailOtp, requestOtp } from '@/api/auth';
 import { useSignupStore } from '@/stores/signup.store';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/**
+ * Daftar langkah 1 — pilih saluran:
+ *   - WhatsApp: nomor HP (+ email opsional) → OTP WhatsApp.
+ *   - Email: alamat email → OTP 6 digit lewat email.
+ * Saluran gangguan → tawarkan pindah ke saluran lain.
+ */
 export default function SignupPhoneScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -33,35 +36,62 @@ export default function SignupPhoneScreen() {
   const setNoHp = useSignupStore((s) => s.setNoHp);
   const setField = useSignupStore((s) => s.setField);
 
+  const [channel, setChannel] = useState<'whatsapp' | 'email'>(() => useSignupStore.getState().channel);
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState(() => useSignupStore.getState().email);
   const [emailError, setEmailError] = useState<string | null>(null);
+  /** Saluran yang sedang gangguan → kotak saran pindah saluran. */
+  const [down, setDown] = useState<'whatsapp' | 'email' | null>(null);
+
+  const switchChannel = (c: 'whatsapp' | 'email') => {
+    setChannel(c);
+    setError(null);
+    setEmailError(null);
+    setDown(null);
+  };
 
   const mutation = useMutation({
-    mutationFn: async (e164: string) =>
-      requestOtp({ noHp: e164, purpose: 'ENROLLMENT', email: email.trim() || undefined }),
-    onSuccess: (data, e164) => {
-      setNoHp(e164);
-      setField('email', email.trim());
-      const viaEmail = !!data?.channel?.includes('email');
-      setField('otpViaEmail', viaEmail);
-      showToast(viaEmail ? t('auth.otp_sent_email') : t('auth.otp_sent'), 'success');
+    mutationFn: async (target: string) =>
+      channel === 'email'
+        ? requestEmailOtp({ email: target, purpose: 'ENROLLMENT_EMAIL' })
+        : requestOtp({ noHp: target, purpose: 'ENROLLMENT', email: email.trim() || undefined }),
+    onSuccess: (data, target) => {
+      setField('channel', channel);
+      if (channel === 'email') {
+        setNoHp('');
+        setField('email', target);
+        setField('otpViaEmail', false);
+        showToast(t('signup.code_sent_email'), 'success');
+      } else {
+        setNoHp(target);
+        setField('email', email.trim());
+        const viaEmail = !!data?.channel?.includes('email');
+        setField('otpViaEmail', viaEmail);
+        showToast(viaEmail ? t('auth.otp_sent_email') : t('auth.otp_sent'), 'success');
+      }
       router.push('/(auth)/signup/otp');
     },
     onError: (err) => {
-      if (err instanceof ApiError) {
-        if (err.code === 'CONFLICT' && /email/i.test(err.message)) {
-          setEmailError(err.message);
-        } else if (err.code === 'CONFLICT') {
-          setError(t('signup.error_already_registered'));
-        } else if (err.code === 'TOO_MANY_REQUESTS') {
-          setError(t('auth.error_rate_limited'));
-        } else {
-          setError(err.message);
-        }
-      } else {
+      if (!(err instanceof ApiError)) {
         setError(t('error.network'));
+        return;
+      }
+      const code = err.code as string;
+      if (code === 'WHATSAPP_UNAVAILABLE') {
+        setDown('whatsapp');
+      } else if (code === 'EMAIL_UNAVAILABLE' || code === 'EMAIL_SIGNUP_DISABLED') {
+        setDown('email');
+      } else if (err.code === 'CONFLICT' && /email/i.test(err.message)) {
+        setEmailError(channel === 'email' ? t('signup.email_already_registered') : err.message);
+      } else if (err.code === 'CONFLICT') {
+        setError(t('signup.error_already_registered'));
+      } else if (err.code === 'TOO_MANY_REQUESTS') {
+        setError(t('auth.error_rate_limited'));
+      } else if (channel === 'email') {
+        setEmailError(err.message);
+      } else {
+        setError(err.message);
       }
     },
   });
@@ -69,13 +99,22 @@ export default function SignupPhoneScreen() {
   function submit() {
     setError(null);
     setEmailError(null);
+    setDown(null);
+    const em = email.trim().toLowerCase();
+    if (channel === 'email') {
+      if (!EMAIL_RE.test(em)) {
+        setEmailError(t('signup.email_invalid'));
+        return;
+      }
+      mutation.mutate(em);
+      return;
+    }
     const e164 = normalizePhone(phone);
     if (!e164) {
       setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
       return;
     }
-    const em = email.trim();
-    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) {
+    if (em && !EMAIL_RE.test(em)) {
       setEmailError(t('signup.email_invalid'));
       return;
     }
@@ -87,12 +126,11 @@ export default function SignupPhoneScreen() {
     goBack(router);
   }
 
+  const canSubmit = channel === 'email' ? email.trim().length > 5 : phone.length >= 8;
+
   return (
     <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
-      <KeyboardSafeView
-        keyboardVerticalOffset={0}
-        className="flex-1"
-      >
+      <KeyboardSafeView keyboardVerticalOffset={0} className="flex-1">
         <View className="px-4 py-2">
           <Pressable onPress={handleBack} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={20} color={nc('#171717')} />
@@ -111,49 +149,110 @@ export default function SignupPhoneScreen() {
             <UserPlus size={28} color="#059669" />
           </View>
           <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('signup.title')}</Text>
-          <Text className="text-neutral-500 text-sm mb-7">{t('signup.sub')}</Text>
+          <Text className="text-neutral-500 text-sm mb-5">{t('signup.sub')}</Text>
 
-          <PhoneInput
-            value={phone}
-            onChangeText={(v) => {
-              setPhone(v);
-              setError(null);
-            }}
-            label={t('auth.phone_label')}
-            placeholder={t('auth.phone_placeholder')}
-            helper={!error ? t('signup.phone_helper') : undefined}
-            error={error ?? undefined}
-            autoFocus
-            editable={!mutation.isPending}
+          <SegmentedControl<'whatsapp' | 'email'>
+            label={t('signup.channel_label')}
+            value={channel}
+            options={[
+              { value: 'whatsapp', label: t('signup.channel_whatsapp') },
+              { value: 'email', label: t('signup.channel_email') },
+            ]}
+            onChange={switchChannel}
           />
 
           <View className="mt-4">
-            <TextField
-              label={t('signup.email_label')}
-              placeholder={t('signup.email_placeholder')}
-              value={email}
-              onChangeText={(v) => {
-                setEmail(v);
-                setEmailError(null);
-              }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="email"
-              textContentType="emailAddress"
-              helper={!emailError ? t('signup.email_helper') : undefined}
-              error={emailError ?? undefined}
-              editable={!mutation.isPending}
-            />
+            {channel === 'whatsapp' ? (
+              <>
+                <PhoneInput
+                  value={phone}
+                  onChangeText={(v) => {
+                    setPhone(v);
+                    setError(null);
+                  }}
+                  label={t('auth.phone_label')}
+                  placeholder={t('auth.phone_placeholder')}
+                  helper={!error ? t('signup.phone_helper') : undefined}
+                  error={error ?? undefined}
+                  autoFocus
+                  editable={!mutation.isPending}
+                />
+                <View className="mt-4">
+                  <TextField
+                    label={t('signup.email_label')}
+                    placeholder={t('signup.email_placeholder')}
+                    value={email}
+                    onChangeText={(v) => {
+                      setEmail(v);
+                      setEmailError(null);
+                    }}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    autoComplete="email"
+                    textContentType="emailAddress"
+                    helper={!emailError ? t('signup.email_helper') : undefined}
+                    error={emailError ?? undefined}
+                    editable={!mutation.isPending}
+                  />
+                </View>
+              </>
+            ) : (
+              <>
+                <TextField
+                  label={t('signup.email_only_label')}
+                  placeholder={t('signup.email_placeholder')}
+                  value={email}
+                  onChangeText={(v) => {
+                    setEmail(v);
+                    setEmailError(null);
+                  }}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  helper={!emailError ? t('signup.email_only_helper') : undefined}
+                  error={emailError ?? undefined}
+                  editable={!mutation.isPending}
+                  autoFocus
+                />
+                {error ? <Text className="text-xs text-red-600 mt-2">{error}</Text> : null}
+              </>
+            )}
           </View>
+
+          {down ? (
+            <View className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+              <View className="flex-row gap-2">
+                <AlertTriangle size={18} color="#B45309" style={{ marginTop: 1 }} />
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold text-amber-900">
+                    {down === 'whatsapp' ? t('signup.wa_down_title') : t('signup.email_down_title')}
+                  </Text>
+                  <Text className="text-sm text-amber-900 mt-0.5 leading-5">
+                    {down === 'whatsapp' ? t('signup.wa_down_msg') : t('signup.email_down_msg')}
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                onPress={() => switchChannel(down === 'whatsapp' ? 'email' : 'whatsapp')}
+                className="mt-3 self-start rounded-lg bg-amber-600 px-3 py-2"
+              >
+                <Text className="text-sm font-semibold text-white">
+                  {down === 'whatsapp' ? t('signup.wa_down_cta') : t('signup.email_down_cta')}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
         </ScrollView>
 
         <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">
           <Button
-            label={t('auth.send_otp')}
+            label={channel === 'email' ? t('signup.send_email_code') : t('auth.send_otp')}
             onPress={submit}
             loading={mutation.isPending}
-            disabled={phone.length < 8}
+            disabled={!canSubmit}
             fullWidth
             size="lg"
           />

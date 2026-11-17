@@ -122,7 +122,11 @@
       "verify_error_invalid": "Link tidak valid, sudah kadaluarsa, atau sudah pernah digunakan. Silakan minta link baru.",
       "verify_error_rate_limited": "Terlalu banyak percobaan. Tunggu beberapa menit dan coba lagi.",
       "verify_error_try_again": "Minta Link Baru",
-      "verify_error_back_welcome": "Kembali ke Halaman Utama"
+      "verify_error_back_welcome": "Kembali ke Halaman Utama",
+      "down_msg": "Layanan email sedang gangguan. Coba masuk dengan OTP WhatsApp.",
+      "down_cta": "Masuk dengan OTP WhatsApp",
+      "subtitle_code": "Masukkan email terdaftar. Kami kirim kode 6 digit untuk masuk.",
+      "send_code": "Kirim Kode"
     },
     "onboarding": {
       "intro_title": "Halo, {{name}}! 👋",
@@ -158,8 +162,20 @@
       "error_dob_required": "Tanggal lahir wajib diisi.",
       "back_to_login": "Kembali ke Login",
       "back_to_login_confirm_title": "Kembali ke Halaman Login?",
-      "back_to_login_confirm_body": "Anda akan keluar dari akun ini. Progress pengisian profil tidak akan disimpan. Lanjutkan?"
-    }
+      "back_to_login_confirm_body": "Anda akan keluar dari akun ini. Progress pengisian profil tidak akan disimpan. Lanjutkan?",
+      "phone_skip": "Lewati, tambahkan nanti",
+      "phone_skip_sub": "Nomor WhatsApp bisa ditambahkan kapan saja di Profil → Edit."
+    },
+    "spam_hint": "Tidak ada di Inbox? Cek folder Spam / Promosi, lalu tandai \"Bukan spam\" agar email berikutnya masuk ke Inbox.",
+    "otp_admin_note": "Masukkan kode masuk sementara dari admin cabang.",
+    "admin_code_link": "Dapat kode dari admin cabang?",
+    "admin_code_help": "Bila WhatsApp dan email sedang gangguan, admin cabang bisa memberi kode masuk sementara (berlaku 10 menit). Masukkan kode itu di kolom di atas.",
+    "otp_send_instead": "Kirim kode OTP saja",
+    "otp_sub_email": "Kode 6 digit dikirim ke email:",
+    "wa_down_title": "WhatsApp sedang gangguan",
+    "wa_down_msg": "Bila Anda punya email terdaftar, masuk dengan email. Atau minta kode masuk sementara ke admin cabang.",
+    "wa_down_cta": "Masuk dengan email",
+    "signin_email_code_sub": "Kode 6 digit dikirim ke email Anda"
   },
   "guest": {
     "banner_title": "Mode Tamu",
@@ -207,7 +223,7 @@
     "data_title": "Data Diri",
     "data_sub": "Hanya 3 data wajib. Sisanya bisa dilengkapi nanti di Profil.",
     "otp_window": "Sisa waktu {{minutes}}:{{seconds}} untuk menyelesaikan pendaftaran",
-    "minimal_notice": "Data lain (tanggal lahir, alamat, foto) bisa Anda lengkapi setelah masuk, di menu Profil → Edit.",
+    "minimal_notice": "Data lain (alamat, foto) bisa Anda lengkapi setelah masuk, di menu Profil → Edit.",
     "full_name": "Nama Lengkap",
     "full_name_placeholder": "Mis. Ari Christian",
     "gender": "Jenis Kelamin",
@@ -229,7 +245,7 @@
     "cancel_confirm_msg": "Data yang Anda isi akan hilang.",
     "error_already_registered": "Nomor HP ini sudah terdaftar. Coba masuk lewat menu Login.",
     "error_otp_expired_title": "OTP Kadaluarsa",
-    "error_otp_expired_msg": "Verifikasi OTP melebihi 15 menit. Silakan ulang dari awal.",
+    "error_otp_expired_msg": "Waktu pendaftaran (60 menit) sudah habis. Silakan ulang dari awal.",
     "error_name_required": "Nama minimal 2 karakter",
     "error_gender_required": "Pilih jenis kelamin",
     "error_branch_required": "Pilih cabang gereja",
@@ -240,8 +256,34 @@
     "error_jenis_jemaat_required": "Pilih salah satu",
     "email_label": "Email (opsional)",
     "email_placeholder": "nama@email.com",
-    "email_helper": "Disarankan — kode OTP juga dikirim ke email bila WhatsApp sedang antre, dan untuk masuk dengan email.",
-    "email_invalid": "Format email tidak valid"
+    "email_helper": "Opsional — untuk masuk dengan email bila WhatsApp gangguan. Bisa diverifikasi nanti di Profil.",
+    "email_invalid": "Format email tidak valid",
+    "channel_label": "Daftar dengan",
+    "channel_whatsapp": "WhatsApp",
+    "channel_email": "Email",
+    "email_only_label": "Email",
+    "email_only_helper": "Kode verifikasi 6 digit akan dikirim ke email ini.",
+    "send_email_code": "Kirim Kode ke Email",
+    "code_sent_email": "Kode dikirim ke email Anda",
+    "otp_sub_email": "Kode 6 digit dikirim ke email:",
+    "wa_down_title": "WhatsApp sedang gangguan",
+    "wa_down_msg": "Kode belum bisa dikirim lewat WhatsApp. Anda bisa daftar dengan email sekarang, lalu menambahkan nomor WhatsApp nanti di Profil.",
+    "wa_down_cta": "Daftar dengan email",
+    "email_down_title": "Layanan email sedang gangguan",
+    "email_down_msg": "Kode belum bisa dikirim ke email. Anda bisa daftar dengan WhatsApp.",
+    "email_down_cta": "Daftar dengan WhatsApp",
+    "email_already_registered": "Email ini sudah terdaftar. Silakan pilih \"Masuk dengan email\" di halaman awal.",
+    "dob_label": "Tanggal Lahir (dianjurkan)",
+    "dob_placeholder": "Pilih tanggal lahir",
+    "dob_helper": "Membantu kami menemukan data jemaat Anda yang sudah ada, supaya riwayat Anda tidak terpisah.",
+    "match_title": "Apakah ini Anda?",
+    "match_msg": "Kami menemukan data jemaat atas nama {{nama}} di {{cabang}} dengan tanggal lahir yang sama. Apakah ini data Anda?",
+    "match_yes": "Ya, ini saya",
+    "match_no": "Bukan saya",
+    "match_noemail_msg": "Terima kasih. Pendaftaran tetap dilanjutkan, dan admin cabang akan menyatukan data lama Anda dengan akun baru ini.",
+    "match_continue": "Lanjutkan pendaftaran",
+    "match_claim_msg": "Kami mengirim kode ke email yang tercatat di data tersebut ({{email}}). Masukkan kode untuk menyambungkan data lama ke akun Anda.",
+    "match_skip": "Lewati, daftar akun baru"
   },
   "home": {
     "greeting": "Halo,",
@@ -319,7 +361,15 @@
     "prayer_menu_sub": "Pokok doa yang Anda kirim ke ECC",
     "resolusi_menu": "Resolusi Tahunan",
     "resolusi_menu_sub": "Target dan komitmen Anda tahun ini",
-    "calendar": "Kalender"
+    "calendar": "Kalender",
+    "contact_hint_title": "Lengkapi kontak Anda",
+    "contact_hint_email": "Email Anda masih kosong. Lengkapi agar tetap bisa masuk saat WhatsApp gangguan.",
+    "contact_hint_wa": "Nomor WhatsApp Anda masih kosong. Lengkapi agar tetap bisa masuk saat layanan email gangguan.",
+    "badge_verified": "Terverifikasi",
+    "badge_unverified": "Belum terverifikasi",
+    "badge_guardian": "Diinput wali",
+    "badge_admin": "Diinput admin",
+    "contact_add": "Tambah"
   },
   "family": {
     "title": "Keluarga Saya",
@@ -2242,7 +2292,9 @@
     "otp_hint": "Masukkan kode yang dikirim via WhatsApp ke {{noHp}}.",
     "change_number": "Ubah nomor",
     "resend": "Kirim ulang kode",
-    "success": "Nomor HP berhasil diganti. Gunakan nomor baru untuk login berikutnya."
+    "success": "Nomor HP berhasil diganti. Gunakan nomor baru untuk login berikutnya.",
+    "title_add": "Tambah Nomor WhatsApp",
+    "add_sub": "Untuk masuk dengan OTP WhatsApp"
   },
   "personal_data": {
     "title": "Data Diri",
@@ -2825,5 +2877,19 @@
     "counter": "{{i}} dari {{n}} pengumuman",
     "not_found": "Pengumuman tidak ditemukan.",
     "title": "Pengumuman"
+  },
+  "change_email": {
+    "title_add": "Tambah Email",
+    "title_change": "Ganti Email",
+    "title_verify": "Verifikasi Email",
+    "current": "Email sekarang: {{email}}",
+    "new_label": "Alamat email",
+    "new_helper": "Kode verifikasi 6 digit akan dikirim ke email ini.",
+    "send_code": "Kirim Kode",
+    "otp_hint": "Masukkan kode 6 digit yang dikirim ke {{email}}.",
+    "change_address": "Ganti alamat",
+    "success": "Email tersimpan dan terverifikasi",
+    "verify_now": "Verifikasi email ini sekarang",
+    "field_hint": "Email terverifikasi bisa dipakai untuk masuk saat WhatsApp gangguan."
   }
 }

@@ -339,7 +339,7 @@ export default function EventRegisterScreen() {
           {/* Self row */}
           <ParticipantRow
             name={user.namaLengkap}
-            subtitle={formatPhoneDisplay(user.noHp)}
+            subtitle={user.noHp ? formatPhoneDisplay(user.noHp) : user.email ?? ''}
             relationLabel={t('event.detail_self')}
             fotoUrl={user.fotoUrl}
             selected={selectedIds.has(user.jemaatId)}

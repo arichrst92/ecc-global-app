@@ -1,26 +1,31 @@
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Info, Clock } from 'lucide-react-native';
+import { ArrowLeft, Calendar as CalendarIcon, Info, Clock, UserSearch, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Stepper } from '@/components/ui/Stepper';
 import { TextField } from '@/components/ui/TextField';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Picker } from '@/components/ui/Picker';
-import { register } from '@/api/auth';
+import { register, registerMatch, requestClaimOtp } from '@/api/auth';
+import { OtpInput } from '@/components/ui/OtpInput';
+import { DatePickerModal } from '@/components/ui/DatePickerModal';
+import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { SpamHint } from '@/components/auth/SpamHint';
+import { parseLocalDate, toIsoDate, formatDate } from '@/utils/date';
 import { useAuthStore } from '@/stores/auth.store';
 import { useSignupStore } from '@/stores/signup.store';
 import { useBranches } from '@/hooks/useBranches';
 import { ApiError } from '@/types/api';
-import type { JenisJemaat } from '@/types/auth';
+import type { JenisJemaat, RegisterMatch, RegisterMatchPayload } from '@/types/auth';
 import { nc } from '@/theme/ThemeRoot';
 import { buildConsentPayload } from '@/api/consent';
 import { ConsentChecklist, EMPTY_CONSENT, isConsentComplete, type ConsentValue } from '@/features/consent/ConsentChecklist';
-import { cekNama } from '@/utils/inputRules';
+import { cekNama, cekTanggalLahir } from '@/utils/inputRules';
 
 type FieldErrors = Partial<{
   namaLengkap: string;
@@ -28,6 +33,7 @@ type FieldErrors = Partial<{
   cabangId: string;
   jenisJemaat: string;
   consent: string;
+  tanggalLahir: string;
 }>;
 
 export default function SignupDataScreen() {
@@ -37,8 +43,10 @@ export default function SignupDataScreen() {
   const login = useAuthStore((s) => s.login);
 
   // Get state via individual selectors untuk reactivity
+  const channel = useSignupStore((s) => s.channel);
   const noHp = useSignupStore((s) => s.noHp);
   const signupEmail = useSignupStore((s) => s.email);
+  const tanggalLahir = useSignupStore((s) => s.tanggalLahir);
   const namaLengkap = useSignupStore((s) => s.namaLengkap);
   const jenisKelamin = useSignupStore((s) => s.jenisKelamin);
   const cabangId = useSignupStore((s) => s.cabangId);
@@ -50,42 +58,69 @@ export default function SignupDataScreen() {
 
   const [errors, setErrors] = useState<FieldErrors>({});
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [showDob, setShowDob] = useState(false);
+  /** Data jemaat lama yang mungkin milik pendaftar (hasil /auth/register/match). */
+  const [match, setMatch] = useState<RegisterMatch | null>(null);
+  const expiredShown = useRef(false);
 
-  // Countdown timer untuk window OTP enrollment (15 min)
+  /** Waktu habis / OTP tidak berlaku → ulang dari awal dengan tumpukan layar bersih. */
+  const restartSignup = () => {
+    reset();
+    router.dismissTo('/(auth)/signup');
+  };
+  const showExpired = () => {
+    if (expiredShown.current) return;
+    expiredShown.current = true;
+    Alert.alert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [{ text: 'OK', onPress: restartSignup }], {
+      cancelable: false,
+    });
+  };
+
+  // Hitung mundur jendela pendaftaran (60 menit). Alert hanya sekali.
   useEffect(() => {
     if (!otpVerifiedExpiresAt) return;
+    let timer: ReturnType<typeof setInterval> | null = null;
     const update = () => {
       const remaining = Math.max(0, Math.floor((otpVerifiedExpiresAt - Date.now()) / 1000));
       setSecondsLeft(remaining);
       if (remaining === 0) {
-        Alert.alert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [
-          {
-            text: 'OK',
-            onPress: () => {
-              reset();
-              router.replace('/(auth)/signup');
-            },
-          },
-        ]);
+        if (timer) clearInterval(timer);
+        showExpired();
       }
     };
     update();
-    const timer = setInterval(update, 1000);
-    return () => clearInterval(timer);
-  }, [otpVerifiedExpiresAt, reset, router, t]);
+    timer = setInterval(update, 1000);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otpVerifiedExpiresAt]);
 
   const branchesQuery = useBranches();
 
+  const viaEmail = channel === 'email';
+  const matchPayload = (): RegisterMatchPayload => ({
+    otpChannel: viaEmail ? 'email' : 'whatsapp',
+    noHp: viaEmail ? undefined : noHp,
+    email: viaEmail ? signupEmail : undefined,
+    namaLengkap: namaLengkap.trim(),
+    tanggalLahir,
+    cabangId,
+  });
+
   const mutation = useMutation({
-    mutationFn: async () =>
+    mutationFn: async (claim?: { claimJemaatId: string; claimKode: string }) =>
       register({
-        // Per BE patch 2026-05-21d — hanya 4 field wajib. tanggalLahir,
-        // alamat, foto user lengkapi nanti via Profile → Edit.
-        noHp,
+        // Per BE patch 2026-05-21d — hanya 4 field wajib. alamat & foto
+        // dilengkapi nanti via Profile → Edit.
+        otpChannel: viaEmail ? 'email' : 'whatsapp',
+        noHp: viaEmail ? undefined : noHp,
         namaLengkap,
         jenisKelamin: jenisKelamin as 'L' | 'P',
         cabangId,
         email: signupEmail || undefined,
+        tanggalLahir: tanggalLahir || undefined,
+        ...(claim ?? {}),
         // Per BE request 2026-05-23 (M23): signup-time jenis jemaat
         // assignment. Mobile cuma ask jenisJemaat (Tetap vs NewComer);
         // fulltimer status di-assign manual oleh admin di portal.
@@ -96,6 +131,7 @@ export default function SignupDataScreen() {
           : undefined,
       }),
     onSuccess: async (data) => {
+      setMatch(null);
       await login(data.accessToken, data.refreshToken, data.user);
       router.replace('/(auth)/signup/success');
     },
@@ -109,14 +145,14 @@ export default function SignupDataScreen() {
             cabangId: fe.cabangId?.[0],
             jenisJemaat: fe.jenisJemaat?.[0],
           });
-        } else if (err.code === 'UNAUTHORIZED') {
-          Alert.alert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [
-            { text: 'OK', onPress: () => router.replace('/(auth)/signup') },
-          ]);
-        } else if (err.code === 'FORBIDDEN' || err.code === 'BAD_REQUEST') {
+        } else if (err.code === 'UNAUTHORIZED' && !/data lama/i.test(err.message)) {
+          setMatch(null);
+          showExpired();
+        } else if (err.code === 'FORBIDDEN' || err.code === 'BAD_REQUEST' || err.code === 'UNAUTHORIZED') {
           Alert.alert(t('error.generic'), err.message);
         } else if (err.code === 'CONFLICT') {
-          Alert.alert(t('signup.error_already_registered'));
+          setMatch(null);
+          Alert.alert(viaEmail ? t('signup.email_already_registered') : t('signup.error_already_registered'), /data lama/i.test(err.message) ? err.message : undefined);
         } else {
           Alert.alert(t('error.generic'), err.message);
         }
@@ -137,12 +173,31 @@ export default function SignupDataScreen() {
     if (!cabangId) next.cabangId = t('signup.error_branch_required');
     if (!jenisJemaat) next.jenisJemaat = t('signup.error_jenis_jemaat_required');
     if (!isConsentComplete(consent)) next.consent = t('consent.error_incomplete');
+    if (tanggalLahir) {
+      const d = cekTanggalLahir(parseLocalDate(tanggalLahir));
+      if (d) next.tanggalLahir = d;
+    }
 
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
-    mutation.mutate();
+    if (!tanggalLahir) {
+      mutation.mutate(undefined);
+      return;
+    }
+    matchMutation.mutate();
   }
+
+  // Cari data jemaat lama yang mungkin milik pendaftar (nama mirip + tanggal lahir & cabang sama).
+  // Gagal / tidak ada → langsung daftar seperti biasa.
+  const matchMutation = useMutation({
+    mutationFn: () => registerMatch(matchPayload()),
+    onSuccess: (r) => {
+      if (r?.match) setMatch(r.match);
+      else mutation.mutate(undefined);
+    },
+    onError: () => mutation.mutate(undefined),
+  });
 
   function handleBack() {
     Alert.alert(t('signup.cancel_confirm_title'), t('signup.cancel_confirm_msg'), [
@@ -152,7 +207,7 @@ export default function SignupDataScreen() {
         style: 'destructive',
         onPress: () => {
           reset();
-          router.replace('/(auth)/welcome');
+          router.dismissTo('/(auth)/welcome');
         },
       },
     ]);
@@ -230,6 +285,24 @@ export default function SignupDataScreen() {
           {errors.jenisKelamin ? (
             <Text className="text-xs text-red-600 -mt-2">{errors.jenisKelamin}</Text>
           ) : null}
+
+          <View>
+            <Text className="text-sm font-medium text-neutral-700 mb-1.5">{t('signup.dob_label')}</Text>
+            <Pressable
+              onPress={() => setShowDob(true)}
+              className={`px-4 py-3 border rounded-xl flex-row items-center justify-between bg-card ${
+                errors.tanggalLahir ? 'border-red-400' : 'border-neutral-200'
+              }`}
+            >
+              <Text className={`text-base ${tanggalLahir ? 'text-neutral-900' : 'text-neutral-400'}`}>
+                {tanggalLahir ? formatDate(tanggalLahir, i18n.language) : t('signup.dob_placeholder')}
+              </Text>
+              <CalendarIcon size={18} color={nc('#737373')} />
+            </Pressable>
+            <Text className={`text-xs mt-1 ${errors.tanggalLahir ? 'text-red-600' : 'text-neutral-500'}`}>
+              {errors.tanggalLahir ?? t('signup.dob_helper')}
+            </Text>
+          </View>
 
           <Picker
             label={t('signup.branch')}
@@ -309,11 +382,153 @@ export default function SignupDataScreen() {
         <Button
           label={t('signup.submit')}
           onPress={submit}
-          loading={mutation.isPending}
+          loading={mutation.isPending || matchMutation.isPending}
           fullWidth
           size="lg"
         />
       </View>
+
+      {showDob ? (
+        <DatePickerModal
+          value={tanggalLahir ? parseLocalDate(tanggalLahir) : new Date(1990, 0, 1)}
+          onChange={(d) => {
+            setField('tanggalLahir', toIsoDate(d));
+            setErrors((e) => ({ ...e, tanggalLahir: undefined }));
+          }}
+          onClose={() => setShowDob(false)}
+        />
+      ) : null}
+
+      {match ? (
+        <OldRecordSheet
+          match={match}
+          payload={matchPayload()}
+          registering={mutation.isPending}
+          onRegister={(claim) => mutation.mutate(claim)}
+          onClose={() => setMatch(null)}
+        />
+      ) : null}
     </SafeAreaView>
+  );
+}
+
+/**
+ * "Apakah ini Anda?" — data jemaat lama yang mirip pendaftar.
+ *   - Bisa diklaim (data lama punya email): kode dikirim ke email itu → sambungkan.
+ *   - Tidak bisa diklaim: pendaftaran lanjut, admin cabang menyatukan data.
+ *   - "Bukan saya": pendaftaran lanjut seperti biasa.
+ */
+function OldRecordSheet({
+  match,
+  payload,
+  registering,
+  onRegister,
+  onClose,
+}: {
+  match: RegisterMatch;
+  payload: RegisterMatchPayload;
+  registering: boolean;
+  onRegister: (claim?: { claimJemaatId: string; claimKode: string }) => void;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const [step, setStep] = useState<'ask' | 'noemail' | 'code'>('ask');
+  const [error, setError] = useState<string | null>(null);
+  const [otpKey, setOtpKey] = useState(0);
+
+  const sendCode = useMutation({
+    mutationFn: () => requestClaimOtp({ ...payload, claimJemaatId: match.jemaatId }),
+    onSuccess: () => {
+      setError(null);
+      setStep('code');
+      setOtpKey((k) => k + 1);
+    },
+    onError: (e) => setError(e instanceof ApiError ? e.message : t('error.network')),
+  });
+
+  const busy = registering || sendCode.isPending;
+  return (
+    <Modal visible transparent animationType="slide" onRequestClose={() => !busy && onClose()}>
+      <View className="flex-1 justify-end">
+        <Pressable onPress={() => !busy && onClose()} className="absolute inset-0 bg-black/50" />
+        <View className="bg-card rounded-t-3xl px-5 pt-4 pb-6" style={{ maxHeight: '90%' }}>
+          <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            <View className="flex-row items-center mb-4">
+              <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center mr-3">
+                <UserSearch size={18} color="#EA580C" />
+              </View>
+              <Text className="flex-1 text-base font-bold text-neutral-900">{t('signup.match_title')}</Text>
+              <Pressable onPress={() => !busy && onClose()} hitSlop={8} className="p-1">
+                <X size={20} color={nc('#737373')} />
+              </Pressable>
+            </View>
+
+            {step === 'ask' ? (
+              <>
+                <Text className="text-sm text-neutral-700 leading-5">
+                  {t('signup.match_msg', { nama: match.namaMasked, cabang: match.cabang ?? 'ECC' })}
+                </Text>
+                {error ? <Text className="text-xs text-red-600 mt-3">{error}</Text> : null}
+                <View className="mt-5 gap-2">
+                  <Button
+                    label={t('signup.match_yes')}
+                    onPress={() => (match.canClaim ? sendCode.mutate() : setStep('noemail'))}
+                    loading={sendCode.isPending}
+                    disabled={registering}
+                    fullWidth
+                    size="lg"
+                  />
+                  <Button
+                    label={t('signup.match_no')}
+                    variant="secondary"
+                    onPress={() => onRegister(undefined)}
+                    loading={registering}
+                    disabled={sendCode.isPending}
+                    fullWidth
+                    size="lg"
+                  />
+                </View>
+              </>
+            ) : step === 'noemail' ? (
+              <>
+                <Text className="text-sm text-neutral-700 leading-5">{t('signup.match_noemail_msg')}</Text>
+                <View className="mt-5">
+                  <Button label={t('signup.match_continue')} onPress={() => onRegister(undefined)} loading={registering} fullWidth size="lg" />
+                </View>
+              </>
+            ) : (
+              <>
+                <Text className="text-sm text-neutral-700 leading-5 mb-3">
+                  {t('signup.match_claim_msg', { email: match.emailMasked ?? '' })}
+                </Text>
+                <SpamHint className="mb-4" />
+                <OtpInput
+                  key={otpKey}
+                  onComplete={(kode) => {
+                    setError(null);
+                    onRegister({ claimJemaatId: match.jemaatId, claimKode: kode });
+                  }}
+                  onChange={() => setError(null)}
+                  disabled={registering}
+                />
+                {registering ? <ActivityIndicator color="#F97316" style={{ marginTop: 12 }} /> : null}
+                {error ? <Text className="text-xs text-red-600 mt-3 text-center">{error}</Text> : null}
+                <View className="flex-row justify-between mt-5">
+                  <Pressable onPress={() => onRegister(undefined)} disabled={registering} hitSlop={8}>
+                    <Text className="text-sm text-neutral-600">{t('signup.match_skip')}</Text>
+                  </Pressable>
+                  <Pressable onPress={() => sendCode.mutate()} disabled={sendCode.isPending} hitSlop={8}>
+                    <Text className="text-sm font-semibold text-brand-600">
+                      {sendCode.isPending ? t('common.loading') : t('auth.otp_resend')}
+                    </Text>
+                  </Pressable>
+                </View>
+              </>
+            )}
+          </ScrollView>
+          <SheetNavSpacer />
+        </View>
+      </View>
+    </Modal>
   );
 }

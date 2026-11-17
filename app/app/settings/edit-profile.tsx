@@ -32,6 +32,8 @@ import { env } from '@/config/env';
 import { invalidPhoneMessage, formatPhoneDisplay, normalizePhone } from '@/utils/phone';
 import { goBack } from '@/utils/nav';
 import { ChangePhoneModal } from '@/components/profile/ChangePhoneModal';
+import { ChangeEmailModal } from '@/components/profile/ChangeEmailModal';
+import { ContactBadge, ContactHint } from '@/components/profile/ContactHint';
 import { PEKERJAAN_OPTIONS, PERNIKAHAN_OPTIONS } from '@/constants/profileOptions';
 import { cekHuruf, cekNama, cekTanggalLahir, cekTanggalNikah, cekTeks, pertamaGagal } from '@/utils/inputRules';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
@@ -89,6 +91,9 @@ export default function EditProfileScreen() {
             jenisKelamin: match.jemaat.jenisKelamin ?? null,
             fotoUrl: match.jemaat.fotoUrl ?? null,
             noHp: null as string | null,
+            emailVerifiedAt: null as string | null,
+            noHpSource: null as string | null,
+            emailSource: null as string | null,
             statusPekerjaan: null as string | null,
             namaKantor: null as string | null,
             statusPernikahan: null as string | null,
@@ -105,7 +110,10 @@ export default function EditProfileScreen() {
           tanggalLahir: meQuery.data.tanggalLahir ?? null,
           jenisKelamin: meQuery.data.jenisKelamin ?? null,
           fotoUrl: meQuery.data.fotoUrl ?? null,
-          noHp: meQuery.data.noHp ?? null,
+          noHp: meQuery.data.noHp || null,
+          emailVerifiedAt: meQuery.data.emailVerifiedAt ?? null,
+          noHpSource: meQuery.data.noHpSource ?? null,
+          emailSource: meQuery.data.emailSource ?? null,
           statusPekerjaan: meQuery.data.statusPekerjaan ?? null,
           namaKantor: meQuery.data.namaKantor ?? null,
           statusPernikahan: meQuery.data.statusPernikahan ?? null,
@@ -127,6 +135,7 @@ export default function EditProfileScreen() {
   const [tglNikah, setTglNikah] = useState<Date | null>(null);
   const [showNikahPicker, setShowNikahPicker] = useState(false);
   const [phoneOpen, setPhoneOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState<null | 'change' | 'verify'>(null);
 
   useEffect(() => {
     if (sourceJemaat) {
@@ -193,9 +202,9 @@ export default function EditProfileScreen() {
         });
         return { namaLengkap: r.namaLengkap, noHpAdded };
       }
+      // Email diri sendiri diubah lewat OTP (ChangeEmailModal), bukan form ini.
       const r = await updateMyProfile({
         namaLengkap: namaLengkap.trim() || undefined,
-        email: email.trim() || undefined,
         alamat: alamat.trim() || undefined,
         tanggalLahir,
         jenisKelamin: jenisKelamin || undefined,
@@ -351,31 +360,56 @@ export default function EditProfileScreen() {
               (bisa login mandiri). */}
           {!isDependent ? (
             <>
+              <ContactHint className="mb-1" />
+
               <Field label={t('edit_profile.phone')}>
                 <Pressable
                   onPress={() => setPhoneOpen(true)}
                   className="bg-neutral-100 rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between"
                 >
-                  <Text className="text-base text-neutral-900">
-                    {sourceJemaat?.noHp ? formatPhoneDisplay(sourceJemaat.noHp) : '—'}
-                  </Text>
+                  <View className="flex-1 flex-row items-center gap-2 flex-wrap">
+                    <Text className="text-base text-neutral-900">
+                      {sourceJemaat?.noHp ? formatPhoneDisplay(sourceJemaat.noHp) : '—'}
+                    </Text>
+                    {sourceJemaat?.noHp ? <ContactBadge source={sourceJemaat.noHpSource} verified /> : null}
+                  </View>
                   <View className="flex-row items-center gap-1">
                     <Pencil size={13} color="#EA580C" />
-                    <Text className="text-xs font-semibold text-brand-600">{t('change_phone.btn')}</Text>
+                    <Text className="text-xs font-semibold text-brand-600">
+                      {sourceJemaat?.noHp ? t('change_phone.btn') : t('profile.contact_add')}
+                    </Text>
                   </View>
                 </Pressable>
                 <Text className="text-[10px] text-neutral-500 mt-1">{t('change_phone.field_hint')}</Text>
               </Field>
 
               <Field label={t('edit_profile.email')}>
-                <TextInput
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="nama@email.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  className="bg-card rounded-xl px-4 py-3 border border-neutral-200 text-base text-neutral-900"
-                />
+                <Pressable
+                  onPress={() => setEmailOpen('change')}
+                  className="bg-neutral-100 rounded-xl px-4 py-3 border border-neutral-200 flex-row items-center justify-between"
+                >
+                  <View className="flex-1 flex-row items-center gap-2 flex-wrap pr-2">
+                    <Text className="text-base text-neutral-900" numberOfLines={1}>
+                      {sourceJemaat?.email || '—'}
+                    </Text>
+                    {sourceJemaat?.email ? (
+                      <ContactBadge source={sourceJemaat.emailSource} verified={!!sourceJemaat.emailVerifiedAt} />
+                    ) : null}
+                  </View>
+                  <View className="flex-row items-center gap-1">
+                    <Pencil size={13} color="#EA580C" />
+                    <Text className="text-xs font-semibold text-brand-600">
+                      {sourceJemaat?.email ? t('change_phone.btn') : t('profile.contact_add')}
+                    </Text>
+                  </View>
+                </Pressable>
+                {sourceJemaat?.email && !sourceJemaat.emailVerifiedAt ? (
+                  <Pressable onPress={() => setEmailOpen('verify')} hitSlop={6} className="mt-1 self-start">
+                    <Text className="text-[11px] font-semibold text-brand-600">{t('change_email.verify_now')}</Text>
+                  </Pressable>
+                ) : (
+                  <Text className="text-[10px] text-neutral-500 mt-1">{t('change_email.field_hint')}</Text>
+                )}
               </Field>
             </>
           ) : (
@@ -535,6 +569,22 @@ export default function EditProfileScreen() {
           value={tglNikah ?? new Date(2010, 0, 1)}
           onChange={(d) => setTglNikah(d)}
           onClose={() => setShowNikahPicker(false)}
+        />
+      ) : null}
+
+      {!isDependent ? (
+        <ChangeEmailModal
+          key={emailOpen ?? 'closed'}
+          visible={!!emailOpen}
+          verifyOnly={emailOpen === 'verify'}
+          currentEmail={sourceJemaat?.email ?? null}
+          onClose={() => setEmailOpen(null)}
+          onChanged={async (newEmail) => {
+            setEmailOpen(null);
+            if (user) await setUser({ ...user, email: newEmail });
+            await qc.invalidateQueries({ queryKey: ['me'] });
+            showToast(t('change_email.success'), 'success');
+          }}
         />
       ) : null}
 

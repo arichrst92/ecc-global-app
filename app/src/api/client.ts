@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { env } from '@/config/env';
 import { ApiError, type ApiResponse, type ApiErrorBody } from '@/types/api';
 import { useAuthStore } from '@/stores/auth.store';
@@ -62,11 +64,19 @@ async function tryRefresh(): Promise<string | null> {
   return refreshPromise;
 }
 
+const APP_VERSION_HEADER = `${Constants.expoConfig?.version ?? '0.0.0'}/${Platform.OS}`;
+
 async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
   const { body, headers, skipAuth, isMultipart, suppressErrorReport, ...rest } = opts;
   // X-Client: mobile → server membedakan app jemaat dari portal admin
   // (mis. konten group/homecell hanya untuk anggota & PIC di app).
-  const reqHeaders: Record<string, string> = { 'X-Client': 'mobile', ...((headers as Record<string, string>) ?? {}) };
+  // X-App-Version: versi app + platform → Portal bisa melihat berapa yang masih
+  // memakai app versi lama (mis. sebelum mematikan saklar kompatibilitas).
+  const reqHeaders: Record<string, string> = {
+    'X-Client': 'mobile',
+    'X-App-Version': APP_VERSION_HEADER,
+    ...((headers as Record<string, string>) ?? {}),
+  };
 
   if (!skipAuth) {
     const { accessToken } = useAuthStore.getState();

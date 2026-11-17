@@ -122,7 +122,11 @@
       "verify_error_invalid": "This link is invalid, expired, or has already been used. Please request a new one.",
       "verify_error_rate_limited": "Too many attempts. Wait a few minutes and try again.",
       "verify_error_try_again": "Request New Link",
-      "verify_error_back_welcome": "Back to Welcome"
+      "verify_error_back_welcome": "Back to Welcome",
+      "down_msg": "The email service is having issues. Try signing in with WhatsApp OTP.",
+      "down_cta": "Sign in with WhatsApp OTP",
+      "subtitle_code": "Enter your registered email. We will send a 6-digit code to sign in.",
+      "send_code": "Send Code"
     },
     "onboarding": {
       "intro_title": "Hi, {{name}}! 👋",
@@ -158,8 +162,20 @@
       "error_dob_required": "Date of birth is required.",
       "back_to_login": "Back to Login",
       "back_to_login_confirm_title": "Back to Login?",
-      "back_to_login_confirm_body": "You will be signed out from this account. Your profile progress will not be saved. Continue?"
-    }
+      "back_to_login_confirm_body": "You will be signed out from this account. Your profile progress will not be saved. Continue?",
+      "phone_skip": "Skip, add it later",
+      "phone_skip_sub": "You can add your WhatsApp number any time in Profile → Edit."
+    },
+    "spam_hint": "Not in your Inbox? Check the Spam / Promotions folder, then mark it \"Not spam\" so future emails land in your Inbox.",
+    "otp_admin_note": "Enter the temporary sign-in code from your branch admin.",
+    "admin_code_link": "Got a code from your branch admin?",
+    "admin_code_help": "If WhatsApp and email are both having issues, your branch admin can give you a temporary sign-in code (valid for 10 minutes). Enter it in the field above.",
+    "otp_send_instead": "Send an OTP code instead",
+    "otp_sub_email": "A 6-digit code was sent to:",
+    "wa_down_title": "WhatsApp is having issues",
+    "wa_down_msg": "If you have a registered email, sign in with email. Or ask your branch admin for a temporary sign-in code.",
+    "wa_down_cta": "Sign in with email",
+    "signin_email_code_sub": "A 6-digit code is sent to your email"
   },
   "guest": {
     "banner_title": "Guest Mode",
@@ -207,7 +223,7 @@
     "data_title": "Personal Info",
     "data_sub": "Only 3 required fields. The rest can be filled in later in Profile.",
     "otp_window": "{{minutes}}:{{seconds}} left to finish registration",
-    "minimal_notice": "Other details (date of birth, address, photo) can be added after signing in, in Profile → Edit.",
+    "minimal_notice": "Other details (address, photo) can be completed after signing in, in Profile → Edit.",
     "full_name": "Full Name",
     "full_name_placeholder": "e.g. Ari Christian",
     "gender": "Gender",
@@ -229,7 +245,7 @@
     "cancel_confirm_msg": "Your entered data will be lost.",
     "error_already_registered": "This phone number is already registered. Try the Login menu.",
     "error_otp_expired_title": "OTP Expired",
-    "error_otp_expired_msg": "OTP verification exceeded 15 minutes. Please restart.",
+    "error_otp_expired_msg": "The sign-up time (60 minutes) has run out. Please start again.",
     "error_name_required": "Name must be at least 2 characters",
     "error_gender_required": "Please select gender",
     "error_branch_required": "Please select church branch",
@@ -240,8 +256,34 @@
     "error_jenis_jemaat_required": "Please choose one",
     "email_label": "Email (optional)",
     "email_placeholder": "name@email.com",
-    "email_helper": "Recommended — the OTP is also sent to your email if WhatsApp is queued, and lets you sign in with email.",
-    "email_invalid": "Invalid email format"
+    "email_helper": "Optional — lets you sign in with email when WhatsApp has issues. You can verify it later in Profile.",
+    "email_invalid": "Invalid email format",
+    "channel_label": "Sign up with",
+    "channel_whatsapp": "WhatsApp",
+    "channel_email": "Email",
+    "email_only_label": "Email",
+    "email_only_helper": "A 6-digit verification code will be sent to this email.",
+    "send_email_code": "Send Code to Email",
+    "code_sent_email": "Code sent to your email",
+    "otp_sub_email": "A 6-digit code was sent to:",
+    "wa_down_title": "WhatsApp is having issues",
+    "wa_down_msg": "We cannot send the code via WhatsApp right now. You can sign up with email now and add your WhatsApp number later in Profile.",
+    "wa_down_cta": "Sign up with email",
+    "email_down_title": "Email service is having issues",
+    "email_down_msg": "We cannot send the code to email right now. You can sign up with WhatsApp.",
+    "email_down_cta": "Sign up with WhatsApp",
+    "email_already_registered": "This email is already registered. Please choose \"Sign in with email\" on the start screen.",
+    "dob_label": "Date of Birth (recommended)",
+    "dob_placeholder": "Choose date of birth",
+    "dob_helper": "Helps us find your existing church member record so your history stays together.",
+    "match_title": "Is this you?",
+    "match_msg": "We found a member record named {{nama}} at {{cabang}} with the same date of birth. Is this your record?",
+    "match_yes": "Yes, it's me",
+    "match_no": "No, it's not me",
+    "match_noemail_msg": "Thank you. Your sign-up will continue, and the branch admin will merge your old record with this new account.",
+    "match_continue": "Continue sign-up",
+    "match_claim_msg": "We sent a code to the email on that record ({{email}}). Enter the code to connect the old record to your account.",
+    "match_skip": "Skip, create a new account"
   },
   "home": {
     "greeting": "Hi,",
@@ -319,7 +361,15 @@
     "prayer_menu_sub": "Prayer requests you sent to ECC",
     "resolusi_menu": "Yearly Resolutions",
     "resolusi_menu_sub": "Your goals and commitments this year",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "contact_hint_title": "Complete your contacts",
+    "contact_hint_email": "Your email is empty. Add it so you can still sign in when WhatsApp has issues.",
+    "contact_hint_wa": "Your WhatsApp number is empty. Add it so you can still sign in when the email service has issues.",
+    "badge_verified": "Verified",
+    "badge_unverified": "Not verified",
+    "badge_guardian": "Added by guardian",
+    "badge_admin": "Added by admin",
+    "contact_add": "Add"
   },
   "family": {
     "title": "My Family",
@@ -2245,7 +2295,9 @@
     "otp_hint": "Enter the code sent via WhatsApp to {{noHp}}.",
     "change_number": "Change number",
     "resend": "Resend code",
-    "success": "Phone number changed. Use the new number for your next login."
+    "success": "Phone number changed. Use the new number for your next login.",
+    "title_add": "Add WhatsApp Number",
+    "add_sub": "To sign in with WhatsApp OTP"
   },
   "personal_data": {
     "title": "Personal Data",
@@ -2828,5 +2880,19 @@
     "counter": "{{i}} of {{n}} announcements",
     "not_found": "Announcement not found.",
     "title": "Announcement"
+  },
+  "change_email": {
+    "title_add": "Add Email",
+    "title_change": "Change Email",
+    "title_verify": "Verify Email",
+    "current": "Current email: {{email}}",
+    "new_label": "Email address",
+    "new_helper": "A 6-digit verification code will be sent to this email.",
+    "send_code": "Send Code",
+    "otp_hint": "Enter the 6-digit code sent to {{email}}.",
+    "change_address": "Change address",
+    "success": "Email saved and verified",
+    "verify_now": "Verify this email now",
+    "field_hint": "A verified email can be used to sign in when WhatsApp has issues."
   }
 }

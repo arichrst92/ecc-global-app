@@ -46,6 +46,7 @@ import { useRouter } from 'expo-router';
 import { Avatar } from '@/components/ui/Avatar';
 import { JourneyCard } from '@/components/spiritual/JourneyCard';
 import { PersonalDataCard } from '@/components/profile/PersonalDataCard';
+import { ContactHint } from '@/components/profile/ContactHint';
 import { useMyFamily } from '@/hooks/useFamily';
 import { Button } from '@/components/ui/Button';
 import { GuestProfileView } from '@/components/GuestProfileView';
@@ -155,7 +156,7 @@ function ProfileTabAuthenticated() {
               <View className="flex-1">
                 <Text className="text-white text-lg font-bold">{user.namaLengkap}</Text>
                 <Text className="text-white/80 text-sm mb-2">
-                  {formatPhoneDisplay(user.noHp)}
+                  {user.noHp ? formatPhoneDisplay(user.noHp) : user.email ?? ''}
                 </Text>
                 <Pressable
                   onPress={() => router.push('/settings/edit-profile' as never)}
@@ -184,6 +185,8 @@ function ProfileTabAuthenticated() {
           />
         }
       >
+
+        <ContactHint className="mb-4" />
 
         {/* ============ 1. Akun & Keluarga ============ */}
         <Cluster bg="bg-brand-50" icon={<UserRound size={16} color="#EA580C" />} title={t('profile.cluster_account')} sub={t('profile.cluster_account_sub')}>

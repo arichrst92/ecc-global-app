@@ -14,6 +14,10 @@ export type MeProfile = {
   kode: string;
   noHp: string;
   email?: string | null;
+  /** Verifikasi kontak (BE 2026-12). Sumber: SELF_VERIFIED | SELF | GUARDIAN | ADMIN | LEGACY. */
+  emailVerifiedAt?: string | null;
+  noHpSource?: string | null;
+  emailSource?: string | null;
   tanggalLahir?: string | null;
   jenisKelamin?: 'L' | 'P' | null;
   alamat?: string | null;

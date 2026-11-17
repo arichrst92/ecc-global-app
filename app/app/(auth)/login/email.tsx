@@ -9,6 +9,10 @@
  *    → arahkan ke app/(auth)/email-verify.tsx (handled separately)
  *
  * Per BE notice magic-link 2026-07-28 (docs/backend-notice-magic-link-email-login.md).
+ *
+ * Web (2026-12): magic link membuka deeplink app, jadi di web dipakai kode
+ * OTP 6 digit lewat email (POST /auth/email-otp/request LOGIN_EMAIL) lalu
+ * layar /login/otp?email=… . Kode masuk dari admin cabang juga lewat layar itu.
  */
 import { useEffect, useState } from 'react';
 import {
@@ -19,15 +23,16 @@ import {
   View,
 } from 'react-native';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
-import { Redirect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CheckCircle2, Info, Mail } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle2, Info, KeyRound, Mail } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
-import { requestMagicLink, resendMagicLink } from '@/api/auth';
+import { requestEmailOtp, requestMagicLink, resendMagicLink } from '@/api/auth';
+import { SpamHint } from '@/components/auth/SpamHint';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
@@ -39,15 +44,13 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Cooldown Kirim Ulang biar user tidak spam BE (BE rate limit 5/jam per IP). */
 const RESEND_COOLDOWN_SECONDS = 60;
 
-/** Web hanya login OTP — magic link membuka deeplink app (khusus mobile). */
-export default function LoginEmailScreen() {
-  if (Platform.OS === 'web') return <Redirect href="/(auth)/welcome" />;
-  return <LoginEmailForm />;
-}
+const IS_WEB = Platform.OS === 'web';
 
-function LoginEmailForm() {
+export default function LoginEmailScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  /** Layanan email gangguan → tawarkan OTP WhatsApp. */
+  const [emailDown, setEmailDown] = useState(false);
 
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -64,14 +67,29 @@ function LoginEmailForm() {
   }, [cooldown]);
 
   const requestMutation = useMutation({
-    mutationFn: (emailInput: string) => requestMagicLink({ email: emailInput }),
-    onSuccess: () => {
+    // Web: kode OTP email. App: magic link.
+    mutationFn: async (emailInput: string) => {
+      if (IS_WEB) {
+        const r = await requestEmailOtp({ email: emailInput, purpose: 'LOGIN_EMAIL' });
+        return { otp: true as const, admin: r?.channel === 'admin' };
+      }
+      await requestMagicLink({ email: emailInput });
+      return { otp: false as const, admin: false };
+    },
+    onSuccess: (r, emailInput) => {
+      if (r.otp) {
+        router.push({ pathname: '/(auth)/login/otp', params: { email: emailInput, channel: r.admin ? 'admin' : 'email' } });
+        return;
+      }
       setSent(true);
       setCooldown(RESEND_COOLDOWN_SECONDS);
     },
     onError: (err) => {
       if (err instanceof ApiError) {
-        if (err.code === 'TOO_MANY_REQUESTS') {
+        if ((err.code as string) === 'EMAIL_UNAVAILABLE') {
+          setEmailDown(true);
+          setError(err.message);
+        } else if (err.code === 'TOO_MANY_REQUESTS') {
           setError(t('auth.email.error_rate_limited'));
         } else if (err.code === 'BAD_REQUEST' || err.code === 'VALIDATION_ERROR') {
           setError(t('auth.email.error_invalid_format'));
@@ -94,6 +112,9 @@ function LoginEmailForm() {
       // reset sent state supaya user tetap tau link sudah pernah dikirim.
       if (err instanceof ApiError && err.code === 'TOO_MANY_REQUESTS') {
         setError(t('auth.email.error_rate_limited'));
+      } else if (err instanceof ApiError && (err.code as string) === 'EMAIL_UNAVAILABLE') {
+        setEmailDown(true);
+        setError(err.message);
       } else {
         setError(t('error.network'));
       }
@@ -102,6 +123,7 @@ function LoginEmailForm() {
 
   function submit() {
     setError(null);
+    setEmailDown(false);
     const trimmed = email.trim().toLowerCase();
     if (!EMAIL_REGEX.test(trimmed)) {
       setError(t('auth.email.error_invalid_format'));
@@ -115,6 +137,32 @@ function LoginEmailForm() {
     setError(null);
     resendMutation.mutate(email.trim().toLowerCase());
   }
+
+  /** Kode masuk dari admin cabang → layar input kode (email). */
+  function useAdminCode() {
+    const trimmed = email.trim().toLowerCase();
+    if (!EMAIL_REGEX.test(trimmed)) {
+      setError(t('auth.email.error_invalid_format'));
+      return;
+    }
+    router.push({ pathname: '/(auth)/login/otp', params: { email: trimmed, channel: 'admin' } });
+  }
+
+  const emailDownBox = emailDown ? (
+    <View className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+      <Text className="text-sm text-amber-900 leading-5">{t('auth.email.down_msg')}</Text>
+      <Pressable onPress={() => router.replace('/(auth)/login')} className="mt-3 self-start rounded-lg bg-amber-600 px-3 py-2">
+        <Text className="text-sm font-semibold text-white">{t('auth.email.down_cta')}</Text>
+      </Pressable>
+    </View>
+  ) : null;
+
+  const adminLink = (
+    <Pressable onPress={useAdminCode} className="mt-5 flex-row items-center justify-center gap-1.5 py-2">
+      <KeyRound size={14} color="#EA580C" />
+      <Text className="text-sm font-semibold text-brand-600">{t('auth.admin_code_link')}</Text>
+    </Pressable>
+  );
 
   function useDifferentEmail() {
     setSent(false);
@@ -157,9 +205,10 @@ function LoginEmailForm() {
                 {t('auth.email.sent_body_prefix')}
               </Text>
               <Text className="text-neutral-900 font-semibold mb-4">{email}</Text>
-              <Text className="text-neutral-500 text-sm mb-6">
+              <Text className="text-neutral-500 text-sm mb-4">
                 {t('auth.email.sent_body_suffix')}
               </Text>
+              <SpamHint className="mb-5" />
 
               {/* Instruction card */}
               <View className="p-4 bg-brand-50 border border-brand-100 rounded-xl mb-5">
@@ -177,6 +226,7 @@ function LoginEmailForm() {
               {error ? (
                 <Text className="text-xs text-red-600 mb-3">{error}</Text>
               ) : null}
+              {emailDownBox}
 
               {/* Resend + change email actions */}
               <View className="gap-3">
@@ -199,6 +249,7 @@ function LoginEmailForm() {
                   </Text>
                 </Pressable>
               </View>
+              {adminLink}
             </>
           ) : (
             // ============ REQUEST STATE ============
@@ -210,7 +261,7 @@ function LoginEmailForm() {
                 {t('auth.email.title')}
               </Text>
               <Text className="text-neutral-500 text-sm mb-7">
-                {t('auth.email.subtitle')}
+                {IS_WEB ? t('auth.email.subtitle_code') : t('auth.email.subtitle')}
               </Text>
 
               <TextField
@@ -237,6 +288,8 @@ function LoginEmailForm() {
                   {t('auth.email.hint_legacy')}
                 </Text>
               </View>
+              {emailDownBox}
+              {adminLink}
             </>
           )}
         </ScrollView>
@@ -244,7 +297,7 @@ function LoginEmailForm() {
         {!sent ? (
           <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">
             <Button
-              label={t('auth.email.send_link')}
+              label={IS_WEB ? t('auth.email.send_code') : t('auth.email.send_link')}
               onPress={submit}
               loading={requestMutation.isPending}
               disabled={email.trim().length < 3}

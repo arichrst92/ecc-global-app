@@ -171,6 +171,8 @@ export default function OnboardingWizardScreen() {
       <AddPhoneInputStep
         initialValue={pendingNoHp}
         onBack={() => setStep('intro')}
+        // Nomor HP tidak wajib (2026-12) — bisa dilengkapi nanti di Profil.
+        onSkip={() => setStep('profile')}
         onSubmitted={(e164) => {
           setPendingNoHp(e164);
           setStep('add-phone-otp');
@@ -353,10 +355,12 @@ function StepPreview({
 function AddPhoneInputStep({
   initialValue,
   onBack,
+  onSkip,
   onSubmitted,
 }: {
   initialValue: string;
   onBack: () => void;
+  onSkip: () => void;
   onSubmitted: (e164: string) => void;
 }) {
   const { t, i18n } = useTranslation();
@@ -432,6 +436,10 @@ function AddPhoneInputStep({
             autoFocus
             editable={!mutation.isPending}
           />
+          <Pressable onPress={onSkip} className="mt-6 py-2 items-center" disabled={mutation.isPending}>
+            <Text className="text-sm font-semibold text-neutral-600">{t('auth.onboarding.phone_skip')}</Text>
+            <Text className="text-xs text-neutral-500 mt-1 text-center">{t('auth.onboarding.phone_skip_sub')}</Text>
+          </Pressable>
         </ScrollView>
 
         <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">

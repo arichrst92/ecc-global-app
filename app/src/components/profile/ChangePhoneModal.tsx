@@ -94,9 +94,9 @@ export function ChangePhoneModal({
                 <Phone size={18} color="#EA580C" />
               </View>
               <View className="flex-1">
-                <Text className="text-base font-bold text-neutral-900">{t('change_phone.title')}</Text>
+                <Text className="text-base font-bold text-neutral-900">{currentNoHp ? t('change_phone.title') : t('change_phone.title_add')}</Text>
                 <Text className="text-xs text-neutral-500">
-                  {t('change_phone.current', { noHp: currentNoHp ? formatPhoneDisplay(currentNoHp) : '—' })}
+                  {currentNoHp ? t('change_phone.current', { noHp: formatPhoneDisplay(currentNoHp) }) : t('change_phone.add_sub')}
                 </Text>
               </View>
               <Pressable onPress={close} hitSlop={8} className="p-1">

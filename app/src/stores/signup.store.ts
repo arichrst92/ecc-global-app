@@ -19,6 +19,8 @@ import type { JenisJemaat } from '@/types/auth';
  * di-assign manual di portal admin oleh staff cabang.
  */
 type SignupState = {
+  /** Saluran pendaftaran: OTP WhatsApp (nomor HP) atau OTP email. */
+  channel: 'whatsapp' | 'email';
   noHp: string;
   otpVerified: boolean;
   /** Unix ms timestamp kapan OTP verify expired (validForSeconds dari BE response) */
@@ -32,6 +34,8 @@ type SignupState = {
   email: string;
   /** OTP juga dikirim ke email (WhatsApp sedang antre). */
   otpViaEmail: boolean;
+  /** Tanggal lahir (opsional, dianjurkan) — dipakai menemukan data jemaat lama. YYYY-MM-DD. */
+  tanggalLahir: string;
 
   setNoHp: (v: string) => void;
   setOtpVerified: (validForSeconds: number) => void;
@@ -40,6 +44,7 @@ type SignupState = {
 };
 
 const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 'reset'> = {
+  channel: 'whatsapp',
   noHp: '',
   otpVerified: false,
   otpVerifiedExpiresAt: null,
@@ -49,6 +54,7 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
   jenisJemaat: '',
   email: '',
   otpViaEmail: false,
+  tanggalLahir: '',
 };
 
 export const useSignupStore = create<SignupState>((set) => ({
@@ -65,7 +71,7 @@ export const useSignupStore = create<SignupState>((set) => ({
 
 /**
  * Helper: cek apakah window OTP enrollment masih valid.
- * Per BE: 15 menit dari verify success → harus lanjut /auth/register.
+ * Per BE (2026-12): 60 menit dari verify success → harus lanjut /auth/register.
  */
 export function isOtpEnrollmentValid(state: SignupState): boolean {
   return state.otpVerified && state.otpVerifiedExpiresAt !== null && Date.now() < state.otpVerifiedExpiresAt;

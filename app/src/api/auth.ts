@@ -14,6 +14,10 @@ import type {
   RequestMagicLinkPayload,
   VerifyMagicLinkPayload,
   CompleteOnboardingPayload,
+  EmailOtpPurpose,
+  EmailEnrollmentVerifyResponse,
+  RegisterMatchPayload,
+  RegisterMatch,
 } from '@/types/auth';
 import type { User } from '@/types/api';
 
@@ -27,7 +31,8 @@ import type { User } from '@/types/api';
  */
 export function requestOtp(payload: RequestOtpPayload) {
   // data.channel ada bila OTP (juga) dikirim lewat email — WhatsApp sedang antre/terganggu.
-  return api.post<{ channel?: 'email' | 'whatsapp+email'; expiresIn?: number } | null>('/auth/otp/request', payload, {
+  // channel 'admin' = ada kode masuk dari admin cabang yang aktif (OTP tidak dikirim).
+  return api.post<{ channel?: 'email' | 'whatsapp+email' | 'admin'; expiresIn?: number } | null>('/auth/otp/request', payload, {
     skipAuth: true,
   });
 }
@@ -242,4 +247,45 @@ export function verifyOtpAddNoHp(payload: { noHp: string; kode: string }) {
  */
 export function completeOnboarding(payload: CompleteOnboardingPayload) {
   return api.post<User>('/auth/onboarding/complete', payload);
+}
+
+// ============================================================
+// Login & daftar dua saluran (BE 2026-12, docs/plan-login-daftar-dua-saluran.md)
+// ============================================================
+
+/**
+ * POST /auth/email-otp/request — kode 6 digit ke email.
+ *   ENROLLMENT_EMAIL — daftar dengan email.
+ *   LOGIN_EMAIL      — masuk dengan email lewat kode (web; juga kode admin cabang).
+ * Errors: 409 email sudah terdaftar (ENROLLMENT_EMAIL), 503 EMAIL_UNAVAILABLE /
+ * EMAIL_SIGNUP_DISABLED, 400 email sementara.
+ */
+export function requestEmailOtp(payload: { email: string; purpose: EmailOtpPurpose }) {
+  return api.post<{ channel?: 'email' | 'admin'; expiresIn?: number } | null>('/auth/email-otp/request', payload, {
+    skipAuth: true,
+  });
+}
+
+/** POST /auth/email-otp/verify (LOGIN_EMAIL) → sesi login. Kode admin cabang juga diterima. */
+export function verifyEmailOtpLogin(payload: { email: string; kode: string }) {
+  return api.post<AuthSuccessData>('/auth/email-otp/verify', { ...payload, purpose: 'LOGIN_EMAIL' }, { skipAuth: true });
+}
+
+/** POST /auth/email-otp/verify (ENROLLMENT_EMAIL) → penanda; lanjut /auth/register (otpChannel='email'). */
+export function verifyEmailOtpEnrollment(payload: { email: string; kode: string }) {
+  return api.post<EmailEnrollmentVerifyResponse>(
+    '/auth/email-otp/verify',
+    { ...payload, purpose: 'ENROLLMENT_EMAIL' },
+    { skipAuth: true },
+  );
+}
+
+/** POST /auth/register/match — cari data jemaat lama (tersamarkan). Butuh OTP daftar terverifikasi. */
+export function registerMatch(payload: RegisterMatchPayload) {
+  return api.post<{ match: RegisterMatch | null }>('/auth/register/match', payload, { skipAuth: true });
+}
+
+/** POST /auth/register/claim-otp — kirim kode ke email data lama untuk klaim. */
+export function requestClaimOtp(payload: RegisterMatchPayload & { claimJemaatId: string }) {
+  return api.post<{ emailMasked: string; expiresIn: number }>('/auth/register/claim-otp', payload, { skipAuth: true });
 }

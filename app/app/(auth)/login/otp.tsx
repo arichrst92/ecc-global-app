@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Mail, ShieldCheck } from 'lucide-react-native';
+import { ArrowLeft, KeyRound, Mail, ShieldCheck } from 'lucide-react-native';
 
 import { OtpInput } from '@/components/ui/OtpInput';
 import { useToast } from '@/components/ui/Toast';
-import { requestOtp, verifyOtpLogin } from '@/api/auth';
+import { SpamHint } from '@/components/auth/SpamHint';
+import { requestEmailOtp, requestOtp, verifyEmailOtpLogin, verifyOtpLogin } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatPhoneDisplay } from '@/utils/phone';
 import { ApiError } from '@/types/api';
@@ -17,17 +18,30 @@ import { nc } from '@/theme/ThemeRoot';
 
 const RESEND_COOLDOWN_SEC = 60;
 
+/**
+ * Layar input kode login.
+ *   ?noHp=…               — OTP WhatsApp (viaEmail=1 → kode juga dikirim ke email).
+ *   ?email=…              — kode 6 digit lewat email (web).
+ *   ?channel=admin        — kode masuk sementara dari admin cabang (OTP tidak dikirim).
+ * Kode admin cabang selalu diterima di kolom yang sama.
+ */
 export default function LoginOtpScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const showToast = useToast((s) => s.show);
   const login = useAuthStore((s) => s.login);
-  const { noHp, viaEmail: viaEmailParam } = useLocalSearchParams<{ noHp: string; viaEmail?: string }>();
+  const params = useLocalSearchParams<{ noHp?: string; email?: string; viaEmail?: string; channel?: string }>();
+  const noHp = params.noHp ?? '';
+  const email = params.email ?? '';
+  const byEmail = !noHp && !!email;
   // OTP juga dikirim ke email (WhatsApp sedang antre) → tampilkan keterangan.
-  const [viaEmail, setViaEmail] = useState(viaEmailParam === '1');
+  const [viaEmail, setViaEmail] = useState(params.viaEmail === '1');
+  const [adminMode, setAdminMode] = useState(params.channel === 'admin');
+  const [showAdminHelp, setShowAdminHelp] = useState(false);
 
-  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SEC);
+  const [cooldown, setCooldown] = useState(adminMode ? 0 : RESEND_COOLDOWN_SEC);
   const [error, setError] = useState<string | null>(null);
+  const [otpKey, setOtpKey] = useState(0);
 
   // Cooldown timer
   useEffect(() => {
@@ -37,19 +51,17 @@ export default function LoginOtpScreen() {
   }, [cooldown]);
 
   const verifyMutation = useMutation({
-    mutationFn: async (code: string) => verifyOtpLogin({ noHp, kode: code }),
+    mutationFn: async (code: string) =>
+      byEmail ? verifyEmailOtpLogin({ email, kode: code }) : verifyOtpLogin({ noHp, kode: code }),
     onSuccess: async (data) => {
       await login(data.accessToken, data.refreshToken, data.user);
       showToast(t('auth.login_success'), 'success');
       // Redirect handled di root _layout by isAuthenticated change
     },
     onError: (err) => {
+      setOtpKey((k) => k + 1);
       if (err instanceof ApiError) {
-        if (err.code === 'UNAUTHORIZED') {
-          setError(t('auth.error_otp_invalid'));
-        } else {
-          setError(err.message);
-        }
+        setError(err.code === 'UNAUTHORIZED' ? t('auth.error_otp_invalid') : err.message);
       } else {
         setError(t('error.network'));
       }
@@ -57,12 +69,19 @@ export default function LoginOtpScreen() {
   });
 
   const resendMutation = useMutation({
-    mutationFn: async () => requestOtp({ noHp, purpose: 'LOGIN' }),
+    mutationFn: async () =>
+      byEmail ? requestEmailOtp({ email, purpose: 'LOGIN_EMAIL' }) : requestOtp({ noHp, purpose: 'LOGIN' }),
     onSuccess: (data) => {
       setCooldown(RESEND_COOLDOWN_SEC);
-      const email = !!data?.channel?.includes('email');
-      if (email) setViaEmail(true);
-      showToast(email ? t('auth.otp_resent_email') : t('auth.otp_resent'), 'success');
+      if (data?.channel === 'admin') {
+        setAdminMode(true);
+        showToast(t('auth.otp_admin_note'), 'success');
+        return;
+      }
+      setAdminMode(false);
+      const toEmail = byEmail || !!data?.channel?.includes('email');
+      if (!byEmail && toEmail) setViaEmail(true);
+      showToast(toEmail ? t('auth.otp_resent_email') : t('auth.otp_resent'), 'success');
     },
     onError: (err) => {
       const msg = err instanceof ApiError ? err.message : t('error.network');
@@ -78,22 +97,29 @@ export default function LoginOtpScreen() {
         </Pressable>
       </View>
 
-      <View className="flex-1 px-6">
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         <View className="w-16 h-16 rounded-2xl bg-brand-50 items-center justify-center mb-5 mt-2">
-          <ShieldCheck size={28} color="#EA580C" />
+          {adminMode ? <KeyRound size={28} color="#EA580C" /> : byEmail ? <Mail size={28} color="#EA580C" /> : <ShieldCheck size={28} color="#EA580C" />}
         </View>
         <Text className="text-2xl font-bold text-neutral-900 mb-2">{t('auth.otp_title')}</Text>
-        <Text className="text-neutral-500 text-sm">{t('auth.otp_sub')}</Text>
-        <Text className={`text-neutral-900 font-semibold mt-1 ${viaEmail ? 'mb-4' : 'mb-7'}`}>{formatPhoneDisplay(noHp)}</Text>
+        <Text className="text-neutral-500 text-sm">
+          {adminMode ? t('auth.otp_admin_note') : byEmail ? t('auth.otp_sub_email') : t('auth.otp_sub')}
+        </Text>
+        <Text className="text-neutral-900 font-semibold mt-1 mb-4">{byEmail ? email : formatPhoneDisplay(noHp)}</Text>
 
-        {viaEmail ? (
+        {!adminMode && byEmail ? <SpamHint className="mb-6" /> : null}
+        {!adminMode && !byEmail && viaEmail ? (
           <View className="flex-row gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 mb-6">
             <Mail size={18} color="#B45309" style={{ marginTop: 1 }} />
-            <Text className="flex-1 text-sm leading-5 text-amber-900">{t('auth.otp_email_note')}</Text>
+            <Text className="flex-1 text-sm leading-5 text-amber-900">
+              {t('auth.otp_email_note')} {t('auth.spam_hint')}
+            </Text>
           </View>
         ) : null}
+        {adminMode || (!byEmail && !viaEmail) ? <View className="mb-3" /> : null}
 
         <OtpInput
+          key={otpKey}
           onComplete={(code) => {
             setError(null);
             verifyMutation.mutate(code);
@@ -107,21 +133,29 @@ export default function LoginOtpScreen() {
         {/* Resend */}
         <View className="items-center mt-8">
           {cooldown > 0 ? (
-            <Text className="text-sm text-neutral-500">
-              {t('auth.otp_resend_in', { seconds: cooldown })}
-            </Text>
+            <Text className="text-sm text-neutral-500">{t('auth.otp_resend_in', { seconds: cooldown })}</Text>
           ) : (
-            <Pressable
-              onPress={() => resendMutation.mutate()}
-              disabled={resendMutation.isPending}
-            >
+            <Pressable onPress={() => resendMutation.mutate()} disabled={resendMutation.isPending}>
               <Text className="text-sm font-semibold text-brand-600">
-                {resendMutation.isPending ? t('common.loading') : t('auth.otp_resend')}
+                {resendMutation.isPending ? t('common.loading') : adminMode ? t('auth.otp_send_instead') : t('auth.otp_resend')}
               </Text>
             </Pressable>
           )}
         </View>
-      </View>
+
+        {/* Jalan terakhir: kode dari admin cabang */}
+        {!adminMode ? (
+          <View className="items-center mt-6">
+            <Pressable onPress={() => setShowAdminHelp((v) => !v)} hitSlop={8} className="flex-row items-center gap-1.5">
+              <KeyRound size={14} color={nc('#737373')} />
+              <Text className="text-sm text-neutral-600 underline">{t('auth.admin_code_link')}</Text>
+            </Pressable>
+            {showAdminHelp ? (
+              <Text className="text-xs text-neutral-500 text-center mt-2 leading-5 px-2">{t('auth.admin_code_help')}</Text>
+            ) : null}
+          </View>
+        ) : null}
+      </ScrollView>
     </SafeAreaView>
   );
 }

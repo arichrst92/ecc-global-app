@@ -33,16 +33,24 @@ export default function LoginPhoneScreen() {
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
+  /** WhatsApp gangguan → tawarkan masuk dengan email. */
+  const [waDown, setWaDown] = useState(false);
 
   const mutation = useMutation({
     mutationFn: async (e164: string) => requestOtp({ noHp: e164, purpose: 'LOGIN' }),
     onSuccess: (data, e164) => {
       const viaEmail = !!data?.channel?.includes('email');
-      router.push({ pathname: '/(auth)/login/otp', params: { noHp: e164, viaEmail: viaEmail ? '1' : '0' } });
+      router.push({
+        pathname: '/(auth)/login/otp',
+        params: { noHp: e164, viaEmail: viaEmail ? '1' : '0', channel: data?.channel === 'admin' ? 'admin' : '' },
+      });
     },
     onError: (err) => {
       if (err instanceof ApiError) {
-        if (err.code === 'NOT_FOUND') {
+        if ((err.code as string) === 'WHATSAPP_UNAVAILABLE') {
+          setWaDown(true);
+          setError(err.message);
+        } else if (err.code === 'NOT_FOUND') {
           setError(t('auth.error_not_registered'));
         } else if (err.code === 'TOO_MANY_REQUESTS') {
           setError(t('auth.error_rate_limited'));
@@ -57,6 +65,7 @@ export default function LoginPhoneScreen() {
 
   function submit() {
     setError(null);
+    setWaDown(false);
     const e164 = normalizePhone(phone);
     if (!e164) {
       setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
@@ -111,6 +120,16 @@ export default function LoginPhoneScreen() {
             <Info size={16} color={nc('#92400e')} />
             <Text className="text-xs text-amber-800 flex-1">{t('auth.not_registered_hint')}</Text>
           </View>
+
+          {waDown ? (
+            <View className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+              <Text className="text-sm font-semibold text-amber-900">{t('auth.wa_down_title')}</Text>
+              <Text className="text-sm text-amber-900 mt-0.5 leading-5">{t('auth.wa_down_msg')}</Text>
+              <Pressable onPress={() => router.push('/(auth)/login/email')} className="mt-3 self-start rounded-lg bg-amber-600 px-3 py-2">
+                <Text className="text-sm font-semibold text-white">{t('auth.wa_down_cta')}</Text>
+              </Pressable>
+            </View>
+          ) : null}
         </ScrollView>
 
         <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">

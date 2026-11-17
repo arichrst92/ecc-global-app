@@ -373,7 +373,7 @@ export default function MinistryDetailScreen() {
                 onPress={() => setPendOpen(true)}
               />
             ) : null}
-            {coordForView ? (
+            {coordForView?.jemaat.noHp ? (
               <QuickAction
                 icon={<MessageCircle size={18} color="#16A34A" />}
                 bg={isDark() ? "rgba(34,197,94,0.2)" : "#DCFCE7"}
