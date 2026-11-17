@@ -202,7 +202,8 @@ function AppEffects() {
   // update saat login/logout/refresh tanpa wire di setiap login site.
   const authUser = useAuthStore((s) => s.user);
   useEffect(() => {
-    setReportingUser(authUser ? { noHp: authUser.noHp } : null);
+    // Akun tanpa nomor HP (daftar dengan email) → kenali lewat kode jemaat.
+    setReportingUser(authUser ? { noHp: authUser.noHp || (authUser.kode ? `kode:${authUser.kode}` : undefined) } : null);
   }, [authUser]);
 
   // Breadcrumb navigasi — supaya laporan error menunjukkan layar sebelumnya.

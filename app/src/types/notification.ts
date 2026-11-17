@@ -38,6 +38,10 @@ export type InAppNotifType =
   | 'BRANCH_CHANGE_APPROVED'
   | 'BRANCH_CHANGE_REJECTED'
   | 'ANNOUNCEMENT'
+  // Pengingat & ucapan di feed (saluran notifikasi per jenis, BE 2026-12)
+  | 'IBADAH_REMINDER'
+  | 'EVENT_REMINDER'
+  | 'BIRTHDAY_GREETING'
   // Ministry join approval (docs/backend-request-ministry-join-approval.md)
   | 'MINISTRY_JOIN_REQUESTED'
   | 'MINISTRY_JOIN_APPROVED'

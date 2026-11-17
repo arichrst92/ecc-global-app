@@ -289,6 +289,11 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'group-remove';
     case 'ANNOUNCEMENT':
       return 'megaphone';
+    case 'IBADAH_REMINDER':
+    case 'EVENT_REMINDER':
+      return 'ticket-qr';
+    case 'BIRTHDAY_GREETING':
+      return 'gift';
     default:
       return 'bell';
   }
