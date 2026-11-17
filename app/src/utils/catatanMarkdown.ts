@@ -22,6 +22,93 @@ export const IMG_LINE = /^!\[[^\]]*\]\(([^)\s]+)\)$/;
 export const imagesOf = (src: string) =>
   src.split('\n').map((l) => l.trim().match(IMG_LINE)?.[1]).filter((u): u is string => !!u);
 
+/**
+ * Tampilan editor: setiap baris gambar (`![gambar](/uploads/…)`) diganti penanda
+ * pendek mis. "[Gambar 1]" supaya kotak tulis tidak penuh URL. Teks yang
+ * disimpan tetap markdown asli. Posisi kursor dipetakan dua arah.
+ */
+type Seg = { r0: number; r1: number; d0: number; d1: number; img: boolean };
+export type ImgView = { display: string; segs: Seg[] };
+
+export function imageView(raw: string, label: (n: number) => string): ImgView {
+  const segs: Seg[] = [];
+  let display = '';
+  let r = 0;
+  let n = 0;
+  const lines = raw.split('\n');
+  lines.forEach((line, i) => {
+    const isImg = IMG_LINE.test(line.trim());
+    const shown = isImg ? label(++n) : line;
+    segs.push({ r0: r, r1: r + line.length, d0: display.length, d1: display.length + shown.length, img: isImg });
+    display += shown;
+    r += line.length;
+    if (i < lines.length - 1) {
+      segs.push({ r0: r, r1: r + 1, d0: display.length, d1: display.length + 1, img: false });
+      display += '\n';
+      r += 1;
+    }
+  });
+  return { display, segs };
+}
+
+/** Posisi tampilan → posisi teks asli (di dalam penanda gambar → sesudah gambar). */
+export function dispToRaw(v: ImgView, d: number): number {
+  for (const s of v.segs) {
+    if (d < s.d0 || d > s.d1) continue;
+    if (!s.img) return s.r0 + (d - s.d0);
+    if (d === s.d0) return s.r0;
+    return s.r1;
+  }
+  return v.segs.length ? v.segs[v.segs.length - 1].r1 : 0;
+}
+
+/** Posisi teks asli → posisi tampilan. */
+export function rawToDisp(v: ImgView, r: number): number {
+  for (const s of v.segs) {
+    if (r < s.r0 || r > s.r1) continue;
+    if (!s.img) return s.d0 + (r - s.r0);
+    if (r === s.r0) return s.d0;
+    return s.d1;
+  }
+  return v.display.length;
+}
+
+/**
+ * Terapkan perubahan teks tampilan ke teks asli. Penanda gambar diperlakukan
+ * sebagai satu kesatuan: menghapus sebagian = menghapus gambarnya; mengetik
+ * di tengah penanda = teks ditaruh sesudah gambar.
+ * Return teks asli baru + posisi kursor (koordinat asli).
+ */
+export function applyDisplayEdit(raw: string, v: ImgView, next: string): { text: string; cursor: number } {
+  const prev = v.display;
+  let p = 0;
+  const max = Math.min(prev.length, next.length);
+  while (p < max && prev[p] === next[p]) p++;
+  let s = 0;
+  while (s < max - p && prev[prev.length - 1 - s] === next[next.length - 1 - s]) s++;
+  let a = p;
+  let b = prev.length - s;
+  const ins = next.slice(p, next.length - s);
+  for (const g of v.segs) {
+    if (!g.img) continue;
+    if (a === b) {
+      if (a > g.d0 && a < g.d1) a = b = g.d1; // ketik di tengah penanda → sesudahnya
+    } else if (a < g.d1 && b > g.d0) {
+      a = Math.min(a, g.d0);
+      b = Math.max(b, g.d1);
+    }
+  }
+  const ra = dispToRaw(v, a);
+  const rb = dispToRaw(v, b);
+  // Baris gambar harus tetap satu baris sendiri: teks yang menempel → baris baru.
+  let pre = '';
+  let post = '';
+  if (ins && v.segs.some((g) => g.img && g.r1 === ra) && !ins.startsWith('\n')) pre = '\n';
+  if (ins && v.segs.some((g) => g.img && g.r0 === rb) && !ins.endsWith('\n')) post = '\n';
+  const body = pre + ins + post;
+  return { text: raw.slice(0, ra) + body + raw.slice(rb), cursor: ra + pre.length + ins.length };
+}
+
 const TOKEN = /(\*\*[^*\n]+?\*\*|==[^=\n]+?==|_[^_\n]+?_)/g;
 const WORD = /[A-Za-z0-9]/;
 /** _miring_ hanya bila tidak menempel huruf (mis. nama_file tetap polos). */

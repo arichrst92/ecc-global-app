@@ -9,8 +9,10 @@
  * Gambar (2.4.9): kamera / galeri → diunggah → disisipkan di posisi kursor
  * sebagai baris `![gambar](url)`, tampil menyatu dengan teks di Pratinjau &
  * tampilan baca; daftar gambar di atas kotak tulis (ketuk × untuk hapus).
+ * Di kotak tulis baris gambar tampil sebagai penanda pendek "[Gambar n]"
+ * (teks tersimpan tetap markdown asli) — lihat imageView().
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -55,8 +57,12 @@ import { CATATAN_KEY, createCatatan, getCatatan, updateCatatan, uploadCatatanIma
 import { useCatatanBridge, type AyatInsert } from '@/stores/catatanBridge.store';
 import { useAuthStore } from '@/stores/auth.store';
 import {
+  applyDisplayEdit,
   continueList,
+  dispToRaw,
+  imageView,
   imagesOf,
+  rawToDisp,
   insertBlock,
   toggleLinePrefix,
   wrapInline,
@@ -202,6 +208,8 @@ export default function CatatanEditScreen() {
   // ----- Gambar (kamera / galeri) -----
   const [uploading, setUploading] = useState(false);
   const images = imagesOf(isi);
+  // Kotak tulis: baris gambar → "[Gambar n]" (nomor sama dengan thumbnail).
+  const view = useMemo(() => imageView(isi, (n) => `[${t('catatan.img_token', { n })}]`), [isi, t]);
   async function addImage(source: 'camera' | 'library') {
     if (images.length >= 30) return showToast(t('catatan.img_max'), 'error');
     const perm =
@@ -253,10 +261,10 @@ export default function CatatanEditScreen() {
     requestAnimationFrame(() => bodyRef.current?.focus());
   }
 
-  function onChangeBody(next: string) {
+  function onChangeBody(nextDisplay: string) {
     touch();
-    // Kursor setelah perubahan ≈ posisi akhir seleksi lama + selisih panjang.
-    const cursor = sel.start + (next.length - isi.length) + (sel.end - sel.start);
+    // Perubahan di tampilan (penanda gambar) → teks asli + kursor (koordinat asli).
+    const { text: next, cursor } = applyDisplayEdit(isi, view, nextDisplay);
     const cont = continueList(isi, next, cursor);
     if (cont) {
       setIsi(cont.text);
@@ -264,8 +272,16 @@ export default function CatatanEditScreen() {
       setForcedSel(cont.sel);
     } else {
       setIsi(next);
+      // Penanda gambar terhapus utuh / ketikan dipindah → kursor perlu dipaksa.
+      const shownNext = imageView(next, (n) => `[${t('catatan.img_token', { n })}]`).display;
+      if (shownNext !== nextDisplay) {
+        const c = { start: cursor, end: cursor };
+        setSel(c);
+        setForcedSel(c);
+      }
     }
   }
+  const forcedDisp = forcedSel ? { start: rawToDisp(view, forcedSel.start), end: rawToDisp(view, forcedSel.end) } : undefined;
 
   // ----- Simpan -----
   const payload = (): CatatanInput => ({
@@ -419,10 +435,19 @@ export default function CatatanEditScreen() {
           </View>
 
           {tab === 'write' && (images.length || uploading) ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 8 }}>
-              {images.map((u) => (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              // Jangan ikut melar mengisi layar (web: ScrollView flexGrow 1 → kotak tulis terdorong ke bawah).
+              style={{ flexGrow: 0, flexShrink: 0 }}
+              contentContainerStyle={{ gap: 8, paddingTop: 6, paddingRight: 6, paddingBottom: 8 }}
+            >
+              {images.map((u, i) => (
                 <View key={u} style={{ width: 72, height: 72 }}>
                   <Image source={{ uri: catatanImgSrc(u) }} style={{ width: 72, height: 72, borderRadius: 10, backgroundColor: '#F5F5F5' }} />
+                  <View className="absolute left-1 bottom-1 px-1.5 rounded-md bg-neutral-900/70">
+                    <Text className="text-[10px] font-bold text-white">{i + 1}</Text>
+                  </View>
                   <Pressable
                     onPress={() => removeImage(u)}
                     hitSlop={8}
@@ -443,13 +468,14 @@ export default function CatatanEditScreen() {
           {tab === 'write' ? (
             <TextInput
               ref={bodyRef}
-              value={isi}
+              value={view.display}
               onChangeText={onChangeBody}
               onSelectionChange={(e) => {
-                setSel(e.nativeEvent.selection);
+                const d = e.nativeEvent.selection;
+                setSel({ start: dispToRaw(view, d.start), end: dispToRaw(view, d.end) });
                 if (forcedSel) setForcedSel(undefined);
               }}
-              selection={forcedSel}
+              selection={forcedDisp}
               multiline
               textAlignVertical="top"
               placeholder={t('catatan.isi_placeholder')}
