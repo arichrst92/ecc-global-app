@@ -3,18 +3,34 @@
  * hanya email tidak punya jalan masuk cadangan saat penyedia layanan
  * gangguan. Tidak memblokir — cukup tautan ke Edit Profil.
  */
+import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ShieldAlert } from 'lucide-react-native';
+import { ChevronRight, ShieldAlert, X } from 'lucide-react-native';
 
 import { useAuthStore } from '@/stores/auth.store';
+import { storage } from '@/utils/storage';
 
-export function ContactHint({ className = '' }: { className?: string }) {
+const DISMISS_KEY = 'ecc.contactHintDismissedAt';
+/** Versi Beranda yang ditutup muncul lagi setelah 30 hari. */
+const DISMISS_DAYS = 30;
+
+export function ContactHint({ className = '', dismissible = false }: { className?: string; dismissible?: boolean }) {
   const { t } = useTranslation();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  if (!user) return null;
+  const [hidden, setHidden] = useState(dismissible);
+
+  useEffect(() => {
+    if (!dismissible) return;
+    void storage.getItem(DISMISS_KEY).then((v) => {
+      const at = v ? Number(v) : 0;
+      setHidden(!!at && Date.now() - at < DISMISS_DAYS * 86_400_000);
+    });
+  }, [dismissible]);
+
+  if (!user || hidden) return null;
   const missing = !user.email ? 'email' : !user.noHp ? 'wa' : null;
   if (!missing) return null;
   return (
@@ -30,7 +46,20 @@ export function ContactHint({ className = '' }: { className?: string }) {
           {missing === 'email' ? t('profile.contact_hint_email') : t('profile.contact_hint_wa')}
         </Text>
       </View>
-      <ChevronRight size={18} color="#B45309" />
+      {dismissible ? (
+        <Pressable
+          hitSlop={10}
+          onPress={() => {
+            setHidden(true);
+            void storage.setItem(DISMISS_KEY, String(Date.now()));
+          }}
+          accessibilityLabel={t('common.close')}
+        >
+          <X size={16} color="#B45309" />
+        </Pressable>
+      ) : (
+        <ChevronRight size={18} color="#B45309" />
+      )}
     </Pressable>
   );
 }

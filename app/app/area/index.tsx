@@ -34,6 +34,7 @@ import { SegmenBadges } from '@/components/homecell/HomecellListCard';
 import { ReportSheet } from '@/components/homecell/ReportSheet';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { hariLabel } from '@/utils/hari';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 /**
  * Zona — daftar zona yang user-nya PIC atau pastor (pastor bisa punya
@@ -110,9 +111,7 @@ export default function AreaListScreen() {
           </View>
         ) : areas.length === 0 && myZona.length === 0 ? (
           <View className="items-center py-16 px-8">
-            <View className="w-20 h-20 rounded-2xl bg-neutral-100 items-center justify-center mb-3">
-              <MapPinned size={32} color={nc('#A3A3A3')} />
-            </View>
+            <ElsEmptyIcon size={80} className="mb-3" />
             <Text className="text-lg font-semibold text-neutral-700 text-center">
               {t('area.none_title')}
             </Text>

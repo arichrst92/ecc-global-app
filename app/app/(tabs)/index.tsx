@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { BookOpen, CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Newspaper, CalendarDays, Video, HeartHandshake, Ticket } from 'lucide-react-native';
+import { CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Video } from 'lucide-react-native';
 
 import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Avatar } from '@/components/ui/Avatar';
@@ -13,6 +13,7 @@ import { BranchChip } from '@/components/branch/BranchChip';
 import { GuestHomeView } from '@/components/GuestHomeView';
 import { NotificationBell } from '@/components/NotificationBell';
 import { QuickAccess } from '@/components/home/QuickAccess';
+import { ContactHint } from '@/components/profile/ContactHint';
 import { ScannerHeaderButton } from '@/components/home/ScannerHeaderButton';
 import { NowPlayingCard } from '@/components/worship/NowPlayingCard';
 import { HomecellSpotlight } from '@/components/home/HomecellSpotlight';
@@ -40,6 +41,7 @@ import { useNowTick } from '@/hooks/useNowTick';
 import { SELF_CHECKIN_GRACE_MS, isOccurrenceEnded } from '@/utils/time';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 import { rupiahShort } from '@/utils/hari';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 
 function formatTime(hhmm: string): string {
   return hhmm; // BE return "08:00" — display apa adanya
@@ -184,6 +186,8 @@ function HomeScreenAuthenticated() {
         <NowPlayingCard />
 
         <QuickAccess />
+        {/* Pengingat lengkapi kontak (email / WhatsApp) — bisa ditutup 30 hari. */}
+        <ContactHint dismissible className="mx-5 mt-4" />
 
         {/* Today's Services — render SEMUA occurrence hari ini (bukan cuma
             yang pertama). Beberapa cabang punya 2-3 ibadah per hari (mis.
@@ -235,7 +239,7 @@ function HomeScreenAuthenticated() {
             <SkeletonCard height={140} />
           ) : (
             <View className="bg-card rounded-2xl p-4 border border-neutral-100 items-center">
-              <BookOpen size={24} color={nc('#A3A3A3')} />
+              <ElsEmptyIcon size={48} />
               <Text className="text-sm text-neutral-500 mt-2">{t('home.no_devotional')}</Text>
             </View>
           )}
@@ -317,7 +321,7 @@ function HomeScreenAuthenticated() {
             <SkeletonCard height={80} />
           ) : news.length === 0 ? (
             <View className="bg-card rounded-2xl p-4 border border-neutral-100 items-center">
-              <Newspaper size={24} color={nc('#A3A3A3')} />
+              <ElsEmptyIcon size={48} />
               <Text className="text-sm text-neutral-500 mt-2">{t('home.no_news')}</Text>
             </View>
           ) : (
