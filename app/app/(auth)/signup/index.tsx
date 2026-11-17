@@ -55,7 +55,7 @@ export default function SignupPhoneScreen() {
     mutationFn: async (target: string) =>
       channel === 'email'
         ? requestEmailOtp({ email: target, purpose: 'ENROLLMENT_EMAIL' })
-        : requestOtp({ noHp: target, purpose: 'ENROLLMENT', email: email.trim() || undefined }),
+        : requestOtp({ noHp: target, purpose: 'ENROLLMENT' }),
     onSuccess: (data, target) => {
       setField('channel', channel);
       if (channel === 'email') {
@@ -65,7 +65,8 @@ export default function SignupPhoneScreen() {
         showToast(t('signup.code_sent_email'), 'success');
       } else {
         setNoHp(target);
-        setField('email', email.trim());
+        // Email tidak diminta di daftar WhatsApp — ditambahkan & diverifikasi nanti di Profil.
+        setField('email', '');
         const viaEmail = !!data?.channel?.includes('email');
         setField('otpViaEmail', viaEmail);
         showToast(viaEmail ? t('auth.otp_sent_email') : t('auth.otp_sent'), 'success');
@@ -112,10 +113,6 @@ export default function SignupPhoneScreen() {
     const e164 = normalizePhone(phone);
     if (!e164) {
       setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
-      return;
-    }
-    if (em && !EMAIL_RE.test(em)) {
-      setEmailError(t('signup.email_invalid'));
       return;
     }
     mutation.mutate(e164);
@@ -177,25 +174,6 @@ export default function SignupPhoneScreen() {
                   autoFocus
                   editable={!mutation.isPending}
                 />
-                <View className="mt-4">
-                  <TextField
-                    label={t('signup.email_label')}
-                    placeholder={t('signup.email_placeholder')}
-                    value={email}
-                    onChangeText={(v) => {
-                      setEmail(v);
-                      setEmailError(null);
-                    }}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    autoComplete="email"
-                    textContentType="emailAddress"
-                    helper={!emailError ? t('signup.email_helper') : undefined}
-                    error={emailError ?? undefined}
-                    editable={!mutation.isPending}
-                  />
-                </View>
               </>
             ) : (
               <>
