@@ -7,7 +7,8 @@
  * - Selesai / dihentikan → ringkasan + mulai putaran baru.
  */
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

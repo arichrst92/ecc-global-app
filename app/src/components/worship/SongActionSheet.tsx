@@ -1,5 +1,6 @@
 /** Menu lagu (ketuk lama / ikon titik tiga). */
-import { Modal, Pressable, Share, Text, View, ScrollView } from 'react-native';
+import { Pressable, Share, Text, View, ScrollView } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Download, Heart, ListPlus, MicVocal, Music, Play, Share2, Trash2 } from 'lucide-react-native';

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { Modal, Pressable, Text, View, ScrollView } from 'react-native';
+import { Pressable, Text, View, ScrollView } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,

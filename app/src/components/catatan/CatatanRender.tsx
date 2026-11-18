@@ -1,6 +1,7 @@
 /** Render markdown ringan Catatan saya (lihat utils/catatanMarkdown). */
 import { useState } from 'react';
-import { Image, Modal, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { X } from 'lucide-react-native';
 import { env } from '@/config/env';
 import { parseBlocks, type Inline } from '@/utils/catatanMarkdown';

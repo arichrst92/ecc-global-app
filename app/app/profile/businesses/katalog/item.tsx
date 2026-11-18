@@ -6,7 +6,8 @@
  * item tercipta. Mode ubah: foto langsung diunggah/dihapus.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';

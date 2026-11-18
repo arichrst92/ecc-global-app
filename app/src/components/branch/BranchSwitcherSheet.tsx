@@ -1,4 +1,5 @@
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Church, Info, MapPin, X } from 'lucide-react-native';

@@ -8,7 +8,8 @@
  * Petugas mendapat notifikasi & melihatnya di Jadwal Pelayanan Saya.
  */
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';

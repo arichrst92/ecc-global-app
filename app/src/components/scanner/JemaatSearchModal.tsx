@@ -13,12 +13,12 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { useQuery } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';

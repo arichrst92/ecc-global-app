@@ -4,7 +4,8 @@
  * No HP milik jemaat terdaftar → server mencatat dengan akun jemaat itu.
  */
 import { useState } from 'react';
-import { Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FlatList, Modal, Pressable, Text, View } from 'react-native';
+import { FlatList, Pressable, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check, ChevronDown, X } from 'lucide-react-native';
 import { nc } from '@/theme/ThemeRoot';

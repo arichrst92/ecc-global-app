@@ -4,7 +4,8 @@
  * Tombol: "Tidak" (tutup) dan "Ya, saya di lokasi ibadah".
  */
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import { Check, CheckCircle2, LocateFixed, MapPin, UserPlus, X } from 'lucide-react-native';
 import { formatRadius } from '@/utils/selfCheckinLocation';

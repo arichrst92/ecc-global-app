@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import {
-  Modal,
   Platform,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';

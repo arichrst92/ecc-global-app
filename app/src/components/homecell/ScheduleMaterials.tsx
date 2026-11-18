@@ -3,7 +3,8 @@
  * plus modal upload untuk PIC (nama, deskripsi, file via document picker).
  */
 import { useState } from 'react';
-import { Alert, Modal, Platform, Pressable, Text, View, ScrollView } from 'react-native';
+import { Alert, Platform, Pressable, Text, View, ScrollView } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import * as DocumentPicker from 'expo-document-picker';

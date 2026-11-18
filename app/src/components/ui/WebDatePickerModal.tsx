@@ -4,7 +4,8 @@
  * dalam modal kecil (Batal / OK).
  */
 import { createElement, useState } from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import { gx } from '@/theme/gradient';
 

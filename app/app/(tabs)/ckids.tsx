@@ -17,7 +17,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
-  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -25,6 +24,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { formatInstantDate } from '@/utils/time';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { SafeAreaView } from 'react-native-safe-area-context';

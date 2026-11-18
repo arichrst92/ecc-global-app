@@ -8,7 +8,8 @@
  *  - isi bisa digulir; tombol menempel di bawah
  */
 import { useEffect, useState } from 'react';
-import { Image, Linking, Modal, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ExternalLink, Megaphone } from 'lucide-react-native';

@@ -13,7 +13,8 @@
  * bentuk hasil sama dengan ImagePicker.launchImageLibraryAsync.
  */
 import { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Modal, PanResponder, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Image, PanResponder, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { create } from 'zustand';

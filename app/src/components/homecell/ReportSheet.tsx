@@ -4,7 +4,8 @@
  * browser dalam app (print view). Dari sana: Bagikan / Cetak → Simpan PDF.
  */
 import { useState } from 'react';
-import { ActivityIndicator, Modal, Platform, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { FileText, X } from 'lucide-react-native';

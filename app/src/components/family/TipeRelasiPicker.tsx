@@ -12,12 +12,12 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import {
   Baby,

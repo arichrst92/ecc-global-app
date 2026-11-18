@@ -12,7 +12,8 @@
  * hanya menawarkan "Bagikan teks & link" — app tidak boleh crash karena share.
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Modal, Platform, Pressable, Share, Text, View, useWindowDimensions, ScrollView } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, Share, Text, View, useWindowDimensions, ScrollView } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Download, ImageIcon, Link2, X } from 'lucide-react-native';

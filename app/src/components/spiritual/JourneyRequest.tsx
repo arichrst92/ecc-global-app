@@ -7,13 +7,13 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

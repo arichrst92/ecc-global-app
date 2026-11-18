@@ -4,7 +4,8 @@
  * sampai jam mulai ibadah.
  */
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CalendarPlus, Check, CheckCircle2, UserPlus, X } from 'lucide-react-native';

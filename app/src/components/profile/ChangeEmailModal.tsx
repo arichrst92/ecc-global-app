@@ -4,7 +4,8 @@
  * Email terverifikasi bisa dipakai untuk masuk saat WhatsApp gangguan.
  */
 import { useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';

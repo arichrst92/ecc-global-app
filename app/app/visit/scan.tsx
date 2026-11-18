@@ -15,11 +15,13 @@
 import { useState } from 'react';
 import {
   Alert,
-  Modal,
   Platform,
   Pressable,
   Text,
-  View, ScrollView } from 'react-native';
+  View,
+  ScrollView,
+} from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';

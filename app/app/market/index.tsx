@@ -9,12 +9,12 @@ import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Modal,
   Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';

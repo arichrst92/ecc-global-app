@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FlatList, Modal, Platform, Pressable, Text, View } from 'react-native';
+import { FlatList, Platform, Pressable, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { ChevronDown, X } from 'lucide-react-native';
 

@@ -3,7 +3,8 @@
  * browser di web. Disalin dari onboarding untuk dipakai bersama.
  */
 import { useEffect, useState } from 'react';
-import { Modal, Platform, Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';

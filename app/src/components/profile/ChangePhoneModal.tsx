@@ -4,7 +4,8 @@
  * nomor baru.
  */
 import { useState } from 'react';
-import { ActivityIndicator, Modal, Platform, Pressable, Text, View, ScrollView } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, Text, View, ScrollView } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';

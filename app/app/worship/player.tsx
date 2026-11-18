@@ -4,7 +4,8 @@
  * ukuran teks bisa diatur, layar tetap menyala.
  */
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, Share, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Share, Text, View, useWindowDimensions } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';

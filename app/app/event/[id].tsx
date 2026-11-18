@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Modal, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';

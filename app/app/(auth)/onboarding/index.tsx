@@ -15,13 +15,13 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';

@@ -2,7 +2,8 @@
  * Popup rekomendasi "Cari homecell terdekat" — kartu detail + aksi
  * Lihat detail / Minta bergabung.
  */
-import { Alert, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import { Clock, MapPin, Navigation, User, Users, X } from 'lucide-react-native';
 

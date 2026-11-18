@@ -4,7 +4,8 @@
  * No HP milik jemaat terdaftar → jemaat itu yang tercatat hadir.
  */
 import { useState } from 'react';
-import { Modal, Platform, Pressable, Text, View, ScrollView } from 'react-native';
+import { Platform, Pressable, Text, View, ScrollView } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useMutation } from '@tanstack/react-query';

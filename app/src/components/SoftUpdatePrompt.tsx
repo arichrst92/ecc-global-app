@@ -14,7 +14,8 @@
  * scroll di dalam sheet tidak "dicuri" responder Pressable di Android.
  */
 import { useEffect, useState } from 'react';
-import { Linking, Modal, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
