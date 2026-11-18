@@ -142,7 +142,8 @@ export function ShareCardModal({ visible, onClose, caption, renderCard, themes =
         {imageOk !== false ? (
           <View className="items-center">
             {/* collapsable={false}: Android wajib punya view native nyata untuk di-capture */}
-            <View ref={cardRef} collapsable={false} style={{ borderRadius: 12, overflow: 'hidden' }}>
+            {/* Tanpa sudut rounded: gambar hasil ekspor kotak penuh (sudut bulat = sudut transparan). */}
+            <View ref={cardRef} collapsable={false} style={{ overflow: 'hidden' }}>
               <CardCtx.Provider value={ctx}>{renderCard(theme)}</CardCtx.Provider>
             </View>
             {themes.length > 1 ? (

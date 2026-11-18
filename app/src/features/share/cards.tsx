@@ -6,9 +6,11 @@
  * Semua ukuran ditulis untuk kartu 360pt lalu dikali `k` (= size/360), jadi
  * kartu bisa ditampilkan lebih kecil di layar sempit tanpa mengubah tata letak.
  * Warna SOLID (tanpa gradient native) supaya aman di semua platform.
+ * Sudut kartu, gambar, dan label TEGAK (tidak rounded) — 2026-11.
  */
 import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { Image, Text, View } from 'react-native';
+import { env } from '@/config/env';
 import Svg, { Circle } from 'react-native-svg';
 import QRCode from 'react-native-qrcode-svg';
 import { Calendar, Church, Clock, Flame, BookOpen, MapPin, Play, Ticket } from 'lucide-react-native';
@@ -28,8 +30,18 @@ export const CardCtx = createContext<{ size: number; onImgStart: () => void; onI
 });
 const useK = () => useContext(CardCtx).size / 360;
 
+/**
+ * URL gambar dari server sering relatif (`/uploads/...`) — tanpa alamat server
+ * gambar gagal dimuat dan kartu share tampil tanpa gambar hero.
+ */
+function absoluteUrl(u: string): string {
+  if (/^(https?:|data:|file:)/i.test(u)) return u;
+  return `${env.apiBaseUrl}${u.startsWith('/') ? '' : '/'}${u}`;
+}
+
 /** Gambar jarak-jauh — melapor ke modal supaya tombol share baru aktif setelah termuat. */
-function NetImage({ uri, style }: { uri: string; style: object }) {
+function NetImage({ uri: rawUri, style }: { uri: string; style: object }) {
+  const uri = absoluteUrl(rawUri);
   const ctx = useContext(CardCtx);
   const done = useRef(false);
   useEffect(() => {
@@ -47,7 +59,7 @@ function NetImage({ uri, style }: { uri: string; style: object }) {
     done.current = true;
     ctx.onImgEnd();
   }
-  return <Image source={{ uri }} style={style} resizeMode="cover" onLoadEnd={finish} />;
+  return <Image source={{ uri }} style={style} resizeMode="cover" onLoadEnd={finish} onError={finish} />;
 }
 
 function Frame({ theme, label, cta, children }: { theme: ShareTheme; label: string; cta?: string; children: ReactNode }) {
@@ -78,7 +90,6 @@ function Frame({ theme, label, cta, children }: { theme: ShareTheme; label: stri
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: 'rgba(255,255,255,0.92)',
-          borderRadius: 10 * k,
           paddingHorizontal: 6 * k,
           height: 13 * k,
         }}
@@ -137,12 +148,12 @@ export function ArticleShareCard({
   excerpt?: string | null;
 }) {
   const k = useK();
-  const imgStyle = { width: '100%', height: 128 * k, borderRadius: 10 * k };
+  const imgStyle = { width: '100%', height: 128 * k };
   return (
     <Frame theme={theme} label={label} cta={cta}>
       {imageUrl ? <NetImage uri={imageUrl} style={imgStyle} /> : <Placeholder theme={theme} style={imgStyle} />}
       {badge ? (
-        <View style={{ alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 8 * k, paddingHorizontal: 6 * k, paddingVertical: 2 * k, marginTop: 9 * k }}>
+        <View style={{ alignSelf: 'flex-start', backgroundColor: '#fff', paddingHorizontal: 6 * k, paddingVertical: 2 * k, marginTop: 9 * k }}>
           <Text style={{ color: '#C2410C', fontSize: 7 * k, fontWeight: '700' }}>{badge}</Text>
         </View>
       ) : null}
@@ -183,7 +194,7 @@ export function EventShareCard({
 }) {
   const k = useK();
   const w = 200 * k;
-  const imgStyle = { width: w, height: (w * 2) / 3, borderRadius: 10 * k };
+  const imgStyle = { width: w, height: (w * 2) / 3 };
   const rows = [
     [Calendar, date],
     [Clock, time],
@@ -214,7 +225,6 @@ export function EventShareCard({
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: '#fff',
-          borderRadius: 14 * k,
           paddingHorizontal: 12 * k,
           height: 26 * k,
           marginTop: 10 * k,
@@ -247,7 +257,7 @@ export function SongShareCard({
 }) {
   const k = useK();
   const c = 158 * k;
-  const coverStyle = { width: c, height: c, borderRadius: 12 * k };
+  const coverStyle = { width: c, height: c };
   return (
     <Frame theme="worship" label={label} cta={tracks ? cta : undefined}>
       <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
@@ -291,7 +301,7 @@ export function AppShareCard({ url, caption, stores }: { url: string; caption: s
       <View style={{ position: 'absolute', right: -90 * k, top: -110 * k, width: 260 * k, height: 260 * k, borderRadius: 130 * k, backgroundColor: 'rgba(255,255,255,0.07)' }} />
       <Image source={APP_ICON} style={{ width: 72 * k, height: 72 * k, borderRadius: 17 * k, marginTop: 36 * k }} />
       <Text style={{ color: '#fff', fontSize: 26 * k, fontWeight: '700', marginTop: 8 * k }}>Els App</Text>
-      <View style={{ backgroundColor: '#fff', borderRadius: 10 * k, padding: 9 * k, marginTop: 14 * k }}>
+      <View style={{ backgroundColor: '#fff', padding: 9 * k, marginTop: 14 * k }}>
         <QRCode value={url} size={92 * k} backgroundColor="#FFFFFF" color="#171717" />
       </View>
       <Text style={{ color: '#fff', fontSize: 10 * k, fontWeight: '600', marginTop: 9 * k }}>{caption}</Text>
@@ -304,7 +314,6 @@ export function AppShareCard({ url, caption, stores }: { url: string; caption: s
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: 'rgba(255,255,255,0.92)',
-          borderRadius: 10 * k,
           paddingHorizontal: 6 * k,
           height: 13 * k,
         }}
