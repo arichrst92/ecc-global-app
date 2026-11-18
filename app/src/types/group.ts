@@ -109,6 +109,8 @@ export type GroupDetail = Group & {
   myJoinRequest?: { id: string; createdAt: string } | null;
   /** [PIC/admin] jumlah permintaan bergabung yang menunggu. */
   pendingJoinCount?: number;
+  /** Server menyembunyikan daftar anggota (saya belum anggota). */
+  membersHidden?: boolean;
 };
 
 /** Hasil join: langsung jadi anggota (PIC/admin) atau menunggu persetujuan. */

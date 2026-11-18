@@ -470,7 +470,13 @@ export default function GroupDetailScreen() {
               </Pressable>
             ) : null}
           </View>
-          {group.members.length === 0 ? (
+          {group.membersHidden ? (
+            // Privasi: daftar anggota hanya untuk anggota group.
+            <View className="items-center py-6 px-4">
+              <Lock size={20} color={nc('#A3A3A3')} />
+              <Text className="text-sm text-neutral-500 text-center mt-2">{t('group.members_hidden')}</Text>
+            </View>
+          ) : group.members.length === 0 ? (
             <Text className="text-sm text-neutral-500 text-center py-6">
               {t('group.no_members')}
             </Text>

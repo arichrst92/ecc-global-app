@@ -1624,6 +1624,7 @@
     "you": "Anda",
     "about": "Tentang Group",
     "members_title": "Anggota ({{count}})",
+    "members_hidden": "Daftar anggota hanya terlihat oleh anggota group. Bergabung untuk melihatnya.",
     "no_members": "Belum ada anggota terdaftar.",
     "subgroups_zero": "",
     "subgroups_one": "1 Sub-Group",

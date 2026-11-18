@@ -1628,6 +1628,7 @@
     "you": "You",
     "about": "About Group",
     "members_title": "Members ({{count}})",
+    "members_hidden": "The member list is only visible to group members. Join to see it.",
     "no_members": "No members yet.",
     "subgroups_zero": "",
     "subgroups_one": "1 Sub-Group",
