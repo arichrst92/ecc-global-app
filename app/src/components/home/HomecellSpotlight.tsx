@@ -23,6 +23,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { jamRange } from '@/utils/jamRange';
 import { SegmenBadges } from '@/components/homecell/HomecellListCard';
+import { HomecellMaterialRow } from '@/components/home/HomecellMaterialRow';
 
 const SHADOW = { shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 } as const;
 /** Lebar kartu berikutnya yang terlihat di tepi kanan (tanda bisa digeser). */
@@ -66,7 +67,8 @@ export function HomecellSpotlight() {
           next={h.nextSchedule ?? null}
           onPress={() => router.push(`/homecell/${h.id}`)}
           footer={
-            req > 0 || !h.nextSchedule ? (
+            <>
+            {req > 0 || !h.nextSchedule ? (
               <View className="flex-row items-center gap-2 mt-3 flex-wrap">
                 {req > 0 ? (
                   <Pressable
@@ -87,7 +89,10 @@ export function HomecellSpotlight() {
                   </Pressable>
                 ) : null}
               </View>
-            ) : null
+            ) : null}
+            {/* Materi homecell dari Portal (pemimpin saja). */}
+            <HomecellMaterialRow />
+            </>
           }
         />
       ),
@@ -108,7 +113,8 @@ export function HomecellSpotlight() {
           next={h.nextSchedule ?? null}
           onPress={() => router.push(`/homecell/view/${h.id}` as never)}
           footer={
-            h.picJemaat ? (
+            <>
+            {h.picJemaat ? (
               <View className="flex-row items-center gap-2 mt-3">
                 <Avatar name={h.picJemaat.namaLengkap} fotoUrl={h.picJemaat.fotoUrl} size={24} />
                 <Text className="text-xs text-neutral-600 flex-1" numberOfLines={1}>
@@ -119,7 +125,10 @@ export function HomecellSpotlight() {
                   <Text className="text-xs font-semibold text-brand-700">{h.memberCount}</Text>
                 </View>
               </View>
-            ) : null
+            ) : null}
+            {/* Asisten tampil sebagai anggota — tetap dapat materi. */}
+            <HomecellMaterialRow />
+            </>
           }
         />
       ),
@@ -365,6 +374,8 @@ function ZoneCard({ zone, onPress, style }: { zone: PicArea; onPress: () => void
           </Text>
         </View>
       ) : null}
+
+      <HomecellMaterialRow variant="zone" />
     </Pressable>
   );
 }

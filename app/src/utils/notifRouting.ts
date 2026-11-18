@@ -26,6 +26,7 @@ const KNOWN_ROUTES: RegExp[] = [
   '/doa', `/doa/${ID}`, `/doa/assigned/${ID}`, '/notifications', '/tiket', '/spiritual-journey', '/profile/my-service',
   '/profile/businesses', `/profile/businesses/${ID}`,
   `/announcement/${ID}`,
+  '/homecell-material',
 ].map((p) => new RegExp(`^${p.replace(/[()]/g, '\\$&')}/?(\\?.*)?$`));
 
 const isKnownRoute = (url: string) => KNOWN_ROUTES.some((re) => re.test(url));
@@ -91,6 +92,8 @@ function fallbackRoute(notif: InAppNotification): string | null {
   const ministryId = pickString(meta, 'ministryId');
 
   switch (notif.type) {
+    case 'HOMECELL_MATERIAL':
+      return '/homecell-material';
     case 'CKIDS_CHECKIN':
     case 'CKIDS_PICKUP':
       // Prefer parent reservasi list — punya PickupCodeCard prominent
@@ -289,6 +292,8 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'group-remove';
     case 'ANNOUNCEMENT':
       return 'megaphone';
+    case 'HOMECELL_MATERIAL':
+      return 'home-check';
     case 'IBADAH_REMINDER':
     case 'EVENT_REMINDER':
       return 'ticket-qr';

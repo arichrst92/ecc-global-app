@@ -2983,5 +2983,22 @@
     "use": "Gunakan",
     "zoom_in": "Perbesar",
     "zoom_out": "Perkecil"
+  },
+  "hcmat": {
+    "title": "Materi homecell",
+    "this_week": "Materi minggu ini",
+    "previous": "Sebelumnya",
+    "new": "Baru",
+    "new_count": "{{count}} baru",
+    "opened": "sudah dibuka",
+    "download": "unduh",
+    "files_topic_one": "{{count}} file · {{judul}}",
+    "files_topic_other": "{{count}} file · {{judul}}",
+    "zone_sub": "Materi pertemuan dari ECC untuk pemimpin",
+    "empty_title": "Belum ada materi",
+    "empty_body": "Materi pertemuan homecell dari ECC akan muncul di sini.",
+    "leaders_only": "Materi homecell hanya untuk Pastor, Zone Leader, PIC, dan Asisten homecell.",
+    "hint": "Ketuk materi untuk membuka. Dari sana file bisa disimpan atau dibagikan.",
+    "open_failed": "Materi gagal dibuka. Coba lagi."
   }
 }

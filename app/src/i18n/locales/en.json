@@ -2989,5 +2989,22 @@
     "use": "Use photo",
     "zoom_in": "Zoom in",
     "zoom_out": "Zoom out"
+  },
+  "hcmat": {
+    "title": "Homecell materials",
+    "this_week": "This week's material",
+    "previous": "Earlier",
+    "new": "New",
+    "new_count": "{{count}} new",
+    "opened": "opened",
+    "download": "download",
+    "files_topic_one": "{{count}} file · {{judul}}",
+    "files_topic_other": "{{count}} files · {{judul}}",
+    "zone_sub": "Meeting materials from ECC for leaders",
+    "empty_title": "No materials yet",
+    "empty_body": "Homecell meeting materials from ECC will appear here.",
+    "leaders_only": "Homecell materials are for zone pastors, zone leaders, homecell PICs, and assistants.",
+    "hint": "Tap a material to open it. From there you can save or share the file.",
+    "open_failed": "Couldn't open the material. Try again."
   }
 }

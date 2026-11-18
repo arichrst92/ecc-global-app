@@ -38,6 +38,7 @@ export type InAppNotifType =
   | 'BRANCH_CHANGE_APPROVED'
   | 'BRANCH_CHANGE_REJECTED'
   | 'ANNOUNCEMENT'
+  | 'HOMECELL_MATERIAL'
   // Pengingat & ucapan di feed (saluran notifikasi per jenis, BE 2026-12)
   | 'IBADAH_REMINDER'
   | 'EVENT_REMINDER'
