@@ -649,6 +649,7 @@
     "total_for_selected": "Total untuk {{count}} peserta",
     "register_confirm_multi": "Daftarkan {{count}} Peserta",
     "register_select_at_least_one": "Pilih minimal 1 peserta",
+    "register_failed_title": "Pendaftaran gagal",
     "register_partial_title": "Sebagian Berhasil",
     "register_partial_body": "Berhasil daftar: {{success}}\nGagal: {{failed}}\n\nDetail:\n{{details}}",
     "register_multi_success_title": "Pendaftaran Berhasil",

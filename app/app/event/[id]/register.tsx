@@ -179,13 +179,17 @@ export default function EventRegisterScreen() {
             return `• ${nama}: ${f.error.message}`;
           })
           .join('\n');
+        // Tidak ada yang berhasil → "Pendaftaran gagal" + alasannya saja.
+        const noneOk = data.successful.length === 0;
         Alert.alert(
-          t('event.register_partial_title'),
-          t('event.register_partial_body', {
-            success: data.successful.length,
-            failed: data.failed.length,
-            details: failLines,
-          }),
+          noneOk ? t('event.register_failed_title') : t('event.register_partial_title'),
+          noneOk
+            ? failLines
+            : t('event.register_partial_body', {
+                success: data.successful.length,
+                failed: data.failed.length,
+                details: failLines,
+              }),
           [{ text: 'OK', onPress: () => router.replace(`/event/${id}`) }],
         );
         return;

@@ -649,6 +649,7 @@
     "total_for_selected": "Total for {{count}} participants",
     "register_confirm_multi": "Register {{count}} Participants",
     "register_select_at_least_one": "Select at least 1 participant",
+    "register_failed_title": "Registration failed",
     "register_partial_title": "Partial Success",
     "register_partial_body": "Registered: {{success}}\nFailed: {{failed}}\n\nDetails:\n{{details}}",
     "register_multi_success_title": "Registration Success",
