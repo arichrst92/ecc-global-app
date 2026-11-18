@@ -28,6 +28,9 @@ type RequestOptions = Omit<RequestInit, 'body'> & {
   // endpoint yang punya local fallback (mis. /public/app-config, /public/cabang) —
   // gracefully handled di caller, no need pollute error dashboard.
   suppressErrorReport?: boolean;
+  // Kembalikan `{ data, meta }` (bukan hanya data) — untuk endpoint yang
+  // menaruh info penting di `meta` (mis. scan: alreadyCheckedIn / walkIn).
+  withMeta?: boolean;
 };
 
 let refreshPromise: Promise<string | null> | null = null;
@@ -67,7 +70,7 @@ async function tryRefresh(): Promise<string | null> {
 const APP_VERSION_HEADER = `${Constants.expoConfig?.version ?? '0.0.0'}/${Platform.OS}`;
 
 async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
-  const { body, headers, skipAuth, isMultipart, suppressErrorReport, ...rest } = opts;
+  const { body, headers, skipAuth, isMultipart, suppressErrorReport, withMeta, ...rest } = opts;
   // X-Client: mobile → server membedakan app jemaat dari portal admin
   // (mis. konten group/homecell hanya untuk anggota & PIC di app).
   // X-App-Version: versi app + platform → Portal bisa melihat berapa yang masih
@@ -108,15 +111,15 @@ async function rawRequest<T>(path: string, opts: RequestOptions): Promise<T> {
           body:
             body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
         });
-        return parseResponse<T>(retry, suppressErrorReport);
+        return parseResponse<T>(retry, suppressErrorReport, withMeta);
       }
     }
   }
 
-  return parseResponse<T>(res, suppressErrorReport);
+  return parseResponse<T>(res, suppressErrorReport, withMeta);
 }
 
-async function parseResponse<T>(res: Response, suppressErrorReport?: boolean): Promise<T> {
+async function parseResponse<T>(res: Response, suppressErrorReport?: boolean, withMeta?: boolean): Promise<T> {
   // 204 No Content — successful response dengan empty body. BE convention untuk
   // DELETE endpoints (mis. DELETE /admin/me/family/:jemaatId untuk hapus member
   // keluarga). Skip JSON parse supaya tidak throw "Invalid response".
@@ -168,6 +171,9 @@ async function parseResponse<T>(res: Response, suppressErrorReport?: boolean): P
     }
     throw new ApiError((json as ApiErrorBody).error, res.status);
   }
+  if (withMeta) {
+    return { data: json.data, meta: (json as { meta?: unknown }).meta ?? null } as T;
+  }
   return json.data;
 }
 
@@ -182,6 +188,9 @@ export const api = {
     rawRequest<T>(path, { ...opts, method: 'PATCH', body }),
   delete: <T,>(path: string, opts?: Omit<RequestOptions, 'method' | 'body'>) =>
     rawRequest<T>(path, { ...opts, method: 'DELETE' }),
+  /** POST yang mengembalikan `{ data, meta }` (meta null bila server tidak mengirim). */
+  postWithMeta: <T, M = Record<string, unknown>>(path: string, body?: unknown) =>
+    rawRequest<{ data: T; meta: M | null }>(path, { method: 'POST', body, withMeta: true }),
   upload: <T,>(path: string, formData: FormData) =>
     rawRequest<T>(path, { method: 'POST', body: formData, isMultipart: true }),
 };

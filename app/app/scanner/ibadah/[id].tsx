@@ -83,19 +83,27 @@ export default function ScannerIbadahScreen() {
     walkInMutation.mutate(
       { kode, ibadahId: id, tanggalIbadah, action },
       {
-        onSuccess: (data) => {
+        onSuccess: ({ data, meta }) => {
           setManualOpen(false);
+          if (!data?.jemaat) {
+            setResult({ kind: 'error', message: t('error.generic') });
+            return;
+          }
+          // Server 2026-11 kirim meta.alreadyDone. Server lama: anggap "sudah"
+          // bila waktu tercatatnya lebih dari 20 detik lalu (bukan scan barusan).
+          const old = (iso?: string | null) => !!iso && Date.now() - new Date(iso).getTime() > 20_000;
+          const r = data.reservasi;
           const alreadyDone =
-            (action === 'checkin' && data.reservasi.status === 'JOIN' && !!data.reservasi.joinedAt) ||
-            (action === 'checkout' &&
-              data.reservasi.status === 'COMPLETED' &&
-              !!data.reservasi.checkedOutAt) ||
-            (action === 'pickup' && !!data.reservasi.pickedUpAt);
+            meta?.alreadyDone ??
+            ((action === 'checkin' && old(r?.joinedAt)) ||
+              (action === 'checkout' && old(r?.checkedOutAt)) ||
+              (action === 'pickup' && old(r?.pickedUpAt)));
           setResult({
             kind: 'success',
             namaLengkap: data.jemaat.namaLengkap,
             fotoUrl: data.jemaat.fotoUrl,
-            walkIn: action === 'checkin',
+            // Badge Walk-in hanya untuk yang datang tanpa reservasi.
+            walkIn: action === 'checkin' && meta?.walkIn === true,
             alreadyCheckedIn: alreadyDone,
             tamu: data.tamu ?? null,
           });
@@ -189,9 +197,8 @@ export default function ScannerIbadahScreen() {
 
   function handleForce() {
     if (!pendingKode) return;
-    // Force retry walk-in checkin (mis. conflict override).
-    // BE walk-in idempotent — retry same kode = no-op kalau sudah check-in.
-    runWalkIn(pendingKode, 'checkin');
+    // Ulangi dengan mode yang SAMA (dulu selalu 'checkin' — salah saat mode checkout/pickup).
+    runWalkIn(pendingKode, mode);
   }
 
   const stats = statsQuery.data;
@@ -208,7 +215,8 @@ export default function ScannerIbadahScreen() {
       <ScannerCamera
         paused={isPaused || walkInOpen}
         onScan={handleScan}
-        onWalkInGuest={!isKidsIbadah && mode === 'checkin' ? () => setWalkInOpen(true) : undefined}
+        // Tunggu data ibadah termuat — ibadah anak tidak menerima tamu walk-in.
+        onWalkInGuest={ibadahMeta && !isKidsIbadah && mode === 'checkin' ? () => setWalkInOpen(true) : undefined}
         onManualInput={() => {
           if (mode === 'pickup') setPickupOpen(true);
           else setManualOpen(true);

@@ -4,9 +4,6 @@
  */
 
 import { api } from './client';
-import { env } from '@/config/env';
-import { useAuthStore } from '@/stores/auth.store';
-import { ApiError } from '@/types/api';
 import type {
   ScannerEvent,
   ScannerIbadah,
@@ -52,29 +49,10 @@ export async function checkinIbadah(
   ibadahId: string,
   payload: IbadahCheckinPayload,
 ): Promise<IbadahCheckinResponse> {
-  const accessToken = useAuthStore.getState().accessToken;
-  const res = await fetch(`${env.apiBaseUrl}/admin/ibadah/${ibadahId}/checkin`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  const json = (await res.json()) as
-    | { success: true; data: IbadahCheckinResult; meta?: CheckinMeta }
-    | { success: false; error: { code: string; message: string } };
-  if (!json.success) {
-    throw new ApiError(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { code: json.error.code as any, message: json.error.message },
-      res.status,
-    );
-  }
-  return {
-    data: json.data,
-    meta: json.meta ?? { alreadyCheckedIn: false },
-  };
+  // Lewat API client: batas waktu (tidak menggantung saat sinyal buruk),
+  // perpanjang token otomatis (401), dan header versi app.
+  const r = await api.postWithMeta<IbadahCheckinResult, CheckinMeta>(`/admin/ibadah/${ibadahId}/checkin`, payload);
+  return { data: r.data, meta: r.meta ?? { alreadyCheckedIn: false } };
 }
 
 type EventCheckinPayload = {
@@ -87,34 +65,13 @@ type EventCheckinResponse = {
   meta: CheckinMeta;
 };
 
-/** POST /admin/event/:id/checkin — check-in event */
+/** POST /admin/event/:id/checkin — check-in event (lewat API client: timeout + refresh token). */
 export async function checkinEvent(
   eventId: string,
   payload: EventCheckinPayload,
 ): Promise<EventCheckinResponse> {
-  const accessToken = useAuthStore.getState().accessToken;
-  const res = await fetch(`${env.apiBaseUrl}/admin/event/${eventId}/checkin`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  const json = (await res.json()) as
-    | { success: true; data: EventCheckinResult; meta?: CheckinMeta }
-    | { success: false; error: { code: string; message: string } };
-  if (!json.success) {
-    throw new ApiError(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      { code: json.error.code as any, message: json.error.message },
-      res.status,
-    );
-  }
-  return {
-    data: json.data,
-    meta: json.meta ?? { alreadyCheckedIn: false },
-  };
+  const r = await api.postWithMeta<EventCheckinResult, CheckinMeta>(`/admin/event/${eventId}/checkin`, payload);
+  return { data: r.data, meta: r.meta ?? { alreadyCheckedIn: false } };
 }
 
 /** GET /admin/ibadah/:id/checkin/stats?tanggalIbadah=YYYY-MM-DD */
@@ -164,7 +121,11 @@ export function checkoutReservasi(kode: string) {
  * pending fallback strategy (mis. lookup dulu).
  */
 export function walkInReservasi(payload: WalkInReservasiPayload) {
-  return api.post<WalkInReservasiResult>('/admin/reservasi/walk-in', payload);
+  // meta (server 2026-11): alreadyDone = sudah tercatat sebelumnya, walkIn = tanpa reservasi.
+  return api.postWithMeta<WalkInReservasiResult, { alreadyDone?: boolean; walkIn?: boolean }>(
+    '/admin/reservasi/walk-in',
+    payload,
+  );
 }
 
 /**

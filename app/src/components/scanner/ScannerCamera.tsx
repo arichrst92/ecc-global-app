@@ -39,15 +39,14 @@ export function ScannerCamera({
     const kode = data.trim().toUpperCase();
     // Normalize: BE expect 8-char alphanumeric uppercase
     if (!/^[A-Z0-9]{8}$/.test(kode)) return;
-    // Debounce: same kode within 800ms = ignore (cegah double-fire dari
-    // multiple frame). Lebih pendek dari sebelumnya supaya user bisa
-    // re-scan QR yang sama dengan cepat untuk re-print label (antisipasi
-    // kesalahan manusia, mis. label hilang/rusak).
+    // Debounce: kode yang sama dalam 3 detik = abaikan. Mencegah double-fire
+    // dan scan ulang otomatis saat QR masih di depan kamera setelah hasil
+    // ditutup (dulu 800 ms → muncul "sudah check-in" berulang).
     const now = Date.now();
     if (
       lastScanRef.current &&
       lastScanRef.current.kode === kode &&
-      now - lastScanRef.current.ts < 800
+      now - lastScanRef.current.ts < 3000
     ) {
       return;
     }
