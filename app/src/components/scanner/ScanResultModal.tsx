@@ -9,6 +9,7 @@ import {
   RotateCcw,
   ShieldAlert,
   UserCheck,
+  UserPlus,
   X,
   Zap,
 } from 'lucide-react-native';
@@ -16,9 +17,18 @@ import {
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { nc } from '@/theme/ThemeRoot';
+import type { ScanTamuInfo } from '@/types/scanner';
 
 export type ScanResultKind =
-  | { kind: 'success'; namaLengkap: string; fotoUrl?: string | null; walkIn?: boolean; alreadyCheckedIn?: boolean }
+  | {
+      kind: 'success';
+      namaLengkap: string;
+      fotoUrl?: string | null;
+      walkIn?: boolean;
+      alreadyCheckedIn?: boolean;
+      /** Tamu (bukan anggota) → badge Tamu + kategori + pengundang. */
+      tamu?: ScanTamuInfo;
+    }
   | { kind: 'not_found'; kode: string }
   | { kind: 'forbidden'; message: string }
   | { kind: 'conflict'; message: string }
@@ -44,9 +54,10 @@ export function ScanResultModal({
   useEffect(() => {
     if (!visible || !result) return;
     if (result.kind === 'success' && !result.alreadyCheckedIn) {
+      // Tamu: tampil lebih lama supaya petugas sempat menyambut / mencatat.
       const tm = setTimeout(() => {
         onScanAgain();
-      }, 2500);
+      }, result.tamu ? 5000 : 2500);
       return () => clearTimeout(tm);
     }
   }, [visible, result, onScanAgain]);
@@ -65,6 +76,7 @@ export function ScanResultModal({
               fotoUrl={result.fotoUrl}
               walkIn={result.walkIn}
               alreadyCheckedIn={result.alreadyCheckedIn}
+              tamu={result.tamu}
             />
           ) : result.kind === 'not_found' ? (
             <NotFoundContent kode={result.kode} />
@@ -122,11 +134,13 @@ function SuccessContent({
   fotoUrl,
   walkIn,
   alreadyCheckedIn,
+  tamu,
 }: {
   namaLengkap: string;
   fotoUrl?: string | null;
   walkIn?: boolean;
   alreadyCheckedIn?: boolean;
+  tamu?: ScanTamuInfo;
 }) {
   const { t } = useTranslation();
   return (
@@ -173,6 +187,21 @@ function SuccessContent({
           </View>
         ) : null}
       </View>
+      {tamu ? (
+        <View className="mt-3 w-full bg-violet-50 border border-violet-200 rounded-2xl px-3 py-2.5 flex-row items-center gap-2.5">
+          <View className="w-9 h-9 rounded-xl bg-violet-600 items-center justify-center">
+            <UserPlus size={18} color="#fff" />
+          </View>
+          <View className="flex-1 min-w-0">
+            <Text className="text-sm font-bold text-violet-900">
+              {t('scanner.tamu_title', { kategori: t(`tamu.kategori_${tamu.kategori}`) })}
+            </Text>
+            <Text className="text-xs text-violet-800" numberOfLines={2}>
+              {tamu.pengundang ? t('scanner.tamu_invited_by', { name: tamu.pengundang }) : t('scanner.tamu_walk_in')}
+            </Text>
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }

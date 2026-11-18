@@ -883,7 +883,10 @@
     "search_min": "Type at least 2 characters",
     "search_empty": "No matching members",
     "search_use_kode": "Use code {{kode}}",
-    "search_error": "Search failed. Please try again."
+    "search_error": "Search failed. Please try again.",
+    "tamu_title": "Guest · {{kategori}}",
+    "tamu_invited_by": "Invited by {{name}} — give them a warm welcome",
+    "tamu_walk_in": "Came on their own — give them a warm welcome"
   },
   "kids": {
     "badge_label": "KIDS SERVICE",

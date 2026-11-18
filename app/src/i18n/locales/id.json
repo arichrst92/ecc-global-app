@@ -883,7 +883,10 @@
     "search_min": "Ketik minimal 2 huruf atau angka",
     "search_empty": "Tidak ada jemaat yang cocok",
     "search_use_kode": "Pakai kode {{kode}}",
-    "search_error": "Gagal mencari. Coba lagi."
+    "search_error": "Gagal mencari. Coba lagi.",
+    "tamu_title": "Tamu · {{kategori}}",
+    "tamu_invited_by": "Diundang oleh {{name}} — sambut dengan hangat",
+    "tamu_walk_in": "Datang sendiri — sambut dengan hangat"
   },
   "kids": {
     "badge_label": "IBADAH ANAK",

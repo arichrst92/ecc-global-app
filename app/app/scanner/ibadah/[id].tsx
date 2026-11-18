@@ -97,6 +97,7 @@ export default function ScannerIbadahScreen() {
             fotoUrl: data.jemaat.fotoUrl,
             walkIn: action === 'checkin',
             alreadyCheckedIn: alreadyDone,
+            tamu: data.tamu ?? null,
           });
           // Kids ibadah + checkin → show toast prominent dgn kode jemput
           if (action === 'checkin' && isKidsIbadah && data.pickupCode) {

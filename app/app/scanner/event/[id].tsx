@@ -48,6 +48,7 @@ export default function ScannerEventScreen() {
             namaLengkap: data.jemaat.namaLengkap,
             fotoUrl: data.jemaat.fotoUrl,
             alreadyCheckedIn: meta.alreadyCheckedIn,
+            tamu: data.tamu ?? null,
           });
           statsQuery.refetch();
         },

@@ -134,6 +134,7 @@ export type WalkInReservasiResult = {
   ibadahNama: string;
   /** Convenience — sama dgn reservasi.pickupCode, kalau ada. */
   pickupCode?: string | null;
+  tamu?: ScanTamuInfo;
 };
 
 /**
@@ -157,11 +158,20 @@ export type ActiveTodayReservasi = {
 };
 
 /** Response data dari POST /admin/event/:id/checkin */
+/** Info tamu di hasil scan (server 2026-11; null/undefined = bukan tamu). */
+export type ScanTamuInfo = {
+  kategori: 'VISITOR' | 'NEW_COMER';
+  kategoriLabel: string;
+  /** Jemaat yang mengundang / mendaftarkan tamu ini. */
+  pengundang: string | null;
+} | null;
+
 export type EventCheckinResult = {
   id: string;
   status: 'HADIR' | string;
   attendedAt: string;
   jemaat: CheckinJemaat;
+  tamu?: ScanTamuInfo;
 };
 
 /** Meta untuk check-in response */
