@@ -35,7 +35,7 @@ export function VisitGuestModal({
   const qc = useQueryClient();
   const [nama, setNama] = useState('');
   const [noHp, setNoHp] = useState('');
-  const [kategori, setKategori] = useState<TamuKategori>('BELUM');
+  const [kategori, setKategori] = useState<TamuKategori>('VISITOR');
   const [judul, setJudul] = useState('');
   const [lokasi, setLokasi] = useState('');
   const [err, setErr] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export function VisitGuestModal({
   function reset() {
     setNama('');
     setNoHp('');
-    setKategori('BELUM');
+    setKategori('VISITOR');
     setJudul('');
     setLokasi('');
     setErr(null);

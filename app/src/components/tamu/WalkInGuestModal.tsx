@@ -45,7 +45,7 @@ export function WalkInGuestModal({
   const [bayar, setBayar] = useState<WalkInBayar>('TUNAI');
   const [nominal, setNominal] = useState('');
   const [quotaFull, setQuotaFull] = useState(false);
-  const [kategori, setKategori] = useState<TamuKategori>('BELUM');
+  const [kategori, setKategori] = useState<TamuKategori>('VISITOR');
   const e164 = normalizePhone(noHp);
   const paid = target.kind === 'event' && target.tipeBayar !== 'GRATIS';
 
@@ -89,7 +89,7 @@ export function WalkInGuestModal({
     setNoHp('');
     setNominal('');
     setBayar('TUNAI');
-    setKategori('BELUM');
+    setKategori('VISITOR');
     setQuotaFull(false);
     onClose();
   }

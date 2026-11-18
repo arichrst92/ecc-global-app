@@ -38,7 +38,7 @@ export function AddTamuModal({
   const [noHp, setNoHp] = useState('');
   const [err, setErr] = useState<string | null>(null);
   const [catatan, setCatatan] = useState('');
-  const [kategori, setKategori] = useState<TamuKategori>('BELUM');
+  const [kategori, setKategori] = useState<TamuKategori>('VISITOR');
   const e164 = normalizePhone(noHp);
 
   const mut = useMutation({
@@ -62,7 +62,7 @@ export function AddTamuModal({
     setNama('');
     setNoHp('');
     setCatatan('');
-    setKategori('BELUM');
+    setKategori('VISITOR');
     setErr(null);
   }
   function close() {
