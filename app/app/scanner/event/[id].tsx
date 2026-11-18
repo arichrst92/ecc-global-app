@@ -48,6 +48,8 @@ export default function ScannerEventScreen() {
             namaLengkap: data.jemaat.namaLengkap,
             fotoUrl: data.jemaat.fotoUrl,
             alreadyCheckedIn: meta.alreadyCheckedIn,
+            // Datang lewat 30 menit setelah mulai → dicatat sebagai walk-in.
+            walkIn: meta.walkIn === true,
             tamu: data.tamu ?? null,
           });
           statsQuery.refetch();

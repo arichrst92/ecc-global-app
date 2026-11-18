@@ -652,7 +652,19 @@ export default function EventDetailScreen() {
                 </View>
                 <View className="flex-1">
                   <Button
-                    label={familyParticipations.length > 0 ? t('event.give_again_cta') : t('event.open_web_cta')}
+                    // Belum terdaftar & pendaftaran sudah tutup / kuota penuh → tombol mati
+                    // (dulu tetap aktif lalu website yang menolak). Yang sudah terdaftar
+                    // tetap bisa "Beri lagi".
+                    label={
+                      familyParticipations.length > 0
+                        ? t('event.give_again_cta')
+                        : regClosed
+                          ? t('event.registration_closed_btn')
+                          : isFull
+                            ? t('event.quota_full')
+                            : t('event.open_web_cta')
+                    }
+                    disabled={familyParticipations.length === 0 && (regClosed || isFull)}
                     onPress={async () => {
                       // Opsi A: daftar + upload bukti BEBAS di web dengan web
                       // action token (fallback read-only kalau token gagal).
