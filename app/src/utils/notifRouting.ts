@@ -294,6 +294,9 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'megaphone';
     case 'HOMECELL_MATERIAL':
       return 'home-check';
+    case 'EVENT_PAYMENT_REJECTED':
+    case 'EVENT_CANCELLED_BY_ADMIN':
+      return 'group-remove';
     case 'IBADAH_REMINDER':
     case 'EVENT_REMINDER':
       return 'ticket-qr';

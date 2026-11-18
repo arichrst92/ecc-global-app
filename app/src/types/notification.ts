@@ -39,6 +39,8 @@ export type InAppNotifType =
   | 'BRANCH_CHANGE_REJECTED'
   | 'ANNOUNCEMENT'
   | 'HOMECELL_MATERIAL'
+  | 'EVENT_PAYMENT_REJECTED'
+  | 'EVENT_CANCELLED_BY_ADMIN'
   // Pengingat & ucapan di feed (saluran notifikasi per jenis, BE 2026-12)
   | 'IBADAH_REMINDER'
   | 'EVENT_REMINDER'
