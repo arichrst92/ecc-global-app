@@ -1253,7 +1253,13 @@
     "jadwal_n_scan": "{{count}} petugas bisa scan check-in",
     "jadwal_scan_hint_ibadah": "Ketuk \"Beri akses scan\" agar petugas bisa scan QR check-in jemaat di ibadah ini (menu Scanner di app). Ketuk lagi untuk mencabut, lalu Simpan.",
     "jadwal_scan_hint_event": "Ketuk \"Beri akses scan\" agar petugas bisa scan QR check-in peserta event ini (menu Scanner di app). Ketuk lagi untuk mencabut, lalu Simpan.",
-    "pend_not_open_notice": "Pendaftaran pelayanan ini di {{cabang}} belum dibuka. Hubungi koordinator pelayanan bila Anda ingin ikut melayani."
+    "pend_not_open_notice": "Pendaftaran pelayanan ini di {{cabang}} belum dibuka. Hubungi koordinator pelayanan bila Anda ingin ikut melayani.",
+    "tugas_label": "Tugas",
+    "tugas_pilih": "Atur tugas",
+    "tugas_belum_diatur": "Belum ada kategori tugas untuk pelayanan ini. Admin dapat menambahkannya di Portal.",
+    "tugas_step_kategori": "1. Pilih kategori (boleh lebih dari satu)",
+    "tugas_step_tugas": "2. {{kategori}} › tugas (opsional)",
+    "tugas_kosongkan": "Kosongkan tugas"
   },
   "homecell": {
     "title": "Homecell Saya",
@@ -2345,7 +2351,8 @@
     "kind_event": "Event",
     "with": "Bersama",
     "scanner": "Bertugas scan kehadiran",
-    "team_default": "Petugas tetap"
+    "team_default": "Petugas tetap",
+    "your_tugas": "Tugas Anda"
   },
   "change_phone": {
     "btn": "Ganti",

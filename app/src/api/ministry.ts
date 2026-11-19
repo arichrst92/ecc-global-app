@@ -171,8 +171,19 @@ export async function getMyServiceSchedule(
 
 export type JadwalPerson = { id: string; namaLengkap: string; fotoUrl: string | null };
 export type JadwalRole = { id: string; nama: string; level: number };
+/** 2.5.0 — bagian/tugas petugas (snapshot nama dari server). */
+export type TugasEntry = { kategoriId: string; kategori: string; ikon: string | null; tugasId: string | null; tugas: string | null };
+export type TugasPilihan = { kategoriId: string; tugasId: string | null };
+export type TugasKategori = { id: string; nama: string; ikon: string | null; tugas: { id: string; nama: string }[] };
 /** canScanAttendance: akses scan check-in (absensi) di ibadah / event ini (BE 2026-12). */
-export type JadwalPetugas = { id: string; jemaat: JadwalPerson; role: JadwalRole; canScanAttendance?: boolean };
+export type JadwalPetugas = {
+  id: string;
+  jemaat: JadwalPerson;
+  role: JadwalRole;
+  canScanAttendance?: boolean;
+  /** 2.5.0 — server lama tidak mengirim. */
+  tugas?: TugasEntry[];
+};
 export type JadwalIbadah = {
   key: string;
   ibadahId: string;
@@ -194,14 +205,32 @@ export type JadwalEvent = {
   petugas: JadwalPetugas[];
 };
 export type MinistryJadwal = {
-  pelayanan: { id: string; nama: string; ikon?: string | null; warna?: string | null; roles: JadwalRole[] };
+  pelayanan: {
+    id: string;
+    nama: string;
+    ikon?: string | null;
+    warna?: string | null;
+    roles: JadwalRole[];
+    /** 2.5.0 — pilihan Kategori → Tugas (kosong/tidak ada = fitur belum dipakai). */
+    tugasKategori?: TugasKategori[];
+  };
   cabang: { id: string; nama: string }[];
   cabangId: string | null;
   ibadah: JadwalIbadah[];
   events: JadwalEvent[];
   members: { jemaat: JadwalPerson & { cabang: { id: string; nama: string } }; role: JadwalRole }[];
 };
-export type PetugasInput = { jemaatId: string; pelayananRoleId: string; canScanAttendance?: boolean };
+export type PetugasInput = {
+  jemaatId: string;
+  pelayananRoleId: string;
+  canScanAttendance?: boolean;
+  /** 2.5.0 — tidak dikirim = pertahankan; [] = kosongkan. */
+  tugas?: TugasPilihan[];
+};
+
+/** "Sound › Mixer, Multimedia" */
+export const tugasText = (list?: TugasEntry[] | null) =>
+  (list ?? []).map((t) => (t.tugas ? `${t.kategori} › ${t.tugas}` : t.kategori)).join(', ');
 
 /** GET /admin/ministry/:id/jadwal — hanya pemegang otoritas (per cabang). */
 export function getMinistryJadwal(id: string, cabangId?: string | null) {

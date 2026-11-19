@@ -1253,7 +1253,13 @@
     "jadwal_n_scan": "{{count}} servants can scan check-in",
     "jadwal_scan_hint_ibadah": "Tap \"Give scan access\" so the servant can scan members' check-in QR at this service (Scanner menu in the app). Tap again to revoke, then Save.",
     "jadwal_scan_hint_event": "Tap \"Give scan access\" so the servant can scan participants' check-in QR at this event (Scanner menu in the app). Tap again to revoke, then Save.",
-    "pend_not_open_notice": "Sign-ups for this ministry in {{cabang}} are not open yet. Contact the ministry coordinator if you would like to serve."
+    "pend_not_open_notice": "Sign-ups for this ministry in {{cabang}} are not open yet. Contact the ministry coordinator if you would like to serve.",
+    "tugas_label": "Assignment",
+    "tugas_pilih": "Set assignment",
+    "tugas_belum_diatur": "No assignment categories for this ministry yet. An admin can add them in the Portal.",
+    "tugas_step_kategori": "1. Pick categories (multiple allowed)",
+    "tugas_step_tugas": "2. {{kategori}} › task (optional)",
+    "tugas_kosongkan": "Clear assignment"
   },
   "homecell": {
     "title": "My Homecells",
@@ -2351,7 +2357,8 @@
     "kind_event": "Event",
     "with": "With",
     "scanner": "Assigned to scan attendance",
-    "team_default": "Regular team"
+    "team_default": "Regular team",
+    "your_tugas": "Your assignment"
   },
   "change_phone": {
     "btn": "Change",

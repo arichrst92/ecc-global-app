@@ -10,10 +10,10 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CalendarDays, Church, Clock, MapPin, ScanLine, StickyNote, Ticket, Users } from 'lucide-react-native';
+import { ArrowLeft, CalendarDays, Church, ClipboardList, Clock, MapPin, ScanLine, StickyNote, Ticket, Users } from 'lucide-react-native';
 
 import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
-import { getMyServiceSchedule } from '@/api/ministry';
+import { getMyServiceSchedule, tugasText } from '@/api/ministry';
 import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { useVenueTz } from '@/hooks/useVenueTz';
@@ -183,6 +183,20 @@ function Row({ icon, text }: { icon: React.ReactNode; text: string }) {
   );
 }
 
+/** 2.5.0 — bagian/tugas yang ditetapkan koordinator. */
+function TugasRow({ text }: { text: string }) {
+  const { t } = useTranslation();
+  return (
+    <View className="flex-row items-start gap-2 mt-2 px-3 py-2 rounded-xl bg-brand-50 border border-brand-100">
+      <ClipboardList size={14} color="#EA580C" style={{ marginTop: 1 }} />
+      <View className="flex-1">
+        <Text className="text-[10px] font-semibold text-brand-700 uppercase">{t('service.your_tugas')}</Text>
+        <Text className="text-xs font-semibold text-neutral-900">{text}</Text>
+      </View>
+    </View>
+  );
+}
+
 function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; onPress: () => void }) {
   const { t } = useTranslation();
   return (
@@ -200,6 +214,7 @@ function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; o
         </View>
       </View>
       <RoleBadge posisi={a.posisi} ministry={a.ministryNama} ikon={a.ministryIkon} warna={a.ministryWarna} />
+      {a.tugas?.length ? <TugasRow text={tugasText(a.tugas)} /> : null}
       {a.ibadahJamMulai ? (
         <Row
           icon={<Clock size={13} color={nc('#737373')} />}
@@ -211,7 +226,9 @@ function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; o
       {a.coServants.length > 0 ? (
         <Row
           icon={<Users size={13} color={nc('#737373')} />}
-          text={`${t('service.with')}: ${a.coServants.map((c) => `${c.namaLengkap} (${c.posisi})`).join(', ')}`}
+          text={`${t('service.with')}: ${a.coServants
+            .map((c) => `${c.namaLengkap} (${c.posisi}${c.tugas?.length ? ` · ${tugasText(c.tugas)}` : ''})`)
+            .join(', ')}`}
         />
       ) : null}
     </Pressable>
@@ -233,6 +250,7 @@ function EventDuty({ e, onPress }: { e: MyEventDuty; onPress: () => void }) {
         </View>
       </View>
       <RoleBadge posisi={e.posisi} ministry={e.ministryNama} ikon={e.ministryIkon} warna={e.ministryWarna} />
+      {e.tugas?.length ? <TugasRow text={tugasText(e.tugas)} /> : null}
       {e.jamMulai ? (
         <Row icon={<Clock size={13} color={nc('#737373')} />} text={zoneTimeText(e.jamMulai, e.jamSelesai, tz, i18nInst.language)} />
       ) : null}

@@ -1,3 +1,4 @@
+import type { TugasEntry } from '@/api/ministry';
 // Ministry Schedule / Roster types — mobile-side per
 // `docs/backend-request-ministry-schedule-roster.md` (2026-09-02), updated
 // per `docs/be-update-2026-09-02-event-window-and-ministry-schedule.md`
@@ -53,6 +54,8 @@ export type MyMinistryAssignment = {
   posisi: string;
   posisiLevel: number;
   notes: string | null;
+  /** 2.5.0 — bagian/tugas saya (server lama tidak mengirim). */
+  tugas?: TugasEntry[];
   /** ROSTER = dijadwalkan leader; TIM_IBADAH = petugas tetap ibadah (BE 2026-10-17). */
   source?: 'ROSTER' | 'TIM_IBADAH';
   coServants: Array<{
@@ -60,6 +63,7 @@ export type MyMinistryAssignment = {
     namaLengkap: string;
     fotoUrl: string | null;
     posisi: string;
+    tugas?: TugasEntry[];
   }>;
 };
 
@@ -83,4 +87,6 @@ export type MyEventDuty = {
   posisiLevel: number;
   canScanAttendance: boolean;
   catatan: string | null;
+  /** 2.5.0 — bagian/tugas saya. */
+  tugas?: TugasEntry[];
 };

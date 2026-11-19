@@ -15,7 +15,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CalendarDays, ChevronRight, Plus, RotateCcw, ScanLine, Search, UserCheck, Users, X } from 'lucide-react-native';
+import { ArrowLeft, CalendarDays, ChevronRight, ClipboardList, Plus, RotateCcw, ScanLine, Search, UserCheck, Users, X } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
@@ -31,7 +31,10 @@ import {
   type JadwalIbadah,
   type JadwalRole,
   type MinistryJadwal,
+  type TugasEntry,
+  type TugasPilihan,
 } from '@/api/ministry';
+import { TugasPicker, tugasPilihanText } from '@/components/ministry/TugasPicker';
 import { ApiError } from '@/types/api';
 import { formatDateWithDay } from '@/utils/date';
 import { goBack } from '@/utils/nav';
@@ -39,7 +42,16 @@ import { gx } from '@/theme/gradient';
 import { isDark, nc } from '@/theme/ThemeRoot';
 
 type Editing = { kind: 'ibadah'; item: JadwalIbadah } | { kind: 'event'; item: JadwalEvent };
-type Draft = { jemaatId: string; namaLengkap: string; fotoUrl: string | null; roleId: string; canScan: boolean };
+type Draft = {
+  jemaatId: string;
+  namaLengkap: string;
+  fotoUrl: string | null;
+  roleId: string;
+  canScan: boolean;
+  /** 2.5.0 — pilihan bagian/tugas + snapshot nama lama (untuk pilihan yang sudah nonaktif). */
+  tugas: TugasPilihan[];
+  tugasSnap: TugasEntry[];
+};
 
 export default function MinistryJadwalScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -250,12 +262,19 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
     fotoUrl: p.jemaat.fotoUrl,
     roleId: p.role.id,
     canScan: !!p.canScanAttendance,
+    tugas: (p.tugas ?? []).map((x) => ({ kategoriId: x.kategoriId, tugasId: x.tugasId })),
+    tugasSnap: p.tugas ?? [],
   }));
+  // Server lama tidak mengirim tugasKategori → fitur tugas disembunyikan & tidak dikirim.
+  const tugasOpts = data.pelayanan.tugasKategori;
+  const tugasOn = Array.isArray(tugasOpts);
+  const [tugasFor, setTugasFor] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft[]>(init);
   const [scope, setScope] = useState<'TANGGAL' | 'DEFAULT'>('TANGGAL');
   const [picking, setPicking] = useState(false);
   const [roleFor, setRoleFor] = useState<string | null>(null);
-  const sig = (l: Draft[]) => JSON.stringify(l.map((x) => [x.jemaatId, x.roleId, x.canScan]));
+  const sig = (l: Draft[]) =>
+    JSON.stringify(l.map((x) => [x.jemaatId, x.roleId, x.canScan, x.tugas.map((g) => `${g.kategoriId}:${g.tugasId ?? ''}`).sort()]));
   const dirty = sig(draft) !== sig(init);
 
   const tanggal = editing.kind === 'ibadah' ? editing.item.tanggal : editing.item.tanggalMulai.slice(0, 10);
@@ -267,7 +286,12 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
 
   const save = useMutation({
     mutationFn: async (mode: 'SAVE' | 'RESET') => {
-      const petugas = draft.map((x) => ({ jemaatId: x.jemaatId, pelayananRoleId: x.roleId, canScanAttendance: x.canScan }));
+      const petugas = draft.map((x) => ({
+        jemaatId: x.jemaatId,
+        pelayananRoleId: x.roleId,
+        canScanAttendance: x.canScan,
+        ...(tugasOn ? { tugas: x.tugas } : {}),
+      }));
       if (editing.kind === 'event') return saveEventJadwal(ministryId, editing.item.eventId, petugas);
       return saveIbadahJadwal(ministryId, editing.item.ibadahId, {
         tanggal,
@@ -318,7 +342,15 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
             tanggal={tanggal}
             taken={new Set(draft.map((x) => x.jemaatId))}
             onPick={(m) => {
-              setDraft((cur) => [...cur, { jemaatId: m.jemaat.id, namaLengkap: m.jemaat.namaLengkap, fotoUrl: m.jemaat.fotoUrl, roleId: m.role.id, canScan: false }]);
+              setDraft((cur) => [...cur, {
+                  jemaatId: m.jemaat.id,
+                  namaLengkap: m.jemaat.namaLengkap,
+                  fotoUrl: m.jemaat.fotoUrl,
+                  roleId: m.role.id,
+                  canScan: false,
+                  tugas: [],
+                  tugasSnap: [],
+                }]);
               setPicking(false);
             }}
             onBack={() => setPicking(false)}
@@ -369,7 +401,12 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
                             {x.namaLengkap}
                           </Text>
                           <View className="flex-row flex-wrap items-center gap-2 mt-0.5">
-                            <Pressable onPress={() => setRoleFor(roleFor === x.jemaatId ? null : x.jemaatId)}>
+                            <Pressable
+                              onPress={() => {
+                                setTugasFor(null);
+                                setRoleFor(roleFor === x.jemaatId ? null : x.jemaatId);
+                              }}
+                            >
                               <Text className="text-xs font-semibold text-brand-700">
                                 {roleById.get(x.roleId)?.nama ?? '—'} ▾
                               </Text>
@@ -390,6 +427,25 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
                               </Text>
                             </Pressable>
                           </View>
+                          {/* 2.5.0 — bagian/tugas: ketuk untuk memilih Kategori → Tugas. */}
+                          {tugasOn ? (
+                            <Pressable
+                              onPress={() => {
+                                setRoleFor(null);
+                                setTugasFor(tugasFor === x.jemaatId ? null : x.jemaatId);
+                              }}
+                              className="flex-row items-center gap-1 mt-1 self-start"
+                              accessibilityLabel={t('ministry.tugas_label')}
+                            >
+                              <ClipboardList size={11} color={x.tugas.length ? '#EA580C' : nc('#A3A3A3')} />
+                              <Text
+                                className={`text-[11px] ${x.tugas.length ? 'font-semibold text-neutral-800' : 'text-neutral-500'}`}
+                                numberOfLines={2}
+                              >
+                                {x.tugas.length ? tugasPilihanText(x.tugas, tugasOpts ?? [], x.tugasSnap) : t('ministry.tugas_pilih')} ▾
+                              </Text>
+                            </Pressable>
+                          ) : null}
                         </View>
                         <Pressable
                           onPress={() => setDraft((cur) => cur.filter((y) => y.jemaatId !== x.jemaatId))}
@@ -407,6 +463,13 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
                             setDraft((cur) => cur.map((y) => (y.jemaatId === x.jemaatId ? { ...y, roleId: rid } : y)));
                             setRoleFor(null);
                           }}
+                        />
+                      ) : null}
+                      {tugasOn && tugasFor === x.jemaatId ? (
+                        <TugasPicker
+                          options={tugasOpts ?? []}
+                          value={x.tugas}
+                          onChange={(v) => setDraft((cur) => cur.map((y) => (y.jemaatId === x.jemaatId ? { ...y, tugas: v } : y)))}
                         />
                       ) : null}
                     </View>
