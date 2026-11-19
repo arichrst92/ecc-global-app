@@ -8,6 +8,8 @@ import { Check } from 'lucide-react-native';
 
 import type { TugasEntry, TugasKategori, TugasPilihan } from '@/api/ministry';
 import { gx } from '@/theme/gradient';
+import { nc } from '@/theme/ThemeRoot';
+import { ministryIconComponent } from '@/components/ministry/MinistryIcon';
 
 /** Label "Kategori › Tugas" dari pilihan; nama diambil dari opsi aktif atau snapshot lama. */
 export function tugasPilihanText(value: TugasPilihan[], options: TugasKategori[], snapshot: TugasEntry[] = []) {
@@ -69,7 +71,14 @@ export function TugasPicker({
               accessibilityState={{ checked: on }}
               {...gx(`flex-row items-center gap-1 px-2.5 py-1 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`)}
             >
-              {on ? <Check size={11} color="#fff" /> : null}
+              {on ? (
+                <Check size={11} color="#fff" />
+              ) : k.ikon ? (
+                (() => {
+                  const I = ministryIconComponent(k.ikon);
+                  return <I size={12} color={nc('#525252')} />;
+                })()
+              ) : null}
               <Text className={`text-[11px] font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>{k.nama}</Text>
             </Pressable>
           );
