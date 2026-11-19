@@ -265,9 +265,10 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
     tugas: (p.tugas ?? []).map((x) => ({ kategoriId: x.kategoriId, tugasId: x.tugasId })),
     tugasSnap: p.tugas ?? [],
   }));
-  // Server lama tidak mengirim tugasKategori → fitur tugas disembunyikan & tidak dikirim.
+  // Server lama tidak mengirim tugasKategori, atau pelayanan belum punya kategori →
+  // fitur tugas disembunyikan & tidak dikirim (tugas lama dipertahankan server).
   const tugasOpts = data.pelayanan.tugasKategori;
-  const tugasOn = Array.isArray(tugasOpts);
+  const tugasOn = (tugasOpts?.length ?? 0) > 0;
   const [tugasFor, setTugasFor] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft[]>(init);
   const [scope, setScope] = useState<'TANGGAL' | 'DEFAULT'>('TANGGAL');

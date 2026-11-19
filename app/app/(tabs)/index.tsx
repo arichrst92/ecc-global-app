@@ -35,6 +35,7 @@ import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
 import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
+import { tugasText } from '@/api/ministry';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
@@ -614,7 +615,8 @@ function MyScheduleRow({
           tz: item.e.cabang?.timezone,
           lang,
         })} · ${item.e.judul}`;
-  const posisi = item.kind === 'ibadah' ? item.a.posisi : item.e.posisi;
+  const tugas = tugasText(item.kind === 'ibadah' ? item.a.tugas : item.e.tugas);
+  const posisi = `${item.kind === 'ibadah' ? item.a.posisi : item.e.posisi}${tugas ? ` · ${tugas}` : ''}`;
   const ministry = item.kind === 'ibadah' ? item.a.ministryNama : item.e.ministryNama;
   const mIkon = item.kind === 'ibadah' ? item.a.ministryIkon : item.e.ministryIkon;
   const mWarna = item.kind === 'ibadah' ? item.a.ministryWarna : item.e.ministryWarna;
