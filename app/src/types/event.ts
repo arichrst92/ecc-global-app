@@ -1,3 +1,4 @@
+import type { TugasEntry } from '@/api/ministry';
 // Event types per mobile-api-guide section 5 + 15
 
 export type TipeBayar = 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS';
@@ -60,6 +61,9 @@ export type EventDetail = EventListItem & {
     pelayananWarna: string | null;
     role: string;
     jemaat: { id: string; namaLengkap: string; fotoUrl: string | null };
+    /** 2.5.0 — bagian/tugas; hanya untuk petugas pelayanan itu & koordinatornya. */
+    tugas?: TugasEntry[];
+    isMe?: boolean;
   }>;
   qrisImageUrl?: string | null;
   bankNama?: string | null;

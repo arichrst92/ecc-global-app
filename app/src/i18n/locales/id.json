@@ -747,7 +747,8 @@
     "team_all_other": "Lihat semua ({{count}})",
     "team_all": "Lihat semua ({{count}})",
     "team_less": "Tampilkan lebih sedikit",
-    "online_badge": "Online"
+    "online_badge": "Online",
+    "team_you": "(Anda)"
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

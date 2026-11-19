@@ -1,3 +1,4 @@
+import type { TugasEntry } from '@/api/ministry';
 // Ibadah & calendar types per mobile-api-guide section 4
 
 export type TipeJadwal = 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'ONCE';
@@ -99,6 +100,9 @@ export type IbadahPetugas = {
     fotoUrl?: string | null;
   };
   role: string; // "Leader", "Member"
+  /** 2.5.0 — bagian/tugas; hanya untuk petugas pelayanan itu & koordinatornya. */
+  tugas?: TugasEntry[];
+  isMe?: boolean;
 };
 
 /**

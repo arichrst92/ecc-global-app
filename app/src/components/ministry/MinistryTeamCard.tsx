@@ -7,16 +7,19 @@
  *    chip + peran berjejer dalam satu baris yang bisa meluber
  *  - tim besar diringkas (maks VISIBLE orang) dengan tombol "Lihat semua"
  * Ketuk orang → profil (view-only).
+ * 2.5.0 — bagian/tugas (Kategori › Tugas) hanya dikirim server untuk petugas
+ * pelayanan itu (dan rekannya) serta koordinatornya; jemaat lain cukup peran.
  */
 import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronUp, Users } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, ClipboardList, Users } from 'lucide-react-native';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { ministryIconComponent, ministryWarna } from '@/components/ministry/MinistryIcon';
 import { nc } from '@/theme/ThemeRoot';
+import { tugasText, type TugasEntry } from '@/api/ministry';
 
 export type TeamMember = {
   id: string;
@@ -25,6 +28,10 @@ export type TeamMember = {
   pelayananWarna?: string | null;
   role: string;
   jemaat: { id: string; namaLengkap: string; fotoUrl?: string | null };
+  /** 2.5.0 — hanya ada bila viewer boleh melihat. */
+  tugas?: TugasEntry[];
+  /** Viewer sendiri. */
+  isMe?: boolean;
 };
 
 const VISIBLE = 8;
@@ -92,17 +99,26 @@ export function MinistryTeamCard({ petugas, className = '' }: { petugas: TeamMem
                   onPress={() => router.push(`/jemaat/${p.jemaat.id}` as never)}
                   className="flex-row items-center gap-3 active:opacity-70"
                   accessibilityRole="button"
-                  accessibilityLabel={`${p.jemaat.namaLengkap}, ${p.role}`}
+                  accessibilityLabel={`${p.jemaat.namaLengkap}, ${p.role}${p.tugas?.length ? `, ${tugasText(p.tugas)}` : ''}`}
                 >
                   <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl ?? null} size={32} />
                   <View className="flex-1 min-w-0">
                     <Text className="text-sm font-medium text-neutral-900 leading-5" numberOfLines={2}>
                       {p.jemaat.namaLengkap}
+                      {p.isMe ? <Text className="text-xs font-semibold text-brand-600">{`  ${t('ibadah.team_you')}`}</Text> : null}
                     </Text>
                     {p.role ? (
                       <Text className="text-xs text-neutral-500 leading-4" numberOfLines={1}>
                         {p.role}
                       </Text>
+                    ) : null}
+                    {p.tugas?.length ? (
+                      <View className="flex-row items-start gap-1 mt-0.5">
+                        <ClipboardList size={11} color="#EA580C" style={{ marginTop: 2 }} />
+                        <Text className="flex-1 text-xs font-medium text-brand-700 leading-4" numberOfLines={2}>
+                          {tugasText(p.tugas)}
+                        </Text>
+                      </View>
                     ) : null}
                   </View>
                 </Pressable>
