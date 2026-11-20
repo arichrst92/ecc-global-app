@@ -30,6 +30,7 @@ import { gx } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { cekNama, cekTanggalLahir, pertamaGagal } from '@/utils/inputRules';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { ANDROID_MIN_DATE, useAndroidDateHandler } from '@/components/ui/DatePickerModal';
 
 export default function FamilyAddNewScreen() {
   const { t, i18n } = useTranslation();
@@ -333,6 +334,7 @@ function DatePickerModal({
       }
     })();
   }, [onClose]);
+  const android = useAndroidDateHandler(onChange, onClose);
 
   if (Platform.OS === 'web') {
     return <WebDatePickerModal value={value} onChange={onChange} onClose={onClose} />;
@@ -342,16 +344,13 @@ function DatePickerModal({
   if (Platform.OS === 'android') {
     return (
       <DateTimePicker
-                themeVariant={isDark() ? 'dark' : 'light'}
+        themeVariant={isDark() ? 'dark' : 'light'}
         value={value}
         mode="date"
         display="default"
-        maximumDate={new Date()}
-        minimumDate={new Date(1900, 0, 1)}
-        onChange={(_e, d) => {
-          if (d) onChange(d);
-          onClose();
-        }}
+        maximumDate={android.maxDate}
+        minimumDate={ANDROID_MIN_DATE}
+        onChange={android.onChange}
       />
     );
   }

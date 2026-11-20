@@ -2,7 +2,7 @@
  * Pemilih tanggal (tanggal lahir) — native spinner/dialog atau input tanggal
  * browser di web. Disalin dari onboarding untuk dipakai bersama.
  */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
@@ -55,6 +55,7 @@ export function DatePickerModal({
       }
     })();
   }, [onClose]);
+  const android = useAndroidDateHandler(onChange, onClose);
 
   if (Platform.OS === 'web') {
     return <WebDatePickerModal value={value} onChange={onChange} onClose={onClose} />;
@@ -64,16 +65,13 @@ export function DatePickerModal({
   if (Platform.OS === 'android') {
     return (
       <DateTimePicker
-                themeVariant={isDark() ? 'dark' : 'light'}
+        themeVariant={isDark() ? 'dark' : 'light'}
         value={value}
         mode="date"
         display="default"
-        maximumDate={new Date()}
-        minimumDate={new Date(1900, 0, 1)}
-        onChange={(_e, d) => {
-          if (d) onChange(d);
-          onClose();
-        }}
+        maximumDate={android.maxDate}
+        minimumDate={ANDROID_MIN_DATE}
+        onChange={android.onChange}
       />
     );
   }
@@ -112,4 +110,23 @@ export function DatePickerModal({
       </Pressable>
     </Modal>
   );
+}
+
+/**
+ * Handler dialog tanggal Android yang aman:
+ *  - identitas stabil — komponen picker Android membuka ulang dialog setiap prop
+ *    onChange berganti, yang bisa membuat tanggal terpilih tertimpa;
+ *  - hanya event "set" yang mengubah tanggal (batal/tutup tidak menimpa nilai).
+ */
+export const ANDROID_MIN_DATE = new Date(1900, 0, 1);
+export function useAndroidDateHandler(onChange: (d: Date) => void, onClose: () => void) {
+  const latest = useRef({ onChange, onClose });
+  latest.current = { onChange, onClose };
+  const [maxDate] = useState(() => new Date());
+  const handler = useCallback((e: unknown, d?: Date) => {
+    const type = (e as { type?: string } | null)?.type;
+    if (d && (type === undefined || type === 'set')) latest.current.onChange(d);
+    latest.current.onClose();
+  }, []);
+  return { onChange: handler, maxDate };
 }

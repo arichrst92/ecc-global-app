@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
   Platform,
@@ -75,11 +75,14 @@ export default function EditProfileScreen() {
   });
 
   const familyQuery = useMyFamily();
+  // Mode diri sendiri tidak bergantung pada data keluarga (refetch keluarga tidak
+  // boleh memicu pengisian ulang form).
+  const familyData = isDependent ? familyQuery.data : undefined;
 
   // Resolve source data — self vs dependent
   const sourceJemaat = useMemo(() => {
     if (isDependent) {
-      const match = (familyQuery.data ?? []).find(
+      const match = (familyData ?? []).find(
         (r) => r.jemaat.id === dependentId,
       );
       return match
@@ -121,7 +124,7 @@ export default function EditProfileScreen() {
           tanggalPernikahan: meQuery.data.tanggalPernikahan ?? null,
         }
       : null;
-  }, [isDependent, dependentId, familyQuery.data, meQuery.data]);
+  }, [isDependent, dependentId, familyData, meQuery.data]);
 
   const [namaLengkap, setNamaLengkap] = useState('');
   const [email, setEmail] = useState('');
@@ -138,8 +141,14 @@ export default function EditProfileScreen() {
   const [phoneOpen, setPhoneOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState<null | 'change' | 'verify'>(null);
 
+  // Bug Android 2026-11: form diisi ulang setiap data profil/keluarga diambil ulang
+  // di latar belakang (cache lama dipulihkan → refetch selesai saat user sedang
+  // memilih tanggal) sehingga tanggal lahir yang baru dipilih kembali ke nilai
+  // lama dan yang tersimpan nilai lama. Kini form hanya diisi sekali per orang.
+  const filledFor = useRef<string | null>(null);
   useEffect(() => {
-    if (sourceJemaat) {
+    if (sourceJemaat && filledFor.current !== sourceJemaat.id) {
+      filledFor.current = sourceJemaat.id;
       setNamaLengkap(sourceJemaat.namaLengkap ?? '');
       setEmail(sourceJemaat.email ?? '');
       setAlamat(sourceJemaat.alamat ?? '');
@@ -153,9 +162,12 @@ export default function EditProfileScreen() {
     }
   }, [sourceJemaat]);
 
+  const closeDobPicker = useCallback(() => setShowDatePicker(false), []);
+  const closeNikahPicker = useCallback(() => setShowNikahPicker(false), []);
+
   const fotoUrl = sourceJemaat?.fotoUrl ?? (isDependent ? null : user?.fotoUrl) ?? null;
 
-  const updateMutation = useMutation<{ namaLengkap: string; noHpAdded?: boolean }>({
+  const updateMutation = useMutation<{ namaLengkap: string; noHpAdded?: boolean; profile?: unknown }>({
     mutationFn: async () => {
       // Audit input 2026-11: cegah isian yang menyalahi fungsinya.
       // Nilai lama yang tidak diubah tidak dicek ulang (data lama / hasil sync
@@ -216,11 +228,18 @@ export default function EditProfileScreen() {
         statusPernikahan: pernikahan || null,
         tanggalPernikahan: pernikahan && pernikahan !== 'Single' && tglNikah ? toIsoDate(tglNikah) : null,
       });
-      return { namaLengkap: r.namaLengkap };
+      return { namaLengkap: r.namaLengkap, profile: r };
     },
     onSuccess: async (profile) => {
       if (!isDependent && user) {
         await setUser({ ...user, namaLengkap: profile.namaLengkap });
+      }
+      if (!isDependent && profile.profile) {
+        // Tampilan profil langsung memakai data terbaru dari server (termasuk tanggal lahir).
+        const patch = profile.profile as Record<string, unknown>;
+        for (const key of [['me', 'edit'], ['me', 'profile-tab']] as const) {
+          qc.setQueryData(key, (old: unknown) => (old && typeof old === 'object' ? { ...(old as object), ...patch } : old));
+        }
       }
       await qc.invalidateQueries({ queryKey: ['me'] });
       await qc.invalidateQueries({ queryKey: ['family'] });
@@ -555,18 +574,10 @@ export default function EditProfileScreen() {
 
       {/* Date picker modal — lazy import @react-native-community/datetimepicker */}
       {showDatePicker ? (
-        <DatePickerModal
-          value={dob ?? new Date(2000, 0, 1)}
-          onChange={(d) => setDob(d)}
-          onClose={() => setShowDatePicker(false)}
-        />
+        <DatePickerModal value={dob ?? new Date(2000, 0, 1)} onChange={setDob} onClose={closeDobPicker} />
       ) : null}
       {showNikahPicker ? (
-        <DatePickerModal
-          value={tglNikah ?? new Date(2010, 0, 1)}
-          onChange={(d) => setTglNikah(d)}
-          onClose={() => setShowNikahPicker(false)}
-        />
+        <DatePickerModal value={tglNikah ?? new Date(2010, 0, 1)} onChange={setTglNikah} onClose={closeNikahPicker} />
       ) : null}
 
       {!isDependent ? (
@@ -649,6 +660,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
  * iOS: spinner inline modal. Android: native dialog auto-dismiss.
  * Lazy-load library supaya web build tidak crash.
  */
+const MIN_DATE = new Date(1900, 0, 1);
+
 function DatePickerModal({
   value,
   onChange,
@@ -668,6 +681,18 @@ function DatePickerModal({
     themeVariant?: 'light' | 'dark';
     onChange: (event: unknown, date?: Date) => void;
   }> | null>(null);
+
+  // Android: komponen picker membuka ulang dialog setiap prop onChange berganti
+  // identitas — handler harus stabil. Hanya event "set" yang mengubah tanggal;
+  // batal/tutup tidak menimpa nilai (dulu tanggal kosong jadi 1 Jan 2000).
+  const latest = useRef({ onChange, onClose });
+  latest.current = { onChange, onClose };
+  const [maxDate] = useState(() => new Date());
+  const androidChange = useCallback((e: unknown, d?: Date) => {
+    const type = (e as { type?: string } | null)?.type;
+    if (d && (type === undefined || type === 'set')) latest.current.onChange(d);
+    latest.current.onClose();
+  }, []);
 
   useEffect(() => {
     // Web: ditangani WebDatePickerModal (input tanggal browser).
@@ -701,16 +726,13 @@ function DatePickerModal({
   if (Platform.OS === 'android') {
     return (
       <DateTimePicker
-                themeVariant={isDark() ? 'dark' : 'light'}
+        themeVariant={isDark() ? 'dark' : 'light'}
         value={value}
         mode="date"
         display="default"
-        maximumDate={new Date()}
-        minimumDate={new Date(1900, 0, 1)}
-        onChange={(_e, d) => {
-          if (d) onChange(d);
-          onClose();
-        }}
+        maximumDate={maxDate}
+        minimumDate={MIN_DATE}
+        onChange={androidChange}
       />
     );
   }
