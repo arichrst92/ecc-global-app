@@ -236,7 +236,13 @@ export default function EditProfileScreen() {
       }
       if (!isDependent && profile.profile) {
         // Tampilan profil langsung memakai data terbaru dari server (termasuk tanggal lahir).
-        const patch = profile.profile as Record<string, unknown>;
+        // Hanya field yang diubah di form ini (respons server berisi seluruh baris jemaat).
+        const src = profile.profile as Record<string, unknown>;
+        const patch = Object.fromEntries(
+          ['namaLengkap', 'alamat', 'tanggalLahir', 'jenisKelamin', 'statusPekerjaan', 'namaKantor', 'statusPernikahan', 'tanggalPernikahan']
+            .filter((k) => k in src)
+            .map((k) => [k, src[k]]),
+        );
         for (const key of [['me', 'edit'], ['me', 'profile-tab']] as const) {
           qc.setQueryData(key, (old: unknown) => (old && typeof old === 'object' ? { ...(old as object), ...patch } : old));
         }
