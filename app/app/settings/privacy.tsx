@@ -3,7 +3,7 @@
  * Per data: centang kelompok (keluarga, homecell, area, group, pelayanan,
  * cabang, semua jemaat). Tidak ada yang dicentang = hanya saya.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -41,8 +41,11 @@ export default function PrivacyScreen() {
 
   const [settings, setSettings] = useState<PrivacySettings | null>(null);
   const [discoverable, setDiscoverable] = useState(true);
+  // Isi sekali — refetch di latar belakang tidak boleh menimpa centang yang sedang diubah.
+  const filled = useRef(false);
   useEffect(() => {
-    if (q.data) {
+    if (q.data && !filled.current) {
+      filled.current = true;
       setSettings(q.data.settings);
       setDiscoverable(q.data.discoverableByPhone);
     }

@@ -219,9 +219,10 @@ export default function NewScheduleScreen() {
               display={Platform.OS === 'ios' ? 'inline' : 'default'}
               minimumDate={minDate}
               maximumDate={maxDate}
-              onChange={(_, d) => {
+              onChange={(e, d) => {
                 if (Platform.OS !== 'ios') setShowPicker(false);
-                if (d) setTanggal(d);
+                // Android: Batal/tutup tidak mengubah tanggal.
+                if (d && e.type !== 'dismissed') setTanggal(d);
               }}
             />
           ) : null}
