@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Dimensions,
+  useWindowDimensions,
   FlatList,
   Pressable,
   Text,
@@ -23,7 +23,6 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
 const BLUR_AFTER_SEC = 30;
-const { width: SCREEN_W } = Dimensions.get('window');
 
 type QrCard = {
   id: string;
@@ -44,6 +43,8 @@ type QrCard = {
  * empty atau stale).
  */
 export default function QrCardScreen() {
+  // Lebar layar hidup (HP lipat dibuka/ditutup, rotasi) — bukan nilai sekali saat dimuat.
+  const { width: SCREEN_W } = useWindowDimensions();
   const { t } = useTranslation();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
@@ -151,6 +152,7 @@ export default function QrCardScreen() {
           scrollEventThrottle={16}
           renderItem={({ item }) => (
             <QrCardItem
+              width={SCREEN_W}
               card={item}
               revealed={revealed}
               onReveal={revealAgain}
@@ -191,18 +193,20 @@ export default function QrCardScreen() {
 }
 
 function QrCardItem({
+  width,
   card,
   revealed,
   onReveal,
   t,
 }: {
+  width: number;
   card: QrCard;
   revealed: boolean;
   onReveal: () => void;
   t: (k: string) => string;
 }) {
   return (
-    <View style={{ width: SCREEN_W }} className="items-center justify-center px-6">
+    <View style={{ width }} className="items-center justify-center px-6">
       <MemberQrCard
         namaLengkap={card.namaLengkap}
         fotoUrl={card.fotoUrl}

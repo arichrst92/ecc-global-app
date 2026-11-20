@@ -12,9 +12,19 @@ const { withAndroidManifest } = require('expo/config-plugins');
 
 const FEATURES = ['android.hardware.screen.portrait', 'android.hardware.screen.landscape'];
 
+// HP lipat: buka/tutup layar mengubah smallestScreenSize/density. Tanpa ini
+// Activity dibuat ulang dan app kembali ke awal; dengan ini RN cukup menyesuaikan ukuran.
+const EXTRA_CONFIG_CHANGES = ['smallestScreenSize', 'density'];
+
 module.exports = function withOptionalScreenFeatures(config) {
   return withAndroidManifest(config, (cfg) => {
     const manifest = cfg.modResults.manifest;
+    for (const act of manifest.application?.[0]?.activity ?? []) {
+      if (act.$?.['android:name'] !== '.MainActivity') continue;
+      const cur = (act.$['android:configChanges'] ?? '').split('|').filter(Boolean);
+      for (const c of EXTRA_CONFIG_CHANGES) if (!cur.includes(c)) cur.push(c);
+      act.$['android:configChanges'] = cur.join('|');
+    }
     manifest['uses-feature'] = manifest['uses-feature'] ?? [];
     for (const name of FEATURES) {
       const existing = manifest['uses-feature'].find((f) => f.$?.['android:name'] === name);
