@@ -115,7 +115,7 @@ export default function IbadahDetailScreen() {
     selfCheckin.refetch();
   }, !!id);
 
-  // Jam acuan = jam server (bukan jam HP) → tombol muncul tepat 30 menit
+  // Jam acuan = jam server (bukan jam HP) → tombol muncul tepat 15 menit
   // sebelum ibadah & hilang di jam selesai walau jam/zona HP berbeda.
   const [tick, setTick] = useState(0);
   useEffect(() => {

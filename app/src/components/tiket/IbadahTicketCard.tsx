@@ -1,7 +1,7 @@
 /**
  * Tiket ibadah (satu reservasi = satu orang). Bentuk sama dengan tiket event;
  * ibadah tidak punya hero image → pita warna (umum oranye, anak merah muda).
- *  - Ibadah umum: geser check-in (jendela 30 menit sebelum s.d. 30 menit setelah mulai)
+ *  - Ibadah umum: geser check-in (jendela 15 menit sebelum mulai s.d. selesai)
  *    + batalkan reservasi selama boleh.
  *  - Ibadah anak: check-in di meja CKids; setelah hadir tampil kode jemput.
  */

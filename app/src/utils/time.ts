@@ -313,12 +313,6 @@ export function venueInstantMs(ymd: string, hhmm: string | null | undefined, tz:
 export const SELF_CHECKIN_GRACE_MS = 30 * 60 * 1000;
 
 /**
- * Self check-in dibuka N menit SEBELUM ibadah/event mulai — sama dengan server
- * (core-api lib/self-checkin.ts OPEN_BEFORE_MIN, 30 sejak 2026-11; dulu 15).
- */
-export const SELF_CHECKIN_OPEN_BEFORE_MIN = 30;
-
-/**
  * Ibadah pada tanggal `ymd` sudah selesai (jam selesai di zona cabang sudah
  * lewat). jamSelesai kosong → akhir hari; jamSelesai ≤ jamMulai → keesokan hari.
  */
