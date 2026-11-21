@@ -46,6 +46,10 @@ export type EventListItem = {
   sinode?: SinodeRef | null;
   cabang?: CabangRef | null;
   pesertaCount: number;
+  /** Server ≥ 2026-11-22: jumlah hadir & saat check-in dibuka (null = event tidak mencatat kehadiran).
+   *  Sebelum checkinOpensAt kartu menulis "terdaftar", sesudahnya "hadir". */
+  hadirCount?: number | null;
+  checkinOpensAt?: string | null;
 };
 
 /** Detail dari GET /admin/event/:idOrSlug. Per BE patch 2026-05-21i:

@@ -1,3 +1,5 @@
+import { useNowTick } from '@/hooks/useNowTick';
+import { eventCount } from '@/utils/eventCount';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -196,8 +198,11 @@ function EventCard({
   onPress: () => void;
 }) {
   const { t } = useTranslation();
+  const now = useNowTick(30_000);
+  // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir (server baru).
+  const shown = eventCount(event, now);
   const quotaPercent = event.quotaPeserta
-    ? Math.round((event.pesertaCount / event.quotaPeserta) * 100)
+    ? Math.round((shown.count / event.quotaPeserta) * 100)
     : 0;
   const isFull = event.quotaPeserta != null && event.pesertaCount >= event.quotaPeserta;
   const isFree = event.tipeBayar === 'GRATIS';
@@ -257,14 +262,14 @@ function EventCard({
               />
             </View>
             <Text className="text-xs text-neutral-500 font-medium">
-              {event.pesertaCount}/{event.quotaPeserta}
+              {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: event.quotaPeserta })}
             </Text>
           </View>
         ) : (
           <View className="flex-row items-center gap-1 mt-2">
             <Users size={12} color={nc('#A3A3A3')} />
             <Text className="text-xs text-brand-600 font-semibold">
-              {t('event.participants_count', { count: event.pesertaCount })}
+              {shown.attending ? t('event.attending_count', { count: shown.count }) : t('event.participants_count', { count: shown.count })}
             </Text>
           </View>
         )}

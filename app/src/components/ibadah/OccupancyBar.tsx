@@ -10,13 +10,22 @@ import { Armchair } from 'lucide-react-native';
 
 import type { IbadahOkupansi } from '@/types/ibadah';
 import { nc } from '@/theme/ThemeRoot';
+import { useNowTick } from '@/hooks/useNowTick';
 
 export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi | null | undefined; compact?: boolean }) {
   const { t, i18n } = useTranslation();
+  const now = useNowTick(30_000);
   if (!data || !data.seat || data.persen == null) return null;
   const nf = (n: number) => n.toLocaleString(i18n.language === 'en' ? 'en-US' : 'id-ID', { maximumFractionDigits: 1 });
-  const pct = data.persen;
-  const over = data.hadir > data.seat;
+  // Sebelum self check-in dibuka → jumlah reservasi; sesudahnya → jumlah hadir.
+  const opens = data.checkinOpensAt ? Date.parse(data.checkinOpensAt) : NaN;
+  const reservedMode = data.reservasi != null && Number.isFinite(opens) && now < opens;
+  const count = reservedMode ? data.reservasi! : data.hadir;
+  const pct = reservedMode ? Math.round((count / data.seat) * 1000) / 10 : data.persen;
+  const label = reservedMode
+    ? t('ibadah.occupancy_reserved', { count: nf(count), seat: nf(data.seat) })
+    : t('ibadah.occupancy_count', { hadir: nf(data.hadir), seat: nf(data.seat) });
+  const over = count > data.seat;
   const color = over ? '#EF4444' : pct >= 80 ? '#F59E0B' : '#10B981';
   const width = `${Math.max(0, Math.min(100, pct))}%` as const;
 
@@ -33,7 +42,7 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
           <View className="flex-row items-center gap-1.5 flex-shrink">
             <Armchair size={13} color={nc('#737373')} />
             <Text className="text-xs text-neutral-500" numberOfLines={1}>
-              {t('ibadah.occupancy_count', { hadir: nf(data.hadir), seat: nf(data.seat) })}
+              {label}
             </Text>
           </View>
           <Text className="text-xs font-bold ml-2" style={{ color: over ? '#DC2626' : nc('#404040') }}>
@@ -42,7 +51,7 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
         </View>
         {bar}
         {over ? (
-          <Text className="text-[11px] text-red-600 mt-1">{t('ibadah.occupancy_over', { count: data.hadir - data.seat })}</Text>
+          <Text className="text-[11px] text-red-600 mt-1">{t('ibadah.occupancy_over', { count: count - data.seat })}</Text>
         ) : null}
       </View>
     );
@@ -57,7 +66,7 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
         <View className="flex-1 min-w-0">
           <Text className="text-xs text-neutral-500">{t('ibadah.occupancy')}</Text>
           <Text className="font-semibold text-neutral-900" numberOfLines={1}>
-            {t('ibadah.occupancy_count', { hadir: nf(data.hadir), seat: nf(data.seat) })}
+            {label}
           </Text>
         </View>
         <Text className="text-lg font-bold" style={{ color: over ? '#DC2626' : nc('#171717') }}>
@@ -66,7 +75,7 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
       </View>
       {bar}
       {over ? (
-        <Text className="text-xs text-red-600 mt-2">{t('ibadah.occupancy_over', { count: data.hadir - data.seat })}</Text>
+        <Text className="text-xs text-red-600 mt-2">{t('ibadah.occupancy_over', { count: count - data.seat })}</Text>
       ) : null}
     </View>
   );

@@ -1,3 +1,5 @@
+import { useNowTick } from '@/hooks/useNowTick';
+import { eventCount } from '@/utils/eventCount';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
@@ -239,6 +241,9 @@ export default function EventDetailScreen() {
 
   const isFree = event?.tipeBayar === 'GRATIS';
   const isFull = event?.quotaPeserta != null && event.pesertaCount >= event.quotaPeserta;
+  // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir (server baru).
+  const nowCount = useNowTick(30_000);
+  const shownCount = eventCount(event ?? { pesertaCount: 0 }, nowCount);
   // Per hybrid decision Opsi C (2026-08-31):
   // - NOMINAL_BEBAS (donasi sukarela) → redirect ke web (Apple 3.2.2iv,
   //   charitable donation must be external)
@@ -398,11 +403,11 @@ export default function EventDetailScreen() {
                     </View>
                     <View className="flex-1">
                       <Text className="font-semibold text-neutral-900">
-                        {event.pesertaCount}/{event.quotaPeserta} {t('event.participants_label')}
+                        {t(shownCount.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shownCount.count, quota: event.quotaPeserta })}
                       </Text>
                       <View className="mt-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                         <View
-                          {...gx(`h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-brand-500'}`, { width: `${Math.min(100, (event.pesertaCount / event.quotaPeserta) * 100)}%` })}
+                          {...gx(`h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-brand-500'}`, { width: `${Math.min(100, (shownCount.count / event.quotaPeserta) * 100)}%` })}
                           
                         />
                       </View>
@@ -411,7 +416,11 @@ export default function EventDetailScreen() {
                 ) : (
                   <MetaRow
                     icon={<Users size={18} color="#EA580C" />}
-                    primary={t('event.participants_count', { count: event.pesertaCount })}
+                    primary={
+                      shownCount.attending
+                        ? t('event.attending_count', { count: shownCount.count })
+                        : t('event.participants_count', { count: shownCount.count })
+                    }
                   />
                 )}
               </View>

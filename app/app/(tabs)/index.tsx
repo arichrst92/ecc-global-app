@@ -39,6 +39,7 @@ import { tugasText } from '@/api/ministry';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
+import { eventCount } from '@/utils/eventCount';
 import { SELF_CHECKIN_GRACE_MS, isOccurrenceEnded } from '@/utils/time';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 import { rupiahShort } from '@/utils/hari';
@@ -307,17 +308,23 @@ function HomeScreenAuthenticated() {
                         </View>
                       ) : null}
                       {e.quotaPeserta ? (
-                        <View className="flex-row items-center gap-1.5 mt-1.5">
-                          <View className="flex-1 h-1 bg-neutral-100 rounded-full overflow-hidden">
-                            <View
-                              className={`h-full rounded-full ${e.pesertaCount >= e.quotaPeserta ? 'bg-red-500' : 'bg-brand-500'}`}
-                              style={{ width: `${Math.min(100, Math.round((e.pesertaCount / e.quotaPeserta) * 100))}%` }}
-                            />
-                          </View>
-                          <Text className="text-[10px] text-neutral-500">
-                            {e.pesertaCount}/{e.quotaPeserta}
-                          </Text>
-                        </View>
+                        (() => {
+                          // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir.
+                          const shown = eventCount(e, nowHome);
+                          return (
+                            <View className="flex-row items-center gap-1.5 mt-1.5">
+                              <View className="flex-1 h-1 bg-neutral-100 rounded-full overflow-hidden">
+                                <View
+                                  className={`h-full rounded-full ${shown.count >= e.quotaPeserta ? 'bg-red-500' : 'bg-brand-500'}`}
+                                  style={{ width: `${Math.min(100, Math.round((shown.count / e.quotaPeserta) * 100))}%` }}
+                                />
+                              </View>
+                              <Text className="text-[10px] text-neutral-500" numberOfLines={1}>
+                                {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: e.quotaPeserta })}
+                              </Text>
+                            </View>
+                          );
+                        })()
                       ) : null}
                       <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact className="mt-1.5" />
                     </View>

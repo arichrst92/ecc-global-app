@@ -77,6 +77,10 @@ export type IbadahOkupansi = {
   seat: number | null;
   hadir: number;
   persen: number | null;
+  /** Server ≥ 2026-11-22: reservasi aktif (belum hadir + hadir) & saat self check-in dibuka.
+   *  Sebelum checkinOpensAt kartu menulis "N reservasi", sesudahnya "N hadir". */
+  reservasi?: number;
+  checkinOpensAt?: string;
 };
 
 export type IbadahDetail = IbadahListItem & {
