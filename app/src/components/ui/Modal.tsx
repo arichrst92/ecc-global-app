@@ -9,14 +9,35 @@
  *
  * Pakai: `import { Modal } from '@/components/ui/Modal'` — props sama persis.
  */
+import { useEffect, useRef } from 'react';
 import { Modal as RNModal, type ModalProps } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
+import { ToastContainer, useModalStack } from '@/components/ui/Toast';
 
+let seq = 0;
+
+/**
+ * Toast juga tampil DI DALAM modal (mis. pesan error saat scan di layar
+ * scanner) — tanpa ini toast root tertutup modal dan pengguna tidak melihat
+ * apa-apa.
+ */
 export function Modal({ children, ...rest }: ModalProps) {
+  const id = useRef(++seq).current;
+  const { push, pop } = useModalStack.getState();
+  useEffect(() => {
+    if (rest.visible === false) {
+      pop(id);
+      return;
+    }
+    push(id);
+    return () => pop(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rest.visible]);
   return (
     <RNModal {...rest}>
       <SafeAreaProvider initialMetrics={rest.presentationStyle === 'pageSheet' || rest.presentationStyle === 'formSheet' ? undefined : initialWindowMetrics}>
         {children}
+        <ToastContainer modalId={id} />
       </SafeAreaProvider>
     </RNModal>
   );

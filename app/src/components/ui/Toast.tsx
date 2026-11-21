@@ -23,6 +23,18 @@ export const useToast = create<ToastState>((set) => ({
   hide: () => set({ message: null }),
 }));
 
+/**
+ * Modal yang sedang terbuka (paling atas = terakhir). Modal RN tampil di jendela
+ * native terpisah DI ATAS root — toast di root tertutup. Karena itu toast juga
+ * dirender di dalam modal teratas, dan toast root disembunyikan selama ada modal.
+ */
+type ModalStack = { ids: number[]; push: (id: number) => void; pop: (id: number) => void };
+export const useModalStack = create<ModalStack>((set) => ({
+  ids: [],
+  push: (id) => set((s) => ({ ids: [...s.ids.filter((x) => x !== id), id] })),
+  pop: (id) => set((s) => ({ ids: s.ids.filter((x) => x !== id) })),
+}));
+
 const typeStyles: Record<ToastType, string> = {
   info: 'bg-[#262626]',
   success: 'bg-emerald-600',
@@ -34,8 +46,11 @@ const typeStyles: Record<ToastType, string> = {
  * Render Toast container — letakkan di root layout.
  * Pakai useToast.getState().show(msg) dari mana saja untuk display.
  */
-export function ToastContainer() {
+export function ToastContainer({ modalId }: { modalId?: number } = {}) {
   const { message, type } = useToast();
+  // Root: sembunyi bila ada modal terbuka. Di modal: hanya modal teratas yang menampilkan.
+  const top = useModalStack((s) => s.ids[s.ids.length - 1]);
+  const visibleHere = modalId === undefined ? top === undefined : top === modalId;
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -48,7 +63,7 @@ export function ToastContainer() {
     }).start();
   }, [message, opacity]);
 
-  if (!message) return null;
+  if (!message || !visibleHere) return null;
 
   return (
     <Animated.View
