@@ -54,6 +54,7 @@ import {
   useDeleteAttendance,
   useDeleteSchedule,
   useBulkAttendance,
+  useAbsenOpen,
 } from '@/hooks/useHomecellSchedules';
 import { ApiError } from '@/types/api';
 import { useAuthStore } from '@/stores/auth.store';
@@ -120,6 +121,17 @@ export default function ScheduleDetailScreen() {
   const insets = useSafeAreaInsets();
 
   const schedule = detailQuery.data;
+  // 2.5.0 — absen hanya saat pertemuan dimulai atau setelahnya.
+  const absen = useAbsenOpen(schedule);
+  const absenLabel = absen.opensAt
+    ? absen.opensAt.toLocaleString(lang === 'id' ? 'id-ID' : 'en-US', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
 
   /** Dipakai scan QR + input kode manual. `onDone` dipanggil saat sukses
    *  (mis. tutup modal input manual). */
@@ -472,7 +484,7 @@ export default function ScheduleDetailScreen() {
         ) : null}
 
         {/* Tamu hadir — terpisah dari kehadiran anggota */}
-        <ScheduleTamuSection homecellId={id} schedule={schedule} />
+        <ScheduleTamuSection homecellId={id} schedule={schedule} absenOpen={absen.open} />
 
         {/* Materi pertemuan — dilihat anggota di app */}
         <View className="flex-row items-center justify-between mt-6 mb-2">
@@ -517,6 +529,18 @@ export default function ScheduleDetailScreen() {
       {/* FAB stack — Scan QR (primary brand) + Checklist Bulk (secondary white).
           Offset dari safe-area inset bottom supaya tidak overlap Android gesture
           bar atau 3-button nav. */}
+      {!absen.open ? (
+        <View
+          className="absolute left-4 right-4 flex-row items-center gap-2 bg-card border border-amber-200 rounded-2xl px-4 py-3 shadow-md"
+          style={{ bottom: insets.bottom + 16 }}
+        >
+          <Clock size={18} color="#B45309" />
+          <Text className="flex-1 text-xs text-amber-800 leading-relaxed">
+            {t('hcj.absen_belum_dibuka', { waktu: absenLabel })}
+          </Text>
+        </View>
+      ) : null}
+      {absen.open ? (
       <View
         className="absolute right-6 gap-3 items-end"
         style={{ bottom: insets.bottom + 16 }}
@@ -545,6 +569,7 @@ export default function ScheduleDetailScreen() {
           </Text>
         </Pressable>
       </View>
+      ) : null}
 
       {/* Bulk Attendance Modal — checklist semua member yang belum hadir,
           submit batch via Promise.allSettled loop single recordAttendance.

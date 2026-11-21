@@ -16,7 +16,16 @@ import { ApiError } from '@/types/api';
 import type { HomecellScheduleDetail } from '@/types/homecellSchedule';
 import { nc } from '@/theme/ThemeRoot';
 
-export function ScheduleTamuSection({ homecellId, schedule }: { homecellId: string; schedule: HomecellScheduleDetail }) {
+export function ScheduleTamuSection({
+  homecellId,
+  schedule,
+  absenOpen = true,
+}: {
+  homecellId: string;
+  schedule: HomecellScheduleDetail;
+  /** 2.5.0 — tandai tamu hadir hanya saat pertemuan dimulai atau setelahnya. */
+  absenOpen?: boolean;
+}) {
   const { t } = useTranslation();
   const showToast = useToast((s) => s.show);
   const { mark, unmark } = useTamuHadir(homecellId, schedule.id);
@@ -73,7 +82,7 @@ export function ScheduleTamuSection({ homecellId, schedule }: { homecellId: stri
         </View>
       )}
 
-      {belum.length > 0 ? (
+      {belum.length > 0 && absenOpen ? (
         <>
           <Text className="text-[11px] font-semibold text-neutral-500 mt-1 mb-1.5">{t('hcj.tamu_belum_hadir')}</Text>
           <View className="flex-row flex-wrap gap-2">

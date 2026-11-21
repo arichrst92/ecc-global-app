@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 /**
  * Hooks untuk Homecell Schedule + Attendance feature.
  * Per docs/mobile-spec-homecell-schedule-attendance.md.
@@ -226,4 +227,25 @@ export function useTamuHadir(homecellId: string, scheduleId: string) {
     onSuccess: refresh,
   });
   return { mark, unmark };
+}
+
+
+/**
+ * Absen pertemuan homecell hanya saat pertemuan dimulai atau setelahnya (2.5.0).
+ * Server yang lebih lama tidak mengirim `absenDibukaAt` → dianggap terbuka.
+ * Diperbarui tiap 30 detik supaya tombol absen muncul tepat saat pertemuan mulai.
+ */
+export function useAbsenOpen(schedule: { absenDibukaAt?: string; absenDibuka?: boolean } | undefined | null): {
+  open: boolean;
+  opensAt: Date | null;
+} {
+  const opensAt = schedule?.absenDibukaAt ? new Date(schedule.absenDibukaAt) : null;
+  const [now, setNow] = useState(() => Date.now());
+  const pending = !!opensAt && now < opensAt.getTime();
+  useEffect(() => {
+    if (!pending) return;
+    const t = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, [pending]);
+  return { open: !opensAt || !pending, opensAt };
 }

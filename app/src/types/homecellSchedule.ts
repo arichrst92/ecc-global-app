@@ -23,6 +23,9 @@ export type HomecellSchedule = {
   attendanceCount: number;
   /** Tamu hadir — dicatat terpisah, tidak masuk % kehadiran anggota. */
   tamuCount?: number;
+  /** 2.5.0 — absen dibuka saat pertemuan dimulai (ISO). Tidak ada di server lama. */
+  absenDibukaAt?: string;
+  absenDibuka?: boolean;
 };
 
 /** Tamu yang hadir di satu pertemuan homecell. */

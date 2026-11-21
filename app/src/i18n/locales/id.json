@@ -2019,6 +2019,7 @@
     "tamu_hadir_section": "Tamu hadir ({{count}})",
     "tamu_hadir_note": "Dicatat terpisah — tidak dihitung dalam % kehadiran anggota.",
     "tamu_hadir_empty": "Belum ada tamu yang ditandai hadir.",
+    "absen_belum_dibuka": "Absensi dibuka saat pertemuan dimulai ({{waktu}}). Scan QR, absen checklist, dan tandai tamu hadir bisa dilakukan saat atau setelah pertemuan dimulai.",
     "tamu_belum_hadir": "Tamu homecell — ketuk untuk tandai hadir",
     "tamu_mark": "Hadir",
     "tamu_new_hadir": "Tamu baru",

@@ -2025,6 +2025,7 @@
     "tamu_hadir_section": "Guests present ({{count}})",
     "tamu_hadir_note": "Recorded separately — not counted in member attendance %.",
     "tamu_hadir_empty": "No guests marked present yet.",
+    "absen_belum_dibuka": "Attendance opens when the meeting starts ({{waktu}}). QR scan, bulk attend, and marking guests present are available at or after the start time.",
     "tamu_belum_hadir": "Homecell guests — tap to mark present",
     "tamu_mark": "Present",
     "tamu_new_hadir": "New guest",
