@@ -8,7 +8,7 @@
  * Warna SOLID (tanpa gradient native) supaya aman di semua platform.
  * Sudut kartu, gambar, dan label TEGAK (tidak rounded) — 2026-11.
  */
-import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Image, Text, View } from 'react-native';
 import { env } from '@/config/env';
 import Svg, { Circle } from 'react-native-svg';
@@ -39,15 +39,49 @@ function absoluteUrl(u: string): string {
   return `${env.apiBaseUrl}${u.startsWith('/') ? '' : '/'}${u}`;
 }
 
-/** Gambar jarak-jauh — melapor ke modal supaya tombol share baru aktif setelah termuat. */
-function NetImage({ uri: rawUri, style }: { uri: string; style: object }) {
+/** Rasio (lebar/tinggi) gambar jarak-jauh; null selama belum diketahui / gagal. */
+function useImageRatio(rawUri?: string | null): number | null {
+  const [ratio, setRatio] = useState<number | null>(null);
+  useEffect(() => {
+    setRatio(null);
+    if (!rawUri) return;
+    let alive = true;
+    Image.getSize(
+      absoluteUrl(rawUri),
+      (w, h) => alive && w > 0 && h > 0 && setRatio(w / h),
+      () => {},
+    );
+    return () => {
+      alive = false;
+    };
+  }, [rawUri]);
+  return ratio;
+}
+
+/**
+ * Gambar UTUH di dalam kotak (tidak terpotong): gambar penuh (contain) di atas
+ * latar versi buram dari gambar yang sama, jadi sisa ruang tidak tampak kosong.
+ * Poster portrait / landscape / persegi semuanya tampil lengkap.
+ */
+function FitImage({ uri: rawUri, width, height }: { uri: string; width: number; height: number }) {
+  const uri = absoluteUrl(rawUri);
+  return (
+    <View style={{ width, height, overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.25)' }}>
+      <Image source={{ uri }} style={{ position: 'absolute', width, height, opacity: 0.55 }} resizeMode="cover" blurRadius={18} />
+      <NetImageContain uri={rawUri} style={{ width, height }} />
+    </View>
+  );
+}
+
+/** Gambar jarak-jauh (contain) — melapor ke modal supaya tombol share baru aktif setelah termuat. */
+function NetImageContain({ uri: rawUri, style }: { uri: string; style: object }) {
   const uri = absoluteUrl(rawUri);
   const ctx = useContext(CardCtx);
   const done = useRef(false);
   useEffect(() => {
     done.current = false;
     ctx.onImgStart();
-    const t = setTimeout(() => finish(), 8000); // jangan menahan tombol selamanya
+    const t = setTimeout(() => finish(), 8000);
     return () => {
       clearTimeout(t);
       finish();
@@ -59,7 +93,22 @@ function NetImage({ uri: rawUri, style }: { uri: string; style: object }) {
     done.current = true;
     ctx.onImgEnd();
   }
-  return <Image source={{ uri }} style={style} resizeMode="cover" onLoadEnd={finish} onError={finish} />;
+  return <Image source={{ uri }} style={style} resizeMode="contain" onLoadEnd={finish} onError={finish} />;
+}
+
+/**
+ * Ukuran kotak yang mengikuti rasio gambar di dalam batas maxW × maxH
+ * (gambar tidak dipotong & kotak tidak menyisakan ruang kosong berlebih).
+ */
+function fitBox(ratio: number | null, maxW: number, maxH: number, fallbackRatio: number) {
+  const r = ratio ?? fallbackRatio;
+  let w = maxW;
+  let h = w / r;
+  if (h > maxH) {
+    h = maxH;
+    w = h * r;
+  }
+  return { width: Math.round(w), height: Math.round(h) };
 }
 
 function Frame({ theme, label, cta, children }: { theme: ShareTheme; label: string; cta?: string; children: ReactNode }) {
@@ -148,10 +197,17 @@ export function ArticleShareCard({
   excerpt?: string | null;
 }) {
   const k = useK();
-  const imgStyle = { width: '100%', height: 128 * k };
+  const ratio = useImageRatio(imageUrl);
+  const fullW = 320 * k;
+  // Tinggi mengikuti rasio (maks 128) — gambar tampil utuh, sisi kosong diisi latar buram.
+  const boxH = Math.max(96 * k, Math.min(128 * k, ratio ? fullW / ratio : 128 * k));
   return (
     <Frame theme={theme} label={label} cta={cta}>
-      {imageUrl ? <NetImage uri={imageUrl} style={imgStyle} /> : <Placeholder theme={theme} style={imgStyle} />}
+      {imageUrl ? (
+        <FitImage uri={imageUrl} width={fullW} height={boxH} />
+      ) : (
+        <Placeholder theme={theme} style={{ width: '100%', height: 128 * k }} />
+      )}
       {badge ? (
         <View style={{ alignSelf: 'flex-start', backgroundColor: '#fff', paddingHorizontal: 6 * k, paddingVertical: 2 * k, marginTop: 9 * k }}>
           <Text style={{ color: '#C2410C', fontSize: 7 * k, fontWeight: '700' }}>{badge}</Text>
@@ -193,8 +249,10 @@ export function EventShareCard({
   cta: string;
 }) {
   const k = useK();
-  const w = 200 * k;
-  const imgStyle = { width: w, height: (w * 2) / 3 };
+  const ratio = useImageRatio(imageUrl);
+  // Kotak mengikuti rasio poster (portrait/landscape) di dalam batas 200×170 → tidak terpotong.
+  const box = fitBox(ratio, 200 * k, 170 * k, 3 / 2);
+  const imgStyle = { width: 200 * k, height: (200 * k * 2) / 3 };
   const rows = [
     [Calendar, date],
     [Clock, time],
@@ -204,7 +262,11 @@ export function EventShareCard({
   return (
     <Frame theme={theme} label={label}>
       <View style={{ flexDirection: 'row' }}>
-        {imageUrl ? <NetImage uri={imageUrl} style={imgStyle} /> : <Placeholder theme={theme} style={imgStyle} />}
+        {imageUrl ? (
+          <FitImage uri={imageUrl} width={box.width} height={box.height} />
+        ) : (
+          <Placeholder theme={theme} style={imgStyle} />
+        )}
         <View style={{ flex: 1, marginLeft: 12 * k, gap: 7 * k }}>
           {rows.map(([Icon, txt], i) => (
             <View key={i}>
@@ -261,7 +323,7 @@ export function SongShareCard({
   return (
     <Frame theme="worship" label={label} cta={tracks ? cta : undefined}>
       <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-        {coverUrl ? <NetImage uri={coverUrl} style={coverStyle} /> : <Placeholder theme="orange" style={coverStyle} />}
+        {coverUrl ? <FitImage uri={coverUrl} width={c} height={c} /> : <Placeholder theme="orange" style={coverStyle} />}
         <View style={{ flex: 1, marginLeft: 14 * k }}>
           <Text style={{ color: '#fff', fontSize: 16 * k, fontWeight: '700', lineHeight: 20 * k }} numberOfLines={3}>
             {title}
