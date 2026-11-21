@@ -39,7 +39,7 @@ export type EventListItem = {
   nominal: string; // Decimal string untuk presisi
   quotaPeserta: number | null;
   butuhKehadiran: boolean;
-  /** Peserta boleh self check-in dari aplikasi (15 menit sebelum mulai s.d. selesai). */
+  /** Peserta boleh self check-in dari aplikasi (30 menit sebelum s.d. 30 menit setelah mulai). */
   allowSelfCheckin?: boolean;
   isPublished: boolean;
   publishedAt: string;
