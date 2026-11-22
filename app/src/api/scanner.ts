@@ -184,16 +184,28 @@ export type ScanListItem = {
   scannedBy: string | null;
   checkedOutAt: string | null;
   pickedUpAt: string | null;
+  // ---- server ≥ 2026-11-22 ----
+  /** HADIR | BELUM (reservasi / pendaftaran belum check-in). */
+  status?: 'HADIR' | 'BELUM';
+  guestSource?: string | null;
+  /** Nama jemaat yang mengundang tamu. */
+  invitedBy?: string | null;
+  /** Ibadah anak: umur (tahun). */
+  umur?: number | null;
+  /** Event berbayar, belum hadir: status pembayaran. */
+  payment?: 'LUNAS' | 'MENUNGGU' | 'BELUM_BAYAR' | null;
 };
 
+export type ScanListStatus = 'hadir' | 'belum';
+
 /** GET /admin/ibadah/:id/checkin/list (server ≥ 2026-11-22) */
-export function getIbadahCheckinList(ibadahId: string, tanggalIbadah: string, q?: string) {
-  const qs = new URLSearchParams({ tanggalIbadah, ...(q ? { q } : {}) }).toString();
+export function getIbadahCheckinList(ibadahId: string, tanggalIbadah: string, q?: string, status: ScanListStatus = 'hadir') {
+  const qs = new URLSearchParams({ tanggalIbadah, status, ...(q ? { q } : {}) }).toString();
   return api.get<ScanListItem[]>(`/admin/ibadah/${ibadahId}/checkin/list?${qs}`);
 }
 
 /** GET /admin/event/:id/checkin/list (server ≥ 2026-11-22) */
-export function getEventCheckinList(eventId: string, q?: string) {
-  const qs = q ? `?${new URLSearchParams({ q }).toString()}` : '';
-  return api.get<ScanListItem[]>(`/admin/event/${eventId}/checkin/list${qs}`);
+export function getEventCheckinList(eventId: string, q?: string, status: ScanListStatus = 'hadir') {
+  const qs = new URLSearchParams({ status, ...(q ? { q } : {}) }).toString();
+  return api.get<ScanListItem[]>(`/admin/event/${eventId}/checkin/list?${qs}`);
 }

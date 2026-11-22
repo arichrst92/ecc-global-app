@@ -1,11 +1,15 @@
 /**
- * Daftar jemaat yang sudah hadir di halaman scanner (ibadah / event).
+ * Daftar jemaat di halaman scanner (ibadah / event).
  *
- * Filter: "Discan petugas" (scan QR, input manual, tamu walk-in) atau
- * "Semua hadir" (termasuk self check-in & diubah admin). Terbaru di atas,
- * bisa dicari nama / kode. Data diperbarui tiap 10 detik selama terbuka.
+ * Tab:
+ *  - Discan petugas: scan QR, input manual, tamu walk-in (terbaru di atas)
+ *  - Semua hadir: termasuk self check-in & diubah admin
+ *  - Belum hadir: reservasi / pendaftar yang belum check-in (urut nama) —
+ *    event berbayar menampilkan status bayar.
+ * Info per orang: jam, kode, petugas yang scan, tamu + pengundang, umur
+ * (ibadah anak), check-out / jemput. Diperbarui tiap 10 detik selama terbuka.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -20,44 +24,60 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { localTime } from '@/utils/time';
 import { nc } from '@/theme/ThemeRoot';
 
-type Target = { kind: 'ibadah'; ibadahId: string; tanggalIbadah: string } | { kind: 'event'; eventId: string };
+type Target =
+  | { kind: 'ibadah'; ibadahId: string; tanggalIbadah: string }
+  | { kind: 'event'; eventId: string };
+export type ScanListTab = 'petugas' | 'semua' | 'belum';
 
 const BY_PETUGAS = new Set(['SCAN', 'WALK_IN']);
-
-export function scanListKey(target: Target) {
-  return target.kind === 'ibadah'
-    ? ['scanner', 'list', 'ibadah', target.ibadahId, target.tanggalIbadah]
-    : ['scanner', 'list', 'event', target.eventId];
-}
 
 export function ScanListModal({
   visible,
   onClose,
   target,
+  initialTab = 'petugas',
 }: {
   visible: boolean;
   onClose: () => void;
   target: Target;
+  initialTab?: ScanListTab;
 }) {
   const { t } = useTranslation();
   const [text, setText] = useState('');
-  const [onlyPetugas, setOnlyPetugas] = useState(true);
+  const [tab, setTab] = useState<ScanListTab>(initialTab);
   const q = useDebounce(text.trim(), 300);
+  const status = tab === 'belum' ? 'belum' : 'hadir';
+
+  useEffect(() => {
+    if (visible) setTab(initialTab);
+  }, [visible, initialTab]);
 
   const list = useQuery({
-    queryKey: [...scanListKey(target), q],
+    queryKey: [
+      'scanner',
+      'list',
+      target.kind,
+      target.kind === 'ibadah' ? `${target.ibadahId}:${target.tanggalIbadah}` : target.eventId,
+      status,
+      q,
+    ],
     queryFn: () =>
       target.kind === 'ibadah'
-        ? getIbadahCheckinList(target.ibadahId, target.tanggalIbadah, q || undefined)
-        : getEventCheckinList(target.eventId, q || undefined),
+        ? getIbadahCheckinList(target.ibadahId, target.tanggalIbadah, q || undefined, status)
+        : getEventCheckinList(target.eventId, q || undefined, status),
     enabled: visible,
     refetchInterval: visible ? 10_000 : false,
     staleTime: 5_000,
   });
 
   const all = list.data ?? [];
-  // Data lama tanpa `method` dianggap discan petugas.
-  const data = onlyPetugas ? all.filter((r) => !r.method || BY_PETUGAS.has(r.method)) : all;
+  // Server lama mengabaikan status=belum → jangan tampilkan orang yang sudah hadir di tab Belum.
+  const data =
+    tab === 'petugas'
+      ? all.filter((r) => !r.method || BY_PETUGAS.has(r.method))
+      : tab === 'belum'
+        ? all.filter((r) => r.status === 'BELUM')
+        : all;
 
   function close() {
     setText('');
@@ -65,14 +85,37 @@ export function ScanListModal({
   }
 
   function methodLabel(r: ScanListItem): string | null {
-    if (r.guest && r.method === 'WALK_IN') return t('scanner.list_m_walkin');
+    if (r.status === 'BELUM') return null;
+    if (r.method === 'WALK_IN')
+      return r.guest ? t('scanner.list_m_walkin') : t('scanner.list_m_late');
     if (r.method === 'SELF') return t('scanner.list_m_self');
     if (r.method === 'MANUAL') return t('scanner.list_m_manual');
     return null;
   }
 
+  function paymentBadge(r: ScanListItem): { text: string; cls: string } | null {
+    if (r.payment === 'LUNAS')
+      return { text: t('scanner.list_pay_paid'), cls: 'bg-emerald-50 text-emerald-700' };
+    if (r.payment === 'MENUNGGU')
+      return { text: t('scanner.list_pay_waiting'), cls: 'bg-amber-50 text-amber-700' };
+    if (r.payment === 'BELUM_BAYAR')
+      return { text: t('scanner.list_pay_unpaid'), cls: 'bg-red-50 text-red-700' };
+    return null;
+  }
+
+  const tabs: Array<{ key: ScanListTab; label: string }> = [
+    { key: 'petugas', label: t('scanner.list_by_petugas') },
+    { key: 'semua', label: t('scanner.list_all') },
+    { key: 'belum', label: t('scanner.list_not_yet') },
+  ];
+
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={close}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="fullScreen"
+      onRequestClose={close}
+    >
       <View style={{ flex: 1 }} className="bg-card">
         <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
           <View className="flex-row items-center px-4 py-2">
@@ -80,7 +123,11 @@ export function ScanListModal({
             <Text className="flex-1 text-base font-bold text-neutral-900 ml-2" numberOfLines={1}>
               {t('scanner.list_title')}
             </Text>
-            <Pressable onPress={close} className="w-10 h-10 items-center justify-center" accessibilityLabel={t('common.close')}>
+            <Pressable
+              onPress={close}
+              className="w-10 h-10 items-center justify-center"
+              accessibilityLabel={t('common.close')}
+            >
               <X size={20} color={nc('#525252')} />
             </Pressable>
           </View>
@@ -88,18 +135,20 @@ export function ScanListModal({
 
         <View className="px-4 pt-3">
           <View className="flex-row bg-neutral-100 rounded-xl p-1 mb-3">
-            {[
-              { on: true, label: t('scanner.list_by_petugas') },
-              { on: false, label: t('scanner.list_all') },
-            ].map((o) => {
-              const active = onlyPetugas === o.on;
+            {tabs.map((o) => {
+              const active = tab === o.key;
               return (
                 <Pressable
-                  key={String(o.on)}
-                  onPress={() => setOnlyPetugas(o.on)}
+                  key={o.key}
+                  onPress={() => setTab(o.key)}
                   className={`flex-1 py-2 rounded-lg items-center ${active ? 'bg-card' : ''}`}
                 >
-                  <Text className={`text-xs font-bold ${active ? 'text-neutral-900' : 'text-neutral-500'}`}>{o.label}</Text>
+                  <Text
+                    className={`text-xs font-bold ${active ? 'text-neutral-900' : 'text-neutral-500'}`}
+                    numberOfLines={1}
+                  >
+                    {o.label}
+                  </Text>
                 </Pressable>
               );
             })}
@@ -123,7 +172,10 @@ export function ScanListModal({
               </Pressable>
             ) : null}
           </View>
-          <Text className="text-xs text-neutral-500 mt-2">{t('scanner.list_count', { count: data.length })}</Text>
+          <Text className="text-xs text-neutral-500 mt-2">
+            {t('scanner.list_count', { count: data.length })}
+            {tab === 'belum' ? ` · ${t('scanner.list_not_yet_hint')}` : ''}
+          </Text>
         </View>
 
         <View style={{ flex: 1 }} className="mt-1">
@@ -134,7 +186,9 @@ export function ScanListModal({
           ) : list.isLoading ? (
             <ActivityIndicator className="mt-8" color="#F97316" />
           ) : data.length === 0 ? (
-            <Text className="text-sm text-neutral-500 text-center mt-8 px-4">{t('scanner.list_empty')}</Text>
+            <Text className="text-sm text-neutral-500 text-center mt-8 px-4">
+              {t('scanner.list_empty')}
+            </Text>
           ) : (
             <FlatList
               style={{ flex: 1 }}
@@ -146,9 +200,17 @@ export function ScanListModal({
               ItemSeparatorComponent={() => <View className="h-px bg-neutral-100" />}
               renderItem={({ item: r }) => {
                 const m = methodLabel(r);
+                const pay = paymentBadge(r);
                 const sub = [
                   r.jemaat.kode,
-                  r.byMe ? t('scanner.list_by_me') : r.scannedBy ? t('scanner.list_by', { name: r.scannedBy }) : null,
+                  r.umur != null ? t('scanner.list_age', { count: r.umur }) : null,
+                  r.status === 'BELUM'
+                    ? null
+                    : r.byMe
+                      ? t('scanner.list_by_me')
+                      : r.scannedBy
+                        ? t('scanner.list_by', { name: r.scannedBy })
+                        : null,
                 ]
                   .filter(Boolean)
                   .join(' · ');
@@ -156,13 +218,30 @@ export function ScanListModal({
                   <View className="flex-row items-center gap-3 py-3">
                     <Avatar name={r.jemaat.namaLengkap} fotoUrl={r.jemaat.fotoUrl} size={40} />
                     <View className="flex-1 min-w-0">
-                      <View className="flex-row items-center gap-1.5">
-                        <Text className="text-sm font-bold text-neutral-900 flex-shrink" numberOfLines={1}>
+                      <View className="flex-row items-center gap-1.5 flex-wrap">
+                        <Text
+                          className="text-sm font-bold text-neutral-900 flex-shrink"
+                          numberOfLines={1}
+                        >
                           {r.jemaat.namaLengkap}
                         </Text>
+                        {r.guest && r.method !== 'WALK_IN' ? (
+                          <View className="bg-sky-50 rounded-full px-2 py-0.5">
+                            <Text className="text-[10px] font-bold text-sky-700">
+                              {t('scanner.list_guest')}
+                            </Text>
+                          </View>
+                        ) : null}
                         {m ? (
                           <View className="bg-violet-50 rounded-full px-2 py-0.5">
                             <Text className="text-[10px] font-bold text-violet-700">{m}</Text>
+                          </View>
+                        ) : null}
+                        {pay ? (
+                          <View className={`rounded-full px-2 py-0.5 ${pay.cls.split(' ')[0]}`}>
+                            <Text className={`text-[10px] font-bold ${pay.cls.split(' ')[1]}`}>
+                              {pay.text}
+                            </Text>
                           </View>
                         ) : null}
                       </View>
@@ -171,15 +250,28 @@ export function ScanListModal({
                           {sub}
                         </Text>
                       ) : null}
+                      {r.invitedBy ? (
+                        <Text className="text-[11px] text-sky-700 mt-0.5" numberOfLines={1}>
+                          {t('scanner.list_invited_by', { name: r.invitedBy })}
+                        </Text>
+                      ) : null}
                       {r.checkedOutAt || r.pickedUpAt ? (
                         <Text className="text-[11px] text-amber-700 mt-0.5">
                           {r.pickedUpAt
                             ? t('scanner.list_picked_up', { time: localTime(r.pickedUpAt) })
                             : t('scanner.list_checked_out', { time: localTime(r.checkedOutAt) })}
                         </Text>
+                      ) : r.umur != null && r.status !== 'BELUM' && !r.pickedUpAt ? (
+                        <Text className="text-[11px] text-orange-700 mt-0.5">
+                          {t('scanner.list_not_picked')}
+                        </Text>
                       ) : null}
                     </View>
-                    {r.at ? <Text className="text-xs font-semibold text-neutral-700">{localTime(r.at)}</Text> : null}
+                    {r.at && r.status !== 'BELUM' ? (
+                      <Text className="text-xs font-semibold text-neutral-700">
+                        {localTime(r.at)}
+                      </Text>
+                    ) : null}
                   </View>
                 );
               }}

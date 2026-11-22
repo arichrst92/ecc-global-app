@@ -8,14 +8,11 @@ import { ArrowLeft, ListChecks } from 'lucide-react-native';
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
-import { ScanListModal } from '@/components/scanner/ScanListModal';
+import { ScanListModal, type ScanListTab } from '@/components/scanner/ScanListModal';
+import { ScannerInfoPanel } from '@/components/scanner/ScannerInfoPanel';
 import { WalkInGuestModal } from '@/components/tamu/WalkInGuestModal';
 import { useEventDetail } from '@/hooks/useEvents';
-import {
-  useCheckinEvent,
-  useEventCheckinStats,
-  useScannerEvents,
-} from '@/hooks/useScanner';
+import { useCheckinEvent, useEventCheckinStats, useScannerEvents } from '@/hooks/useScanner';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
 
@@ -33,6 +30,11 @@ export default function ScannerEventScreen() {
   const [manualOpen, setManualOpen] = useState(false);
   const [walkInOpen, setWalkInOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
+  const [listTab, setListTab] = useState<ScanListTab>('petugas');
+  const openList = (tab: ScanListTab) => {
+    setListTab(tab);
+    setListOpen(true);
+  };
   // Info tipe bayar untuk form tamu walk-in.
   const eventDetail = useEventDetail(id);
   const [result, setResult] = useState<ScanResultKind | null>(null);
@@ -129,7 +131,7 @@ export default function ScannerEventScreen() {
           </View>
           {/* Jumlah hadir — ketuk untuk lihat daftar peserta yang sudah discan */}
           <Pressable
-            onPress={() => setListOpen(true)}
+            onPress={() => openList('petugas')}
             accessibilityLabel={t('scanner.list_open')}
             className="bg-black/50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5 active:opacity-70"
           >
@@ -143,9 +145,49 @@ export default function ScannerEventScreen() {
             <ListChecks size={14} color="#fff" />
           </Pressable>
         </View>
+        <ScannerInfoPanel
+          info={stats?.event ? { ...stats.event, lokasi: null } : null}
+          window={stats?.scanWindow}
+          onOpenList={openList}
+          counts={[
+            {
+              key: 'hadir',
+              label: t('scanner.c_hadir'),
+              value: stats?.belumHadir != null ? stats.hadir : undefined,
+              tab: 'semua',
+              tone: 'green',
+            },
+            {
+              key: 'belum',
+              label: t('scanner.c_belum'),
+              value: stats?.belumHadir,
+              tab: 'belum',
+              tone: 'amber',
+            },
+            {
+              key: 'walkin',
+              label: t('scanner.c_walkin'),
+              value: stats?.walkIn || undefined,
+              tab: 'petugas',
+              tone: 'violet',
+            },
+            {
+              key: 'self',
+              label: t('scanner.c_self'),
+              value: stats?.self || undefined,
+              tab: 'semua',
+              tone: 'sky',
+            },
+          ]}
+        />
       </SafeAreaView>
 
-      <ScanListModal visible={listOpen} onClose={() => setListOpen(false)} target={{ kind: 'event', eventId: id }} />
+      <ScanListModal
+        visible={listOpen}
+        onClose={() => setListOpen(false)}
+        target={{ kind: 'event', eventId: id }}
+        initialTab={listTab}
+      />
 
       <JemaatSearchModal
         purpose="checkin"

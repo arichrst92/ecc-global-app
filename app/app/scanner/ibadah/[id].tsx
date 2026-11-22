@@ -22,7 +22,8 @@ import { useToast } from '@/components/ui/Toast';
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
-import { ScanListModal } from '@/components/scanner/ScanListModal';
+import { ScanListModal, type ScanListTab } from '@/components/scanner/ScanListModal';
+import { ScannerInfoPanel } from '@/components/scanner/ScannerInfoPanel';
 import { WalkInGuestModal } from '@/components/tamu/WalkInGuestModal';
 import { PickupInputModal } from '@/components/scanner/PickupInputModal';
 import {
@@ -63,6 +64,11 @@ export default function ScannerIbadahScreen() {
   const [mode, setMode] = useState<ScannerMode>('checkin');
   const [walkInOpen, setWalkInOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
+  const [listTab, setListTab] = useState<ScanListTab>('petugas');
+  const openList = (tab: ScanListTab) => {
+    setListTab(tab);
+    setListOpen(true);
+  };
   const [manualOpen, setManualOpen] = useState(false);
   const [pickupOpen, setPickupOpen] = useState(false);
   const [result, setResult] = useState<ScanResultKind | null>(null);
@@ -300,7 +306,7 @@ export default function ScannerIbadahScreen() {
           </View>
           {/* Jumlah hadir — ketuk untuk lihat daftar jemaat yang sudah discan */}
           <Pressable
-            onPress={() => setListOpen(true)}
+            onPress={() => openList('petugas')}
             accessibilityLabel={t('scanner.list_open')}
             className="bg-black/50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5 active:opacity-70"
           >
@@ -314,12 +320,86 @@ export default function ScannerIbadahScreen() {
             <ListChecks size={14} color="#fff" />
           </Pressable>
         </View>
+        <ScannerInfoPanel
+          info={
+            stats?.ibadah ??
+            (ibadahMeta
+              ? {
+                  jamMulai: ibadahMeta.jamMulai,
+                  jamSelesai: ibadahMeta.jamSelesai,
+                  lokasi: ibadahMeta.lokasi,
+                  cabangNama: null,
+                  timezone: null,
+                }
+              : null)
+          }
+          window={stats?.scanWindow}
+          showWindow={mode === 'checkin'}
+          onOpenList={openList}
+          counts={[
+            {
+              key: 'hadir',
+              label: t('scanner.c_hadir'),
+              value: stats?.belumHadir != null ? stats.hadir : undefined,
+              tab: 'semua',
+              tone: 'green',
+            },
+            {
+              key: 'belum',
+              label: t('scanner.c_belum'),
+              value: stats?.belumHadir,
+              tab: 'belum',
+              tone: 'amber',
+            },
+            {
+              key: 'walkin',
+              label: t('scanner.c_walkin'),
+              value: stats?.walkIn || undefined,
+              tab: 'petugas',
+              tone: 'violet',
+            },
+            {
+              key: 'self',
+              label: t('scanner.c_self'),
+              value: stats?.self || undefined,
+              tab: 'semua',
+              tone: 'sky',
+            },
+            {
+              key: 'me',
+              label: t('scanner.c_me'),
+              value: stats?.byMe != null ? stats.byMe : undefined,
+              tab: 'petugas',
+            },
+            ...(requiresCheckout
+              ? [
+                  {
+                    key: 'out',
+                    label: t('scanner.c_checkout'),
+                    value: stats?.checkedOut,
+                    tab: 'semua' as const,
+                  },
+                ]
+              : []),
+            ...(isKidsIbadah
+              ? [
+                  {
+                    key: 'pick',
+                    label: t('scanner.c_picked'),
+                    value: stats?.pickedUp,
+                    tab: 'semua' as const,
+                  },
+                ]
+              : []),
+          ]}
+        />
       </SafeAreaView>
 
       <ScanListModal
         visible={listOpen}
         onClose={() => setListOpen(false)}
         target={{ kind: 'ibadah', ibadahId: id, tanggalIbadah }}
+        initialTab={listTab}
       />
 
       <WalkInGuestModal

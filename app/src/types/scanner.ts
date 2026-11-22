@@ -180,6 +180,15 @@ export type CheckinMeta = {
   walkIn?: boolean;
 };
 
+/** Jendela scan petugas (server ≥ 2026-11-22). Jam = jam dinding cabang. */
+export type ScanWindowInfo = {
+  phase: 'TOO_EARLY' | 'OPEN' | 'LATE' | 'ENDED' | 'NOT_TODAY' | 'CANCELLED' | 'OTHER_DAY' | string;
+  opensJam: string;
+  closesJam: string;
+  zona: string;
+  message: string | null;
+};
+
 /** Stats live counts dari GET /admin/{event|ibadah}/:id/checkin/stats */
 export type IbadahCheckinStats = {
   ibadahId: string;
@@ -187,6 +196,23 @@ export type IbadahCheckinStats = {
   total: number;
   hadir: number;
   walkIn?: number;
+  // ---- server ≥ 2026-11-22 (info petugas) ----
+  belumHadir?: number;
+  self?: number;
+  byMe?: number;
+  checkedOut?: number;
+  pickedUp?: number;
+  ibadah?: {
+    nama: string;
+    jamMulai: string | null;
+    jamSelesai: string | null;
+    lokasi: string | null;
+    isKidsIbadah: boolean;
+    requiresCheckout: boolean;
+    cabangNama: string | null;
+    timezone: string | null;
+  };
+  scanWindow?: ScanWindowInfo | null;
   lastUpdated: string;
 };
 
@@ -202,5 +228,19 @@ export type EventCheckinStats = {
     HADIR?: number;
     BATAL?: number;
   };
+  // ---- server ≥ 2026-11-22 (info petugas) ----
+  belumHadir?: number;
+  walkIn?: number;
+  self?: number;
+  event?: {
+    judul: string;
+    jamMulai: string | null;
+    jamSelesai: string | null;
+    lokasi: string | null;
+    tipeBayar: string;
+    cabangNama: string | null;
+    timezone: string | null;
+  };
+  scanWindow?: ScanWindowInfo | null;
   lastUpdated: string;
 };
