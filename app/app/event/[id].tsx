@@ -27,7 +27,7 @@ import { eventPriceTone } from '@/utils/eventPrice';
 import { AnnouncementMarkdown } from '@/components/announcement/AnnouncementMarkdown';
 import { useVenueCity, useVenueTz } from '@/hooks/useVenueTz';
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
-import { localRangeIfDifferent, tzZoneLabel, ymdInTz, zoneTimeText } from '@/utils/time';
+import { DEFAULT_VENUE_TZ, localRangeIfDifferent, tzZoneLabel, ymdInTz, zoneTimeText } from '@/utils/time';
 import { buildEventShareUrl } from '@/utils/share';
 import { openEventPaymentWeb } from '@/utils/eventPaymentWeb';
 import { env } from '@/config/env';
@@ -53,8 +53,15 @@ export default function EventDetailScreen() {
   const query = useEventDetail(id);
   const event = query.data;
   // Jam event = jam dinding cabang event → tampil di zona waktu HP.
-  const venueTz = useVenueTz(event?.cabang?.id);
-  const venueCity = useVenueCity(event?.cabang?.id, event?.cabang?.nama);
+  const branchTz = useVenueTz(event?.cabang?.id);
+  const branchCity = useVenueCity(event?.cabang?.id, event?.cabang?.nama);
+  // Event semua cabang (tanpa cabang) → jam dihitung server dalam Waktu Jakarta;
+  // dulu detail memakai zona cabang yang sedang dilihat (mis. "Waktu Bali") → beda dengan kartu & tiket.
+  const isGlobalEvent = !!event && !event.cabang;
+  const venueTz = isGlobalEvent ? DEFAULT_VENUE_TZ : branchTz;
+  const venueCity = isGlobalEvent ? null : branchCity;
+  // Event tanpa pencatatan kehadiran / sukarela → bukan "pertemuan" (tanpa "Sampai bertemu di acara").
+  const noMeeting = !!event && (event.tipeBayar === 'NOMINAL_BEBAS' || event.butuhKehadiran === false);
 
   // Family multi-participation list per BE update 2026-08-31.
   // Include self + JemaatRelasi direct + spouse-transitive. Skip BATAL.
@@ -505,6 +512,8 @@ export default function EventDetailScreen() {
                       key={p.id}
                       participation={p}
                       isFree={isFree}
+                      noMeeting={noMeeting}
+                      voluntary={event.tipeBayar === 'NOMINAL_BEBAS'}
                       lang={lang}
                       onPress={() => {
                         setSelectedParticipation(p);
@@ -535,6 +544,8 @@ export default function EventDetailScreen() {
                     relationLabel: t('event.detail_self'),
                   }}
                   isFree={isFree}
+                  noMeeting={noMeeting}
+                  voluntary={event.tipeBayar === 'NOMINAL_BEBAS'}
                   lang={lang}
                   onPress={() => {
                     // Buka modal dengan data yang ada (mungkin partial)
@@ -550,8 +561,9 @@ export default function EventDetailScreen() {
                 />
               ) : null}
 
-              {/* Tiket Saya — satu tiket per orang, ketuk untuk QR besar */}
-              {myTickets.length > 0 ? (
+              {/* Tiket Saya — satu tiket per orang, ketuk untuk QR besar.
+                  Event tanpa pencatatan kehadiran → tidak perlu tiket, disembunyikan. */}
+              {myTickets.length > 0 && event.butuhKehadiran !== false ? (
                 <View className="mt-5 gap-3">
                   <Text className="text-base font-bold text-neutral-900">{t('tiket.my_tickets')}</Text>
                   {myTickets.map((tk) => (
@@ -909,14 +921,21 @@ function formatTimeRange(
 function ParticipationStatusCard({
   participation,
   isFree,
+  noMeeting = false,
+  voluntary = false,
   lang,
   onPress,
 }: {
   participation: EventParticipation;
   isFree: boolean;
+  /** Sukarela / tanpa pencatatan kehadiran → tanpa "Sampai bertemu di acara". */
+  noMeeting?: boolean;
+  voluntary?: boolean;
   lang: string;
   onPress?: () => void;
 }) {
+  const doneBody = () =>
+    noMeeting ? (voluntary ? t('event.thanks_giving') : t('event.registered_noted')) : t('event.see_you_at_event');
   const { t } = useTranslation();
   const status = participation.status;
   const registeredAt = new Date(participation.registeredAt).getTime();
@@ -953,7 +972,7 @@ function ParticipationStatusCard({
         bodyColor: 'text-emerald-700',
         icon: <Check size={20} color="#fff" />,
         title: t('event.status_bayar'),
-        body: t('event.see_you_at_event'),
+        body: doneBody(),
       };
     if (status === 'MENUNGGU_VERIFIKASI')
       return {
@@ -975,7 +994,7 @@ function ParticipationStatusCard({
         bodyColor: 'text-emerald-700',
         icon: <Check size={20} color="#fff" />,
         title: t('event.already_registered'),
-        body: t('event.see_you_at_event'),
+        body: doneBody(),
       };
     // DAFTAR + berbayar → belum bayar
     return {

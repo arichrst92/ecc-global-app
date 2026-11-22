@@ -680,7 +680,9 @@
     "requirements_not_met": "Belum memenuhi",
     "payment_info_title": "Info pembayaran",
     "payment_info_qris": "QRIS — bisa dibayar dari semua bank & e-wallet.",
-    "payment_info_hint": "Unggah bukti transfer setelah mendaftar."
+    "payment_info_hint": "Unggah bukti transfer setelah mendaftar.",
+    "thanks_giving": "Terima kasih atas pemberian Anda.",
+    "registered_noted": "Pendaftaran Anda sudah tercatat."
   },
   "branch": {
     "active_label": "Cabang aktif",

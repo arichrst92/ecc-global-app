@@ -680,7 +680,9 @@
     "requirements_not_met": "Not yet eligible",
     "payment_info_title": "Payment info",
     "payment_info_qris": "QRIS — pay from any bank or e-wallet.",
-    "payment_info_hint": "Upload your transfer receipt after registering."
+    "payment_info_hint": "Upload your transfer receipt after registering.",
+    "thanks_giving": "Thank you for your giving.",
+    "registered_noted": "Your registration is recorded."
   },
   "branch": {
     "active_label": "Active branch",
