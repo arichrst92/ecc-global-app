@@ -3,11 +3,12 @@ import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, ListChecks } from 'lucide-react-native';
 
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
+import { ScanListModal } from '@/components/scanner/ScanListModal';
 import { WalkInGuestModal } from '@/components/tamu/WalkInGuestModal';
 import { useEventDetail } from '@/hooks/useEvents';
 import {
@@ -31,6 +32,7 @@ export default function ScannerEventScreen() {
 
   const [manualOpen, setManualOpen] = useState(false);
   const [walkInOpen, setWalkInOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
   // Info tipe bayar untuk form tamu walk-in.
   const eventDetail = useEventDetail(id);
   const [result, setResult] = useState<ScanResultKind | null>(null);
@@ -90,7 +92,7 @@ export default function ScannerEventScreen() {
   return (
     <View className="flex-1 bg-black">
       <ScannerCamera
-        paused={isPaused || walkInOpen}
+        paused={isPaused || walkInOpen || listOpen}
         onScan={(kode) => runCheckin(kode)}
         onManualInput={() => setManualOpen(true)}
         onWalkInGuest={eventDetail.data ? () => setWalkInOpen(true) : undefined}
@@ -125,17 +127,25 @@ export default function ScannerEventScreen() {
               {eventMeta?.lokasi ?? ''}
             </Text>
           </View>
-          {stats ? (
-            <View className="bg-black/50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5">
-              <View className="w-2 h-2 rounded-full bg-emerald-400" />
+          {/* Jumlah hadir — ketuk untuk lihat daftar peserta yang sudah discan */}
+          <Pressable
+            onPress={() => setListOpen(true)}
+            accessibilityLabel={t('scanner.list_open')}
+            className="bg-black/50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5 active:opacity-70"
+          >
+            <View className="w-2 h-2 rounded-full bg-emerald-400" />
+            {stats ? (
               <Text className="text-white text-xs font-bold">
                 {stats.hadir}
                 {stats.quotaPeserta ? `/${stats.quotaPeserta}` : `/${stats.total}`}
               </Text>
-            </View>
-          ) : null}
+            ) : null}
+            <ListChecks size={14} color="#fff" />
+          </Pressable>
         </View>
       </SafeAreaView>
+
+      <ScanListModal visible={listOpen} onClose={() => setListOpen(false)} target={{ kind: 'event', eventId: id }} />
 
       <JemaatSearchModal
         purpose="checkin"

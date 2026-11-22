@@ -891,7 +891,22 @@
     "search_error": "Search failed. Please try again.",
     "tamu_title": "Guest · {{kategori}}",
     "tamu_invited_by": "Invited by {{name}} — give them a warm welcome",
-    "tamu_walk_in": "Came on their own — give them a warm welcome"
+    "tamu_walk_in": "Came on their own — give them a warm welcome",
+    "list_title": "Attendees",
+    "list_open": "Attendee list",
+    "list_by_petugas": "Scanned by usher",
+    "list_all": "All present",
+    "list_search": "Search name or code",
+    "list_count": "{{count}} people",
+    "list_empty": "No one yet",
+    "list_error": "Failed to load the list",
+    "list_by_me": "by you",
+    "list_by": "by {{name}}",
+    "list_m_walkin": "Walk-in",
+    "list_m_self": "Self check-in",
+    "list_m_manual": "Admin",
+    "list_checked_out": "Checked out {{time}}",
+    "list_picked_up": "Picked up {{time}}"
   },
   "kids": {
     "badge_label": "KIDS SERVICE",

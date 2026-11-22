@@ -16,12 +16,13 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Baby, LogIn, LogOut } from 'lucide-react-native';
+import { ArrowLeft, Baby, LogIn, LogOut, ListChecks } from 'lucide-react-native';
 
 import { useToast } from '@/components/ui/Toast';
 import { JemaatSearchModal } from '@/components/scanner/JemaatSearchModal';
 import { ScanResultModal, type ScanResultKind } from '@/components/scanner/ScanResultModal';
 import { ScannerCamera } from '@/components/scanner/ScannerCamera';
+import { ScanListModal } from '@/components/scanner/ScanListModal';
 import { WalkInGuestModal } from '@/components/tamu/WalkInGuestModal';
 import { PickupInputModal } from '@/components/scanner/PickupInputModal';
 import {
@@ -61,6 +62,7 @@ export default function ScannerIbadahScreen() {
 
   const [mode, setMode] = useState<ScannerMode>('checkin');
   const [walkInOpen, setWalkInOpen] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
   const [pickupOpen, setPickupOpen] = useState(false);
   const [result, setResult] = useState<ScanResultKind | null>(null);
@@ -261,7 +263,7 @@ export default function ScannerIbadahScreen() {
   return (
     <View className="flex-1 bg-black">
       <ScannerCamera
-        paused={isPaused || walkInOpen}
+        paused={isPaused || walkInOpen || listOpen}
         onScan={handleScan}
         // Tunggu data ibadah termuat — ibadah anak tidak menerima tamu walk-in.
         onWalkInGuest={
@@ -296,17 +298,29 @@ export default function ScannerIbadahScreen() {
             </View>
             <Text className="text-white/70 text-[10px]">{tanggalIbadah}</Text>
           </View>
-          {stats ? (
-            <View className="bg-black/50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5">
-              <View className="w-2 h-2 rounded-full bg-emerald-400" />
+          {/* Jumlah hadir — ketuk untuk lihat daftar jemaat yang sudah discan */}
+          <Pressable
+            onPress={() => setListOpen(true)}
+            accessibilityLabel={t('scanner.list_open')}
+            className="bg-black/50 px-3 py-1.5 rounded-full flex-row items-center gap-1.5 active:opacity-70"
+          >
+            <View className="w-2 h-2 rounded-full bg-emerald-400" />
+            {stats ? (
               <Text className="text-white text-xs font-bold">
-                {stats.hadir}
+                {stats.hadir ?? 0}
                 {stats.total > 0 ? `/${stats.total}` : ''}
               </Text>
-            </View>
-          ) : null}
+            ) : null}
+            <ListChecks size={14} color="#fff" />
+          </Pressable>
         </View>
       </SafeAreaView>
+
+      <ScanListModal
+        visible={listOpen}
+        onClose={() => setListOpen(false)}
+        target={{ kind: 'ibadah', ibadahId: id, tanggalIbadah }}
+      />
 
       <WalkInGuestModal
         visible={walkInOpen}

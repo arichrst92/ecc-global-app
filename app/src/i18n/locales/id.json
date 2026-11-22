@@ -891,7 +891,22 @@
     "search_error": "Gagal mencari. Coba lagi.",
     "tamu_title": "Tamu · {{kategori}}",
     "tamu_invited_by": "Diundang oleh {{name}} — sambut dengan hangat",
-    "tamu_walk_in": "Datang sendiri — sambut dengan hangat"
+    "tamu_walk_in": "Datang sendiri — sambut dengan hangat",
+    "list_title": "Daftar Hadir",
+    "list_open": "Daftar hadir",
+    "list_by_petugas": "Discan petugas",
+    "list_all": "Semua hadir",
+    "list_search": "Cari nama atau kode",
+    "list_count": "{{count}} orang",
+    "list_empty": "Belum ada",
+    "list_error": "Gagal memuat daftar",
+    "list_by_me": "oleh Anda",
+    "list_by": "oleh {{name}}",
+    "list_m_walkin": "Tamu walk-in",
+    "list_m_self": "Self check-in",
+    "list_m_manual": "Admin",
+    "list_checked_out": "Check-out {{time}}",
+    "list_picked_up": "Dijemput {{time}}"
   },
   "kids": {
     "badge_label": "IBADAH ANAK",

@@ -169,3 +169,31 @@ export function pickupReservasi(payload: ReservasiPickupPayload) {
 export function getEventCheckinStats(eventId: string) {
   return api.get<EventCheckinStats>(`/admin/event/${eventId}/checkin/stats`);
 }
+
+/** Satu jemaat yang sudah hadir — daftar di halaman scanner. */
+export type ScanListItem = {
+  id: string;
+  jemaat: { id: string; namaLengkap: string; kode: string | null; fotoUrl: string | null };
+  /** Waktu check-in (ISO). */
+  at: string | null;
+  /** SCAN | SELF | WALK_IN | MANUAL | null (data lama). */
+  method: string | null;
+  guest: boolean;
+  /** Ibadah: discan oleh saya. */
+  byMe: boolean;
+  scannedBy: string | null;
+  checkedOutAt: string | null;
+  pickedUpAt: string | null;
+};
+
+/** GET /admin/ibadah/:id/checkin/list (server ≥ 2026-11-22) */
+export function getIbadahCheckinList(ibadahId: string, tanggalIbadah: string, q?: string) {
+  const qs = new URLSearchParams({ tanggalIbadah, ...(q ? { q } : {}) }).toString();
+  return api.get<ScanListItem[]>(`/admin/ibadah/${ibadahId}/checkin/list?${qs}`);
+}
+
+/** GET /admin/event/:id/checkin/list (server ≥ 2026-11-22) */
+export function getEventCheckinList(eventId: string, q?: string) {
+  const qs = q ? `?${new URLSearchParams({ q }).toString()}` : '';
+  return api.get<ScanListItem[]>(`/admin/event/${eventId}/checkin/list${qs}`);
+}
