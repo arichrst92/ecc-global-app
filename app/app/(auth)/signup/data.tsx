@@ -136,6 +136,9 @@ export default function SignupDataScreen() {
       }),
     onSuccess: async (data) => {
       setMatch(null);
+      // Tandai dulu → penjaga rute di _layout tidak langsung melempar ke Beranda
+      // (dulu layar "Pendaftaran berhasil" + kode jemaat terlewati).
+      setField('justRegistered', true);
       await login(data.accessToken, data.refreshToken, data.user);
       router.replace('/(auth)/signup/success');
     },
@@ -154,12 +157,17 @@ export default function SignupDataScreen() {
       if (err instanceof ApiError) {
         if (err.code === 'VALIDATION_ERROR' && err.details?.fieldErrors) {
           const fe = err.details.fieldErrors;
-          setErrors({
+          const mapped: FieldErrors = {
             namaLengkap: fe.namaLengkap?.[0],
             jenisKelamin: fe.jenisKelamin?.[0],
             cabangId: fe.cabangId?.[0],
             jenisJemaat: fe.jenisJemaat?.[0],
-          });
+            tanggalLahir: fe.tanggalLahir?.[0],
+            consent: fe.consent?.[0],
+          };
+          setErrors(mapped);
+          // Kolom lain (email, no HP, dll.) tidak punya tempat di form → tampilkan pesannya.
+          if (!Object.values(mapped).some(Boolean)) Alert.alert(t('error.generic'), err.message);
         } else if (err.code === 'UNAUTHORIZED' && !/data lama/i.test(err.message)) {
           setMatch(null);
           showExpired();

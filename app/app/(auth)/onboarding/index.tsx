@@ -55,7 +55,7 @@ import { useBranches } from '@/hooks/useBranches';
 import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
-import { parseLocalDate, toIsoDate } from '@/utils/date';
+import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { cekNama, cekTanggalLahir, cekTeks } from '@/utils/inputRules';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
@@ -609,7 +609,7 @@ function ProfileStep({
     email?: string;
   }) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const branchesQuery = useBranches();
   const [errors, setErrors] = useState<ProfileFieldErrors>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -749,7 +749,7 @@ function ProfileStep({
                     values.tanggalLahir ? 'text-neutral-900' : 'text-neutral-400'
                   }`}
                 >
-                  {values.tanggalLahir || t('auth.onboarding.dob_placeholder')}
+                  {values.tanggalLahir ? formatDate(values.tanggalLahir, i18n.language) : t('auth.onboarding.dob_placeholder')}
                 </Text>
                 <CalendarIcon size={18} color={nc('#737373')} />
               </Pressable>
@@ -762,7 +762,12 @@ function ProfileStep({
               label={t('auth.onboarding.address_label')}
               placeholder={t('auth.onboarding.address_placeholder')}
               value={values.alamat}
-              onChangeText={(v) => setField('alamat', v)}
+              onChangeText={(v) => {
+                setField('alamat', v);
+                setErrors((e) => ({ ...e, alamat: undefined }));
+              }}
+              // Dulu error alamat tidak ditampilkan → tombol Selesai seolah tidak bereaksi.
+              error={errors.alamat}
               multiline
               editable={!submitting}
             />
@@ -920,7 +925,7 @@ function DatePickerModal({
             maximumDate={new Date()}
             minimumDate={new Date(1900, 0, 1)}
             textColor={nc('#171717')}
-            themeVariant="light"
+            themeVariant={isDark() ? 'dark' : 'light'}
             onChange={(_e, d) => {
               if (d) onChange(d);
             }}

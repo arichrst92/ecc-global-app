@@ -35,6 +35,8 @@ export default function LoginPhoneScreen() {
   const [error, setError] = useState<string | null>(null);
   /** WhatsApp gangguan → tawarkan masuk dengan email. */
   const [waDown, setWaDown] = useState(false);
+  /** Nomor belum terdaftar → tombol langsung ke Daftar. */
+  const [notRegistered, setNotRegistered] = useState(false);
 
   const mutation = useMutation({
     mutationFn: async (e164: string) => requestOtp({ noHp: e164, purpose: 'LOGIN' }),
@@ -52,6 +54,7 @@ export default function LoginPhoneScreen() {
           setError(err.message);
         } else if (err.code === 'NOT_FOUND') {
           setError(t('auth.error_not_registered'));
+          setNotRegistered(true);
         } else if (err.code === 'TOO_MANY_REQUESTS') {
           setError(t('auth.error_rate_limited'));
         } else {
@@ -66,6 +69,7 @@ export default function LoginPhoneScreen() {
   function submit() {
     setError(null);
     setWaDown(false);
+    setNotRegistered(false);
     const e164 = normalizePhone(phone);
     if (!e164) {
       setError(invalidPhoneMessage(phone, i18n.language === 'en' ? 'en' : 'id'));
@@ -121,6 +125,16 @@ export default function LoginPhoneScreen() {
             <Text className="text-xs text-amber-800 flex-1">{t('auth.not_registered_hint')}</Text>
           </View>
 
+          {notRegistered ? (
+            <View className="mt-4 flex-row gap-2">
+              <Pressable onPress={() => router.push('/(auth)/signup')} className="rounded-lg bg-emerald-600 px-3 py-2">
+                <Text className="text-sm font-semibold text-white">{t('auth.signup')}</Text>
+              </Pressable>
+              <Pressable onPress={() => router.push('/(auth)/login/email')} className="rounded-lg border border-neutral-200 px-3 py-2">
+                <Text className="text-sm font-semibold text-neutral-800">{t('auth.signin_email')}</Text>
+              </Pressable>
+            </View>
+          ) : null}
           {waDown ? (
             <View className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
               <Text className="text-sm font-semibold text-amber-900">{t('auth.wa_down_title')}</Text>

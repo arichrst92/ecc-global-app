@@ -36,6 +36,8 @@ type SignupState = {
   otpViaEmail: boolean;
   /** Tanggal lahir (opsional, dianjurkan) — dipakai menemukan data jemaat lama. YYYY-MM-DD. */
   tanggalLahir: string;
+  /** Akun baru saja dibuat → layar Berhasil boleh tampil walau sudah login. */
+  justRegistered: boolean;
 
   setNoHp: (v: string) => void;
   setOtpVerified: (validForSeconds: number) => void;
@@ -55,6 +57,7 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
   email: '',
   otpViaEmail: false,
   tanggalLahir: '',
+  justRegistered: false,
 };
 
 export const useSignupStore = create<SignupState>((set) => ({

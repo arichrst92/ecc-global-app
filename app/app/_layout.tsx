@@ -23,6 +23,7 @@ import '@/i18n';
 // Web: Alert.alert react-native-web = no-op → map ke dialog browser. No-op di native.
 import '@/utils/webAlertPolyfill';
 import { useAuthStore } from '@/stores/auth.store';
+import { useSignupStore } from '@/stores/signup.store';
 import { ConsentGate } from '@/features/consent/ConsentGate';
 import { AnnouncementPopupHost } from '@/components/announcement/AnnouncementPopupHost';
 import { ImageCropHost } from '@/components/ui/ImageCropHost';
@@ -358,7 +359,14 @@ function RootLayoutNav() {
       // Exception: inDeeplinkAuth supaya kalau user klik magic link ulang saat
       // sudah authed, verify screen tetap consume token + set needsOnboarding.
       router.replace('/(auth)/onboarding' as never);
-    } else if (isAuthenticated && inAuthGroup && !inOnboarding && !needsOnboarding) {
+    } else if (
+      isAuthenticated &&
+      inAuthGroup &&
+      !inOnboarding &&
+      !needsOnboarding &&
+      // Baru selesai daftar → biarkan layar "Pendaftaran berhasil" tampil dulu.
+      !((segments as string[])[1] === 'signup' && useSignupStore.getState().justRegistered)
+    ) {
       // Authed, onboarding done, but on auth screen (welcome/login) → tabs
       router.replace('/(tabs)');
     }

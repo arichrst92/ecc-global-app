@@ -43,12 +43,15 @@ export default function SignupPhoneScreen() {
   const [emailError, setEmailError] = useState<string | null>(null);
   /** Saluran yang sedang gangguan → kotak saran pindah saluran. */
   const [down, setDown] = useState<'whatsapp' | 'email' | null>(null);
+  /** Sudah terdaftar → tombol langsung ke Masuk (sesuai saluran). */
+  const [registered, setRegistered] = useState<'whatsapp' | 'email' | null>(null);
 
   const switchChannel = (c: 'whatsapp' | 'email') => {
     setChannel(c);
     setError(null);
     setEmailError(null);
     setDown(null);
+    setRegistered(null);
   };
 
   const mutation = useMutation({
@@ -87,8 +90,10 @@ export default function SignupPhoneScreen() {
         setDown('email');
       } else if (err.code === 'CONFLICT' && /email/i.test(err.message)) {
         setEmailError(ch === 'email' ? t('signup.email_already_registered') : err.message);
+        setRegistered('email');
       } else if (err.code === 'CONFLICT') {
         setError(t('signup.error_already_registered'));
+        setRegistered('whatsapp');
       } else if (err.code === 'TOO_MANY_REQUESTS') {
         setError(t('auth.error_rate_limited'));
       } else if (ch === 'email') {
@@ -103,6 +108,7 @@ export default function SignupPhoneScreen() {
     setError(null);
     setEmailError(null);
     setDown(null);
+    setRegistered(null);
     const em = email.trim().toLowerCase();
     if (channel === 'email') {
       if (!EMAIL_RE.test(em)) {
@@ -202,6 +208,19 @@ export default function SignupPhoneScreen() {
             )}
           </View>
 
+          {registered ? (
+            <Pressable
+              onPress={() => {
+                reset();
+                router.replace(registered === 'email' ? '/(auth)/login/email' : '/(auth)/login');
+              }}
+              className="mt-4 self-start rounded-lg bg-brand-600 px-3 py-2"
+            >
+              <Text className="text-sm font-semibold text-white">
+                {registered === 'email' ? t('auth.signin_email') : t('auth.signin_otp')}
+              </Text>
+            </Pressable>
+          ) : null}
           {down ? (
             <View className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
               <View className="flex-row gap-2">

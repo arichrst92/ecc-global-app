@@ -4,7 +4,7 @@
  * 2026-05-26: Face login removed (lihat docs/mobile-face-login-removal-impact.md).
  * Auth options sekarang: OTP, Sign up, Guest mode.
  */
-import { Image, Platform, Pressable, Text, View } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -82,6 +82,9 @@ export default function WelcomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-card" edges={['top', 'bottom']}>
+      {/* Bisa digulir: di HP layar pendek / ukuran huruf besar, kartu Daftar &
+          Tamu dulu terpotong di bawah tanpa bisa dijangkau. */}
+      <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }} bounces={false} showsVerticalScrollIndicator={false}>
       <View className="flex-1 px-6">
         {/* Hero */}
         <View className="items-center mt-6 mb-8">
@@ -125,6 +128,7 @@ export default function WelcomeScreen() {
       </View>
 
       {/* Footer — T&C + Privacy clickable links per compliance */}
+      {/* (ikut di dalam ScrollView supaya tidak menimpa kartu di layar pendek) */}
       <View className="px-6 pb-4">
         <Text className="text-xs text-neutral-400 text-center leading-relaxed">
           {t('auth.tos_prefix')}{' '}
@@ -144,6 +148,7 @@ export default function WelcomeScreen() {
           {t('auth.tos_suffix')}
         </Text>
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
