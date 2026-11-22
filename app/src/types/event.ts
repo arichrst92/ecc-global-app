@@ -131,6 +131,9 @@ export type EventParticipation = {
     createdAt: string;
     paidAt: string | null;
   }[];
+  /** Server ≥ 2026-11-22: boleh batal sendiri (belum hadir, belum bayar /
+   *  menunggu verifikasi, event belum mulai). Absen = server lama. */
+  canCancel?: boolean;
 };
 
 /** Response GET /admin/event/:idOrSlug/peserta/mine-and-family — per BE update

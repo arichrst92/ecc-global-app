@@ -1132,8 +1132,10 @@ function ParticipationDetailModal({
   // allow upload bukti untuk family. Payment.tsx accept ?participationId=.
   const showContinuePayment: boolean =
     !!onContinuePayment && status === 'DAFTAR' && !isFree;
+  // Server baru mengirim canCancel (sudah bayar / menunggu verifikasi / event
+  // sudah mulai → batal lewat admin). Server lama → aturan status saja.
   const showCancel: boolean =
-    !!onCancel && status !== 'HADIR' && status !== 'BATAL';
+    !!onCancel && status !== 'HADIR' && status !== 'BATAL' && participation.canCancel !== false;
 
   const statusCfg = (() => {
     if (status === 'HADIR')
