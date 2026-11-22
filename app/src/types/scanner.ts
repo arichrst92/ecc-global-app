@@ -198,6 +198,8 @@ export type IbadahCheckinStats = {
   walkIn?: number;
   // ---- server ≥ 2026-11-22 (info petugas) ----
   belumHadir?: number;
+  /** Sudah reservasi, discan lewat 30 menit setelah mulai. */
+  late?: number;
   self?: number;
   byMe?: number;
   checkedOut?: number;
@@ -210,6 +212,7 @@ export type IbadahCheckinStats = {
     isKidsIbadah: boolean;
     requiresCheckout: boolean;
     cabangNama: string | null;
+    cabangKota?: string | null;
     timezone: string | null;
   };
   scanWindow?: ScanWindowInfo | null;
@@ -231,7 +234,9 @@ export type EventCheckinStats = {
   // ---- server ≥ 2026-11-22 (info petugas) ----
   belumHadir?: number;
   walkIn?: number;
+  late?: number;
   self?: number;
+  byMe?: number;
   event?: {
     judul: string;
     jamMulai: string | null;
@@ -239,6 +244,7 @@ export type EventCheckinStats = {
     lokasi: string | null;
     tipeBayar: string;
     cabangNama: string | null;
+    cabangKota?: string | null;
     timezone: string | null;
   };
   scanWindow?: ScanWindowInfo | null;

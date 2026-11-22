@@ -94,7 +94,7 @@ export default function ScheduleDetailScreen() {
   const hcd = hcDetail.data;
   const canDeleteSchedule =
     !!me &&
-    (!!me.isFulltimer ||
+    (!!hcd?.isHomecellAdmin ||
       hcd?.picJemaatId === me.jemaatId ||
       hcd?.area.picJemaatId === me.jemaatId ||
       !!hcd?.area.pastorIds?.includes(me.jemaatId));

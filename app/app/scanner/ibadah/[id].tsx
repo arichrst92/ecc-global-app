@@ -44,19 +44,23 @@ export default function ScannerIbadahScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { id, tanggal } = useLocalSearchParams<{ id: string; tanggal?: string }>();
-  const tanggalIbadah = tanggal || todayIso();
   const showToast = useToast((s) => s.show);
+
+  // Tanpa ?tanggal → server memakai "hari ini" zona cabang (sama dengan tanggal
+  // yang dicatat saat scan), bukan tanggal HP. Tanggal efektif diambil dari stats.
+  const statsQuery = useIbadahCheckinStats(id, tanggal || null);
+  const tanggalIbadah = tanggal || statsQuery.data?.tanggalIbadah || todayIso();
 
   const ibadahQuery = useScannerIbadah();
   const ibadahMeta = ibadahQuery.data?.find((i) => i.ibadahId === id);
 
-  // Feature flags dari ibadah metadata (BE-provided).
-  // Kalau field belum ada di response (BE lama), default false.
-  const requiresCheckout = ibadahMeta?.requiresCheckout === true;
-  const isKidsIbadah = ibadahMeta?.isKidsIbadah === true;
+  // Feature flags dari ibadah metadata (BE-provided), cadangan dari stats
+  // (admin kehadiran yang bukan petugas tidak punya ibadahMeta).
+  const requiresCheckout =
+    (ibadahMeta?.requiresCheckout ?? statsQuery.data?.ibadah?.requiresCheckout) === true;
+  const isKidsIbadah = (ibadahMeta?.isKidsIbadah ?? statsQuery.data?.ibadah?.isKidsIbadah) === true;
 
   const pickupMutation = usePickupReservasi(id, tanggalIbadah);
-  const statsQuery = useIbadahCheckinStats(id, tanggalIbadah);
   // Walk-in universal (BE endpoint live 2026-08-03 dgn kode alternate).
   // 1 endpoint untuk semua mode: checkin + checkout + pickup.
   const walkInMutation = useWalkInReservasi(id, tanggalIbadah);
@@ -273,7 +277,9 @@ export default function ScannerIbadahScreen() {
         onScan={handleScan}
         // Tunggu data ibadah termuat — ibadah anak tidak menerima tamu walk-in.
         onWalkInGuest={
-          ibadahMeta && !isKidsIbadah && mode === 'checkin' ? () => setWalkInOpen(true) : undefined
+          (ibadahMeta || statsQuery.data?.ibadah) && !isKidsIbadah && mode === 'checkin'
+            ? () => setWalkInOpen(true)
+            : undefined
         }
         onManualInput={() => {
           if (mode === 'pickup') setPickupOpen(true);
@@ -357,6 +363,13 @@ export default function ScannerIbadahScreen() {
               value: stats?.walkIn || undefined,
               tab: 'petugas',
               tone: 'violet',
+            },
+            {
+              key: 'late',
+              label: t('scanner.c_late'),
+              value: stats?.late || undefined,
+              tab: 'petugas',
+              tone: 'amber',
             },
             {
               key: 'self',

@@ -4,8 +4,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listCabang } from '@/api/cabang';
 import { storage } from '@/utils/storage';
 import type { Cabang } from '@/types/cabang';
+import { registerCabangKota } from '@/utils/time';
 
-const CACHE_KEY = 'ecc.branches.v2'; // v2: + timezone
+const CACHE_KEY = 'ecc.branches.v3'; // v2: + timezone, v3: + kota
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 jam
 const QUERY_KEY = ['branches', 'active'] as const;
 
@@ -74,6 +75,11 @@ export function useBranches() {
     staleTime: CACHE_TTL_MS,
     retry: 2,
   });
+
+  // Kota cabang → label jam "Waktu <kota>" di seluruh app (cabangCity).
+  useEffect(() => {
+    if (query.data) registerCabangKota(query.data);
+  }, [query.data]);
 
   return query;
 }

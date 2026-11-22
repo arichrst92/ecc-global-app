@@ -172,11 +172,24 @@ export default function ScannerEventScreen() {
               tone: 'violet',
             },
             {
+              key: 'late',
+              label: t('scanner.c_late'),
+              value: stats?.late || undefined,
+              tab: 'petugas',
+              tone: 'amber',
+            },
+            {
               key: 'self',
               label: t('scanner.c_self'),
               value: stats?.self || undefined,
               tab: 'semua',
               tone: 'sky',
+            },
+            {
+              key: 'me',
+              label: t('scanner.c_me'),
+              value: stats?.byMe != null ? stats.byMe : undefined,
+              tab: 'petugas',
             },
           ]}
         />

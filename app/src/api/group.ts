@@ -95,7 +95,7 @@ export function createGroup(payload: CreateGroupPayload) {
   return api.post<Group>('/admin/group', payload);
 }
 
-/** PATCH /admin/group/:id — PIC atau isFulltimer only. 403 kalau bukan. */
+/** PATCH /admin/group/:id — PIC (atau admin Role Access Group di Portal). 403 kalau bukan. */
 export function updateGroup(groupId: string, payload: UpdateGroupPayload) {
   return api.patch<Group>(`/admin/group/${groupId}`, payload);
 }

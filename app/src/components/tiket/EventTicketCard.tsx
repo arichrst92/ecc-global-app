@@ -153,7 +153,11 @@ export function EventTicketCard({
   // Event tanpa pencatatan kehadiran → tidak perlu QR (tidak ada check-in).
   const noQr = ev.butuhKehadiran === false;
   // Nominal yang diberikan / dibayar (event berbayar & sukarela).
-  const paidText = ev.tipeBayar !== 'GRATIS' && tk.totalBayar > 0 ? rp(tk.totalBayar) : null;
+  // Nominal yang masih menunggu verifikasi diberi keterangan supaya tidak terbaca lunas.
+  const paidText =
+    ev.tipeBayar !== 'GRATIS' && tk.totalBayar > 0
+      ? `${rp(tk.totalBayar)}${tk.totalBayarStatus === 'PENDING' ? ` · ${t('tiket.amount_pending')}` : ''}`
+      : null;
   const stub = noQr ? (
     full ? (
       <View className="items-center">

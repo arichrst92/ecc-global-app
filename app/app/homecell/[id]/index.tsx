@@ -60,7 +60,8 @@ export default function HomecellDetailScreen() {
   // Asisten (2.4.7): ditunjuk PIC — jadwal, absen, tamu, pengumuman, voting, lampiran.
   const isAsisten = !!user && !!homecell?.members.some((m) => (m.jemaat.id ?? m.jemaatId) === user.jemaatId && m.isActive && m.isAsisten);
   const canSchedule = canRemove || isAsisten;
-  const canTamu = isPicHomecell || isPicArea || !!user?.isFulltimer || isAsisten;
+  // Admin = Role Access Homecell dari server (tanpa jalan pintas Fulltimer).
+  const canTamu = isPicHomecell || isPicArea || !!homecell?.isHomecellAdmin || isAsisten;
   const qc = useQueryClient();
   const asistenMut = useMutation({
     mutationFn: (v: { jemaatId: string; isAsisten: boolean }) => setHomecellAsisten(id!, v.jemaatId, v.isAsisten),
@@ -226,7 +227,7 @@ export default function HomecellDetailScreen() {
                   {homecellUsiaLabel(homecell.usiaMin, homecell.usiaMax) ?? t('hcj.usia_semua')}
                 </Text>
               </View>
-              {isPicHomecell || isPicArea || user?.isFulltimer ? (
+              {isPicHomecell || isPicArea || homecell?.isHomecellAdmin ? (
                 <Pressable
                   onPress={() => setReportOpen(true)}
                   className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"
@@ -237,7 +238,7 @@ export default function HomecellDetailScreen() {
                   </Text>
                 </Pressable>
               ) : null}
-              {isPicHomecell || isPicArea || user?.isFulltimer ? (
+              {isPicHomecell || isPicArea || homecell?.isHomecellAdmin ? (
                 <Pressable
                   onPress={() => router.push(`/homecell/${homecell.id}/edit` as never)}
                   className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"
@@ -249,7 +250,7 @@ export default function HomecellDetailScreen() {
                 </Pressable>
               ) : null}
               {/* 2.4.6 — jemaat belum homecell di sekitar homecell ini */}
-              {isPicHomecell || isPicArea || user?.isFulltimer ? (
+              {isPicHomecell || isPicArea || homecell?.isHomecellAdmin ? (
                 <Pressable
                   onPress={() => router.push(`/homecell/${homecell.id}/potensial` as never)}
                   className="bg-white px-2.5 py-1 rounded-full flex-row items-center gap-1"

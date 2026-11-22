@@ -9,6 +9,8 @@ export type Cabang = {
   longitude: number | null;
   /** Zona waktu IANA cabang (BE 2026-10-17), mis. "Asia/Jakarta". */
   timezone?: string | null;
+  /** Kota untuk label jam "Waktu <kota>" (server ≥ 2026-11-22; null = dari nama). */
+  kota?: string | null;
   isActive: boolean;
 };
 

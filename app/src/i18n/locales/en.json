@@ -930,7 +930,10 @@
     "win_early": "Scanning opens at {{open}} ({{zona}})",
     "win_late": "Reservation check-in closed",
     "win_late_sub": "Past {{close}} ({{zona}}) — you can still scan; recorded as walk-in.",
-    "win_closed": "Scanning not available"
+    "win_closed": "Scanning not available",
+    "list_m_walkin_member": "Walk-in",
+    "c_late": "late",
+    "info_expand": "Show scan info"
   },
   "kids": {
     "badge_label": "KIDS SERVICE",
@@ -2645,7 +2648,8 @@
     "checkin_cancelled": "Check-in cancelled",
     "event_cancelled": "Event ticket cancelled",
     "event_cancel_title": "Cancel ticket?",
-    "event_cancel_body": "The ticket for {{name}} at {{event}} will be cancelled and the seat released."
+    "event_cancel_body": "The ticket for {{name}} at {{event}} will be cancelled and the seat released.",
+    "amount_pending": "awaiting verification"
   },
   "appearance": {
     "title": "Appearance",

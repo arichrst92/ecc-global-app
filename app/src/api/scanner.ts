@@ -75,9 +75,10 @@ export async function checkinEvent(
 }
 
 /** GET /admin/ibadah/:id/checkin/stats?tanggalIbadah=YYYY-MM-DD */
-export function getIbadahCheckinStats(ibadahId: string, tanggalIbadah: string) {
+/** Tanpa `tanggalIbadah` → server memakai hari ini zona cabang (sama dengan tanggal scan). */
+export function getIbadahCheckinStats(ibadahId: string, tanggalIbadah?: string | null) {
   return api.get<IbadahCheckinStats>(
-    `/admin/ibadah/${ibadahId}/checkin/stats?tanggalIbadah=${tanggalIbadah}`,
+    `/admin/ibadah/${ibadahId}/checkin/stats${tanggalIbadah ? `?tanggalIbadah=${tanggalIbadah}` : ''}`,
   );
 }
 
@@ -176,7 +177,7 @@ export type ScanListItem = {
   jemaat: { id: string; namaLengkap: string; kode: string | null; fotoUrl: string | null };
   /** Waktu check-in (ISO). */
   at: string | null;
-  /** SCAN | SELF | WALK_IN | MANUAL | null (data lama). */
+  /** SCAN | SELF | WALK_IN | LATE | MANUAL | null (data lama). */
   method: string | null;
   guest: boolean;
   /** Ibadah: discan oleh saya. */

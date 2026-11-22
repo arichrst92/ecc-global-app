@@ -111,6 +111,8 @@ export type GroupDetail = Group & {
   pendingJoinCount?: number;
   /** Server menyembunyikan daftar anggota (saya belum anggota). */
   membersHidden?: boolean;
+  /** Server ≥ 2026-11-22: boleh kelola group (PIC / admin Role Access Group). */
+  canManage?: boolean;
 };
 
 /** Hasil join: langsung jadi anggota (PIC/admin) atau menunggu persetujuan. */

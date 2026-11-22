@@ -29,7 +29,7 @@ type Target =
   | { kind: 'event'; eventId: string };
 export type ScanListTab = 'petugas' | 'semua' | 'belum';
 
-const BY_PETUGAS = new Set(['SCAN', 'WALK_IN']);
+const BY_PETUGAS = new Set(['SCAN', 'WALK_IN', 'LATE']);
 
 export function ScanListModal({
   visible,
@@ -86,8 +86,10 @@ export function ScanListModal({
 
   function methodLabel(r: ScanListItem): string | null {
     if (r.status === 'BELUM') return null;
+    // LATE (server ≥ 2026-11-22) = sudah reservasi/terdaftar tapi discan terlambat.
+    if (r.method === 'LATE') return t('scanner.list_m_late');
     if (r.method === 'WALK_IN')
-      return r.guest ? t('scanner.list_m_walkin') : t('scanner.list_m_late');
+      return r.guest ? t('scanner.list_m_walkin') : t('scanner.list_m_walkin_member');
     if (r.method === 'SELF') return t('scanner.list_m_self');
     if (r.method === 'MANUAL') return t('scanner.list_m_manual');
     return null;

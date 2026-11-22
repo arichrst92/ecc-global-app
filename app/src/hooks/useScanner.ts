@@ -13,10 +13,7 @@ import {
   getActiveToday,
 } from '@/api/scanner';
 import { useScreenInterval } from '@/hooks/useScreenInterval';
-import type {
-  ReservasiPickupPayload,
-  WalkInReservasiPayload,
-} from '@/types/scanner';
+import type { ReservasiPickupPayload, WalkInReservasiPayload } from '@/types/scanner';
 
 /** List event yang user authorized scan */
 export function useScannerEvents() {
@@ -46,7 +43,7 @@ export function useCheckinIbadah(ibadahId: string) {
     onSuccess: (_, variables) => {
       if (variables.tanggalIbadah) {
         queryClient.invalidateQueries({
-          queryKey: ['scanner', 'stats', 'ibadah', ibadahId, variables.tanggalIbadah],
+          queryKey: ['scanner', 'stats', 'ibadah', ibadahId],
         });
       }
       queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
@@ -58,8 +55,7 @@ export function useCheckinIbadah(ibadahId: string) {
 export function useCheckinEvent(eventId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { kode: string; force?: boolean }) =>
-      checkinEvent(eventId, payload),
+    mutationFn: (payload: { kode: string; force?: boolean }) => checkinEvent(eventId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['scanner', 'stats', 'event', eventId],
@@ -72,13 +68,14 @@ export function useCheckinEvent(eventId: string) {
 /** Live stats polling untuk ibadah scanner. Default poll 10s saat enabled. */
 export function useIbadahCheckinStats(
   ibadahId: string,
-  tanggalIbadah: string,
+  /** Kosong → hari ini menurut zona cabang (server). */
+  tanggalIbadah?: string | null,
   enabled = true,
 ) {
   return useQuery({
-    queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
+    queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah ?? 'today'],
     queryFn: () => getIbadahCheckinStats(ibadahId, tanggalIbadah),
-    enabled: !!ibadahId && !!tanggalIbadah && enabled,
+    enabled: !!ibadahId && enabled,
     refetchInterval: useScreenInterval(10_000),
     staleTime: 5_000,
   });
@@ -106,7 +103,7 @@ export function useCheckoutReservasi(ibadahId: string, tanggalIbadah?: string) {
     onSuccess: () => {
       if (tanggalIbadah) {
         queryClient.invalidateQueries({
-          queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
+          queryKey: ['scanner', 'stats', 'ibadah', ibadahId],
         });
       }
       queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
@@ -125,7 +122,7 @@ export function usePickupReservasi(ibadahId: string, tanggalIbadah?: string) {
     onSuccess: () => {
       if (tanggalIbadah) {
         queryClient.invalidateQueries({
-          queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
+          queryKey: ['scanner', 'stats', 'ibadah', ibadahId],
         });
       }
       queryClient.invalidateQueries({ queryKey: ['my-reservasi'] });
@@ -144,7 +141,7 @@ export function useWalkInReservasi(ibadahId?: string, tanggalIbadah?: string) {
     onSuccess: () => {
       if (ibadahId && tanggalIbadah) {
         queryClient.invalidateQueries({
-          queryKey: ['scanner', 'stats', 'ibadah', ibadahId, tanggalIbadah],
+          queryKey: ['scanner', 'stats', 'ibadah', ibadahId],
         });
       }
     },

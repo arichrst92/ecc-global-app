@@ -297,7 +297,7 @@ export default function GroupDetailScreen() {
           emoji={jenisInfo.emoji}
           isPublic={group.isPublic}
           heroImageUrl={group.heroImageUrl}
-          canEdit={group.picJemaatId ? isPIC : !!user?.isFulltimer}
+          canEdit={group.canManage ?? isPIC}
         />
 
         {/* Meta info */}
@@ -629,7 +629,7 @@ export default function GroupDetailScreen() {
             </>
           ) : group.isPublic ? (
             <Button
-              label={isPIC || user?.isFulltimer ? t('group.join') : t('group.join_request_btn')}
+              label={isPIC ? t('group.join') : t('group.join_request_btn')}
               onPress={handleJoin}
               loading={joinMutation.isPending}
               fullWidth

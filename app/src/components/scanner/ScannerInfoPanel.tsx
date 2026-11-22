@@ -4,11 +4,14 @@
  *  - status jendela scan: belum dibuka / dibuka s.d. HH:mm / terlambat → walk-in
  *  - ringkasan: hadir · belum hadir · tamu walk-in · self check-in · discan saya
  * Ketuk ringkasan → daftar (tab sesuai angka yang diketuk).
+ * Default TERLIPAT (satu baris status + ringkasan) supaya tidak menutupi
+ * bingkai kamera di HP kecil; ketuk baris atas untuk membuka detail.
  * Server lama tidak mengirim info ini → panel tidak tampil.
  */
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Clock, MapPin } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Clock, MapPin } from 'lucide-react-native';
 
 import type { ScanWindowInfo } from '@/types/scanner';
 import type { ScanListTab } from '@/components/scanner/ScanListModal';
@@ -26,6 +29,7 @@ export function ScannerInfoPanel({
     jamSelesai: string | null;
     lokasi: string | null;
     cabangNama: string | null;
+    cabangKota?: string | null;
     timezone: string | null;
   } | null;
   window?: ScanWindowInfo | null;
@@ -41,6 +45,7 @@ export function ScannerInfoPanel({
   showWindow?: boolean;
 }) {
   const { t, i18n } = useTranslation();
+  const [open, setOpen] = useState(false);
   const shown = counts.filter((c) => c.value != null);
   const time =
     info?.jamMulai && info.jamMulai !== '-'
@@ -49,19 +54,54 @@ export function ScannerInfoPanel({
           info.jamSelesai,
           info.timezone,
           i18n.language,
-          cabangCity(info.cabangNama),
+          info.cabangKota || cabangCity(info.cabangNama),
         )
       : '';
   if (!time && !info?.lokasi && !w && shown.length === 0) return null;
 
   const win = showWindow && w ? windowView(w, t) : null;
+  const Chevron = open ? ChevronUp : ChevronDown;
+
+  if (!open) {
+    // Terlipat: status scan (atau jam) + angka ringkas dalam satu baris.
+    return (
+      <Pressable
+        onPress={() => setOpen(true)}
+        accessibilityLabel={t('scanner.info_expand')}
+        className="mx-4 mt-1 bg-black/55 rounded-full pl-2 pr-3 py-1.5 flex-row items-center gap-2 active:opacity-80"
+      >
+        {win ? (
+          <View className={`w-2.5 h-2.5 rounded-full ${win.dot}`} />
+        ) : (
+          <Clock size={12} color="#d4d4d4" />
+        )}
+        <Text className="text-white text-[11px] font-semibold flex-1" numberOfLines={1}>
+          {win ? win.title : time}
+          {shown.length
+            ? `  ·  ${shown
+                .slice(0, 2)
+                .map((c) => `${c.value} ${c.label}`)
+                .join(' · ')}`
+            : ''}
+        </Text>
+        <Chevron size={14} color="#fff" />
+      </Pressable>
+    );
+  }
 
   return (
     <View className="mx-4 mt-1 bg-black/55 rounded-2xl px-3 py-2.5">
+      <Pressable
+        onPress={() => setOpen(false)}
+        hitSlop={6}
+        className="absolute right-2 top-2 z-10 p-1"
+      >
+        <Chevron size={14} color="#fff" />
+      </Pressable>
       {time ? (
         <View className="flex-row items-center gap-1.5">
           <Clock size={12} color="#d4d4d4" />
-          <Text className="text-white/90 text-[11px] flex-1" numberOfLines={1}>
+          <Text className="text-white/90 text-[11px] flex-1 pr-5" numberOfLines={1}>
             {time}
           </Text>
         </View>
@@ -113,19 +153,31 @@ function windowView(w: ScanWindowInfo, t: (k: string, o?: Record<string, unknown
   switch (w.phase) {
     case 'OPEN':
       return {
+        dot: 'bg-emerald-400',
         bg: 'bg-emerald-600/80',
         title: t('scanner.win_open', o),
         sub: t('scanner.win_open_sub', o),
       };
     case 'TOO_EARLY':
-      return { bg: 'bg-amber-600/80', title: t('scanner.win_early', o), sub: w.message };
+      return {
+        dot: 'bg-amber-400',
+        bg: 'bg-amber-600/80',
+        title: t('scanner.win_early', o),
+        sub: w.message,
+      };
     case 'LATE':
       return {
+        dot: 'bg-violet-400',
         bg: 'bg-violet-600/80',
         title: t('scanner.win_late'),
         sub: t('scanner.win_late_sub', o),
       };
     default:
-      return { bg: 'bg-red-600/80', title: t('scanner.win_closed'), sub: w.message };
+      return {
+        dot: 'bg-red-400',
+        bg: 'bg-red-600/80',
+        title: t('scanner.win_closed'),
+        sub: w.message,
+      };
   }
 }

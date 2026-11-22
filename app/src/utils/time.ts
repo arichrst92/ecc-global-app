@@ -204,8 +204,21 @@ const isEn = (lang: string | null | undefined) => !!lang && lang.startsWith('en'
  * ("Waktu Makassar" dari Asia/Makassar). null bila nama tidak tersedia.
  */
 export function cabangCity(nama: string | null | undefined): string | null {
+  const kota = nama ? KOTA_BY_NAMA.get(nama.trim().toLowerCase()) : undefined;
+  if (kota) return kota;
   const s = (nama ?? '').replace(/^\s*ECC\s+/i, '').trim();
   return s || null;
+}
+
+/** Kota cabang dari daftar cabang (kolom `kota` di Portal) — diisi `useBranches`. */
+const KOTA_BY_NAMA = new Map<string, string>();
+export function registerCabangKota(list: Array<{ nama: string; kota?: string | null }>) {
+  for (const c of list) {
+    const key = c.nama.trim().toLowerCase();
+    const k = c.kota?.trim();
+    if (k) KOTA_BY_NAMA.set(key, k);
+    else KOTA_BY_NAMA.delete(key);
+  }
 }
 
 /** "Waktu Kuala Lumpur" / "Kuala Lumpur time". `city` = kota cabang (opsional). */

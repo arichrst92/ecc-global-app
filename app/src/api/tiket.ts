@@ -15,6 +15,8 @@ export type EventTiket = {
   checkinMethod: string | null;
   payment: TicketPayment;
   totalBayar: number;
+  /** Server ≥ 2026-11-22: CONFIRMED = terverifikasi, PENDING = menunggu verifikasi. */
+  totalBayarStatus?: 'CONFIRMED' | 'PENDING' | null;
   /** Boleh dibatalkan sendiri (gratis/belum bayar, event belum mulai). Server lama: undefined. */
   canCancel?: boolean;
   isSelf: boolean;

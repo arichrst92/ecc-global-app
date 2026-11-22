@@ -68,6 +68,8 @@ export type HomecellMember = {
  * Per BE patch 2026-05-21p (extended existing endpoint). */
 export type HomecellDetail = {
   id: string;
+  /** Server ≥ 2026-11-22: admin Role Access Homecell (bukan status Fulltimer). */
+  isHomecellAdmin?: boolean;
   nama: string;
   deskripsi?: string | null;
   mapsUrl?: string | null;
