@@ -160,7 +160,7 @@ function DateSection({
   onTapItem,
 }: {
   date: string;
-  items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null; okupansi?: IbadahOkupansi | null; reservasiClosesAt?: string; isOnline?: boolean; linkOnline?: string | null }[];
+  items: { ibadahId: string; nama: string; jamMulai: string; jamSelesai: string; lokasi: string; kategoriIbadah?: { nama: string } | null; okupansi?: IbadahOkupansi | null; reservasiClosesAt?: string; isOnline?: boolean; linkOnline?: string | null; isKidsIbadah?: boolean }[];
   onTapItem: (id: string) => void;
 }) {
   const { i18n, t } = useTranslation();
@@ -225,7 +225,7 @@ function DateSection({
               {/* Kuota seat pertemuan — sama dengan detail ibadah (hanya bila seat diisi) */}
               <OccupancyBar data={item.okupansi} compact />
               {/* Batas reservasi (DD:hh:mm) — pertemuan yang belum selesai */}
-              {!ended ? <DeadlineCountdown closesAt={item.reservasiClosesAt} kind="ibadah" compact className="mt-1.5" /> : null}
+              {!ended ? <DeadlineCountdown closesAt={item.reservasiClosesAt} kind={item.isKidsIbadah ? 'kids' : 'ibadah'} compact className="mt-1.5" /> : null}
             </View>
             <ChevronRight size={16} color={nc('#A3A3A3')} />
           </Pressable>
