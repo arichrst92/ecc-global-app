@@ -273,7 +273,9 @@ function EventCard({
             </Text>
           </View>
         )}
-        <DeadlineCountdown closesAt={event.registrationClosesAt} kind="event" compact className="mt-2" />
+        {event.tipeBayar === 'NOMINAL_BEBAS' ? null : (
+          <DeadlineCountdown closesAt={event.registrationClosesAt} kind="event" compact className="mt-2" />
+        )}
       </View>
     </Pressable>
   );

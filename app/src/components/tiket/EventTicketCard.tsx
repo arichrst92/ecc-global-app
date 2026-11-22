@@ -35,8 +35,14 @@ export function eventDateText(ev: EventTiket['event'], lang: string): string {
 }
 
 /** Jam event dalam zona cabang + labelnya, mis. "18.00 - 21.00 Waktu Sydney". */
+/** Lokasi event diisi admin (bukan kosong / "-"). */
+export function hasEventLokasi(ev: { lokasi: string | null }): boolean {
+  const l = ev.lokasi?.trim();
+  return !!l && l !== '-';
+}
+
 export function eventTimeText(ev: EventTiket['event'], lang?: string): string {
-  if (!ev.jamMulai) return '';
+  if (!ev.jamMulai || ev.jamMulai === '-') return '';
   return zoneTimeText(ev.jamMulai, ev.jamSelesai, ev.timezone, lang);
 }
 
@@ -117,8 +123,9 @@ export function EventTicketCard({
       <Text className="text-lg font-bold text-neutral-900 mb-2">{ev.judul}</Text>
       <View className="flex-row flex-wrap">
         <InfoCell label={t('tiket.date')} value={eventDateText(ev, i18n.language)} />
-        <InfoCell label={t('tiket.time')} value={eventTimeText(ev, i18n.language) || '-'} />
-        <InfoCell label={t('tiket.location')} value={ev.lokasi || ev.cabang?.nama || '-'} />
+        {/* Jam / lokasi tidak diisi admin → sel tidak ditampilkan. */}
+        {eventTimeText(ev, i18n.language) ? <InfoCell label={t('tiket.time')} value={eventTimeText(ev, i18n.language)} /> : null}
+        {hasEventLokasi(ev) ? <InfoCell label={t('tiket.location')} value={ev.lokasi!.trim()} /> : null}
         <InfoCell
           label={t('tiket.fee')}
           value={
@@ -138,7 +145,7 @@ export function EventTicketCard({
         {eventDateText(ev, i18n.language)}
         {eventTimeText(ev, i18n.language) ? ` · ${eventTimeText(ev, i18n.language)}` : ''}
       </InfoLine>
-      {ev.lokasi ? <InfoLine icon={<MapPin size={11} color={nc('#737373')} />}>{ev.lokasi}</InfoLine> : null}
+      {hasEventLokasi(ev) ? <InfoLine icon={<MapPin size={11} color={nc('#737373')} />}>{ev.lokasi}</InfoLine> : null}
     </View>
   );
 

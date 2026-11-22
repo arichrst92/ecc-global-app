@@ -326,7 +326,9 @@ function HomeScreenAuthenticated() {
                           );
                         })()
                       ) : null}
-                      <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact className="mt-1.5" />
+                      {e.tipeBayar === 'NOMINAL_BEBAS' ? null : (
+                        <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact className="mt-1.5" />
+                      )}
                     </View>
                   </Pressable>
                 );

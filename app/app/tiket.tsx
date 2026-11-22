@@ -18,7 +18,7 @@ import { CalendarPlus, Map, X } from 'lucide-react-native';
 
 import { listMyEventTickets, type EventTiket, type TicketScope } from '@/api/tiket';
 import { useMyReservasi } from '@/hooks/useMyReservasi';
-import { EventTicketCard } from '@/components/tiket/EventTicketCard';
+import { EventTicketCard, hasEventLokasi } from '@/components/tiket/EventTicketCard';
 import { IbadahTicketCard } from '@/components/tiket/IbadahTicketCard';
 import { TicketReviewCard } from '@/components/tiket/TicketReviewCard';
 import { addTicketToCalendar, openDirections, ticketTimes } from '@/components/tiket/ticketActions';
@@ -230,14 +230,17 @@ export default function TiketScreen() {
                       <Text className="text-white text-xs font-semibold">{t('tiket.add_calendar')}</Text>
                     </Pressable>
                   ) : null}
-                  <Pressable
-                    onPress={() => onDirections(item)}
-                    className="flex-1 rounded-xl py-3 flex-row items-center justify-center gap-1.5"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.18)' }}
-                  >
-                    <Map size={15} color="#fff" />
-                    <Text className="text-white text-xs font-semibold">{t('tiket.directions')}</Text>
-                  </Pressable>
+                  {/* Event tanpa lokasi → tidak ada tombol Petunjuk arah. */}
+                  {item.kind === 'event' && !hasEventLokasi(item.t.event) ? null : (
+                    <Pressable
+                      onPress={() => onDirections(item)}
+                      className="flex-1 rounded-xl py-3 flex-row items-center justify-center gap-1.5"
+                      style={{ backgroundColor: 'rgba(255,255,255,0.18)' }}
+                    >
+                      <Map size={15} color="#fff" />
+                      <Text className="text-white text-xs font-semibold">{t('tiket.directions')}</Text>
+                    </Pressable>
+                  )}
                 </View>
                 {item.kind === 'event' ? (
                   item.t.isSelf ? <TicketReviewCard kind="EVENT" ticketId={item.t.id} onInputFocus={() => scrollPageToEnd(item.t.id)} /> : null

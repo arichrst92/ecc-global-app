@@ -380,22 +380,20 @@ export default function EventDetailScreen() {
                   const local = event.jamMulai && event.jamMulai !== '-'
                     ? localRangeIfDifferent(ymdInTz(event.tanggalMulai, venueTz), event.jamMulai, event.jamSelesai, venueTz)
                     : null;
-                  // Jam mulai & selesai dikosongkan admin → tampilkan "-".
+                  // Jam tidak diisi admin → baris jam tidak ditampilkan.
+                  if (!range) return null;
                   return (
                     <MetaRow
                       icon={<Clock size={18} color="#EA580C" />}
-                      primary={range ?? '-'}
-                      secondary={range && local ? t('time.your_time', { time: local }) : null}
+                      primary={range}
+                      secondary={local ? t('time.your_time', { time: local }) : null}
                     />
                   );
                 })()}
-                <MetaRow
-                  icon={<MapPin size={18} color="#EA580C" />}
-                  primary={
-                    // Lokasi dikosongkan admin → "-"
-                    event.lokasi && event.lokasi.trim().length > 0 ? event.lokasi : '-'
-                  }
-                />
+                {/* Lokasi tidak diisi admin → baris lokasi tidak ditampilkan. */}
+                {event.lokasi && event.lokasi.trim().length > 0 && event.lokasi.trim() !== '-' ? (
+                  <MetaRow icon={<MapPin size={18} color="#EA580C" />} primary={event.lokasi} />
+                ) : null}
                 {event.quotaPeserta != null ? (
                   <View className="flex-row items-center gap-3">
                     <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
