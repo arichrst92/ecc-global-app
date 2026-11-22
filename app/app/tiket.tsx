@@ -216,7 +216,9 @@ export default function TiketScreen() {
                     onCancelled={() => goBack(router, '/my-reservasi')}
                   />
                 )}
-                <Text className="text-white/90 text-[11px] text-center mt-3">{t('tiket.bright_hint')}</Text>
+                {item.kind === 'event' && item.t.event.butuhKehadiran === false ? null : (
+                  <Text className="text-white/90 text-[11px] text-center mt-3">{t('tiket.bright_hint')}</Text>
+                )}
                 <View className="flex-row gap-2 mt-3">
                   {Platform.OS !== 'web' ? (
                     <Pressable

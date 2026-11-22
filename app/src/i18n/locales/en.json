@@ -2561,6 +2561,8 @@
     "success_toast": "Checked in: {{name}}",
     "participant": "ATTENDEE",
     "on_behalf": "NAME",
+    "registered": "You're registered",
+    "no_checkin": "This event doesn't need check-in — no QR needed.",
     "show_qr_usher": "Show this QR to the usher at the entrance",
     "desk_kids": "Kids check-in is done at the CKids desk",
     "pay_now": "Complete payment",

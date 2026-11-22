@@ -36,6 +36,8 @@ export type EventTiket = {
     longitude: number | null;
     tipeBayar: 'GRATIS' | 'NOMINAL_TETAP' | 'NOMINAL_BEBAS';
     nominal: number | null;
+    /** Server ≥ 2026-11-22. false = event tidak mencatat kehadiran → tiket tanpa QR. */
+    butuhKehadiran?: boolean;
     cabang: { nama: string } | null;
     timezone: string;
   };

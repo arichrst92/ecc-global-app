@@ -2555,6 +2555,8 @@
     "success_toast": "Check-in berhasil: {{name}}",
     "participant": "PESERTA",
     "on_behalf": "ATAS NAMA",
+    "registered": "Anda terdaftar",
+    "no_checkin": "Event ini tidak memerlukan check-in — tidak perlu menunjukkan QR.",
     "show_qr_usher": "Tunjukkan QR ini ke usher saat masuk",
     "desk_kids": "Check-in anak dilakukan di meja CKids",
     "pay_now": "Selesaikan pembayaran",

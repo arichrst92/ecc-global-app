@@ -9,7 +9,7 @@ import { Alert, Pressable, Text, View } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { CalendarDays, CreditCard, MapPin } from 'lucide-react-native';
+import { CalendarDays, CircleCheck, CreditCard, MapPin } from 'lucide-react-native';
 
 import { HeroImage } from '@/components/ui/HeroImage';
 import { cancelMyEventTicket, type EventTiket } from '@/api/tiket';
@@ -143,7 +143,46 @@ export function EventTicketCard({
   );
 
   const qrDim = unpaid && !hadir;
-  const stub = full ? (
+  // Event tanpa pencatatan kehadiran → tidak perlu QR (tidak ada check-in).
+  const noQr = ev.butuhKehadiran === false;
+  // Nominal yang diberikan / dibayar (event berbayar & sukarela).
+  const paidText = ev.tipeBayar !== 'GRATIS' && tk.totalBayar > 0 ? rp(tk.totalBayar) : null;
+  const stub = noQr ? (
+    full ? (
+      <View className="items-center">
+        <Text className="text-[9px] text-neutral-400 tracking-wider">{t('tiket.participant')}</Text>
+        <View className="flex-row items-center gap-1.5 mb-3">
+          <Text className="text-base font-bold text-neutral-900">{tk.jemaat.namaLengkap}</Text>
+          {relasi}
+        </View>
+        <View className="w-16 h-16 rounded-full bg-emerald-50 items-center justify-center">
+          <CircleCheck size={32} color="#059669" />
+        </View>
+        <Text className="mt-2 text-sm font-semibold text-neutral-800">{t('tiket.registered')}</Text>
+        {paidText ? <Text className="mt-1 text-base font-bold text-neutral-900">{paidText}</Text> : null}
+        <View className="mt-2">
+          <StatusPill label={t(`tiket.${st.key}`)} tone={st.tone} />
+        </View>
+      </View>
+    ) : (
+      <View className="flex-row items-center gap-2.5">
+        <View className="w-[46px] h-[46px] rounded-xl bg-emerald-50 items-center justify-center">
+          <CircleCheck size={22} color="#059669" />
+        </View>
+        <View className="flex-1 min-w-0">
+          <Text className="text-[9px] text-neutral-400 tracking-wider">{t('tiket.participant')}</Text>
+          <View className="flex-row items-center gap-1.5">
+            <Text className="text-[13px] font-semibold text-neutral-900 flex-shrink" numberOfLines={1}>
+              {tk.jemaat.namaLengkap}
+            </Text>
+            {relasi}
+          </View>
+          {paidText ? <Text className="text-[11px] font-semibold text-neutral-700">{paidText}</Text> : null}
+        </View>
+        <StatusPill label={t(`tiket.${st.key}`)} tone={st.tone} />
+      </View>
+    )
+  ) : full ? (
     <View className="items-center">
       <Text className="text-[9px] text-neutral-400 tracking-wider">{t('tiket.participant')}</Text>
       <View className="flex-row items-center gap-1.5 mb-3">
@@ -174,6 +213,7 @@ export function EventTicketCard({
           {relasi}
         </View>
         <Text className="text-[10px] text-neutral-500 tracking-widest">{tk.jemaat.kode ?? ''}</Text>
+        {paidText ? <Text className="text-[11px] font-semibold text-neutral-700">{paidText}</Text> : null}
       </View>
       <StatusPill label={t(`tiket.${st.key}`)} tone={st.tone} />
     </View>
@@ -198,6 +238,8 @@ export function EventTicketCard({
         <Hint tone="amber" text={t('tiket.waiting_verify')} />
       </View>
     );
+  } else if (noQr) {
+    footer = <Hint text={t('tiket.no_checkin')} />;
   } else if (!tk.selfCheckin.enabled) {
     footer = <Hint text={t('tiket.show_qr_usher')} />;
   } else if (win !== 'CLOSED') {
