@@ -9,6 +9,7 @@
  * - Note lawan: read-only display
  * - Cancel (initiator-only, < 1 jam)
  */
+import { appRule } from '@/config/appRules';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -92,11 +93,11 @@ export default function VisitDetailScreen() {
     return () => clearInterval(iv);
   }, []);
 
-  // Cancel allowed kalau initiator + visit < 1 jam
+  // Cancel allowed kalau initiator + visit < N menit (server, bawaan 60)
   const canCancel = (() => {
     if (!visit?.iAmInitiator) return false;
     const ageMs = now - new Date(visit.createdAt).getTime();
-    return ageMs < 60 * 60 * 1000;
+    return ageMs < appRule('visitCancelMin') * 60 * 1000;
   })();
 
   function handleSaveMeta() {

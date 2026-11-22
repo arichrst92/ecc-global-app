@@ -15,6 +15,10 @@ export type AppConfig = {
   /** Kalau false, BE drop diagnostics error event tanpa write DB. Tetap
    *  mobile push unconditionally — BE handle. Default true. */
   errorReportingEnabled: boolean;
+  /** Server ≥ 2026-11: angka aturan yang dulu tertanam di app (lihat config/appRules). */
+  rules?: Partial<import('@/config/appRules').AppRules>;
+  /** Server ≥ 2026-11: teks i18n pengganti per bahasa (Portal → App Config → Teks app). */
+  texts?: import('@/config/appRules').AppTexts;
 };
 
 /** Default fallback values — dipakai kalau /public/app-config gagal (network

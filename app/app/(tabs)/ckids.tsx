@@ -52,7 +52,7 @@ import {
 import { useCKidsSelectionStore } from '@/stores/ckids-selection.store';
 import type { ChildGroupedBalance, HadiahKatalog, HadiahRedeem } from '@/types/ckids';
 import { env } from '@/config/env';
-import { ageInYears, CKIDS_MAX_AGE } from '@/utils/ckidsAge';
+import { ageInYears, ckidsMaxAge } from '@/utils/ckidsAge';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
@@ -204,7 +204,7 @@ export default function CKidsTabScreen() {
   // Mode tamu → ajakan daftar (CKids memakai data Keluarga di akun).
   if (isGuest) return <GuestTabPrompt title={t('ckids.guest_title')} body={t('ckids.guest_body')} />;
 
-  // Tab CKids selalu tampil. Belum ada anak ≤ CKIDS_MAX_AGE tahun (atau tanggal
+  // Tab CKids selalu tampil. Belum ada anak ≤ ckidsMaxAge() tahun (atau tanggal
   // lahirnya belum diisi) → jelaskan cara menambahkan anak di Keluarga.
   if (!childrenPending && isEmpty) {
     return (
@@ -217,7 +217,7 @@ export default function CKidsTabScreen() {
           <ElsEmptyIcon size={80} className="mb-4" />
           <Text className="text-lg font-bold text-neutral-900 text-center mb-2">{t('ckids.empty_title')}</Text>
           <Text className="text-sm text-neutral-500 text-center leading-5 mb-6">
-            {t('ckids.empty_body', { max: CKIDS_MAX_AGE })}
+            {t('ckids.empty_body', { max: ckidsMaxAge() })}
           </Text>
           <Button label={t('ckids.add_child_cta')} onPress={() => router.push('/family/add' as never)} />
           <Text className="text-xs text-neutral-400 text-center leading-4 mt-4">{t('ckids.empty_dob_hint')}</Text>
@@ -259,7 +259,7 @@ export default function CKidsTabScreen() {
         {/* Info batas usia CKids */}
         <View className="mx-4 mt-3 mb-1 flex-row items-start gap-2 bg-sky-50 border border-sky-100 rounded-xl px-3 py-2.5">
           <Info size={14} color={nc('#0369A1')} style={{ marginTop: 2 }} />
-          <Text className="flex-1 text-xs text-sky-800 leading-4">{t('ckids.age_rule_info', { max: CKIDS_MAX_AGE })}</Text>
+          <Text className="flex-1 text-xs text-sky-800 leading-4">{t('ckids.age_rule_info', { max: ckidsMaxAge() })}</Text>
         </View>
 
         {/* Anak selector — tampil kalau multi anak. Selector kini source

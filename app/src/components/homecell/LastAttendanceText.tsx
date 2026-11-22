@@ -3,6 +3,7 @@
  * atau (variant="homecell") "Terakhir homecell: …" di bawah nama homecell.
  * Warna: ≤7 hari hijau, ≤30 hari kuning, >30 hari merah.
  */
+import { appRule } from '@/config/appRules';
 import { Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -33,7 +34,8 @@ export function LastAttendanceText({
   });
   const rel =
     daysAgo === 0 ? t('hcj.last_today') : daysAgo === 1 ? t('hcj.last_yesterday') : t('hcj.last_days_ago', { count: daysAgo });
-  const color = daysAgo <= 7 ? 'text-green-700' : daysAgo <= 30 ? 'text-amber-700' : 'text-red-600';
+  const color =
+    daysAgo <= appRule('homecellOkDays') ? 'text-green-700' : daysAgo <= appRule('homecellWarnDays') ? 'text-amber-700' : 'text-red-600';
   return (
     <Text className="text-[11px] text-neutral-500 mt-0.5" numberOfLines={1}>
       {isHc ? t('hcj.last_meeting', { date: tgl }) : t('hcj.last_attended', { date: tgl })} · <Text className={`font-semibold ${color}`}>{rel}</Text>

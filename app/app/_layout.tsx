@@ -45,6 +45,7 @@ import { prefetchBranches } from '@/hooks/useBranches';
 import { prefetchMaintenance, useMaintenanceMode } from '@/hooks/useMaintenanceMode';
 import { prefetchAppVersion, useAppVersion } from '@/hooks/useAppVersion';
 import { prefetchAppConfig, useAppConfig } from '@/hooks/useAppConfig';
+import { applyAppRulesConfig, hydrateAppRules } from '@/config/appRules';
 import {
   addBreadcrumb,
   initErrorReporting,
@@ -145,6 +146,8 @@ export default function RootLayout() {
       hydrateEventFlow(),
       hydrateNotifications(),
       hydrateBible(),
+      // Aturan & teks dari server (konfigurasi terakhir) sebelum layar pertama.
+      hydrateAppRules(),
     ]).then(() => setHydrated(true));
     // Splash pre-warm — parallel dengan hydration. Gate decisions
     // (maintenance, force-update) ready by time splash hides supaya tidak
@@ -259,6 +262,10 @@ function AppEffects() {
   useEffect(() => {
     setAnalyticsServerRate(appConfig.data.telemetrySamplingRate);
   }, [appConfig.data.telemetrySamplingRate]);
+  // Aturan & teks app dari server (label tanpa build baru).
+  useEffect(() => {
+    applyAppRulesConfig(appConfig.data);
+  }, [appConfig.data]);
 
   return null;
 }

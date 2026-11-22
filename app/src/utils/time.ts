@@ -1,3 +1,4 @@
+
 /**
  * Waktu untuk jemaat di berbagai negara / zona waktu.
  *
@@ -12,6 +13,8 @@
  * Kalau Intl tidak mendukung zona waktu (perangkat lama), konversi dilewati
  * dan jam tampil apa adanya — tidak pernah error.
  */
+
+import { appRule } from '@/config/appRules';
 
 export const DEFAULT_VENUE_TZ = 'Asia/Jakarta';
 
@@ -335,8 +338,13 @@ export function venueInstantMs(ymd: string, hhmm: string | null | undefined, tz:
   return instant;
 }
 
-/** Self check-in masih dibuka 30 menit setelah ibadah/event selesai (sama dengan server). */
-export const SELF_CHECKIN_GRACE_MS = 30 * 60 * 1000;
+/**
+ * Self check-in masih dibuka N menit setelah ibadah/event selesai — angka dari
+ * server (/public/app-config `rules.selfCheckinCloseAfterMin`, bawaan 30).
+ */
+export function selfCheckinGraceMs(): number {
+  return appRule('selfCheckinCloseAfterMin') * 60 * 1000;
+}
 
 /**
  * Ibadah pada tanggal `ymd` sudah selesai (jam selesai di zona cabang sudah

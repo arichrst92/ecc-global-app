@@ -4,7 +4,8 @@
  * jadi pengguna yang memilih kalender & menyimpan.
  */
 import { Linking, Platform } from 'react-native';
-import { SELF_CHECKIN_GRACE_MS } from '@/utils/time';
+import { selfCheckinGraceMs } from '@/utils/time';
+import { appRule } from '@/config/appRules';
 
 export type CalendarInput = {
   title: string;
@@ -63,8 +64,9 @@ export async function openDirections(opts: {
  */
 export function ticketTimes(opensAt: string | null | undefined, closesAt: string | null | undefined) {
   if (!opensAt) return null;
-  const start = new Date(Date.parse(opensAt) + 15 * 60 * 1000);
-  const endMs = closesAt ? Date.parse(closesAt) - SELF_CHECKIN_GRACE_MS : NaN;
+  // Jam mulai = dibuka + N menit (N dari server, bawaan 15).
+  const start = new Date(Date.parse(opensAt) + appRule('selfCheckinOpenBeforeMin') * 60 * 1000);
+  const endMs = closesAt ? Date.parse(closesAt) - selfCheckinGraceMs() : NaN;
   const end = endMs > start.getTime() ? new Date(endMs) : new Date(start.getTime() + 2 * 60 * 60 * 1000);
   return { start, end };
 }

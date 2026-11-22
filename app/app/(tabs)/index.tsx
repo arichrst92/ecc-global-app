@@ -40,7 +40,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { useNowTick } from '@/hooks/useNowTick';
 import { eventCount } from '@/utils/eventCount';
-import { SELF_CHECKIN_GRACE_MS, isOccurrenceEnded } from '@/utils/time';
+import { selfCheckinGraceMs, isOccurrenceEnded } from '@/utils/time';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 import { rupiahShort } from '@/utils/hari';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
@@ -495,7 +495,7 @@ function TodayServiceCard({
   const svcTz = detailQuery.data?.cabang?.timezone ?? venueTz;
   const ended = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, svcTz, now);
   // Self check-in masih dibuka 30 menit setelah selesai → kartu baru diburamkan setelah tenggang lewat.
-  const checkinClosed = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, svcTz, now - SELF_CHECKIN_GRACE_MS);
+  const checkinClosed = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, svcTz, now - selfCheckinGraceMs());
   // Jadwal tampil dalam jam & zona cabang; bila zona HP berbeda, tambah jam setempat.
   const localStart = venueToLocal(service.tanggal, service.jamMulai, venueTz);
   const hint = localStart?.converted ? t('time.your_time', { time: localStart.time }) : null;

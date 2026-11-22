@@ -1,3 +1,4 @@
+import { appRule } from '@/config/appRules';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
@@ -804,8 +805,8 @@ function AttendanceSummary({ members }: { members: HomecellMember[] }) {
   for (const m of members) {
     const d = m.lastAttendedDaysAgo;
     if (d == null) never++;
-    else if (d <= 7) ok++;
-    else if (d <= 30) warn++;
+    else if (d <= appRule('homecellOkDays')) ok++;
+    else if (d <= appRule('homecellWarnDays')) warn++;
     else bad++;
   }
   const chips = [

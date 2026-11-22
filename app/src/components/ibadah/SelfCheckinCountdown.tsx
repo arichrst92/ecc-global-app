@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Timer } from 'lucide-react-native';
 
 import { serverNowMs } from '@/utils/serverClock';
-import { localTime, SELF_CHECKIN_GRACE_MS } from '@/utils/time';
+import { localTime, selfCheckinGraceMs } from '@/utils/time';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -69,7 +69,7 @@ export function SelfCheckinCountdown({
 
 /**
  * "Self check-in akan berakhir dalam mm:ss" — hanya tampil setelah ibadah
- * selesai (masa tenggang SELF_CHECKIN_GRACE_MS sebelum closesAt). Saat 0 →
+ * selesai (masa tenggang selfCheckinGraceMs() sebelum closesAt). Saat 0 →
  * onDone() supaya layar langsung menyembunyikan self check-in.
  */
 export function SelfCheckinEndsCountdown({
@@ -105,7 +105,7 @@ export function SelfCheckinEndsCountdown({
   }, [target]);
 
   // Belum masuk masa setelah ibadah selesai, atau sudah lewat → tidak tampil.
-  if (!Number.isFinite(target) || left <= 0 || left > SELF_CHECKIN_GRACE_MS) return null;
+  if (!Number.isFinite(target) || left <= 0 || left > selfCheckinGraceMs()) return null;
   const total = Math.ceil(left / 1000);
   const mmss = `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
   return (

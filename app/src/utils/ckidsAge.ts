@@ -3,7 +3,12 @@
  * Tanggal lahir kosong → hanya dianggap anak kalau tanggungan (tanpa no HP);
  * anggota keluarga dewasa umumnya punya akun & no HP sendiri.
  */
-export const CKIDS_MAX_AGE = 13;
+import { appRule } from '@/config/appRules';
+
+/** Batas usia CKids dari server (/public/app-config `rules.kidsMaxAge`, bawaan 13). */
+export function ckidsMaxAge(): number {
+  return appRule('kidsMaxAge');
+}
 
 /** Usia dalam tahun penuh per `now` (null kalau tanggal tidak valid). */
 export function ageInYears(tanggalLahir: string | null | undefined, now: Date = new Date()): number | null {
@@ -25,5 +30,5 @@ export function isCkidsAge(
 ): boolean {
   const age = ageInYears(jemaat.tanggalLahir, now);
   if (age === null) return !!jemaat.isDependent;
-  return age >= 0 && age <= CKIDS_MAX_AGE;
+  return age >= 0 && age <= ckidsMaxAge();
 }
