@@ -91,7 +91,8 @@ export default function ScannerIbadahScreen() {
           }
           // Server 2026-11 kirim meta.alreadyDone. Server lama: anggap "sudah"
           // bila waktu tercatatnya lebih dari 20 detik lalu (bukan scan barusan).
-          const old = (iso?: string | null) => !!iso && Date.now() - new Date(iso).getTime() > 20_000;
+          const old = (iso?: string | null) =>
+            !!iso && Date.now() - new Date(iso).getTime() > 20_000;
           const r = data.reservasi;
           const alreadyDone =
             meta?.alreadyDone ??
@@ -109,10 +110,7 @@ export default function ScannerIbadahScreen() {
           });
           // Kids ibadah + checkin → show toast prominent dgn kode jemput
           if (action === 'checkin' && isKidsIbadah && data.pickupCode) {
-            showToast(
-              t('scanner.pickup_code_generated', { code: data.pickupCode }),
-              'success',
-            );
+            showToast(t('scanner.pickup_code_generated', { code: data.pickupCode }), 'success');
           }
           statsQuery.refetch();
         },
@@ -142,10 +140,7 @@ export default function ScannerIbadahScreen() {
         onError: (err) => {
           if (err instanceof ApiError) {
             if (err.code === 'BAD_REQUEST') {
-              Alert.alert(
-                t('scanner.pickup_error_multi_title'),
-                err.message,
-              );
+              Alert.alert(t('scanner.pickup_error_multi_title'), err.message);
             } else if (err.code === 'NOT_FOUND') {
               Alert.alert(
                 t('scanner.pickup_error_notfound_title'),
@@ -207,8 +202,61 @@ export default function ScannerIbadahScreen() {
   const isPaused = result !== null || manualOpen || pickupOpen || anyMutationPending;
 
   // Mode-based colors
-  const modeColor =
-    mode === 'checkin' ? '#3b82f6' : mode === 'checkout' ? '#F59E0B' : '#F97316';
+  const modeColor = mode === 'checkin' ? '#3b82f6' : mode === 'checkout' ? '#F59E0B' : '#F97316';
+
+  // Ibadah umum tanpa checkout → hanya Check-in, pilihan mode tidak perlu ditampilkan.
+  const hasModeChoice = requiresCheckout || isKidsIbadah;
+
+  const scannerFooter = (
+    <>
+      {/* Instruction card kalau mode pickup */}
+      {mode === 'pickup' ? (
+        <Pressable
+          onPress={() => setPickupOpen(true)}
+          {...gx('bg-brand-500 rounded-2xl p-4 mb-3 flex-row items-center gap-3 active:opacity-80')}
+        >
+          <View className="w-11 h-11 rounded-xl bg-white/20 items-center justify-center">
+            <Baby size={22} color="#fff" />
+          </View>
+          <View className="flex-1">
+            <Text className="text-white text-sm font-bold">{t('scanner.pickup_cta_title')}</Text>
+            <Text className="text-white/80 text-xs mt-0.5">{t('scanner.pickup_cta_sub')}</Text>
+          </View>
+        </Pressable>
+      ) : null}
+
+      {/* Mode toggle — hanya bila ada lebih dari satu mode */}
+      {hasModeChoice ? (
+        <View className="flex-row bg-black/60 rounded-2xl p-1">
+          <ModeChip
+            active={mode === 'checkin'}
+            activeColor="#3b82f6"
+            icon={<LogIn size={14} color={mode === 'checkin' ? '#fff' : nc('#a3a3a3')} />}
+            label={t('scanner.mode_checkin')}
+            onPress={() => setMode('checkin')}
+          />
+          {requiresCheckout ? (
+            <ModeChip
+              active={mode === 'checkout'}
+              activeColor="#F59E0B"
+              icon={<LogOut size={14} color={mode === 'checkout' ? '#fff' : nc('#a3a3a3')} />}
+              label={t('scanner.mode_checkout')}
+              onPress={() => setMode('checkout')}
+            />
+          ) : null}
+          {isKidsIbadah ? (
+            <ModeChip
+              active={mode === 'pickup'}
+              activeColor="#F97316"
+              icon={<Baby size={14} color={mode === 'pickup' ? '#fff' : nc('#a3a3a3')} />}
+              label={t('scanner.mode_pickup')}
+              onPress={() => setMode('pickup')}
+            />
+          ) : null}
+        </View>
+      ) : null}
+    </>
+  );
 
   return (
     <View className="flex-1 bg-black">
@@ -216,11 +264,14 @@ export default function ScannerIbadahScreen() {
         paused={isPaused || walkInOpen}
         onScan={handleScan}
         // Tunggu data ibadah termuat — ibadah anak tidak menerima tamu walk-in.
-        onWalkInGuest={ibadahMeta && !isKidsIbadah && mode === 'checkin' ? () => setWalkInOpen(true) : undefined}
+        onWalkInGuest={
+          ibadahMeta && !isKidsIbadah && mode === 'checkin' ? () => setWalkInOpen(true) : undefined
+        }
         onManualInput={() => {
           if (mode === 'pickup') setPickupOpen(true);
           else setManualOpen(true);
         }}
+        footer={hasModeChoice || mode === 'pickup' ? scannerFooter : undefined}
       />
 
       {/* Floating header */}
@@ -257,62 +308,6 @@ export default function ScannerIbadahScreen() {
         </View>
       </SafeAreaView>
 
-      {/* Bottom overlay — mode toggle + pickup CTA */}
-      <SafeAreaView edges={['bottom']} className="absolute bottom-0 left-0 right-0">
-        <View className="px-4 pb-3">
-          {/* Instruction card kalau mode pickup */}
-          {mode === 'pickup' ? (
-            <Pressable
-              onPress={() => setPickupOpen(true)}
-              {...gx('bg-brand-500 rounded-2xl p-4 mb-3 flex-row items-center gap-3 active:opacity-80')}
-            >
-              <View className="w-11 h-11 rounded-xl bg-white/20 items-center justify-center">
-                <Baby size={22} color="#fff" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-white text-sm font-bold">
-                  {t('scanner.pickup_cta_title')}
-                </Text>
-                <Text className="text-white/80 text-xs mt-0.5">
-                  {t('scanner.pickup_cta_sub')}
-                </Text>
-              </View>
-            </Pressable>
-          ) : null}
-
-          {/* Mode toggle segmented */}
-          <View className="flex-row bg-black/60 rounded-2xl p-1">
-            <ModeChip
-              active={mode === 'checkin'}
-              activeColor="#3b82f6"
-              icon={<LogIn size={14} color={mode === 'checkin' ? '#fff' : nc('#a3a3a3')} />}
-              label={t('scanner.mode_checkin')}
-              onPress={() => setMode('checkin')}
-            />
-            {requiresCheckout ? (
-              <ModeChip
-                active={mode === 'checkout'}
-                activeColor="#F59E0B"
-                icon={
-                  <LogOut size={14} color={mode === 'checkout' ? '#fff' : nc('#a3a3a3')} />
-                }
-                label={t('scanner.mode_checkout')}
-                onPress={() => setMode('checkout')}
-              />
-            ) : null}
-            {isKidsIbadah ? (
-              <ModeChip
-                active={mode === 'pickup'}
-                activeColor="#F97316"
-                icon={<Baby size={14} color={mode === 'pickup' ? '#fff' : nc('#a3a3a3')} />}
-                label={t('scanner.mode_pickup')}
-                onPress={() => setMode('pickup')}
-              />
-            ) : null}
-          </View>
-        </View>
-      </SafeAreaView>
-
       <WalkInGuestModal
         visible={walkInOpen}
         target={{ kind: 'ibadah', ibadahId: id, tanggalIbadah }}
@@ -324,9 +319,7 @@ export default function ScannerIbadahScreen() {
         purpose="checkin"
         visible={manualOpen}
         onClose={() => setManualOpen(false)}
-        onSubmit={(kode) =>
-          runWalkIn(kode, mode === 'pickup' ? 'pickup' : mode)
-        }
+        onSubmit={(kode) => runWalkIn(kode, mode === 'pickup' ? 'pickup' : mode)}
         loading={walkInMutation.isPending}
       />
 
@@ -368,9 +361,7 @@ function ModeChip({
       style={active ? { backgroundColor: activeColor } : undefined}
     >
       {icon}
-      <Text
-        className={`text-xs font-bold ${active ? 'text-white' : 'text-neutral-400'}`}
-      >
+      <Text className={`text-xs font-bold ${active ? 'text-white' : 'text-neutral-400'}`}>
         {label}
       </Text>
     </Pressable>

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -16,18 +16,22 @@ import { nc } from '@/theme/ThemeRoot';
  * - paused: pause scanning (mis. saat result modal open)
  * - onScan: called dengan normalized kode (8 char alphanumeric upper)
  * - onManualInput: tap tombol manual input
+ * - footer: konten di bawah tombol (mis. pilihan mode Check-in/Check-out),
+ *   disusun dalam satu tumpukan supaya tidak saling menimpa.
  */
 export function ScannerCamera({
   paused,
   onScan,
   onManualInput,
   onWalkInGuest,
+  footer,
 }: {
   paused: boolean;
   onScan: (kode: string) => void;
   onManualInput: () => void;
   /** Kalau diisi: tampil tombol "+ Tamu" untuk catat tamu walk-in. */
   onWalkInGuest?: () => void;
+  footer?: ReactNode;
 }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -90,10 +94,7 @@ export function ScannerCamera({
       />
 
       {/* Frame overlay */}
-      <View
-        className="absolute inset-0 items-center justify-center"
-        pointerEvents="box-none"
-      >
+      <View className="absolute inset-0 items-center justify-center" pointerEvents="box-none">
         <View
           className={`border-2 rounded-2xl ${
             paused ? 'border-amber-400/70' : 'border-emerald-400/80'
@@ -105,14 +106,16 @@ export function ScannerCamera({
         </Text>
       </View>
 
-      {/* Manual input fab bottom */}
+      {/* Tombol bawah (Input Manual, + Tamu) + footer — satu tumpukan, tidak bertumpuk */}
       <View
-        className="absolute left-0 right-0 items-center"
+        className="absolute left-0 right-0 items-center px-4"
         // Jangan ketutup navigation bar / home indicator (edge-to-edge)
-        style={{ bottom: Math.max(32, insets.bottom + 16) }}
+        style={{
+          bottom: footer ? Math.max(12, insets.bottom + 8) : Math.max(32, insets.bottom + 16),
+        }}
         pointerEvents="box-none"
       >
-        <View className="flex-row gap-2">
+        <View className="flex-row flex-wrap justify-center gap-2">
           <Pressable
             onPress={onManualInput}
             className="bg-card border border-neutral-200 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg"
@@ -132,6 +135,7 @@ export function ScannerCamera({
             </Pressable>
           ) : null}
         </View>
+        {footer ? <View className="self-stretch mt-3">{footer}</View> : null}
       </View>
     </View>
   );
