@@ -156,7 +156,7 @@ export function EventTicketCard({
   // Nominal yang masih menunggu verifikasi diberi keterangan supaya tidak terbaca lunas.
   const paidText =
     ev.tipeBayar !== 'GRATIS' && tk.totalBayar > 0
-      ? `${rp(tk.totalBayar)}${tk.totalBayarStatus === 'PENDING' ? ` · ${t('tiket.amount_pending')}` : ''}`
+      ? `${rp(tk.totalBayar)}${tk.totalBayarStatus === 'PENDING' && st.key !== 'st_MENUNGGU' ? ` · ${t('tiket.amount_pending')}` : ''}`
       : null;
   const stub = noQr ? (
     full ? (
@@ -236,6 +236,9 @@ export function EventTicketCard({
     footer = null;
   } else if (hadir) {
     footer = <SwipeToCheckin state="DONE" label={t('tiket.done', { time: localTime(tk.attendedAt) })} onConfirm={() => {}} />;
+  } else if (tk.payment === 'MENUNGGU') {
+    // Bukti sudah dikirim, menunggu verifikasi admin → tidak perlu tombol bayar.
+    footer = <Hint tone="amber" text={t('tiket.waiting_verify')} />;
   } else if (unpaid) {
     footer = (
       <View>

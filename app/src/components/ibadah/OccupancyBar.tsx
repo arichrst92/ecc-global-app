@@ -41,7 +41,8 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
         <View className="flex-row items-center justify-between mb-1">
           <View className="flex-row items-center gap-1.5 flex-shrink">
             <Armchair size={13} color={nc('#737373')} />
-            <Text className="text-xs text-neutral-500" numberOfLines={1}>
+            {/* 2 baris: "148 reservasi dari 300 kursi" tidak muat 1 baris di kartu HP 360dp. */}
+            <Text className="text-xs text-neutral-500 flex-shrink" numberOfLines={2}>
               {label}
             </Text>
           </View>

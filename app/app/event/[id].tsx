@@ -277,7 +277,7 @@ export default function EventDetailScreen() {
               title={event.judul}
               date={event.tanggalMulai ? formatDate(event.tanggalMulai, lang) : ''}
               time={event.jamMulai && event.jamMulai !== '-' ? `${event.jamMulai}${event.jamSelesai ? `–${event.jamSelesai}` : ''}` : null}
-              location={event.lokasi}
+              location={event.lokasi && event.lokasi.trim() !== '-' ? event.lokasi : null}
               cabang={event.cabang?.nama ?? null}
               cta={t('sharecard.cta_event')}
             />

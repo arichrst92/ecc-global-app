@@ -300,7 +300,7 @@ export default function ScannerIbadahScreen() {
           <View className="flex-1 ml-2">
             <View className="flex-row items-center gap-1.5">
               <Text className="text-white font-bold text-sm" numberOfLines={1}>
-                {ibadahMeta?.nama ?? t('scanner.title')}
+                {ibadahMeta?.nama ?? statsQuery.data?.ibadah?.nama ?? t('scanner.title')}
               </Text>
               {isKidsIbadah ? (
                 <View {...gx('bg-brand-500/80 px-1.5 py-0.5 rounded')}>
