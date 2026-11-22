@@ -14,7 +14,7 @@ import { usePublicIbadah } from '@/hooks/usePublicGuest';
 import { useAuthStore } from '@/stores/auth.store';
 import { formatDateWithDay, groupByDate, isToday } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
-import { isOccurrenceEnded, zoneTimeText } from '@/utils/time';
+import { cabangCity, isOccurrenceEnded, zoneTimeText } from '@/utils/time';
 import { useNowTick } from '@/hooks/useNowTick';
 import i18nInst from '@/i18n';
 import { gx } from '@/theme/gradient';
@@ -54,6 +54,7 @@ export function GuestIbadahView() {
 
   // Jam jadwal = jam dinding cabang terpilih → zona waktu HP.
   const venueTz = (branchesQuery.data ?? []).find((b) => b.id === effectiveCabangId)?.timezone ?? null;
+  const venueCity = cabangCity((branchesQuery.data ?? []).find((b) => b.id === effectiveCabangId)?.nama);
   const items = ibadahQuery.data?.data ?? [];
   const groupedMap = groupByDate(items);
   const grouped = Object.entries(groupedMap).sort(([a], [b]) => (a < b ? -1 : 1));
@@ -148,7 +149,7 @@ export function GuestIbadahView() {
                         ) : null}
                       </View>
                       <Text className="text-xs text-neutral-500 mt-0.5">
-                        {zoneTimeText(it.jam, it.jamSelesai, venueTz, i18nInst.language)}
+                        {zoneTimeText(it.jam, it.jamSelesai, venueTz, i18nInst.language, venueCity)}
                       </Text>
                       <Text className="text-xs text-neutral-500 mt-0.5">
                         {it.cabang?.nama ?? t('event.synod_level')}

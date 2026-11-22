@@ -198,11 +198,21 @@ const TZ_CITY: Record<string, { id: string; en: string }> = {
 
 const isEn = (lang: string | null | undefined) => !!lang && lang.startsWith('en');
 
-/** "Waktu Kuala Lumpur" / "Kuala Lumpur time". */
-export function tzZoneLabel(tz: string | null | undefined, lang?: string | null): string {
+/**
+ * Nama kota cabang untuk label zona waktu: "ECC Bali" → "Bali".
+ * Dipakai supaya cabang Bali tampil "Waktu Bali", bukan nama kota zona IANA
+ * ("Waktu Makassar" dari Asia/Makassar). null bila nama tidak tersedia.
+ */
+export function cabangCity(nama: string | null | undefined): string | null {
+  const s = (nama ?? '').replace(/^\s*ECC\s+/i, '').trim();
+  return s || null;
+}
+
+/** "Waktu Kuala Lumpur" / "Kuala Lumpur time". `city` = kota cabang (opsional). */
+export function tzZoneLabel(tz: string | null | undefined, lang?: string | null, city?: string | null): string {
   const key = tz || DEFAULT_VENUE_TZ;
-  const city = TZ_CITY[key]?.[isEn(lang) ? 'en' : 'id'] ?? tzCity(key);
-  return isEn(lang) ? `${city} time` : `Waktu ${city}`;
+  const name = city?.trim() || (TZ_CITY[key]?.[isEn(lang) ? 'en' : 'id'] ?? tzCity(key));
+  return isEn(lang) ? `${name} time` : `Waktu ${name}`;
 }
 
 const MONTHS_FULL_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -249,13 +259,15 @@ export function formatScheduleWithZone(opts: {
   tz: string | null | undefined;
   lang?: string | null;
   withDate?: boolean;
+  /** Kota cabang untuk label zona (lihat `cabangCity`). */
+  city?: string | null;
 }): string {
-  const { ymd, endYmd, start, end, tz, lang, withDate = true } = opts;
+  const { ymd, endYmd, start, end, tz, lang, withDate = true, city } = opts;
   const date = withDate && ymd ? ymdRange(ymd, endYmd, lang) : '';
   const a = wall(start, lang);
   const b = end && end !== start ? wall(end, lang) : '';
   const time = a ? (b ? `${a} - ${b}` : a) : '';
-  const zone = tzZoneLabel(tz, lang);
+  const zone = tzZoneLabel(tz, lang, city);
   if (!time) return date ? `${date} · ${zone}` : zone;
   return [date, time, zone].filter(Boolean).join(' ');
 }
@@ -277,9 +289,10 @@ export function zoneTimeText(
   end: string | null | undefined,
   tz: string | null | undefined,
   lang?: string | null,
+  city?: string | null,
 ): string {
   if (!start) return '';
-  return formatScheduleWithZone({ ymd: null, start, end, tz, lang, withDate: false });
+  return formatScheduleWithZone({ ymd: null, start, end, tz, lang, withDate: false, city });
 }
 
 /** Jam di zona HP bila berbeda dari zona cabang, mis. "09:00 - 11:00"; null bila sama. */

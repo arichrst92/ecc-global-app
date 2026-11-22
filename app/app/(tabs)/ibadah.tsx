@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
-import { useVenueTz } from '@/hooks/useVenueTz';
+import { useVenueCity, useVenueTz } from '@/hooks/useVenueTz';
 import { formatScheduleWithZone } from '@/utils/time';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -168,6 +168,7 @@ function DateSection({
   const today = isToday(date);
   // Zona waktu cabang yang dilihat — ditampilkan sebagai label (mis. Waktu Kuala Lumpur).
   const venueTz = useVenueTz();
+  const venueCity = useVenueCity();
   const now = useNowTick();
 
   return (
@@ -220,7 +221,7 @@ function DateSection({
                 {item.lokasi}
               </Text>
               <Text className="text-xs text-neutral-400 mt-1">
-                {formatScheduleWithZone({ ymd: date, start: item.jamMulai, end: item.jamSelesai, tz: venueTz, lang, withDate: false })}
+                {formatScheduleWithZone({ ymd: date, start: item.jamMulai, end: item.jamSelesai, tz: venueTz, lang, withDate: false, city: venueCity })}
               </Text>
               {/* Kuota seat pertemuan — sama dengan detail ibadah (hanya bila seat diisi) */}
               <OccupancyBar data={item.okupansi} compact />

@@ -29,8 +29,8 @@ import { useHomeEvents } from '@/hooks/useHomeEvents';
 import { useMyMinistrySchedule } from '@/hooks/useMinistry';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
-import { useVenueTz } from '@/hooks/useVenueTz';
-import { formatScheduleWithZone, venueToLocal, ymdInTz } from '@/utils/time';
+import { useVenueCity, useVenueTz } from '@/hooks/useVenueTz';
+import { cabangCity, formatScheduleWithZone, venueToLocal, ymdInTz } from '@/utils/time';
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
@@ -289,6 +289,7 @@ function HomeScreenAuthenticated() {
                           start: e.jamMulai,
                           end: e.jamSelesai,
                           tz: e.cabang?.timezone,
+                          city: cabangCity(e.cabang?.nama),
                           lang,
                         })}
                       </Text>
@@ -488,6 +489,7 @@ function TodayServiceCard({
   const lokasi = detailQuery.data?.lokasi?.trim() || service.lokasi?.trim() || service.cabang?.nama || null;
   // Jam jadwal = jam dinding cabang → tampil di zona waktu HP.
   const venueTz = useVenueTz(detailQuery.data?.cabang?.id);
+  const venueCity = useVenueCity(detailQuery.data?.cabang?.id, detailQuery.data?.cabang?.nama ?? service.cabang?.nama);
   // Ibadah hari ini yang sudah lewat jam selesai → kartu diburamkan + label "Sudah selesai".
   const now = useNowTick();
   const svcTz = detailQuery.data?.cabang?.timezone ?? venueTz;
@@ -529,7 +531,7 @@ function TodayServiceCard({
         <View className="flex-row items-center gap-2 mt-1.5">
           <Clock size={14} color={nc('#737373')} />
           <Text className="text-sm text-neutral-500">
-            {formatScheduleWithZone({ ymd: service.tanggal, start: service.jamMulai, end: service.jamSelesai, tz: venueTz, lang: i18nSvc.language })}
+            {formatScheduleWithZone({ ymd: service.tanggal, start: service.jamMulai, end: service.jamSelesai, tz: venueTz, lang: i18nSvc.language, city: venueCity })}
           </Text>
         </View>
         {hint ? <Text className="text-[11px] text-neutral-400 mt-0.5 ml-6">{hint}</Text> : null}
@@ -615,13 +617,14 @@ function MyScheduleRow({
       : `/event/${item.e.eventId}`;
   const meta =
     item.kind === 'ibadah'
-      ? `${formatScheduleWithZone({ ymd: item.a.tanggal.slice(0, 10), start: item.a.ibadahJamMulai, end: item.a.ibadahJamSelesai, tz: item.a.timezone, lang })} · ${item.a.ibadahNama}`
+      ? `${formatScheduleWithZone({ ymd: item.a.tanggal.slice(0, 10), start: item.a.ibadahJamMulai, end: item.a.ibadahJamSelesai, tz: item.a.timezone, lang, city: cabangCity(item.a.cabangNama) })} · ${item.a.ibadahNama}`
       : `${formatScheduleWithZone({
           ymd: ymdInTz(item.e.tanggalMulai, item.e.cabang?.timezone),
           endYmd: ymdInTz(item.e.tanggalSelesai, item.e.cabang?.timezone),
           start: item.e.jamMulai,
           end: item.e.jamSelesai,
           tz: item.e.cabang?.timezone,
+          city: cabangCity(item.e.cabang?.nama),
           lang,
         })} · ${item.e.judul}`;
   const tugas = tugasText(item.kind === 'ibadah' ? item.a.tugas : item.e.tugas);

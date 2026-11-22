@@ -15,7 +15,7 @@ import { cancelMyCheckin, cancelMyReservasi } from '@/api/me';
 import { useToast } from '@/components/ui/Toast';
 import { PickupCodeCard } from '@/components/scanner/PickupCodeCard';
 import { formatDateWithDay } from '@/utils/date';
-import { localTime, zoneTimeText } from '@/utils/time';
+import { cabangCity, localTime, zoneTimeText } from '@/utils/time';
 import { formatRadius } from '@/utils/selfCheckinLocation';
 import { TicketShell } from './TicketShell';
 import { SwipeToCheckin } from './SwipeToCheckin';
@@ -33,7 +33,7 @@ function statusOf(r: MyReservasi): { key: string; tone: 'green' | 'solidGreen' |
 
 /** Jam ibadah dalam zona cabang + labelnya, mis. "10.00 - 12.00 Waktu Kuala Lumpur". */
 export function ibadahTimeText(r: MyReservasi, lang?: string): string {
-  return zoneTimeText(r.ibadah.jamMulai, r.ibadah.jamSelesai, r.ibadah.timezone, lang);
+  return zoneTimeText(r.ibadah.jamMulai, r.ibadah.jamSelesai, r.ibadah.timezone, lang, cabangCity(r.ibadah.cabang?.nama));
 }
 
 export function IbadahTicketCard({

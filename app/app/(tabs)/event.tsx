@@ -25,7 +25,7 @@ import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import type { EventListItem, TipeBayar } from '@/types/event';
-import { formatScheduleWithZone, ymdInTz } from '@/utils/time';
+import { cabangCity, formatScheduleWithZone, ymdInTz } from '@/utils/time';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
@@ -233,6 +233,7 @@ function EventCard({
             start: event.jamMulai,
             end: event.jamSelesai,
             tz: event.cabang?.timezone,
+            city: cabangCity(event.cabang?.nama),
             lang,
           })}
         </Text>

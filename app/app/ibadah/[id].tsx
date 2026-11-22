@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/Button';
 import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
 import { ReservasiModal } from '@/components/ibadah/ReservasiModal';
-import { useVenueTz } from '@/hooks/useVenueTz';
+import { useVenueCity, useVenueTz } from '@/hooks/useVenueTz';
 import { localRangeIfDifferent, zoneTimeText } from '@/utils/time';
 import { SelfCheckinCountdown, SelfCheckinEndsCountdown } from '@/components/ibadah/SelfCheckinCountdown';
 import { useToast } from '@/components/ui/Toast';
@@ -76,6 +76,7 @@ export default function IbadahDetailScreen() {
   // bila zona HP berbeda, jam setempat ditampilkan sebagai keterangan.
   const branchTz = useVenueTz(ibadah?.cabang?.id);
   const venueTz = ibadah?.cabang?.timezone ?? branchTz;
+  const venueCity = useVenueCity(ibadah?.cabang?.id, ibadah?.cabang?.nama);
   const localRange = ibadah ? localRangeIfDifferent(tanggal ?? null, ibadah.jamMulai, ibadah.jamSelesai, venueTz) : null;
   const timeHint = localRange ? t('time.your_time', { time: localRange }) : null;
   // Pertemuan tanggal ini sudah selesai → tombol reservasi disembunyikan.
@@ -235,7 +236,7 @@ export default function IbadahDetailScreen() {
               <InfoCard
                 icon={<Clock size={18} color="#EA580C" />}
                 label={t('ibadah.time')}
-                value={zoneTimeText(ibadah.jamMulai, ibadah.jamSelesai, venueTz, lang)}
+                value={zoneTimeText(ibadah.jamMulai, ibadah.jamSelesai, venueTz, lang, venueCity)}
               />
               <InfoCard
                 icon={<Calendar size={18} color="#EA580C" />}

@@ -46,6 +46,8 @@ export type MyMinistryAssignment = {
   ibadahLokasi: string;
   /** Zona waktu cabang ibadah (IANA). */
   timezone?: string | null;
+  /** Nama cabang ibadah → label "Waktu <kota>" (server ≥ 2026-11-22). */
+  cabangNama?: string | null;
   ministryId: string;
   ministryNama: string;
   /** 2.4.6 — ikon & warna pelayanan. */

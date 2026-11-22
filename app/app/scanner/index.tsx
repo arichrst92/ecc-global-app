@@ -13,7 +13,7 @@ import { ArrowLeft, CalendarDays, ChevronRight, Church, Clock, MapPin } from 'lu
 
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { formatDate, todayIso } from '@/utils/date';
-import { useVenueTz } from '@/hooks/useVenueTz';
+import { useVenueCity, useVenueTz } from '@/hooks/useVenueTz';
 import { zoneTimeText } from '@/utils/time';
 import i18nInst from '@/i18n';
 import { goBack } from '@/utils/nav';
@@ -157,6 +157,7 @@ function IbadahCard({
   onPress: () => void;
 }) {
   const venueTz = useVenueTz(item.cabangId);
+  const venueCity = useVenueCity(item.cabangId);
   return (
     <Pressable
       onPress={onPress}
@@ -179,7 +180,7 @@ function IbadahCard({
         <View className="flex-row items-center gap-1.5 mt-1">
           <Clock size={12} color={nc('#A3A3A3')} />
           <Text className="text-xs text-neutral-500">
-            {zoneTimeText(item.jamMulai, item.jamSelesai, venueTz, i18nInst.language)}
+            {zoneTimeText(item.jamMulai, item.jamSelesai, venueTz, i18nInst.language, venueCity)}
           </Text>
           <Text className="text-xs text-neutral-400">·</Text>
           <MapPin size={12} color={nc('#A3A3A3')} />

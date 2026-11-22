@@ -15,7 +15,7 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { cancelMyEventTicket, type EventTiket } from '@/api/tiket';
 import { useToast } from '@/components/ui/Toast';
 import { formatDateWithDay } from '@/utils/date';
-import { localTime, zoneTimeText } from '@/utils/time';
+import { cabangCity, localTime, zoneTimeText } from '@/utils/time';
 import { formatRadius } from '@/utils/selfCheckinLocation';
 import { TicketShell } from './TicketShell';
 import { SwipeToCheckin } from './SwipeToCheckin';
@@ -43,7 +43,7 @@ export function hasEventLokasi(ev: { lokasi: string | null }): boolean {
 
 export function eventTimeText(ev: EventTiket['event'], lang?: string): string {
   if (!ev.jamMulai || ev.jamMulai === '-') return '';
-  return zoneTimeText(ev.jamMulai, ev.jamSelesai, ev.timezone, lang);
+  return zoneTimeText(ev.jamMulai, ev.jamSelesai, ev.timezone, lang, cabangCity(ev.cabang?.nama));
 }
 
 function statusOf(tk: EventTiket): { key: string; tone: 'green' | 'solidGreen' | 'blue' | 'amber' | 'red' } {

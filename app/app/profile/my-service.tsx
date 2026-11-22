@@ -18,7 +18,7 @@ import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule
 import { useRefetchOnFocus } from '@/hooks/useRefetchOnFocus';
 import { useVenueTz } from '@/hooks/useVenueTz';
 import { addDaysIso, formatDateWithDay, todayIso } from '@/utils/date';
-import { zoneTimeText } from '@/utils/time';
+import { cabangCity, zoneTimeText } from '@/utils/time';
 import i18nInst from '@/i18n';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
@@ -218,7 +218,7 @@ function IbadahDuty({ a, tz, onPress }: { a: MyMinistryAssignment; tz: string; o
       {a.ibadahJamMulai ? (
         <Row
           icon={<Clock size={13} color={nc('#737373')} />}
-          text={zoneTimeText(a.ibadahJamMulai, a.ibadahJamSelesai, tz, i18nInst.language)}
+          text={zoneTimeText(a.ibadahJamMulai, a.ibadahJamSelesai, tz, i18nInst.language, cabangCity(a.cabangNama))}
         />
       ) : null}
       {a.ibadahLokasi ? <Row icon={<MapPin size={13} color={nc('#737373')} />} text={a.ibadahLokasi} /> : null}
@@ -252,7 +252,7 @@ function EventDuty({ e, onPress }: { e: MyEventDuty; onPress: () => void }) {
       <RoleBadge posisi={e.posisi} ministry={e.ministryNama} ikon={e.ministryIkon} warna={e.ministryWarna} />
       {e.tugas?.length ? <TugasRow text={tugasText(e.tugas)} /> : null}
       {e.jamMulai ? (
-        <Row icon={<Clock size={13} color={nc('#737373')} />} text={zoneTimeText(e.jamMulai, e.jamSelesai, tz, i18nInst.language)} />
+        <Row icon={<Clock size={13} color={nc('#737373')} />} text={zoneTimeText(e.jamMulai, e.jamSelesai, tz, i18nInst.language, cabangCity(e.cabang?.nama))} />
       ) : null}
       {e.lokasi ? <Row icon={<MapPin size={13} color={nc('#737373')} />} text={e.lokasi} /> : null}
       {e.canScanAttendance ? <Row icon={<ScanLine size={13} color="#059669" />} text={t('service.scanner')} /> : null}
