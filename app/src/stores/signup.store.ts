@@ -38,6 +38,8 @@ type SignupState = {
   tanggalLahir: string;
   /** Akun baru saja dibuat → layar Berhasil boleh tampil walau sudah login. */
   justRegistered: boolean;
+  /** Dari layar kode WhatsApp: pindah ke daftar dengan email. */
+  switchToEmail: boolean;
 
   setNoHp: (v: string) => void;
   setOtpVerified: (validForSeconds: number) => void;
@@ -58,6 +60,7 @@ const initial: Omit<SignupState, 'setNoHp' | 'setOtpVerified' | 'setField' | 're
   otpViaEmail: false,
   tanggalLahir: '',
   justRegistered: false,
+  switchToEmail: false,
 };
 
 export const useSignupStore = create<SignupState>((set) => ({

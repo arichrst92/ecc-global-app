@@ -136,6 +136,22 @@ export default function SignupOtpScreen() {
               </Text>
             </Pressable>
           )}
+          {/* Kode WhatsApp tidak datang (gangguan) → daftar dengan email. */}
+          {!viaEmailChannel ? (
+            <Pressable
+              onPress={() => {
+                setSignupField('channel', 'email');
+                setSignupField('switchToEmail', true);
+                goBack(router);
+              }}
+              className="mt-4"
+              hitSlop={8}
+            >
+              <Text className="text-sm text-neutral-600 text-center">
+                {t('signup.no_code_use_email')} <Text className="font-semibold text-brand-600">{t('signup.channel_email')}</Text>
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
       </ScrollView>
       </KeyboardSafeView>

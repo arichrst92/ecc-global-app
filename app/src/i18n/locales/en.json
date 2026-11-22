@@ -286,7 +286,8 @@
     "match_claim_msg": "We sent a code to the email on that record ({{email}}). Enter the code to connect the old record to your account.",
     "match_skip": "Skip, create a new account",
     "match_email_down": "The email service is having issues, so the code cannot be sent yet. Your sign-up will continue, and the branch admin will merge your old record with this new account.",
-    "claim_failed_title": "Old record cannot be connected"
+    "claim_failed_title": "Old record cannot be connected",
+    "no_code_use_email": "Code didn't arrive? Sign up with"
   },
   "home": {
     "greeting": "Hi,",

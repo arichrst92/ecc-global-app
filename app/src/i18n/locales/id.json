@@ -286,7 +286,8 @@
     "match_claim_msg": "Kami mengirim kode ke email yang tercatat di data tersebut ({{email}}). Masukkan kode untuk menyambungkan data lama ke akun Anda.",
     "match_skip": "Lewati, daftar akun baru",
     "match_email_down": "Layanan email sedang gangguan, jadi kode belum bisa dikirim. Pendaftaran tetap dilanjutkan, dan admin cabang akan menyatukan data lama Anda dengan akun baru ini.",
-    "claim_failed_title": "Data lama tidak bisa disambungkan"
+    "claim_failed_title": "Data lama tidak bisa disambungkan",
+    "no_code_use_email": "Kode tidak datang? Daftar dengan"
   },
   "home": {
     "greeting": "Halo,",

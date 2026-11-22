@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useRouter } from 'expo-router';
@@ -53,6 +53,15 @@ export default function SignupPhoneScreen() {
     setDown(null);
     setRegistered(null);
   };
+
+  // Kembali dari layar kode WhatsApp dengan "daftar dengan email" → pindah tab.
+  const switchToEmail = useSignupStore((s) => s.switchToEmail);
+  useEffect(() => {
+    if (!switchToEmail) return;
+    setField('switchToEmail', false);
+    switchChannel('email');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [switchToEmail]);
 
   const mutation = useMutation({
     // Saluran ikut dikirim sebagai variabel → tidak tertukar bila tab diganti saat menunggu.

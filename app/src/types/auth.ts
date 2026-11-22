@@ -101,6 +101,8 @@ export type CompleteOnboardingPayload = {
   alamat?: string;
   cabangId?: string;
   email?: string;
+  /** Server ≥ 2026-11: role sesuai Onboarding Config (default JEMAAT_TETAP). */
+  jenisJemaat?: JenisJemaat;
 };
 
 export type AuthSuccessData = {

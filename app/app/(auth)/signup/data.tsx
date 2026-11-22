@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, BackHandler, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -235,6 +235,19 @@ export default function SignupDataScreen() {
       },
     ]);
   }
+
+  // Tombol kembali Android → konfirmasi yang sama dengan tombol panah (data tidak hilang diam-diam).
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+        if (mutation.isPending || matchMutation.isPending || match) return false;
+        handleBack();
+        return true;
+      });
+      return () => sub.remove();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mutation.isPending, matchMutation.isPending, match]),
+  );
 
   const branchOptions = (branchesQuery.data ?? []).map((b) => ({
     value: b.id,

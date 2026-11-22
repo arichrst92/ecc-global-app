@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import type { JenisJemaat } from '@/types/auth';
+
 /**
  * Ephemeral state untuk onboarding wizard (multi-step first-login untuk
  * legacy jemaat). NOT persisted — reset saat user selesai atau keluar app.
@@ -35,6 +37,8 @@ type OnboardingState = {
   alamat: string;
   cabangId: string;
   email: string;
+  /** Jemaat Tetap / New Comer → role sesuai Onboarding Config. */
+  jenisJemaat: JenisJemaat;
 
   // ---- Actions ----
   setStep: (step: OnboardingStep) => void;
@@ -63,6 +67,8 @@ const initial: Omit<
   alamat: '',
   cabangId: '',
   email: '',
+  // Data lama dari impor/admin umumnya jemaat tetap → terpilih bawaan, bisa diubah.
+  jenisJemaat: 'JEMAAT_TETAP',
 };
 
 export const useOnboardingStore = create<OnboardingState>((set) => ({

@@ -56,6 +56,7 @@ import { invalidPhoneMessage, normalizePhone } from '@/utils/phone';
 import { ApiError } from '@/types/api';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { formatDate, parseLocalDate, toIsoDate } from '@/utils/date';
+import type { JenisJemaat } from '@/types/auth';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { cekNama, cekTanggalLahir, cekTeks } from '@/utils/inputRules';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
@@ -107,6 +108,7 @@ export default function OnboardingWizardScreen() {
   const alamat = useOnboardingStore((s) => s.alamat);
   const cabangId = useOnboardingStore((s) => s.cabangId);
   const email = useOnboardingStore((s) => s.email);
+  const jenisJemaat = useOnboardingStore((s) => s.jenisJemaat);
   const setField = useOnboardingStore((s) => s.setField);
   const hydrateFromUser = useOnboardingStore((s) => s.hydrateFromUser);
   const reset = useOnboardingStore((s) => s.reset);
@@ -200,7 +202,7 @@ export default function OnboardingWizardScreen() {
   return (
     <ProfileStep
       missingProfile={missingProfile}
-      values={{ namaLengkap, jenisKelamin, tanggalLahir, alamat, cabangId, email }}
+      values={{ namaLengkap, jenisKelamin, tanggalLahir, alamat, cabangId, email, jenisJemaat }}
       // Adapter: ProfileValues keys adalah subset dari OnboardingState. Cast
       // OK karena kita hanya expose profile-related keys ke ProfileStep.
       setField={(k, v) =>
@@ -583,6 +585,7 @@ type ProfileValues = {
   alamat: string;
   cabangId: string;
   email: string;
+  jenisJemaat: JenisJemaat;
 };
 
 type ProfileFieldErrors = Partial<Record<keyof ProfileValues, string>>;
@@ -607,6 +610,7 @@ function ProfileStep({
     alamat?: string;
     cabangId?: string;
     email?: string;
+    jenisJemaat?: JenisJemaat;
   }) => void;
 }) {
   const { t, i18n } = useTranslation();
@@ -665,6 +669,7 @@ function ProfileStep({
       alamat: values.alamat.trim() || undefined,
       cabangId: values.cabangId || undefined,
       email: values.email.trim() || undefined,
+      jenisJemaat: values.jenisJemaat,
     });
   }
 
@@ -786,6 +791,20 @@ function ProfileStep({
               onChange={(v) => setField('cabangId', v)}
               modalTitle={t('signup.branch_modal_title')}
             />
+
+            {/* Jemaat Tetap / New Comer — menentukan role (Onboarding Config). */}
+            <View>
+              <Text className="text-sm font-semibold text-neutral-900">{t('signup.q_jenis_jemaat_title')}</Text>
+              <Text className="text-xs text-neutral-500 mb-2">{t('signup.q_jenis_jemaat_sub')}</Text>
+              <SegmentedControl<JenisJemaat>
+                value={values.jenisJemaat}
+                options={[
+                  { value: 'JEMAAT_TETAP', label: t('signup.jemaat_tetap') },
+                  { value: 'NEW_COMER', label: t('signup.new_comer') },
+                ]}
+                onChange={(v) => setField('jenisJemaat', v)}
+              />
+            </View>
 
             <TextField
               label={t('auth.onboarding.email_label')}
