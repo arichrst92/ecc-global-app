@@ -255,16 +255,17 @@ function EventCard({
 
         {/* Quota progress */}
         {event.quotaPeserta ? (
-          <View className="mt-3 flex-row items-center gap-2">
-            <View className="flex-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-              <View
-                {...gx(`h-full rounded-full ${quotaPercent > 80 ? 'bg-amber-500' : 'bg-brand-500'}`, { width: `${Math.min(100, quotaPercent)}%` })}
-                
-              />
-            </View>
-            <Text className="text-xs text-neutral-500 font-medium">
+          // Tulisan di atas, bar selebar kartu di bawah — tulisan panjang
+          // ("1.234 terdaftar dari 2.000") tidak lagi menyempitkan bar.
+          <View className="mt-3">
+            <Text className="text-xs text-neutral-500 font-medium mb-1" numberOfLines={2}>
               {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: event.quotaPeserta })}
             </Text>
+            <View className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+              <View
+                {...gx(`h-full rounded-full ${quotaPercent > 80 ? 'bg-amber-500' : 'bg-brand-500'}`, { width: `${Math.min(100, quotaPercent)}%` })}
+              />
+            </View>
           </View>
         ) : (
           <View className="flex-row items-center gap-1 mt-2">

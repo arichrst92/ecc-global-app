@@ -320,16 +320,17 @@ function HomeScreenAuthenticated() {
                           // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir.
                           const shown = eventCount(e, nowHome);
                           return (
-                            <View className="flex-row items-center gap-1.5 mt-1.5">
-                              <View className="flex-1 h-1 bg-neutral-100 rounded-full overflow-hidden">
+                            // Tulisan di atas, bar penuh di bawah (kartu sempit — tulisan tidak terpotong).
+                            <View className="mt-1.5">
+                              <Text className="text-[10px] text-neutral-500 mb-1" numberOfLines={2}>
+                                {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: e.quotaPeserta })}
+                              </Text>
+                              <View className="h-1 bg-neutral-100 rounded-full overflow-hidden">
                                 <View
                                   className={`h-full rounded-full ${shown.count >= e.quotaPeserta ? 'bg-red-500' : 'bg-brand-500'}`}
                                   style={{ width: `${Math.min(100, Math.round((shown.count / e.quotaPeserta) * 100))}%` }}
                                 />
                               </View>
-                              <Text className="text-[10px] text-neutral-500" numberOfLines={1}>
-                                {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: e.quotaPeserta })}
-                              </Text>
                             </View>
                           );
                         })()
