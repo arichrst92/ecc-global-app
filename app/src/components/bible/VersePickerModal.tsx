@@ -5,8 +5,8 @@
  * pratinjau, lalu "Pakai …". Tidak ada lagi langkah pilih versi / kitab / bab / ayat.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { BookOpen, Search, X } from 'lucide-react-native';
 
@@ -14,6 +14,7 @@ import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { Button } from '@/components/ui/Button';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { BIBLE_VERSION_BY_CODE, getChapter } from '@/data/bible';
 import { useBibleStore } from '@/stores/bible.store';
 import { parseBibleRef } from '@/utils/bibleRef';
@@ -36,6 +37,12 @@ export function VersePickerModal({
 }) {
   const { t } = useTranslation();
   const versi = useBibleStore((s) => s.selectedVersionCode);
+  // Dibuka di atas Modal (inline) → SafeAreaView tidak selalu memberi ruang di
+  // Android edge-to-edge; pakai inset langsung supaya tombol tidak tertutup
+  // bilah navigasi (gesture / tombol ||| ○ <). Keyboard terbuka → cukup jarak kecil.
+  const insets = useSafeAreaInsets();
+  const kb = useKeyboardHeight();
+  const bottomPad = kb > 0 ? 12 : Math.max(insets.bottom, Platform.OS === 'android' ? 16 : 0) + 12;
   const [q, setQ] = useState('');
   const [text, setText] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -82,7 +89,7 @@ export function VersePickerModal({
 
   const content = (
     <View style={{ flex: 1 }} className="bg-card">
-      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
+      <View style={{ paddingTop: insets.top }} className="bg-card border-b border-neutral-100">
         <View className="flex-row items-center px-4 py-3 gap-2">
           <BookOpen size={18} color="#EA580C" />
           <Text className="flex-1 text-base font-bold text-neutral-900" numberOfLines={1}>
@@ -95,7 +102,7 @@ export function VersePickerModal({
             <X size={20} color={nc('#525252')} />
           </Pressable>
         </View>
-      </SafeAreaView>
+      </View>
 
       <KeyboardSafeView className="flex-1">
         <ScrollView className="flex-1" keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 16, gap: 12 }}>
@@ -112,6 +119,8 @@ export function VersePickerModal({
               placeholder={t('catatan.ayat_placeholder')}
               placeholderTextColor={nc('#A3A3A3')}
               className="flex-1 py-3 text-sm text-neutral-900"
+              // Web: tanpa garis fokus bawaan browser (kotak pencarian sudah berbingkai).
+              style={Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : undefined}
             />
             {q ? (
               <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('common.close')}>
@@ -143,7 +152,7 @@ export function VersePickerModal({
             <Text className="text-xs text-neutral-500 leading-5">{t('verse_picker.search_hint')}</Text>
           )}
         </ScrollView>
-        <SafeAreaView edges={['bottom']} className="px-4 pt-2 pb-3 border-t border-neutral-100 bg-card">
+        <View style={{ paddingBottom: bottomPad }} className="px-4 pt-3 border-t border-neutral-100 bg-card">
           <Button
             label={link ? t('verse_picker.use', { ref: verseRefText(link) }) : t('verse_picker.pick_first')}
             disabled={!ok}
@@ -151,7 +160,7 @@ export function VersePickerModal({
             fullWidth
             size="lg"
           />
-        </SafeAreaView>
+        </View>
       </KeyboardSafeView>
     </View>
   );
