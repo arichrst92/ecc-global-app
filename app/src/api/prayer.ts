@@ -90,7 +90,22 @@ export type Resolusi = {
   isDone: boolean;
   doneAt: string | null;
   urutan: number;
+  /** Ayat yang ditautkan (server ≥ 2026-11). */
+  ayatVersi?: string | null;
+  ayatKitab?: number | null;
+  ayatBab?: number | null;
+  ayatMulai?: number | null;
+  ayatSelesai?: number | null;
 };
+
+export type ResolusiAyatBody = { versi: string; kitab: number; bab: number; mulai: number; selesai?: number | null };
+
+/** Kolom ayat resolusi → tautan ayat (null bila belum ditautkan). */
+export function resolusiAyat(r: Resolusi): ResolusiAyatBody | null {
+  return r.ayatVersi && r.ayatKitab && r.ayatBab && r.ayatMulai
+    ? { versi: r.ayatVersi, kitab: r.ayatKitab, bab: r.ayatBab, mulai: r.ayatMulai, selesai: r.ayatSelesai ?? null }
+    : null;
+}
 export type ResolusiYear = {
   tahun: number;
   years: { tahun: number; total: number }[];
@@ -105,10 +120,11 @@ export const createResolusi = (body: {
   kategori: ResolusiKategori;
   catatan: string | null;
   isDone?: boolean;
+  ayat?: ResolusiAyatBody | null;
 }) => api.post<Resolusi>('/admin/me/resolusi', body);
 export const updateResolusi = (
   id: string,
-  body: Partial<{ judul: string; kategori: ResolusiKategori; catatan: string | null; isDone: boolean }>,
+  body: Partial<{ judul: string; kategori: ResolusiKategori; catatan: string | null; isDone: boolean; ayat: ResolusiAyatBody | null }>,
 ) => api.patch<Resolusi>(`/admin/me/resolusi/${id}`, body);
 export const deleteResolusi = (id: string) => api.delete<unknown>(`/admin/me/resolusi/${id}`);
 export const reorderResolusi = (ids: string[]) => api.post<unknown>('/admin/me/resolusi/reorder', { ids });

@@ -2552,7 +2552,15 @@
     "kategori_PERSONAL_GROWTH": "Personal Growth",
     "kategori_OTHER": "Other",
     "guest_title": "Write this year's resolutions",
-    "guest_body": "Sign up or sign in to save your resolutions and tick off the ones you achieve."
+    "guest_body": "Sign up or sign in to save your resolutions and tick off the ones you achieve.",
+    "ayat_label": "Anchor verse (optional)",
+    "ayat_add": "Link a verse",
+    "ayat_change": "Tap to change verse",
+    "ayat_remove": "Remove verse",
+    "share": "Share achievement",
+    "share_card_title": "Resolution achieved!",
+    "share_card_label": "Resolution {{tahun}}",
+    "give_thanks_cta": "Want to give something meaningful to God for this achievement?"
   },
   "worship": {
     "downloading": "Downloading…",
@@ -3083,5 +3091,16 @@
     "leaders_only": "Homecell materials are for zone pastors, zone leaders, homecell PICs, and assistants.",
     "hint": "Tap a material to open it. From there you can save or share the file.",
     "open_failed": "Couldn't open the material. Try again."
+  },
+  "verse_picker": {
+    "step_version": "Choose a Bible version",
+    "version_hint": "Choose a version first, then find the verse.",
+    "step_book": "Find a verse",
+    "search_ph": "Type a book or verse, e.g. John 3:16",
+    "open_ref": "Open {{ref}}",
+    "verse_hint": "Tap the first verse. For a range, also tap the last verse.",
+    "not_available": "This chapter is not available in this version.",
+    "use": "Use {{ref}}",
+    "pick_first": "Choose a verse first"
   }
 }

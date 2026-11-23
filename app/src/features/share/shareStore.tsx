@@ -15,7 +15,8 @@ export type SharePayload =
   | { kind: 'song'; caption: string; title: string; subtitle: string; coverUrl: string | null }
   | { kind: 'album'; caption: string; title: string; subtitle: string; coverUrl: string | null; tracks: string[] }
   | { kind: 'app'; caption: string }
-  | { kind: 'answered'; caption: string; testimony: string; verse: string | null; reference: string };
+  | { kind: 'answered'; caption: string; testimony: string; verse: string | null; reference: string }
+  | { kind: 'achievement'; caption: string; title: string; label: string; testimony: string; verse: string | null; reference: string };
 
 type State = { payload: SharePayload | null; open: (p: SharePayload) => void; close: () => void };
 
@@ -35,7 +36,8 @@ export function ShareCardHost() {
   const { t } = useTranslation();
   const payload = useShareCardStore((s) => s.payload);
   const close = useShareCardStore((s) => s.close);
-  const themes: ShareTheme[] = payload?.kind === 'verse' || payload?.kind === 'answered' ? ['orange', 'dark'] : ['orange'];
+  const themes: ShareTheme[] =
+    payload?.kind === 'verse' || payload?.kind === 'answered' || payload?.kind === 'achievement' ? ['orange', 'dark'] : ['orange'];
 
   return (
     <ShareCardModal
@@ -74,6 +76,18 @@ export function ShareCardHost() {
                 verse={payload.verse}
                 reference={payload.reference}
                 label={t('doa.share_card_label')}
+                cta={t('sharecard.cta_bible')}
+              />
+            );
+          case 'achievement':
+            return (
+              <AnsweredPrayerShareCard
+                theme={theme}
+                title={payload.title}
+                testimony={payload.testimony}
+                verse={payload.verse}
+                reference={payload.reference}
+                label={payload.label}
                 cta={t('sharecard.cta_bible')}
               />
             );

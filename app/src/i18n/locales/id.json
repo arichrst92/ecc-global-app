@@ -2546,7 +2546,15 @@
     "kategori_PERSONAL_GROWTH": "Pengembangan Diri",
     "kategori_OTHER": "Lainnya",
     "guest_title": "Tulis resolusi tahun ini",
-    "guest_body": "Daftar atau masuk untuk menyimpan resolusi dan menandai yang sudah tercapai."
+    "guest_body": "Daftar atau masuk untuk menyimpan resolusi dan menandai yang sudah tercapai.",
+    "ayat_label": "Ayat pegangan (opsional)",
+    "ayat_add": "Tautkan ayat",
+    "ayat_change": "Ketuk untuk ganti ayat",
+    "ayat_remove": "Lepas ayat",
+    "share": "Bagikan pencapaian",
+    "share_card_title": "Resolusi tercapai!",
+    "share_card_label": "Resolusi {{tahun}}",
+    "give_thanks_cta": "Ingin memberikan sesuatu yang berarti untuk Tuhan dari pencapaian ini?"
   },
   "worship": {
     "downloading": "Mengunduh…",
@@ -3077,5 +3085,16 @@
     "leaders_only": "Materi homecell hanya untuk Pastor, Zone Leader, PIC, dan Asisten homecell.",
     "hint": "Ketuk materi untuk membuka. Dari sana file bisa disimpan atau dibagikan.",
     "open_failed": "Materi gagal dibuka. Coba lagi."
+  },
+  "verse_picker": {
+    "step_version": "Pilih versi Alkitab",
+    "version_hint": "Pilih versi dulu, lalu cari ayatnya.",
+    "step_book": "Cari ayat",
+    "search_ph": "Ketik kitab atau ayat, mis. Yoh 3:16",
+    "open_ref": "Buka {{ref}}",
+    "verse_hint": "Ketuk ayat awal. Untuk beberapa ayat, ketuk juga ayat akhirnya.",
+    "not_available": "Pasal ini belum tersedia di versi ini.",
+    "use": "Pakai {{ref}}",
+    "pick_first": "Pilih ayat dulu"
   }
 }

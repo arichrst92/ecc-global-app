@@ -20,7 +20,13 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowDown, ArrowLeft, ArrowUp, Check, Plus, X } from 'lucide-react-native';
+import { ArrowDown, ArrowLeft, ArrowUp, BookOpen, Check, ChevronRight, HandHeart, Plus, Share2, X } from 'lucide-react-native';
+import { VersePickerModal } from '@/components/bible/VersePickerModal';
+import { verseRefText, verseRefWithVersion, verseText, verseWebLink, type VerseLink } from '@/components/bible/verseRef';
+import { openShareCard } from '@/features/share/shareStore';
+import { openGiving } from '@/utils/giving';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
+import type { TFunction } from 'i18next';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -30,6 +36,7 @@ import {
   deleteResolusi,
   getResolusi,
   reorderResolusi,
+  resolusiAyat,
   updateResolusi,
   type Resolusi,
   type ResolusiKategori,
@@ -184,7 +191,20 @@ export function ResolusiScreen({ asTab = false }: { asTab?: boolean }) {
                         {r.catatan}
                       </Text>
                     ) : null}
+                    {resolusiAyat(r) ? (
+                      <View className="flex-row items-center gap-1">
+                        <BookOpen size={11} color="#EA580C" />
+                        <Text className="text-[11px] font-semibold text-brand-700" numberOfLines={1}>
+                          {verseRefText(resolusiAyat(r)!)}
+                        </Text>
+                      </View>
+                    ) : null}
                   </Pressable>
+                  {r.isDone ? (
+                    <Pressable onPress={() => void shareResolusi(r, t)} hitSlop={8} accessibilityLabel={t('resolusi.share')}>
+                      <Share2 size={17} color="#EA580C" />
+                    </Pressable>
+                  ) : null}
                   <Chip label={t(`resolusi.kategori_${r.kategori}`)} muted />
                 </View>
               ))}
@@ -233,6 +253,9 @@ function ResolusiSheet({
   const [kategori, setKategori] = useState<ResolusiKategori>(editItem?.kategori ?? 'SPIRITUAL');
   const [catatan, setCatatan] = useState(editItem?.catatan ?? '');
   const [isDone, setIsDone] = useState(editItem?.isDone ?? false);
+  const [ayat, setAyat] = useState<VerseLink | null>(editItem ? resolusiAyat(editItem) : null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const { branch } = useViewingBranch();
   const refresh = () => qc.invalidateQueries({ queryKey: ['resolusi'] });
 
   const saveMut = useMutation({
@@ -240,8 +263,8 @@ function ResolusiSheet({
       const salah = pertamaGagal(cekTeks(judul, { wajib: true, label: t('resolusi.judul_label') }), cekTeks(catatan, { label: t('resolusi.catatan_label') }));
       if (salah) throw new ApiError({ code: 'VALIDATION_ERROR', message: salah }, 400);
       return editItem
-        ? updateResolusi(editItem.id, { judul: judul.trim(), kategori, catatan: catatan.trim() || null, isDone })
-        : createResolusi({ tahun, judul: judul.trim(), kategori, catatan: catatan.trim() || null, isDone });
+        ? updateResolusi(editItem.id, { judul: judul.trim(), kategori, catatan: catatan.trim() || null, isDone, ayat })
+        : createResolusi({ tahun, judul: judul.trim(), kategori, catatan: catatan.trim() || null, isDone, ayat });
     },
     onSuccess: () => {
       refresh();
@@ -318,6 +341,29 @@ function ResolusiSheet({
               className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
               style={{ minHeight: 70, textAlignVertical: 'top' }}
             />
+            {/* Ayat yang ditautkan — pilih versi dulu, lalu cari ayat */}
+            <Text className="text-sm font-semibold text-neutral-800">{t('resolusi.ayat_label')}</Text>
+            {ayat ? (
+              <View className="flex-row items-center gap-2 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2.5">
+                <BookOpen size={16} color="#EA580C" />
+                <Pressable onPress={() => setPickerOpen(true)} className="flex-1">
+                  <Text className="text-sm font-semibold text-brand-800">{verseRefWithVersion(ayat)}</Text>
+                  <Text className="text-[11px] text-brand-700">{t('resolusi.ayat_change')}</Text>
+                </Pressable>
+                <Pressable onPress={() => setAyat(null)} hitSlop={10} accessibilityLabel={t('resolusi.ayat_remove')}>
+                  <X size={16} color="#C2410C" />
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable
+                onPress={() => setPickerOpen(true)}
+                className="flex-row items-center gap-2 rounded-xl border border-dashed border-neutral-300 px-3 py-3"
+              >
+                <BookOpen size={16} color={nc('#737373')} />
+                <Text className="flex-1 text-sm text-neutral-600">{t('resolusi.ayat_add')}</Text>
+                <ChevronRight size={16} color={nc('#A3A3A3')} />
+              </Pressable>
+            )}
             <View className="flex-row items-center justify-between">
               <Text className="text-sm font-semibold text-neutral-800">{t('resolusi.done_label')}</Text>
               <Switch value={isDone} onValueChange={setIsDone} trackColor={{ true: '#16A34A', false: nc('#D4D4D4') }} thumbColor="#fff" />
@@ -352,6 +398,31 @@ function ResolusiSheet({
               fullWidth
               size="lg"
             />
+            {/* Sudah tercapai: bagikan & ucapan syukur (Beri) */}
+            {editItem?.isDone ? (
+              <View className="gap-2">
+                <Button
+                  label={t('resolusi.share')}
+                  variant="secondary"
+                  leftIcon={<Share2 size={16} color={nc('#171717')} />}
+                  onPress={() => {
+                    onClose();
+                    void shareResolusi({ ...editItem, ...ayatCols(ayat) }, t, 350);
+                  }}
+                  fullWidth
+                />
+                <Pressable
+                  onPress={() => void openGiving(branch?.kode)}
+                  className="flex-row items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 active:opacity-80"
+                >
+                  <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
+                    <HandHeart size={18} color="#fff" />
+                  </View>
+                  <Text className="flex-1 text-sm font-semibold text-amber-900 leading-5">{t('resolusi.give_thanks_cta')}</Text>
+                  <ChevronRight size={18} color="#B45309" />
+                </Pressable>
+              </View>
+            ) : null}
             {editItem ? (
               <Pressable onPress={confirmDelete} className="items-center py-2">
                 <Text className="text-sm font-semibold text-red-600">{t('resolusi.delete')}</Text>
@@ -360,7 +431,59 @@ function ResolusiSheet({
           </ScrollView>
           <SheetNavSpacer />
         </View>
+        <VersePickerModal
+          inline
+          visible={pickerOpen}
+          initial={ayat}
+          onClose={() => setPickerOpen(false)}
+          onPick={(v) => {
+            setAyat(v);
+            setPickerOpen(false);
+          }}
+        />
       </KeyboardSafeView>
     </Modal>
+  );
+}
+
+const ayatCols = (a: VerseLink | null) => ({
+  ayatVersi: a?.versi ?? null,
+  ayatKitab: a?.kitab ?? null,
+  ayatBab: a?.bab ?? null,
+  ayatMulai: a?.mulai ?? null,
+  ayatSelesai: a?.selesai ?? null,
+});
+
+/** Ayat cadangan bila resolusi belum menautkan ayat (penomoran sama di BIMK & KJV). */
+const FALLBACK_VERSES: Array<{ kitab: number; bab: number; mulai: number }> = [
+  { kitab: 50, bab: 4, mulai: 13 }, // Filipi 4:13
+  { kitab: 20, bab: 16, mulai: 3 }, // Amsal 16:3
+  { kitab: 51, bab: 3, mulai: 23 }, // Kolose 3:23
+  { kitab: 24, bab: 29, mulai: 11 }, // Yeremia 29:11
+];
+
+/** Bagikan resolusi yang tercapai sebagai gambar + ayat & tautannya. */
+async function shareResolusi(r: Resolusi, t: TFunction, delayMs = 0) {
+  const { useBibleStore } = await import('@/stores/bible.store');
+  let a = resolusiAyat(r);
+  if (!a) {
+    let h = 0;
+    for (let i = 0; i < r.id.length; i++) h = (h * 31 + r.id.charCodeAt(i)) >>> 0;
+    const f = FALLBACK_VERSES[h % FALLBACK_VERSES.length]!;
+    a = { versi: useBibleStore.getState().selectedVersionCode, ...f, selesai: null };
+  }
+  const teks = await verseText(a);
+  const title = t('resolusi.share_card_title');
+  openShareCard(
+    {
+      kind: 'achievement',
+      title,
+      label: t('resolusi.share_card_label', { tahun: r.tahun }),
+      testimony: r.judul,
+      verse: teks,
+      reference: verseRefWithVersion(a),
+      caption: `${title} 🎉\n\n${r.judul}\n\n${teks ? `"${teks}"\n` : ''}— ${verseRefWithVersion(a)}\n${verseWebLink(a)}\n\n${t('common.share_signature')}`,
+    },
+    delayMs,
   );
 }
