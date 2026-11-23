@@ -376,7 +376,9 @@
     "contact_add": "Add",
     "zona_role_leader": "Zone Leader",
     "zona_role_pastor": "Zone pastor",
-    "zona_homecells": "{{count}} homecells"
+    "zona_homecells": "{{count}} homecells",
+    "user_manual": "User Manual",
+    "user_manual_sub": "Complete Els App guide (PDF)"
   },
   "family": {
     "title": "My Family",

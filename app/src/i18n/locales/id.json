@@ -376,7 +376,9 @@
     "contact_add": "Tambah",
     "zona_role_leader": "Zone Leader",
     "zona_role_pastor": "Pastor zona",
-    "zona_homecells": "{{count}} homecell"
+    "zona_homecells": "{{count}} homecell",
+    "user_manual": "User Manual",
+    "user_manual_sub": "Panduan lengkap Els App (PDF)"
   },
   "family": {
     "title": "Keluarga Saya",

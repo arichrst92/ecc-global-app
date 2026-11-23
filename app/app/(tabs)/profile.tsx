@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -41,7 +41,9 @@ import {
   CalendarClock,
   Settings,
   MapPinned,
+  BookOpenText,
 } from 'lucide-react-native';
+import { manualUrl } from '@/config/appRules';
 import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { useRouter } from 'expo-router';
 
@@ -79,7 +81,7 @@ export default function ProfileTab() {
 }
 
 function ProfileTabAuthenticated() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const showToast = useToast((s) => s.show);
   const router = useRouter();
@@ -361,6 +363,19 @@ function ProfileTabAuthenticated() {
               onPress={() => router.push('/settings/check-update' as never)}
             />
           )}
+          {/* User Manual (PDF) sesuai bahasa app — tautan dari server (app-config links). */}
+          <MenuRow
+            icon={<BookOpenText size={18} color={nc('#525252')} />}
+            iconBg="bg-neutral-100"
+            label={t('profile.user_manual')}
+            sub={t('profile.user_manual_sub')}
+            onPress={() => {
+              const url = manualUrl(i18n.language);
+              // Android: in-app browser tidak menampilkan PDF → buka lewat aplikasi PDF / browser HP.
+              if (Platform.OS === 'android') void Linking.openURL(url);
+              else void WebBrowser.openBrowserAsync(url);
+            }}
+          />
           <MenuRow
             icon={<Info size={18} color={nc('#525252')} />}
             iconBg="bg-neutral-100"

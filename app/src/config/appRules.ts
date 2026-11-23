@@ -29,6 +29,18 @@ export type AppRules = {
 };
 
 export type AppTexts = { id?: Record<string, string>; en?: Record<string, string> };
+export type AppLinks = { manual?: { id?: string; en?: string } };
+
+/** Tautan bawaan (server bisa mengganti lewat app-config `links`). */
+const LINK_DEFAULTS = {
+  manual: { id: 'https://portal.eccchurch.global/download/manual.pdf', en: 'https://portal.eccchurch.global/download/manual.pdf' },
+};
+let links = LINK_DEFAULTS;
+
+/** URL User Manual sesuai bahasa app. */
+export function manualUrl(lang: string | undefined): string {
+  return (lang?.startsWith('en') ? links.manual.en : links.manual.id) || LINK_DEFAULTS.manual.id;
+}
 
 /** Nilai bawaan = aturan saat build ini dibuat (dipakai bila server belum mengirim). */
 export const APP_RULE_DEFAULTS: AppRules = {
@@ -81,16 +93,23 @@ function applyTexts(texts: AppTexts | undefined) {
 }
 
 /** Terapkan konfigurasi server (rules + texts). Aman dipanggil berulang. */
-export function applyAppRulesConfig(cfg: { rules?: Partial<AppRules> | null; texts?: AppTexts | null } | null | undefined, persist = true) {
+export function applyAppRulesConfig(
+  cfg: { rules?: Partial<AppRules> | null; texts?: AppTexts | null; links?: AppLinks | null } | null | undefined,
+  persist = true,
+) {
   if (!cfg) return;
+  if (cfg.links?.manual) {
+    const ok = (u?: string) => (typeof u === 'string' && /^https:\/\//.test(u) ? u : undefined);
+    links = { manual: { id: ok(cfg.links.manual.id) ?? LINK_DEFAULTS.manual.id, en: ok(cfg.links.manual.en) ?? ok(cfg.links.manual.id) ?? LINK_DEFAULTS.manual.en } };
+  }
   if (cfg.rules) {
     const next = { ...APP_RULE_DEFAULTS };
     for (const k of Object.keys(APP_RULE_DEFAULTS) as (keyof AppRules)[]) next[k] = sane(cfg.rules[k], APP_RULE_DEFAULTS[k]);
     rules = next;
   }
   if (cfg.texts) applyTexts(cfg.texts);
-  if (persist && (cfg.rules || cfg.texts)) {
-    void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ rules: cfg.rules ?? null, texts: cfg.texts ?? null })).catch(() => {});
+  if (persist && (cfg.rules || cfg.texts || cfg.links)) {
+    void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ rules: cfg.rules ?? null, texts: cfg.texts ?? null, links: cfg.links ?? null })).catch(() => {});
   }
 }
 

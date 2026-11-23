@@ -19,6 +19,8 @@ export type AppConfig = {
   rules?: Partial<import('@/config/appRules').AppRules>;
   /** Server ≥ 2026-11: teks i18n pengganti per bahasa (Portal → App Config → Teks app). */
   texts?: import('@/config/appRules').AppTexts;
+  /** Server ≥ 2026-11: tautan dokumen (User Manual per bahasa). */
+  links?: import('@/config/appRules').AppLinks;
 };
 
 /** Default fallback values — dipakai kalau /public/app-config gagal (network
