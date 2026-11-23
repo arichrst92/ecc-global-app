@@ -9,7 +9,9 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ChevronRight, EyeOff, Plus } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, EyeOff, HandHeart, Plus } from 'lucide-react-native';
+import { openGiving } from '@/utils/giving';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -97,6 +99,7 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
   const qc = useQueryClient();
   const showToast = useToast((st) => st.show);
   const [filter, setFilter] = useState<'aktif' | 'terjawab'>('aktif');
+  const { branch } = useViewingBranch();
   const q = useQuery({ queryKey: ['prayer', 'mine', filter], queryFn: () => listMyPrayers(filter) });
   const rows = q.data ?? [];
 
@@ -151,11 +154,11 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
       ) : (
         <>
           {rows.map((p) => (
+            <View key={p.id} className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
             <Pressable
-              key={p.id}
               onPress={() => router.push(`/doa/${p.id}` as never)}
               onLongPress={() => confirmDelete(p)}
-              className="bg-card rounded-2xl p-4 border border-neutral-100 flex-row items-center gap-3"
+              className="p-4 flex-row items-center gap-3"
             >
               <View className="flex-1 min-w-0 gap-1">
                 <View className="flex-row items-center gap-2">
@@ -175,6 +178,20 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
               </View>
               <ChevronRight size={16} color={nc('#A3A3A3')} />
             </Pressable>
+            {p.terjawabAt ? (
+              // Doa terjawab → ajakan memberi (sama dengan di detail doa).
+              <Pressable
+                onPress={() => void openGiving(branch?.kode)}
+                className="mx-4 mb-4 -mt-1 flex-row items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 active:opacity-80"
+              >
+                <View className="w-7 h-7 rounded-lg bg-amber-500 items-center justify-center">
+                  <HandHeart size={14} color="#fff" />
+                </View>
+                <Text className="flex-1 text-xs font-semibold text-amber-900 leading-4">{t('doa.give_thanks_cta')}</Text>
+                <ChevronRight size={16} color="#B45309" />
+              </Pressable>
+            ) : null}
+            </View>
           ))}
           <View className="mt-2">
             <Button label={t('doa.new')} onPress={() => router.push('/doa/form' as never)} leftIcon={<Plus size={18} color="#fff" />} />
