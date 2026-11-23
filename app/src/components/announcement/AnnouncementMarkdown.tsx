@@ -57,7 +57,8 @@ function parse(md: string): Block[] {
 // Tanpa lookbehind (aman untuk semua engine JS).
 const TOKEN = /(\*\*[^*]+\*\*|~~[^~]+~~|\[[^\]]+\]\([^)\s]+\)|\*[^*\n]+\*|\b_[^_\n]+_\b)/g;
 
-function inline(text: string, keyBase: string): ReactNode[] {
+/** Inline: **tebal**, *miring*, ~~coret~~, [link](https://…). Dipakai juga SimpleMarkdown. */
+export function inline(text: string, keyBase: string): ReactNode[] {
   const parts: ReactNode[] = [];
   let last = 0;
   let i = 0;

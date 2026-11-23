@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import { inline as mdInline } from '@/components/announcement/AnnouncementMarkdown';
+
 type Props = {
   source: string;
 };
@@ -8,6 +10,8 @@ type Props = {
  * Minimal markdown renderer untuk renungan/news content.
  * Support: H1-H3 headings, paragraphs, bold (**), italic (*), bullets (-),
  * blockquotes (>), Bible verse style (italic indented).
+ * 2.5.1: + daftar bernomor (1.), ~~coret~~, [link](https://…) — sama dengan
+ * toolbar editor Portal. App 2.5.0 belum mengenal ketiganya (Portal membatasi toolbar).
  *
  * Untuk kebutuhan lebih advanced (tables, code, links, images) ganti dengan
  * react-native-markdown-display dependency. Saat ini cukup untuk MVP konten
@@ -24,13 +28,14 @@ export function SimpleMarkdown({ source }: Props) {
 
 type Block =
   | { type: 'h1' | 'h2' | 'h3' | 'p'; text: string }
-  | { type: 'list'; items: string[] }
+  | { type: 'list'; items: string[]; ordered?: boolean }
   | { type: 'quote'; text: string };
 
 function parseBlocks(source: string): Block[] {
   const lines = source.replace(/\r\n/g, '\n').split('\n');
   const blocks: Block[] = [];
   let currentList: string[] | null = null;
+  let currentOrdered = false;
   let currentParagraph: string[] = [];
 
   function flushParagraph() {
@@ -41,7 +46,7 @@ function parseBlocks(source: string): Block[] {
   }
   function flushList() {
     if (currentList && currentList.length > 0) {
-      blocks.push({ type: 'list', items: currentList });
+      blocks.push({ type: 'list', items: currentList, ordered: currentOrdered });
       currentList = null;
     }
   }
@@ -83,11 +88,15 @@ function parseBlocks(source: string): Block[] {
       continue;
     }
 
-    // List item
-    if (line.startsWith('- ') || line.startsWith('* ')) {
+    // List item (bullet / bernomor)
+    const ol = /^\d+[.)]\s+(.*)$/.exec(line);
+    if (line.startsWith('- ') || line.startsWith('* ') || ol) {
       flushParagraph();
+      const ordered = !!ol;
+      if (currentList && currentOrdered !== ordered) flushList();
       if (!currentList) currentList = [];
-      currentList.push(line.slice(2));
+      currentOrdered = ordered;
+      currentList.push(ol ? ol[1]! : line.slice(2));
       continue;
     }
 
@@ -137,7 +146,7 @@ function renderBlock(block: Block, key: number) {
         <View key={key} className="gap-1.5 pl-1">
           {block.items.map((item, i) => (
             <View key={i} className="flex-row gap-2">
-              <Text className="text-base text-neutral-700">•</Text>
+              <Text className="text-base text-neutral-700">{block.ordered ? `${i + 1}.` : '•'}</Text>
               <Text className="text-base text-neutral-700 flex-1 leading-relaxed">
                 {renderInline(item)}
               </Text>
@@ -154,32 +163,7 @@ function renderBlock(block: Block, key: number) {
   }
 }
 
-/** Render inline marks: **bold**, *italic*. Returns array of React nodes. */
+/** Inline: **tebal**, *miring*, ~~coret~~, [link](https://…) (sama dengan Announcement). */
 function renderInline(text: string): React.ReactNode {
-  // Split on bold first, then italic per token
-  const boldParts = text.split(/(\*\*[^*]+\*\*)/g);
-  return boldParts.map((part, i) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
-      return (
-        <Text key={i} className="font-bold text-neutral-900">
-          {renderItalic(part.slice(2, -2))}
-        </Text>
-      );
-    }
-    return <Text className="text-neutral-900" key={i}>{renderItalic(part)}</Text>;
-  });
-}
-
-function renderItalic(text: string): React.ReactNode {
-  const parts = text.split(/(\*[^*]+\*)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
-      return (
-        <Text key={i} className="text-neutral-900 italic">
-          {part.slice(1, -1)}
-        </Text>
-      );
-    }
-    return part;
-  });
+  return <Text className="text-neutral-900">{mdInline(text, 'i')}</Text>;
 }
