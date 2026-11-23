@@ -13,7 +13,7 @@ import { useEffect, useRef } from 'react';
 import { Modal as RNModal, type ModalProps } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ToastContainer, useModalStack } from '@/components/ui/Toast';
-import { DialogContainer } from '@/components/ui/AppDialog';
+import { DialogContainer, handleDialogBack } from '@/components/ui/AppDialog';
 
 let seq = 0;
 
@@ -35,7 +35,14 @@ export function Modal({ children, ...rest }: ModalProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rest.visible]);
   return (
-    <RNModal {...rest}>
+    <RNModal
+      {...rest}
+      // Popup Els App terbuka di dalam modal → tombol kembali menutup popup, bukan modal.
+      onRequestClose={(e) => {
+        if (handleDialogBack()) return;
+        rest.onRequestClose?.(e);
+      }}
+    >
       <SafeAreaProvider initialMetrics={rest.presentationStyle === 'pageSheet' || rest.presentationStyle === 'formSheet' ? undefined : initialWindowMetrics}>
         {children}
         <ToastContainer modalId={id} />

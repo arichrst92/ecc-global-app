@@ -70,7 +70,11 @@ export function appRule<K extends keyof AppRules>(key: K): AppRules[K] {
   return rules[key];
 }
 
+let lastTextsJson = '';
 function applyTexts(texts: AppTexts | undefined) {
+  const json = JSON.stringify(texts ?? {});
+  if (json === lastTextsJson) return; // tidak berubah -> tanpa render ulang seluruh app
+  lastTextsJson = json;
   for (const lang of ['id', 'en'] as const) {
     const next = texts?.[lang] ?? {};
     const orig = originals[lang]!;

@@ -301,7 +301,7 @@ function ResolusiSheet({
     ]);
 
   return (
-    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible transparent animationType="slide" onRequestClose={() => (pickerOpen ? setPickerOpen(false) : onClose())}>
       <KeyboardSafeView className="flex-1 bg-black/50 justify-end">
         <Pressable className="flex-1" onPress={onClose} />
         <View className="bg-card rounded-t-3xl" style={{ maxHeight: '90%' }}>

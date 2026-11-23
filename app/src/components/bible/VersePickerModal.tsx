@@ -106,7 +106,8 @@ export function VersePickerModal({
   }, [step, versi, kitab, bab]);
 
   const book = kitab ? BIBLE_BOOK_BY_ID.get(kitab) : null;
-  const books = useMemo(() => matchBooks(q.replace(/\s*\d.*$/, '')), [q]);
+  // Buang bab/ayat di akhir ('Yoh 3:16' -> 'Yoh'); angka di depan nama kitab ('1 Yoh') tetap.
+  const books = useMemo(() => matchBooks(q.replace(/\s+\d+(\s*[:.].*)?$/, '')), [q]);
   const parsed = useMemo(() => (/\d/.test(q) ? parseRef(q) : null), [q]);
 
   function goParsed() {

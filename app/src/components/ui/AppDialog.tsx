@@ -52,6 +52,25 @@ export function appAlert(title: string, message?: string, buttons?: AlertButton[
   });
 }
 
+/**
+ * Tombol kembali Android saat popup tampil. Di dalam Modal, Android tidak
+ * meneruskan tombol kembali ke BackHandler (yang dipanggil onRequestClose Modal),
+ * jadi Modal memanggil ini dulu. true = sudah ditangani (Modal jangan ditutup).
+ */
+export function handleDialogBack(): boolean {
+  const cur = useDialogStore.getState().queue[0];
+  if (!cur) return false;
+  const cancel = cur.buttons.find((b) => b.style === 'cancel');
+  if (cancel) {
+    useDialogStore.getState().shift(cur.id);
+    setTimeout(() => cancel.onPress?.(), 0);
+  } else if (cur.cancelable) {
+    useDialogStore.getState().shift(cur.id);
+    cur.onDismiss?.();
+  }
+  return true;
+}
+
 /** Letakkan di root layout dan di dalam Modal (lihat components/ui/Modal). */
 export function DialogContainer({ modalId }: { modalId?: number } = {}) {
   const current = useDialogStore((s) => s.queue[0]);
