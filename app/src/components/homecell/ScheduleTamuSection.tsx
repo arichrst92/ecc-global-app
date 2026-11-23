@@ -4,8 +4,9 @@
  * % kehadiran. Tamu homecell yang belum hadir tampil sebagai chip (ketuk =
  * tandai hadir); "Tamu baru" mencatat tamu ke homecell lalu langsung hadir.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Plus, UserPlus, X } from 'lucide-react-native';
 
@@ -67,7 +68,7 @@ export function ScheduleTamuSection({
               </View>
               <Pressable
                 onPress={() =>
-                  Alert.alert(t('hcj.tamu_unmark_title'), t('hcj.tamu_unmark_body', { name: a.tamu.namaLengkap }), [
+                  appAlert(t('hcj.tamu_unmark_title'), t('hcj.tamu_unmark_body', { name: a.tamu.namaLengkap }), [
                     { text: t('common.cancel'), style: 'cancel' },
                     { text: t('common.delete'), style: 'destructive', onPress: () => unmark.mutate(a.tamu.id, { onError: onErr }) },
                   ])

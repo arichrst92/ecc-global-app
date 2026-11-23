@@ -1,3 +1,4 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -96,7 +97,7 @@ export function useGuestGuard() {
     // Simple alert — caller bisa replace dengan custom modal kalau perlu.
     import('react-native').then(({ Alert }) => {
       const t = (k: string) => k; // placeholder kalau i18n ga di-pass
-      Alert.alert(
+      appAlert(
         'Daftar Akun Diperlukan',
         'Fitur ini hanya tersedia setelah Anda mendaftarkan akun. Daftar sekarang?',
         [

@@ -11,11 +11,11 @@
  * Skip logic: kalau onboardingReason.missingNoHp === false, wizard langsung
  * dari intro ke profile — 2 step phone dilewati.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { DatePickerModal } from '@/components/ui/DatePickerModal';
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -74,7 +74,7 @@ export default function OnboardingWizardScreen() {
   // link tapi tidak mau lanjut onboarding). Tanpa ini, setiap buka app akan
   // stuck di intro screen karena user.needsOnboarding tetap true di server.
   const handleBackToLogin = () => {
-    Alert.alert(
+    appAlert(
       t('auth.onboarding.back_to_login_confirm_title'),
       t('auth.onboarding.back_to_login_confirm_body'),
       [
@@ -242,7 +242,7 @@ export default function OnboardingWizardScreen() {
         } catch (err) {
           setStep('profile');
           const msg = err instanceof ApiError ? err.message : t('error.network');
-          Alert.alert(t('auth.onboarding.submit_error_title'), msg);
+          appAlert(t('auth.onboarding.submit_error_title'), msg);
         }
       }}
     />

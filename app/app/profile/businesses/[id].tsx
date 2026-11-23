@@ -8,10 +8,10 @@
  * PDF: max 5 MB (BE limit), MIME application/pdf only, client-side
  * size validation sebelum upload.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Linking,
   Platform,
@@ -139,7 +139,7 @@ export default function OwnerBusinessDetailScreen() {
     });
   }
   function askRemovePartner(pid: string, name: string, status: 'PENDING' | 'ACCEPTED') {
-    Alert.alert(
+    appAlert(
       status === 'PENDING' ? t('partner.cancel_invite_title') : t('partner.remove_title'),
       t(status === 'PENDING' ? 'partner.cancel_invite_body' : 'partner.remove_body', { name }),
       [
@@ -153,7 +153,7 @@ export default function OwnerBusinessDetailScreen() {
     );
   }
   function askLeave() {
-    Alert.alert(t('partner.leave_title'), t('partner.leave_body', { name: biz?.nama ?? '' }), [
+    appAlert(t('partner.leave_title'), t('partner.leave_body', { name: biz?.nama ?? '' }), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('partner.leave_confirm'),
@@ -447,7 +447,7 @@ export default function OwnerBusinessDetailScreen() {
             {biz.heroImageUrl ? (
               <Pressable
                 onPress={() =>
-                  Alert.alert(
+                  appAlert(
                     t('my_business.hero_delete_confirm'),
                     undefined,
                     [

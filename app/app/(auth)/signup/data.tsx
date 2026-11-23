@@ -1,5 +1,6 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, BackHandler, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -75,7 +76,7 @@ export default function SignupDataScreen() {
   const showExpired = () => {
     if (expiredShown.current) return;
     expiredShown.current = true;
-    Alert.alert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [{ text: 'OK', onPress: restartSignup }], {
+    appAlert(t('signup.error_otp_expired_title'), t('signup.error_otp_expired_msg'), [{ text: 'OK', onPress: restartSignup }], {
       cancelable: false,
     });
   };
@@ -147,7 +148,7 @@ export default function SignupDataScreen() {
       if (claim && err instanceof ApiError && err.code === 'CONFLICT') {
         // Data lama sudah memakai nomor lain, dsb. → tutup sheet, jelaskan.
         setMatch(null);
-        Alert.alert(t('signup.claim_failed_title'), err.message);
+        appAlert(t('signup.claim_failed_title'), err.message);
         return;
       }
       if (claim && err instanceof ApiError) {
@@ -167,20 +168,20 @@ export default function SignupDataScreen() {
           };
           setErrors(mapped);
           // Kolom lain (email, no HP, dll.) tidak punya tempat di form → tampilkan pesannya.
-          if (!Object.values(mapped).some(Boolean)) Alert.alert(t('error.generic'), err.message);
+          if (!Object.values(mapped).some(Boolean)) appAlert(t('error.generic'), err.message);
         } else if (err.code === 'UNAUTHORIZED' && !/data lama/i.test(err.message)) {
           setMatch(null);
           showExpired();
         } else if (err.code === 'FORBIDDEN' || err.code === 'BAD_REQUEST' || err.code === 'UNAUTHORIZED') {
-          Alert.alert(t('error.generic'), err.message);
+          appAlert(t('error.generic'), err.message);
         } else if (err.code === 'CONFLICT') {
           setMatch(null);
-          Alert.alert(viaEmail ? t('signup.email_already_registered') : t('signup.error_already_registered'), /data lama/i.test(err.message) ? err.message : undefined);
+          appAlert(viaEmail ? t('signup.email_already_registered') : t('signup.error_already_registered'), /data lama/i.test(err.message) ? err.message : undefined);
         } else {
-          Alert.alert(t('error.generic'), err.message);
+          appAlert(t('error.generic'), err.message);
         }
       } else {
-        Alert.alert(t('error.network'));
+        appAlert(t('error.network'));
       }
     },
   });
@@ -223,7 +224,7 @@ export default function SignupDataScreen() {
   });
 
   function handleBack() {
-    Alert.alert(t('signup.cancel_confirm_title'), t('signup.cancel_confirm_msg'), [
+    appAlert(t('signup.cancel_confirm_title'), t('signup.cancel_confirm_msg'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('common.confirm'),

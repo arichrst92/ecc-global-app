@@ -3,10 +3,10 @@
  * dicapai + catatan; admin menyetujui di Portal → tahap itu & sebelumnya
  * tercatat. Kartu status + lembar pengajuan.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -41,7 +41,7 @@ export function JourneyRequestCard({ journey }: { journey: MyJourney }) {
 
   const cancel = async () => {
     if (!r) return;
-    Alert.alert(t('journey.req_cancel_title'), t('journey.req_cancel_msg'), [
+    appAlert(t('journey.req_cancel_title'), t('journey.req_cancel_msg'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('journey.req_cancel_yes'),
@@ -128,7 +128,7 @@ function RequestSheet({ visible, onClose, journey }: { visible: boolean; onClose
       onClose();
       void qc.invalidateQueries({ queryKey: MY_JOURNEY_KEY });
     },
-    onError: (e) => Alert.alert(e instanceof ApiError ? e.message : t('error.network')),
+    onError: (e) => appAlert(e instanceof ApiError ? e.message : t('error.network')),
   });
 
   const canSubmit = !!stepId && !submit.isPending;

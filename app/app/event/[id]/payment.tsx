@@ -1,5 +1,6 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -115,14 +116,14 @@ export default function EventPaymentScreen() {
     },
     onError: (err) => {
       const msg = err instanceof ApiError ? err.message : t('error.network');
-      Alert.alert(t('error.generic'), msg);
+      appAlert(t('error.generic'), msg);
     },
   });
 
   async function pickImage() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert(t('event.permission_denied'));
+      appAlert(t('event.permission_denied'));
       return;
     }
 
@@ -149,7 +150,7 @@ export default function EventPaymentScreen() {
   async function takePhoto() {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert(t('event.camera_permission_denied'));
+      appAlert(t('event.camera_permission_denied'));
       return;
     }
 

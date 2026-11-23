@@ -5,7 +5,8 @@
  * Hero mengikuti ukuran upload portal (3:2, 1600×1067). QR = kode jemaat.
  * Geser check-in hanya kalau event mengizinkan self check-in & sudah lunas.
  */
-import { Alert, Pressable, Text, View } from 'react-native';
+import { appAlert } from '@/components/ui/AppDialog';
+import { Pressable, Text, View } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -101,7 +102,7 @@ export function EventTicketCard({
     onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
   });
   const askCancel = () =>
-    Alert.alert(t('tiket.event_cancel_title'), t('tiket.event_cancel_body', { name: tk.jemaat.namaLengkap, event: ev.judul }), [
+    appAlert(t('tiket.event_cancel_title'), t('tiket.event_cancel_body', { name: tk.jemaat.namaLengkap, event: ev.judul }), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('reservasi.cancel_confirm'), style: 'destructive', onPress: () => cancel.mutate() },
     ]);

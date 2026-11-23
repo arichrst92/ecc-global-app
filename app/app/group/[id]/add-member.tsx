@@ -14,8 +14,9 @@
  *
  * Per BE response `backend-request-group-add-member-by-kode.md`.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -60,20 +61,20 @@ export default function AddGroupMemberScreen() {
           setPaused(false);
           if (err instanceof ApiError) {
             if (err.code === 'NOT_FOUND') {
-              Alert.alert(
+              appAlert(
                 t('group.add_member_error_not_found_title'),
                 t('group.add_member_error_not_found_msg'),
               );
             } else if (err.code === 'FORBIDDEN') {
-              Alert.alert(
+              appAlert(
                 t('common.error'),
                 t('group.add_member_error_forbidden'),
               );
             } else {
-              Alert.alert(t('common.error'), err.message);
+              appAlert(t('common.error'), err.message);
             }
           } else {
-            Alert.alert(t('common.error'), t('error.network'));
+            appAlert(t('common.error'), t('error.network'));
           }
         },
       },

@@ -6,10 +6,10 @@
  * - Belum punya homecell: daftar homecell di cabang + "Cari homecell terdekat"
  *   (GPS) → popup rekomendasi → minta bergabung.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -119,7 +119,7 @@ export default function HomecellHubScreen() {
   }
 
   function cancel(homecellId: string, nama: string) {
-    Alert.alert(t('hcj.cancel_request'), t('hcj.cancel_confirm', { name: nama }), [
+    appAlert(t('hcj.cancel_request'), t('hcj.cancel_confirm', { name: nama }), [
       { text: t('common.back'), style: 'cancel' },
       {
         text: t('hcj.cancel_request'),

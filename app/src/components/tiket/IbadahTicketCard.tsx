@@ -5,7 +5,8 @@
  *    + batalkan reservasi selama boleh.
  *  - Ibadah anak: check-in di meja CKids; setelah hadir tampil kode jemput.
  */
-import { Alert, Pressable, Text, View } from 'react-native';
+import { appAlert } from '@/components/ui/AppDialog';
+import { Pressable, Text, View } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Baby, CalendarDays, Church, LogOut, MapPin } from 'lucide-react-native';
@@ -78,7 +79,7 @@ export function IbadahTicketCard({
     onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
   });
   const askCancel = () =>
-    Alert.alert(t('reservasi.cancel_title'), t('reservasi.cancel_body', { name: r.jemaat.namaLengkap }), [
+    appAlert(t('reservasi.cancel_title'), t('reservasi.cancel_body', { name: r.jemaat.namaLengkap }), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('reservasi.cancel_confirm'), style: 'destructive', onPress: () => cancel.mutate() },
     ]);
@@ -94,7 +95,7 @@ export function IbadahTicketCard({
     onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
   });
   const askUndo = () =>
-    Alert.alert(t('tiket.cancel_checkin_title'), t('tiket.cancel_checkin_body', { name: r.jemaat.namaLengkap }), [
+    appAlert(t('tiket.cancel_checkin_title'), t('tiket.cancel_checkin_body', { name: r.jemaat.namaLengkap }), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('tiket.cancel_checkin_confirm'), style: 'destructive', onPress: () => undo.mutate() },
     ]);

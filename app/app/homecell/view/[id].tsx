@@ -4,10 +4,10 @@
  * - Anggota: info + jadwal berikutnya + daftar anggota + chat pemimpin.
  * - Pemimpin: + atur lokasi Google Maps (untuk "Cari homecell terdekat").
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState, useRef } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Linking,
   Pressable,
   ScrollView,
@@ -94,7 +94,7 @@ export default function HomecellViewScreen() {
 
   function join() {
     if (!hc) return;
-    Alert.alert(t('hcj.join_btn'), t('hcj.join_confirm', { name: hc.nama }), [
+    appAlert(t('hcj.join_btn'), t('hcj.join_confirm', { name: hc.nama }), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('hcj.join_btn'),
@@ -115,7 +115,7 @@ export default function HomecellViewScreen() {
 
   function cancel() {
     if (!hc) return;
-    Alert.alert(t('hcj.cancel_request'), t('hcj.cancel_confirm', { name: hc.nama }), [
+    appAlert(t('hcj.cancel_request'), t('hcj.cancel_confirm', { name: hc.nama }), [
       { text: t('common.back'), style: 'cancel' },
       {
         text: t('hcj.cancel_request'),

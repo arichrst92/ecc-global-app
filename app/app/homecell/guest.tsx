@@ -8,10 +8,10 @@
  * - Status permintaan disimpan di perangkat (token); alamat lengkap, link
  *   Maps & kontak pemimpin muncul setelah DITERIMA.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Linking,
   Platform,
   Pressable,
@@ -197,7 +197,7 @@ export default function GuestHomecellScreen() {
                 req={req}
                 cancelling={cancelMut.isPending && cancelMut.variables === token}
                 onCancel={() =>
-                  Alert.alert(t('hcj.cancel_request'), t('hcj.cancel_confirm', { name: req.homecell.nama }), [
+                  appAlert(t('hcj.cancel_request'), t('hcj.cancel_confirm', { name: req.homecell.nama }), [
                     { text: t('common.back'), style: 'cancel' },
                     { text: t('hcj.cancel_request'), style: 'destructive', onPress: () => cancelMut.mutate(token) },
                   ])

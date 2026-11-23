@@ -3,8 +3,9 @@
  * berkunjung, tambah tamu, hubungi via WhatsApp, hapus dari daftar homecell.
  * Tamu juga tampil di menu Tamu portal (sumber: homecell).
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { MessageCircle, Trash2, UserPlus } from 'lucide-react-native';
@@ -141,7 +142,7 @@ export function HomecellTamuSection({
                   ) : null}
                   <Pressable
                     onPress={() =>
-                      Alert.alert(
+                      appAlert(
                         t('hcj.tamu_remove_title'),
                         t('hcj.tamu_remove_body', { name: g.namaLengkap }),
                         [

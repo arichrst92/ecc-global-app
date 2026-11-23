@@ -1,8 +1,8 @@
 /** Detail prayer request saya — timeline, catatan tim doa, tandai terjawab, ubah, hapus. */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -68,7 +68,7 @@ export default function DoaDetailScreen() {
     onError: onErr,
   });
   const confirmDelete = () =>
-    Alert.alert(t('doa.delete_title'), t('doa.delete_body'), [
+    appAlert(t('doa.delete_title'), t('doa.delete_body'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('doa.delete'), style: 'destructive', onPress: () => delMut.mutate() },
     ]);
@@ -96,7 +96,7 @@ export default function DoaDetailScreen() {
   }
 
   const confirmUnmark = () =>
-    Alert.alert(t('doa.unmark_answered'), '', [
+    appAlert(t('doa.unmark_answered'), '', [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('doa.unmark_answered'), style: 'destructive', onPress: () => answerMut.mutate(false) },
     ]);

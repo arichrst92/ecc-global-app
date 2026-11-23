@@ -33,6 +33,7 @@ import { useEventFlowStore } from '@/stores/event-flow.store';
 import { useNotificationsStore } from '@/stores/notifications.store';
 import { useBibleStore } from '@/stores/bible.store';
 import { ToastContainer } from '@/components/ui/Toast';
+import { DialogContainer } from '@/components/ui/AppDialog';
 import { ShareCardHost } from '@/features/share/shareStore';
 import { initNotificationHandler } from '@/features/bible365/reminder';
 import { initAnalytics, setAnalyticsMode, setAnalyticsServerRate, trackScreen } from '@/features/analytics/tracker';
@@ -205,6 +206,8 @@ export default function RootLayout() {
         {/* Crop gambar di dalam app (Android) — pengganti layar crop bawaan */}
         <ImageCropHost />
         <ToastContainer />
+        {/* Popup pemberitahuan Els App (pengganti Alert sistem) */}
+        <DialogContainer />
         </ThemeRoot>
       </PersistQueryClientProvider>
     </SafeAreaProvider>

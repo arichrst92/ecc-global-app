@@ -13,6 +13,7 @@ import { useEffect, useRef } from 'react';
 import { Modal as RNModal, type ModalProps } from 'react-native';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ToastContainer, useModalStack } from '@/components/ui/Toast';
+import { DialogContainer } from '@/components/ui/AppDialog';
 
 let seq = 0;
 
@@ -38,6 +39,7 @@ export function Modal({ children, ...rest }: ModalProps) {
       <SafeAreaProvider initialMetrics={rest.presentationStyle === 'pageSheet' || rest.presentationStyle === 'formSheet' ? undefined : initialWindowMetrics}>
         {children}
         <ToastContainer modalId={id} />
+        <DialogContainer modalId={id} />
       </SafeAreaProvider>
     </RNModal>
   );

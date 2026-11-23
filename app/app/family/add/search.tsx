@@ -1,7 +1,7 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -77,11 +77,11 @@ export default function FamilyAddSearchScreen() {
         },
         onError: (err) => {
           if (err instanceof ApiError) {
-            if (err.code === 'CONFLICT') Alert.alert(err.message || t('family.already_linked'));
-            else if (err.code === 'BAD_REQUEST' && /diri sendiri/i.test(err.message)) Alert.alert(t('family.cant_link_self'));
-            else Alert.alert(err.message);
+            if (err.code === 'CONFLICT') appAlert(err.message || t('family.already_linked'));
+            else if (err.code === 'BAD_REQUEST' && /diri sendiri/i.test(err.message)) appAlert(t('family.cant_link_self'));
+            else appAlert(err.message);
           } else {
-            Alert.alert(t('error.network'));
+            appAlert(t('error.network'));
           }
         },
       },

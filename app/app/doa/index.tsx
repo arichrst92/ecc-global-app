@@ -2,8 +2,9 @@
  * Doa — prayer request saya (Aktif / Terjawab) + tab "Ditugaskan ke Saya"
  * untuk petugas doa. Masuk dari tile Doa di Home atau menu Profil.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -108,7 +109,7 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
     onError: (e) => showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error'),
   });
   const confirmDelete = (p: Prayer) =>
-    Alert.alert(t('doa.delete_title'), t('doa.delete_body'), [
+    appAlert(t('doa.delete_title'), t('doa.delete_body'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('doa.delete'), style: 'destructive', onPress: () => delMut.mutate(p.id) },
     ]);

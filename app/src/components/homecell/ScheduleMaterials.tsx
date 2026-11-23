@@ -2,8 +2,9 @@
  * Materi pertemuan homecell: daftar file (nama + deskripsi) yang bisa dibuka,
  * plus modal upload untuk PIC (nama, deskripsi, file via document picker).
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Platform, Pressable, Text, View, ScrollView } from 'react-native';
+import { Platform, Pressable, Text, View, ScrollView } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
@@ -59,7 +60,7 @@ export function MaterialList({
               <Pressable
                 hitSlop={10}
                 onPress={() =>
-                  Alert.alert(t('common.delete'), t('hcj.materi_delete_confirm', { name: f.nama }), [
+                  appAlert(t('common.delete'), t('hcj.materi_delete_confirm', { name: f.nama }), [
                     { text: t('common.cancel'), style: 'cancel' },
                     { text: t('common.delete'), style: 'destructive', onPress: () => onDelete(f) },
                   ])

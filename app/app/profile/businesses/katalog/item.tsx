@@ -5,8 +5,9 @@
  * Foto 3:2 maks. 4. Mode tambah: foto disimpan lokal dulu, diunggah setelah
  * item tercipta. Mode ubah: foto langsung diunggah/dihapus.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -182,7 +183,7 @@ export default function KatalogItemFormScreen() {
 
   function handleDelete() {
     if (!itemId) return;
-    Alert.alert(t('katalog.delete_title'), t('katalog.delete_msg', { name: nama }), [
+    appAlert(t('katalog.delete_title'), t('katalog.delete_msg', { name: nama }), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('common.delete'),

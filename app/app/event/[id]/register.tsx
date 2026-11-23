@@ -1,5 +1,6 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { useMemo, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -181,7 +182,7 @@ export default function EventRegisterScreen() {
           .join('\n');
         // Tidak ada yang berhasil → "Pendaftaran gagal" + alasannya saja.
         const noneOk = data.successful.length === 0;
-        Alert.alert(
+        appAlert(
           noneOk ? t('event.register_failed_title') : t('event.register_partial_title'),
           noneOk
             ? failLines
@@ -199,7 +200,7 @@ export default function EventRegisterScreen() {
       if (isFree) {
         // Event gratis: back ke halaman detail event (bukan beranda) supaya
         // user langsung lihat status "Sudah Daftar" + info event yg didaftarkan.
-        Alert.alert(t('event.register_success'), undefined, [
+        appAlert(t('event.register_success'), undefined, [
           { text: 'OK', onPress: () => router.replace(`/event/${id}` as never) },
         ]);
         return;
@@ -210,7 +211,7 @@ export default function EventRegisterScreen() {
       if (data.successful.length === 1 && selfSuccess) {
         router.replace(`/event/${id}/payment`);
       } else {
-        Alert.alert(
+        appAlert(
           t('event.register_multi_success_title'),
           t('event.register_multi_success_body', { count: data.successful.length }),
           [{ text: 'OK', onPress: () => router.replace(`/event/${id}`) }],
@@ -223,19 +224,19 @@ export default function EventRegisterScreen() {
           // Fallback recovery — kemungkinan participation sudah ada
           await queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
           await queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
-          Alert.alert(err.message);
+          appAlert(err.message);
         } else {
-          Alert.alert(t('error.generic'), err.message);
+          appAlert(t('error.generic'), err.message);
         }
       } else {
-        Alert.alert(t('error.network'));
+        appAlert(t('error.network'));
       }
     },
   });
 
   function handleSubmit() {
     if (activeSelectedIds.length === 0) {
-      Alert.alert(t('event.register_select_at_least_one'));
+      appAlert(t('event.register_select_at_least_one'));
       return;
     }
     if (isBebas) {

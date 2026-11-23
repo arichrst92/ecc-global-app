@@ -4,10 +4,10 @@
  *
  * Per BE notice group-endpoints 2026-07-28.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -104,7 +104,7 @@ export default function EditGroupScreen() {
 
   function submit() {
     if (!nama.trim()) {
-      Alert.alert(t('common.error'), t('group.error_nama_required'));
+      appAlert(t('common.error'), t('group.error_nama_required'));
       return;
     }
     const salah = pertamaGagal(
@@ -113,7 +113,7 @@ export default function EditGroupScreen() {
       cekTeks(alamat, { label: t('group.field_alamat') }),
     );
     if (salah) {
-      Alert.alert(t('common.error'), salah);
+      appAlert(t('common.error'), salah);
       return;
     }
     updateMutation.mutate(
@@ -137,7 +137,7 @@ export default function EditGroupScreen() {
           }
         },
         onError: (err) => {
-          Alert.alert(
+          appAlert(
             t('common.error'),
             err instanceof ApiError ? err.message : t('error.network'),
           );

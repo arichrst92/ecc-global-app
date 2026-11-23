@@ -2,7 +2,8 @@
  * Popup rekomendasi "Cari homecell terdekat" — kartu detail + aksi
  * Lihat detail / Minta bergabung.
  */
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { appAlert } from '@/components/ui/AppDialog';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import { Clock, MapPin, Navigation, User, Users, X } from 'lucide-react-native';
@@ -107,7 +108,7 @@ export function NearestHomecellModal({ visible, data, joiningId, hasPending, onC
                           size="sm"
                           loading={joiningId === h.id}
                           onPress={() =>
-                            Alert.alert(t('hcj.join_btn'), t('hcj.join_confirm', { name: h.nama }), [
+                            appAlert(t('hcj.join_btn'), t('hcj.join_confirm', { name: h.nama }), [
                               { text: t('common.cancel'), style: 'cancel' },
                               { text: t('hcj.join_btn'), onPress: () => onJoin(h.id) },
                             ])

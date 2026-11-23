@@ -12,9 +12,9 @@
  * - 400 (self-scan) → toast + reset
  * - 400 (target nonaktif) → toast + reset
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import {
-  Alert,
   Platform,
   Pressable,
   Text,
@@ -59,7 +59,7 @@ export default function VisitScanScreen() {
     if (scannedKode || createMutation.isPending) return;
     const kode = data.trim().toUpperCase();
     if (!/^[A-Z0-9]{8}$/.test(kode)) {
-      Alert.alert(t('visit.scan_invalid_qr'));
+      appAlert(t('visit.scan_invalid_qr'));
       return;
     }
     setScannedKode(kode);
@@ -99,15 +99,15 @@ export default function VisitScanScreen() {
         onError: (err) => {
           if (err instanceof ApiError) {
             if (err.code === 'NOT_FOUND') {
-              Alert.alert(t('visit.kode_not_found'));
+              appAlert(t('visit.kode_not_found'));
             } else if (err.code === 'BAD_REQUEST') {
               // Could be self-scan or target nonaktif. Use BE message.
-              Alert.alert(err.message || t('visit.scan_error_generic'));
+              appAlert(err.message || t('visit.scan_error_generic'));
             } else {
-              Alert.alert(err.message);
+              appAlert(err.message);
             }
           } else {
-            Alert.alert(t('error.network'));
+            appAlert(t('error.network'));
           }
           resetScanner();
         },

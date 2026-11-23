@@ -12,8 +12,9 @@
  *
  * Per BE notice group-endpoints 2026-07-28.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -86,7 +87,7 @@ export default function GroupQrScreen() {
   }
 
   function handleRegenerate() {
-    Alert.alert(
+    appAlert(
       t('group.regen_confirm_title'),
       t('group.regen_confirm_msg'),
       [
@@ -99,7 +100,7 @@ export default function GroupQrScreen() {
                 showToast(t('group.regen_success', { code: data.joinCode }), 'success');
               },
               onError: (err) => {
-                Alert.alert(
+                appAlert(
                   t('common.error'),
                   err instanceof ApiError ? err.message : t('error.network'),
                 );

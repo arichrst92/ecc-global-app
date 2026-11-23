@@ -3,8 +3,9 @@
  * otoritas, hanya cabang otoritasnya. Tanpa notifikasi; jemaat melihat badge
  * "Buka pendaftaran" di daftar pelayanan & catatan di halaman detail.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
@@ -50,7 +51,7 @@ export function PendaftaranSheet({ ministryId, visible, onClose }: { ministryId:
       setEditing(null);
       void qc.invalidateQueries({ queryKey: ['ministry'] });
     },
-    onError: (e) => Alert.alert(e instanceof ApiError ? e.message : t('error.network')),
+    onError: (e) => appAlert(e instanceof ApiError ? e.message : t('error.network')),
   });
 
   const label = (s: PendaftaranCabang['status']) =>

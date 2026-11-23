@@ -1,6 +1,6 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -298,7 +298,7 @@ function FamilyRequests({ incoming, outgoing }: { incoming: FamilyLinkRequestRow
                   <Pressable
                     disabled={busy}
                     onPress={() =>
-                      Alert.alert(t('family.req_reject_title'), t('family.req_reject_msg', { name: r.requester.namaLengkap }), [
+                      appAlert(t('family.req_reject_title'), t('family.req_reject_msg', { name: r.requester.namaLengkap }), [
                         { text: t('common.cancel'), style: 'cancel' },
                         {
                           text: t('family.req_reject'),

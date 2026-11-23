@@ -10,10 +10,10 @@
  * Endpoint: `GET /admin/group/:id` — return detail + members + children.
  * Per BE notice group-endpoints 2026-07-28.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -115,7 +115,7 @@ export default function GroupDetailScreen() {
       onError: (err) => {
         if (err instanceof ApiError) {
           if (err.code === 'FORBIDDEN') {
-            Alert.alert(
+            appAlert(
               t('group.join_error_private_title'),
               t('group.join_error_private_msg'),
               [
@@ -127,7 +127,7 @@ export default function GroupDetailScreen() {
               ],
             );
           } else {
-            Alert.alert(t('common.error'), err.message);
+            appAlert(t('common.error'), err.message);
           }
         }
       },
@@ -135,7 +135,7 @@ export default function GroupDetailScreen() {
   }
 
   function handleLeave() {
-    Alert.alert(
+    appAlert(
       t('group.leave_confirm_title'),
       t('group.leave_confirm_msg', { nama: group?.nama ?? '' }),
       [
@@ -149,7 +149,7 @@ export default function GroupDetailScreen() {
                 showToast(t('group.leave_success'), 'success');
               },
               onError: (err) => {
-                Alert.alert(
+                appAlert(
                   t('common.error'),
                   err instanceof ApiError ? err.message : t('error.network'),
                 );
@@ -162,7 +162,7 @@ export default function GroupDetailScreen() {
   }
 
   function handleDismiss() {
-    Alert.alert(
+    appAlert(
       t('group.dismiss_confirm_title'),
       t('group.dismiss_confirm_msg', { nama: group?.nama ?? '', count: group?.memberCount ?? 0 }),
       [
@@ -177,7 +177,7 @@ export default function GroupDetailScreen() {
                 goBack(router);
               },
               onError: (err) => {
-                Alert.alert(
+                appAlert(
                   t('common.error'),
                   err instanceof ApiError ? err.message : t('error.network'),
                 );
@@ -190,7 +190,7 @@ export default function GroupDetailScreen() {
   }
 
   function handleRegenerateCode() {
-    Alert.alert(
+    appAlert(
       t('group.regen_confirm_title'),
       t('group.regen_confirm_msg'),
       [
@@ -206,7 +206,7 @@ export default function GroupDetailScreen() {
                 );
               },
               onError: (err) => {
-                Alert.alert(
+                appAlert(
                   t('common.error'),
                   err instanceof ApiError ? err.message : t('error.network'),
                 );
@@ -612,7 +612,7 @@ export default function GroupDetailScreen() {
                 fullWidth
                 loading={cancelJoinMutation.isPending}
                 onPress={() =>
-                  Alert.alert(t('group.cancel_request'), t('group.cancel_confirm'), [
+                  appAlert(t('group.cancel_request'), t('group.cancel_confirm'), [
                     { text: t('common.back'), style: 'cancel' },
                     {
                       text: t('group.cancel_request'),
@@ -661,7 +661,7 @@ function MemberRow({
   const removeMutation = useRemoveGroupMember(groupId);
 
   function handleRemove() {
-    Alert.alert(
+    appAlert(
       t('group.remove_member_confirm_title'),
       t('group.remove_member_confirm_msg', { nama: member.jemaat.namaLengkap }),
       [
@@ -675,7 +675,7 @@ function MemberRow({
                 showToast(t('group.remove_member_success'), 'success');
               },
               onError: (err) => {
-                Alert.alert(
+                appAlert(
                   t('common.error'),
                   err instanceof ApiError ? err.message : t('error.network'),
                 );

@@ -1,6 +1,6 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import {
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -60,16 +60,16 @@ export default function FamilyAddPhoneScreen() {
         onError: (err) => {
           if (err instanceof ApiError) {
             if (err.code === 'NOT_FOUND') {
-              Alert.alert(t('family.phone_not_found_title'), t('family.phone_not_found_msg'));
+              appAlert(t('family.phone_not_found_title'), t('family.phone_not_found_msg'));
             } else if (err.code === 'BAD_REQUEST') {
-              Alert.alert(t('family.cant_link_self'));
+              appAlert(t('family.cant_link_self'));
             } else if (err.code === 'CONFLICT') {
-              Alert.alert(err.message || t('family.already_linked'));
+              appAlert(err.message || t('family.already_linked'));
             } else {
-              Alert.alert(err.message);
+              appAlert(err.message);
             }
           } else {
-            Alert.alert(t('error.network'));
+            appAlert(t('error.network'));
           }
         },
       },

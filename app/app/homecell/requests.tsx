@@ -4,10 +4,10 @@
  * Juga permintaan dari MODE TAMU (tanpa akun): diterima → dicatat sebagai
  * tamu homecell; tamu melihat alamat & kontak pemimpin di app.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -66,7 +66,7 @@ export default function HomecellRequestsScreen() {
     });
 
   function approve(r: HomecellJoinRequestRow) {
-    Alert.alert(
+    appAlert(
       t('hcj.approve'),
       t('hcj.approve_confirm', { name: r.jemaat.namaLengkap, homecell: r.homecell.nama }),
       [
@@ -84,7 +84,7 @@ export default function HomecellRequestsScreen() {
   }
 
   function approveGuest(r: HomecellGuestRequestRow) {
-    Alert.alert(t('hcj.approve'), t('hcg.leader_approve_confirm', { name: r.nama, homecell: r.homecell.nama }), [
+    appAlert(t('hcj.approve'), t('hcg.leader_approve_confirm', { name: r.nama, homecell: r.homecell.nama }), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('hcj.approve'),

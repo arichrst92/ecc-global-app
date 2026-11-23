@@ -11,9 +11,9 @@
  * 3. Type-to-confirm "HAPUS AKUN SAYA" exact text
  * 4. Submit → logout + clear local storage + redirect ke welcome
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import {
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -57,7 +57,7 @@ export default function DeleteAccountScreen() {
     },
     onError: (err) => {
       const msg = err instanceof ApiError ? err.message : t('error.network');
-      Alert.alert(t('delete_account.error_title'), msg);
+      appAlert(t('delete_account.error_title'), msg);
     },
   });
 
@@ -193,7 +193,7 @@ export default function DeleteAccountScreen() {
             label={t('delete_account.submit_btn')}
             variant="danger"
             onPress={() =>
-              Alert.alert(
+              appAlert(
                 t('delete_account.final_confirm_title'),
                 t('delete_account.final_confirm_msg'),
                 [

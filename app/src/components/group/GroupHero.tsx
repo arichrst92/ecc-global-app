@@ -2,7 +2,8 @@
  * Hero image group. Kalau belum ada gambar → banner emoji jenis group.
  * Hanya PIC (atau fulltimer bila group belum punya PIC) yang bisa ganti/hapus.
  */
-import { Alert, ActivityIndicator, Image, Pressable, Text, View } from 'react-native';
+import { appAlert } from '@/components/ui/AppDialog';
+import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { launchImageLibraryCropped } from '@/components/ui/ImageCropHost';
 import { useTranslation } from 'react-i18next';
@@ -61,7 +62,7 @@ export function GroupHero({
   }
 
   function remove() {
-    Alert.alert(t('gc.hero_remove'), t('gc.hero_remove_confirm'), [
+    appAlert(t('gc.hero_remove'), t('gc.hero_remove_confirm'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('common.delete'),

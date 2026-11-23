@@ -1,5 +1,6 @@
 /** Catatan saya — tampilan baca (pribadi). */
-import { ActivityIndicator, Alert, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { appAlert } from '@/components/ui/AppDialog';
+import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,7 +36,7 @@ export default function CatatanDetailScreen() {
   });
 
   function confirmDelete() {
-    Alert.alert(t('catatan.delete_title'), t('catatan.delete_body'), [
+    appAlert(t('catatan.delete_title'), t('catatan.delete_body'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('common.delete'), style: 'destructive', onPress: () => del.mutate() },
     ]);

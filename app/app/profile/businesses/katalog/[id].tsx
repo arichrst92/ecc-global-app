@@ -4,7 +4,8 @@
  * Daftar item urut (naik/turun), aktif/nonaktif, tambah (dibatasi batas
  * global dari Portal), ketuk item untuk ubah.
  */
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { appAlert } from '@/components/ui/AppDialog';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -47,7 +48,7 @@ export default function KatalogOwnerScreen() {
 
   function add() {
     if (full) {
-      Alert.alert(t('katalog.limit_title'), t('katalog.limit_msg', { max }));
+      appAlert(t('katalog.limit_title'), t('katalog.limit_msg', { max }));
       return;
     }
     router.push(`/profile/businesses/katalog/item?bizId=${id}` as never);

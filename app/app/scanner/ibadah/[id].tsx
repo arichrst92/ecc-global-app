@@ -11,8 +11,9 @@
  *   kode 6-digit lebih pendek + parent umumnya tunjukkan display code.
  *   Per BE notice Modul 27 2026-08-01.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -140,7 +141,7 @@ export default function ScannerIbadahScreen() {
       {
         onSuccess: (data) => {
           setPickupOpen(false);
-          Alert.alert(
+          appAlert(
             t('scanner.pickup_success_title'),
             t('scanner.pickup_success_msg', {
               nama: data.anak.namaLengkap,
@@ -152,17 +153,17 @@ export default function ScannerIbadahScreen() {
         onError: (err) => {
           if (err instanceof ApiError) {
             if (err.code === 'BAD_REQUEST') {
-              Alert.alert(t('scanner.pickup_error_multi_title'), err.message);
+              appAlert(t('scanner.pickup_error_multi_title'), err.message);
             } else if (err.code === 'NOT_FOUND') {
-              Alert.alert(
+              appAlert(
                 t('scanner.pickup_error_notfound_title'),
                 t('scanner.pickup_error_notfound_msg'),
               );
             } else {
-              Alert.alert(t('common.error'), err.message);
+              appAlert(t('common.error'), err.message);
             }
           } else {
-            Alert.alert(t('common.error'), t('error.network'));
+            appAlert(t('common.error'), t('error.network'));
           }
         },
       },

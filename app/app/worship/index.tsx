@@ -2,8 +2,9 @@
  * ECC Worship — beranda: Album · Single · Disukai · Unduhan, paling sering
  * diputar, cari lagu, Putar semua / Acak semua (lintas album).
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -193,7 +194,7 @@ export default function WorshipHome() {
                   </View>
                   <Pressable
                     onPress={() =>
-                      Alert.alert(t('worship.remove_all_title'), '', [
+                      appAlert(t('worship.remove_all_title'), '', [
                         { text: t('common.cancel'), style: 'cancel' },
                         { text: t('worship.remove_all'), style: 'destructive', onPress: () => void removeAll() },
                       ])

@@ -1,6 +1,7 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { appRule } from '@/config/appRules';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
@@ -79,7 +80,7 @@ export default function HomecellDetailScreen() {
   });
   function memberMenu(m: HomecellMember) {
     const nama = m.jemaat.namaLengkap;
-    Alert.alert(nama, undefined, [
+    appAlert(nama, undefined, [
       m.isAsisten
         ? { text: t('hcj.asisten_unset_btn'), onPress: () => asistenMut.mutate({ jemaatId: m.jemaat.id ?? m.jemaatId, isAsisten: false }) }
         : { text: t('hcj.asisten_set_btn'), onPress: () => asistenMut.mutate({ jemaatId: m.jemaat.id ?? m.jemaatId, isAsisten: true }) },

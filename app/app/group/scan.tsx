@@ -12,8 +12,9 @@
  *
  * Per BE notice group-endpoints 2026-07-28.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -73,20 +74,20 @@ export default function GroupScanScreen() {
         setPaused(false);
         if (err instanceof ApiError) {
           if (err.code === 'NOT_FOUND') {
-            Alert.alert(
+            appAlert(
               t('group.scan_invalid_title'),
               t('group.scan_invalid_msg'),
               [{ text: 'OK' }],
             );
           } else {
-            Alert.alert(
+            appAlert(
               t('common.error'),
               err.message,
               [{ text: 'OK' }],
             );
           }
         } else {
-          Alert.alert(t('common.error'), t('error.network'));
+          appAlert(t('common.error'), t('error.network'));
         }
       },
     });
@@ -103,7 +104,7 @@ export default function GroupScanScreen() {
     setManualOpen(false);
     const normalized = extractCode(code);
     if (!normalized) {
-      Alert.alert(
+      appAlert(
         t('group.scan_invalid_title'),
         t('group.scan_invalid_format'),
       );

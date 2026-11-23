@@ -4,8 +4,9 @@
  * - Anggota: lihat pengumuman, ikut voting, buka file.
  * - PIC / admin: buat & kelola semuanya.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
@@ -137,7 +138,7 @@ function AddButton({ label, onPress }: { label: string; onPress: () => void }) {
 const Empty = ({ text }: { text: string }) => <Text className="text-sm text-neutral-400 italic text-center py-4">{text}</Text>;
 
 function confirmDelete(t: (k: string, o?: Record<string, unknown>) => string, name: string, onOk: () => void) {
-  Alert.alert(t('common.delete'), t('gc.delete_confirm', { name }), [
+  appAlert(t('common.delete'), t('gc.delete_confirm', { name }), [
     { text: t('common.cancel'), style: 'cancel' },
     { text: t('common.delete'), style: 'destructive', onPress: onOk },
   ]);
@@ -352,7 +353,7 @@ function PollCard({ root, poll, canManage }: { root: string; poll: GroupPoll; ca
     const text = poll.options
       .map((o) => `${o.label} (${o.voters?.length ?? 0})\n${o.voters?.map((v) => `• ${v.namaLengkap}`).join('\n') || '—'}`)
       .join('\n\n');
-    Alert.alert(t('gc.voters'), text);
+    appAlert(t('gc.voters'), text);
   }
 
   return (

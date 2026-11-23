@@ -6,8 +6,9 @@
  *   (centang per pasal, ketuk untuk membaca), catatan, tandai hari selesai, bagikan.
  * - Selesai / dihentikan → ringkasan + mulai putaran baru.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -191,7 +192,7 @@ function CommitModal({
     onSuccess: async () => {
       if (time) {
         const ok = await scheduleBible365Reminder(time, t('b365.reminder_title'), t('b365.reminder_body'));
-        if (!ok) Alert.alert(t('b365.reminder_off_title'), t('b365.reminder_off_body'));
+        if (!ok) appAlert(t('b365.reminder_off_title'), t('b365.reminder_off_body'));
       }
       setAgree(false);
       onStarted();
@@ -497,7 +498,7 @@ function Dashboard({ plan, onRefresh, bottom }: { plan: Bible365Plan; onRefresh:
 
         <Pressable
           onPress={() =>
-            Alert.alert(t('b365.stop_title'), t('b365.stop_body'), [
+            appAlert(t('b365.stop_title'), t('b365.stop_body'), [
               { text: t('common.cancel'), style: 'cancel' },
               { text: t('b365.stop_confirm'), style: 'destructive', onPress: () => stop.mutate() },
             ])

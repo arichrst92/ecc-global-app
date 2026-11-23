@@ -7,9 +7,9 @@
  *
  * Per BE notice group-endpoints 2026-07-28.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useMemo, useState } from 'react';
 import {
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -104,7 +104,7 @@ export default function CreateGroupScreen() {
     {
       const salah = pertamaGagal(cekTeks(deskripsi, { label: t('group.field_deskripsi') }), cekTeks(alamat, { label: t('group.field_alamat') }));
       if (salah) {
-        Alert.alert(t('common.error'), salah);
+        appAlert(t('common.error'), salah);
         return;
       }
     }
@@ -138,7 +138,7 @@ export default function CreateGroupScreen() {
           }
         },
         onError: (err) => {
-          Alert.alert(
+          appAlert(
             t('common.error'),
             err instanceof ApiError ? err.message : t('error.network'),
           );

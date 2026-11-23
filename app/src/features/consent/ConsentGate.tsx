@@ -5,8 +5,9 @@
  * versi dokumen yang sedang terbit (akun lama, atau dokumen diperbarui).
  * Disembunyikan sementara saat jemaat membuka /legal/* untuk membaca.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSegments } from 'expo-router';
@@ -146,7 +147,7 @@ export function ConsentGate() {
           <Pressable
             className="py-2 items-center"
             onPress={() =>
-              Alert.alert(t('consent.decline_title'), t('consent.decline_msg'), [
+              appAlert(t('consent.decline_title'), t('consent.decline_msg'), [
                 { text: t('common.cancel'), style: 'cancel' },
                 { text: t('consent.decline_logout'), style: 'destructive', onPress: () => void logout() },
               ])

@@ -4,8 +4,9 @@
  *   Diundang · Sudah terlibat event/ibadah · Sedang di-follow-up ECC · Sudah terdaftar di ECC
  * Tamu bisa dihapus dari daftar saya (data kehadiran tetap tersimpan).
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -57,7 +58,7 @@ export default function MyGuestsScreen() {
   });
 
   function askRemove(g: Tamu) {
-    Alert.alert(t('guests.remove_title'), t('guests.remove_body', { name: g.namaLengkap }), [
+    appAlert(t('guests.remove_title'), t('guests.remove_body', { name: g.namaLengkap }), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('guests.remove_confirm'), style: 'destructive', onPress: () => remove.mutate(g.id) },
     ]);

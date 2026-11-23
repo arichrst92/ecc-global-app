@@ -13,10 +13,10 @@
  * Gambar (kamera / galeri) tampil langsung sebagai gambar; ketuk × untuk hapus.
  * Teks tersimpan tetap markdown yang sama (kompatibel dengan 2.4.8).
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -250,7 +250,7 @@ export default function CatatanEditScreen() {
   function pickImage() {
     if (uploading) return;
     if (Platform.OS === 'web') return void addImage('library');
-    Alert.alert(t('catatan.img_title'), undefined, [
+    appAlert(t('catatan.img_title'), undefined, [
       { text: t('catatan.img_camera'), onPress: () => void addImage('camera') },
       { text: t('catatan.img_library'), onPress: () => void addImage('library') },
       { text: t('common.cancel'), style: 'cancel' },
@@ -358,7 +358,7 @@ export default function CatatanEditScreen() {
       showToast(t('catatan.draft_kept'), 'info');
       return goBack(router, '/catatan');
     }
-    Alert.alert(t('catatan.discard_title'), t('catatan.discard_body'), [
+    appAlert(t('catatan.discard_title'), t('catatan.discard_body'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('catatan.discard_ok'), style: 'destructive', onPress: () => goBack(router, `/catatan/${id}`) },
     ]);

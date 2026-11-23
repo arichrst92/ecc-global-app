@@ -7,8 +7,9 @@
  * "setiap jadwal" (susunan tetap), dan "kembalikan ke susunan tetap".
  * Petugas mendapat notifikasi & melihatnya di Jadwal Pelayanan Saya.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -306,12 +307,12 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
       void qc.invalidateQueries({ queryKey: ['me'] });
       onClose();
     },
-    onError: (e) => Alert.alert(e instanceof ApiError ? e.message : t('error.network')),
+    onError: (e) => appAlert(e instanceof ApiError ? e.message : t('error.network')),
   });
 
   const close = () => {
     if (!dirty) return onClose();
-    Alert.alert(t('ministry.jadwal_discard_title'), t('ministry.jadwal_discard_msg'), [
+    appAlert(t('ministry.jadwal_discard_title'), t('ministry.jadwal_discard_msg'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('ministry.jadwal_discard_yes'), style: 'destructive', onPress: onClose },
     ]);
@@ -487,7 +488,7 @@ function EditSheet({ ministryId, data, editing, onClose }: { ministryId: string;
               {editing.kind === 'ibadah' && editing.item.source === 'TANGGAL' ? (
                 <Pressable
                   onPress={() =>
-                    Alert.alert(t('ministry.jadwal_reset_title'), t('ministry.jadwal_reset_msg'), [
+                    appAlert(t('ministry.jadwal_reset_title'), t('ministry.jadwal_reset_msg'), [
                       { text: t('common.cancel'), style: 'cancel' },
                       { text: t('ministry.jadwal_reset_yes'), onPress: () => save.mutate('RESET') },
                     ])

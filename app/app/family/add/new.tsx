@@ -1,7 +1,7 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { DatePickerModal } from '@/components/ui/DatePickerModal';
 import { useState } from 'react';
 import {
-  Alert,
   Pressable,
   ScrollView,
   Text,
@@ -95,9 +95,9 @@ export default function FamilyAddNewScreen() {
             if (/email/i.test(err.message)) setEmailError(err.message);
             else setPhoneError(err.message);
           } else if (err instanceof ApiError) {
-            Alert.alert(t('error.generic'), err.message);
+            appAlert(t('error.generic'), err.message);
           } else {
-            Alert.alert(t('error.network'));
+            appAlert(t('error.network'));
           }
         },
       },

@@ -3,8 +3,9 @@
  * siapa saja (saya, keluarga, tamu). Yang sudah terdaftar bisa dibatalkan
  * sampai jam mulai ibadah.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -91,7 +92,7 @@ export function ReservasiModal({
   });
 
   function askCancel(m: ReservasiMember) {
-    Alert.alert(t('reservasi.cancel_title'), t('reservasi.cancel_body', { name: m.namaLengkap }), [
+    appAlert(t('reservasi.cancel_title'), t('reservasi.cancel_body', { name: m.namaLengkap }), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('reservasi.cancel_confirm'), style: 'destructive', onPress: () => cancel.mutate([m.id]) },
     ]);

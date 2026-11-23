@@ -1,6 +1,7 @@
 /** Bible 365 — catatan renungan satu hari (pribadi). Param: ?day=N */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { TextInput } from '@/components/ui/ThemedTextInput';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -75,7 +76,7 @@ export default function Bible365NoteScreen() {
           {q.data?.note ? (
             <Pressable
               onPress={() =>
-                Alert.alert(t('b365.note_delete_title'), '', [
+                appAlert(t('b365.note_delete_title'), '', [
                   { text: t('common.cancel'), style: 'cancel' },
                   { text: t('common.delete'), style: 'destructive', onPress: () => del.mutate() },
                 ])

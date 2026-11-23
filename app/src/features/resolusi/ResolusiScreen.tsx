@@ -2,10 +2,10 @@
  * Resolusi Tahunan — daftar per tahun, centang Done, tambah/ubah/hapus lewat
  * bottom sheet, ubah urutan dengan tombol naik/turun di sheet.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -295,7 +295,7 @@ function ResolusiSheet({
 
   const idx = editItem ? items.findIndex((i) => i.id === editItem.id) : -1;
   const confirmDelete = () =>
-    Alert.alert(t('resolusi.delete_title'), t('resolusi.delete_body'), [
+    appAlert(t('resolusi.delete_title'), t('resolusi.delete_body'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('resolusi.delete'), style: 'destructive', onPress: () => delMut.mutate() },
     ]);

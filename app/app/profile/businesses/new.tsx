@@ -3,9 +3,9 @@
  * After create, redirect ke /profile/businesses/[id] untuk lengkapi
  * details + upload logo/hero/PDF.
  */
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import {
-  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -46,7 +46,7 @@ export default function NewBusinessScreen() {
   function handleSubmit() {
     const namaTrim = nama.trim();
     if (namaTrim.length < 2) {
-      Alert.alert(t('my_business.nama_required'));
+      appAlert(t('my_business.nama_required'));
       return;
     }
     const salah = pertamaGagal(
@@ -56,7 +56,7 @@ export default function NewBusinessScreen() {
       cekTeks(lokasi, { label: t('my_business.lokasi_label') }),
     );
     if (salah) {
-      Alert.alert(salah);
+      appAlert(salah);
       return;
     }
     createMutation.mutate(
@@ -75,7 +75,7 @@ export default function NewBusinessScreen() {
         },
         onError: (err) => {
           const msg = err instanceof ApiError ? err.message : t('error.network');
-          Alert.alert(msg);
+          appAlert(msg);
         },
       },
     );

@@ -1,5 +1,6 @@
+import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -32,7 +33,7 @@ export default function FamilyScanScreen() {
     // Normalize: BE expects 8 char alphanumeric uppercase
     const kode = data.trim().toUpperCase();
     if (!/^[A-Z0-9]{8}$/.test(kode)) {
-      Alert.alert(t('family.scan_invalid_qr'));
+      appAlert(t('family.scan_invalid_qr'));
       return;
     }
     setScannedKode(kode);
@@ -65,19 +66,19 @@ export default function FamilyScanScreen() {
         onError: (err) => {
           if (err instanceof ApiError) {
             if (err.code === 'NOT_FOUND') {
-              Alert.alert(t('family.kode_not_found'));
+              appAlert(t('family.kode_not_found'));
               setScannedKode(null);
             } else if (err.code === 'BAD_REQUEST') {
-              Alert.alert(t('family.cant_link_self'));
+              appAlert(t('family.cant_link_self'));
               setScannedKode(null);
             } else if (err.code === 'CONFLICT') {
-              Alert.alert(err.message || t('family.already_linked'));
+              appAlert(err.message || t('family.already_linked'));
               setScannedKode(null);
             } else {
-              Alert.alert(err.message);
+              appAlert(err.message);
             }
           } else {
-            Alert.alert(t('error.network'));
+            appAlert(t('error.network'));
           }
         },
       },

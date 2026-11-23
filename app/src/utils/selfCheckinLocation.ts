@@ -3,7 +3,8 @@
  * - "Di mana saja" / venue tanpa titik lokasi → tidak perlu GPS.
  * - Gagal dapat lokasi / terlalu jauh → tampilkan arahan cari usher (QR).
  */
-import { Alert } from 'react-native';
+
+import { appAlert } from '@/components/ui/AppDialog';
 import i18n from '@/i18n';
 import { ApiError } from '@/types/api';
 import { getCurrentCoords, LocationError, type Coords } from './location';
@@ -36,7 +37,7 @@ export function isRadiusError(e: unknown): e is ApiError {
 
 /** Popup: lokasi harus dekat / aktifkan lokasi → tombol Tampilkan QR Saya (untuk usher). */
 export function showUsherFallback(message: string, openQr: () => void) {
-  Alert.alert(i18n.t('selfcheckin_geo.title'), message, [
+  appAlert(i18n.t('selfcheckin_geo.title'), message, [
     { text: i18n.t('common.close'), style: 'cancel' },
     { text: i18n.t('selfcheckin_geo.show_qr'), onPress: openQr },
   ]);
