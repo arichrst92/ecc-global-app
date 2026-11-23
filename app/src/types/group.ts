@@ -58,6 +58,8 @@ export type Group = {
    *  Private group + non-PIC: null (BE hide). */
   joinCode: string | null;
   isActive: boolean;
+  /** 2026-11: group dari app = PENDING sampai disetujui admin Portal. Server lama: tidak ada (= disetujui). */
+  approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
   legacyShiftsoftCircleId?: number | null;
   createdAt: string;
   updatedAt: string;

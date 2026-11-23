@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   Calendar,
+  Hourglass,
   Info,
   Lock,
   LogIn,
@@ -91,6 +92,8 @@ export default function GroupDetailScreen() {
   const cancelJoinMutation = useCancelGroupJoin(id);
   // Permintaan bergabung hanya untuk PIC group (Fulltimer mengelola lewat Portal).
   const canManageJoin = isPIC;
+  // Pengajuan group yang belum disetujui admin: belum bisa undang/tambah anggota.
+  const pendingApproval = group?.approvalStatus === 'PENDING';
   const joinRequestsQuery = useGroupJoinRequests(id, canManageJoin && !!group);
   const approveJoinMutation = useApproveGroupJoin(id);
   const rejectJoinMutation = useRejectGroupJoin(id);
@@ -300,6 +303,16 @@ export default function GroupDetailScreen() {
           canEdit={group.canManage ?? isPIC}
         />
 
+        {pendingApproval ? (
+          <View className="mx-4 mt-3 mb-1 flex-row gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+            <Hourglass size={18} color={nc('#B45309')} style={{ marginTop: 1 }} />
+            <View className="flex-1">
+              <Text className="text-sm font-bold text-amber-900">{t('group.approval_pending_title')}</Text>
+              <Text className="text-xs text-amber-800 mt-1 leading-5">{t('group.approval_pending_body')}</Text>
+            </View>
+          </View>
+        ) : null}
+
         {/* Meta info */}
         <View className="bg-card p-4 gap-3">
           <View className="flex-row items-center gap-3">
@@ -420,7 +433,7 @@ export default function GroupDetailScreen() {
         {isMember || isPIC ? <GroupContentSection groupId={id} canManage={isPIC} /> : null}
 
         {/* PIC-only: joinCode + QR */}
-        {isPIC && group.joinCode ? (
+        {isPIC && group.joinCode && !pendingApproval ? (
           <View className="bg-card mt-2 p-4">
             <View className="flex-row items-center justify-between mb-2">
               <Text className="text-xs font-bold text-neutral-500 uppercase">
@@ -460,7 +473,7 @@ export default function GroupDetailScreen() {
             <Text className="text-xs font-bold text-neutral-500 uppercase">
               {t('group.members_title', { count: group.memberCount })}
             </Text>
-            {isPIC ? (
+            {isPIC && !pendingApproval ? (
               <Pressable
                 onPress={() => router.push(`/group/${id}/add-member` as never)}
                 className="flex-row items-center gap-1 px-2.5 py-1 bg-brand-50 rounded-full"
@@ -582,7 +595,7 @@ export default function GroupDetailScreen() {
             <>
               {isPIC ? (
                 <Button
-                  label={t('group.dismiss')}
+                  label={pendingApproval ? t('group.approval_cancel') : t('group.dismiss')}
                   onPress={handleDismiss}
                   loading={dismissMutation.isPending}
                   variant="danger"

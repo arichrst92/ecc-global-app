@@ -6,7 +6,7 @@
 import type { ReactNode } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Building2, CalendarCheck, Clock, Crown, Globe, Lock, MapPin, ChevronRight, Tag, Users } from 'lucide-react-native';
+import { Building2, CalendarCheck, Clock, Crown, Globe, Hourglass, Lock, MapPin, ChevronRight, Tag, Users } from 'lucide-react-native';
 
 import { groupImageHref } from '@/components/group/GroupHero';
 import { GROUP_JENIS_LABELS, type GroupJenis } from '@/types/group';
@@ -27,6 +27,8 @@ export type GroupListCardData = {
   hari?: string | null;
   jam?: string | null;
   alamat?: string | null;
+  /** PENDING = pengajuan saya yang menunggu persetujuan admin. */
+  approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
 };
 
 export function GroupListCard({
@@ -89,6 +91,12 @@ export function GroupListCard({
           </Text>
           <ChevronRight size={18} color={nc('#A3A3A3')} style={{ marginTop: 2 }} />
         </View>
+        {group.approvalStatus === 'PENDING' ? (
+          <View className="self-start flex-row items-center gap-1 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full mt-2">
+            <Hourglass size={11} color={nc('#B45309')} />
+            <Text className="text-[11px] font-semibold text-amber-800">{t('group.approval_badge')}</Text>
+          </View>
+        ) : null}
 
         <View className="mt-3 gap-2">
           <Detail icon={<Building2 size={14} color={nc('#737373')} />} text={group.cabang.nama} />

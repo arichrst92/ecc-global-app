@@ -129,6 +129,12 @@ export default function CreateGroupScreen() {
       },
       {
         onSuccess: (group) => {
+          // 2026-11: group dari app = pengajuan, aktif setelah disetujui admin.
+          if (group.approvalStatus === 'PENDING') {
+            appAlert(t('group.approval_sent_title'), t('group.approval_sent_body', { nama: group.nama }));
+            router.replace(`/group/${group.id}` as never);
+            return;
+          }
           showToast(t('group.create_success', { nama: group.nama }), 'success');
           // Kalau private, BE auto-generate joinCode → redirect ke QR screen
           if (!group.isPublic && group.joinCode) {
@@ -288,8 +294,14 @@ export default function CreateGroupScreen() {
             ) : null}
           </View>
 
+          {/* Persetujuan admin */}
+          <View className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl flex-row gap-2">
+            <Info size={14} color={nc('#92400e')} style={{ marginTop: 1 }} />
+            <Text className="text-xs text-amber-800 flex-1 leading-relaxed">{t('group.approval_create_hint')}</Text>
+          </View>
+
           {/* PIC hint */}
-          <View className="mt-4 p-3 bg-brand-50 border border-brand-100 rounded-xl">
+          <View className="mt-3 p-3 bg-brand-50 border border-brand-100 rounded-xl">
             <Text className="text-xs text-brand-700 leading-relaxed">
               💡 {t('group.pic_default_hint', { nama: user?.namaLengkap ?? '' })}
             </Text>
@@ -301,7 +313,7 @@ export default function CreateGroupScreen() {
           style={{ paddingBottom: insets.bottom + 12 }}
         >
           <Button
-            label={t('group.create_action')}
+            label={t('group.create_submit')}
             onPress={submit}
             loading={createMutation.isPending}
             fullWidth
