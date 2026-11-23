@@ -59,6 +59,7 @@ import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 import { GuestTabPrompt } from '@/components/guest/GuestTabPrompt';
 import { useAuthStore } from '@/stores/auth.store';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 
 export default function CKidsTabScreen() {
   const { t, i18n } = useTranslation();
@@ -84,6 +85,10 @@ export default function CKidsTabScreen() {
   const [cabangPickerOpen, setCabangPickerOpen] = useState(false);
   const [selectedCabangId, setSelectedCabangId] = useState<string | null>(null);
   const [hadiahDetail, setHadiahDetail] = useState<HadiahKatalog | null>(null);
+  /** Katalog & riwayat dalam tab — tidak perlu scroll panjang. */
+  const [listTab, setListTab] = useState<'katalog' | 'history'>('katalog');
+  // Cabang aktif app (pemilih cabang di Beranda) → default cabang CKids.
+  const { branch: activeBranch } = useViewingBranch();
 
   // Hydrate selection store on mount (parallel dgn other stores at app boot)
   useEffect(() => {
@@ -143,9 +148,19 @@ export default function CKidsTabScreen() {
     const homeCabang = selectedEntry?.anak.cabang;
     if (homeCabang && !seen.has(homeCabang.id)) {
       list.push({ id: homeCabang.id, nama: homeCabang.nama });
+      seen.add(homeCabang.id);
+    }
+    // Cabang aktif app selalu bisa dipilih (paling depan).
+    if (activeBranch && !seen.has(activeBranch.id)) {
+      list.unshift({ id: activeBranch.id, nama: activeBranch.nama });
     }
     return list;
-  }, [selected, selectedEntry]);
+  }, [selected, selectedEntry, activeBranch]);
+
+  // Cabang aktif app berganti → ikuti cabang aktif (lepas pilihan manual).
+  useEffect(() => {
+    setSelectedCabangId(null);
+  }, [activeBranch?.id]);
 
   // Reset cabang selection saat anak berganti — auto-pick sesuai priority
   useEffect(() => {
@@ -156,31 +171,21 @@ export default function CKidsTabScreen() {
     }
   }, [selectedEntry?.anak.id, availableCabangList, selectedCabangId, selectedEntry]);
 
-  // Primary balance = cabang yang user pilih explicit, atau default =
-  // cabang dgn balance terbesar (kalau punya balance), atau home cabang.
-  const primaryBalance = useMemo(() => {
-    if (!selected) return null;
-    // Explicit user selection
-    if (selectedCabangId) {
-      return (
-        selected.balances.find((b) => b.cabang.id === selectedCabangId) ?? null
-      );
-    }
-    // Default = cabang dgn balance terbesar
-    return (
-      selected.balances.reduce(
-        (max, curr) => (curr.balance > max.balance ? curr : max),
-        selected.balances[0],
-      ) ?? null
-    );
-  }, [selected, selectedCabangId]);
-
-  // Katalog fetch: prefer explicit cabang selection, else primaryBalance,
-  // else cabang home anak dari family (untuk anak belum earn point).
+  // Cabang yang ditampilkan: pilihan manual → cabang aktif app → cabang dgn
+  // poin terbesar → cabang home anak. Poin & katalog mengikuti cabang ini.
   const cabangId =
     selectedCabangId ??
-    primaryBalance?.cabang.id ??
+    activeBranch?.id ??
+    (selected?.balances.length
+      ? selected.balances.reduce((max, curr) => (curr.balance > max.balance ? curr : max), selected.balances[0]!).cabang.id
+      : undefined) ??
     selectedEntry?.anak.cabang?.id;
+
+  // Poin di cabang yang ditampilkan (null = belum punya poin di cabang ini).
+  const primaryBalance = useMemo(
+    () => (selected && cabangId ? (selected.balances.find((b) => b.cabang.id === cabangId) ?? null) : null),
+    [selected, cabangId],
+  );
 
   const activeCabangNama = useMemo(() => {
     if (!cabangId) return null;
@@ -195,6 +200,8 @@ export default function CKidsTabScreen() {
   // Post BE response 2026-08-03: dedicated endpoint scope by JemaatRelasi
   // (cabangId tidak dipakai — BE filter by jemaatId + parent guard)
   const historyQuery = useChildRedeemHistory(selectedEntry?.anak.id, 50);
+  // Riwayat di cabang yang ditampilkan (data lama tanpa cabang tetap tampil).
+  const historyItems = (historyQuery.data ?? []).filter((r) => !r.cabang || !cabangId || r.cabang.id === cabangId);
 
   // Spinner hanya saat ditarik (refetch otomatis tidak menggeser konten).
   const { refreshing: isRefreshing, onRefresh: refresh } = usePullToRefresh(() =>
@@ -379,15 +386,36 @@ export default function CKidsTabScreen() {
           </Text>
         </View>
 
+        {/* Katalog hadiah / Riwayat tukar — tab supaya halaman tidak terlalu panjang */}
+        <View className="mx-4 mt-3 flex-row bg-neutral-100 rounded-xl p-1">
+          {(
+            [
+              ['katalog', t('ckids.katalog_title'), katalogQuery.data?.length ?? 0],
+              ['history', t('ckids.history_title'), historyItems.length],
+            ] as const
+          ).map(([k, label, n]) => (
+            <Pressable
+              key={k}
+              onPress={() => setListTab(k)}
+              className={`flex-1 flex-row items-center justify-center gap-1.5 py-2 rounded-lg ${listTab === k ? 'bg-card' : ''}`}
+            >
+              {k === 'katalog' ? (
+                <ShoppingBag size={14} color={listTab === k ? '#F97316' : nc('#737373')} />
+              ) : (
+                <History size={14} color={listTab === k ? '#F97316' : nc('#737373')} />
+              )}
+              <Text className={`text-xs font-bold ${listTab === k ? 'text-neutral-900' : 'text-neutral-500'}`} numberOfLines={1}>
+                {label}
+                {n ? ` (${n})` : ''}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
         {/* Katalog hadiah — grid 2 kolom (foto, poin, judul). Deskripsi &
             stok hanya di detail modal saat item di-tap. */}
+        {listTab === 'katalog' ? (
         <View className="bg-card mt-3 p-4">
-          <View className="flex-row items-center gap-2 mb-3">
-            <ShoppingBag size={16} color="#F97316" />
-            <Text className="text-sm font-bold text-neutral-900">
-              {t('ckids.katalog_title')}
-            </Text>
-          </View>
           {katalogQuery.isPending && !!cabangId ? (
             <ActivityIndicator color="#F97316" style={{ marginVertical: 24 }} />
           ) : katalogQuery.isError ? (
@@ -428,20 +456,16 @@ export default function CKidsTabScreen() {
             </View>
           )}
         </View>
+        ) : null}
 
         {/* History redeem */}
+        {listTab === 'history' ? (
         <View className="bg-card mt-3 p-4">
-          <View className="flex-row items-center gap-2 mb-3">
-            <History size={16} color="#F97316" />
-            <Text className="text-sm font-bold text-neutral-900">
-              {t('ckids.history_title')}
-            </Text>
-          </View>
           {historyQuery.isPending ? (
             <ActivityIndicator color="#F97316" style={{ marginVertical: 16 }} />
-          ) : historyQuery.data && historyQuery.data.length > 0 ? (
+          ) : historyItems.length > 0 ? (
             <View className="gap-2">
-              {historyQuery.data.slice(0, 10).map((r) => (
+              {historyItems.map((r) => (
                 <RedeemRow key={r.id} item={r} lang={lang} />
               ))}
             </View>
@@ -451,6 +475,7 @@ export default function CKidsTabScreen() {
             </Text>
           )}
         </View>
+        ) : null}
       </ScrollView>
 
       {/* Anak selector modal */}
