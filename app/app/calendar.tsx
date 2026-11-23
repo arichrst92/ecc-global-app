@@ -9,6 +9,7 @@ import { getCalendarExtra } from '@/api/me';
 import { Avatar } from '@/components/ui/Avatar';
 import { jamRange } from '@/utils/jamRange';
 import { useAuthStore } from '@/stores/auth.store';
+import { getMyProfile } from '@/api/me';
 
 import { useEventList } from '@/hooks/useEvents';
 import { useMyFamily } from '@/hooks/useFamily';
@@ -48,7 +49,7 @@ type DayItem =
       nama: string;
       /** null = usia disembunyikan (Privasi). */
       age: number | null;
-      source: 'FAMILY' | 'HOMECELL' | 'ZONA' | 'MINISTRY';
+      source: 'SELF' | 'FAMILY' | 'HOMECELL' | 'ZONA' | 'MINISTRY';
       context?: string;
       fotoUrl?: string | null;
     }
@@ -75,6 +76,13 @@ export default function CalendarScreen() {
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
 
   const familyQuery = useMyFamily();
+  // Profil saya (tanggal lahir) — ulang tahun diri sendiri ikut tampil di kalender.
+  const myProfileQuery = useQuery({
+    queryKey: ['me', 'profile'],
+    queryFn: () => getMyProfile(),
+    staleTime: 5 * 60_000,
+    enabled: !useAuthStore.getState().isGuest,
+  });
   const { viewingCabangId, branch } = useViewingBranch();
   // Jam ibadah = jam dinding cabang → zona waktu HP.
   const venueTz = useVenueTz();
@@ -223,8 +231,27 @@ export default function CalendarScreen() {
       }
     });
 
+    // Ulang tahun saya sendiri — repeat tahunan
+    const me = myProfileQuery.data;
+    if (me?.tanggalLahir) {
+      const birthDate = parseLocalDate(me.tanggalLahir);
+      if (birthDate.getMonth() === month) {
+        const day = birthDate.getDate();
+        if (!map.has(day)) map.set(day, []);
+        map.get(day)!.push({
+          type: 'birthday',
+          jemaatId: me.id,
+          nama: me.namaLengkap,
+          age: year - birthDate.getFullYear(),
+          source: 'SELF',
+          fotoUrl: me.fotoUrl ?? null,
+        });
+      }
+    }
+
     // Family birthdays — repeat tahunan
     (familyQuery.data ?? []).forEach((rel) => {
+      if (rel.jemaat.id === me?.id) return;
       const tgl = rel.jemaat.tanggalLahir;
       if (!tgl) return;
       const birthDate = parseLocalDate(tgl);
@@ -245,6 +272,7 @@ export default function CalendarScreen() {
 
     // Ulang tahun homecell / zona / ministry — keluarga sudah tercatat di atas.
     const familyIds = new Set((familyQuery.data ?? []).map((r) => r.jemaat.id));
+    if (me?.id) familyIds.add(me.id);
     (extraQuery.data?.birthdays ?? []).forEach((b) => {
       if (familyIds.has(b.jemaatId)) return;
       const d = parseLocalDate(b.date);
@@ -285,7 +313,7 @@ export default function CalendarScreen() {
     for (const list of map.values()) list.sort((a, b) => rank[a.type] - rank[b.type]);
 
     return map;
-  }, [year, month, eventsQuery.data, ibadahQuery.data, familyQuery.data, extraQuery.data]);
+  }, [year, month, eventsQuery.data, ibadahQuery.data, familyQuery.data, extraQuery.data, myProfileQuery.data]);
 
   function prevMonth() {
     if (month === 0) {
@@ -662,7 +690,9 @@ function ItemRow({
   }
   // birthday
   const src =
-    item.source === 'FAMILY'
+    item.source === 'SELF'
+      ? t('calendar.src_self')
+      : item.source === 'FAMILY'
       ? t('calendar.src_family')
       : item.source === 'HOMECELL'
         ? t('calendar.src_homecell')
@@ -671,7 +701,7 @@ function ItemRow({
           : t('calendar.src_ministry');
   return (
     <Pressable
-      onPress={() => router.push(`/jemaat/${item.jemaatId}` as never)}
+      onPress={() => router.push((item.source === 'SELF' ? '/(tabs)/profile' : `/jemaat/${item.jemaatId}`) as never)}
       className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
     >
       {item.fotoUrl ? (

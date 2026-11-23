@@ -1532,7 +1532,8 @@
     "src_family": "Family",
     "src_homecell": "Homecell",
     "src_zona": "Zone",
-    "src_ministry": "Ministry"
+    "src_ministry": "Ministry",
+    "src_self": "You"
   },
   "check_update": {
     "title": "Check for Updates",

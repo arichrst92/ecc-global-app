@@ -1528,7 +1528,8 @@
     "src_family": "Keluarga",
     "src_homecell": "Homecell",
     "src_zona": "Zona",
-    "src_ministry": "Ministry"
+    "src_ministry": "Ministry",
+    "src_self": "Anda"
   },
   "check_update": {
     "title": "Cek Update",
