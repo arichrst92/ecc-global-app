@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -59,7 +59,10 @@ import { nc } from '@/theme/ThemeRoot';
 export default function BibleChapterScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const params = useLocalSearchParams<{ bookId: string; bab: string; b365?: string }>();
+  // ?v=<versi>&ayat=<n>&ayatEnd=<m> (2.5.1, mis. dari ayat pegangan resolusi):
+  // tampilkan versi itu untuk layar ini saja (pilihan versi pengguna tidak
+  // diubah), sorot ayatnya, dan gulir ke sana.
+  const params = useLocalSearchParams<{ bookId: string; bab: string; b365?: string; v?: string; ayat?: string; ayatEnd?: string }>();
   // Dibuka dari Bible 365 → tampil tombol "Tandai selesai dibaca".
   const fromB365 = params.b365 === '1';
   const b365q = fromB365 ? '?b365=1' : '';
@@ -80,7 +83,13 @@ export default function BibleChapterScreen() {
   const isBookmarked = useBibleStore((s) => s.isBookmarked);
   // Langganan daftar penanda supaya tanda ★ ikut berubah setelah aksi massal.
   useBibleStore((s) => s.bookmarks);
-  const selectedVersionCode = useBibleStore((s) => s.selectedVersionCode);
+  const storeVersionCode = useBibleStore((s) => s.selectedVersionCode);
+  const selectedVersionCode =
+    params.v && BIBLE_VERSION_BY_CODE.has(params.v as typeof storeVersionCode) ? (params.v as typeof storeVersionCode) : storeVersionCode;
+  const focusFrom = Number(params.ayat) || 0;
+  const focusTo = Math.max(focusFrom, Number(params.ayatEnd) || 0);
+  const scrollRef = useRef<ScrollView>(null);
+  const focusScrolled = useRef(false);
 
   // 2.4.6 — bisa memilih beberapa ayat sekaligus (tandai / catatan / bagikan).
   const [selected, setSelected] = useState<number[]>([]);
@@ -334,6 +343,7 @@ export default function BibleChapterScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: (fromB365 ? 160 : 100) + (selected.length ? 64 : 0) }}
       >
@@ -345,13 +355,27 @@ export default function BibleChapterScreen() {
           <View className="bg-card rounded-2xl p-5 border border-neutral-100">
             {chapter.ayat.map((verse) => {
               const isSelected = selected.includes(verse.nomor);
+              const vEnd = verse.nomorEnd && verse.nomorEnd > verse.nomor ? verse.nomorEnd : verse.nomor;
+              const isFocus = focusFrom > 0 && vEnd >= focusFrom && verse.nomor <= focusTo;
               const isVerseBookmarked = isBookmarked(ref, verse.nomor);
               return (
-                <View key={verse.nomor}>
+                <View
+                  key={verse.nomor}
+                  onLayout={
+                    isFocus && !focusScrolled.current
+                      ? (e) => {
+                          focusScrolled.current = true;
+                          // y relatif ke kartu ayat (paddingTop ScrollView 16 + padding kartu 20).
+                          const y = e.nativeEvent.layout.y + 36;
+                          setTimeout(() => scrollRef.current?.scrollTo({ y: Math.max(0, y - 24), animated: true }), 50);
+                        }
+                      : undefined
+                  }
+                >
                   <Pressable
                     onPress={() => toggleSelect(verse.nomor)}
                     className={`mb-3 ${
-                      isSelected ? 'bg-brand-50 -mx-2 px-2 py-2 rounded-lg' : ''
+                      isSelected ? 'bg-brand-50 -mx-2 px-2 py-2 rounded-lg' : isFocus ? 'bg-amber-50 -mx-2 px-2 py-2 rounded-lg' : ''
                     }`}
                   >
                     <Text className={`${fontClass} text-neutral-900 leading-relaxed`}>

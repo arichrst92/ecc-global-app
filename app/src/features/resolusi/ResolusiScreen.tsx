@@ -22,7 +22,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowLeft, ArrowUp, BookOpen, Check, ChevronRight, HandHeart, Plus, Share2, X } from 'lucide-react-native';
 import { VersePickerModal } from '@/components/bible/VersePickerModal';
-import { verseRefText, verseRefWithVersion, verseText, verseWebLink, type VerseLink } from '@/components/bible/verseRef';
+import { verseRefWithVersion, verseText, verseWebLink, type VerseLink } from '@/components/bible/verseRef';
 import { openShareCard } from '@/features/share/shareStore';
 import { openGiving } from '@/utils/giving';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
@@ -78,6 +78,7 @@ export function ResolusiScreen({ asTab = false }: { asTab?: boolean }) {
   const maxYear = years[years.length - 1] ?? thisYear;
 
   const onErr = (e: unknown) => showToast(e instanceof ApiError ? e.message : t('error.generic'), 'error');
+  const { branch } = useViewingBranch();
 
   // Centang Done — optimistic.
   const toggleMut = useMutation({
@@ -168,7 +169,8 @@ export function ResolusiScreen({ asTab = false }: { asTab?: boolean }) {
             </View>
             <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
               {items.map((r, idx) => (
-                <View key={r.id} className={`flex-row items-center gap-3 px-4 py-3 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}>
+                <View key={r.id} className={`px-4 py-3 gap-2.5 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}>
+                <View className="flex-row items-center gap-3">
                   <Pressable
                     onPress={() => toggleMut.mutate(r)}
                     hitSlop={10}
@@ -192,12 +194,19 @@ export function ResolusiScreen({ asTab = false }: { asTab?: boolean }) {
                       </Text>
                     ) : null}
                     {resolusiAyat(r) ? (
-                      <View className="flex-row items-center gap-1">
+                      // Tautan ayat → buka Alkitab di ayat & versi itu.
+                      <Pressable
+                        onPress={() => openVerse(router, resolusiAyat(r)!)}
+                        hitSlop={6}
+                        accessibilityRole="link"
+                        className="self-start flex-row items-center gap-1 mt-0.5 rounded-full bg-brand-50 px-2 py-0.5 active:opacity-70"
+                      >
                         <BookOpen size={11} color="#EA580C" />
-                        <Text className="text-[11px] font-semibold text-brand-700" numberOfLines={1}>
-                          {verseRefText(resolusiAyat(r)!)}
+                        <Text className="text-[11px] font-semibold text-brand-700 underline" numberOfLines={1}>
+                          {verseRefWithVersion(resolusiAyat(r)!)}
                         </Text>
-                      </View>
+                        <ChevronRight size={11} color="#EA580C" />
+                      </Pressable>
                     ) : null}
                   </Pressable>
                   {r.isDone ? (
@@ -206,6 +215,20 @@ export function ResolusiScreen({ asTab = false }: { asTab?: boolean }) {
                     </Pressable>
                   ) : null}
                   <Chip label={t(`resolusi.kategori_${r.kategori}`)} muted />
+                </View>
+                {r.isDone ? (
+                  // Tercapai → ajakan memberi (sama dengan di detail resolusi).
+                  <Pressable
+                    onPress={() => void openGiving(branch?.kode)}
+                    className="ml-9 flex-row items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 active:opacity-80"
+                  >
+                    <View className="w-7 h-7 rounded-lg bg-amber-500 items-center justify-center">
+                      <HandHeart size={14} color="#fff" />
+                    </View>
+                    <Text className="flex-1 text-xs font-semibold text-amber-900 leading-4">{t('resolusi.give_thanks_cta')}</Text>
+                    <ChevronRight size={16} color="#B45309" />
+                  </Pressable>
+                ) : null}
                 </View>
               ))}
             </View>
@@ -256,6 +279,7 @@ function ResolusiSheet({
   const [ayat, setAyat] = useState<VerseLink | null>(editItem ? resolusiAyat(editItem) : null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const { branch } = useViewingBranch();
+  const router = useRouter();
   const refresh = () => qc.invalidateQueries({ queryKey: ['resolusi'] });
 
   const saveMut = useMutation({
@@ -354,6 +378,21 @@ function ResolusiSheet({
                   <X size={16} color="#C2410C" />
                 </Pressable>
               </View>
+            ) : null}
+            {ayat ? (
+              <Pressable
+                onPress={() => {
+                  const a = ayat;
+                  onClose();
+                  setTimeout(() => openVerse(router, a), 300);
+                }}
+                accessibilityRole="link"
+                className="self-start flex-row items-center gap-1 -mt-1"
+                hitSlop={8}
+              >
+                <Text className="text-xs font-semibold text-brand-700 underline">{t('resolusi.ayat_open')}</Text>
+                <ChevronRight size={13} color="#C2410C" />
+              </Pressable>
             ) : (
               <Pressable
                 onPress={() => setPickerOpen(true)}
@@ -444,6 +483,12 @@ function ResolusiSheet({
       </KeyboardSafeView>
     </Modal>
   );
+}
+
+/** Buka Alkitab di ayat pegangan (versi resolusi, ayat disorot). */
+function openVerse(router: ReturnType<typeof useRouter>, a: VerseLink) {
+  const end = a.selesai && a.selesai > a.mulai ? `&ayatEnd=${a.selesai}` : '';
+  router.push(`/bible/${a.kitab}/${a.bab}?v=${encodeURIComponent(a.versi)}&ayat=${a.mulai}${end}` as never);
 }
 
 const ayatCols = (a: VerseLink | null) => ({
