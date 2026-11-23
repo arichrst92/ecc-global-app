@@ -2506,7 +2506,12 @@
     "status_BARU": "Menunggu",
     "status_DITUGASKAN": "Menunggu",
     "status_SUDAH_DIDOAKAN": "Sudah didoakan",
-    "status_TERJAWAB": "Terjawab"
+    "status_TERJAWAB": "Terjawab",
+    "share_answered": "Bagikan kesaksian",
+    "share_card_title": "Doa saya dijawab Tuhan",
+    "share_card_label": "Kesaksian doa",
+    "share_default_testimony": "Tuhan setia mendengar dan menjawab doa. Terpujilah nama-Nya!",
+    "give_thanks_cta": "Ingin memberikan sesuatu yang berarti untuk Tuhan dari jawaban doa ini?"
   },
   "resolusi": {
     "title": "Resolusi Tahunan",

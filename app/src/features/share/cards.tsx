@@ -177,6 +177,51 @@ export function VerseShareCard({ theme, text, reference, label, cta }: { theme: 
   );
 }
 
+// ------------------------------------------------------------------ doa terjawab
+
+/** Kesaksian doa terjawab + ayat (isi permohonan doa TIDAK ikut dibagikan). */
+export function AnsweredPrayerShareCard({
+  theme,
+  title,
+  testimony,
+  verse,
+  reference,
+  label,
+  cta,
+}: {
+  theme: ShareTheme;
+  title: string;
+  testimony: string;
+  verse: string | null;
+  reference: string;
+  label: string;
+  cta: string;
+}) {
+  const k = useK();
+  const longT = testimony.length > 140;
+  return (
+    <Frame theme={theme} label={label} cta={cta}>
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <Text style={{ color: '#FDBA74', fontSize: 10 * k, fontWeight: '800', letterSpacing: 1.5 * k }}>{title.toUpperCase()}</Text>
+        <Text
+          style={{ color: '#fff', fontSize: (longT ? 13 : 16) * k, fontWeight: '700', lineHeight: (longT ? 18 : 22) * k, marginTop: 6 * k }}
+          numberOfLines={longT ? 7 : 5}
+          adjustsFontSizeToFit
+        >
+          {testimony}
+        </Text>
+        <View style={{ width: 26 * k, height: 2 * k, borderRadius: 1, backgroundColor: '#FDBA74', marginTop: 12 * k, marginBottom: 10 * k }} />
+        {verse ? (
+          <Text style={{ color: 'rgba(255,255,255,0.92)', fontSize: 10.5 * k, fontStyle: 'italic', lineHeight: 15 * k }} numberOfLines={5}>
+            “{verse}”
+          </Text>
+        ) : null}
+        <Text style={{ color: '#fff', fontSize: 10 * k, fontWeight: '700', marginTop: 6 * k }}>{reference}</Text>
+      </View>
+    </Frame>
+  );
+}
+
 // ------------------------------------------------------------------ renungan / berita
 
 export function ArticleShareCard({

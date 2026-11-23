@@ -8,13 +8,14 @@ import { useTranslation } from 'react-i18next';
 
 import { ELS_APP_LINKS } from '@/utils/shareApp';
 import { ShareCardModal } from './ShareCardModal';
-import { AppShareCard, SongShareCard, VerseShareCard, type ShareTheme } from './cards';
+import { AnsweredPrayerShareCard, AppShareCard, SongShareCard, VerseShareCard, type ShareTheme } from './cards';
 
 export type SharePayload =
   | { kind: 'verse'; caption: string; text: string; reference: string; label: string }
   | { kind: 'song'; caption: string; title: string; subtitle: string; coverUrl: string | null }
   | { kind: 'album'; caption: string; title: string; subtitle: string; coverUrl: string | null; tracks: string[] }
-  | { kind: 'app'; caption: string };
+  | { kind: 'app'; caption: string }
+  | { kind: 'answered'; caption: string; testimony: string; verse: string | null; reference: string };
 
 type State = { payload: SharePayload | null; open: (p: SharePayload) => void; close: () => void };
 
@@ -34,7 +35,7 @@ export function ShareCardHost() {
   const { t } = useTranslation();
   const payload = useShareCardStore((s) => s.payload);
   const close = useShareCardStore((s) => s.close);
-  const themes: ShareTheme[] = payload?.kind === 'verse' ? ['orange', 'dark'] : ['orange'];
+  const themes: ShareTheme[] = payload?.kind === 'verse' || payload?.kind === 'answered' ? ['orange', 'dark'] : ['orange'];
 
   return (
     <ShareCardModal
@@ -62,6 +63,18 @@ export function ShareCardHost() {
                 subtitle={payload.subtitle}
                 tracks={payload.tracks}
                 cta={t('sharecard.cta_listen')}
+              />
+            );
+          case 'answered':
+            return (
+              <AnsweredPrayerShareCard
+                theme={theme}
+                title={t('doa.share_card_title')}
+                testimony={payload.testimony}
+                verse={payload.verse}
+                reference={payload.reference}
+                label={t('doa.share_card_label')}
+                cta={t('sharecard.cta_bible')}
               />
             );
           case 'app':

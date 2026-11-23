@@ -16,7 +16,16 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, EyeOff, MessageCircleHeart, Pencil, Sparkles, Trash2, X } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, EyeOff, HandHeart, MessageCircleHeart, Pencil, Share2, Sparkles, Trash2, X } from 'lucide-react-native';
+import { openShareCard } from '@/features/share/shareStore';
+import { answeredVerseFor } from '@/components/doa/answeredVerses';
+import { BIBLE_BOOK_BY_ID } from '@/data/bible-books';
+import { BIBLE_VERSION_BY_CODE, getVerse } from '@/data/bible';
+import { useBibleStore } from '@/stores/bible.store';
+import { useBookNames } from '@/utils/bibleNames';
+import { ELS_APP_LINKS } from '@/utils/shareApp';
+import { openGiving } from '@/utils/giving';
+import { useViewingBranch } from '@/hooks/useViewingBranch';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -63,6 +72,29 @@ export default function DoaDetailScreen() {
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('doa.delete'), style: 'destructive', onPress: () => delMut.mutate() },
     ]);
+  const versionCode = useBibleStore((s) => s.selectedVersionCode);
+  const names = useBookNames();
+  const { branch } = useViewingBranch();
+
+  /** Bagikan kesaksian doa terjawab sebagai gambar + ayat & tautan ayat (isi doa tidak ikut). */
+  async function shareAnswered() {
+    if (!p) return;
+    const v = answeredVerseFor(p.id);
+    const book = BIBLE_BOOK_BY_ID.get(v.bookId);
+    const verse = await getVerse(versionCode, v.bookId, v.bab, v.ayat).catch(() => null);
+    const versionLabel = BIBLE_VERSION_BY_CODE.get(versionCode)?.shortName ?? versionCode;
+    const ref = `${book ? names.name(book) : ''} ${v.bab}:${v.ayat}`;
+    const link = `${ELS_APP_LINKS.web}/bible/${v.bookId}/${v.bab}`;
+    const testimony = p.kesaksian?.trim() || t('doa.share_default_testimony');
+    openShareCard({
+      kind: 'answered',
+      testimony,
+      verse: verse?.teks ?? null,
+      reference: `${ref} · ${versionLabel}`,
+      caption: `${t('doa.share_card_title')} 🙏\n\n${testimony}\n\n${verse?.teks ? `"${verse.teks}"\n` : ''}— ${ref} (${versionLabel})\n${link}\n\n${t('common.share_signature')}`,
+    });
+  }
+
   const confirmUnmark = () =>
     Alert.alert(t('doa.unmark_answered'), '', [
       { text: t('common.cancel'), style: 'cancel' },
@@ -148,7 +180,28 @@ export default function DoaDetailScreen() {
           ) : null}
 
           {p.terjawabAt ? (
-            <Button label={t('doa.unmark_answered')} variant="secondary" onPress={confirmUnmark} loading={answerMut.isPending} />
+            <>
+              {/* Bagikan kesaksian (gambar + ayat & tautannya) */}
+              <Button
+                label={t('doa.share_answered')}
+                onPress={() => void shareAnswered()}
+                leftIcon={<Share2 size={18} color="#fff" />}
+                fullWidth
+                size="lg"
+              />
+              {/* Ucapan syukur → halaman Beri (persembahan cabang) */}
+              <Pressable
+                onPress={() => void openGiving(branch?.kode)}
+                className="flex-row items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 active:opacity-80"
+              >
+                <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
+                  <HandHeart size={18} color="#fff" />
+                </View>
+                <Text className="flex-1 text-sm font-semibold text-amber-900 leading-5">{t('doa.give_thanks_cta')}</Text>
+                <ChevronRight size={18} color="#B45309" />
+              </Pressable>
+              <Button label={t('doa.unmark_answered')} variant="secondary" onPress={confirmUnmark} loading={answerMut.isPending} />
+            </>
           ) : (
             <Button
               label={t('doa.mark_answered')}

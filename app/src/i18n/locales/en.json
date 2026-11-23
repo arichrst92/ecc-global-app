@@ -2512,7 +2512,12 @@
     "status_BARU": "Waiting",
     "status_DITUGASKAN": "Waiting",
     "status_SUDAH_DIDOAKAN": "Prayed for",
-    "status_TERJAWAB": "Answered"
+    "status_TERJAWAB": "Answered",
+    "share_answered": "Share testimony",
+    "share_card_title": "God answered my prayer",
+    "share_card_label": "Prayer testimony",
+    "share_default_testimony": "God is faithful to hear and answer prayer. Praise His name!",
+    "give_thanks_cta": "Want to give something meaningful to God for this answered prayer?"
   },
   "resolusi": {
     "title": "Yearly Resolutions",
