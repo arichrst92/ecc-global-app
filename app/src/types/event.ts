@@ -46,6 +46,8 @@ export type EventListItem = {
   sinode?: SinodeRef | null;
   cabang?: CabangRef | null;
   pesertaCount: number;
+  /** Server ≥ 2026-11 (daftar event, app): status partisipasi saya — kartu Beranda. */
+  myStatus?: { status: string; payment: 'LUNAS' | 'MENUNGGU' | 'BELUM_BAYAR' | null; total: number } | null;
   /** Server ≥ 2026-11-22: jumlah hadir & saat check-in dibuka (null = event tidak mencatat kehadiran).
    *  Sebelum checkinOpensAt kartu menulis "terdaftar", sesudahnya "hadir". */
   hadirCount?: number | null;

@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Video } from 'lucide-react-native';
+import type { EventListItem } from '@/types/event';
+import { ArrowRight, Check, CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Video } from 'lucide-react-native';
 
 import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Avatar } from '@/components/ui/Avatar';
@@ -274,14 +275,17 @@ function HomeScreenAuthenticated() {
                     onPress={() => router.push(`/event/${e.slug || e.id}`)}
                     className="w-56 bg-card rounded-2xl overflow-hidden border border-neutral-100"
                   >
-                    {/* Fit-to-width: tinggi proporsional sesuai aspect rasio asli image */}
+                    {/* Fit-to-width, tinggi maks. = lebar (poster potret tampil utuh, tidak membuat semua kartu sangat tinggi) */}
                     <HeroImage
                       url={e.heroImageUrl}
                       fallbackEmoji="🎉"
                       emojiSize={40}
                       fitToWidth
+                      minAspect={1}
                     />
-                    <View className="p-3">
+                    {/* Kartu dalam satu baris setinggi kartu tertinggi: isi di atas,
+                        status saya menempel di bawah (ruang kosong di tengah, bukan di bawah). */}
+                    <View className="p-3 flex-1">
                       <Text className="text-[10px] text-neutral-500 mb-1" numberOfLines={2}>
                         {formatScheduleWithZone({
                           ymd: ymdInTz(e.tanggalMulai, e.cabang?.timezone),
@@ -299,6 +303,12 @@ function HomeScreenAuthenticated() {
                       <Text className={`text-xs font-semibold mt-1 ${priceColorClass}`}>
                         {priceText}
                       </Text>
+                      {/* Event sukarela: ringkasan singkat (kartu tidak kosong). Event lain sudah punya lokasi/kuota. */}
+                      {e.tipeBayar === 'NOMINAL_BEBAS' && e.ringkasan?.trim() ? (
+                        <Text className="text-[11px] text-neutral-500 mt-1 leading-4" numberOfLines={2}>
+                          {e.ringkasan.trim()}
+                        </Text>
+                      ) : null}
                       {/* Lokasi, kuota, batas pendaftaran — sama dengan daftar event */}
                       {e.lokasi && e.lokasi.trim() ? (
                         <View className="flex-row items-center gap-1 mt-1">
@@ -330,6 +340,7 @@ function HomeScreenAuthenticated() {
                       {e.tipeBayar === 'NOMINAL_BEBAS' ? null : (
                         <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact className="mt-1.5" />
                       )}
+                      <HomeEventMyStatus event={e} />
                     </View>
                   </Pressable>
                 );
@@ -654,5 +665,45 @@ function MyScheduleRow({
       </View>
       <ChevronRight size={16} color={nc('#A3A3A3')} />
     </Pressable>
+  );
+}
+
+
+/**
+ * Status saya di kartu event Beranda (server ≥ 2026-11 mengirim `myStatus`).
+ * Menempel di bawah kartu (mt-auto) — 1 baris. Event sukarela tanpa partisipasi → ajakan memberi.
+ */
+function HomeEventMyStatus({ event: e }: { event: EventListItem }) {
+  const { t } = useTranslation();
+  if (e.myStatus === undefined) return null; // server lama
+  const st = e.myStatus;
+  const rp = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`;
+  let view: { text: string; cls: string; txt: string; Icon: typeof Check } | null = null;
+  if (st?.status === 'HADIR' || st?.payment === 'LUNAS' || (st && st.payment === null)) {
+    const text =
+      e.tipeBayar === 'NOMINAL_BEBAS'
+        ? `${t('event.my_given')}${st.total > 0 ? ` · ${rp(st.total)}` : ''}`
+        : st.status === 'HADIR'
+          ? t('event.status_hadir')
+          : t('event.my_registered');
+    view = { text, cls: 'bg-emerald-50', txt: 'text-emerald-700', Icon: Check };
+  } else if (st?.payment === 'MENUNGGU') {
+    view = { text: t('event.status_menunggu'), cls: 'bg-amber-50', txt: 'text-amber-700', Icon: Clock };
+  } else if (st?.payment === 'BELUM_BAYAR') {
+    view = { text: t('event.continue_payment'), cls: 'bg-amber-50', txt: 'text-amber-700', Icon: ArrowRight };
+  } else if (!st && e.tipeBayar === 'NOMINAL_BEBAS') {
+    view = { text: t('event.donate_now'), cls: 'border border-blue-200', txt: 'text-blue-700', Icon: ArrowRight };
+  }
+  if (!view) return null;
+  const { Icon } = view;
+  return (
+    <View className={`mt-auto pt-2`}>
+      <View className={`flex-row items-center gap-1.5 rounded-lg px-2 py-1.5 ${view.cls}`}>
+        <Icon size={12} color={view.txt.includes('emerald') ? '#047857' : view.txt.includes('amber') ? '#B45309' : '#1D4ED8'} />
+        <Text className={`flex-1 text-[11px] font-semibold ${view.txt}`} numberOfLines={1}>
+          {view.text}
+        </Text>
+      </View>
+    </View>
   );
 }

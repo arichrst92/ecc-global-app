@@ -682,7 +682,9 @@
     "payment_info_qris": "QRIS — pay from any bank or e-wallet.",
     "payment_info_hint": "Upload your transfer receipt after registering.",
     "thanks_giving": "Thank you for your giving.",
-    "registered_noted": "Your registration is recorded."
+    "registered_noted": "Your registration is recorded.",
+    "my_given": "You've given",
+    "my_registered": "You're registered"
   },
   "branch": {
     "active_label": "Active branch",

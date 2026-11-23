@@ -23,6 +23,8 @@ type Props = {
    * supaya tidak layout shift parah.
    */
   fitToWidth?: boolean;
+  /** fitToWidth: rasio minimum (lebar/tinggi). Gambar lebih tinggi → dibatasi & tampil utuh. */
+  minAspect?: number;
   /** Default aspect ratio (width/height) saat dimensi natural belum ter-load */
   fallbackAspect?: number;
 };
@@ -47,6 +49,7 @@ export function HeroImage({
   emojiSize = 64,
   fitToWidth = false,
   fallbackAspect = 16 / 9,
+  minAspect,
 }: Props) {
   const [failed, setFailed] = useState(false);
   const [naturalAspect, setNaturalAspect] = useState<number | null>(null);
@@ -84,13 +87,16 @@ export function HeroImage({
     // Width-nya bisa di-set via className (mis. w-20 untuk thumbnail kecil)
     // atau default ke parent full width. Height auto via aspectRatio.
     if (fitToWidth) {
-      const aspect = naturalAspect ?? fallbackAspect;
+      const natural = naturalAspect ?? fallbackAspect;
+      // Gambar lebih tinggi dari batas (poster potret) → tinggi dibatasi, gambar utuh (contain).
+      const clamped = minAspect != null && natural < minAspect;
+      const aspect = clamped ? minAspect : natural;
       return (
-        <View className={className} style={[style, { aspectRatio: aspect }]}>
+        <View className={`${className ?? ''} ${clamped ? 'bg-neutral-100' : ''}`} style={[style, { aspectRatio: aspect }]}>
           <Image
             source={{ uri: resolvedUrl }}
             style={{ width: '100%', height: '100%' }}
-            resizeMode="cover"
+            resizeMode={clamped ? 'contain' : 'cover'}
             onError={(e) => {
               if (__DEV__) {
                 // eslint-disable-next-line no-console
