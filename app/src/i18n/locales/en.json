@@ -2600,7 +2600,9 @@
     "cover": "Cover",
     "lyrics": "Lyrics",
     "queue": "Queue",
-    "play_error": "This song can't be played. Check your internet connection."
+    "play_error": "This song can't be played. Check your internet connection.",
+    "invite_title": "Want to read the Bible / take notes while listening to ECC Worship?",
+    "invite_cta": "Open ECC Worship"
   },
   "tiket": {
     "swipe": "Swipe to check in",

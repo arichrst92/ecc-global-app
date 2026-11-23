@@ -2,6 +2,7 @@
  * Catatan saya (2.4.5) — dari Profil. Catatan khotbah + jurnal Bible 365,
  * semuanya PRIBADI. Filter: Semua · Khotbah · Bible 365.
  */
+import { WorshipInviteBanner } from '@/components/worship/WorshipInviteBanner';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import { TextInput } from '@/components/ui/ThemedTextInput';
@@ -135,6 +136,8 @@ export default function CatatanListScreen() {
         refreshControl={<PullRefreshControl onRefresh={refresh} />}
         contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 100, gap: 10 }}
         onEndReached={more}
+        // Mencatat sambil mendengarkan ECC Worship
+        ListHeaderComponent={<WorshipInviteBanner />}
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator color="#EA580C" style={{ marginTop: 40 }} />

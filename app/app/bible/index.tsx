@@ -1,3 +1,4 @@
+import { WorshipInviteBanner } from '@/components/worship/WorshipInviteBanner';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Pressable,
@@ -132,6 +133,9 @@ export default function BibleHomeScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: insets.bottom + 32 }}
       >
+        {/* Baca sambil mendengarkan ECC Worship */}
+        <WorshipInviteBanner className="mb-4" />
+
         {/* Versi Alkitab — dipilih di sini (berlaku untuk semua bacaan) */}
         <View className="bg-card rounded-2xl p-3 border border-neutral-100 mb-4">
           <View className="flex-row items-center gap-2 mb-2 px-1">

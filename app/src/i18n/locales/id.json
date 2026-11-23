@@ -2594,7 +2594,9 @@
     "cover": "Cover",
     "lyrics": "Lirik",
     "queue": "Antrian",
-    "play_error": "Lagu tidak bisa diputar. Periksa koneksi internet."
+    "play_error": "Lagu tidak bisa diputar. Periksa koneksi internet.",
+    "invite_title": "Mau coba baca Alkitab / mencatat sesuatu sambil mendengarkan ECC Worship?",
+    "invite_cta": "Buka ECC Worship"
   },
   "tiket": {
     "swipe": "Geser untuk check-in",
