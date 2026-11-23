@@ -168,69 +168,86 @@ export function ResolusiScreen({ asTab = false }: { asTab?: boolean }) {
               </View>
             </View>
             <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
-              {items.map((r, idx) => (
-                <View key={r.id} className={`px-4 py-3 gap-2.5 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}>
-                <View className="flex-row items-center gap-3">
-                  <Pressable
-                    onPress={() => toggleMut.mutate(r)}
-                    hitSlop={10}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: r.isDone }}
-                    className={`w-6 h-6 rounded-md border-2 items-center justify-center ${
-                      r.isDone ? 'bg-green-600 border-green-600' : 'border-neutral-300'
-                    }`}
-                  >
-                    {r.isDone ? <Check size={14} color="#fff" strokeWidth={3} /> : null}
-                  </Pressable>
-                  <Pressable onPress={() => setSheet({ mode: 'edit', item: r })} className="flex-1 min-w-0 gap-0.5">
-                    <Text className={`text-sm ${r.isDone ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>{r.judul}</Text>
-                    {r.isDone && r.doneAt ? (
-                      <Text className="text-[11px] text-green-700">
-                        {t('resolusi.done_at', { date: fmtDate(r.doneAt, i18n.language) })}
-                      </Text>
-                    ) : r.catatan ? (
-                      <Text className="text-[11px] text-neutral-500" numberOfLines={1}>
-                        {r.catatan}
-                      </Text>
-                    ) : null}
-                    {resolusiAyat(r) ? (
-                      // Tautan ayat → buka Alkitab di ayat & versi itu.
-                      <Pressable
-                        onPress={() => openVerse(router, resolusiAyat(r)!)}
-                        hitSlop={6}
-                        accessibilityRole="link"
-                        className="self-start flex-row items-center gap-1 mt-0.5 rounded-full bg-brand-50 px-2 py-0.5 active:opacity-70"
-                      >
-                        <BookOpen size={11} color="#EA580C" />
-                        <Text className="text-[11px] font-semibold text-brand-700 underline" numberOfLines={1}>
-                          {verseRefWithVersion(resolusiAyat(r)!)}
-                        </Text>
-                        <ChevronRight size={11} color="#EA580C" />
-                      </Pressable>
-                    ) : null}
-                  </Pressable>
-                  {r.isDone ? (
-                    <Pressable onPress={() => void shareResolusi(r, t)} hitSlop={8} accessibilityLabel={t('resolusi.share')}>
-                      <Share2 size={17} color="#EA580C" />
+              {items.map((r, idx) => {
+                const ayatR = resolusiAyat(r);
+                return (
+                  // Satu kolom isi sejajar judul: judul + kategori → keterangan →
+                  // baris tautan ayat / Bagikan → ajakan Beri (tercapai).
+                  <View key={r.id} className={`flex-row items-start gap-3 px-4 py-3.5 ${idx > 0 ? 'border-t border-neutral-100' : ''}`}>
+                    <Pressable
+                      onPress={() => toggleMut.mutate(r)}
+                      hitSlop={10}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: r.isDone }}
+                      className={`mt-0.5 w-6 h-6 rounded-md border-2 items-center justify-center ${
+                        r.isDone ? 'bg-green-600 border-green-600' : 'border-neutral-300'
+                      }`}
+                    >
+                      {r.isDone ? <Check size={14} color="#fff" strokeWidth={3} /> : null}
                     </Pressable>
-                  ) : null}
-                  <Chip label={t(`resolusi.kategori_${r.kategori}`)} muted />
-                </View>
-                {r.isDone ? (
-                  // Tercapai → ajakan memberi (sama dengan di detail resolusi).
-                  <Pressable
-                    onPress={() => void openGiving(branch?.kode)}
-                    className="ml-9 flex-row items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 active:opacity-80"
-                  >
-                    <View className="w-7 h-7 rounded-lg bg-amber-500 items-center justify-center">
-                      <HandHeart size={14} color="#fff" />
+                    <View className="flex-1 min-w-0 gap-2">
+                      <Pressable onPress={() => setSheet({ mode: 'edit', item: r })} className="gap-0.5">
+                        <View className="flex-row items-start gap-2">
+                          <Text className={`flex-1 text-[15px] font-semibold leading-5 ${r.isDone ? 'text-neutral-500' : 'text-neutral-900'}`}>
+                            {r.judul}
+                          </Text>
+                          <Chip label={t(`resolusi.kategori_${r.kategori}`)} muted />
+                        </View>
+                        {r.isDone && r.doneAt ? (
+                          <Text className="text-xs text-green-700">{t('resolusi.done_at', { date: fmtDate(r.doneAt, i18n.language) })}</Text>
+                        ) : r.catatan ? (
+                          <Text className="text-xs text-neutral-500" numberOfLines={1}>
+                            {r.catatan}
+                          </Text>
+                        ) : null}
+                      </Pressable>
+                      {ayatR || r.isDone ? (
+                        <View className="flex-row items-center gap-3">
+                          {ayatR ? (
+                            // Tautan ayat → buka Alkitab di ayat & versi itu.
+                            <Pressable
+                              onPress={() => openVerse(router, ayatR)}
+                              hitSlop={6}
+                              accessibilityRole="link"
+                              className="flex-1 min-w-0 flex-row items-center gap-1.5 active:opacity-70"
+                            >
+                              <BookOpen size={13} color="#EA580C" />
+                              <Text className="flex-shrink text-xs font-semibold text-brand-700" numberOfLines={1}>
+                                {verseRefWithVersion(ayatR)}
+                              </Text>
+                              <ChevronRight size={13} color="#EA580C" />
+                            </Pressable>
+                          ) : (
+                            <View className="flex-1" />
+                          )}
+                          {r.isDone ? (
+                            <Pressable
+                              onPress={() => void shareResolusi(r, t)}
+                              hitSlop={6}
+                              accessibilityLabel={t('resolusi.share')}
+                              className="flex-row items-center gap-1 rounded-full border border-neutral-200 px-2.5 py-1 active:opacity-70"
+                            >
+                              <Share2 size={12} color={nc('#525252')} />
+                              <Text className="text-xs font-semibold text-neutral-700">{t('common.share')}</Text>
+                            </Pressable>
+                          ) : null}
+                        </View>
+                      ) : null}
+                      {r.isDone ? (
+                        // Tercapai → ajakan memberi (sama dengan di detail resolusi).
+                        <Pressable
+                          onPress={() => void openGiving(branch?.kode)}
+                          className="flex-row items-center gap-2.5 rounded-xl bg-amber-50 px-3 py-2.5 active:opacity-80"
+                        >
+                          <HandHeart size={16} color="#D97706" />
+                          <Text className="flex-1 text-xs font-medium text-amber-900 leading-4">{t('resolusi.give_thanks_cta')}</Text>
+                          <ChevronRight size={15} color="#B45309" />
+                        </Pressable>
+                      ) : null}
                     </View>
-                    <Text className="flex-1 text-xs font-semibold text-amber-900 leading-4">{t('resolusi.give_thanks_cta')}</Text>
-                    <ChevronRight size={16} color="#B45309" />
-                  </Pressable>
-                ) : null}
-                </View>
-              ))}
+                  </View>
+                );
+              })}
             </View>
             <Button
               label={t('resolusi.add')}
