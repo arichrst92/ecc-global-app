@@ -105,16 +105,25 @@ export function DialogContainer({ modalId }: { modalId?: number } = {}) {
   if (!current || !visibleHere) return null;
 
   const btns = current.buttons;
-  const stacked = btns.length > 2 || btns.some((b) => (b.text ?? '').length > 18);
-  // Tombol utama: tombol terakhir yang bukan "batal".
+  // Berdampingan hanya bila label pendek: di HP 360dp tiap tombol ±9–10 huruf
+  // ("Ya, batalkan" / "Tampilkan QR Saya" terpotong "…") → selebihnya bertumpuk.
+  const stacked = btns.length > 2 || btns.some((b) => (b.text ?? '').length > 10);
+  // Tombol utama (gradasi): berdampingan → tombol terakhir yang bukan "batal";
+  // bertumpuk (daftar pilihan) → pilihan pertama, yang tampil paling atas.
   const primaryIdx = (() => {
+    if (stacked) {
+      const first = btns.findIndex((b) => b.style !== 'cancel');
+      return first < 0 ? 0 : first;
+    }
     for (let i = btns.length - 1; i >= 0; i--) if (btns[i]!.style !== 'cancel') return i;
     return btns.length - 1;
   })();
   const variantOf = (b: AlertButton, i: number) =>
     b.style === 'destructive' ? 'danger' : b.style === 'cancel' ? 'secondary' : i === primaryIdx ? 'primary' : 'secondary';
-  // Susunan: berdampingan → batal di kiri; bertumpuk → utama di atas.
-  const ordered = stacked ? [...btns.map((b, i) => ({ b, i }))].sort((a, z) => (z.i === primaryIdx ? 1 : 0) - (a.i === primaryIdx ? 1 : 0)) : btns.map((b, i) => ({ b, i }));
+  // Susunan: berdampingan → batal di kiri; bertumpuk → urutan asli, tombol batal paling bawah.
+  const ordered = stacked
+    ? [...btns.map((b, i) => ({ b, i })).filter((x) => x.b.style !== 'cancel'), ...btns.map((b, i) => ({ b, i })).filter((x) => x.b.style === 'cancel')]
+    : btns.map((b, i) => ({ b, i }));
 
   return (
     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, elevation: 1000 }}>
