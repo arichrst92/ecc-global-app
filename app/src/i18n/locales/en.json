@@ -2100,7 +2100,9 @@
     "zone_no_schedule": "{{count}} with no schedule",
     "zone_all_good": "All homecells are meeting",
     "zone_leader": "Zone Leader: {{name}}",
-    "spot_carousel_hint": "Swipe to see {{count}} more cards"
+    "spot_carousel_hint": "Swipe to see {{count}} more cards",
+    "worship_tip_title": "No musician at your homecell?",
+    "worship_tip_sub": "Try ECC Worship karaoke"
   },
   "gc": {
     "tab_announcements": "Announcements",

@@ -2094,7 +2094,9 @@
     "zone_no_schedule": "{{count}} tanpa jadwal",
     "zone_all_good": "Semua homecell aktif bertemu",
     "zone_leader": "Zone Leader: {{name}}",
-    "spot_carousel_hint": "Geser untuk melihat {{count}} kartu lainnya"
+    "spot_carousel_hint": "Geser untuk melihat {{count}} kartu lainnya",
+    "worship_tip_title": "Homecell tidak punya pemain musik?",
+    "worship_tip_sub": "Coba ECC Worship karaoke"
   },
   "gc": {
     "tab_announcements": "Pengumuman",

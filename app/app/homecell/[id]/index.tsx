@@ -7,7 +7,8 @@ import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ArrowLeft, CalendarPlus, Clock, MapPin, MessageCircle, UserPlus, Users, Pencil, FileText, UserSearch, MoreHorizontal, ShieldCheck, Check } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, CalendarPlus, ChevronRight, Clock, MapPin, MessageCircle, Music, UserPlus, Users, Pencil, FileText, UserSearch, MoreHorizontal, ShieldCheck, Check } from 'lucide-react-native';
+import { useWorshipSummary } from '@/hooks/useWorship';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -61,6 +62,9 @@ export default function HomecellDetailScreen() {
   // Asisten (2.4.7): ditunjuk PIC — jadwal, absen, tamu, pengumuman, voting, lampiran.
   const isAsisten = !!user && !!homecell?.members.some((m) => (m.jemaat.id ?? m.jemaatId) === user.jemaatId && m.isActive && m.isAsisten);
   const canSchedule = canRemove || isAsisten;
+  // Ajakan ECC Worship karaoke — hanya PIC homecell & asisten, dan bila ada lagu.
+  const worshipQ = useWorshipSummary();
+  const showWorshipTip = (isPicHomecell || isAsisten) && !!worshipQ.data?.hasSongs;
   // Admin = Role Access Homecell dari server (tanpa jalan pintas Fulltimer).
   const canTamu = isPicHomecell || isPicArea || !!homecell?.isHomecellAdmin || isAsisten;
   const qc = useQueryClient();
@@ -457,6 +461,23 @@ export default function HomecellDetailScreen() {
               </View>
             )}
           </View>
+        ) : null}
+
+        {/* Tidak ada pemain musik → ECC Worship (karaoke) */}
+        {showWorshipTip ? (
+          <Pressable
+            onPress={() => router.push('/worship' as never)}
+            className="mb-4 flex-row items-center gap-3 rounded-2xl border border-violet-100 bg-violet-50 px-4 py-3 active:opacity-80"
+          >
+            <View className="w-10 h-10 rounded-xl bg-violet-600 items-center justify-center">
+              <Music size={18} color="#fff" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-violet-900">{t('hcj.worship_tip_title')}</Text>
+              <Text className="text-xs text-violet-700 mt-0.5">{t('hcj.worship_tip_sub')}</Text>
+            </View>
+            <ChevronRight size={18} color="#6D28D9" />
+          </Pressable>
         ) : null}
 
         {/* Pengumuman & voting homecell (PIC kelola) */}
