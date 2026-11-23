@@ -34,7 +34,7 @@ import {
   useWalkInReservasi,
 } from '@/hooks/useScanner';
 import { ApiError } from '@/types/api';
-import { todayIso } from '@/utils/date';
+import { formatDateWithDay, todayIso } from '@/utils/date';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
@@ -42,7 +42,7 @@ import { nc } from '@/theme/ThemeRoot';
 type ScannerMode = 'checkin' | 'checkout' | 'pickup';
 
 export default function ScannerIbadahScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { id, tanggal } = useLocalSearchParams<{ id: string; tanggal?: string }>();
   const showToast = useToast((s) => s.show);
@@ -309,7 +309,7 @@ export default function ScannerIbadahScreen() {
                 </View>
               ) : null}
             </View>
-            <Text className="text-white/70 text-[10px]">{tanggalIbadah}</Text>
+            <Text className="text-white/70 text-[10px]">{formatDateWithDay(tanggalIbadah, i18n.language)}</Text>
           </View>
           {/* Jumlah hadir — ketuk untuk lihat daftar jemaat yang sudah discan */}
           <Pressable

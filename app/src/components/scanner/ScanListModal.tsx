@@ -11,7 +11,7 @@
  */
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ListChecks, Search, X } from 'lucide-react-native';
@@ -43,6 +43,7 @@ export function ScanListModal({
   initialTab?: ScanListTab;
 }) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
   const [tab, setTab] = useState<ScanListTab>(initialTab);
   const q = useDebounce(text.trim(), 300);
@@ -198,7 +199,8 @@ export function ScanListModal({
               keyExtractor={(r) => r.id}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="on-drag"
-              contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+              // Baris terakhir tidak tertutup bilah navigasi Android / home indicator iPhone.
+              contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 32 }}
               ItemSeparatorComponent={() => <View className="h-px bg-neutral-100" />}
               renderItem={({ item: r }) => {
                 const m = methodLabel(r);
