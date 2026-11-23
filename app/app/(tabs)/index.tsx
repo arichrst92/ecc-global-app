@@ -214,7 +214,8 @@ function HomeScreenAuthenticated() {
           </View>
         ) : null}
 
-        {/* Renungan today */}
+        {/* Renungan hari ini — tidak ada renungan hari ini → section disembunyikan */}
+        {renungan || renunganQuery.isPending ? (
         <Section
           title={t('home.today_devotional')}
           onSeeAll={() => router.push('/content?tab=renungan')}
@@ -240,15 +241,11 @@ function HomeScreenAuthenticated() {
                 </Text>
               </View>
             </Pressable>
-          ) : renunganQuery.isPending ? (
-            <SkeletonCard height={140} />
           ) : (
-            <View className="bg-card rounded-2xl p-4 border border-neutral-100 items-center">
-              <ElsEmptyIcon size={48} />
-              <Text className="text-sm text-neutral-500 mt-2">{t('home.no_devotional')}</Text>
-            </View>
+            <SkeletonCard height={140} />
           )}
         </Section>
+        ) : null}
 
         {/* Upcoming Events — hide section entirely kalau ga ada event */}
         {eventsQuery.isPending ? (

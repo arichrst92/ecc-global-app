@@ -56,13 +56,19 @@ export function useWeekServices() {
 }
 
 /** Renungan terbaru — sinode-wide content, TIDAK filter by cabang */
+/**
+ * Renungan HARI INI (tanggal renungan = tanggal hari ini di HP). Server mengurutkan
+ * menurut waktu terbit, jadi ambil beberapa lalu pilih yang tanggalnya hari ini.
+ * null = tidak ada renungan hari ini → section Beranda disembunyikan.
+ */
 export function useLatestRenungan() {
+  const today = todayIso();
   return useQuery({
-    queryKey: ['renungan', 'latest'],
-    queryFn: () => listRenungan({ limit: 1 }),
+    queryKey: ['renungan', 'today', today],
+    queryFn: () => listRenungan({ limit: 10 }),
     staleTime: 30 * 60_000,
     retry: 1,
-    select: (data) => data[0] ?? null,
+    select: (data) => data.find((r) => (r.tanggal ?? '').slice(0, 10) === today) ?? null,
   });
 }
 
