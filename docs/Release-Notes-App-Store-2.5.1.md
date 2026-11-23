@@ -3,7 +3,7 @@
 ## Bahasa Indonesia
 
 - **Bagikan kesaksian** — doa yang terjawab dan resolusi yang tercapai kini bisa dibagikan sebagai gambar lengkap dengan ayat pegangan, plus ajakan memberi sebagai ucapan syukur.
-- **Ayat pegangan resolusi** — tautkan ayat ke setiap resolusi tahunan: pilih versi Alkitab, lalu cari ayatnya.
+- **Ayat pegangan resolusi** — tautkan ayat ke setiap resolusi tahunan cukup dengan mengetik referensinya (mis. Yoh 3:16).
 - **Mode Scanner lebih lengkap** — petugas melihat daftar hadir & belum hadir, status jendela scan, dan ringkasan kehadiran; tombol di layar scan lebih rapi.
 - **Event & tiket lebih tepat** — event sukarela menampilkan nominal yang Anda berikan dan status pemberian Anda; event tanpa kehadiran tidak lagi menampilkan QR; jam tertulis sesuai kota cabang.
 - **ECC Worship** — ajakan mendengarkan ECC Worship saat membaca Alkitab, mencatat, dan untuk homecell tanpa pemain musik.
@@ -16,7 +16,7 @@
 ## English
 
 - **Share your testimony** — answered prayers and achieved resolutions can now be shared as an image with an anchor verse, plus an invitation to give thanks.
-- **Anchor verse for resolutions** — link a verse to each yearly resolution: choose a Bible version, then find the verse.
+- **Anchor verse for resolutions** — link a verse to each yearly resolution by simply typing the reference (e.g. John 3:16).
 - **Better Scanner Mode** — ushers see who is present and not yet present, the scan window status, and an attendance summary; scan screen buttons are tidier.
 - **More accurate events & tickets** — freewill events show the amount you gave and your giving status; events without attendance no longer show a QR code; times follow the branch city.
 - **ECC Worship** — invitations to listen to ECC Worship while reading the Bible, taking notes, and for homecells without a musician.

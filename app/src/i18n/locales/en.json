@@ -3105,15 +3105,12 @@
     "open_failed": "Couldn't open the material. Try again."
   },
   "verse_picker": {
-    "step_version": "Choose a Bible version",
-    "version_hint": "Choose a version first, then find the verse.",
     "step_book": "Find a verse",
-    "search_ph": "Type a book or verse, e.g. John 3:16",
-    "open_ref": "Open {{ref}}",
-    "verse_hint": "Tap the first verse. For a range, also tap the last verse.",
+    "search_hint": "Type a verse reference like in Notes — e.g. John 3:16, 1 Cor 13:4-7, or Psalms 23:1. The version follows the Bible you use.",
+    "need_verse": "Add a verse number, e.g. Psalms 23:1",
     "not_available": "This chapter is not available in this version.",
     "use": "Use {{ref}}",
-    "pick_first": "Choose a verse first"
+    "pick_first": "Type a verse first"
   },
   "date_picker": {
     "day": "Day",

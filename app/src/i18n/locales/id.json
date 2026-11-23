@@ -3099,15 +3099,12 @@
     "open_failed": "Materi gagal dibuka. Coba lagi."
   },
   "verse_picker": {
-    "step_version": "Pilih versi Alkitab",
-    "version_hint": "Pilih versi dulu, lalu cari ayatnya.",
     "step_book": "Cari ayat",
-    "search_ph": "Ketik kitab atau ayat, mis. Yoh 3:16",
-    "open_ref": "Buka {{ref}}",
-    "verse_hint": "Ketuk ayat awal. Untuk beberapa ayat, ketuk juga ayat akhirnya.",
+    "search_hint": "Ketik referensi ayat seperti di Catatan — mis. Yoh 3:16, 1 Kor 13:4-7, atau Mazmur 23:1. Versi mengikuti Alkitab yang Anda pakai.",
+    "need_verse": "Tambahkan nomor ayat, mis. Mazmur 23:1",
     "not_available": "Pasal ini belum tersedia di versi ini.",
     "use": "Pakai {{ref}}",
-    "pick_first": "Pilih ayat dulu"
+    "pick_first": "Ketik ayat dulu"
   },
   "date_picker": {
     "day": "Tanggal",
