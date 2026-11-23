@@ -3105,5 +3105,10 @@
     "not_available": "This chapter is not available in this version.",
     "use": "Use {{ref}}",
     "pick_first": "Choose a verse first"
+  },
+  "date_picker": {
+    "day": "Day",
+    "month": "Month",
+    "year": "Year"
   }
 }

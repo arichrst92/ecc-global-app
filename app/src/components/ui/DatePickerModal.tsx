@@ -10,15 +10,24 @@ import { useTranslation } from 'react-i18next';
 import { WebDatePickerModal } from '@/components/ui/WebDatePickerModal';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
+import { DateSelectSheet } from '@/components/ui/DateSelectSheet';
+
+const DEFAULT_MIN_DATE = new Date(1900, 0, 1);
 
 export function DatePickerModal({
   value,
   onChange,
   onClose,
+  minimumDate = DEFAULT_MIN_DATE,
+  maximumDate,
 }: {
   value: Date;
   onChange: (d: Date) => void;
   onClose: () => void;
+  /** Bawaan 1 Jan 1900. */
+  minimumDate?: Date;
+  /** Bawaan hari ini (tanggal lahir dsb.). */
+  maximumDate?: Date;
 }) {
   const { t } = useTranslation();
   const [DateTimePicker, setMod] = useState<React.ComponentType<{
@@ -63,17 +72,8 @@ export function DatePickerModal({
   if (!DateTimePicker) return null;
 
   if (Platform.OS === 'android') {
-    return (
-      <DateTimePicker
-        themeVariant={isDark() ? 'dark' : 'light'}
-        value={value}
-        mode="date"
-        display="default"
-        maximumDate={android.maxDate}
-        minimumDate={ANDROID_MIN_DATE}
-        onChange={android.onChange}
-      />
-    );
+    // Bukan dialog kalender bawaan: di sebagian HP Android tahun tidak bisa diganti.
+    return <DateSelectSheet value={value} onChange={onChange} onClose={onClose} minimumDate={minimumDate} maximumDate={maximumDate ?? android.maxDate} />;
   }
 
   return (
@@ -97,10 +97,10 @@ export function DatePickerModal({
             value={value}
             mode="date"
             display="spinner"
-            maximumDate={new Date()}
-            minimumDate={new Date(1900, 0, 1)}
+            maximumDate={maximumDate ?? new Date()}
+            minimumDate={minimumDate}
             textColor={nc('#171717')}
-            themeVariant="light"
+            themeVariant={isDark() ? 'dark' : 'light'}
             onChange={(_e, d) => {
               if (d) onChange(d);
             }}

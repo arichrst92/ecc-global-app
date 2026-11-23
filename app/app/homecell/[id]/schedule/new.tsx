@@ -22,6 +22,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, CalendarPlus, Clock, MapPin } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { DateSelectSheet } from '@/components/ui/DateSelectSheet';
 
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
@@ -211,6 +212,15 @@ export default function NewScheduleScreen() {
                 colorScheme: isDark() ? 'dark' : 'light',
               },
             })
+          ) : showPicker && Platform.OS === 'android' ? (
+            // Android: pemilih Tanggal · Bulan · Tahun (dialog bawaan menyulitkan ganti tahun di sebagian HP).
+            <DateSelectSheet
+              value={tanggal}
+              minimumDate={minDate}
+              maximumDate={maxDate}
+              onChange={setTanggal}
+              onClose={() => setShowPicker(false)}
+            />
           ) : showPicker ? (
             <DateTimePicker
                 themeVariant={isDark() ? 'dark' : 'light'}

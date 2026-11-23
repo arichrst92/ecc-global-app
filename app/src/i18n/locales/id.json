@@ -3099,5 +3099,10 @@
     "not_available": "Pasal ini belum tersedia di versi ini.",
     "use": "Pakai {{ref}}",
     "pick_first": "Pilih ayat dulu"
+  },
+  "date_picker": {
+    "day": "Tanggal",
+    "month": "Bulan",
+    "year": "Tahun"
   }
 }
