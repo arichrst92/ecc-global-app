@@ -27,6 +27,11 @@ type Props = {
   minAspect?: number;
   /** Default aspect ratio (width/height) saat dimensi natural belum ter-load */
   fallbackAspect?: number;
+  /**
+   * Kotak tetap (ukuran dari className/style), gambar utuh (contain) di atas
+   * latar gambar yang sama diburamkan — semua kartu setinggi sama, poster tidak terpotong.
+   */
+  contain?: boolean;
 };
 
 /**
@@ -50,6 +55,7 @@ export function HeroImage({
   fitToWidth = false,
   fallbackAspect = 16 / 9,
   minAspect,
+  contain = false,
 }: Props) {
   const [failed, setFailed] = useState(false);
   const [naturalAspect, setNaturalAspect] = useState<number | null>(null);
@@ -108,6 +114,24 @@ export function HeroImage({
               }
               setFailed(true);
             }}
+          />
+        </View>
+      );
+    }
+    if (contain) {
+      return (
+        <View className={`${className ?? ''} bg-neutral-100 overflow-hidden`} style={style}>
+          <Image
+            source={{ uri: resolvedUrl }}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.55 }}
+            resizeMode="cover"
+            blurRadius={18}
+          />
+          <Image
+            source={{ uri: resolvedUrl }}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="contain"
+            onError={() => setFailed(true)}
           />
         </View>
       );

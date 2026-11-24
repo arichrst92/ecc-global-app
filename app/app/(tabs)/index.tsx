@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { EventListItem } from '@/types/event';
-import { ArrowRight, Check, CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Video } from 'lucide-react-native';
+import { ArrowRight, CalendarDays, Check, CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Video } from 'lucide-react-native';
 
 import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Avatar } from '@/components/ui/Avatar';
@@ -260,89 +260,17 @@ function HomeScreenAuthenticated() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 12, paddingRight: 5 }}
+              contentContainerStyle={{ gap: 12, paddingRight: 5, alignItems: 'stretch' }}
             >
-              {(eventsQuery.data ?? []).map((e) => {
-                // Warna & label sama dengan daftar/detail event (utils/eventPrice).
-                const priceText = eventPriceLabel(e, t);
-                const priceColorClass = eventPriceTone(e.tipeBayar).fg;
-                return (
-                  <Pressable
-                    key={e.id}
-                    onPress={() => router.push(`/event/${e.slug || e.id}`)}
-                    className="w-56 bg-card rounded-2xl overflow-hidden border border-neutral-100"
-                  >
-                    {/* Fit-to-width, tinggi maks. = lebar (poster potret tampil utuh, tidak membuat semua kartu sangat tinggi) */}
-                    <HeroImage
-                      url={e.heroImageUrl}
-                      fallbackEmoji="🎉"
-                      emojiSize={40}
-                      fitToWidth
-                      minAspect={1}
-                    />
-                    {/* Kartu dalam satu baris setinggi kartu tertinggi: isi di atas,
-                        status saya menempel di bawah (ruang kosong di tengah, bukan di bawah). */}
-                    <View className="p-3 flex-1">
-                      <Text className="text-[10px] text-neutral-500 mb-1" numberOfLines={2}>
-                        {formatScheduleWithZone({
-                          ymd: ymdInTz(e.tanggalMulai, e.cabang?.timezone),
-                          endYmd: ymdInTz(e.tanggalSelesai, e.cabang?.timezone),
-                          start: e.jamMulai,
-                          end: e.jamSelesai,
-                          tz: e.cabang?.timezone,
-                          city: cabangCity(e.cabang?.nama),
-                          lang,
-                        })}
-                      </Text>
-                      <Text className="font-semibold text-sm text-neutral-900" numberOfLines={2}>
-                        {e.judul}
-                      </Text>
-                      <Text className={`text-xs font-semibold mt-1 ${priceColorClass}`}>
-                        {priceText}
-                      </Text>
-                      {/* Event sukarela: ringkasan singkat (kartu tidak kosong). Event lain sudah punya lokasi/kuota. */}
-                      {e.tipeBayar === 'NOMINAL_BEBAS' && e.ringkasan?.trim() ? (
-                        <Text className="text-[11px] text-neutral-500 mt-1 leading-4" numberOfLines={2}>
-                          {e.ringkasan.trim()}
-                        </Text>
-                      ) : null}
-                      {/* Lokasi, kuota, batas pendaftaran — sama dengan daftar event */}
-                      {e.lokasi && e.lokasi.trim() ? (
-                        <View className="flex-row items-center gap-1 mt-1">
-                          <MapPin size={11} color={nc('#A3A3A3')} />
-                          <Text className="text-[11px] text-neutral-500 flex-1" numberOfLines={1}>
-                            {e.lokasi}
-                          </Text>
-                        </View>
-                      ) : null}
-                      {e.quotaPeserta ? (
-                        (() => {
-                          // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir.
-                          const shown = eventCount(e, nowHome);
-                          return (
-                            // Tulisan di atas, bar penuh di bawah (kartu sempit — tulisan tidak terpotong).
-                            <View className="mt-1.5">
-                              <Text className="text-[10px] text-neutral-500 mb-1" numberOfLines={2}>
-                                {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: e.quotaPeserta })}
-                              </Text>
-                              <View className="h-1 bg-neutral-100 rounded-full overflow-hidden">
-                                <View
-                                  className={`h-full rounded-full ${shown.count >= e.quotaPeserta ? 'bg-red-500' : 'bg-brand-500'}`}
-                                  style={{ width: `${Math.min(100, Math.round((shown.count / e.quotaPeserta) * 100))}%` }}
-                                />
-                              </View>
-                            </View>
-                          );
-                        })()
-                      ) : null}
-                      {e.tipeBayar === 'NOMINAL_BEBAS' ? null : (
-                        <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact className="mt-1.5" />
-                      )}
-                      <HomeEventMyStatus event={e} />
-                    </View>
-                  </Pressable>
-                );
-              })}
+              {(eventsQuery.data ?? []).map((e) => (
+                <HomeEventCard
+                  key={e.id}
+                  e={e}
+                  now={nowHome}
+                  lang={lang}
+                  onPress={() => router.push(`/event/${e.slug || e.id}`)}
+                />
+              ))}
             </ScrollView>
           </Section>
         )}
@@ -678,6 +606,95 @@ function MyScheduleRow({
  * Status saya di kartu event Beranda (server ≥ 2026-11 mengirim `myStatus`).
  * Menempel di bawah kartu (mt-auto) — 1 baris. Event sukarela tanpa partisipasi → ajakan memberi.
  */
+/**
+ * Kartu event di Beranda (geser horizontal). Tata letak tetap supaya rapi &
+ * tidak ada teks bertumpuk di HP mana pun:
+ *  - gambar kotak 16:10 yang sama untuk semua kartu (poster utuh, latar buram);
+ *  - judul selalu memakan 2 baris (kartu sejajar), chip harga di bawahnya;
+ *  - baris info ber-ikon (tanggal, lokasi) dengan tinggi baris eksplisit;
+ *  - kuota satu baris + bar; batas pendaftaran singkat; status saya menempel di bawah.
+ */
+function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: number; lang: string; onPress: () => void }) {
+  const { t } = useTranslation();
+  // Warna & label sama dengan daftar/detail event (utils/eventPrice).
+  const priceText = eventPriceLabel(e, t);
+  const tone = eventPriceTone(e.tipeBayar);
+  const jadwal = formatScheduleWithZone({
+    ymd: ymdInTz(e.tanggalMulai, e.cabang?.timezone),
+    endYmd: ymdInTz(e.tanggalSelesai, e.cabang?.timezone),
+    start: e.jamMulai,
+    end: e.jamSelesai,
+    tz: e.cabang?.timezone,
+    city: cabangCity(e.cabang?.nama),
+    lang,
+  });
+  const lokasi = e.lokasi?.trim() && e.lokasi.trim() !== '-' ? e.lokasi.trim() : null;
+  const shown = e.quotaPeserta ? eventCount(e, now) : null;
+  return (
+    <Pressable
+      onPress={onPress}
+      className="w-60 bg-card rounded-2xl overflow-hidden border border-neutral-100 active:opacity-80"
+      accessibilityRole="button"
+      accessibilityLabel={e.judul}
+    >
+      <HeroImage url={e.heroImageUrl} fallbackEmoji="🎉" emojiSize={40} contain style={{ width: '100%', aspectRatio: 16 / 10 }} />
+      <View className="p-3 flex-1">
+        {/* Judul — selalu setinggi 2 baris supaya semua kartu sejajar */}
+        <Text className="font-semibold text-sm leading-5 text-neutral-900" numberOfLines={2} style={{ minHeight: 40 }}>
+          {e.judul}
+        </Text>
+        <View className={`self-start mt-1.5 px-2 py-0.5 rounded-full ${tone.soft}`}>
+          <Text className={`text-[11px] leading-4 font-semibold ${tone.text}`} numberOfLines={1}>
+            {priceText}
+          </Text>
+        </View>
+
+        <View className="mt-2 gap-1">
+          <View className="flex-row items-start gap-1.5">
+            <CalendarDays size={12} color={nc('#A3A3A3')} style={{ marginTop: 2 }} />
+            <Text className="flex-1 text-[11px] leading-4 text-neutral-600" numberOfLines={2}>
+              {jadwal}
+            </Text>
+          </View>
+          {lokasi ? (
+            <View className="flex-row items-start gap-1.5">
+              <MapPin size={12} color={nc('#A3A3A3')} style={{ marginTop: 2 }} />
+              <Text className="flex-1 text-[11px] leading-4 text-neutral-600" numberOfLines={1}>
+                {lokasi}
+              </Text>
+            </View>
+          ) : null}
+          {/* Event sukarela: ringkasan singkat (kartu tidak kosong). */}
+          {e.tipeBayar === 'NOMINAL_BEBAS' && e.ringkasan?.trim() ? (
+            <Text className="text-[11px] leading-4 text-neutral-500" numberOfLines={2}>
+              {e.ringkasan.trim()}
+            </Text>
+          ) : null}
+        </View>
+
+        {shown && e.quotaPeserta ? (
+          // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir.
+          <View className="mt-2">
+            <Text className="text-[11px] leading-4 text-neutral-500 mb-1" numberOfLines={1}>
+              {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: e.quotaPeserta })}
+            </Text>
+            <View className="h-1 bg-neutral-100 rounded-full overflow-hidden">
+              <View
+                className={`h-full rounded-full ${shown.count >= e.quotaPeserta ? 'bg-red-500' : 'bg-brand-500'}`}
+                style={{ width: `${Math.min(100, Math.round((shown.count / e.quotaPeserta) * 100))}%` }}
+              />
+            </View>
+          </View>
+        ) : null}
+        {e.tipeBayar === 'NOMINAL_BEBAS' ? null : (
+          <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact short className="mt-2" />
+        )}
+        <HomeEventMyStatus event={e} />
+      </View>
+    </Pressable>
+  );
+}
+
 function HomeEventMyStatus({ event: e }: { event: EventListItem }) {
   const { t } = useTranslation();
   if (e.myStatus === undefined) return null; // server lama

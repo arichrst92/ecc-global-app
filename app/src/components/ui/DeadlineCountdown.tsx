@@ -37,11 +37,14 @@ export function DeadlineCountdown({
   closesAt,
   kind,
   compact = false,
+  short = false,
   className,
 }: {
   closesAt: string | null | undefined;
   kind: Kind;
   compact?: boolean;
+  /** Kartu sempit (Beranda): saat ditutup cukup satu baris singkat, tanpa kalimat panjang. */
+  short?: boolean;
   className?: string;
 }) {
   const { t } = useTranslation();
@@ -52,6 +55,16 @@ export function DeadlineCountdown({
   if (!Number.isFinite(end)) return null;
   const left = end - now;
 
+  if (left <= 0 && short && kind === 'event') {
+    return (
+      <View className={`flex-row items-center gap-1.5 ${className ?? ''}`}>
+        <TimerOff size={12} color={nc('#737373')} />
+        <Text className="flex-1 text-[11px] leading-4 text-neutral-500" numberOfLines={1}>
+          {t('event.registration_closed_btn')}
+        </Text>
+      </View>
+    );
+  }
   if (left <= 0) {
     const msg = kind === 'event' ? t('deadline.event_closed') : kind === 'kids' ? t('deadline.kids_closed') : t('deadline.ibadah_closed');
     return (
