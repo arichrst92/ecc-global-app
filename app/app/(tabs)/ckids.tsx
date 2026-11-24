@@ -32,7 +32,9 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
   Baby,
+  Check,
   ChevronDown,
+  Church,
   Gift,
   History,
   Info,
@@ -318,7 +320,7 @@ export default function CKidsTabScreen() {
               className="flex-row items-center gap-3 p-3 rounded-xl bg-neutral-50 border border-neutral-200"
             >
               <View className="w-9 h-9 rounded-lg bg-brand-100 items-center justify-center">
-                <Text className="text-lg">🏢</Text>
+                <Church size={18} color="#EA580C" />
               </View>
               <View className="flex-1">
                 <Text className="text-sm font-bold text-neutral-900">
@@ -577,8 +579,8 @@ export default function CKidsTabScreen() {
                         : 'bg-card border-neutral-200'
                     }`}
                   >
-                    <View className="w-9 h-9 rounded-lg bg-brand-100 items-center justify-center">
-                      <Text className="text-lg">🏢</Text>
+                    <View className={`w-9 h-9 rounded-lg items-center justify-center ${isSelected ? 'bg-brand-100' : 'bg-neutral-100'}`}>
+                      <Church size={18} color={isSelected ? '#EA580C' : nc('#737373')} />
                     </View>
                     <View className="flex-1">
                       <Text className="text-sm font-bold text-neutral-900">
@@ -590,7 +592,7 @@ export default function CKidsTabScreen() {
                     </View>
                     {isSelected ? (
                       <View {...gx('w-6 h-6 rounded-full bg-brand-500 items-center justify-center')}>
-                        <Text className="text-white text-xs font-bold">✓</Text>
+                        <Check size={14} color="#fff" strokeWidth={3} />
                       </View>
                     ) : null}
                   </Pressable>
