@@ -28,6 +28,9 @@ export type SelfCheckinData = {
   reason: string | null;
   opensAt: string | null;
   closesAt: string | null;
+  /** Server ≥ 2026-11: angka aturan ibadah/event ini (teks & hitung mundur). */
+  openBeforeMin?: number;
+  endAt?: string | null;
   members: SelfCheckinMember[];
   venue?: { requiresLocation: boolean; radiusM: number | null };
 };
@@ -101,6 +104,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
       {!isOpen && d.reason === 'TOO_EARLY' && d.opensAt && d.members.length > 0 ? (
         <SelfCheckinCountdown
           opensAt={d.opensAt}
+          openBeforeMin={d.openBeforeMin}
           className={compact ? '' : 'mb-3'}
           onDone={() => {
             setTick((x) => x + 1);
@@ -111,6 +115,7 @@ export function SelfCheckinBar<T extends SelfCheckinData>({
       {isOpen && showEndsCountdown && d.closesAt ? (
         <SelfCheckinEndsCountdown
           closesAt={d.closesAt}
+          endAt={d.endAt}
           compact={compact}
           className="mb-2"
           onDone={() => {

@@ -95,10 +95,17 @@ export function IbadahTicketCard({
     onError: (e) => showToast(e instanceof Error ? e.message : t('error.generic'), 'error'),
   });
   const askUndo = () =>
-    appAlert(t('tiket.cancel_checkin_title'), t('tiket.cancel_checkin_body', { name: r.jemaat.namaLengkap }), [
-      { text: t('common.cancel'), style: 'cancel' },
-      { text: t('tiket.cancel_checkin_confirm'), style: 'destructive', onPress: () => undo.mutate() },
-    ]);
+    appAlert(
+      t('tiket.cancel_checkin_title'),
+      // Server ≥ 2026-11 (startAt ada): closesAt = batas sebenarnya (jendela bisa diatur per ibadah).
+      r.selfCheckin?.startAt && r.selfCheckin.closesAt
+        ? t('tiket.cancel_checkin_body_until', { name: r.jemaat.namaLengkap, time: localTime(r.selfCheckin.closesAt) })
+        : t('tiket.cancel_checkin_body', { name: r.jemaat.namaLengkap }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('tiket.cancel_checkin_confirm'), style: 'destructive', onPress: () => undo.mutate() },
+      ],
+    );
 
   const band = kids ? '#DB2777' : '#EA580C';
   const sub = [r.ibadah.kategoriIbadah?.nama, r.ibadah.cabang?.nama].filter(Boolean).join(' · ');
@@ -243,7 +250,7 @@ export function IbadahTicketCard({
           <>
             {/* Ibadah sudah selesai → hitung mundur sampai self check-in ditutup */}
             {win === 'OPEN' && r.selfCheckin?.closesAt ? (
-              <SelfCheckinEndsCountdown closesAt={r.selfCheckin.closesAt} compact className="mb-2" />
+              <SelfCheckinEndsCountdown closesAt={r.selfCheckin.closesAt} endAt={r.selfCheckin.endAt} compact className="mb-2" />
             ) : null}
             <SwipeToCheckin
               size={full ? 'lg' : 'md'}

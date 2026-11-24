@@ -66,8 +66,10 @@ export type IbadahOccurrence = {
   kategoriIbadah?: KategoriIbadah | null;
   /** Okupansi seat pertemuan ini (sama dengan detail). null/absen = seat belum diisi / server lama. */
   okupansi?: IbadahOkupansi | null;
-  /** Batas reservasi pertemuan ini (= jam mulai). Server lama: absen. */
+  /** Batas reservasi pertemuan ini (= jam mulai, atau sesuai pengaturan ibadah). Server lama: absen. */
   reservasiClosesAt?: string;
+  /** Server ≥ 2026-11: saat self check-in pertemuan ini ditutup. Absen → selesai + 30 menit. */
+  checkinClosesAt?: string;
 };
 
 /** Detail dari GET /admin/ibadah/:id — punya petugas + pelayanan */
@@ -89,8 +91,10 @@ export type IbadahDetail = IbadahListItem & {
   petugas?: IbadahPetugas[];
   kapasitasSeat?: number | null;
   okupansi?: IbadahOkupansi | null;
-  /** Batas reservasi pertemuan ?tanggal= (= jam mulai). */
+  /** Batas reservasi pertemuan ?tanggal= (= jam mulai, atau sesuai pengaturan ibadah). */
   reservasiClosesAt?: string | null;
+  /** Server ≥ 2026-11: saat self check-in pertemuan ?tanggal= ditutup. */
+  checkinClosesAt?: string | null;
 };
 
 export type IbadahPetugas = {
@@ -194,6 +198,12 @@ export type MyReservasi = {
     kidsSelf?: boolean;
     opensAt: string;
     closesAt: string;
+    /** Server ≥ 2026-11 (jendela per ibadah/event): jam mulai/selesai + angka aturan. Absen = server lama. */
+    startAt?: string | null;
+    endAt?: string | null;
+    openBeforeMin?: number;
+    closeMin?: number;
+    closeRef?: 'START' | 'END';
     venue?: { requiresLocation: boolean; radiusM: number | null };
   };
 };

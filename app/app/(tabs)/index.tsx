@@ -481,6 +481,8 @@ function TodayServiceCard({
     isOnline: boolean;
     kategoriIbadah?: { nama: string } | null;
     cabang?: { nama: string } | null;
+    /** Server ≥ 2026-11: self check-in pertemuan ini ditutup. */
+    checkinClosesAt?: string;
   };
   router: ReturnType<typeof useRouter>;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -503,8 +505,13 @@ function TodayServiceCard({
   const now = useNowTick();
   const svcTz = detailQuery.data?.cabang?.timezone ?? venueTz;
   const ended = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, svcTz, now);
-  // Self check-in masih dibuka 30 menit setelah selesai → kartu baru diburamkan setelah tenggang lewat.
-  const checkinClosed = isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, svcTz, now - selfCheckinGraceMs());
+  // Kartu diburamkan setelah self check-in ditutup: server ≥ 2026-11 mengirim
+  // checkinClosesAt (bisa diatur per ibadah; tidak lebih awal dari jam selesai);
+  // server lama → selesai + tenggang 30 menit.
+  const closesAtIso = detailQuery.data?.checkinClosesAt ?? service.checkinClosesAt;
+  const checkinClosed = closesAtIso
+    ? ended && now > Date.parse(closesAtIso)
+    : isOccurrenceEnded(service.tanggal, service.jamMulai, service.jamSelesai, svcTz, now - selfCheckinGraceMs());
   // Jadwal tampil dalam jam & zona cabang; bila zona HP berbeda, tambah jam setempat.
   const localStart = venueToLocal(service.tanggal, service.jamMulai, venueTz);
   const hint = localStart?.converted ? t('time.your_time', { time: localStart.time }) : null;

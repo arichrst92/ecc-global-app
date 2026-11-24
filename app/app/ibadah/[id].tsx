@@ -341,10 +341,11 @@ export default function IbadahDetailScreen() {
       {/* Sticky bottom CTA — QR + Self check-in (hanya saat hari & jam ibadah) */}
       <View className="bg-card border-t border-neutral-100 px-5 py-3">
         <SafeAreaView edges={['bottom']}>
-          {/* Hitung mundur sampai self check-in dibuka (15 menit sebelum ibadah) */}
+          {/* Hitung mundur sampai self check-in dibuka (bawaan 15 menit sebelum ibadah; bisa diatur per ibadah) */}
           {!checkinOpenNow && sc?.reason === 'TOO_EARLY' && sc.opensAt ? (
             <SelfCheckinCountdown
               opensAt={sc.opensAt}
+              openBeforeMin={sc.openBeforeMin}
               onDone={() => {
                 setTick((x) => x + 1);
                 selfCheckin.refetch();
@@ -355,6 +356,7 @@ export default function IbadahDetailScreen() {
           {checkinOpenNow && sc?.closesAt ? (
             <SelfCheckinEndsCountdown
               closesAt={sc.closesAt}
+              endAt={sc.endAt}
               onDone={() => {
                 setTick((x) => x + 1);
                 selfCheckin.refetch();

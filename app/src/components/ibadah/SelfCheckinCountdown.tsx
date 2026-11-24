@@ -23,10 +23,13 @@ export function formatCountdown(ms: number): string {
 
 export function SelfCheckinCountdown({
   opensAt,
+  openBeforeMin,
   onDone,
   className = 'mb-3',
 }: {
   opensAt: string;
+  /** Server ≥ 2026-11: menit sebelum mulai (diatur per ibadah/event). Absen → teks bawaan. */
+  openBeforeMin?: number;
   onDone: () => void;
   /** Margin luar (default mb-3). */
   className?: string;
@@ -58,7 +61,13 @@ export function SelfCheckinCountdown({
       <Timer size={20} color="#EA580C" />
       <View className="flex-1">
         <Text className="text-xs text-brand-800">{t('ibadah.self_checkin_countdown')}</Text>
-        <Text className="text-[11px] text-brand-700/70">{t('ibadah.self_checkin_opens_at', { time: localTime(opensAt) })}</Text>
+        <Text className="text-[11px] text-brand-700/70">
+          {openBeforeMin == null
+            ? t('ibadah.self_checkin_opens_at', { time: localTime(opensAt) })
+            : openBeforeMin === 0
+              ? t('ibadah.self_checkin_opens_at_start', { time: localTime(opensAt) })
+              : t('ibadah.self_checkin_opens_at_n', { time: localTime(opensAt), min: openBeforeMin })}
+        </Text>
       </View>
       <Text className="text-xl font-bold text-brand-700" style={{ fontVariant: ['tabular-nums'] }}>
         {formatCountdown(left)}
@@ -71,14 +80,18 @@ export function SelfCheckinCountdown({
  * "Self check-in akan berakhir dalam mm:ss" — hanya tampil setelah ibadah
  * selesai (masa tenggang selfCheckinGraceMs() sebelum closesAt). Saat 0 →
  * onDone() supaya layar langsung menyembunyikan self check-in.
+ * Server ≥ 2026-11 mengirim endAt: tampil sejak acara selesai; bila self
+ * check-in ditutup sebelum/tepat saat selesai → 15 menit terakhir.
  */
 export function SelfCheckinEndsCountdown({
   closesAt,
+  endAt,
   onDone,
   className = 'mb-3',
   compact = false,
 }: {
   closesAt: string;
+  endAt?: string | null;
   onDone?: () => void;
   className?: string;
   compact?: boolean;
@@ -105,9 +118,11 @@ export function SelfCheckinEndsCountdown({
   }, [target]);
 
   // Belum masuk masa setelah ibadah selesai, atau sudah lewat → tidak tampil.
-  if (!Number.isFinite(target) || left <= 0 || left > selfCheckinGraceMs()) return null;
+  const endMs = endAt ? Date.parse(endAt) : NaN;
+  const showWithin = Number.isFinite(endMs) ? Math.max(target - endMs, 15 * 60 * 1000) : selfCheckinGraceMs();
+  if (!Number.isFinite(target) || left <= 0 || left > showWithin) return null;
   const total = Math.ceil(left / 1000);
-  const mmss = `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
+  const mmss = total >= 3600 ? formatCountdown(left) : `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
   return (
     <View
       className={`flex-row items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-2xl ${compact ? 'px-3 py-2' : 'px-4 py-3'} ${className}`}

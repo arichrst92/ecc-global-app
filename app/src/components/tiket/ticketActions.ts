@@ -59,10 +59,22 @@ export async function openDirections(opts: {
 }
 
 /**
- * Jam mulai = 15 menit setelah jendela check-in dibuka; selesai = jendela ditutup
- * dikurangi tenggang 30 menit (server ≥ 2.4.5 menutup check-in 30 menit setelah selesai).
+ * Jam mulai/selesai tiket. Server ≥ 2026-11 mengirim startAt/endAt (jendela
+ * check-in bisa diatur per ibadah/event). Server lama: jam mulai = dibuka + 15
+ * menit; selesai = ditutup dikurangi tenggang 30 menit.
  */
-export function ticketTimes(opensAt: string | null | undefined, closesAt: string | null | undefined) {
+export function ticketTimes(
+  opensAt: string | null | undefined,
+  closesAt: string | null | undefined,
+  startAt?: string | null,
+  endAt?: string | null,
+) {
+  if (startAt) {
+    const start = new Date(startAt);
+    const endMs = endAt ? Date.parse(endAt) : NaN;
+    const end = endMs > start.getTime() ? new Date(endMs) : new Date(start.getTime() + 2 * 60 * 60 * 1000);
+    return { start, end };
+  }
   if (!opensAt) return null;
   // Jam mulai = dibuka + N menit (N dari server, bawaan 15).
   const start = new Date(Date.parse(opensAt) + appRule('selfCheckinOpenBeforeMin') * 60 * 1000);

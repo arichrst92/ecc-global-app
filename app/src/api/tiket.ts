@@ -47,6 +47,12 @@ export type EventTiket = {
     enabled: boolean;
     opensAt: string | null;
     closesAt: string | null;
+    /** Server ≥ 2026-11 (jendela per ibadah/event): jam mulai/selesai + angka aturan. Absen = server lama. */
+    startAt?: string | null;
+    endAt?: string | null;
+    openBeforeMin?: number;
+    closeMin?: number;
+    closeRef?: 'START' | 'END';
     venue?: { requiresLocation: boolean; radiusM: number | null };
   };
 };

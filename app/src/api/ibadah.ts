@@ -78,6 +78,12 @@ export type SelfCheckinStatus = {
   tanggal: string;
   opensAt: string | null;
   closesAt: string | null;
+  /** Server ≥ 2026-11 (jendela per ibadah/event): jam mulai/selesai + angka aturan. Absen = server lama. */
+  startAt?: string | null;
+  endAt?: string | null;
+  openBeforeMin?: number;
+  closeMin?: number;
+  closeRef?: 'START' | 'END';
   /** Jam server (ISO UTC) untuk sinkron jam HP. */
   serverNow?: string;
   /** Zona waktu cabang (IANA) — jamMulai/jamSelesai = jam dinding di zona ini. */

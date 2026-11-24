@@ -121,11 +121,11 @@ export default function TiketScreen() {
   async function onCalendar(it: Item) {
     try {
       if (it.kind === 'event') {
-        const times = ticketTimes(it.t.selfCheckin.opensAt, it.t.selfCheckin.closesAt);
+        const times = ticketTimes(it.t.selfCheckin.opensAt, it.t.selfCheckin.closesAt, it.t.selfCheckin.startAt, it.t.selfCheckin.endAt);
         if (!times) throw new Error('no time');
         await addTicketToCalendar({ title: it.t.event.judul, ...times, location: it.t.event.lokasi ?? it.t.event.cabang?.nama });
       } else {
-        const times = ticketTimes(it.r.selfCheckin?.opensAt, it.r.selfCheckin?.closesAt);
+        const times = ticketTimes(it.r.selfCheckin?.opensAt, it.r.selfCheckin?.closesAt, it.r.selfCheckin?.startAt, it.r.selfCheckin?.endAt);
         if (!times) throw new Error('no time');
         await addTicketToCalendar({
           title: it.r.ibadah.nama,
