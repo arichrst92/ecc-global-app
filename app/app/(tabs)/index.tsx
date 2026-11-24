@@ -96,6 +96,9 @@ function HomeScreenAuthenticated() {
       eventsQuery.refetch(),
       myScheduleQuery.refetch(),
       queryClient.invalidateQueries({ queryKey: ['homecell', 'me'] }),
+      // Akses scan yang baru diberikan → ikon Scanner langsung muncul.
+      queryClient.invalidateQueries({ queryKey: ['scanner', 'events'] }),
+      queryClient.invalidateQueries({ queryKey: ['scanner', 'ibadah'] }),
     ]),
   );
 

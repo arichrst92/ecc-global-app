@@ -16,20 +16,26 @@ import { useScreenInterval } from '@/hooks/useScreenInterval';
 import type { ReservasiPickupPayload, WalkInReservasiPayload } from '@/types/scanner';
 
 /** List event yang user authorized scan */
-export function useScannerEvents() {
+export function useScannerEvents(opts: { pollMs?: number | false } = {}) {
   return useQuery({
     queryKey: ['scanner', 'events'],
     queryFn: listScannerEvents,
-    staleTime: 5 * 60_000,
+    // Akses scan bisa diberikan mendadak (Portal / koordinator) → jangan
+    // menahan data lama 5 menit; Beranda juga mem-poll (ScannerHeaderButton).
+    staleTime: 30_000,
+    refetchInterval: opts.pollMs ?? false,
   });
 }
 
 /** List ibadah yang user authorized scan */
-export function useScannerIbadah() {
+export function useScannerIbadah(opts: { pollMs?: number | false } = {}) {
   return useQuery({
     queryKey: ['scanner', 'ibadah'],
     queryFn: listScannerIbadah,
-    staleTime: 5 * 60_000,
+    // Akses scan bisa diberikan mendadak (Portal / koordinator) → jangan
+    // menahan data lama 5 menit; Beranda juga mem-poll (ScannerHeaderButton).
+    staleTime: 30_000,
+    refetchInterval: opts.pollMs ?? false,
   });
 }
 
