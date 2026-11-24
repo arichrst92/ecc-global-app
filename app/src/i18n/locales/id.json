@@ -2635,6 +2635,7 @@
     "no_checkin": "Event ini tidak memerlukan check-in — tidak perlu menunjukkan QR.",
     "show_qr_usher": "Tunjukkan QR ini ke usher saat masuk",
     "desk_kids": "Check-in anak dilakukan di meja CKids",
+    "kids_self_hint": "Orang tua / wali bisa check-in anak dari sini. Kode jemput muncul setelah check-in — atau check-in di meja CKids.",
     "pay_now": "Selesaikan pembayaran",
     "waiting_verify": "QR aktif setelah pembayaran diverifikasi",
     "st_DAFTAR": "Terdaftar",

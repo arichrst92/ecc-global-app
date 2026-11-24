@@ -2641,6 +2641,7 @@
     "no_checkin": "This event doesn't need check-in — no QR needed.",
     "show_qr_usher": "Show this QR to the usher at the entrance",
     "desk_kids": "Kids check-in is done at the CKids desk",
+    "kids_self_hint": "Parents / guardians can check in the child here. The pickup code appears after check-in — or check in at the CKids desk.",
     "pay_now": "Complete payment",
     "waiting_verify": "QR becomes active after payment is verified",
     "st_DAFTAR": "Registered",

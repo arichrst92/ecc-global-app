@@ -183,9 +183,25 @@ export function IbadahTicketCard({
     } else if (r.pickedUpAt) {
       footer = <SwipeToCheckin state="DONE" label={t('tiket.pickup_done', { time: localTime(r.pickedUpAt) })} onConfirm={() => {}} />;
     } else if (!hadir) {
+      // 2.5.1: orang tua / wali bisa self check-in anak (ibadah mengizinkan) → kode jemput
+      // muncul di tiket setelah check-in. Selain itu check-in di meja CKids.
+      const kidsSelf = !!r.selfCheckin?.kidsSelf && win !== 'CLOSED';
       footer = (
         <View>
-          <Hint text={t('tiket.desk_kids')} />
+          {kidsSelf ? (
+            <>
+              <SwipeToCheckin
+                size={full ? 'lg' : 'md'}
+                state={win === 'LOCKED' ? 'LOCKED' : ck.busy ? 'BUSY' : 'READY'}
+                label={win === 'LOCKED' ? opensLabel : t('tiket.swipe')}
+                onConfirm={ck.checkin}
+              />
+              <InlineError text={ck.error} />
+              <Hint text={t('tiket.kids_self_hint')} />
+            </>
+          ) : (
+            <Hint text={t('tiket.desk_kids')} />
+          )}
           {r.canCancel ? (
             <Pressable
               onPress={askCancel}

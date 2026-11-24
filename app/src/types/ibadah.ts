@@ -190,6 +190,8 @@ export type MyReservasi = {
   /** Tiket: jendela self check-in untuk tanggal ini (BE 2026-10-26). DESK = ibadah anak (meja CKids). */
   selfCheckin?: {
     mode: 'SELF' | 'DESK';
+    /** Ibadah anak: orang tua / wali boleh self check-in anak (BE 2026-11). */
+    kidsSelf?: boolean;
     opensAt: string;
     closesAt: string;
     venue?: { requiresLocation: boolean; radiusM: number | null };
