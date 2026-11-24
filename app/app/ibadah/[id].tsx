@@ -45,6 +45,7 @@ import { isOccurrenceEnded } from '@/utils/time';
 import { hariLabel } from '@/utils/hari';
 import { useScreenInterval } from '@/hooks/useScreenInterval';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
+import { useSwipeLocked } from '@/components/tiket/swipeLock';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -124,6 +125,8 @@ export default function IbadahDetailScreen() {
     return () => clearInterval(t);
   }, []);
   const sc = selfCheckin.data;
+  // Kunci scroll saat slider "Geser untuk check-in" digeser (Android).
+  const swipeLocked = useSwipeLocked();
   const checkinOpenNow = useMemo(() => selfCheckinOpen(sc), [sc, tick]);
   // Refetch persis di batas buka/tutup supaya status server ikut segar.
   useEffect(() => {
@@ -192,6 +195,7 @@ export default function IbadahDetailScreen() {
 
       <ScrollView
         className="flex-1"
+        scrollEnabled={!swipeLocked}
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 100 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} tintColor="#F97316" />}
       >

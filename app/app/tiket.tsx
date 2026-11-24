@@ -26,6 +26,7 @@ import { useToast } from '@/components/ui/Toast';
 import type { MyReservasi } from '@/types/ibadah';
 import { goBack } from '@/utils/nav';
 import { brandGradient } from '@/theme/gradient';
+import { useSwipeLocked } from '@/components/tiket/swipeLock';
 
 const BG = '#EA580C';
 
@@ -66,6 +67,8 @@ export default function TiketScreen() {
   const startIndex = Math.max(0, items.findIndex((x) => (x.kind === 'event' ? x.t.id : x.r.id) === p.id));
   const [page, setPage] = useState(startIndex);
   const listRef = useRef<FlatList<Item>>(null);
+  // Kunci scroll saat slider "Geser untuk check-in" digeser (Android).
+  const swipeLocked = useSwipeLocked();
   // Scroll per halaman tiket — dipakai supaya kolom komentar ulasan tidak tertutup keyboard.
   const pageRefs = useRef<Record<string, ScrollView | null>>({});
   const focusedPage = useRef<string | null>(null);
@@ -182,6 +185,7 @@ export default function TiketScreen() {
             data={items}
             horizontal
             pagingEnabled
+            scrollEnabled={!swipeLocked}
             style={{ flex: 1 }}
             onLayout={(e) => setPageH(e.nativeEvent.layout.height)}
             showsHorizontalScrollIndicator={false}
@@ -195,6 +199,7 @@ export default function TiketScreen() {
                   pageRefs.current[item.kind === 'event' ? item.t.id : item.r.id] = r;
                 }}
                 automaticallyAdjustKeyboardInsets
+                scrollEnabled={!swipeLocked}
                 style={{ width, height: pageH || undefined }}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: (items.length > 1 ? 24 : insets.bottom + 32) + (Platform.OS === 'android' ? kbH : 0) }}
                 showsVerticalScrollIndicator={false}

@@ -41,9 +41,12 @@ import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 import { serverNowMs } from '@/utils/serverClock';
+import { useSwipeLocked } from '@/components/tiket/swipeLock';
 
 export default function EventDetailScreen() {
   const hero = useHeroScroll();
+  // Kunci scroll saat slider "Geser untuk check-in" digeser (Android).
+  const swipeLocked = useSwipeLocked();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const router = useRouter();
@@ -293,6 +296,7 @@ export default function EventDetailScreen() {
       ) : null}
       <ScrollView onScroll={hero.onScroll} scrollEventThrottle={16}
         className="flex-1"
+        scrollEnabled={!swipeLocked}
         contentContainerStyle={{ paddingBottom: 32 }}
         stickyHeaderIndices={[]}
         refreshControl={

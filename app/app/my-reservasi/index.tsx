@@ -28,6 +28,7 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { useIsFocused } from '@react-navigation/native';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
+import { useSwipeLocked } from '@/components/tiket/swipeLock';
 
 type Seg = 'ibadah' | 'event';
 type Tab = 'active' | 'history';
@@ -71,6 +72,8 @@ export function MyReservasiView({ inTab = false }: { inTab?: boolean }) {
   useRefetchOnFocus(() => q.refetch());
   // Spinner hanya saat ditarik — refetch otomatis/polling tidak mendorong konten.
   const pull = usePullToRefresh(() => q.refetch());
+  // Kunci scroll saat slider "Geser untuk check-in" digeser (Android).
+  const swipeLocked = useSwipeLocked();
 
   const empty = seg === 'ibadah' ? reservasi.length === 0 : tickets.length === 0;
   const tabLabel = (k: Tab) =>
@@ -132,6 +135,7 @@ export function MyReservasiView({ inTab = false }: { inTab?: boolean }) {
 
       <ScrollView
         className="flex-1"
+        scrollEnabled={!swipeLocked}
         contentContainerStyle={{ padding: 16, paddingBottom: inTab ? 32 : insets.bottom + 32 }}
         refreshControl={<RefreshControl refreshing={pull.refreshing} onRefresh={pull.onRefresh} tintColor="#F97316" />}
       >
