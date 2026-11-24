@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { EventListItem } from '@/types/event';
-import { ArrowRight, CalendarDays, Check, CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Video } from 'lucide-react-native';
+import { CalendarDays, CheckCircle2, Church, Clock, MapPin, QrCode, ChevronRight, Video } from 'lucide-react-native';
 
 import { MinistryChip, MinistryIcon } from '@/components/ministry/MinistryIcon';
 import { Avatar } from '@/components/ui/Avatar';
@@ -613,9 +613,9 @@ function MyScheduleRow({
  * Kartu event di Beranda (geser horizontal). Tata letak tetap supaya rapi &
  * tidak ada teks bertumpuk di HP mana pun:
  *  - gambar kotak 16:10 yang sama untuk semua kartu (poster utuh, latar buram);
- *  - judul selalu memakan 2 baris (kartu sejajar), chip harga di bawahnya;
+ *  - judul selalu memakan 2 baris (kartu sejajar);
  *  - baris info ber-ikon (tanggal, lokasi) dengan tinggi baris eksplisit;
- *  - kuota satu baris + bar; batas pendaftaran singkat; status saya menempel di bawah.
+ *  - kuota satu baris + bar; batas pendaftaran singkat; flag harga menempel di dasar kartu.
  */
 function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: number; lang: string; onPress: () => void }) {
   const { t } = useTranslation();
@@ -646,11 +646,6 @@ function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: numbe
         <Text className="font-semibold text-sm leading-5 text-neutral-900" numberOfLines={2} style={{ minHeight: 40 }}>
           {e.judul}
         </Text>
-        <View className={`self-start mt-1.5 px-2 py-0.5 rounded-full ${tone.soft}`}>
-          <Text className={`text-[11px] leading-4 font-semibold ${tone.text}`} numberOfLines={1}>
-            {priceText}
-          </Text>
-        </View>
 
         <View className="mt-2 gap-1">
           <View className="flex-row items-start gap-1.5">
@@ -692,43 +687,17 @@ function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: numbe
         {e.tipeBayar === 'NOMINAL_BEBAS' ? null : (
           <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact short className="mt-2" />
         )}
-        <HomeEventMyStatus event={e} />
+        {/* Paling bawah (menempel di dasar kartu): flag harga Gratis / Sukarela / Rp…
+            — menggantikan kotak status hijau (status pendaftaran tetap di detail event & tiket). */}
+        <View className="mt-auto pt-2.5">
+          <View className={`self-start px-2.5 py-1 rounded-full ${tone.soft}`}>
+            <Text className={`text-[11px] leading-4 font-semibold ${tone.text}`} numberOfLines={1}>
+              {priceText}
+            </Text>
+          </View>
+        </View>
       </View>
     </Pressable>
   );
 }
 
-function HomeEventMyStatus({ event: e }: { event: EventListItem }) {
-  const { t } = useTranslation();
-  if (e.myStatus === undefined) return null; // server lama
-  const st = e.myStatus;
-  const rp = (n: number) => `Rp ${Math.round(n).toLocaleString('id-ID')}`;
-  let view: { text: string; cls: string; txt: string; Icon: typeof Check } | null = null;
-  if (st?.status === 'HADIR' || st?.payment === 'LUNAS' || (st && st.payment === null)) {
-    const text =
-      e.tipeBayar === 'NOMINAL_BEBAS'
-        ? `${t('event.my_given')}${st.total > 0 ? ` · ${rp(st.total)}` : ''}`
-        : st.status === 'HADIR'
-          ? t('event.status_hadir')
-          : t('event.my_registered');
-    view = { text, cls: 'bg-emerald-50', txt: 'text-emerald-700', Icon: Check };
-  } else if (st?.payment === 'MENUNGGU') {
-    view = { text: t('event.status_menunggu'), cls: 'bg-amber-50', txt: 'text-amber-700', Icon: Clock };
-  } else if (st?.payment === 'BELUM_BAYAR') {
-    view = { text: t('event.continue_payment'), cls: 'bg-amber-50', txt: 'text-amber-700', Icon: ArrowRight };
-  } else if (!st && e.tipeBayar === 'NOMINAL_BEBAS') {
-    view = { text: t('event.donate_now'), cls: 'border border-blue-200', txt: 'text-blue-700', Icon: ArrowRight };
-  }
-  if (!view) return null;
-  const { Icon } = view;
-  return (
-    <View className={`mt-auto pt-2`}>
-      <View className={`flex-row items-center gap-1.5 rounded-lg px-2 py-1.5 ${view.cls}`}>
-        <Icon size={12} color={view.txt.includes('emerald') ? '#047857' : view.txt.includes('amber') ? '#B45309' : '#1D4ED8'} />
-        <Text className={`flex-1 text-[11px] font-semibold ${view.txt}`} numberOfLines={1}>
-          {view.text}
-        </Text>
-      </View>
-    </View>
-  );
-}
