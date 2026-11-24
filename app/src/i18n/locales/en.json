@@ -761,7 +761,9 @@
     "team_all": "Show all ({{count}})",
     "team_less": "Show less",
     "online_badge": "Online",
-    "team_you": "(You)"
+    "team_you": "(You)",
+    "my_duty_title": "You're serving here",
+    "my_duty_none": "Your task has not been set by the coordinator yet."
   },
   "error": {
     "network": "No internet connection. Please try again.",

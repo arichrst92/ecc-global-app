@@ -143,3 +143,48 @@ export function MinistryTeamCard({ petugas, className = '' }: { petugas: TeamMem
     </View>
   );
 }
+
+/**
+ * "Anda bertugas" — kartu menonjol di atas detail ibadah / event untuk petugas
+ * yang melayani (2.5.1). Menampilkan pelayanan, peran, dan tugas (Kategori ›
+ * Tugas) dari koordinator; bila belum diatur → keterangan "belum diatur".
+ * Data = baris `isMe` dari daftar petugas (server sudah mengirim tugas untuk
+ * petugas itu sendiri).
+ */
+export function MyDutyCard({ petugas, className = '' }: { petugas: TeamMember[] | undefined; className?: string }) {
+  const { t } = useTranslation();
+  const mine = (petugas ?? []).filter((p) => p.isMe);
+  if (!mine.length) return null;
+  return (
+    <View className={`bg-brand-50 border border-brand-200 rounded-2xl p-4 ${className}`} accessibilityRole="summary">
+      <View className="flex-row items-center gap-2 mb-2">
+        <ClipboardList size={16} color="#EA580C" />
+        <Text className="flex-1 text-sm font-bold text-brand-800">{t('ibadah.my_duty_title')}</Text>
+      </View>
+      <View className="gap-2.5">
+        {mine.map((p) => {
+          const Icon = ministryIconComponent(p.pelayananIkon);
+          const w = ministryWarna(p.pelayananWarna);
+          return (
+            <View key={p.id} className="flex-row items-start gap-2.5">
+              <View style={{ backgroundColor: w.bg }} className="w-7 h-7 rounded-lg items-center justify-center mt-0.5">
+                <Icon size={14} color={w.fg} />
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-sm font-semibold text-neutral-900 leading-5" numberOfLines={2}>
+                  {p.pelayananNama}
+                  {p.role ? <Text className="text-xs font-normal text-neutral-500">{`  ·  ${p.role}`}</Text> : null}
+                </Text>
+                {p.tugas?.length ? (
+                  <Text className="text-sm font-medium text-brand-700 leading-5 mt-0.5">{tugasText(p.tugas)}</Text>
+                ) : (
+                  <Text className="text-xs text-neutral-500 leading-4 mt-0.5">{t('ibadah.my_duty_none')}</Text>
+                )}
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}

@@ -11,7 +11,7 @@ import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, Che
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
-import { MinistryTeamCard } from '@/components/ministry/MinistryTeamCard';
+import { MinistryTeamCard, MyDutyCard } from '@/components/ministry/MinistryTeamCard';
 import { useToast } from '@/components/ui/Toast';
 import { getEventSelfCheckin, postEventSelfCheckin, selfCancelParticipation } from '@/api/event';
 import { SelfCheckinBar } from '@/components/checkin/SelfCheckinBar';
@@ -564,6 +564,9 @@ export default function EventDetailScreen() {
                   }}
                 />
               ) : null}
+
+              {/* Tugas saya — petugas yang melayani melihat pelayanan, peran & tugasnya (2.5.1) */}
+              <MyDutyCard petugas={event.petugas} className="mt-4" />
 
               {/* Tiket Saya — satu tiket per orang, ketuk untuk QR besar.
                   Event tanpa pencatatan kehadiran → tidak perlu tiket, disembunyikan. */}

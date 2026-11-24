@@ -761,7 +761,9 @@
     "team_all": "Lihat semua ({{count}})",
     "team_less": "Tampilkan lebih sedikit",
     "online_badge": "Online",
-    "team_you": "(Anda)"
+    "team_you": "(Anda)",
+    "my_duty_title": "Anda bertugas di sini",
+    "my_duty_none": "Tugas belum diatur koordinator."
   },
   "error": {
     "network": "Tidak ada koneksi internet. Coba lagi.",

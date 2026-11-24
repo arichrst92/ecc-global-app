@@ -19,7 +19,7 @@ import {
   Video,
 } from 'lucide-react-native';
 
-import { MinistryTeamCard } from '@/components/ministry/MinistryTeamCard';
+import { MinistryTeamCard, MyDutyCard } from '@/components/ministry/MinistryTeamCard';
 import { Button } from '@/components/ui/Button';
 import { getIbadahDetail, getSelfCheckin, postSelfCheckin } from '@/api/ibadah';
 import { SelfCheckinModal } from '@/components/ibadah/SelfCheckinModal';
@@ -301,6 +301,9 @@ export default function IbadahDetailScreen() {
                 </View>
               );
             })()}
+
+            {/* Tugas saya — petugas yang melayani melihat pelayanan, peran & tugasnya (2.5.1) */}
+            <MyDutyCard petugas={ibadah?.petugas} className="mt-4" />
 
             {/* Tiket Saya — reservasi aktif ibadah ini, geser check-in per tiket */}
             {myTickets.length > 0 ? (
