@@ -298,11 +298,14 @@ function HomeScreenAuthenticated() {
                   className="bg-card rounded-2xl p-3 flex-row items-center gap-3 border border-neutral-100"
                   onPress={() => router.push(`/content/news/${n.slug || n.id}`)}
                 >
+                  {/* Ikuti rasio asli gambar (lebar tetap, tinggi menyesuaikan; poster potret dibatasi). */}
                   <HeroImage
                     url={n.heroImageUrl}
                     fallbackEmoji="📰"
                     emojiSize={22}
-                    className="w-14 h-14 rounded-xl overflow-hidden"
+                    fitToWidth
+                    minAspect={3 / 4}
+                    className="w-24 rounded-xl overflow-hidden"
                   />
                   <View className="flex-1">
                     <Text className="font-semibold text-sm text-neutral-900" numberOfLines={1}>
@@ -615,7 +618,7 @@ function MyScheduleRow({
  *  - gambar kotak 16:10 yang sama untuk semua kartu (poster utuh, latar buram);
  *  - judul selalu memakan 2 baris (kartu sejajar);
  *  - baris info ber-ikon (tanggal, lokasi) dengan tinggi baris eksplisit;
- *  - kuota satu baris + bar; batas pendaftaran singkat; flag harga menempel di dasar kartu.
+ *  - flag harga di pojok kanan atas gambar; kuota satu baris + bar; batas pendaftaran singkat.
  */
 function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: number; lang: string; onPress: () => void }) {
   const { t } = useTranslation();
@@ -640,7 +643,18 @@ function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: numbe
       accessibilityRole="button"
       accessibilityLabel={e.judul}
     >
-      <HeroImage url={e.heroImageUrl} fallbackEmoji="🎉" emojiSize={40} contain style={{ width: '100%', aspectRatio: 16 / 10 }} />
+      <View>
+        <HeroImage url={e.heroImageUrl} fallbackEmoji="🎉" emojiSize={40} contain style={{ width: '100%', aspectRatio: 16 / 10 }} />
+        {/* Flag harga Gratis / Sukarela / Rp… di pojok kanan atas gambar */}
+        <View
+          className={`absolute top-2 right-2 px-2.5 py-1 rounded-full ${tone.soft}`}
+          style={{ shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2, maxWidth: '70%' }}
+        >
+          <Text className={`text-[11px] leading-4 font-bold ${tone.text}`} numberOfLines={1}>
+            {priceText}
+          </Text>
+        </View>
+      </View>
       <View className="p-3 flex-1">
         {/* Judul — selalu setinggi 2 baris supaya semua kartu sejajar */}
         <Text className="font-semibold text-sm leading-5 text-neutral-900" numberOfLines={2} style={{ minHeight: 40 }}>
@@ -687,15 +701,6 @@ function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: numbe
         {e.tipeBayar === 'NOMINAL_BEBAS' ? null : (
           <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact short className="mt-2" />
         )}
-        {/* Paling bawah (menempel di dasar kartu): flag harga Gratis / Sukarela / Rp…
-            — menggantikan kotak status hijau (status pendaftaran tetap di detail event & tiket). */}
-        <View className="mt-auto pt-2.5">
-          <View className={`self-start px-2.5 py-1 rounded-full ${tone.soft}`}>
-            <Text className={`text-[11px] leading-4 font-semibold ${tone.text}`} numberOfLines={1}>
-              {priceText}
-            </Text>
-          </View>
-        </View>
       </View>
     </Pressable>
   );
