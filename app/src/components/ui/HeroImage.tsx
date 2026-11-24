@@ -98,7 +98,16 @@ export function HeroImage({
       const clamped = minAspect != null && natural < minAspect;
       const aspect = clamped ? minAspect : natural;
       return (
-        <View className={`${className ?? ''} ${clamped ? 'bg-neutral-100' : ''}`} style={[style, { aspectRatio: aspect }]}>
+        <View className={`${className ?? ''} ${clamped ? 'bg-neutral-100 overflow-hidden' : ''}`} style={[style, { aspectRatio: aspect }]}>
+          {/* Poster lebih tinggi dari batas: tampil utuh di atas latar gambar yang sama diburamkan. */}
+          {clamped ? (
+            <Image
+              source={{ uri: resolvedUrl }}
+              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.55 }}
+              resizeMode="cover"
+              blurRadius={18}
+            />
+          ) : null}
           <Image
             source={{ uri: resolvedUrl }}
             style={{ width: '100%', height: '100%' }}

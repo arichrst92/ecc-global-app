@@ -215,7 +215,8 @@ function EventCard({
     >
       {/* Hero block — fit-to-width, tinggi proporsional sesuai aspect rasio image */}
       <View className="relative">
-        <HeroImage url={event.heroImageUrl} fallbackEmoji={emoji} fitToWidth />
+        {/* Rasio asli; poster potret dibatasi 4:5 & tampil utuh (tidak terpotong). */}
+        <HeroImage url={event.heroImageUrl} fallbackEmoji={emoji} fitToWidth minAspect={4 / 5} />
         <View className={`absolute top-3 right-3 px-2.5 py-1 rounded-full ${eventPriceTone(event.tipeBayar).solid}`}>
           <Text className="text-xs text-white font-semibold">{priceText}</Text>
         </View>

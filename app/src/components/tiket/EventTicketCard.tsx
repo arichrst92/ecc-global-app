@@ -110,7 +110,16 @@ export function EventTicketCard({
 
   const header = (
     <View>
-      <HeroImage url={ev.heroImageUrl} fallbackEmoji="🎉" emojiSize={full ? 64 : 44} style={{ width: '100%', aspectRatio: HERO_ASPECT }} />
+      {/* Rasio asli gambar (dulu dipotong 3:2). Poster potret dibatasi (ringkas 1:1, detail 4:5) & tampil utuh. */}
+      <HeroImage
+        url={ev.heroImageUrl}
+        fallbackEmoji="🎉"
+        emojiSize={full ? 64 : 44}
+        fitToWidth
+        minAspect={full ? 4 / 5 : 1}
+        fallbackAspect={HERO_ASPECT}
+        style={{ width: '100%' }}
+      />
       {ev.cabang ? (
         <View className="absolute left-2.5 bottom-2.5 bg-white/95 rounded-full px-2 py-0.5">
           <Text className="text-[10px] font-bold text-brand-700">{ev.cabang.nama}</Text>

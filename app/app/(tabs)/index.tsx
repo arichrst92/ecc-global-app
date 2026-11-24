@@ -616,7 +616,7 @@ function MyScheduleRow({
 /**
  * Kartu event di Beranda (geser horizontal). Tata letak tetap supaya rapi &
  * tidak ada teks bertumpuk di HP mana pun:
- *  - gambar kotak 16:10 yang sama untuk semua kartu (poster utuh, latar buram);
+ *  - gambar mengikuti rasio asli (tidak terpotong); poster potret dibatasi 4:5, tampil utuh di atas latar buram;
  *  - judul selalu memakan 2 baris (kartu sejajar);
  *  - baris info ber-ikon (tanggal, lokasi) dengan tinggi baris eksplisit;
  *  - flag harga di pojok kanan atas gambar; kuota satu baris + bar; batas pendaftaran singkat.
@@ -645,7 +645,8 @@ function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: numbe
       accessibilityLabel={e.judul}
     >
       <View>
-        <HeroImage url={e.heroImageUrl} fallbackEmoji="🎉" emojiSize={40} contain style={{ width: '100%', aspectRatio: 16 / 10 }} />
+        {/* Rasio asli gambar (tidak terpotong); poster potret dibatasi 4:5 dan tampil utuh. */}
+        <HeroImage url={e.heroImageUrl} fallbackEmoji="🎉" emojiSize={40} fitToWidth minAspect={4 / 5} style={{ width: '100%' }} />
         {/* Flag harga Gratis / Sukarela / Rp… di pojok kanan atas gambar */}
         <View
           className={`absolute top-2 right-2 px-2.5 py-1 rounded-full ${tone.soft}`}
