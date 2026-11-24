@@ -7,6 +7,8 @@
 - **Mode Scanner lebih lengkap** — petugas melihat daftar hadir & belum hadir, status jendela scan, dan ringkasan kehadiran; tombol di layar scan lebih rapi.
 - **Event & tiket lebih tepat** — event sukarela menampilkan nominal yang Anda berikan dan status pemberian Anda; event tanpa kehadiran tidak lagi menampilkan QR; jam tertulis sesuai kota cabang.
 - **ECC Worship** — ajakan mendengarkan ECC Worship saat membaca Alkitab, mencatat, dan untuk homecell tanpa pemain musik.
+- **Check-in lebih mudah** — orang tua / wali bisa check-in anak langsung dari tiket CKids; jam self check-in mengikuti pengaturan tiap ibadah & event; slider "Geser untuk check-in" kini mudah digeser di semua HP.
+- **Tugas pelayanan Anda** — petugas melihat pelayanan, peran, dan tugasnya di detail ibadah & event.
 - **CKids** — katalog hadiah & riwayat tukar dalam tab, mengikuti cabang aktif.
 - **Pengajuan group** — group baru yang Anda buat dikirim sebagai pengajuan dan aktif setelah disetujui admin gereja; statusnya terlihat di app.
 - **User Manual** — panduan lengkap Els App dari menu Profil.
@@ -20,6 +22,8 @@
 - **Better Scanner Mode** — ushers see who is present and not yet present, the scan window status, and an attendance summary; scan screen buttons are tidier.
 - **More accurate events & tickets** — freewill events show the amount you gave and your giving status; events without attendance no longer show a QR code; times follow the branch city.
 - **ECC Worship** — invitations to listen to ECC Worship while reading the Bible, taking notes, and for homecells without a musician.
+- **Easier check-in** — parents / guardians can check their child in right from the CKids ticket; self check-in times follow each service's and event's settings; the "Swipe to check in" slider now works smoothly on every phone.
+- **Your serving duty** — volunteers see their ministry, role and task on the service & event detail.
 - **CKids** — gift catalog & redeem history in tabs, following the active branch.
 - **Group requests** — new groups you create are sent for approval and become active once a church admin approves them; the status is shown in the app.
 - **User Manual** — the complete Els App guide from the Profile menu.
