@@ -35,6 +35,7 @@ import { cabangCity, formatScheduleWithZone, venueToLocal, ymdInTz } from '@/uti
 import { formatDate } from '@/utils/date';
 import { getStreamLink } from '@/utils/ibadahOnline';
 import { OccupancyBar } from '@/components/ibadah/OccupancyBar';
+import { QuotaBar } from '@/components/ui/QuotaBar';
 import type { MyEventDuty, MyMinistryAssignment } from '@/types/ministrySchedule';
 import { tugasText } from '@/api/ministry';
 import { gx } from '@/theme/gradient';
@@ -685,18 +686,15 @@ function HomeEventCard({ e, now, lang, onPress }: { e: EventListItem; now: numbe
         </View>
 
         {shown && e.quotaPeserta ? (
-          // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir.
-          <View className="mt-2">
-            <Text className="text-[11px] leading-4 text-neutral-500 mb-1" numberOfLines={1}>
-              {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: e.quotaPeserta })}
-            </Text>
-            <View className="h-1 bg-neutral-100 rounded-full overflow-hidden">
-              <View
-                className={`h-full rounded-full ${shown.count >= e.quotaPeserta ? 'bg-red-500' : 'bg-brand-500'}`}
-                style={{ width: `${Math.min(100, Math.round((shown.count / e.quotaPeserta) * 100))}%` }}
-              />
-            </View>
-          </View>
+          // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir. Angka sejajar bar.
+          <QuotaBar
+            className="mt-2"
+            count={shown.count}
+            total={e.quotaPeserta}
+            attending={shown.attending}
+            label={t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: e.quotaPeserta })}
+            barClass={shown.count >= e.quotaPeserta ? 'bg-red-500' : 'bg-brand-500'}
+          />
         ) : null}
         {e.tipeBayar === 'NOMINAL_BEBAS' ? null : (
           <DeadlineCountdown closesAt={e.registrationClosesAt} kind="event" compact short className="mt-2" />

@@ -1,4 +1,5 @@
 import { useNowTick } from '@/hooks/useNowTick';
+import { QuotaBar } from '@/components/ui/QuotaBar';
 import { eventCount } from '@/utils/eventCount';
 import { useMemo, useState } from 'react';
 import {
@@ -255,18 +256,15 @@ function EventCard({
 
         {/* Quota progress */}
         {event.quotaPeserta ? (
-          // Tulisan di atas, bar selebar kartu di bawah — tulisan panjang
-          // ("1.234 terdaftar dari 2.000") tidak lagi menyempitkan bar.
-          <View className="mt-3">
-            <Text className="text-xs text-neutral-500 font-medium mb-1" numberOfLines={2}>
-              {t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: event.quotaPeserta })}
-            </Text>
-            <View className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-              <View
-                {...gx(`h-full rounded-full ${quotaPercent > 80 ? 'bg-amber-500' : 'bg-brand-500'}`, { width: `${Math.min(100, quotaPercent)}%` })}
-              />
-            </View>
-          </View>
+          // Ringkas: [ikon] ▓▓▓░░ 84/200 — angka sejajar bar.
+          <QuotaBar
+            className="mt-3"
+            count={shown.count}
+            total={event.quotaPeserta}
+            attending={shown.attending}
+            label={t(shown.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shown.count, quota: event.quotaPeserta })}
+            barClass={quotaPercent >= 100 ? 'bg-red-500' : quotaPercent > 80 ? 'bg-amber-500' : 'bg-brand-500'}
+          />
         ) : (
           <View className="flex-row items-center gap-1 mt-2">
             <Users size={12} color={nc('#A3A3A3')} />

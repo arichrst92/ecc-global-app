@@ -10,6 +10,7 @@ import { Armchair } from 'lucide-react-native';
 
 import type { IbadahOkupansi } from '@/types/ibadah';
 import { nc } from '@/theme/ThemeRoot';
+import { QuotaBar } from '@/components/ui/QuotaBar';
 import { useNowTick } from '@/hooks/useNowTick';
 
 export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi | null | undefined; compact?: boolean }) {
@@ -27,30 +28,19 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
     : t('ibadah.occupancy_count', { hadir: nf(data.hadir), seat: nf(data.seat) });
   const over = count > data.seat;
   const color = over ? '#EF4444' : pct >= 80 ? '#F59E0B' : '#10B981';
-  const width = `${Math.max(0, Math.min(100, pct))}%` as const;
-
-  const bar = (
-    <View className="h-2 bg-neutral-100 rounded-full overflow-hidden">
-      <View style={{ width, backgroundColor: color }} className="h-full rounded-full" />
-    </View>
-  );
 
   if (compact) {
+    // Ringkas: [kursi] ▓▓▓░░ 148/300 — angka sejajar bar.
     return (
       <View className="mt-3">
-        <View className="flex-row items-center justify-between mb-1">
-          <View className="flex-row items-center gap-1.5 flex-shrink">
-            <Armchair size={13} color={nc('#737373')} />
-            {/* 2 baris: "148 reservasi dari 300 kursi" tidak muat 1 baris di kartu HP 360dp. */}
-            <Text className="text-xs text-neutral-500 flex-shrink" numberOfLines={2}>
-              {label}
-            </Text>
-          </View>
-          <Text className="text-xs font-bold ml-2" style={{ color: over ? '#DC2626' : nc('#404040') }}>
-            {nf(pct)}%
-          </Text>
-        </View>
-        {bar}
+        <QuotaBar
+          count={count}
+          total={data.seat}
+          attending={!reservedMode}
+          label={label}
+          barColor={color}
+          icon={<Armchair size={13} color={nc('#737373')} />}
+        />
         {over ? (
           <Text className="text-[11px] text-red-600 mt-1">{t('ibadah.occupancy_over', { count: count - data.seat })}</Text>
         ) : null}
@@ -64,17 +54,14 @@ export function OccupancyBar({ data, compact = false }: { data: IbadahOkupansi |
         <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
           <Armchair size={18} color="#059669" />
         </View>
-        <View className="flex-1 min-w-0">
-          <Text className="text-xs text-neutral-500">{t('ibadah.occupancy')}</Text>
-          <Text className="font-semibold text-neutral-900" numberOfLines={1}>
-            {label}
-          </Text>
-        </View>
+        <Text className="flex-1 text-sm font-semibold text-neutral-900" numberOfLines={1}>
+          {t('ibadah.occupancy')}
+        </Text>
         <Text className="text-lg font-bold" style={{ color: over ? '#DC2626' : nc('#171717') }}>
           {nf(pct)}%
         </Text>
       </View>
-      {bar}
+      <QuotaBar count={count} total={data.seat} attending={!reservedMode} label={label} barColor={color} icon={null} size="md" />
       {over ? (
         <Text className="text-xs text-red-600 mt-2">{t('ibadah.occupancy_over', { count: count - data.seat })}</Text>
       ) : null}

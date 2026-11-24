@@ -1,6 +1,6 @@
 /**
- * Countdown batas reservasi / pendaftaran ("2 hari 5 jam 30 menit" /
- * "2 days 5 hours 30 minutes") — jam server. Satuan depan yang 0 tidak ditulis.
+ * Countdown batas reservasi / pendaftaran — format ringkas DD:jj:mm:dd
+ * (hari:jam:menit:detik, mis. "Tutup dalam 02:05:30:12"), jam server.
  *  - Ibadah: reservasi ditutup saat jam mulai → setelahnya self check-in
  *    (ibadah anak: check-in di meja CKids).
  *  - Event: pendaftaran online ditutup saat event mulai → walk-in di lokasi.
@@ -15,12 +15,12 @@ import { nc } from '@/theme/ThemeRoot';
 
 type Kind = 'ibadah' | 'kids' | 'event';
 
-function useNowMinute() {
+function useNowSecond() {
   const [now, setNow] = useState(() => serverNowMs());
   useEffect(() => {
     const id = setInterval(() => {
       if (AppState.currentState === 'active') setNow(serverNowMs());
-    }, 15_000);
+    }, 1_000);
     const sub = AppState.addEventListener('change', (st) => {
       if (st === 'active') setNow(serverNowMs());
     });
@@ -48,7 +48,7 @@ export function DeadlineCountdown({
   className?: string;
 }) {
   const { t } = useTranslation();
-  const now = useNowMinute();
+  const now = useNowSecond();
   const { width } = useWindowDimensions();
   if (!closesAt) return null;
   const end = new Date(closesAt).getTime();
@@ -75,16 +75,14 @@ export function DeadlineCountdown({
     );
   }
 
-  const totalMin = Math.ceil(left / 60_000);
-  const dd = Math.floor(totalMin / 1440);
-  const hh = Math.floor((totalMin % 1440) / 60);
-  const mm = totalMin % 60;
-  // Satuan depan yang 0 dilewati: "5 jam 30 menit", "30 menit".
-  const parts: string[] = [];
-  if (dd > 0) parts.push(t('deadline.days', { count: dd }));
-  if (dd > 0 || hh > 0) parts.push(t('deadline.hours', { count: hh }));
-  parts.push(t('deadline.minutes', { count: mm }));
-  const value = parts.join(' ');
+  // DD:jj:mm:dd — ringkas & tidak memanjang di kartu sempit.
+  const totalSec = Math.ceil(left / 1000);
+  const p2 = (n: number) => String(n).padStart(2, '0');
+  const dd = Math.floor(totalSec / 86_400);
+  const hh = Math.floor((totalSec % 86_400) / 3600);
+  const mm = Math.floor((totalSec % 3600) / 60);
+  const ss = totalSec % 60;
+  const value = `${p2(dd)}:${p2(hh)}:${p2(mm)}:${p2(ss)}`;
   const urgent = left < 3 * 3_600_000; // < 3 jam
   const label = kind === 'event' ? t('deadline.event_label') : t('deadline.ibadah_label');
   const narrow = width < 360;
@@ -95,7 +93,7 @@ export function DeadlineCountdown({
     return (
       <View className={`flex-row items-start gap-1.5 ${className ?? ''}`}>
         <Timer size={12} color={urgent ? '#DC2626' : nc('#737373')} style={{ marginTop: 1 }} />
-        <Text className={`flex-1 text-[11px] leading-4 ${urgent ? 'text-red-600' : 'text-neutral-500'}`}>
+        <Text className={`flex-1 text-[11px] leading-4 ${urgent ? 'text-red-600' : 'text-neutral-500'}`} numberOfLines={1}>
           {t('deadline.closes_in')}{' '}
           <Text className="font-bold" style={{ fontVariant: ['tabular-nums'] }}>
             {value}

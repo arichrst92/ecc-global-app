@@ -1,4 +1,5 @@
 import { useNowTick } from '@/hooks/useNowTick';
+import { QuotaBar } from '@/components/ui/QuotaBar';
 import { eventCount } from '@/utils/eventCount';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Linking, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native';
@@ -7,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, ChevronRight, Clock, FileText, HandHeart, MapPin, PlayCircle, Receipt, Share2, Upload, User, Users, X } from 'lucide-react-native';
+import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, ChevronRight, Clock, FileText, HandHeart, MapPin, PlayCircle, Receipt, Share2, Upload, User, UserCheck, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -409,19 +410,18 @@ export default function EventDetailScreen() {
                 {event.quotaPeserta != null ? (
                   <View className="flex-row items-center gap-3">
                     <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-                      <Users size={18} color="#EA580C" />
+                      {shownCount.attending ? <UserCheck size={18} color="#EA580C" /> : <Users size={18} color="#EA580C" />}
                     </View>
-                    <View className="flex-1">
-                      <Text className="font-semibold text-neutral-900">
-                        {t(shownCount.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shownCount.count, quota: event.quotaPeserta })}
-                      </Text>
-                      <View className="mt-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                        <View
-                          {...gx(`h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-brand-500'}`, { width: `${Math.min(100, (shownCount.count / event.quotaPeserta) * 100)}%` })}
-                          
-                        />
-                      </View>
-                    </View>
+                    <QuotaBar
+                      className="flex-1"
+                      size="md"
+                      icon={null}
+                      count={shownCount.count}
+                      total={event.quotaPeserta}
+                      attending={shownCount.attending}
+                      label={t(shownCount.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shownCount.count, quota: event.quotaPeserta })}
+                      barClass={isFull ? 'bg-red-500' : 'bg-brand-500'}
+                    />
                   </View>
                 ) : (
                   <MetaRow
