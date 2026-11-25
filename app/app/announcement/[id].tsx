@@ -3,6 +3,7 @@
  * Halaman penuh bisa digulir; konten lebar maks 560 px di tengah (HP lipat /
  * tablet tidak melebar); banner tinggi maks 30% layar.
  */
+import { FormCards } from '@/components/forms/FormCards';
 import { Linking, Pressable, ScrollView, Text, View, useWindowDimensions, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -69,6 +70,7 @@ export default function AnnouncementDetailScreen() {
               </View>
             ) : null}
           </View>
+          {id ? <FormCards sourceType="ANNOUNCEMENT" sourceId={id} className="w-full mt-4" /> : null}
         </ScrollView>
       )}
     </View>

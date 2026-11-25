@@ -27,6 +27,7 @@ const KNOWN_ROUTES: RegExp[] = [
   '/profile/businesses', `/profile/businesses/${ID}`,
   `/announcement/${ID}`,
   '/homecell-material',
+  `/form/${ID}`, `/form/response/${ID}`,
 ].map((p) => new RegExp(`^${p.replace(/[()]/g, '\\$&')}/?(\\?.*)?$`));
 
 const isKnownRoute = (url: string) => KNOWN_ROUTES.some((re) => re.test(url));
@@ -296,6 +297,11 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'home-check';
     case 'EVENT_PAYMENT_REJECTED':
     case 'EVENT_CANCELLED_BY_ADMIN':
+      return 'group-remove';
+    case 'FORM_REMINDER':
+      return 'ticket-qr';
+    case 'FORM_NEEDS_FIX':
+    case 'FORM_REJECTED':
       return 'group-remove';
     case 'IBADAH_REMINDER':
     case 'EVENT_REMINDER':

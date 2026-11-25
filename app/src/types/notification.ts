@@ -41,6 +41,10 @@ export type InAppNotifType =
   | 'HOMECELL_MATERIAL'
   | 'EVENT_PAYMENT_REJECTED'
   | 'EVENT_CANCELLED_BY_ADMIN'
+  // Universal Form (2.5.1)
+  | 'FORM_REMINDER'
+  | 'FORM_NEEDS_FIX'
+  | 'FORM_REJECTED'
   // Pengingat & ucapan di feed (saluran notifikasi per jenis, BE 2026-12)
   | 'IBADAH_REMINDER'
   | 'EVENT_REMINDER'

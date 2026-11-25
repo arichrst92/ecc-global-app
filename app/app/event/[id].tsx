@@ -1,4 +1,5 @@
 import { useNowTick } from '@/hooks/useNowTick';
+import { FormCards } from '@/components/forms/FormCards';
 import { QuotaBar } from '@/components/ui/QuotaBar';
 import { eventCount } from '@/utils/eventCount';
 import { useEffect, useState } from 'react';
@@ -597,6 +598,9 @@ export default function EventDetailScreen() {
               ) : null}
 
               {/* Tim pelayanan — ketuk nama → profil (sama seperti detail ibadah) */}
+              {/* Universal Form (2.5.1) — hanya untuk peserta terdaftar, per peserta */}
+              <FormCards sourceType="EVENT" sourceId={event.id} className="mt-4" />
+
               <MinistryTeamCard petugas={event.petugas} className="mt-4" />
 
               {/* Video teaser button — kalau BE provide videoUrl */}

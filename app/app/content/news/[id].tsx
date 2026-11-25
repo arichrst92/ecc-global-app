@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FormCards } from '@/components/forms/FormCards';
 import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { formatInstantDate } from '@/utils/time';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -184,6 +185,7 @@ export default function NewsDetailScreen() {
 
               {/* Konten markdown */}
               <SimpleMarkdown source={item.konten} />
+              <FormCards sourceType="NEWS" sourceId={item.id} className="mt-5" />
             </View>
           </>
         ) : null}
