@@ -16,16 +16,17 @@ import {
   Newspaper,
   Sparkles,
   Store,
-  UserPlus,
   Users,
   UsersRound,
   Music,
+  MessageSquareHeart,
   type LucideIcon,
 } from 'lucide-react-native';
 
 import { openGiving } from '@/utils/giving';
 import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { getPrayerSummary } from '@/api/prayer';
+import { getKonselingHome } from '@/api/konseling';
 import { useWorshipSummary } from '@/hooks/useWorship';
 
 type QuickAccessTile = {
@@ -59,6 +60,10 @@ export function QuickAccess() {
   const prayerQ = useQuery({ queryKey: ['prayer', 'summary'], queryFn: getPrayerSummary, staleTime: 60_000 });
   const pendingDoa = prayerQ.data?.isPetugas ? prayerQ.data.assignedPending : 0;
 
+  // Badge konseling yang ditugaskan & masih berjalan untuk konselor.
+  const konselingQ = useQuery({ queryKey: ['konseling', 'home'], queryFn: getKonselingHome, staleTime: 60_000 });
+  const pendingKonseling = konselingQ.data?.isKonselor ? konselingQ.data.assignedOpen : 0;
+
   // ECC Worship — tile hanya tampil bila sudah ada lagu terpublikasi (atau pengelola: draft).
   const worshipQ = useWorshipSummary();
   const showWorship = !!worshipQ.data?.hasSongs;
@@ -67,7 +72,7 @@ export function QuickAccess() {
 
   // Urutan (2026-12): Bible · Services · Homecell · Ministry · Family · Groups ·
   // Worship · Devotion · Prayer · Giving · Events · News · Zone · Visit ·
-  // Guests · Local Market. Worship hanya tampil bila sudah ada lagu.
+  // Konseling · Local Market (Tamu pindah ke Profil saja, 2.5.1). Worship hanya tampil bila sudah ada lagu.
   const tiles: QuickAccessTile[] = [
     { key: 'bible', icon: Sparkles, label: t('quickaccess.bible'), onPress: go('/bible') },
     { key: 'ibadah', icon: Church, label: t('quickaccess.ibadah'), onPress: go('/(tabs)/ibadah') },
@@ -93,7 +98,13 @@ export function QuickAccess() {
     // Zona — untuk SEMUA jemaat (2.4.6): PIC/pastor kelola, lainnya lihat zona homecell-nya.
     { key: 'area', icon: MapPinned, label: t('quickaccess.area'), onPress: go('/area') },
     { key: 'visit', icon: Handshake, label: t('quickaccess.visit'), onPress: go('/visit') },
-    { key: 'tamu', icon: UserPlus, label: t('quickaccess.tamu'), onPress: go('/profile/my-guests') },
+    {
+      key: 'konseling',
+      icon: MessageSquareHeart,
+      label: t('quickaccess.konseling'),
+      onPress: go(pendingKonseling > 0 ? '/konseling?tab=assigned' : '/konseling'),
+      badge: pendingKonseling > 0 ? (pendingKonseling > 99 ? '99+' : String(pendingKonseling)) : undefined,
+    },
     { key: 'market', icon: Store, label: t('quickaccess.market'), onPress: go('/market') },
   ];
 
