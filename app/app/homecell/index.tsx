@@ -24,6 +24,7 @@ import { ArrowLeft, Bell, ChevronRight, Hourglass, Locate, Search, Settings2 } f
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { HomecellListCard } from '@/components/homecell/HomecellListCard';
+import { homecellKategoriLabel } from '@/utils/homecellSegmen';
 import { NearestHomecellModal } from '@/components/homecell/NearestHomecellModal';
 import {
   useBrowseHomecells,
@@ -57,7 +58,7 @@ export default function HomecellHubScreen() {
   const needsHomecell = !!data && managed.length === 0 && memberships.length === 0;
 
   const [search, setSearch] = useState('');
-  const [kategori, setKategori] = useState<'SINGLE' | 'COUPLE' | null>(null);
+  const [kategori, setKategori] = useState<'SINGLE' | 'COUPLE' | 'ANAK' | null>(null);
   const q = useDebounce(search.trim(), 300);
   const [coords, setCoords] = useState<Coords | null>(null);
   // Daftar & rekomendasi mengikuti cabang aktif yang dipilih di app.
@@ -273,7 +274,7 @@ export default function HomecellHubScreen() {
                 </View>
                 {/* Filter kategori homecell */}
                 <View className="flex-row gap-2 mb-3">
-                  {([null, 'SINGLE', 'COUPLE'] as const).map((k) => {
+                  {([null, 'SINGLE', 'COUPLE', 'ANAK'] as const).map((k) => {
                     const on = kategori === k;
                     return (
                       <Pressable
@@ -282,7 +283,7 @@ export default function HomecellHubScreen() {
                         className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
                       >
                         <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>
-                          {k === null ? t('hcj.kategori_all') : k === 'SINGLE' ? t('hcj.kategori_single') : t('hcj.kategori_couple')}
+                          {k === null ? t('hcj.kategori_all') : homecellKategoriLabel(k)}
                         </Text>
                       </Pressable>
                     );

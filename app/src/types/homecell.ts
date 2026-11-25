@@ -17,7 +17,7 @@ export type PicHomecell = {
   jam: string | null;
   area: AreaRef;
   memberCount: number;
-  kategori?: 'SINGLE' | 'COUPLE' | null;
+  kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
   usiaMin?: number | null;
   usiaMax?: number | null;
 };
@@ -78,7 +78,7 @@ export type HomecellDetail = {
   jam: string | null;
   isActive: boolean;
   picJemaatId?: string | null;
-  kategori?: 'SINGLE' | 'COUPLE' | null;
+  kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
   usiaMin?: number | null;
   usiaMax?: number | null;
   area: AreaRefWithPic;
@@ -100,7 +100,7 @@ export type AreaHomecellRow = {
     fotoUrl?: string | null;
   } | null;
   memberCount: number;
-  kategori?: 'SINGLE' | 'COUPLE' | null;
+  kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
   usiaMin?: number | null;
   usiaMax?: number | null;
   /** Rata² % kehadiran (0–100); null bila belum ada pertemuan/anggota. */
@@ -126,7 +126,7 @@ export type HomecellListItem = {
   longitude: number | null;
   mapsUrl: string | null;
   /** Segmen homecell — null = umum. */
-  kategori?: 'SINGLE' | 'COUPLE' | null;
+  kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
   usiaMin?: number | null;
   usiaMax?: number | null;
   hasLocation: boolean;

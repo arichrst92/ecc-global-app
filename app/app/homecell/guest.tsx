@@ -47,6 +47,7 @@ import { Picker } from '@/components/ui/Picker';
 import { PhoneInput } from '@/components/ui/PhoneInput';
 import { useToast } from '@/components/ui/Toast';
 import { HomecellListCard, SegmenBadges, jadwalLabel } from '@/components/homecell/HomecellListCard';
+import { homecellKategoriLabel } from '@/utils/homecellSegmen';
 import { NearestHomecellModal } from '@/components/homecell/NearestHomecellModal';
 import { useBranches } from '@/hooks/useBranches';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -107,7 +108,7 @@ export default function GuestHomecellScreen() {
 
   // ---- daftar
   const [search, setSearch] = useState('');
-  const [kategori, setKategori] = useState<'SINGLE' | 'COUPLE' | null>(null);
+  const [kategori, setKategori] = useState<'SINGLE' | 'COUPLE' | 'ANAK' | null>(null);
   const q = useDebounce(search.trim(), 300);
   const [coords, setCoords] = useState<Coords | null>(null);
   const browse = useQuery({
@@ -243,7 +244,7 @@ export default function GuestHomecellScreen() {
           />
         </View>
         <View className="flex-row gap-2 mb-3">
-          {([null, 'SINGLE', 'COUPLE'] as const).map((k) => {
+          {([null, 'SINGLE', 'COUPLE', 'ANAK'] as const).map((k) => {
             const on = kategori === k;
             return (
               <Pressable
@@ -252,7 +253,7 @@ export default function GuestHomecellScreen() {
                 className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
               >
                 <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>
-                  {k === null ? t('hcj.kategori_all') : k === 'SINGLE' ? t('hcj.kategori_single') : t('hcj.kategori_couple')}
+                  {k === null ? t('hcj.kategori_all') : homecellKategoriLabel(k)}
                 </Text>
               </Pressable>
             );

@@ -12,7 +12,7 @@ export type PublicHomecellItem = {
   deskripsi: string | null;
   hari: string | null;
   jam: string | null;
-  kategori: 'SINGLE' | 'COUPLE' | null;
+  kategori: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
   usiaMin: number | null;
   usiaMax: number | null;
   hasLocation: boolean;
@@ -77,7 +77,7 @@ const qs = (o: Record<string, string | number | null | undefined>) =>
     .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
     .join('&');
 
-export function browsePublicHomecells(p: { cabangId: string; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | null }) {
+export function browsePublicHomecells(p: { cabangId: string; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null }) {
   return api.get<PublicHomecellItem[]>(`/public/homecell/browse?${qs({ ...p })}`, { skipAuth: true });
 }
 

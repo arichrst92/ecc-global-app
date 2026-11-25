@@ -37,7 +37,7 @@ export function StatusBadge({ status }: { status: HomecellListItem['myStatus'] }
 
 /** Kartu homecell untuk daftar (browse / homecell saya). */
 /**
- * Badge kategori (Single/Couple/Umum) + rentang usia (atau "Semua usia").
+ * Badge kategori (Single/Couple/Anak/Umum) + rentang usia (atau "Semua usia").
  * Selalu tampil supaya pencari homecell tahu segmennya.
  */
 export function SegmenBadges({
@@ -45,14 +45,20 @@ export function SegmenBadges({
   usiaMin,
   usiaMax,
 }: {
-  kategori?: 'SINGLE' | 'COUPLE' | null;
+  kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
   usiaMin?: number | null;
   usiaMax?: number | null;
 }) {
   const kat = homecellKategoriLabel(kategori) ?? i18n.t('hcj.kategori_umum');
   const usia = homecellUsiaLabel(usiaMin, usiaMax) ?? i18n.t('hcj.usia_semua');
   const tone =
-    kategori === 'COUPLE' ? ['bg-pink-100', 'text-pink-700'] : kategori === 'SINGLE' ? ['bg-sky-100', 'text-sky-700'] : ['bg-emerald-100', 'text-emerald-700'];
+    kategori === 'COUPLE'
+      ? ['bg-pink-100', 'text-pink-700']
+      : kategori === 'SINGLE'
+        ? ['bg-sky-100', 'text-sky-700']
+        : kategori === 'ANAK'
+          ? ['bg-amber-100', 'text-amber-700']
+          : ['bg-emerald-100', 'text-emerald-700'];
   return (
     <View className="flex-row items-center gap-1.5 mt-1">
       <View className={`px-2 py-0.5 rounded-full ${tone[0]}`}>

@@ -1,4 +1,4 @@
-/** Label segmen homecell: kategori (Single/Couple) + rentang usia. */
+/** Label segmen homecell: kategori (Single/Couple/Anak) + rentang usia. */
 import i18n from '@/i18n';
 
 export function homecellUsiaLabel(min?: number | null, max?: number | null): string | null {
@@ -9,9 +9,10 @@ export function homecellUsiaLabel(min?: number | null, max?: number | null): str
   return null;
 }
 
-export function homecellKategoriLabel(k?: 'SINGLE' | 'COUPLE' | null): string | null {
+export function homecellKategoriLabel(k?: 'SINGLE' | 'COUPLE' | 'ANAK' | null): string | null {
   if (k === 'SINGLE') return i18n.t('hcj.kategori_single');
   if (k === 'COUPLE') return i18n.t('hcj.kategori_couple');
+  if (k === 'ANAK') return i18n.t('hcj.kategori_anak');
   return null;
 }
 

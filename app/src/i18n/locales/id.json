@@ -2031,6 +2031,7 @@
     "years": "th",
     "kategori_single": "Single",
     "kategori_couple": "Couple",
+    "kategori_anak": "Anak",
     "kategori_all": "Semua",
     "kategori_umum": "Umum",
     "usia_semua": "Semua usia",
@@ -2683,7 +2684,10 @@
     "event_cancelled": "Tiket event dibatalkan",
     "event_cancel_title": "Batalkan tiket?",
     "event_cancel_body": "Tiket {{name}} untuk {{event}} akan dibatalkan dan kursinya dilepas.",
-    "amount_pending": "menunggu verifikasi"
+    "amount_pending": "menunggu verifikasi",
+    "save_image": "Simpan tiket ke galeri",
+    "image_saved": "Tiket tersimpan di galeri",
+    "image_failed": "Gagal menyimpan tiket. Coba lagi."
   },
   "appearance": {
     "title": "Tampilan",

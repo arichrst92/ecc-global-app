@@ -2037,6 +2037,7 @@
     "years": "yrs",
     "kategori_single": "Single",
     "kategori_couple": "Couple",
+    "kategori_anak": "Kids",
     "kategori_all": "All",
     "kategori_umum": "General",
     "usia_semua": "All ages",
@@ -2689,7 +2690,10 @@
     "event_cancelled": "Event ticket cancelled",
     "event_cancel_title": "Cancel ticket?",
     "event_cancel_body": "The ticket for {{name}} at {{event}} will be cancelled and the seat released.",
-    "amount_pending": "awaiting verification"
+    "amount_pending": "awaiting verification",
+    "save_image": "Save ticket to gallery",
+    "image_saved": "Ticket saved to your gallery",
+    "image_failed": "Could not save the ticket. Please try again."
   },
   "appearance": {
     "title": "Appearance",

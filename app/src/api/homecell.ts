@@ -115,7 +115,7 @@ export function getMyHomecellOverview() {
 
 /** Daftar homecell di cabang saya (urut jarak kalau lat/lng dikirim). */
 export function browseHomecells(
-  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | null } = {},
+  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null } = {},
 ) {
   const qs = new URLSearchParams();
   if (params.cabangId) qs.append('cabangId', params.cabangId);
@@ -193,7 +193,7 @@ export type UpdateHomecellInfoBody = {
   deskripsi?: string | null;
   alamat?: string | null;
   mapsUrl?: string | null;
-  kategori?: 'SINGLE' | 'COUPLE' | null;
+  kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
   usiaMin?: number | null;
   usiaMax?: number | null;
 };
@@ -218,9 +218,9 @@ export function updateHomecellArea(areaId: string, body: { nama?: string; deskri
 /** [Leader] set kategori + rentang usia homecell. null = kosongkan. */
 export function setHomecellSegmen(
   homecellId: string,
-  body: { kategori: 'SINGLE' | 'COUPLE' | null; usiaMin: number | null; usiaMax: number | null },
+  body: { kategori: 'SINGLE' | 'COUPLE' | 'ANAK' | null; usiaMin: number | null; usiaMax: number | null },
 ) {
-  return api.patch<{ id: string; kategori: 'SINGLE' | 'COUPLE' | null; usiaMin: number | null; usiaMax: number | null }>(
+  return api.patch<{ id: string; kategori: 'SINGLE' | 'COUPLE' | 'ANAK' | null; usiaMin: number | null; usiaMax: number | null }>(
     `/admin/me/homecell/${homecellId}/segmen`,
     body,
   );
@@ -293,7 +293,7 @@ export type MyZona = {
     nama: string;
     hari: string | null;
     jam: string | null;
-    kategori: 'SINGLE' | 'COUPLE' | null;
+    kategori: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
     usiaMin: number | null;
     usiaMax: number | null;
     picJemaat: { id: string; namaLengkap: string } | null;

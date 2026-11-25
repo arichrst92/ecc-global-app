@@ -19,7 +19,7 @@ import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 
-type Kategori = 'SINGLE' | 'COUPLE' | null;
+type Kategori = 'SINGLE' | 'COUPLE' | 'ANAK' | null;
 
 export default function EditHomecellScreen() {
   const { t } = useTranslation();
@@ -89,6 +89,7 @@ export default function EditHomecellScreen() {
     { v: null, label: t('hcj.kategori_umum') },
     { v: 'SINGLE', label: t('hcj.kategori_single') },
     { v: 'COUPLE', label: t('hcj.kategori_couple') },
+    { v: 'ANAK', label: t('hcj.kategori_anak') },
   ];
 
   return (

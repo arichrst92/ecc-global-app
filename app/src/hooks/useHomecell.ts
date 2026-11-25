@@ -118,7 +118,7 @@ export function useMyHomecellOverview() {
 }
 
 export function useBrowseHomecells(
-  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | null },
+  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null },
   enabled = true,
 ) {
   return useQuery({
@@ -237,7 +237,7 @@ export function useSetHomecellSegmen() {
   const invalidate = useInvalidateHomecell();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (v: { homecellId: string; kategori: 'SINGLE' | 'COUPLE' | null; usiaMin: number | null; usiaMax: number | null }) =>
+    mutationFn: (v: { homecellId: string; kategori: 'SINGLE' | 'COUPLE' | 'ANAK' | null; usiaMin: number | null; usiaMax: number | null }) =>
       setHomecellSegmen(v.homecellId, { kategori: v.kategori, usiaMin: v.usiaMin, usiaMax: v.usiaMax }),
     onSuccess: () => {
       invalidate();
