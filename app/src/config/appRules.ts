@@ -33,7 +33,7 @@ export type AppLinks = { manual?: { id?: string; en?: string } };
 
 /** Tautan bawaan (server bisa mengganti lewat app-config `links`). */
 const LINK_DEFAULTS = {
-  manual: { id: 'https://portal.eccchurch.global/download/manual.pdf', en: 'https://portal.eccchurch.global/download/manual.pdf' },
+  manual: { id: 'https://portal.eccchurch.global/download/manual.pdf', en: 'https://portal.eccchurch.global/download/manual-en.pdf' },
 };
 let links = LINK_DEFAULTS;
 
