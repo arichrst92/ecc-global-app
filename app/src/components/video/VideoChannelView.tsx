@@ -2,7 +2,7 @@
  * Tab Video Channel di layar Media (2.5.1): video unggulan, pilihan kategori,
  * cari judul, daftar video (terbaru dulu). Ketuk → /media/video/:id.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -51,6 +51,8 @@ export function VideoRow({ v, onPress }: { v: VideoItem; onPress: () => void }) 
   );
 }
 
+const PAGE = 30;
+
 export function VideoChannelView() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -58,6 +60,9 @@ export function VideoChannelView() {
   const q = useVideoCatalog();
   const [kat, setKat] = useState<string>('all');
   const [search, setSearch] = useState<string | null>(null);
+  // Video bisa ratusan (hasil sinkron channel) → tampil bertahap 30 per gulir.
+  const [limit, setLimit] = useState(PAGE);
+  useEffect(() => setLimit(PAGE), [kat, search]);
   const d = q.data;
   const open = (v: VideoItem) => router.push(`/media/video/${v.id}` as never);
 
@@ -75,7 +80,8 @@ export function VideoChannelView() {
     <View className="flex-1">
       <View className="bg-card border-b border-neutral-100">
         {search === null ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8, alignItems: 'center' }}>
+          <View className="flex-row items-center">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-1" contentContainerStyle={{ paddingLeft: 16, paddingRight: 8, paddingVertical: 10, gap: 8, alignItems: 'center' }}>
             {chips.map((c) => (
               <Pressable
                 key={c.id}
@@ -85,10 +91,12 @@ export function VideoChannelView() {
                 <Text className={`text-xs font-semibold ${kat === c.id ? 'text-white' : 'text-neutral-700'}`}>{c.nama}</Text>
               </Pressable>
             ))}
-            <Pressable onPress={() => setSearch('')} className="w-8 h-8 items-center justify-center" hitSlop={6}>
-              <Search size={18} color={nc('#171717')} />
-            </Pressable>
           </ScrollView>
+          {/* Cari selalu terlihat di kanan walau kategori banyak. */}
+          <Pressable onPress={() => setSearch('')} className="w-11 h-10 items-center justify-center border-l border-neutral-100" hitSlop={4}>
+            <Search size={18} color={nc('#171717')} />
+          </Pressable>
+          </View>
         ) : (
           <View className="px-4 py-2 flex-row items-center gap-2">
             <TextInput
@@ -115,6 +123,11 @@ export function VideoChannelView() {
           className="flex-1"
           contentContainerStyle={{ paddingVertical: 16, paddingBottom: 120, gap: 14 }}
           refreshControl={<PullRefreshControl onRefresh={() => q.refetch()} tintColor="#F97316" />}
+          scrollEventThrottle={200}
+          onScroll={(e) => {
+            const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
+            if (limit < list.length && layoutMeasurement.height + contentOffset.y >= contentSize.height - 600) setLimit((n) => n + PAGE);
+          }}
         >
           {search === null && kat === 'all' && (d?.featured.length ?? 0) > 0 ? (
             <View className="gap-2">
@@ -138,7 +151,7 @@ export function VideoChannelView() {
               <Text className="text-sm font-bold text-neutral-900">{t('media.latest')}</Text>
             ) : null}
             {list.length ? (
-              list.map((v) => <VideoRow key={v.id} v={v} onPress={() => open(v)} />)
+              list.slice(0, limit).map((v) => <VideoRow key={v.id} v={v} onPress={() => open(v)} />)
             ) : (
               <Text className="text-sm text-neutral-400 text-center mt-10">
                 {search !== null ? (search.trim() ? t('media.search_empty') : t('media.search_hint')) : t('media.empty')}
