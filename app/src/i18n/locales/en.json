@@ -3126,5 +3126,15 @@
     "day": "Day",
     "month": "Month",
     "year": "Year"
+  },
+  "family_tabs": {
+    "me": "Me",
+    "homecell_of": "{{name}}'s homecell",
+    "no_homecell": "{{name}} hasn't joined a homecell yet",
+    "no_homecell_hint": "Homecells they join or lead will appear here.",
+    "pending": "Awaiting approval to join {{homecell}}",
+    "zona_of": "{{name}}'s zone",
+    "no_zona": "{{name}} doesn't have a zone yet",
+    "their_homecell": "Their homecell"
   }
 }

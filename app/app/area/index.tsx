@@ -22,7 +22,9 @@ import {
   FileText,
 } from 'lucide-react-native';
 
-import { useAreaHomecells, useManagedAreas, useMyZona } from '@/hooks/useHomecell';
+import { useAreaHomecells, useFamilyZona, useManagedAreas, useMyZona } from '@/hooks/useHomecell';
+import { FamilyMemberTabs } from '@/components/family/FamilyMemberTabs';
+import { useAuthStore } from '@/stores/auth.store';
 import type { MyZona } from '@/api/homecell';
 import { Avatar } from '@/components/ui/Avatar';
 import type { AreaHomecellRow, PicArea } from '@/types/homecell';
@@ -64,9 +66,17 @@ export default function AreaListScreen() {
   const managedIds = new Set(areas.map((a) => a.id));
   const myZona = (myZonaQuery.data ?? []).filter((z) => !managedIds.has(z.id));
 
+  // 2.5.1 — tab per anggota keluarga (bukan tamu): zona homecell mereka, hanya lihat.
+  const user = useAuthStore((s) => s.user);
+  const familyQ = useFamilyZona();
+  const family = familyQ.data ?? [];
+  const [who, setWho] = useState<string | null>(null);
+  const famSel = who ? family.find((f) => f.jemaat.id === who) ?? null : null;
+
   const refresh = () => {
     void areasQuery.refetch();
     void myZonaQuery.refetch();
+    void familyQ.refetch();
   };
 
   return (
@@ -86,6 +96,12 @@ export default function AreaListScreen() {
             <Text className="text-xs text-neutral-500">{t('area.subtitle')}</Text>
           </View>
         </View>
+        <FamilyMemberTabs
+          me={user ? { namaLengkap: user.namaLengkap, fotoUrl: user.fotoUrl ?? null } : null}
+          people={family.map((f) => ({ ...f.jemaat, relasi: f.relasi }))}
+          value={famSel ? who : null}
+          onChange={setWho}
+        />
       </SafeAreaView>
 
       <ScrollView
@@ -95,7 +111,32 @@ export default function AreaListScreen() {
           <PullRefreshControl onRefresh={refresh} />
         }
       >
-        {isLoading ? (
+        {famSel ? (
+          famSel.zonas.length ? (
+            <View className="gap-5">
+              <Text className="text-xs font-bold text-neutral-500 uppercase tracking-wider -mb-2">
+                {t('family_tabs.zona_of', { name: famSel.jemaat.namaLengkap })}
+              </Text>
+              {famSel.zonas.map((z) => (
+                <MyZonaSection
+                  key={z.id}
+                  zona={z}
+                  defaultOpen={famSel.zonas.length === 1}
+                  mineLabel={t('family_tabs.their_homecell')}
+                  onHomecellPress={(hid) => router.push(`/homecell/view/${hid}` as never)}
+                />
+              ))}
+            </View>
+          ) : (
+            <View className="items-center py-16 px-8">
+              <ElsEmptyIcon size={64} className="mb-3" />
+              <Text className="text-base font-semibold text-neutral-700 text-center">
+                {t('family_tabs.no_zona', { name: famSel.jemaat.namaLengkap })}
+              </Text>
+              <Text className="text-sm text-neutral-500 text-center mt-1">{t('family_tabs.no_homecell_hint')}</Text>
+            </View>
+          )
+        ) : isLoading ? (
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />
           </View>
@@ -163,10 +204,13 @@ function MyZonaSection({
   zona,
   onHomecellPress,
   defaultOpen,
+  mineLabel,
 }: {
   zona: MyZona;
   onHomecellPress: (id: string) => void;
   defaultOpen: boolean;
+  /** Label badge homecell yang ditandai (bawaan "Homecell saya"). */
+  mineLabel?: string;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(defaultOpen);
@@ -225,7 +269,7 @@ function MyZonaSection({
                 </Text>
                 {h.isMine ? (
                   <View className="px-1.5 py-0.5 rounded-full bg-brand-100">
-                    <Text className="text-[10px] font-bold text-brand-700">{t('area.my_homecell_badge')}</Text>
+                    <Text className="text-[10px] font-bold text-brand-700">{mineLabel ?? t('area.my_homecell_badge')}</Text>
                   </View>
                 ) : null}
               </View>

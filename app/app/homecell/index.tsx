@@ -29,6 +29,7 @@ import { NearestHomecellModal } from '@/components/homecell/NearestHomecellModal
 import {
   useBrowseHomecells,
   useCancelJoinHomecell,
+  useFamilyHomecells,
   useMyHomecellOverview,
   useRequestJoinHomecell,
 } from '@/hooks/useHomecell';
@@ -43,6 +44,9 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
+import { FamilyMemberTabs } from '@/components/family/FamilyMemberTabs';
+import { useAuthStore } from '@/stores/auth.store';
+import type { FamilyHomecell } from '@/api/homecell';
 
 export default function HomecellHubScreen() {
   const insets = useSafeAreaInsets();
@@ -51,6 +55,12 @@ export default function HomecellHubScreen() {
   const showToast = useToast((s) => s.show);
 
   const overview = useMyHomecellOverview();
+  // 2.5.1 — tab per anggota keluarga (bukan tamu): homecell mereka, hanya lihat.
+  const user = useAuthStore((s) => s.user);
+  const familyQ = useFamilyHomecells();
+  const family = familyQ.data ?? [];
+  const [who, setWho] = useState<string | null>(null);
+  const famSel = who ? family.find((f) => f.jemaat.id === who) ?? null : null;
   const data = overview.data;
   const managed = data?.managed ?? [];
   const memberships = data?.memberships ?? [];
@@ -146,6 +156,12 @@ export default function HomecellHubScreen() {
             <Text className="text-xs text-neutral-500">{t('hcj.subtitle')}</Text>
           </View>
         </View>
+        <FamilyMemberTabs
+          me={user ? { namaLengkap: user.namaLengkap, fotoUrl: user.fotoUrl ?? null } : null}
+          people={family.map((f) => ({ ...f.jemaat, relasi: f.relasi }))}
+          value={famSel ? who : null}
+          onChange={setWho}
+        />
       </SafeAreaView>
 
       <ScrollView
@@ -154,12 +170,14 @@ export default function HomecellHubScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
           <PullRefreshControl
-            onRefresh={() => Promise.all([overview.refetch(), needsHomecell ? browse.refetch() : null])}
+            onRefresh={() => Promise.all([overview.refetch(), familyQ.refetch(), needsHomecell ? browse.refetch() : null])}
             tintColor="#F97316"
           />
         }
       >
-        {overview.isPending ? (
+        {famSel ? (
+          <FamilyHomecellView data={famSel} onOpen={(id) => router.push(`/homecell/view/${id}` as never)} />
+        ) : overview.isPending ? (
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />
           </View>
@@ -328,6 +346,43 @@ export default function HomecellHubScreen() {
         }}
         onJoin={join}
       />
+    </View>
+  );
+}
+
+/** Homecell anggota keluarga — hanya lihat (2.5.1). */
+function FamilyHomecellView({ data, onOpen }: { data: FamilyHomecell; onOpen: (id: string) => void }) {
+  const { t } = useTranslation();
+  const nama = data.jemaat.namaLengkap;
+  return (
+    <View>
+      <SectionTitle text={t('family_tabs.homecell_of', { name: nama })} />
+      {data.homecells.length ? (
+        <View className="gap-2">
+          {data.homecells.map((h) => (
+            <HomecellListCard key={h.id} item={h} onPress={() => onOpen(h.id)} />
+          ))}
+        </View>
+      ) : (
+        <View className="items-center py-10 px-6 bg-card rounded-2xl border border-neutral-100">
+          <ElsEmptyIcon size={48} />
+          <Text className="text-sm font-semibold text-neutral-700 text-center mt-2">{t('family_tabs.no_homecell', { name: nama })}</Text>
+          <Text className="text-xs text-neutral-500 text-center mt-1">{t('family_tabs.no_homecell_hint')}</Text>
+        </View>
+      )}
+      {data.pendingRequests.map((p) => (
+        <Pressable
+          key={p.id}
+          onPress={() => onOpen(p.homecell.id)}
+          className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 mt-3 flex-row items-center gap-3"
+        >
+          <Hourglass size={16} color={nc('#B45309')} />
+          <Text className="flex-1 text-sm font-semibold text-amber-900">
+            {t('family_tabs.pending', { homecell: p.homecell.nama })}
+          </Text>
+          <ChevronRight size={16} color={nc('#B45309')} />
+        </Pressable>
+      ))}
     </View>
   );
 }

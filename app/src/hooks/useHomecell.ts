@@ -25,6 +25,8 @@ import {
   rejectHomecellJoin,
   setHomecellLokasi,
   getHomecellMateri,
+  listFamilyHomecells,
+  listFamilyZona,
 } from '@/api/homecell';
 
 const HOMECELL_LIST_KEY = ['homecell', 'managed'] as const;
@@ -47,6 +49,11 @@ export function useMyZona() {
     queryFn: listMyZona,
     staleTime: 5 * 60_000,
   });
+}
+
+/** Zona anggota keluarga (bukan tamu) — tab per anggota di halaman Zona (2.5.1). */
+export function useFamilyZona() {
+  return useQuery({ queryKey: ['homecell', 'zona-keluarga'], queryFn: listFamilyZona, staleTime: 5 * 60_000 });
 }
 
 export function useManagedAreas() {
@@ -115,6 +122,11 @@ function useInvalidateHomecell() {
 
 export function useMyHomecellOverview() {
   return useQuery({ queryKey: [...ME_HC_KEY, 'overview'], queryFn: getMyHomecellOverview, staleTime: 60_000 });
+}
+
+/** Homecell anggota keluarga (bukan tamu) — tab per anggota di halaman Homecell (2.5.1). */
+export function useFamilyHomecells() {
+  return useQuery({ queryKey: [...ME_HC_KEY, 'family'], queryFn: listFamilyHomecells, staleTime: 60_000 });
 }
 
 export function useBrowseHomecells(

@@ -3120,5 +3120,15 @@
     "day": "Tanggal",
     "month": "Bulan",
     "year": "Tahun"
+  },
+  "family_tabs": {
+    "me": "Saya",
+    "homecell_of": "Homecell {{name}}",
+    "no_homecell": "{{name}} belum ikut homecell",
+    "no_homecell_hint": "Homecell yang diikuti atau dipimpinnya akan tampil di sini.",
+    "pending": "Menunggu persetujuan bergabung di {{homecell}}",
+    "zona_of": "Zona {{name}}",
+    "no_zona": "{{name}} belum punya zona",
+    "their_homecell": "Homecell-nya"
   }
 }

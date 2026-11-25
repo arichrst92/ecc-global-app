@@ -311,3 +311,25 @@ export function listMyZona() {
 export function setHomecellAsisten(homecellId: string, jemaatId: string, isAsisten: boolean) {
   return api.patch<{ jemaatId: string; isAsisten: boolean }>(`/admin/me/homecell/${homecellId}/asisten`, { jemaatId, isAsisten });
 }
+
+/** Anggota keluarga (bukan tamu) — tab per anggota di Homecell & Zona (2.5.1). */
+export type FamilyPerson = { id: string; namaLengkap: string; fotoUrl: string | null };
+
+export type FamilyHomecell = {
+  jemaat: FamilyPerson;
+  relasi: string;
+  homecells: HomecellListItem[];
+  pendingRequests: { id: string; createdAt: string; homecell: { id: string; nama: string } }[];
+};
+
+/** GET /admin/me/homecell/family (2.5.1) */
+export function listFamilyHomecells() {
+  return api.get<FamilyHomecell[]>('/admin/me/homecell/family');
+}
+
+export type FamilyZona = { jemaat: FamilyPerson; relasi: string; zonas: MyZona[] };
+
+/** GET /admin/me/zona-keluarga (2.5.1) */
+export function listFamilyZona() {
+  return api.get<FamilyZona[]>('/admin/me/zona-keluarga');
+}
