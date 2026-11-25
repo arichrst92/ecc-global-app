@@ -14,7 +14,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { CalendarPlus, Map, X } from 'lucide-react-native';
+import { CalendarPlus, Download, Map, X } from 'lucide-react-native';
 
 import { listMyEventTickets, type EventTiket, type TicketScope } from '@/api/tiket';
 import { useMyReservasi } from '@/hooks/useMyReservasi';
@@ -121,6 +121,38 @@ export default function TiketScreen() {
 
   const loading = isEvent ? evQ.isPending : ibQ.isPending;
 
+  // ---- Simpan tiket ke galeri (hanya bentuk tiket, tanpa latar oranye) ----
+  // Salinan tiket dirender di luar layar (tanpa tombol / slider, lekukan transparan)
+  // lalu ditangkap sebagai PNG → galeri. Modul native sudah ada (dipakai kartu share).
+  const snapRef = useRef<View>(null);
+  const [snapItem, setSnapItem] = useState<Item | null>(null);
+  const [saving, setSaving] = useState(false);
+  async function onSaveImage(it: Item) {
+    if (Platform.OS === 'web' || saving) return;
+    setSaving(true);
+    try {
+      const ML = await import('expo-media-library');
+      const perm = await ML.requestPermissionsAsync(true);
+      if (!perm.granted) {
+        showToast(t('sharecard.perm_denied'), 'error');
+        return;
+      }
+      setSnapItem(it);
+      // Tunggu salinan ter-render & gambar (sudah di-cache) termuat.
+      await new Promise((r) => setTimeout(r, 700));
+      const shot = await import('react-native-view-shot');
+      if (!snapRef.current) throw new Error('snapshot-not-ready');
+      const uri = await shot.captureRef(snapRef, { format: 'png', quality: 1, result: 'tmpfile' });
+      await ML.saveToLibraryAsync(uri);
+      showToast(t('tiket.image_saved'), 'success');
+    } catch {
+      showToast(t('tiket.image_failed'), 'error');
+    } finally {
+      setSnapItem(null);
+      setSaving(false);
+    }
+  }
+
   async function onCalendar(it: Item) {
     try {
       if (it.kind === 'event') {
@@ -224,7 +256,19 @@ export default function TiketScreen() {
                 {item.kind === 'event' && item.t.event.butuhKehadiran === false ? null : (
                   <Text className="text-white/90 text-[11px] text-center mt-3">{t('tiket.bright_hint')}</Text>
                 )}
-                <View className="flex-row gap-2 mt-3">
+                {Platform.OS !== 'web' ? (
+                  <Pressable
+                    onPress={() => onSaveImage(item)}
+                    disabled={saving}
+                    className="mt-3 rounded-xl py-3 flex-row items-center justify-center gap-1.5"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.18)', opacity: saving ? 0.6 : 1 }}
+                    accessibilityRole="button"
+                  >
+                    {saving ? <ActivityIndicator size="small" color="#fff" /> : <Download size={15} color="#fff" />}
+                    <Text className="text-white text-xs font-semibold">{t('tiket.save_image')}</Text>
+                  </Pressable>
+                ) : null}
+                <View className="flex-row gap-2 mt-2">
                   {Platform.OS !== 'web' ? (
                     <Pressable
                       onPress={() => onCalendar(item)}
@@ -272,6 +316,20 @@ export default function TiketScreen() {
           ) : null}
         </>
       )}
+
+      {/* Salinan tiket untuk "Simpan ke galeri" — di luar layar, tanpa latar oranye,
+          tanpa tombol/slider; lekukan transparan. Hanya dirender saat menyimpan. */}
+      {snapItem ? (
+        <View pointerEvents="none" style={{ position: 'absolute', left: -10000, top: 0, width: width - 32 }}>
+          <View ref={snapRef} collapsable={false} style={{ backgroundColor: 'transparent' }}>
+            {snapItem.kind === 'event' ? (
+              <EventTicketCard ticket={snapItem.t} variant="full" notchColor="transparent" snapshot onCancelled={() => {}} />
+            ) : (
+              <IbadahTicketCard reservasi={snapItem.r} variant="full" notchColor="transparent" snapshot onCancelled={() => {}} />
+            )}
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }

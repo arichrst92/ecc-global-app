@@ -42,12 +42,15 @@ export function IbadahTicketCard({
   variant = 'list',
   onPress,
   notchColor,
+  snapshot,
   onCancelled,
 }: {
   reservasi: MyReservasi;
   variant?: 'list' | 'full';
   onPress?: () => void;
   notchColor?: string;
+  /** Untuk disimpan sebagai gambar: tanpa tombol/slider (footer) & tidak bisa diketuk. */
+  snapshot?: boolean;
   /** Dipanggil setelah reservasi berhasil dibatalkan (mis. layar tiket → kembali ke Reservasi). */
   onCancelled?: () => void;
 }) {
@@ -282,8 +285,8 @@ export function IbadahTicketCard({
       header={header}
       body={body}
       stub={stub}
-      footer={footer}
-      onPress={onPress}
+      footer={snapshot ? null : footer}
+      onPress={snapshot ? undefined : onPress}
       notchColor={notchColor}
       dim={r.status === 'CANCEL'}
     />

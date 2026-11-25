@@ -61,6 +61,7 @@ export function EventTicketCard({
   variant = 'list',
   onPress,
   notchColor,
+  snapshot,
   compact,
   onCancelled,
 }: {
@@ -68,6 +69,8 @@ export function EventTicketCard({
   variant?: 'list' | 'full';
   onPress?: () => void;
   notchColor?: string;
+  /** Untuk disimpan sebagai gambar: tanpa tombol/slider (footer) & tidak bisa diketuk. */
+  snapshot?: boolean;
   /** Dipanggil setelah tiket berhasil dibatalkan (mis. layar tiket → kembali ke Reservasi). */
   onCancelled?: () => void;
   /** Di halaman detail event: tanpa gambar & judul/tanggal (sudah tampil di atas). */
@@ -307,8 +310,8 @@ export function EventTicketCard({
       header={compact ? null : header}
       body={compact ? null : body}
       stub={stub}
-      footer={footer}
-      onPress={onPress}
+      footer={snapshot ? null : footer}
+      onPress={snapshot ? undefined : onPress}
       notchColor={notchColor}
       dim={tk.status === 'BATAL'}
     />
