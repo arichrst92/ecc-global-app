@@ -26,6 +26,14 @@ import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 type Tab = 'album' | 'single' | 'liked' | 'downloads';
 
 export default function WorshipHome() {
+  return <WorshipHomeView />;
+}
+
+/**
+ * Isi ECC Worship. `embedded` = dipakai sebagai tab di layar Media (2.5.1):
+ * tanpa tombol kembali & judul (header milik Media), tombol cari di baris tab.
+ */
+export function WorshipHomeView({ embedded = false }: { embedded?: boolean }) {
   const { t } = useTranslation();
   const router = useRouter();
   const q = useWorshipLibrary();
@@ -70,11 +78,14 @@ export default function WorshipHome() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-card border-b border-neutral-100">
+      <SafeAreaView edges={embedded ? [] : ['top']} className="bg-card border-b border-neutral-100">
+        {embedded && search === null ? null : (
         <View className="px-4 py-2 flex-row items-center gap-2">
-          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={20} color={nc('#171717')} />
-          </Pressable>
+          {embedded ? null : (
+            <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
+              <ArrowLeft size={20} color={nc('#171717')} />
+            </Pressable>
+          )}
           {search === null ? (
             <>
               <Text className="text-base font-bold text-neutral-900 flex-1">ECC Worship</Text>
@@ -98,8 +109,9 @@ export default function WorshipHome() {
             </>
           )}
         </View>
+        )}
         {search === null ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 10, gap: 8 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 10, paddingTop: embedded ? 10 : 0, gap: 8, alignItems: 'center' }}>
             {tabs.map((x) => (
               <Pressable
                 key={x.k}
@@ -109,6 +121,11 @@ export default function WorshipHome() {
                 <Text className={`text-xs font-semibold ${tab === x.k ? 'text-white' : 'text-neutral-700'}`}>{x.label}</Text>
               </Pressable>
             ))}
+            {embedded ? (
+              <Pressable onPress={() => setSearch('')} className="w-8 h-8 items-center justify-center" hitSlop={6}>
+                <Search size={18} color={nc('#171717')} />
+              </Pressable>
+            ) : null}
           </ScrollView>
         ) : null}
       </SafeAreaView>

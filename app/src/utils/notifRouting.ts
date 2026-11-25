@@ -29,6 +29,7 @@ const KNOWN_ROUTES: RegExp[] = [
   '/homecell-material',
   `/form/${ID}`, `/form/response/${ID}`,
   '/konseling', `/konseling/${ID}`, '/konseling/new',
+  '/media', `/media/video/${ID}`, '/worship',
 ].map((p) => new RegExp(`^${p.replace(/[()]/g, '\\$&')}/?(\\?.*)?$`));
 
 const isKnownRoute = (url: string) => KNOWN_ROUTES.some((re) => re.test(url));

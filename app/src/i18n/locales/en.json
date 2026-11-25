@@ -984,7 +984,8 @@
     "tamu": "Guests",
     "group": "Groups",
     "worship": "Worship",
-    "konseling": "Counseling"
+    "konseling": "Counseling",
+    "media": "Media"
   },
   "market": {
     "title": "Local Market",
@@ -3323,5 +3324,19 @@
     "release_title": "Return this request?",
     "release_body": "An admin will assign another counselor. The member is told the counselor is being changed.",
     "released": "Request returned to admin"
+  },
+  "media": {
+    "title": "Media",
+    "tab_video": "Video Channel",
+    "all": "All",
+    "featured": "Featured videos",
+    "latest": "Latest",
+    "empty": "No videos yet.",
+    "search_ph": "Search videos",
+    "search_hint": "Type a video title",
+    "search_empty": "No videos found.",
+    "open_youtube": "Open in YouTube",
+    "more_in": "More in {{name}}",
+    "more": "More videos"
   }
 }

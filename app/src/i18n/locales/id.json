@@ -984,7 +984,8 @@
     "tamu": "Tamu",
     "group": "Group",
     "worship": "Worship",
-    "konseling": "Konseling"
+    "konseling": "Konseling",
+    "media": "Media"
   },
   "market": {
     "title": "Local Market",
@@ -3317,5 +3318,19 @@
     "release_title": "Kembalikan permintaan?",
     "release_body": "Admin akan menugaskan konselor lain. Jemaat diberi tahu bahwa konselor sedang diganti.",
     "released": "Permintaan dikembalikan ke admin"
+  },
+  "media": {
+    "title": "Media",
+    "tab_video": "Video Channel",
+    "all": "Semua",
+    "featured": "Video unggulan",
+    "latest": "Terbaru",
+    "empty": "Belum ada video.",
+    "search_ph": "Cari video",
+    "search_hint": "Ketik judul video",
+    "search_empty": "Video tidak ditemukan.",
+    "open_youtube": "Buka di YouTube",
+    "more_in": "Lainnya di {{name}}",
+    "more": "Video lainnya"
   }
 }

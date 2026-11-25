@@ -18,7 +18,7 @@ import {
   Store,
   Users,
   UsersRound,
-  Music,
+  Clapperboard,
   MessageSquareHeart,
   type LucideIcon,
 } from 'lucide-react-native';
@@ -28,6 +28,7 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { getPrayerSummary } from '@/api/prayer';
 import { getKonselingHome } from '@/api/konseling';
 import { useWorshipSummary } from '@/hooks/useWorship';
+import { useVideoCatalog } from '@/hooks/useVideos';
 
 type QuickAccessTile = {
   key: string;
@@ -64,15 +65,18 @@ export function QuickAccess() {
   const konselingQ = useQuery({ queryKey: ['konseling', 'home'], queryFn: getKonselingHome, staleTime: 60_000 });
   const pendingKonseling = konselingQ.data?.isKonselor ? konselingQ.data.assignedOpen : 0;
 
-  // ECC Worship — tile hanya tampil bila sudah ada lagu terpublikasi (atau pengelola: draft).
+  // Media (2.5.1) = ECC Worship + Video Channel — tile tampil bila salah satunya berisi
+  // (Worship: lagu terpublikasi / pengelola: draft; Video Channel: ada video tayang).
   const worshipQ = useWorshipSummary();
-  const showWorship = !!worshipQ.data?.hasSongs;
+  const videoQ = useVideoCatalog();
+  const showMedia = !!worshipQ.data?.hasSongs || (videoQ.data?.total ?? 0) > 0;
+  const mediaHref = worshipQ.data?.hasSongs ? '/media' : '/media?tab=video';
 
   const go = (href: string) => () => router.push(href as never);
 
   // Urutan (2026-12): Bible · Services · Homecell · Ministry · Family · Groups ·
-  // Worship · Devotion · Prayer · Giving · Events · News · Zone · Visit ·
-  // Konseling · Local Market (Tamu pindah ke Profil saja, 2.5.1). Worship hanya tampil bila sudah ada lagu.
+  // Media · Devotion · Prayer · Giving · Events · News · Zone · Visit ·
+  // Konseling · Local Market (Tamu pindah ke Profil saja, 2.5.1). Media hanya tampil bila Worship / Video Channel berisi.
   const tiles: QuickAccessTile[] = [
     { key: 'bible', icon: Sparkles, label: t('quickaccess.bible'), onPress: go('/bible') },
     { key: 'ibadah', icon: Church, label: t('quickaccess.ibadah'), onPress: go('/(tabs)/ibadah') },
@@ -81,7 +85,7 @@ export function QuickAccess() {
     { key: 'ministry', icon: HeartHandshake, label: t('quickaccess.ministry'), onPress: go('/ministry') },
     { key: 'family', icon: Users, label: t('quickaccess.family'), onPress: go('/family') },
     { key: 'group', icon: UsersRound, label: t('quickaccess.group'), onPress: go('/profile/my-groups') },
-    ...(showWorship ? [{ key: 'worship', icon: Music, label: t('quickaccess.worship'), onPress: go('/worship') }] : []),
+    ...(showMedia ? [{ key: 'media', icon: Clapperboard, label: t('quickaccess.media'), onPress: go(mediaHref) }] : []),
     { key: 'renungan', icon: BookOpen, label: t('quickaccess.renungan'), onPress: go('/content?tab=renungan') },
     {
       key: 'doa',
