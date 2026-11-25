@@ -2118,7 +2118,17 @@
     "zone_leader": "Zone Leader: {{name}}",
     "spot_carousel_hint": "Swipe to see {{count}} more cards",
     "worship_tip_title": "No musician at your homecell?",
-    "worship_tip_sub": "Try ECC Worship karaoke"
+    "worship_tip_sub": "Try ECC Worship karaoke",
+    "loc_issue_title": "Homecell location needs fixing",
+    "loc_issue_fix": "Fix location",
+    "loc_issue_ask_pic": "Ask the homecell PIC to fix this homecell's Google Maps link.",
+    "loc_issue_BELUM_ADA_LOKASI": "There's no Google Maps link yet, so this homecell doesn't appear in \"Find a nearby homecell\" or on the map.",
+    "loc_issue_LINK_TIDAK_TERBACA": "A Google Maps link is saved but its point can't be read, so the homecell doesn't appear in \"Find a nearby homecell\". Replace it with the Share link of the location.",
+    "loc_issue_TITIK_BAWAAN": "The location point is in the sea (Google's default point), so distances in \"Find a nearby homecell\" are wrong. Replace it with the Share link of the correct location.",
+    "loc_issue_LINTANG_TERBALIK": "The coordinates are missing a minus sign, so the point is far off. Fix this homecell's Google Maps link.",
+    "loc_issue_JAUH_DARI_CABANG": "The location point is {{km}} km from the branch — probably the wrong point, so the homecell doesn't show up as nearby. Check the Google Maps link.",
+    "no_app_badge": "Not on Els App",
+    "no_app_count": "{{count}} members aren't on Els App yet"
   },
   "gc": {
     "tab_announcements": "Announcements",

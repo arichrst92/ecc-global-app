@@ -2112,7 +2112,17 @@
     "zone_leader": "Zone Leader: {{name}}",
     "spot_carousel_hint": "Geser untuk melihat {{count}} kartu lainnya",
     "worship_tip_title": "Homecell tidak punya pemain musik?",
-    "worship_tip_sub": "Coba ECC Worship karaoke"
+    "worship_tip_sub": "Coba ECC Worship karaoke",
+    "loc_issue_title": "Lokasi homecell perlu diperbaiki",
+    "loc_issue_fix": "Perbaiki lokasi",
+    "loc_issue_ask_pic": "Minta PIC homecell memperbaiki link Google Maps homecell ini.",
+    "loc_issue_BELUM_ADA_LOKASI": "Belum ada link Google Maps, sehingga homecell ini tidak tampil di \"Cari homecell terdekat\" dan peta.",
+    "loc_issue_LINK_TIDAK_TERBACA": "Link Google Maps tersimpan, tetapi titiknya tidak terbaca sehingga homecell tidak tampil di \"Cari homecell terdekat\". Ganti dengan link Bagikan dari titik lokasi.",
+    "loc_issue_TITIK_BAWAAN": "Titik lokasi berada di laut (titik bawaan Google), jadi jarak di \"Cari homecell terdekat\" salah. Ganti dengan link Bagikan dari titik lokasi yang benar.",
+    "loc_issue_LINTANG_TERBALIK": "Tanda minus pada koordinat hilang sehingga titiknya bergeser jauh. Perbaiki link Google Maps homecell ini.",
+    "loc_issue_JAUH_DARI_CABANG": "Titik lokasi berjarak {{km}} km dari cabang — kemungkinan salah titik, sehingga homecell tidak muncul sebagai homecell terdekat. Periksa link Google Maps.",
+    "no_app_badge": "Belum pakai Els App",
+    "no_app_count": "{{count}} anggota belum memakai Els App"
   },
   "gc": {
     "tab_announcements": "Pengumuman",

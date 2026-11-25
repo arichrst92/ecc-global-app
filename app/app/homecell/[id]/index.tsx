@@ -8,7 +8,7 @@ import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ArrowLeft, CalendarPlus, ChevronRight, Clock, MapPin, MessageCircle, Music, UserPlus, Users, Pencil, FileText, UserSearch, MoreHorizontal, ShieldCheck, Check } from 'lucide-react-native';
+import { AlertTriangle, ArrowLeft, CalendarPlus, ChevronRight, Clock, MapPin, MessageCircle, Music, UserPlus, Users, Pencil, FileText, UserSearch, MoreHorizontal, ShieldCheck, Check, Smartphone } from 'lucide-react-native';
 import { useWorshipSummary } from '@/hooks/useWorship';
 
 import { Avatar } from '@/components/ui/Avatar';
@@ -280,6 +280,31 @@ export default function HomecellDetailScreen() {
           paddingBottom: insets.bottom + 32,
         }}
       >
+        {/* 2.5.1 — lokasi bermasalah → tidak tampil di "Homecell terdekat" / peta. */}
+        {homecell.lokasiIssue && (isPicHomecell || isAsisten || isPicArea || homecell.isHomecellAdmin) ? (
+          <View className="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 mb-4">
+            <View className="flex-row gap-2.5">
+              <AlertTriangle size={18} color="#B45309" style={{ marginTop: 1 }} />
+              <View className="flex-1">
+                <Text className="text-sm font-bold text-amber-900">{t('hcj.loc_issue_title')}</Text>
+                <Text className="text-xs text-amber-900 mt-1 leading-5">
+                  {t(`hcj.loc_issue_${homecell.lokasiIssue.code}`, { defaultValue: homecell.lokasiIssue.saran, km: homecell.lokasiIssue.jarakKm ?? '' })}
+                </Text>
+              </View>
+            </View>
+            {isPicHomecell || isPicArea || homecell.isHomecellAdmin ? (
+              <Pressable
+                onPress={() => router.push(`/homecell/${homecell.id}/edit` as never)}
+                {...gx('mt-3 bg-amber-500 rounded-xl py-2.5 flex-row items-center justify-center gap-1.5')}
+              >
+                <MapPin size={14} color="#fff" />
+                <Text className="text-white font-bold text-sm">{t('hcj.loc_issue_fix')}</Text>
+              </Pressable>
+            ) : (
+              <Text className="text-[11px] text-amber-800 mt-2">{t('hcj.loc_issue_ask_pic')}</Text>
+            )}
+          </View>
+        ) : null}
         {/* Stat + schedule */}
         <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-4">
           <View className="flex-row items-center gap-3 mb-3">
@@ -289,6 +314,11 @@ export default function HomecellDetailScreen() {
             <View className="flex-1">
               <Text className="text-2xl font-bold text-neutral-900">{activeMembers.length}</Text>
               <Text className="text-xs text-neutral-500">{t('homecell.members_count')}</Text>
+              {activeMembers.some((m) => m.jemaat.pakaiApp === false) ? (
+                <Text className="text-[11px] text-neutral-500 mt-0.5">
+                  {t('hcj.no_app_count', { count: activeMembers.filter((m) => m.jemaat.pakaiApp === false).length })}
+                </Text>
+              ) : null}
             </View>
           </View>
           {ageStats ? (
@@ -707,6 +737,12 @@ function MemberRow({
         >
           {member.jemaat.namaLengkap}
         </Text>
+        {member.isActive && member.jemaat.pakaiApp === false ? (
+          <View className="self-start mt-0.5 bg-neutral-100 px-1.5 py-0.5 rounded flex-row items-center gap-0.5">
+            <Smartphone size={9} color={nc('#525252')} />
+            <Text className="text-[9px] font-bold text-neutral-600">{t('hcj.no_app_badge')}</Text>
+          </View>
+        ) : null}
         {member.isAsisten && member.isActive ? (
           <View className="self-start mt-0.5 bg-violet-50 px-1.5 py-0.5 rounded flex-row items-center gap-0.5">
             <ShieldCheck size={9} color="#6D28D9" />

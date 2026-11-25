@@ -58,6 +58,8 @@ export type HomecellMember = {
     jenisKelamin?: 'L' | 'P' | null;
     /** Usia (tahun) — hanya untuk pemimpin; null bila tanggal lahir kosong/privat. */
     usia?: number | null;
+    /** Sudah memakai Els App (server 2026-12; undefined = server lama). */
+    pakaiApp?: boolean;
   };
   /** Tanggal pertemuan terakhir yang dihadiri di homecell ini (YYYY-MM-DD). */
   lastAttendedAt?: string | null;
@@ -83,6 +85,8 @@ export type HomecellDetail = {
   usiaMax?: number | null;
   area: AreaRefWithPic;
   members: HomecellMember[];
+  /** Masalah lokasi (null = beres) — homecell tidak tampil di "Homecell terdekat" / peta. */
+  lokasiIssue?: { code: string; label: string; saran: string; serius: boolean; jarakKm?: number } | null;
 };
 
 /** Item dari GET /admin/homecell-area/:id/homecells (BE patch 21p).
