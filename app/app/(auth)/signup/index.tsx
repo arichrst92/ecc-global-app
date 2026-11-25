@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { gx } from '@/theme/gradient';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { useRouter } from 'expo-router';
@@ -245,7 +246,7 @@ export default function SignupPhoneScreen() {
               </View>
               <Pressable
                 onPress={() => switchChannel(down === 'whatsapp' ? 'email' : 'whatsapp')}
-                className="mt-3 self-start rounded-lg bg-amber-600 px-3 py-2"
+                {...gx('mt-3 self-start rounded-lg bg-amber-600 px-3 py-2')}
               >
                 <Text className="text-sm font-semibold text-white">
                   {down === 'whatsapp' ? t('signup.wa_down_cta') : t('signup.email_down_cta')}

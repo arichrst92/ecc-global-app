@@ -2,6 +2,7 @@
  * Doa — prayer request saya (Aktif / Terjawab) + tab "Ditugaskan ke Saya"
  * untuk petugas doa. Masuk dari tile Doa di Home atau menu Profil.
  */
+import { gx } from '@/theme/gradient';
 import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
@@ -184,7 +185,7 @@ function MineList({ aktif, terjawab }: { aktif?: number; terjawab?: number }) {
                 onPress={() => void openGiving(branch?.kode)}
                 className="mx-4 mb-4 -mt-1 flex-row items-center gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 active:opacity-80"
               >
-                <View className="w-7 h-7 rounded-lg bg-amber-500 items-center justify-center">
+                <View {...gx('w-7 h-7 rounded-lg bg-amber-500 items-center justify-center')}>
                   <HandHeart size={14} color="#fff" />
                 </View>
                 <Text className="flex-1 text-xs font-semibold text-amber-900 leading-4">{t('doa.give_thanks_cta')}</Text>

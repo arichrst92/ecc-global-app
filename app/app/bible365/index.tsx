@@ -479,7 +479,7 @@ function Dashboard({ plan, onRefresh, bottom }: { plan: Bible365Plan; onRefresh:
             )}
           </Pressable>
         ) : (
-          <View className="mt-3 py-3.5 rounded-2xl items-center bg-emerald-600 flex-row justify-center gap-2">
+          <View {...gx('mt-3 py-3.5 rounded-2xl items-center bg-emerald-600 flex-row justify-center gap-2')}>
             <Check size={16} color="#fff" />
             <Text className="text-sm font-bold text-white">{t('b365.day_complete', { day })}</Text>
           </View>

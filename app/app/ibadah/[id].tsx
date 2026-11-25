@@ -290,7 +290,7 @@ export default function IbadahDetailScreen() {
                           // Silent — user might not have suitable app
                         })
                       }
-                      className="mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
+                      {...gx('mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2')}
                     >
                       <Video size={18} color="#fff" />
                       <Text className="text-white font-semibold text-sm">

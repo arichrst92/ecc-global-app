@@ -603,7 +603,7 @@ export default function EventDetailScreen() {
               {event.videoUrl && event.videoUrl.trim().length > 0 ? (
                 <Pressable
                   onPress={() => Linking.openURL(event.videoUrl!).catch(() => {})}
-                  className="mt-4 bg-red-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
+                  {...gx('mt-4 bg-red-500 rounded-xl py-3 flex-row items-center justify-center gap-2')}
                 >
                   <PlayCircle size={18} color="#fff" />
                   <Text className="text-white font-semibold text-sm">
@@ -1035,7 +1035,7 @@ function ParticipationStatusCard({
     >
       <View className="flex-row items-start gap-3">
         <View
-          className={`w-10 h-10 rounded-xl ${cfg.iconBg} items-center justify-center`}
+          {...gx(`w-10 h-10 rounded-xl ${cfg.iconBg} items-center justify-center`)}
         >
           {cfg.icon}
         </View>

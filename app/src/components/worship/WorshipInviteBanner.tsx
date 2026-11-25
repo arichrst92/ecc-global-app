@@ -3,6 +3,7 @@
  * Tampil hanya bila ECC Worship punya lagu dan belum ada lagu yang diputar.
  * Ketuk → menu ECC Worship (pemutar mini tetap jalan saat kembali ke halaman ini).
  */
+import { gx } from '@/theme/gradient';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +23,7 @@ export function WorshipInviteBanner({ className }: { className?: string }) {
       onPress={() => router.push('/worship' as never)}
       className={`flex-row items-center gap-3 rounded-2xl border border-violet-100 bg-violet-50 px-4 py-3 active:opacity-80 ${className ?? ''}`}
     >
-      <View className="w-10 h-10 rounded-xl bg-violet-600 items-center justify-center">
+      <View {...gx('w-10 h-10 rounded-xl bg-violet-600 items-center justify-center')}>
         <Music size={18} color="#fff" />
       </View>
       <View className="flex-1">

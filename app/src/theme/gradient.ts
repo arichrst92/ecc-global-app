@@ -39,18 +39,78 @@ const DARK_STYLE = toStyle(BRAND_GRADIENT_DARK);
 /** Style gradient brand sesuai mode aktif (panggil saat render). */
 export const brandGradient = (): ViewStyle => (isDark() ? DARK_STYLE : LIGHT_STYLE);
 
-const HAS_BRAND_BG = /(^|\s)bg-brand-(500|600)(\s|$)/;
+/**
+ * 2.5.1 — gradient untuk warna lain di GUI (hijau, kuning, ungu, merah, biru,
+ * biru langit): arah & pola sama dengan oranye (nada 500 → 700). Dipasang
+ * hanya pada elemen yang memakai gx() (bagian, tombol, kotak ikon, label) —
+ * bar progres, titik, sakelar, dan kotak centang tetap polos.
+ */
+const COLOR_STOPS: Record<string, { light: [string, string]; dark: [string, string] }> = {
+  emerald: { light: ['#10B981', '#047857'], dark: ['#059669', '#065F46'] },
+  green: { light: ['#22C55E', '#15803D'], dark: ['#16A34A', '#166534'] },
+  amber: { light: ['#F59E0B', '#B45309'], dark: ['#D97706', '#92400E'] },
+  violet: { light: ['#8B5CF6', '#6D28D9'], dark: ['#7C3AED', '#5B21B6'] },
+  red: { light: ['#EF4444', '#B91C1C'], dark: ['#DC2626', '#991B1B'] },
+  blue: { light: ['#3B82F6', '#1D4ED8'], dark: ['#2563EB', '#1E40AF'] },
+  sky: { light: ['#0EA5E9', '#0369A1'], dark: ['#0284C7', '#075985'] },
+};
 
-/** className + style dengan gradient brand bila className memuat bg-brand-500/600. */
+const alphaHex = (opacity?: number) =>
+  opacity == null || opacity >= 100 ? '' : Math.round((opacity / 100) * 255).toString(16).padStart(2, '0').toUpperCase();
+
+const cache = new Map<string, ViewStyle>();
+/** Style gradient untuk warna Tailwind (emerald, amber, …), opsional transparansi (mis. 80). */
+export function colorGradient(color: string, opacity?: number): ViewStyle {
+  const stops = COLOR_STOPS[color];
+  if (!stops) return {};
+  const dark = isDark();
+  const key = `${color}|${opacity ?? ''}|${dark}`;
+  let st = cache.get(key);
+  if (!st) {
+    const [a, b] = dark ? stops.dark : stops.light;
+    const al = alphaHex(opacity);
+    st = toStyle(`linear-gradient(135deg, ${a}${al} 0%, ${b}${al} 100%)`);
+    cache.set(key, st);
+  }
+  return st;
+}
+
+/**
+ * Gradient dari satu warna hex (warna ministry dari Portal): warna → lebih
+ * gelap (`factor` 0.75 = 25% lebih gelap; 0.9 untuk latar pastel).
+ */
+export function hexGradient(hex: string, factor = 0.75): ViewStyle {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex);
+  if (!m) return {};
+  const n = parseInt(m[1]!, 16);
+  const d = (v: number) => Math.round(v * factor).toString(16).padStart(2, '0');
+  const darker = `#${d((n >> 16) & 255)}${d((n >> 8) & 255)}${d(n & 255)}`;
+  return toStyle(`linear-gradient(135deg, ${hex} 0%, ${darker} 100%)`);
+}
+
+const HAS_BRAND_BG = /(^|\s)bg-brand-(500|600)(\s|$)/;
+const HAS_COLOR_BG = /(?:^|\s)bg-(emerald|green|amber|violet|red|blue|sky)-(500|600)(?:\/(\d+))?(?=\s|$)/;
+
+/**
+ * className + style dengan gradient bila className memuat bg-brand-500/600
+ * (oranye) atau bg-{emerald|green|amber|violet|red|blue|sky}-500/600 (2.5.1).
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function gx(className: string | false | null | undefined, style?: any): { className?: string; style?: any } {
   const cls = className || undefined;
-  if (!GRADIENT_ENABLED || !cls || !HAS_BRAND_BG.test(cls)) return { className: cls, style };
+  if (!GRADIENT_ENABLED || !cls) return { className: cls, style };
+  let g: ViewStyle | null = null;
+  if (HAS_BRAND_BG.test(cls)) g = brandGradient();
+  else {
+    const m = HAS_COLOR_BG.exec(cls);
+    if (m) g = colorGradient(m[1]!, m[3] ? Number(m[3]) : undefined);
+  }
+  if (!g) return { className: cls, style };
+  const gs = g;
   if (typeof style === 'function') {
     // Pressable: style={({ pressed }) => ...}
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return { className: cls, style: (state: any) => [brandGradient(), style(state)] };
+    return { className: cls, style: (state: any) => [gs, style(state)] };
   }
-  const g = brandGradient();
-  return { className: cls, style: style ? [g, style] : g };
+  return { className: cls, style: style ? [gs, style] : gs };
 }

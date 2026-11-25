@@ -59,7 +59,7 @@ import type { MinistryJoinRequest, MinistryMember, MinistryRole } from '@/types/
 import { ApiError } from '@/types/api';
 import { formatDateWithDay, parseLocalDate } from '@/utils/date';
 import { goBack } from '@/utils/nav';
-import { gx } from '@/theme/gradient';
+import { gx, hexGradient } from '@/theme/gradient';
 import { nc, isDark } from '@/theme/ThemeRoot';
 import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { SheetNavSpacer } from '@/components/ui/SheetNavSpacer';
@@ -392,7 +392,7 @@ export default function MinistryDetailScreen() {
         {!ministry.myMembership && isPendingRequest && myRequest ? (
           <View className="bg-amber-50 rounded-2xl p-4 border border-amber-100 mb-3">
             <View className="flex-row items-center gap-3">
-              <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
+              <View {...gx('w-10 h-10 rounded-xl bg-amber-500 items-center justify-center')}>
                 <Hourglass size={20} color="#fff" />
               </View>
               <View className="flex-1">
@@ -717,7 +717,7 @@ export default function MinistryDetailScreen() {
               </View>
             ) : null}
             {ministry.myMembership ? (
-              <View className="rounded-2xl p-4 flex-row items-center gap-3" style={{ backgroundColor: w.bg }}>
+              <View className="rounded-2xl p-4 flex-row items-center gap-3" style={[{ backgroundColor: w.bg }, hexGradient(w.bg, 0.9)]}>
                 <CheckCircle2 size={20} color={w.fg} />
                 <Text className="text-xs flex-1" style={{ color: w.fg }}>
                   {ministry.myMembership.posisi || '—'} · {t('ministry.since_label')}{' '}

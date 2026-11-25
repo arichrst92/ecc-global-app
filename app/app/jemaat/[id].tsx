@@ -273,7 +273,7 @@ function FullProfile({
               value={formatPhoneDisplay(profile.noHp)}
               onPress={() => onWhatsApp(profile.noHp!)}
               action={
-                <View className="bg-green-500 rounded-full px-3 py-1">
+                <View {...gx('bg-green-500 rounded-full px-3 py-1')}>
                   <Text className="text-[11px] font-bold text-white">{t('jemaat.chat')}</Text>
                 </View>
               }
@@ -393,7 +393,7 @@ function FullProfile({
             onPress={() => router.push(`/homecell/view/${hc.id}` as never)}
             className="bg-card rounded-2xl border border-neutral-100 overflow-hidden active:opacity-80"
           >
-            <View className="bg-violet-500 px-4 py-3 flex-row items-center gap-3">
+            <View {...gx('bg-violet-500 px-4 py-3 flex-row items-center gap-3')}>
               <View className="w-9 h-9 rounded-xl bg-white/20 items-center justify-center">
                 <Home size={17} color="#fff" />
               </View>

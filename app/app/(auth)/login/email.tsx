@@ -14,6 +14,7 @@
  * OTP 6 digit lewat email (POST /auth/email-otp/request LOGIN_EMAIL) lalu
  * layar /login/otp?email=… . Kode masuk dari admin cabang juga lewat layar itu.
  */
+import { gx } from '@/theme/gradient';
 import { useEffect, useState } from 'react';
 import {
   Platform,
@@ -151,7 +152,7 @@ export default function LoginEmailScreen() {
   const emailDownBox = emailDown ? (
     <View className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
       <Text className="text-sm text-amber-900 leading-5">{t('auth.email.down_msg')}</Text>
-      <Pressable onPress={() => router.replace('/(auth)/login')} className="mt-3 self-start rounded-lg bg-amber-600 px-3 py-2">
+      <Pressable onPress={() => router.replace('/(auth)/login')} {...gx('mt-3 self-start rounded-lg bg-amber-600 px-3 py-2')}>
         <Text className="text-sm font-semibold text-white">{t('auth.email.down_cta')}</Text>
       </Pressable>
       {/* Jalan terakhir — hanya ditawarkan saat email gangguan. */}

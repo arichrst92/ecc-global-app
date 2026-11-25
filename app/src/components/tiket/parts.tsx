@@ -1,4 +1,5 @@
 /** Potongan UI bersama tiket: QR, label status, cap HADIR, info baris. */
+import { gx } from '@/theme/gradient';
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
@@ -29,7 +30,7 @@ const PILL: Record<string, [string, string]> = {
 export function StatusPill({ label, tone }: { label: string; tone: keyof typeof PILL }) {
   const [bg, fg] = PILL[tone] ?? PILL.neutral!;
   return (
-    <View className={`px-2 py-0.5 rounded-full ${bg}`}>
+    <View {...gx(`px-2 py-0.5 rounded-full ${bg}`)}>
       <Text className={`text-[10px] font-bold ${fg}`}>{label}</Text>
     </View>
   );

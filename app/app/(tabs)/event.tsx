@@ -217,11 +217,11 @@ function EventCard({
       <View className="relative">
         {/* Rasio asli; poster potret dibatasi 4:5 & tampil utuh (tidak terpotong). */}
         <HeroImage url={event.heroImageUrl} fallbackEmoji={emoji} fitToWidth minAspect={4 / 5} />
-        <View className={`absolute top-3 right-3 px-2.5 py-1 rounded-full ${eventPriceTone(event.tipeBayar).solid}`}>
+        <View {...gx(`absolute top-3 right-3 px-2.5 py-1 rounded-full ${eventPriceTone(event.tipeBayar).solid}`)}>
           <Text className="text-xs text-white font-semibold">{priceText}</Text>
         </View>
         {isFull ? (
-          <View className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-red-500">
+          <View {...gx('absolute top-3 left-3 px-2.5 py-1 rounded-full bg-red-500')}>
             <Text className="text-xs text-white font-semibold">{t('event.quota_full')}</Text>
           </View>
         ) : null}

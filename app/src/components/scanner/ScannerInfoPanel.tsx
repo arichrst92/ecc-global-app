@@ -8,6 +8,7 @@
  * bingkai kamera di HP kecil; ketuk baris atas untuk membuka detail.
  * Server lama tidak mengirim info ini → panel tidak tampil.
  */
+import { gx } from '@/theme/gradient';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -115,7 +116,7 @@ export function ScannerInfoPanel({
         </View>
       ) : null}
       {win ? (
-        <View className={`mt-2 rounded-xl px-2.5 py-1.5 ${win.bg}`}>
+        <View {...gx(`mt-2 rounded-xl px-2.5 py-1.5 ${win.bg}`)}>
           <Text className="text-white text-[11px] font-bold">{win.title}</Text>
           {win.sub ? (
             <Text className="text-white/90 text-[10px] mt-0.5 leading-snug">{win.sub}</Text>
@@ -128,7 +129,7 @@ export function ScannerInfoPanel({
             <Pressable
               key={c.key}
               onPress={() => onOpenList(c.tab)}
-              className={`rounded-full px-2.5 py-1 flex-row items-center gap-1 active:opacity-70 ${TONE[c.tone ?? 'neutral']}`}
+              {...gx(`rounded-full px-2.5 py-1 flex-row items-center gap-1 active:opacity-70 ${TONE[c.tone ?? 'neutral']}`)}
             >
               <Text className="text-white text-[11px] font-bold">{c.value}</Text>
               <Text className="text-white/90 text-[11px]">{c.label}</Text>

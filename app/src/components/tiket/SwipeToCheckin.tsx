@@ -103,8 +103,7 @@ export function SwipeToCheckin({
   if (state === 'DONE') {
     return (
       <View
-        className="rounded-full bg-emerald-600 flex-row items-center justify-center gap-1.5"
-        style={{ height }}
+        {...gx('rounded-full bg-emerald-600 flex-row items-center justify-center gap-1.5', { height })}
         accessibilityRole="text"
       >
         <CheckCircle2 size={16} color="#fff" />

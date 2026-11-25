@@ -8,6 +8,7 @@
  * - Status permintaan disimpan di perangkat (token); alamat lengkap, link
  *   Maps & kontak pemimpin muncul setelah DITERIMA.
  */
+import { gx } from '@/theme/gradient';
 import { appAlert } from '@/components/ui/AppDialog';
 import { useMemo, useState } from 'react';
 import {
@@ -400,7 +401,7 @@ function RequestCard({
         {h.pic?.noHp ? (
           <Pressable
             onPress={() => Linking.openURL(`https://wa.me/${h.pic!.noHp!.replace(/^\+/, '')}`).catch(() => {})}
-            className="flex-1 flex-row items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-600"
+            {...gx('flex-1 flex-row items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-600')}
           >
             <MessageCircle size={14} color="#fff" />
             <Text className="text-xs font-bold text-white">{t('hcg.chat_leader')}</Text>

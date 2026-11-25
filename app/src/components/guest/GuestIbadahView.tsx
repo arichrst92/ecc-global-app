@@ -177,7 +177,7 @@ export function GuestIbadahView() {
                     return (
                       <Pressable
                         onPress={() => Linking.openURL(streamLink).catch(() => {})}
-                        className="mt-3 bg-emerald-500 rounded-xl py-2 flex-row items-center justify-center gap-2"
+                        {...gx('mt-3 bg-emerald-500 rounded-xl py-2 flex-row items-center justify-center gap-2')}
                       >
                         <Video size={14} color="#fff" />
                         <Text className="text-white text-xs font-semibold">

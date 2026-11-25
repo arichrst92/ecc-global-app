@@ -5,6 +5,7 @@
  * Sebelumnya screen ini punya tombol Face Login + capture modal + liveness flow.
  * Sekarang clean — input nomor → OTP via WhatsApp.
  */
+import { gx } from '@/theme/gradient';
 import { useState } from 'react';
 import {
   Platform,
@@ -127,7 +128,7 @@ export default function LoginPhoneScreen() {
 
           {notRegistered ? (
             <View className="mt-4 flex-row gap-2">
-              <Pressable onPress={() => router.push('/(auth)/signup')} className="rounded-lg bg-emerald-600 px-3 py-2">
+              <Pressable onPress={() => router.push('/(auth)/signup')} {...gx('rounded-lg bg-emerald-600 px-3 py-2')}>
                 <Text className="text-sm font-semibold text-white">{t('auth.signup')}</Text>
               </Pressable>
               <Pressable onPress={() => router.push('/(auth)/login/email')} className="rounded-lg border border-neutral-200 px-3 py-2">
@@ -139,7 +140,7 @@ export default function LoginPhoneScreen() {
             <View className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
               <Text className="text-sm font-semibold text-amber-900">{t('auth.wa_down_title')}</Text>
               <Text className="text-sm text-amber-900 mt-0.5 leading-5">{t('auth.wa_down_msg')}</Text>
-              <Pressable onPress={() => router.push('/(auth)/login/email')} className="mt-3 self-start rounded-lg bg-amber-600 px-3 py-2">
+              <Pressable onPress={() => router.push('/(auth)/login/email')} {...gx('mt-3 self-start rounded-lg bg-amber-600 px-3 py-2')}>
                 <Text className="text-sm font-semibold text-white">{t('auth.wa_down_cta')}</Text>
               </Pressable>
             </View>

@@ -470,7 +470,7 @@ export default function HomecellDetailScreen() {
             onPress={() => router.push('/worship' as never)}
             className="mb-4 flex-row items-center gap-3 rounded-2xl border border-violet-100 bg-violet-50 px-4 py-3 active:opacity-80"
           >
-            <View className="w-10 h-10 rounded-xl bg-violet-600 items-center justify-center">
+            <View {...gx('w-10 h-10 rounded-xl bg-violet-600 items-center justify-center')}>
               <Music size={18} color="#fff" />
             </View>
             <View className="flex-1">

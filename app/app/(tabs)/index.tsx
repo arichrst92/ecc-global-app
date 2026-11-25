@@ -510,7 +510,7 @@ function TodayServiceCard({
         {streamLink ? (
           <Pressable
             onPress={() => Linking.openURL(streamLink).catch(() => {})}
-            className="mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2"
+            {...gx('mt-3 bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2')}
           >
             <Video size={16} color="#fff" />
             <Text className="text-white font-semibold text-sm">

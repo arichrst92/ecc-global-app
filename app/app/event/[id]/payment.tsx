@@ -275,7 +275,7 @@ export default function EventPaymentScreen() {
 
         {/* Status pill */}
         <View className="bg-amber-50 border border-amber-100 rounded-2xl p-3 mb-4 flex-row items-center gap-3">
-          <View className="w-8 h-8 rounded-full bg-amber-500 items-center justify-center">
+          <View {...gx('w-8 h-8 rounded-full bg-amber-500 items-center justify-center')}>
             <Text className="text-white text-xs font-bold">{isUploaded ? '2' : '1'}</Text>
           </View>
           <View className="flex-1">
@@ -359,7 +359,7 @@ export default function EventPaymentScreen() {
           // Sudah ter-submit ke BE — preview server-side image
           <View className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
             <View className="flex-row items-center gap-3 mb-3">
-              <View className="w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center">
+              <View {...gx('w-10 h-10 rounded-xl bg-emerald-500 items-center justify-center')}>
                 <Check size={20} color="#fff" />
               </View>
               <View className="flex-1">

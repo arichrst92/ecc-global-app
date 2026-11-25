@@ -134,7 +134,7 @@ export function PendaftaranSheet({ ministryId, visible, onClose }: { ministryId:
                               tutupOtomatis: preset ? ymdPlus(preset) : null,
                             })
                           }
-                          className="flex-1 py-2.5 rounded-xl bg-emerald-600 items-center"
+                          {...gx('flex-1 py-2.5 rounded-xl bg-emerald-600 items-center')}
                         >
                           <Text className="text-xs font-bold text-white">{t('ministry.pend_buka')}</Text>
                         </Pressable>

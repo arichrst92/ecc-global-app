@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { gx } from '@/theme/gradient';
 import { useEffect } from 'react';
 import { Animated, Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -72,7 +73,7 @@ export function ToastContainer({ modalId }: { modalId?: number } = {}) {
       style={{ opacity, bottom: insets.bottom + 80 }}
       className="absolute left-0 right-0 items-center px-5 z-50"
     >
-      <View className={`${typeStyles[type]} rounded-xl px-4 py-3 max-w-md`}>
+      <View {...gx(`${typeStyles[type]} rounded-xl px-4 py-3 max-w-md`)}>
         <Text className="text-white text-sm font-medium text-center">{message}</Text>
       </View>
     </Animated.View>

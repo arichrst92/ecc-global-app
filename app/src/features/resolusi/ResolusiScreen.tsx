@@ -471,7 +471,7 @@ function ResolusiSheet({
                   onPress={() => void openGiving(branch?.kode)}
                   className="flex-row items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 active:opacity-80"
                 >
-                  <View className="w-10 h-10 rounded-xl bg-amber-500 items-center justify-center">
+                  <View {...gx('w-10 h-10 rounded-xl bg-amber-500 items-center justify-center')}>
                     <HandHeart size={18} color="#fff" />
                   </View>
                   <Text className="flex-1 text-sm font-semibold text-amber-900 leading-5">{t('resolusi.give_thanks_cta')}</Text>

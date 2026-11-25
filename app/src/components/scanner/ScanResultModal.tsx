@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { gx } from '@/theme/gradient';
 import { Pressable, Text, View, ScrollView } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { useTranslation } from 'react-i18next';
@@ -148,9 +149,9 @@ function SuccessContent({
       <View className="relative">
         <Avatar name={namaLengkap} fotoUrl={fotoUrl ?? undefined} size={80} />
         <View
-          className={`absolute -bottom-1 -right-1 w-7 h-7 rounded-full items-center justify-center border-2 border-white ${
+          {...gx(`absolute -bottom-1 -right-1 w-7 h-7 rounded-full items-center justify-center border-2 border-white ${
             alreadyCheckedIn ? 'bg-amber-500' : 'bg-emerald-500'
-          }`}
+          }`)}
         >
           {alreadyCheckedIn ? (
             <Info size={14} color="#fff" />
@@ -189,7 +190,7 @@ function SuccessContent({
       </View>
       {tamu ? (
         <View className="mt-3 w-full bg-violet-50 border border-violet-200 rounded-2xl px-3 py-2.5 flex-row items-center gap-2.5">
-          <View className="w-9 h-9 rounded-xl bg-violet-600 items-center justify-center">
+          <View {...gx('w-9 h-9 rounded-xl bg-violet-600 items-center justify-center')}>
             <UserPlus size={18} color="#fff" />
           </View>
           <View className="flex-1 min-w-0">

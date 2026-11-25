@@ -12,6 +12,7 @@
  * - 400 (self-scan) → toast + reset
  * - 400 (target nonaktif) → toast + reset
  */
+import { gx } from '@/theme/gradient';
 import { appAlert } from '@/components/ui/AppDialog';
 import { useState } from 'react';
 import {
@@ -196,7 +197,7 @@ export default function VisitScanScreen() {
             <Text className="text-sm font-semibold text-neutral-900">{t('scanner.search_title')}</Text>
           </Pressable>
           {/* Pertemuan dengan tamu (tanpa akun / tanpa QR) */}
-          <Pressable onPress={() => setGuestOpen(true)} className="bg-violet-600 rounded-full px-5 py-3 flex-row items-center gap-2">
+          <Pressable onPress={() => setGuestOpen(true)} {...gx('bg-violet-600 rounded-full px-5 py-3 flex-row items-center gap-2')}>
             <UserPlus size={16} color="#fff" />
             <Text className="text-sm font-semibold text-white">{t('visit.guest_btn')}</Text>
           </Pressable>

@@ -4,6 +4,7 @@
  * 2.4.7: header (hero, logo, nama, ikon sosmed & toko online, WhatsApp/Email) lalu
  * tab Katalog | Info supaya halaman tidak memanjang. Ikon hanya untuk data yang ada.
  */
+import { gx } from '@/theme/gradient';
 import { useState } from 'react';
 import { ActivityIndicator, Image, Linking, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -213,7 +214,7 @@ export default function LocalMarketDetailScreen() {
               {waTarget ? (
                 <Pressable
                   onPress={() => openUrl(waTarget)}
-                  className="flex-1 bg-emerald-600 rounded-2xl py-3 flex-row items-center justify-center gap-2"
+                  {...gx('flex-1 bg-emerald-600 rounded-2xl py-3 flex-row items-center justify-center gap-2')}
                 >
                   <MessageCircle size={16} color="#fff" />
                   <Text className="text-sm font-bold text-white">{t('katalog.wa_admin_btn')}</Text>

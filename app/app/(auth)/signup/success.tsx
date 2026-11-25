@@ -1,4 +1,5 @@
 import { Text, View } from 'react-native';
+import { gx } from '@/theme/gradient';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -29,8 +30,13 @@ export default function SignupSuccessScreen() {
         {/* Success check icon */}
         <View className="relative">
           <View
-            className="w-28 h-28 rounded-full bg-emerald-500 items-center justify-center"
-            style={{ shadowColor: '#10B981', shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 12 }}
+            {...gx('w-28 h-28 rounded-full bg-emerald-500 items-center justify-center', {
+              shadowColor: '#10B981',
+              shadowOpacity: 0.4,
+              shadowRadius: 20,
+              shadowOffset: { width: 0, height: 8 },
+              elevation: 12,
+            })}
           >
             <Check size={56} color="#fff" strokeWidth={3} />
           </View>

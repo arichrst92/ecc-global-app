@@ -3,6 +3,7 @@
  * Param: itemId (path), bizId (query). Data diambil dari detail bisnis
  * (sudah berisi item aktif) supaya tidak perlu endpoint baru di app.
  */
+import { gx } from '@/theme/gradient';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -187,7 +188,7 @@ export default function MarketItemScreen() {
             {wa ? (
               <Pressable
                 onPress={() => open(wa)}
-                className="flex-1 bg-emerald-600 rounded-2xl py-3.5 flex-row items-center justify-center gap-2"
+                {...gx('flex-1 bg-emerald-600 rounded-2xl py-3.5 flex-row items-center justify-center gap-2')}
               >
                 <MessageCircle size={16} color="#fff" />
                 <Text className="text-sm font-bold text-white">{t('katalog.ask_wa')}</Text>

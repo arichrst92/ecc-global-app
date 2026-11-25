@@ -1,4 +1,5 @@
 import { useRef, type ReactNode } from 'react';
+import { gx } from '@/theme/gradient';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -128,7 +129,7 @@ export function ScannerCamera({
           {onWalkInGuest ? (
             <Pressable
               onPress={onWalkInGuest}
-              className="bg-violet-600 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg"
+              {...gx('bg-violet-600 rounded-full px-5 py-3 flex-row items-center gap-2 shadow-lg')}
             >
               <UserPlus size={16} color="#fff" />
               <Text className="text-sm font-semibold text-white">{t('tamu.walkin_short')}</Text>

@@ -393,7 +393,7 @@ export default function CalendarScreen() {
             </Text>
             <Pressable
               onPress={refetchAll}
-              className="px-3 py-1.5 bg-red-500 rounded-lg"
+              {...gx('px-3 py-1.5 bg-red-500 rounded-lg')}
             >
               <Text className="text-white font-semibold text-xs">{t('common.retry')}</Text>
             </Pressable>
