@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ExternalLink, Share2 } from 'lucide-react-native';
 
 import { YoutubePlayer } from '@/components/video/YoutubePlayer';
+import { PlayerBoundary } from '@/components/video/PlayerBoundary';
 import { VideoRow, fmtVideoDate } from '@/components/video/VideoChannelView';
 import { useVideo } from '@/hooks/useVideos';
 import { useWorshipPlayer } from '@/stores/worship-player.store';
@@ -55,7 +56,9 @@ export default function VideoScreen() {
         <Text className="text-sm text-red-600 text-center p-8">{q.error instanceof ApiError ? q.error.message : t('error.generic')}</Text>
       ) : (
         <>
-          <YoutubePlayer youtubeId={v.youtubeId} />
+          <PlayerBoundary youtubeId={v.youtubeId} label={t('media.open_youtube')}>
+            <YoutubePlayer youtubeId={v.youtubeId} />
+          </PlayerBoundary>
           <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 120, gap: 14 }}>
             <View className="gap-1">
               <Text className="text-base font-bold text-neutral-900">{v.judul}</Text>
