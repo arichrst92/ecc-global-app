@@ -16,4 +16,5 @@ export type VideoCatalog = { kategori: { id: string; nama: string }[]; featured:
 export type VideoDetail = VideoItem & { related: VideoItem[] };
 
 export const getVideoCatalog = () => api.get<VideoCatalog>('/public/videos');
+export const getVideoSummary = () => api.get<{ total: number }>('/public/videos/summary');
 export const getVideo = (id: string) => api.get<VideoDetail>(`/public/videos/${id}`);

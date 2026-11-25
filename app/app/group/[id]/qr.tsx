@@ -19,7 +19,7 @@ import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Check, Copy, Link2, QrCode, RefreshCw } from 'lucide-react-native';
+import { ArrowLeft, Check, Copy, Lightbulb, Link2, QrCode, RefreshCw } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { Button } from '@/components/ui/Button';
@@ -201,9 +201,10 @@ export default function GroupQrScreen() {
         </View>
 
         {/* Hint */}
-        <View className="mt-6 bg-amber-50 border border-amber-100 rounded-xl p-3">
-          <Text className="text-xs text-amber-800 leading-relaxed">
-            💡 {t('group.qr_hint_privacy')}
+        <View className="mt-6 bg-amber-50 border border-amber-100 rounded-xl p-3 flex-row gap-2">
+          <Lightbulb size={14} color="#92400E" style={{ marginTop: 1 }} />
+          <Text className="flex-1 text-xs text-amber-800 leading-relaxed">
+            {t('group.qr_hint_privacy')}
           </Text>
         </View>
       </ScrollView>

@@ -167,7 +167,6 @@ function RequestSheet({ visible, onClose, journey }: { visible: boolean; onClose
                     <View className="flex-1">
                       <Text className="text-[10px] font-bold text-neutral-400">{t('journey.step_n', { n: s.urutan })}</Text>
                       <Text className="text-sm font-semibold text-neutral-900">
-                        {s.ikon ? `${s.ikon} ` : ''}
                         {s.judul}
                       </Text>
                       {s.achieved ? <Text className="text-[11px] text-emerald-700">{t('journey.req_already')}</Text> : null}

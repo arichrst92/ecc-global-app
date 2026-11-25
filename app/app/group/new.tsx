@@ -21,7 +21,7 @@ import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Info } from 'lucide-react-native';
+import { ArrowLeft, Info, Lightbulb } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { Picker } from '@/components/ui/Picker';
@@ -85,9 +85,7 @@ export default function CreateGroupScreen() {
     () =>
       JENIS_OPTIONS.map((j) => ({
         value: j,
-        label: `${GROUP_JENIS_LABELS[j].emoji} ${
-          lang === 'id' ? GROUP_JENIS_LABELS[j].id : GROUP_JENIS_LABELS[j].en
-        }`,
+        label: lang === 'id' ? GROUP_JENIS_LABELS[j].id : GROUP_JENIS_LABELS[j].en,
       })),
     [lang],
   );
@@ -301,9 +299,10 @@ export default function CreateGroupScreen() {
           </View>
 
           {/* PIC hint */}
-          <View className="mt-3 p-3 bg-brand-50 border border-brand-100 rounded-xl">
-            <Text className="text-xs text-brand-700 leading-relaxed">
-              💡 {t('group.pic_default_hint', { nama: user?.namaLengkap ?? '' })}
+          <View className="mt-3 p-3 bg-brand-50 border border-brand-100 rounded-xl flex-row gap-2">
+            <Lightbulb size={14} color="#C2410C" style={{ marginTop: 1 }} />
+            <Text className="flex-1 text-xs text-brand-700 leading-relaxed">
+              {t('group.pic_default_hint', { nama: user?.namaLengkap ?? '' })}
             </Text>
           </View>
         </ScrollView>

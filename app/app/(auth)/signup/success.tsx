@@ -3,7 +3,7 @@ import { gx } from '@/theme/gradient';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Check, ArrowRight } from 'lucide-react-native';
+import { Check, ArrowRight, PartyPopper, Sparkles } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/auth.store';
@@ -40,8 +40,12 @@ export default function SignupSuccessScreen() {
           >
             <Check size={56} color="#fff" strokeWidth={3} />
           </View>
-          <Text className="absolute -top-2 -right-2 text-3xl">🎉</Text>
-          <Text className="absolute -bottom-2 -left-2 text-3xl">🎊</Text>
+          <View className="absolute -top-2 -right-2">
+            <PartyPopper size={30} color="#EA580C" />
+          </View>
+          <View className="absolute -bottom-2 -left-2">
+            <Sparkles size={26} color="#F59E0B" />
+          </View>
         </View>
 
         <Text className="text-2xl font-bold text-neutral-900 mt-6 mb-2 text-center">

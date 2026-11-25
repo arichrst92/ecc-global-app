@@ -304,8 +304,9 @@ export default function ScannerIbadahScreen() {
                 {ibadahMeta?.nama ?? statsQuery.data?.ibadah?.nama ?? t('scanner.title')}
               </Text>
               {isKidsIbadah ? (
-                <View {...gx('bg-brand-500/80 px-1.5 py-0.5 rounded')}>
-                  <Text className="text-white text-[10px] font-bold">🧒 KIDS</Text>
+                <View {...gx('bg-brand-500/80 px-1.5 py-0.5 rounded flex-row items-center gap-0.5')}>
+                  <Baby size={10} color="#fff" />
+                  <Text className="text-white text-[10px] font-bold">KIDS</Text>
                 </View>
               ) : null}
             </View>

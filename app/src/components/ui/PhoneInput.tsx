@@ -83,7 +83,7 @@ export function PhoneInput({
           accessibilityLabel={`Kode negara ${country.name} ${country.dial}`}
           className="flex-row items-center gap-1.5 px-3 border-r border-neutral-200 h-full"
         >
-          <Text className="text-neutral-900" style={{ fontSize: 18, lineHeight: 22 }}>{country.flag}</Text>
+          <Text className="text-xs font-bold text-neutral-500">{country.iso}</Text>
           <Text className="text-sm font-medium text-neutral-700">{country.dial}</Text>
           <ChevronDown size={14} color={nc('#A3A3A3')} />
         </Pressable>
@@ -142,7 +142,9 @@ export function PhoneInput({
                   item.iso === country.iso ? 'bg-brand-50' : ''
                 }`}
               >
-                <Text className="text-neutral-900" style={{ fontSize: 20 }}>{item.flag}</Text>
+                <View className="w-9 h-6 rounded-md bg-neutral-100 items-center justify-center">
+                  <Text className="text-[11px] font-bold text-neutral-600">{item.iso}</Text>
+                </View>
                 <Text className="flex-1 text-sm text-neutral-900">{item.name}</Text>
                 <Text className="text-sm font-medium text-neutral-500">{item.dial}</Text>
               </Pressable>

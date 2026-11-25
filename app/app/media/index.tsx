@@ -13,7 +13,7 @@ import { ArrowLeft } from 'lucide-react-native';
 import { WorshipHomeView } from '../worship';
 import { VideoChannelView } from '@/components/video/VideoChannelView';
 import { useWorshipSummary } from '@/hooks/useWorship';
-import { useVideoCatalog } from '@/hooks/useVideos';
+import { useVideoSummary } from '@/hooks/useVideos';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 
@@ -25,7 +25,7 @@ export default function MediaScreen() {
   const params = useLocalSearchParams<{ tab?: string }>();
   const [tab, setTab] = useState<Tab>(params.tab === 'video' ? 'video' : 'worship');
   const ws = useWorshipSummary();
-  const vc = useVideoCatalog();
+  const vc = useVideoSummary();
   const hasWorship = ws.data ? !!ws.data.hasSongs : true;
   const hasVideo = vc.data ? vc.data.total > 0 : true;
   const tabs: { k: Tab; label: string }[] = [

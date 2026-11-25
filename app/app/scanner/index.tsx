@@ -9,7 +9,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CalendarDays, ChevronRight, Church, Clock, MapPin } from 'lucide-react-native';
+import { ArrowLeft, Baby, CalendarDays, ChevronRight, Church, Clock, MapPin } from 'lucide-react-native';
 
 import { useScannerEvents, useScannerIbadah } from '@/hooks/useScanner';
 import { formatDate, todayIso } from '@/utils/date';
@@ -172,8 +172,9 @@ function IbadahCard({
             {item.nama}
           </Text>
           {item.isKidsIbadah ? (
-            <View className="bg-pink-100 px-1.5 py-0.5 rounded">
-              <Text className="text-[10px] font-bold text-pink-700">🧒 KIDS</Text>
+            <View className="bg-pink-100 px-1.5 py-0.5 rounded flex-row items-center gap-0.5">
+              <Baby size={10} color="#BE185D" />
+              <Text className="text-[10px] font-bold text-pink-700">KIDS</Text>
             </View>
           ) : null}
         </View>

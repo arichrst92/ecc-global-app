@@ -28,7 +28,7 @@ import { useViewingBranch } from '@/hooks/useViewingBranch';
 import { getPrayerSummary } from '@/api/prayer';
 import { getKonselingHome } from '@/api/konseling';
 import { useWorshipSummary } from '@/hooks/useWorship';
-import { useVideoCatalog } from '@/hooks/useVideos';
+import { useVideoSummary } from '@/hooks/useVideos';
 
 type QuickAccessTile = {
   key: string;
@@ -68,7 +68,7 @@ export function QuickAccess() {
   // Media (2.5.1) = ECC Worship + Video Channel — tile tampil bila salah satunya berisi
   // (Worship: lagu terpublikasi / pengelola: draft; Video Channel: ada video tayang).
   const worshipQ = useWorshipSummary();
-  const videoQ = useVideoCatalog();
+  const videoQ = useVideoSummary();
   const showMedia = !!worshipQ.data?.hasSongs || (videoQ.data?.total ?? 0) > 0;
   const mediaHref = worshipQ.data?.hasSongs ? '/media' : '/media?tab=video';
 

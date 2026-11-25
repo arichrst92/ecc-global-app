@@ -13,7 +13,7 @@
  */
 import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Baby, Info } from 'lucide-react-native';
+import { Baby, CheckCircle2, Info } from 'lucide-react-native';
 
 import { localTime } from '@/utils/time';
 import { nc } from '@/theme/ThemeRoot';
@@ -38,7 +38,7 @@ export function PickupCodeCard({
     return (
       <View className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
         <View className="flex-row items-center gap-2">
-          <Text className="text-2xl">✅</Text>
+          <CheckCircle2 size={26} color="#059669" />
           <View className="flex-1">
             <Text className="text-sm font-bold text-emerald-900">
               {t('kids.pickup_completed_title')}

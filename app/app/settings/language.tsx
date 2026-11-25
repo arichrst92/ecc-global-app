@@ -73,7 +73,9 @@ export default function LanguageScreen() {
                   active ? 'border-brand-500' : 'border-neutral-100'
                 }`}
               >
-                <Text className="text-neutral-900" style={{ fontSize: 28 }}>{lang.flag}</Text>
+                <View className={`w-11 h-11 rounded-xl items-center justify-center ${active ? 'bg-brand-50' : 'bg-neutral-100'}`}>
+                  <Text className={`text-sm font-bold ${active ? 'text-brand-700' : 'text-neutral-600'}`}>{lang.code.toUpperCase()}</Text>
+                </View>
                 <View className="flex-1">
                   <Text className="font-semibold text-neutral-900">{lang.label}</Text>
                   <Text className="text-xs text-neutral-500 mt-0.5">{lang.sublabel}</Text>

@@ -95,9 +95,7 @@ export default function EditGroupScreen() {
     () =>
       JENIS_OPTIONS.map((j) => ({
         value: j,
-        label: `${GROUP_JENIS_LABELS[j].emoji} ${
-          lang === 'id' ? GROUP_JENIS_LABELS[j].id : GROUP_JENIS_LABELS[j].en
-        }`,
+        label: lang === 'id' ? GROUP_JENIS_LABELS[j].id : GROUP_JENIS_LABELS[j].en,
       })),
     [lang],
   );

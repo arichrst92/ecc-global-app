@@ -366,7 +366,7 @@ function RichTextInput({ value, onChange, error, max, readOnly }: { value: strin
     ['I', () => wrap('_'), { fontStyle: 'italic' }],
     ['•', () => prefix('- ')],
     ['1.', () => prefix('1. ')],
-    ['🔗', () => wrap('[', '](https://)')],
+    ['link', () => wrap('[', '](https://)')],
   ];
   return (
     <View className={`border rounded-xl bg-card overflow-hidden ${border(error)}`}>
@@ -374,9 +374,13 @@ function RichTextInput({ value, onChange, error, max, readOnly }: { value: strin
         <View className="flex-row gap-1 px-2 py-1.5 border-b border-neutral-100">
           {btns.map(([l, fn, st]) => (
             <Pressable key={l} onPress={fn} className="w-9 h-8 rounded-lg items-center justify-center active:bg-neutral-100">
-              <Text className="text-sm text-neutral-700" style={st}>
-                {l}
-              </Text>
+              {l === 'link' ? (
+                <Link2 size={15} color={nc('#404040')} />
+              ) : (
+                <Text className="text-sm text-neutral-700" style={st}>
+                  {l}
+                </Text>
+              )}
             </Pressable>
           ))}
         </View>

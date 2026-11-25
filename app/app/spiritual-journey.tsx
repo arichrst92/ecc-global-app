@@ -106,8 +106,6 @@ function StepItem({ step: s, last, onEvent }: { step: JourneyStep; last: boolean
         <View {...gx(`w-8 h-8 rounded-full border-2 items-center justify-center ${dot}`)}>
           {s.achieved ? (
             <Check size={16} color="#fff" />
-          ) : s.ikon ? (
-            <Text className="text-neutral-900 text-sm">{s.ikon}</Text>
           ) : s.isNext ? (
             <Text className="text-xs font-bold text-white">{s.urutan}</Text>
           ) : (
