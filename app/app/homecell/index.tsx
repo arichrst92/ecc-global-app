@@ -19,6 +19,7 @@ import { TextInput } from '@/components/ui/ThemedTextInput';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Bell, ChevronRight, Hourglass, Locate, Search, Settings2 } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
@@ -53,6 +54,7 @@ export default function HomecellHubScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const showToast = useToast((s) => s.show);
+  const qc = useQueryClient();
 
   const overview = useMyHomecellOverview();
   // 2.5.1 — tab per anggota keluarga (bukan tamu): homecell mereka, hanya lihat.
@@ -170,13 +172,20 @@ export default function HomecellHubScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: insets.bottom + 32 }}
         refreshControl={
           <PullRefreshControl
-            onRefresh={() => Promise.all([overview.refetch(), familyQ.refetch(), needsHomecell ? browse.refetch() : null])}
+            onRefresh={() =>
+              Promise.all([
+                overview.refetch(),
+                familyQ.refetch(),
+                needsHomecell || famSel ? qc.invalidateQueries({ queryKey: ['homecell', 'me', 'browse'] }) : null,
+              ])
+            }
             tintColor="#F97316"
           />
         }
       >
         {famSel ? (
-          <FamilyHomecellView data={famSel} onOpen={(id) => router.push(`/homecell/view/${id}` as never)} />
+          // key: state pencarian direset saat pindah anggota keluarga.
+          <FamilyHomecellView key={famSel.jemaat.id} data={famSel} />
         ) : overview.isPending ? (
           <View className="items-center py-16">
             <ActivityIndicator color="#F97316" />
@@ -350,39 +359,201 @@ export default function HomecellHubScreen() {
   );
 }
 
-/** Homecell anggota keluarga — hanya lihat (2.5.1). */
-function FamilyHomecellView({ data, onOpen }: { data: FamilyHomecell; onOpen: (id: string) => void }) {
+/**
+ * Homecell anggota keluarga (2.5.1). Sudah ikut → hanya lihat. Belum ikut →
+ * "Carikan homecell untuk {nama}": terdekat (GPS) + daftar cabang, dan
+ * permintaan bergabung diajukan atas nama anggota keluarga itu.
+ */
+function FamilyHomecellView({ data }: { data: FamilyHomecell }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const nama = data.jemaat.namaLengkap;
-  return (
-    <View>
-      <SectionTitle text={t('family_tabs.homecell_of', { name: nama })} />
-      {data.homecells.length ? (
+  const forId = data.jemaat.id;
+  const open = (id: string, find = false) =>
+    router.push(
+      (find
+        ? `/homecell/view/${id}?for=${encodeURIComponent(forId)}&forName=${encodeURIComponent(nama)}`
+        : `/homecell/view/${id}`) as never,
+    );
+  if (data.homecells.length) {
+    return (
+      <View>
+        <SectionTitle text={t('family_tabs.homecell_of', { name: nama })} />
         <View className="gap-2">
           {data.homecells.map((h) => (
+            <HomecellListCard key={h.id} item={h} onPress={() => open(h.id)} />
+          ))}
+        </View>
+      </View>
+    );
+  }
+  return <FamilyFindHomecell data={data} onOpen={(id) => open(id, true)} />;
+}
+
+function FamilyFindHomecell({ data, onOpen }: { data: FamilyHomecell; onOpen: (id: string) => void }) {
+  const { t } = useTranslation();
+  const showToast = useToast((s) => s.show);
+  const nama = data.jemaat.namaLengkap;
+  const forId = data.jemaat.id;
+  const pending = data.pendingRequests;
+
+  const [search, setSearch] = useState('');
+  const [kategori, setKategori] = useState<'SINGLE' | 'COUPLE' | 'ANAK' | null>(null);
+  const q = useDebounce(search.trim(), 300);
+  const [coords, setCoords] = useState<Coords | null>(null);
+  const { branch, viewingCabangId, isLoading: branchLoading } = useViewingBranch();
+  const browse = useBrowseHomecells(
+    { cabangId: viewingCabangId, q, lat: coords?.lat, lng: coords?.lng, kategori, forJemaatId: forId },
+    !branchLoading,
+  );
+  const [locating, setLocating] = useState(false);
+  const [nearest, setNearest] = useState<HomecellNearestResponse | null>(null);
+  const [nearestOpen, setNearestOpen] = useState(false);
+  const joinMut = useRequestJoinHomecell();
+  const cancelMut = useCancelJoinHomecell();
+  const errMsg = (e: unknown) => (e instanceof ApiError ? e.message : t('error.generic'));
+
+  async function findNearest() {
+    setLocating(true);
+    try {
+      const c = await getCurrentCoords();
+      setCoords(c);
+      const res = await nearestHomecells(c.lat, c.lng, viewingCabangId, 3, forId);
+      setNearest(res);
+      setNearestOpen(true);
+    } catch (e) {
+      if (e instanceof LocationError) {
+        showToast(e.reason === 'DENIED' ? t('hcj.loc_denied') : t('hcj.loc_unavailable'), 'error');
+      } else {
+        showToast(errMsg(e), 'error');
+      }
+    } finally {
+      setLocating(false);
+    }
+  }
+
+  function join(homecellId: string) {
+    joinMut.mutate(
+      { homecellId, forJemaatId: forId },
+      {
+        onSuccess: () => {
+          setNearestOpen(false);
+          showToast(t('family_tabs.join_sent_for', { name: nama }), 'success');
+        },
+        onError: (e) => showToast(errMsg(e), 'error'),
+      },
+    );
+  }
+
+  function cancel(homecellId: string, hcNama: string) {
+    appAlert(t('hcj.cancel_request'), t('family_tabs.cancel_confirm_for', { name: nama, homecell: hcNama }), [
+      { text: t('common.back'), style: 'cancel' },
+      {
+        text: t('hcj.cancel_request'),
+        style: 'destructive',
+        onPress: () =>
+          cancelMut.mutate(
+            { homecellId, forJemaatId: forId },
+            {
+              onSuccess: () => showToast(t('hcj.cancelled'), 'success'),
+              onError: (e) => showToast(errMsg(e), 'error'),
+            },
+          ),
+      },
+    ]);
+  }
+
+  return (
+    <View>
+      <SectionTitle text={t('family_tabs.find_for', { name: nama })} />
+      <Text className="text-sm text-neutral-600 mb-3">{t('family_tabs.find_intro', { name: nama })}</Text>
+
+      {pending.map((p) => (
+        <View
+          key={p.id}
+          className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-3 flex-row items-center gap-3"
+        >
+          <Hourglass size={18} color={nc('#B45309')} />
+          <Pressable className="flex-1" onPress={() => onOpen(p.homecell.id)}>
+            <Text className="text-sm font-semibold text-amber-900">
+              {t('family_tabs.pending', { homecell: p.homecell.nama })}
+            </Text>
+          </Pressable>
+          <Pressable onPress={() => cancel(p.homecell.id, p.homecell.nama)} hitSlop={8}>
+            <Text className="text-xs font-semibold text-red-600">{t('hcj.cancel_request')}</Text>
+          </Pressable>
+        </View>
+      ))}
+
+      <Button
+        label={locating ? t('hcj.locating') : t('family_tabs.nearest_btn_for', { name: nama })}
+        loading={locating}
+        onPress={findNearest}
+        leftIcon={<Locate size={18} color="#fff" />}
+      />
+
+      <View className="mt-5 mb-2">
+        <SectionTitle
+          text={branch ? t('hcj.find_section', { cabang: branch.nama }) : t('hcj.find_section_nocabang')}
+        />
+      </View>
+      <View className="flex-row items-center bg-card border border-neutral-200 rounded-xl px-3 mb-3">
+        <Search size={16} color={nc('#A3A3A3')} />
+        <TextInput
+          value={search}
+          onChangeText={setSearch}
+          placeholder={t('hcj.search_placeholder')}
+          placeholderTextColor={nc('#A3A3A3')}
+          className="flex-1 px-2 py-3 text-sm text-neutral-900"
+        />
+      </View>
+      <View className="flex-row gap-2 mb-3">
+        {([null, 'SINGLE', 'COUPLE', 'ANAK'] as const).map((k) => {
+          const on = kategori === k;
+          return (
+            <Pressable
+              key={k ?? 'all'}
+              onPress={() => setKategori(k)}
+              className={`px-3 py-1.5 rounded-full border ${on ? 'bg-brand-500 border-brand-500' : 'bg-card border-neutral-200'}`}
+            >
+              <Text className={`text-xs font-semibold ${on ? 'text-white' : 'text-neutral-700'}`}>
+                {k === null ? t('hcj.kategori_all') : homecellKategoriLabel(k)}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {browse.isPending ? (
+        <View className="items-center py-10">
+          <ActivityIndicator color="#F97316" />
+        </View>
+      ) : (browse.data ?? []).length === 0 ? (
+        <View className="items-center py-10 px-6">
+          <ElsEmptyIcon size={48} />
+          <Text className="text-sm text-neutral-500 text-center mt-2">{t('hcj.list_empty')}</Text>
+        </View>
+      ) : (
+        <View className="gap-2">
+          {(browse.data ?? []).map((h) => (
             <HomecellListCard key={h.id} item={h} onPress={() => onOpen(h.id)} />
           ))}
         </View>
-      ) : (
-        <View className="items-center py-10 px-6 bg-card rounded-2xl border border-neutral-100">
-          <ElsEmptyIcon size={48} />
-          <Text className="text-sm font-semibold text-neutral-700 text-center mt-2">{t('family_tabs.no_homecell', { name: nama })}</Text>
-          <Text className="text-xs text-neutral-500 text-center mt-1">{t('family_tabs.no_homecell_hint')}</Text>
-        </View>
       )}
-      {data.pendingRequests.map((p) => (
-        <Pressable
-          key={p.id}
-          onPress={() => onOpen(p.homecell.id)}
-          className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 mt-3 flex-row items-center gap-3"
-        >
-          <Hourglass size={16} color={nc('#B45309')} />
-          <Text className="flex-1 text-sm font-semibold text-amber-900">
-            {t('family_tabs.pending', { homecell: p.homecell.nama })}
-          </Text>
-          <ChevronRight size={16} color={nc('#B45309')} />
-        </Pressable>
-      ))}
+
+      <NearestHomecellModal
+        visible={nearestOpen}
+        data={nearest}
+        forName={nama}
+        joiningId={joinMut.isPending ? (joinMut.variables?.homecellId ?? null) : null}
+        hasPending={pending.length > 0}
+        onClose={() => setNearestOpen(false)}
+        onDetail={(id) => {
+          setNearestOpen(false);
+          onOpen(id);
+        }}
+        onJoin={join}
+      />
     </View>
   );
 }

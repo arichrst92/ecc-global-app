@@ -130,21 +130,37 @@ export function useFamilyHomecells() {
 }
 
 export function useBrowseHomecells(
-  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null },
+  params: {
+    cabangId?: string | null;
+    q?: string;
+    lat?: number;
+    lng?: number;
+    kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
+    forJemaatId?: string | null;
+  },
   enabled = true,
 ) {
   return useQuery({
-    queryKey: [...ME_HC_KEY, 'browse', params.cabangId ?? null, params.q ?? '', params.lat ?? null, params.lng ?? null, params.kategori ?? null],
+    queryKey: [
+      ...ME_HC_KEY,
+      'browse',
+      params.cabangId ?? null,
+      params.q ?? '',
+      params.lat ?? null,
+      params.lng ?? null,
+      params.kategori ?? null,
+      params.forJemaatId ?? null,
+    ],
     queryFn: () => browseHomecells(params),
     enabled,
     staleTime: 60_000,
   });
 }
 
-export function useHomecellPublic(homecellId: string | undefined) {
+export function useHomecellPublic(homecellId: string | undefined, forJemaatId?: string | null) {
   return useQuery({
-    queryKey: [...ME_HC_KEY, 'detail', homecellId],
-    queryFn: () => getHomecellPublic(homecellId!),
+    queryKey: [...ME_HC_KEY, 'detail', homecellId, forJemaatId ?? null],
+    queryFn: () => getHomecellPublic(homecellId!, forJemaatId),
     enabled: !!homecellId,
     staleTime: 30_000,
   });
@@ -153,14 +169,19 @@ export function useHomecellPublic(homecellId: string | undefined) {
 export function useRequestJoinHomecell() {
   const invalidate = useInvalidateHomecell();
   return useMutation({
-    mutationFn: (v: { homecellId: string; pesan?: string }) => requestJoinHomecell(v.homecellId, v.pesan),
+    mutationFn: (v: { homecellId: string; pesan?: string; forJemaatId?: string | null }) =>
+      requestJoinHomecell(v.homecellId, v.pesan, v.forJemaatId),
     onSuccess: invalidate,
   });
 }
 
 export function useCancelJoinHomecell() {
   const invalidate = useInvalidateHomecell();
-  return useMutation({ mutationFn: (homecellId: string) => cancelJoinHomecell(homecellId), onSuccess: invalidate });
+  return useMutation({
+    mutationFn: (v: string | { homecellId: string; forJemaatId?: string | null }) =>
+      typeof v === 'string' ? cancelJoinHomecell(v) : cancelJoinHomecell(v.homecellId, v.forJemaatId),
+    onSuccess: invalidate,
+  });
 }
 
 export function useHomecellJoinRequests(enabled = true) {

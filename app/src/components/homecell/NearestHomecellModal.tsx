@@ -25,9 +25,11 @@ type Props = {
   onClose: () => void;
   onDetail: (homecellId: string) => void;
   onJoin: (homecellId: string) => void;
+  /** 2.5.1 — dicarikan untuk anggota keluarga (judul & konfirmasi menyebut namanya). */
+  forName?: string | null;
 };
 
-export function NearestHomecellModal({ visible, data, joiningId, hasPending, onClose, onDetail, onJoin }: Props) {
+export function NearestHomecellModal({ visible, data, joiningId, hasPending, onClose, onDetail, onJoin, forName }: Props) {
   const { t } = useTranslation();
   const items = data?.items ?? [];
 
@@ -37,7 +39,7 @@ export function NearestHomecellModal({ visible, data, joiningId, hasPending, onC
       <View className="bg-neutral-50 rounded-t-3xl" style={{ maxHeight: '85%' }}>
         <View className="flex-row items-center justify-between px-5 pt-5 pb-3">
           <View>
-            <Text className="text-lg font-bold text-neutral-900">{t('hcj.nearest_title')}</Text>
+            <Text className="text-lg font-bold text-neutral-900">{forName ? t('hcj.nearest_title_for', { name: forName }) : t('hcj.nearest_title')}</Text>
             <Text className="text-xs text-neutral-500">{t('hcj.nearest_sub')}</Text>
           </View>
           <Pressable onPress={onClose} hitSlop={10} className="w-9 h-9 rounded-full bg-card items-center justify-center">
@@ -108,7 +110,9 @@ export function NearestHomecellModal({ visible, data, joiningId, hasPending, onC
                           size="sm"
                           loading={joiningId === h.id}
                           onPress={() =>
-                            appAlert(t('hcj.join_btn'), t('hcj.join_confirm', { name: h.nama }), [
+                            appAlert(t('hcj.join_btn'), forName
+                                ? t('hcj.join_confirm_for', { name: h.nama, person: forName })
+                                : t('hcj.join_confirm', { name: h.nama }), [
                               { text: t('common.cancel'), style: 'cancel' },
                               { text: t('hcj.join_btn'), onPress: () => onJoin(h.id) },
                             ])

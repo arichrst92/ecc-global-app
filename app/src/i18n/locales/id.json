@@ -2126,7 +2126,9 @@
     "loc_issue_LINTANG_TERBALIK": "Tanda minus pada koordinat hilang sehingga titiknya bergeser jauh. Perbaiki link Google Maps homecell ini.",
     "loc_issue_JAUH_DARI_CABANG": "Titik lokasi berjarak {{km}} km dari cabang — kemungkinan salah titik, sehingga homecell tidak muncul sebagai homecell terdekat. Periksa link Google Maps.",
     "no_app_badge": "Belum pakai Els App",
-    "no_app_count": "{{count}} anggota belum memakai Els App"
+    "no_app_count": "{{count}} anggota belum memakai Els App",
+    "nearest_title_for": "Homecell terdekat untuk {{name}}",
+    "join_confirm_for": "Kirim permintaan bergabung {{person}} ke {{name}}? Pemimpin homecell akan menerima notifikasi."
   },
   "gc": {
     "tab_announcements": "Pengumuman",
@@ -3143,7 +3145,15 @@
     "pending": "Menunggu persetujuan bergabung di {{homecell}}",
     "zona_of": "Zona {{name}}",
     "no_zona": "{{name}} belum punya zona",
-    "their_homecell": "Homecell-nya"
+    "their_homecell": "Homecell-nya",
+    "find_for": "Carikan homecell untuk {{name}}",
+    "find_intro": "{{name}} belum tergabung di homecell. Pilih homecell di bawah atau cari yang terdekat — permintaan bergabung diajukan atas nama {{name}}.",
+    "nearest_btn_for": "Cari homecell terdekat untuk {{name}}",
+    "join_sent_for": "Permintaan bergabung untuk {{name}} terkirim. Menunggu persetujuan pemimpin homecell.",
+    "cancel_confirm_for": "Batalkan permintaan bergabung {{name}} ke {{homecell}}?",
+    "member_for": "{{name}} sudah tergabung di homecell ini.",
+    "waiting_for": "Permintaan bergabung {{name}} sedang menunggu persetujuan pemimpin homecell.",
+    "joining_for": "Mengajukan untuk {{name}}"
   },
   "uform": {
     "section": "Formulir",

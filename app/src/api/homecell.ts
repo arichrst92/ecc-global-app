@@ -115,9 +115,18 @@ export function getMyHomecellOverview() {
 
 /** Daftar homecell di cabang saya (urut jarak kalau lat/lng dikirim). */
 export function browseHomecells(
-  params: { cabangId?: string | null; q?: string; lat?: number; lng?: number; kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null } = {},
+  params: {
+    cabangId?: string | null;
+    q?: string;
+    lat?: number;
+    lng?: number;
+    kategori?: 'SINGLE' | 'COUPLE' | 'ANAK' | null;
+    /** 2.5.1 — dicarikan untuk anggota keluarga (status & cabang mengikuti dia). */
+    forJemaatId?: string | null;
+  } = {},
 ) {
   const qs = new URLSearchParams();
+  if (params.forJemaatId) qs.append('forJemaatId', params.forJemaatId);
   if (params.cabangId) qs.append('cabangId', params.cabangId);
   if (params.kategori) qs.append('kategori', params.kategori);
   if (params.q) qs.append('q', params.q);
@@ -130,27 +139,40 @@ export function browseHomecells(
 }
 
 /** Rekomendasi homecell terdekat (hanya yang punya lokasi). */
-export function nearestHomecells(lat: number, lng: number, cabangId?: string | null, limit = 3) {
+export function nearestHomecells(
+  lat: number,
+  lng: number,
+  cabangId?: string | null,
+  limit = 3,
+  forJemaatId?: string | null,
+) {
   const c = cabangId ? `&cabangId=${encodeURIComponent(cabangId)}` : '';
+  const f = forJemaatId ? `&forJemaatId=${encodeURIComponent(forJemaatId)}` : '';
   return api.get<HomecellNearestResponse>(
-    `/admin/me/homecell/nearest?lat=${lat}&lng=${lng}&limit=${limit}${c}`,
+    `/admin/me/homecell/nearest?lat=${lat}&lng=${lng}&limit=${limit}${c}${f}`,
   );
 }
+
+const forQs = (forJemaatId?: string | null) =>
+  forJemaatId ? `?forJemaatId=${encodeURIComponent(forJemaatId)}` : '';
 
 /** Detail read-only (anggota / calon anggota). */
-export function getHomecellPublic(homecellId: string) {
-  return api.get<HomecellPublicDetail>(`/admin/me/homecell/${homecellId}`);
+export function getHomecellPublic(homecellId: string, forJemaatId?: string | null) {
+  return api.get<HomecellPublicDetail>(`/admin/me/homecell/${homecellId}${forQs(forJemaatId)}`);
 }
 
-export function requestJoinHomecell(homecellId: string, pesan?: string) {
+/** forJemaatId (2.5.1): yang diajukan bergabung = anggota keluarga, bukan saya. */
+export function requestJoinHomecell(homecellId: string, pesan?: string, forJemaatId?: string | null) {
   return api.post<{ requestId: string; status: 'PENDING' }>(
     `/admin/me/homecell/${homecellId}/join-request`,
-    { pesan: pesan || undefined },
+    { pesan: pesan || undefined, forJemaatId: forJemaatId || undefined },
   );
 }
 
-export function cancelJoinHomecell(homecellId: string) {
-  return api.delete<{ id: string; status: 'CANCELLED' }>(`/admin/me/homecell/${homecellId}/join-request`);
+export function cancelJoinHomecell(homecellId: string, forJemaatId?: string | null) {
+  return api.delete<{ id: string; status: 'CANCELLED' }>(
+    `/admin/me/homecell/${homecellId}/join-request${forQs(forJemaatId)}`,
+  );
 }
 
 /** [Leader] permintaan bergabung PENDING di homecell yang dipimpin. */

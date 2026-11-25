@@ -47,12 +47,16 @@ export default function HomecellViewScreen() {
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // 2.5.1 — `for`/`forName`: dibuka dari "Carikan homecell untuk {anggota keluarga}";
+  // status & permintaan bergabung berlaku untuk anggota keluarga itu.
+  const { id, for: forParam, forName: forNameParam } = useLocalSearchParams<{ id: string; for?: string; forName?: string }>();
+  const forId = typeof forParam === 'string' && forParam ? forParam : null;
+  const forName = forId && typeof forNameParam === 'string' ? forNameParam : null;
   const showToast = useToast((s) => s.show);
 
-  const q = useHomecellPublic(id);
+  const q = useHomecellPublic(id, forId);
   const hc = q.data;
-  const materiQ = useHomecellMateri(id, hc?.myStatus === 'MEMBER' || hc?.myStatus === 'LEADER');
+  const materiQ = useHomecellMateri(id, !forId && (hc?.myStatus === 'MEMBER' || hc?.myStatus === 'LEADER'));
   const joinMut = useRequestJoinHomecell();
   const cancelMut = useCancelJoinHomecell();
   const lokasiMut = useSetHomecellLokasi();
@@ -94,17 +98,20 @@ export default function HomecellViewScreen() {
 
   function join() {
     if (!hc) return;
-    appAlert(t('hcj.join_btn'), t('hcj.join_confirm', { name: hc.nama }), [
+    appAlert(
+      t('hcj.join_btn'),
+      forName ? t('hcj.join_confirm_for', { name: hc.nama, person: forName }) : t('hcj.join_confirm', { name: hc.nama }),
+      [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('hcj.join_btn'),
         onPress: () =>
           joinMut.mutate(
-            { homecellId: hc.id, pesan: pesan.trim() || undefined },
+            { homecellId: hc.id, pesan: pesan.trim() || undefined, forJemaatId: forId },
             {
               onSuccess: () => {
                 setPesan('');
-                showToast(t('hcj.join_sent'), 'success');
+                showToast(forName ? t('family_tabs.join_sent_for', { name: forName }) : t('hcj.join_sent'), 'success');
               },
               onError: (e) => showToast(errMsg(e), 'error'),
             },
@@ -115,13 +122,18 @@ export default function HomecellViewScreen() {
 
   function cancel() {
     if (!hc) return;
-    appAlert(t('hcj.cancel_request'), t('hcj.cancel_confirm', { name: hc.nama }), [
+    appAlert(
+      t('hcj.cancel_request'),
+      forName
+        ? t('family_tabs.cancel_confirm_for', { name: forName, homecell: hc.nama })
+        : t('hcj.cancel_confirm', { name: hc.nama }),
+      [
       { text: t('common.back'), style: 'cancel' },
       {
         text: t('hcj.cancel_request'),
         style: 'destructive',
         onPress: () =>
-          cancelMut.mutate(hc.id, {
+          cancelMut.mutate({ homecellId: hc.id, forJemaatId: forId }, {
             onSuccess: () => showToast(t('hcj.cancelled'), 'success'),
             onError: (e) => showToast(errMsg(e), 'error'),
           }),
@@ -232,7 +244,23 @@ export default function HomecellViewScreen() {
           ) : null}
 
           {/* Status / aksi */}
-          {hc.myStatus === 'MEMBER' && hc.isAsisten ? (
+          {forName && (hc.myStatus === 'MEMBER' || hc.myStatus === 'LEADER') ? (
+            // Dicarikan untuk anggota keluarga yang ternyata sudah tergabung.
+            <StatusNote
+              icon={<CheckCircle2 size={18} color="#059669" />}
+              tone="emerald"
+              text={t('family_tabs.member_for', { name: forName })}
+            />
+          ) : forName && hc.myStatus === 'PENDING' ? (
+            <View className="gap-2">
+              <StatusNote
+                icon={<Hourglass size={18} color={nc('#B45309')} />}
+                tone="amber"
+                text={t('family_tabs.waiting_for', { name: forName })}
+              />
+              <Button label={t('hcj.cancel_request')} variant="danger" loading={cancelMut.isPending} onPress={cancel} />
+            </View>
+          ) : hc.myStatus === 'MEMBER' && hc.isAsisten ? (
             // Asisten (2.4.7): buka halaman kelola terbatas (jadwal, absen, tamu, konten).
             <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3">
               <StatusNote icon={<ShieldCheck size={18} color="#6D28D9" />} tone="brand" text={t('hcj.you_are_asisten')} />
@@ -269,6 +297,9 @@ export default function HomecellViewScreen() {
                 joinCardY.current = e.nativeEvent.layout.y;
               }}
             >
+              {forName ? (
+                <Text className="text-xs font-semibold text-brand-600">{t('family_tabs.joining_for', { name: forName })}</Text>
+              ) : null}
               <Text className="text-sm font-semibold text-neutral-800">{t('hcj.join_message_label')}</Text>
               <TextInput
                 value={pesan}

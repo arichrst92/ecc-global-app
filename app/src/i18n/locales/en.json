@@ -2132,7 +2132,9 @@
     "loc_issue_LINTANG_TERBALIK": "The coordinates are missing a minus sign, so the point is far off. Fix this homecell's Google Maps link.",
     "loc_issue_JAUH_DARI_CABANG": "The location point is {{km}} km from the branch — probably the wrong point, so the homecell doesn't show up as nearby. Check the Google Maps link.",
     "no_app_badge": "Not on Els App",
-    "no_app_count": "{{count}} members aren't on Els App yet"
+    "no_app_count": "{{count}} members aren't on Els App yet",
+    "nearest_title_for": "Nearest homecells for {{name}}",
+    "join_confirm_for": "Send a join request for {{person}} to {{name}}? The homecell leader will be notified."
   },
   "gc": {
     "tab_announcements": "Announcements",
@@ -3149,7 +3151,15 @@
     "pending": "Awaiting approval to join {{homecell}}",
     "zona_of": "{{name}}'s zone",
     "no_zona": "{{name}} doesn't have a zone yet",
-    "their_homecell": "Their homecell"
+    "their_homecell": "Their homecell",
+    "find_for": "Find a homecell for {{name}}",
+    "find_intro": "{{name}} hasn't joined a homecell yet. Pick one below or find the nearest — the join request is sent on behalf of {{name}}.",
+    "nearest_btn_for": "Find nearest homecell for {{name}}",
+    "join_sent_for": "Join request for {{name}} sent. Waiting for the homecell leader's approval.",
+    "cancel_confirm_for": "Cancel {{name}}'s join request to {{homecell}}?",
+    "member_for": "{{name}} is already a member of this homecell.",
+    "waiting_for": "{{name}}'s join request is waiting for the homecell leader's approval.",
+    "joining_for": "Requesting for {{name}}"
   },
   "uform": {
     "section": "Forms",
