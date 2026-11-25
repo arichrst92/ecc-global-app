@@ -45,6 +45,10 @@ export type InAppNotifType =
   | 'FORM_REMINDER'
   | 'FORM_NEEDS_FIX'
   | 'FORM_REJECTED'
+  // Konseling (2.5.1)
+  | 'KONSELING_ASSIGNED'
+  | 'KONSELING_SCHEDULED'
+  | 'KONSELING_UPDATED'
   // Pengingat & ucapan di feed (saluran notifikasi per jenis, BE 2026-12)
   | 'IBADAH_REMINDER'
   | 'EVENT_REMINDER'

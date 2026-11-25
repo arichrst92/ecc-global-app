@@ -28,6 +28,7 @@ const KNOWN_ROUTES: RegExp[] = [
   `/announcement/${ID}`,
   '/homecell-material',
   `/form/${ID}`, `/form/response/${ID}`,
+  '/konseling', `/konseling/${ID}`, '/konseling/new',
 ].map((p) => new RegExp(`^${p.replace(/[()]/g, '\\$&')}/?(\\?.*)?$`));
 
 const isKnownRoute = (url: string) => KNOWN_ROUTES.some((re) => re.test(url));
@@ -182,6 +183,16 @@ function fallbackRoute(notif: InAppNotification): string | null {
     case 'MINISTRY_DUTY_REMOVED':
       return '/profile/my-service';
 
+    case 'KONSELING_ASSIGNED': {
+      const kid = pickString(meta, 'konselingId');
+      return kid ? `/konseling/${kid}?as=konselor` : '/konseling?tab=assigned';
+    }
+    case 'KONSELING_SCHEDULED':
+    case 'KONSELING_UPDATED': {
+      const kid = pickString(meta, 'konselingId');
+      return kid ? `/konseling/${kid}` : '/konseling';
+    }
+
     default:
       return null;
   }
@@ -300,6 +311,11 @@ export function notifIconKey(type: InAppNotifType): NotifIconKey {
       return 'group-remove';
     case 'FORM_REMINDER':
       return 'ticket-qr';
+    case 'KONSELING_ASSIGNED':
+      return 'group-add';
+    case 'KONSELING_SCHEDULED':
+    case 'KONSELING_UPDATED':
+      return 'home-check';
     case 'FORM_NEEDS_FIX':
     case 'FORM_REJECTED':
       return 'group-remove';

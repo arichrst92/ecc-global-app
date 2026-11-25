@@ -22,6 +22,7 @@ import {
   Info,
   LogOut,
   MessageSquareText,
+  MessageSquareHeart,
   Moon,
   NotebookPen,
   Sun,
@@ -217,6 +218,13 @@ function ProfileTabAuthenticated() {
               label={t('profile.prayer_menu')}
               sub={t('profile.prayer_menu_sub')}
               onPress={() => router.push('/doa' as never)}
+            />
+            <MenuRow
+              icon={<MessageSquareHeart size={18} color="#059669" />}
+              iconBg="bg-emerald-50"
+              label={t('profile.konseling_menu')}
+              sub={t('profile.konseling_menu_sub')}
+              onPress={() => router.push('/konseling' as never)}
               isLast
             />
           </MenuBox>
