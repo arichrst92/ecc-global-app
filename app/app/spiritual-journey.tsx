@@ -70,11 +70,11 @@ export default function SpiritualJourneyScreen() {
               <View className="h-2 bg-card rounded-full mt-2 overflow-hidden">
                 <View
                   className="h-full bg-emerald-500 rounded-full"
-                  style={{ width: `${Math.round((d.achievedCount / d.total) * 100)}%` }}
+                  style={{ width: `${d.total > 0 ? Math.round((d.achievedCount / d.total) * 100) : 0}%` }}
                 />
               </View>
               <Text className="text-xs text-emerald-800 mt-2">
-                {d.nextIndex != null ? t('journey.next_short', { title: d.steps[d.nextIndex]!.judul }) : t('journey.all_done')}
+                {d.nextIndex != null && d.steps[d.nextIndex] ? t('journey.next_short', { title: d.steps[d.nextIndex]!.judul }) : t('journey.all_done')}
               </Text>
             </View>
 

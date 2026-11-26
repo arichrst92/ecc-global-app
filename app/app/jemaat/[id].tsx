@@ -332,7 +332,7 @@ function FullProfile({
             <View className="h-2 bg-neutral-100 rounded-full overflow-hidden mb-3">
               <View
                 className="h-full bg-emerald-500 rounded-full"
-                style={{ width: `${Math.round((journey.achievedCount / journey.total) * 100)}%` }}
+                style={{ width: `${journey.total > 0 ? Math.round((journey.achievedCount / journey.total) * 100) : 0}%` }}
               />
             </View>
             {journey.steps.map((st, i) => (
