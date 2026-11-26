@@ -39,7 +39,7 @@ const VISIBLE = 8;
 /**
  * Kelompokkan petugas satu pelayanan per **kategori tugas** (Portal → Pelayanan →
  * tugas, mis. "Registrasi", "Camera"); baris orang menampilkan tugasnya.
- * Petugas yang belum diberi tugas → dikelompokkan per peran.
+ * Petugas yang belum diberi kategori & tugas → tanpa judul, di paling bawah (peran di bawah nama).
  * Urutan kelompok = urutan kemunculan dari server.
  */
 type TeamGroup = { key: string; title: string; people: { p: TeamMember; sub: string | null }[] };
@@ -59,11 +59,12 @@ function byTugas(people: TeamMember[]): TeamGroup[] {
       const sub = [same.join(', ') || p.role || null, other.length ? tugasText(other) : null].filter(Boolean).join(' · ') || null;
       add(`k:${first.kategoriId}`, first.kategori, p, sub);
     } else {
-      const r = (p.role ?? '').trim();
-      add(`r:${r}`, r, p, null);
+      // Belum diberi kategori & tugas → tanpa judul kelompok; peran tampil di bawah nama.
+      add('none', '', p, (p.role ?? '').trim() || null);
     }
   }
-  return [...m.values()];
+  // Yang belum punya tugas ditaruh paling bawah.
+  return [...m.values()].sort((a, b) => Number(a.key === 'none') - Number(b.key === 'none'));
 }
 
 export function MinistryTeamCard({
