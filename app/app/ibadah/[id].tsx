@@ -9,11 +9,10 @@ import {
   Calendar,
   CalendarPlus,
   CheckCircle2,
-  Clock,
-  FileText,
   MapPin,
   QrCode,
   RefreshCw,
+  Repeat,
   UserCheck,
   Ticket,
   Video,
@@ -46,6 +45,7 @@ import { hariLabel } from '@/utils/hari';
 import { useScreenInterval } from '@/hooks/useScreenInterval';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 import { useSwipeLocked } from '@/components/tiket/swipeLock';
+import { Collapsible, DetailTabs, SectionHead, TicketCarousel, heroGradient, heroTop } from '@/components/detail/DetailBits';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -144,20 +144,40 @@ export default function IbadahDetailScreen() {
   const allCheckedIn =
     !!selfCheckin.data && selfCheckin.data.members.length > 0 && selfCheckin.data.members.every((m) => m.status === 'JOIN');
 
+  // Tab di bawah: Tentang (deskripsi) & Tim pelayanan — hanya yang berisi.
+  const hasDesc = !!ibadah?.deskripsi && ibadah.deskripsi.trim().length > 0;
+  const teamCount = ibadah?.petugas?.length ?? 0;
+  const tabs = [
+    ...(hasDesc ? [{ key: 'about', label: t('detail.tab_about') }] : []),
+    ...(teamCount ? [{ key: 'team', label: t('detail.tab_team'), badge: teamCount }] : []),
+  ];
+  const [tab, setTab] = useState<string>('about');
+  const activeTab = tabs.some((x) => x.key === tab) ? tab : (tabs[0]?.key ?? 'about');
+  // Header menyusut: setelah judul besar tergulir, nama ibadah tampil di bilah atas.
+  const [scrolled, setScrolled] = useState(false);
+  const streamLink = ibadah ? getStreamLink(ibadah) : null;
+  const jadwalText = (() => {
+    if (!ibadah) return '';
+    const day = hariLabel(ibadah.hari);
+    if (ibadah.tipeJadwal === 'WEEKLY' && day) return t('ibadah.every_day', { day });
+    if (ibadah.tipeJadwal === 'BIWEEKLY' && day) return t('ibadah.every_other_day', { day });
+    if (ibadah.tipeJadwal === 'MONTHLY' && day && ibadah.mingguKe) return t('ibadah.monthly_nth', { day, nth: t(`ibadah.nth_${ibadah.mingguKe}`) });
+    if (ibadah.tipeJadwal === 'MONTHLY') return t('ibadah.monthly');
+    if (ibadah.tipeJadwal === 'ONCE') return t('ibadah.once');
+    return ibadah.tipeJadwal;
+  })();
+
   return (
     <View className="flex-1 bg-neutral-50">
-      {/* Hero header */}
-      <View {...gx('bg-brand-500 pb-6 rounded-b-3xl')}>
+      {/* Bilah atas (tetap) — menyatu dengan hero oranye di bawahnya */}
+      <View style={{ backgroundColor: heroTop() }}>
         <SafeAreaView edges={['top']}>
-          <View className="flex-row items-center px-4 pt-2">
-            <Pressable
-              onPress={() => goBack(router)}
-              className="w-10 h-10 rounded-full bg-white/15 items-center justify-center"
-            >
+          <View className="flex-row items-center px-4 pt-1 pb-2">
+            <Pressable onPress={() => goBack(router)} className="w-10 h-10 rounded-full bg-white/15 items-center justify-center">
               <ArrowLeft size={20} color="#fff" />
             </Pressable>
-            <Text className="flex-1 text-white text-base font-semibold text-center">
-              {t('ibadah.detail_title')}
+            <Text className="flex-1 text-white text-base font-semibold text-center px-2" numberOfLines={1}>
+              {scrolled && ibadah ? ibadah.nama : t('ibadah.detail_title')}
             </Text>
             {Platform.OS === 'web' ? (
               <Pressable
@@ -176,27 +196,15 @@ export default function IbadahDetailScreen() {
               <Ticket size={18} color="#fff" />
             </Pressable>
           </View>
-
-          {ibadah ? (
-            <View className="px-5 pt-4">
-              {ibadah.kategoriIbadah ? (
-                <View className="bg-white/15 rounded-full px-3 py-1 self-start mb-2">
-                  <Text className="text-xs text-white font-medium">
-                    {ibadah.kategoriIbadah.nama}
-                  </Text>
-                </View>
-              ) : null}
-              <Text className="text-2xl font-bold text-white">{ibadah.nama}</Text>
-              <Text className="text-white/80 text-sm mt-1">{ibadah.cabang.nama}</Text>
-            </View>
-          ) : null}
         </SafeAreaView>
       </View>
 
       <ScrollView
         className="flex-1"
         scrollEnabled={!swipeLocked}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 100 }}
+        scrollEventThrottle={32}
+        onScroll={(e) => setScrolled(e.nativeEvent.contentOffset.y > 70)}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} tintColor="#F97316" />}
       >
         {query.isPending ? (
@@ -212,137 +220,107 @@ export default function IbadahDetailScreen() {
           </View>
         ) : ibadah ? (
           <>
-            {/* Specific date — tampil prominent kalau navigate dari list dengan
-                tanggal occurrence di URL param. Lebih informatif dari hari
-                generic dari ibadah master schedule. */}
-            {tanggal ? (
-              <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3 flex-row items-center gap-3">
-                <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-                  <Calendar size={18} color="#EA580C" />
+            {/* Hero: kategori, nama, cabang (ikut tergulir) */}
+            <View className="rounded-b-3xl px-5 pt-1 pb-14" style={[{ backgroundColor: heroTop() }, heroGradient()]}>
+              {ibadah.kategoriIbadah ? (
+                <View className="bg-white/15 rounded-full px-3 py-1 self-start mb-2">
+                  <Text className="text-xs text-white font-medium">{ibadah.kategoriIbadah.nama}</Text>
                 </View>
-                <View className="flex-1">
-                  <Text className="text-xs text-neutral-500">{t('ibadah.date_label')}</Text>
-                  <Text className="font-semibold text-neutral-900">
-                    {formatDateWithDay(tanggal, lang)}
-                  </Text>
+              ) : null}
+              <Text className="text-2xl font-bold text-white">{ibadah.nama}</Text>
+              <Text className="text-white/80 text-sm mt-1">{ibadah.cabang.nama}</Text>
+            </View>
+
+            {/* Kartu ringkasan (menumpang di hero): tanggal & jam, lokasi, jadwal, online, okupansi */}
+            <View
+              className="bg-card rounded-[20px] border border-neutral-100 mx-4 -mt-11"
+              style={{ shadowColor: '#9A3412', shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 3 }}
+            >
+              <SummaryRow
+                first
+                icon={<Calendar size={16} color="#EA580C" />}
+                label={tanggal ? t('detail.date_time') : t('ibadah.time')}
+                value={
+                  tanggal
+                    ? `${formatDateWithDay(tanggal, lang)} · ${zoneTimeText(ibadah.jamMulai, ibadah.jamSelesai, venueTz, lang, venueCity)}`
+                    : zoneTimeText(ibadah.jamMulai, ibadah.jamSelesai, venueTz, lang, venueCity)
+                }
+                note={timeHint}
+                right={
+                  ended ? (
+                    <View className="flex-row items-center gap-1 bg-neutral-200 rounded-full px-2 py-0.5">
+                      <CheckCircle2 size={11} color={nc('#525252')} />
+                      <Text className="text-[10px] font-bold text-neutral-700">{t('ibadah.ended')}</Text>
+                    </View>
+                  ) : null
+                }
+              />
+              <SummaryRow
+                icon={<MapPin size={16} color="#EA580C" />}
+                label={t('ibadah.location')}
+                value={ibadah.lokasi?.trim() || ibadah.cabang?.nama || '—'}
+                note={ibadah.isOnline && streamLink ? t('ibadah.online_service') : null}
+                noteClass="text-emerald-600"
+              />
+              <SummaryRow icon={<Repeat size={16} color="#EA580C" />} label={t('ibadah.schedule')} value={jadwalText} />
+              {streamLink ? (
+                <View className="px-3.5 pb-3">
+                  <Pressable
+                    onPress={() => Linking.openURL(streamLink).catch(() => {})}
+                    {...gx('bg-emerald-500 rounded-xl py-2.5 flex-row items-center justify-center gap-2')}
+                  >
+                    <Video size={16} color="#fff" />
+                    <Text className="text-white font-semibold text-sm">{t('ibadah.access_online')}</Text>
+                  </Pressable>
                 </View>
-                {ended ? (
-                  <View className="flex-row items-center gap-1 bg-neutral-200 rounded-full px-2.5 py-1">
-                    <CheckCircle2 size={12} color={nc('#525252')} />
-                    <Text className="text-[11px] font-bold text-neutral-700">{t('ibadah.ended')}</Text>
+              ) : null}
+              {ibadah.okupansi?.seat ? (
+                <View className="px-3.5 pb-3.5 -mt-1.5 border-t border-neutral-100">
+                  <OccupancyBar data={ibadah.okupansi} compact />
+                </View>
+              ) : null}
+            </View>
+
+            <View className="px-4 pt-3 gap-3">
+              {/* Tugas saya — satu baris, ketuk → rincian (2.5.1) */}
+              <MyDutyCard petugas={ibadah?.petugas} compact />
+            </View>
+
+            {/* Tiket Saya — digeser ke samping; geser check-in per tiket tetap */}
+            {myTickets.length > 0 ? (
+              <View className="pt-4">
+                <TicketCarousel
+                  title={t('tiket.my_tickets')}
+                  items={myTickets}
+                  keyOf={(r) => r.id}
+                  padX={16}
+                  render={(r) => (
+                    <IbadahTicketCard
+                      reservasi={r}
+                      onPress={() =>
+                        router.push(`/tiket?kind=ibadah&id=${r.id}&ibadahId=${r.ibadah.id}&tanggal=${r.tanggalIbadah.slice(0, 10)}` as never)
+                      }
+                    />
+                  )}
+                />
+              </View>
+            ) : null}
+
+            {/* Tab: Tentang (deskripsi) | Tim pelayanan */}
+            {tabs.length ? (
+              <View className="px-4 pt-4 gap-2.5">
+                {tabs.length > 1 ? <DetailTabs tabs={tabs} value={activeTab} onChange={setTab} /> : <SectionHead title={tabs[0]!.key === 'about' ? t('ibadah.description') : t('ibadah.team')} />}
+                {activeTab === 'about' && hasDesc ? (
+                  <View className="bg-card rounded-2xl p-4 border border-neutral-100">
+                    <Collapsible>
+                      <Text className="text-sm text-neutral-700 leading-relaxed">{ibadah.deskripsi}</Text>
+                    </Collapsible>
                   </View>
                 ) : null}
+                {/* Petugas — ketuk nama → profil (view-only) */}
+                {activeTab === 'team' ? <MinistryTeamCard petugas={ibadah.petugas} embedded /> : null}
               </View>
             ) : null}
-
-            {/* Info grid */}
-            <View className="flex-row gap-3 mb-3">
-              <InfoCard
-                icon={<Clock size={18} color="#EA580C" />}
-                label={t('ibadah.time')}
-                value={zoneTimeText(ibadah.jamMulai, ibadah.jamSelesai, venueTz, lang, venueCity)}
-              />
-              <InfoCard
-                icon={<Calendar size={18} color="#EA580C" />}
-                label={t('ibadah.schedule')}
-                value={(() => {
-                  const day = hariLabel(ibadah.hari);
-                  if (ibadah.tipeJadwal === 'WEEKLY' && day) return t('ibadah.every_day', { day });
-                  if (ibadah.tipeJadwal === 'BIWEEKLY' && day) return t('ibadah.every_other_day', { day });
-                  if (ibadah.tipeJadwal === 'MONTHLY' && day && ibadah.mingguKe)
-                    return t('ibadah.monthly_nth', { day, nth: t(`ibadah.nth_${ibadah.mingguKe}`) });
-                  if (ibadah.tipeJadwal === 'MONTHLY') return t('ibadah.monthly');
-                  if (ibadah.tipeJadwal === 'ONCE') return t('ibadah.once');
-                  return ibadah.tipeJadwal;
-                })()}
-              />
-            </View>
-            {timeHint ? <Text className="text-[11px] text-neutral-500 -mt-1 mb-3">{timeHint}</Text> : null}
-
-            {/* Location */}
-            {(() => {
-              const streamLink = getStreamLink(ibadah);
-              return (
-                <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3">
-                  <View className="flex-row items-center gap-3">
-                    <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-                      <MapPin size={18} color="#EA580C" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-xs text-neutral-500">{t('ibadah.location')}</Text>
-                      <Text className="font-semibold text-neutral-900">{ibadah.lokasi?.trim() || ibadah.cabang?.nama || '—'}</Text>
-                      {/* Hide "Ibadah Online" indicator kalau link tidak
-                          tersedia — supaya tidak misleading saat admin set
-                          flag tapi belum masukkan URL. */}
-                      {ibadah.isOnline && streamLink ? (
-                        <Text className="text-xs text-emerald-600 mt-0.5">{t('ibadah.online_service')}</Text>
-                      ) : null}
-                    </View>
-                  </View>
-
-                  {/* Stream button — show kalau ada link. Helper accept
-                      both `linkOnline` + `linkStream` (BE rename belum
-                      fully efektif per device log 2026-05-24). */}
-                  {streamLink ? (
-                    <Pressable
-                      onPress={() =>
-                        Linking.openURL(streamLink).catch(() => {
-                          // Silent — user might not have suitable app
-                        })
-                      }
-                      {...gx('mt-3 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2')}
-                    >
-                      <Video size={18} color="#fff" />
-                      <Text className="text-white font-semibold text-sm">
-                        {t('ibadah.access_online')}
-                      </Text>
-                    </Pressable>
-                  ) : null}
-                </View>
-              );
-            })()}
-
-            {/* Tugas saya — petugas yang melayani melihat pelayanan, peran & tugasnya (2.5.1) */}
-            {/* Jarak antar-kartu halaman ini = mb-3 (kartu di atas sudah mb-3). */}
-            <MyDutyCard petugas={ibadah?.petugas} className="mb-3" />
-
-            {/* Tiket Saya — reservasi aktif ibadah ini, geser check-in per tiket */}
-            {myTickets.length > 0 ? (
-              // mb-3: kartu Okupansi / Tim pelayanan di bawahnya tidak menempel ke tiket.
-              <View className="mt-1 mb-3 gap-3">
-                <Text className="text-base font-bold text-neutral-900">{t('tiket.my_tickets')}</Text>
-                {myTickets.map((r) => (
-                  <IbadahTicketCard
-                    key={r.id}
-                    reservasi={r}
-                    onPress={() =>
-                      router.push(`/tiket?kind=ibadah&id=${r.id}&ibadahId=${r.ibadah.id}&tanggal=${r.tanggalIbadah.slice(0, 10)}` as never)
-                    }
-                  />
-                ))}
-              </View>
-            ) : null}
-
-            {/* Okupansi kursi pertemuan ini (hanya kalau seat diisi admin) */}
-            <OccupancyBar data={ibadah.okupansi} />
-
-            {/* Deskripsi — kalau BE provide */}
-            {ibadah.deskripsi && ibadah.deskripsi.trim().length > 0 ? (
-              <View className="bg-card rounded-2xl p-4 border border-neutral-100 mb-3">
-                <View className="flex-row items-center gap-2 mb-2">
-                  <FileText size={16} color={nc('#525252')} />
-                  <Text className="text-sm font-semibold text-neutral-700">
-                    {t('ibadah.description')}
-                  </Text>
-                </View>
-                <Text className="text-sm text-neutral-700 leading-relaxed">
-                  {ibadah.deskripsi}
-                </Text>
-              </View>
-            ) : null}
-
-            {/* Petugas — per BE patch 23a tap nama → /jemaat/[id] view-only profile */}
-            <MinistryTeamCard petugas={ibadah.petugas} />
           </>
         ) : null}
       </ScrollView>
@@ -457,22 +435,32 @@ export default function IbadahDetailScreen() {
   );
 }
 
-function InfoCard({
+function SummaryRow({
   icon,
   label,
   value,
+  note,
+  noteClass = 'text-neutral-500',
+  right,
+  first = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
+  note?: string | null;
+  noteClass?: string;
+  right?: React.ReactNode;
+  first?: boolean;
 }) {
   return (
-    <View className="flex-1 bg-card rounded-xl p-3 border border-neutral-100">
-      <View className="flex-row items-center gap-1.5">
-        {icon}
-        <Text className="text-xs text-neutral-500">{label}</Text>
+    <View className={`flex-row items-start gap-3 px-3.5 py-3 ${first ? '' : 'border-t border-neutral-100'}`}>
+      <View className="w-8 h-8 rounded-[10px] bg-brand-50 items-center justify-center">{icon}</View>
+      <View className="flex-1 min-w-0">
+        <Text className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wide">{label}</Text>
+        <Text className="text-[13px] font-bold text-neutral-900 leading-[18px] mt-0.5">{value}</Text>
+        {note ? <Text className={`text-[11px] mt-0.5 ${noteClass}`}>{note}</Text> : null}
       </View>
-      <Text className="font-semibold text-neutral-900 text-sm mt-1">{value}</Text>
+      {right}
     </View>
   );
 }

@@ -36,7 +36,16 @@ export type TeamMember = {
 
 const VISIBLE = 8;
 
-export function MinistryTeamCard({ petugas, className = '' }: { petugas: TeamMember[] | undefined; className?: string }) {
+export function MinistryTeamCard({
+  petugas,
+  className = '',
+  embedded = false,
+}: {
+  petugas: TeamMember[] | undefined;
+  className?: string;
+  /** Di dalam tab Detail Ibadah/Event — judul kartu tidak perlu (sudah di tab). */
+  embedded?: boolean;
+}) {
   const { t } = useTranslation();
   const router = useRouter();
   const [all, setAll] = useState(false);
@@ -67,20 +76,22 @@ export function MinistryTeamCard({ petugas, className = '' }: { petugas: TeamMem
 
   return (
     <View className={`bg-card rounded-2xl p-4 border border-neutral-100 ${className}`}>
-      <View className="flex-row items-center gap-2 mb-1">
-        <Users size={16} color={nc('#525252')} />
-        <Text className="flex-1 text-sm font-semibold text-neutral-700" numberOfLines={1}>
-          {t('ibadah.team')}
-        </Text>
-        <Text className="text-xs text-neutral-500">{total}</Text>
-      </View>
+      {!embedded ? (
+        <View className="flex-row items-center gap-2 mb-1">
+          <Users size={16} color={nc('#525252')} />
+          <Text className="flex-1 text-sm font-semibold text-neutral-700" numberOfLines={1}>
+            {t('ibadah.team')}
+          </Text>
+          <Text className="text-xs text-neutral-500">{total}</Text>
+        </View>
+      ) : null}
 
       {shown.map((g, gi) => {
         const Icon = ministryIconComponent(g.ikon);
         const w = ministryWarna(g.warna);
         const fullCount = groups.find((x) => x.nama === g.nama)?.people.length ?? g.people.length;
         return (
-          <View key={g.nama} className={gi > 0 ? 'mt-3 pt-3 border-t border-neutral-100' : 'mt-2'}>
+          <View key={g.nama} className={gi > 0 ? 'mt-3 pt-3 border-t border-neutral-100' : embedded ? '' : 'mt-2'}>
             {/* Judul kelompok: ikon ministry + nama (boleh turun baris) + jumlah */}
             <View className="flex-row items-center gap-2 mb-2">
               <View style={{ backgroundColor: w.bg }} className="w-6 h-6 rounded-md items-center justify-center">
@@ -92,7 +103,7 @@ export function MinistryTeamCard({ petugas, className = '' }: { petugas: TeamMem
               <Text className="text-[11px] text-neutral-500">{fullCount}</Text>
             </View>
 
-            <View className="gap-2">
+            <View className="gap-2.5">
               {g.people.map((p) => (
                 <Pressable
                   key={p.id}
@@ -101,24 +112,20 @@ export function MinistryTeamCard({ petugas, className = '' }: { petugas: TeamMem
                   accessibilityRole="button"
                   accessibilityLabel={`${p.jemaat.namaLengkap}, ${p.role}${p.tugas?.length ? `, ${tugasText(p.tugas)}` : ''}`}
                 >
-                  <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl ?? null} size={32} />
+                  {/* Foto sejajar dua baris: nama, lalu peran · tugas di bawahnya. */}
+                  <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl ?? null} size={40} />
                   <View className="flex-1 min-w-0">
-                    <Text className="text-sm font-medium text-neutral-900 leading-5" numberOfLines={2}>
+                    <Text className="text-sm font-semibold text-neutral-900 leading-5" numberOfLines={1}>
                       {p.jemaat.namaLengkap}
                       {p.isMe ? <Text className="text-xs font-semibold text-brand-600">{`  ${t('ibadah.team_you')}`}</Text> : null}
                     </Text>
-                    {p.role ? (
-                      <Text className="text-xs text-neutral-500 leading-4" numberOfLines={1}>
+                    {p.role || p.tugas?.length ? (
+                      <Text className="text-xs text-neutral-500 leading-4" numberOfLines={2}>
                         {p.role}
+                        {p.tugas?.length ? (
+                          <Text className="font-medium text-brand-700">{`${p.role ? ' · ' : ''}${tugasText(p.tugas)}`}</Text>
+                        ) : null}
                       </Text>
-                    ) : null}
-                    {p.tugas?.length ? (
-                      <View className="flex-row items-start gap-1 mt-0.5">
-                        <ClipboardList size={11} color="#EA580C" style={{ marginTop: 2 }} />
-                        <Text className="flex-1 text-xs font-medium text-brand-700 leading-4" numberOfLines={2}>
-                          {tugasText(p.tugas)}
-                        </Text>
-                      </View>
                     ) : null}
                   </View>
                 </Pressable>
@@ -151,16 +158,46 @@ export function MinistryTeamCard({ petugas, className = '' }: { petugas: TeamMem
  * Data = baris `isMe` dari daftar petugas (server sudah mengirim tugas untuk
  * petugas itu sendiri).
  */
-export function MyDutyCard({ petugas, className = '' }: { petugas: TeamMember[] | undefined; className?: string }) {
+export function MyDutyCard({
+  petugas,
+  className = '',
+  compact = false,
+}: {
+  petugas: TeamMember[] | undefined;
+  className?: string;
+  /** Relayout detail (2.5.1): satu baris ringkas, ketuk → rincian. */
+  compact?: boolean;
+}) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
   const mine = (petugas ?? []).filter((p) => p.isMe);
   if (!mine.length) return null;
+  if (compact && !open) {
+    const p = mine[0]!;
+    const what = [p.pelayananNama, p.tugas?.length ? tugasText(p.tugas) : p.role].filter(Boolean).join(' · ');
+    return (
+      <Pressable
+        onPress={() => setOpen(true)}
+        className={`flex-row items-center gap-2.5 bg-brand-50 border border-brand-200 rounded-2xl px-3.5 py-2.5 active:opacity-80 ${className}`}
+        accessibilityRole="button"
+        accessibilityLabel={`${t('ibadah.my_duty_title')}: ${what}`}
+      >
+        <ClipboardList size={16} color="#EA580C" />
+        <Text className="flex-1 text-xs text-brand-800" numberOfLines={1}>
+          {t('detail.on_duty')} <Text className="font-extrabold">{what}</Text>
+          {mine.length > 1 ? <Text className="font-bold">{`  +${mine.length - 1}`}</Text> : null}
+        </Text>
+        <ChevronDown size={16} color="#C2410C" />
+      </Pressable>
+    );
+  }
   return (
     <View className={`bg-brand-50 border border-brand-200 rounded-2xl p-4 ${className}`} accessibilityRole="summary">
-      <View className="flex-row items-center gap-2 mb-2">
+      <Pressable disabled={!compact} onPress={() => setOpen(false)} className="flex-row items-center gap-2 mb-2">
         <ClipboardList size={16} color="#EA580C" />
         <Text className="flex-1 text-sm font-bold text-brand-800">{t('ibadah.my_duty_title')}</Text>
-      </View>
+        {compact ? <ChevronUp size={16} color="#C2410C" /> : null}
+      </Pressable>
       <View className="gap-2.5">
         {mine.map((p) => {
           const Icon = ministryIconComponent(p.pelayananIkon);

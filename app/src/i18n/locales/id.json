@@ -688,7 +688,8 @@
     "thanks_giving": "Terima kasih atas pemberian Anda.",
     "registered_noted": "Pendaftaran Anda sudah tercatat.",
     "my_given": "Anda sudah memberi",
-    "my_registered": "Anda terdaftar"
+    "my_registered": "Anda terdaftar",
+    "teaser_label": "Video teaser"
   },
   "branch": {
     "active_label": "Cabang aktif",
@@ -3361,5 +3362,19 @@
     "show_more": "Selengkapnya",
     "show_less": "Sembunyikan",
     "next_in": "Berikutnya di {{name}}"
+  },
+  "detail": {
+    "show_more": "Selengkapnya",
+    "show_less": "Sembunyikan",
+    "swipe_count": "{{n}} dari {{total}} · geser",
+    "on_duty": "Anda bertugas:",
+    "tab_about": "Tentang",
+    "tab_team": "Tim pelayanan",
+    "tab_team_short": "Tim",
+    "tab_forms": "Formulir",
+    "date_time": "Tanggal & jam",
+    "date": "Tanggal",
+    "time": "Jam",
+    "my_registration": "Pendaftaran saya"
   }
 }

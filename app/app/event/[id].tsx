@@ -3,13 +3,13 @@ import { FormCards } from '@/components/forms/FormCards';
 import { QuotaBar } from '@/components/ui/QuotaBar';
 import { eventCount } from '@/utils/eventCount';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Linking, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native';
 import { Modal } from '@/components/ui/Modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, ChevronRight, Clock, FileText, HandHeart, MapPin, PlayCircle, Receipt, Share2, Upload, User, UserCheck, Users, X } from 'lucide-react-native';
+import { ShieldAlert, AlertTriangle, ArrowLeft, ArrowRight, Calendar, Check, CheckCircle2, ChevronRight, Clock, FileText, HandHeart, MapPin, Receipt, Share2, Upload, User, UserCheck, Users, X } from 'lucide-react-native';
 
 import { Button } from '@/components/ui/Button';
 import { HeroImage } from '@/components/ui/HeroImage';
@@ -44,6 +44,8 @@ import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 import { serverNowMs } from '@/utils/serverClock';
 import { useSwipeLocked } from '@/components/tiket/swipeLock';
+import { Collapsible, DetailTabs, ExpandRow, SectionHead, TicketCarousel, VideoTeaser } from '@/components/detail/DetailBits';
+import { useFormCards } from '@/hooks/useForms';
 
 export default function EventDetailScreen() {
   const hero = useHeroScroll();
@@ -274,6 +276,25 @@ export default function EventDetailScreen() {
     return `Rp ${num.toLocaleString('id-ID')}`;
   })();
 
+  // Tab bawah — hanya yang berisi. Badge Formulir = peserta yang belum mengisi / perlu diperbaiki.
+  const formCardsQ = useFormCards('EVENT', event?.id);
+  const formCards = formCardsQ.data ?? [];
+  const formTodo = formCards.reduce(
+    (n, c) => n + (c.state === 'OPEN' ? c.subjects.filter((x) => !x.response || x.response.status === 'NEEDS_FIX').length : 0),
+    0,
+  );
+  const hasDesc = !!event?.deskripsi && event.deskripsi.trim().length > 0;
+  const hasVideo = !!event?.videoUrl && event.videoUrl.trim().length > 0;
+  const hasTags = !!event?.tags && event.tags.length > 0;
+  const teamCount = event?.petugas?.length ?? 0;
+  const tabs = [
+    ...(hasDesc || hasVideo || hasTags ? [{ key: 'about', label: t('detail.tab_about') }] : []),
+    ...(formCards.length ? [{ key: 'forms', label: t('detail.tab_forms'), badge: formTodo || undefined }] : []),
+    ...(teamCount ? [{ key: 'team', label: t('detail.tab_team_short'), badge: teamCount }] : []),
+  ];
+  const [tab, setTab] = useState<string>('about');
+  const activeTab = tabs.some((x) => x.key === tab) ? tab : (tabs[0]?.key ?? 'about');
+
   return (
     <View className="flex-1 bg-neutral-50">
       {event ? (
@@ -364,269 +385,248 @@ export default function EventDetailScreen() {
             {/* Gambar utama mengikuti rasio asli (tidak terpotong) — sama dengan daftar & tiket. */}
             <HeroImage url={event.heroImageUrl} fallbackEmoji="🎉" emojiSize={96} fitToWidth />
 
-            <View className="bg-neutral-50 -mt-5 rounded-t-3xl pt-5 px-5 pb-5">
-              <View className={`px-2.5 py-1 rounded-full self-start ${eventPriceTone(event.tipeBayar).soft} mb-2`}>
-                <Text className={`text-xs font-semibold ${eventPriceTone(event.tipeBayar).text}`}>
-                  {priceLabel}
-                </Text>
-              </View>
-              <Text className="text-2xl font-bold text-neutral-900 leading-tight">{event.judul}</Text>
+            <View className="bg-neutral-50 -mt-5 rounded-t-3xl pt-4 pb-5">
+              {/* Kartu ringkasan: harga, judul, tanggal, jam, lokasi, kuota */}
+              <View className="mx-4 bg-card rounded-[20px] border border-neutral-100 p-4" style={{ shadowColor: '#9A3412', shadowOpacity: 0.1, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 3 }}>
+                <View className={`px-2.5 py-1 rounded-full self-start ${eventPriceTone(event.tipeBayar).soft} mb-2`}>
+                  <Text className={`text-xs font-semibold ${eventPriceTone(event.tipeBayar).text}`}>{priceLabel}</Text>
+                </View>
+                <Text className="text-xl font-bold text-neutral-900 leading-tight">{event.judul}</Text>
 
-              {/* Meta */}
-              <View className="mt-4 gap-2.5">
-                {(() => {
-                  // Format sama dengan tiket & daftar: "Jumat, 12 Des 2026 – Minggu, 14 Des 2026".
-                  const s = ymdInTz(event.tanggalMulai, venueTz);
-                  const e = ymdInTz(event.tanggalSelesai || event.tanggalMulai, venueTz);
-                  const days = Math.round((Date.parse(`${e}T00:00:00Z`) - Date.parse(`${s}T00:00:00Z`)) / 86_400_000) + 1;
-                  return (
-                    <MetaRow
-                      icon={<Calendar size={18} color="#EA580C" />}
-                      primary={`${formatDateWithDay(s, lang)}${e !== s ? ` – ${formatDateWithDay(e, lang)}` : ''}`}
-                      secondary={days > 1 ? t('event.days_count', { count: days }) : null}
-                    />
-                  );
-                })()}
-                {/* Jam mulai - selesai — prefer BE jamMulai/jamSelesai (BE patch 2026-05-22a),
-                    fallback ke parse dari ISO untuk event lama */}
-                {(() => {
-                  const range = formatTimeRange(event, venueTz, lang, venueCity);
-                  const local = event.jamMulai && event.jamMulai !== '-'
-                    ? localRangeIfDifferent(ymdInTz(event.tanggalMulai, venueTz), event.jamMulai, event.jamSelesai, venueTz)
-                    : null;
-                  // Jam tidak diisi admin → baris jam tidak ditampilkan.
-                  if (!range) return null;
-                  return (
-                    <MetaRow
-                      icon={<Clock size={18} color="#EA580C" />}
-                      primary={range}
-                      secondary={local ? t('time.your_time', { time: local }) : null}
-                    />
-                  );
-                })()}
-                {/* Lokasi tidak diisi admin → baris lokasi tidak ditampilkan. */}
-                {event.lokasi && event.lokasi.trim().length > 0 && event.lokasi.trim() !== '-' ? (
-                  <MetaRow icon={<MapPin size={18} color="#EA580C" />} primary={event.lokasi} />
-                ) : null}
-                {event.quotaPeserta != null ? (
-                  <View className="flex-row items-center gap-3">
-                    <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">
-                      {shownCount.attending ? <UserCheck size={18} color="#EA580C" /> : <Users size={18} color="#EA580C" />}
-                    </View>
+                <View className="flex-row flex-wrap gap-2 mt-3">
+                  {(() => {
+                    // Format sama dengan tiket & daftar: "Jumat, 12 Des 2026 – Minggu, 14 Des 2026".
+                    const s = ymdInTz(event.tanggalMulai, venueTz);
+                    const e = ymdInTz(event.tanggalSelesai || event.tanggalMulai, venueTz);
+                    const days = Math.round((Date.parse(`${e}T00:00:00Z`) - Date.parse(`${s}T00:00:00Z`)) / 86_400_000) + 1;
+                    const range = formatTimeRange(event, venueTz, lang, venueCity);
+                    const local =
+                      event.jamMulai && event.jamMulai !== '-'
+                        ? localRangeIfDifferent(ymdInTz(event.tanggalMulai, venueTz), event.jamMulai, event.jamSelesai, venueTz)
+                        : null;
+                    return (
+                      <>
+                        <Fact
+                          wide={!range}
+                          icon={<Calendar size={12} color={nc('#737373')} />}
+                          label={t('detail.date')}
+                          primary={`${formatDateWithDay(s, lang)}${e !== s ? ` – ${formatDateWithDay(e, lang)}` : ''}`}
+                          secondary={days > 1 ? t('event.days_count', { count: days }) : null}
+                        />
+                        {/* Jam tidak diisi admin → kotak jam tidak ditampilkan. */}
+                        {range ? (
+                          <Fact
+                            icon={<Clock size={12} color={nc('#737373')} />}
+                            label={t('detail.time')}
+                            primary={range}
+                            secondary={local ? t('time.your_time', { time: local }) : null}
+                          />
+                        ) : null}
+                      </>
+                    );
+                  })()}
+                  {/* Lokasi tidak diisi admin → kotak lokasi tidak ditampilkan. */}
+                  {event.lokasi && event.lokasi.trim().length > 0 && event.lokasi.trim() !== '-' ? (
+                    <Fact wide icon={<MapPin size={12} color={nc('#737373')} />} label={t('ibadah.location')} primary={event.lokasi} />
+                  ) : null}
+                </View>
+
+                <View className="mt-3">
+                  {event.quotaPeserta != null ? (
                     <QuotaBar
-                      className="flex-1"
                       size="md"
-                      icon={null}
+                      icon={shownCount.attending ? <UserCheck size={14} color={nc('#737373')} /> : <Users size={14} color={nc('#737373')} />}
                       count={shownCount.count}
                       total={event.quotaPeserta}
                       attending={shownCount.attending}
                       label={t(shownCount.attending ? 'event.quota_attending' : 'event.quota_registered', { count: shownCount.count, quota: event.quotaPeserta })}
                       barClass={isFull ? 'bg-red-500' : 'bg-brand-500'}
                     />
-                  </View>
-                ) : (
-                  <MetaRow
-                    icon={<Users size={18} color="#EA580C" />}
-                    primary={
-                      shownCount.attending
-                        ? t('event.attending_count', { count: shownCount.count })
-                        : t('event.participants_count', { count: shownCount.count })
-                    }
-                  />
-                )}
+                  ) : (
+                    <View className="flex-row items-center gap-2">
+                      <Users size={14} color={nc('#737373')} />
+                      <Text className="text-xs font-semibold text-neutral-700">
+                        {shownCount.attending
+                          ? t('event.attending_count', { count: shownCount.count })
+                          : t('event.participants_count', { count: shownCount.count })}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </View>
 
-              {/* Syarat ikut event — selalu terlihat (bukan hanya saat tidak memenuhi). */}
-              {event.requirementLabels && event.requirementLabels.length > 0 ? (
-                <View
-                  className={`mt-4 rounded-2xl p-3.5 border ${
-                    event.myEligible === false ? 'bg-amber-50 border-amber-200' : 'bg-card border-neutral-100'
-                  }`}
-                >
-                  <View className="flex-row items-center gap-2">
-                    <ShieldAlert size={16} color={event.myEligible === false ? nc('#B45309') : '#EA580C'} />
-                    <Text className="flex-1 text-sm font-semibold text-neutral-900">{t('event.requirements_title')}</Text>
-                    {event.myEligible === true ? (
-                      <View className="flex-row items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        <Check size={11} color="#047857" />
-                        <Text className="text-[10px] font-bold text-emerald-700">{t('event.requirements_met')}</Text>
-                      </View>
-                    ) : event.myEligible === false ? (
-                      <View className="bg-amber-100 px-2 py-0.5 rounded-full">
-                        <Text className="text-[10px] font-bold text-amber-800">{t('event.requirements_not_met')}</Text>
-                      </View>
-                    ) : null}
-                  </View>
-                  <View className="flex-row flex-wrap gap-1.5 mt-2">
-                    {event.requirementLabels.map((r) => (
-                      <View key={r} className="bg-neutral-100 rounded-full px-2.5 py-1">
-                        <Text className="text-xs text-neutral-700">{r}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              ) : null}
-
-              {/* Info pembayaran (event berbayar tetap) — terlihat sebelum mendaftar. */}
-              {event.tipeBayar === 'NOMINAL_TETAP' && (event.bankNomor || event.qrisImageUrl) ? (
-                <View className="mt-4 bg-card rounded-2xl p-3.5 border border-neutral-100">
-                  <View className="flex-row items-center gap-2">
-                    <Receipt size={16} color="#EA580C" />
-                    <Text className="flex-1 text-sm font-semibold text-neutral-900">{t('event.payment_info_title')}</Text>
-                  </View>
-                  {event.bankNama && event.bankNomor ? (
-                    <View className="mt-2">
-                      <Text className="text-xs text-neutral-500">
-                        {event.bankNama}
-                        {event.bankAtasNama ? ` · a.n. ${event.bankAtasNama}` : ''}
-                      </Text>
-                      <Text className="text-base font-bold text-neutral-900 tracking-wider" selectable>
-                        {event.bankNomor}
-                      </Text>
-                    </View>
-                  ) : null}
-                  {event.qrisImageUrl ? (
-                    <View className="flex-row items-center gap-3 mt-2">
-                      <Image source={{ uri: `${env.apiBaseUrl}${event.qrisImageUrl}` }} style={{ width: 72, height: 72 }} resizeMode="contain" />
-                      <Text className="flex-1 text-xs text-neutral-500">{t('event.payment_info_qris')}</Text>
-                    </View>
-                  ) : null}
-                  <Text className="text-[11px] text-neutral-400 mt-2">{t('event.payment_info_hint')}</Text>
-                </View>
-              ) : null}
-
-              {/* Participation trackers — satu card per participation (self +
-                  family). Per BE update 2026-08-31 family-multi. Clickable →
-                  modal dengan info lengkap + tombol cancel per-tracker.
-                  Hidden untuk event GRATIS — tracker card tidak relevan
-                  (tidak ada bukti transfer, tidak ada nominal, hanya status
-                  DAFTAR). Bottom CTA sudah cukup indikasi "sudah daftar". */}
-              {!isFree && familyParticipations.length > 0 ? (
-                <View className="mt-4 gap-2">
-                  {familyParticipations.length > 1 ? (
-                    <View className="flex-row items-center justify-between">
-                      <Text className="text-sm font-bold text-neutral-900">
-                        {t('event.family_registrations_title', {
-                          count: familyParticipations.length,
-                        })}
-                      </Text>
-                    </View>
-                  ) : null}
-                  {familyParticipations.map((p) => (
-                    <ParticipationStatusCard
-                      key={p.id}
-                      participation={p}
-                      isFree={isFree}
-                      noMeeting={noMeeting}
-                      voluntary={event.tipeBayar === 'NOMINAL_BEBAS'}
-                      lang={lang}
-                      onPress={() => {
-                        setSelectedParticipation(p);
-                        setDetailModalOpen(true);
-                      }}
-                    />
-                  ))}
-                </View>
-              ) : !isFree && participation ? (
-                // Fallback: kalau family list belum ready (offline) tapi ada
-                // local participation → tampil sebagai single card read-only.
-                // Skip untuk event GRATIS (tracker tidak relevan).
-                <ParticipationStatusCard
-                  participation={{
-                    id: participation.participationId,
-                    eventId: event.id,
-                    jemaatId:
-                      'jemaatId' in participation
-                        ? (participation as { jemaatId: string }).jemaatId
-                        : '',
-                    status: participation.status,
-                    nominalBayar:
-                      event.myParticipation?.nominalBayar
-                        ? String(event.myParticipation.nominalBayar)
-                        : '0',
-                    registeredAt: new Date(participation.registeredAt).toISOString(),
-                    isSelf: true,
-                    relationLabel: t('event.detail_self'),
-                  }}
-                  isFree={isFree}
-                  noMeeting={noMeeting}
-                  voluntary={event.tipeBayar === 'NOMINAL_BEBAS'}
-                  lang={lang}
-                  onPress={() => {
-                    // Buka modal dengan data yang ada (mungkin partial)
-                    if (event.myParticipation) {
-                      setSelectedParticipation({
-                        ...event.myParticipation,
-                        isSelf: true,
-                        relationLabel: t('event.detail_self'),
-                      });
-                      setDetailModalOpen(true);
-                    }
-                  }}
-                />
-              ) : null}
-
-              {/* Tugas saya — petugas yang melayani melihat pelayanan, peran & tugasnya (2.5.1) */}
-              <MyDutyCard petugas={event.petugas} className="mt-4" />
-
-              {/* Tiket Saya — satu tiket per orang, ketuk untuk QR besar.
-                  Event tanpa pencatatan kehadiran → tidak perlu tiket, disembunyikan. */}
-              {myTickets.length > 0 && event.butuhKehadiran !== false ? (
-                <View className="mt-5 gap-3">
-                  <Text className="text-base font-bold text-neutral-900">{t('tiket.my_tickets')}</Text>
-                  {myTickets.map((tk) => (
-                    <EventTicketCard
-                      key={tk.id}
-                      ticket={tk}
-                      compact
-                      onPress={() => router.push(`/tiket?kind=event&id=${tk.id}&eventId=${tk.event.id}` as never)}
-                    />
-                  ))}
-                </View>
-              ) : null}
-
-              {/* Deskripsi */}
-              {event.deskripsi && event.deskripsi.trim().length > 0 ? (
-                <View className="mt-5 bg-card rounded-2xl p-4 border border-neutral-100">
-                  <View className="flex-row items-center gap-2 mb-2">
-                    <FileText size={16} color={nc('#525252')} />
-                    <Text className="text-sm font-semibold text-neutral-700">{t('event.about_event')}</Text>
-                  </View>
-                  {/* Deskripsi ditulis dengan markdown di Portal → dirender (tebal, poin, tautan). */}
-                  <AnnouncementMarkdown source={event.deskripsi} compact />
-                </View>
-              ) : null}
-
-              {/* Tim pelayanan — ketuk nama → profil (sama seperti detail ibadah) */}
-              {/* Universal Form (2.5.1) — hanya untuk peserta terdaftar, per peserta */}
-              <FormCards sourceType="EVENT" sourceId={event.id} className="mt-4" />
-
-              <MinistryTeamCard petugas={event.petugas} className="mt-4" />
-
-              {/* Video teaser button — kalau BE provide videoUrl */}
-              {event.videoUrl && event.videoUrl.trim().length > 0 ? (
-                <Pressable
-                  onPress={() => Linking.openURL(event.videoUrl!).catch(() => {})}
-                  {...gx('mt-4 bg-red-500 rounded-xl py-3 flex-row items-center justify-center gap-2')}
-                >
-                  <PlayCircle size={18} color="#fff" />
-                  <Text className="text-white font-semibold text-sm">
-                    {t('event.watch_teaser')}
-                  </Text>
-                </Pressable>
-              ) : null}
-
-              {/* Tags */}
-              {event.tags && event.tags.length > 0 ? (
-                <View className="flex-row flex-wrap gap-2 mt-4">
-                  {event.tags.map((tag) => (
-                    <View
-                      key={tag}
-                      className="px-2.5 py-1 bg-neutral-100 rounded-full"
+              {/* Syarat & Info pembayaran — baris buka-tutup. Syarat belum dipenuhi → terbuka otomatis. */}
+              {(event.requirementLabels && event.requirementLabels.length > 0) ||
+              (event.tipeBayar === 'NOMINAL_TETAP' && (event.bankNomor || event.qrisImageUrl)) ? (
+                <View className="mx-4 mt-3 bg-card rounded-2xl border border-neutral-100 overflow-hidden">
+                  {event.requirementLabels && event.requirementLabels.length > 0 ? (
+                    <ExpandRow
+                      first
+                      key={`req-${event.myEligible === false}`}
+                      defaultOpen={event.myEligible === false}
+                      icon={<ShieldAlert size={16} color={event.myEligible === false ? nc('#B45309') : '#EA580C'} />}
+                      title={t('event.requirements_title')}
+                      badge={
+                        event.myEligible === true ? (
+                          <View className="flex-row items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full">
+                            <Check size={11} color="#047857" />
+                            <Text className="text-[10px] font-bold text-emerald-700">{t('event.requirements_met')}</Text>
+                          </View>
+                        ) : event.myEligible === false ? (
+                          <View className="bg-amber-100 px-2 py-0.5 rounded-full">
+                            <Text className="text-[10px] font-bold text-amber-800">{t('event.requirements_not_met')}</Text>
+                          </View>
+                        ) : null
+                      }
                     >
-                      <Text className="text-xs text-neutral-600">#{tag}</Text>
+                      <View className="flex-row flex-wrap gap-1.5">
+                        {event.requirementLabels.map((r) => (
+                          <View key={r} className="bg-neutral-100 rounded-full px-2.5 py-1">
+                            <Text className="text-xs text-neutral-700">{r}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </ExpandRow>
+                  ) : null}
+                  {event.tipeBayar === 'NOMINAL_TETAP' && (event.bankNomor || event.qrisImageUrl) ? (
+                    <ExpandRow
+                      first={!(event.requirementLabels && event.requirementLabels.length > 0)}
+                      icon={<Receipt size={16} color="#EA580C" />}
+                      title={t('event.payment_info_title')}
+                      subtitle={[priceLabel, event.bankNama, event.qrisImageUrl ? 'QRIS' : null].filter(Boolean).join(' · ')}
+                    >
+                      {event.bankNama && event.bankNomor ? (
+                        <View>
+                          <Text className="text-xs text-neutral-500">
+                            {event.bankNama}
+                            {event.bankAtasNama ? ` · a.n. ${event.bankAtasNama}` : ''}
+                          </Text>
+                          <Text className="text-base font-bold text-neutral-900 tracking-wider" selectable>
+                            {event.bankNomor}
+                          </Text>
+                        </View>
+                      ) : null}
+                      {event.qrisImageUrl ? (
+                        <View className="flex-row items-center gap-3 mt-2">
+                          <Image source={{ uri: `${env.apiBaseUrl}${event.qrisImageUrl}` }} style={{ width: 72, height: 72 }} resizeMode="contain" />
+                          <Text className="flex-1 text-xs text-neutral-500">{t('event.payment_info_qris')}</Text>
+                        </View>
+                      ) : null}
+                      <Text className="text-[11px] text-neutral-400 mt-2">{t('event.payment_info_hint')}</Text>
+                    </ExpandRow>
+                  ) : null}
+                </View>
+              ) : null}
+
+              {/* Pendaftaran (saya + keluarga) — satu daftar ringkas; ketuk → popup rincian
+                  yang sama (bukti, catatan, lanjut bayar, batalkan). Tidak untuk event GRATIS. */}
+              {!isFree && (familyParticipations.length > 0 || participation) ? (
+                <View className="mx-4 mt-4">
+                  <SectionHead
+                    title={familyParticipations.length > 1 ? t('event.family_registrations_title', { count: familyParticipations.length }) : t('detail.my_registration')}
+                  />
+                  <View className="bg-card rounded-2xl border border-neutral-100 overflow-hidden">
+                    {familyParticipations.length > 0
+                      ? familyParticipations.map((p, i) => (
+                          <ParticipationStatusCard
+                            key={p.id}
+                            compact
+                            first={i === 0}
+                            participation={p}
+                            isFree={isFree}
+                            noMeeting={noMeeting}
+                            voluntary={event.tipeBayar === 'NOMINAL_BEBAS'}
+                            lang={lang}
+                            onPress={() => {
+                              setSelectedParticipation(p);
+                              setDetailModalOpen(true);
+                            }}
+                          />
+                        ))
+                      : participation ? (
+                          // Fallback: daftar keluarga belum siap (offline) tapi ada pendaftaran lokal.
+                          <ParticipationStatusCard
+                            compact
+                            first
+                            participation={{
+                              id: participation.participationId,
+                              eventId: event.id,
+                              jemaatId: 'jemaatId' in participation ? (participation as { jemaatId: string }).jemaatId : '',
+                              status: participation.status,
+                              nominalBayar: event.myParticipation?.nominalBayar ? String(event.myParticipation.nominalBayar) : '0',
+                              registeredAt: new Date(participation.registeredAt).toISOString(),
+                              isSelf: true,
+                              relationLabel: t('event.detail_self'),
+                            }}
+                            isFree={isFree}
+                            noMeeting={noMeeting}
+                            voluntary={event.tipeBayar === 'NOMINAL_BEBAS'}
+                            lang={lang}
+                            onPress={() => {
+                              if (event.myParticipation) {
+                                setSelectedParticipation({ ...event.myParticipation, isSelf: true, relationLabel: t('event.detail_self') });
+                                setDetailModalOpen(true);
+                              }
+                            }}
+                          />
+                        ) : null}
+                  </View>
+                </View>
+              ) : null}
+
+              {/* Tugas saya — satu baris, ketuk → rincian (2.5.1) */}
+              <View className="mx-4 mt-3">
+                <MyDutyCard petugas={event.petugas} compact />
+              </View>
+
+              {/* Tiket Saya — digeser ke samping; ketuk → QR besar. Event tanpa pencatatan kehadiran → tanpa tiket. */}
+              {myTickets.length > 0 && event.butuhKehadiran !== false ? (
+                <View className="mt-4">
+                  <TicketCarousel
+                    title={t('tiket.my_tickets')}
+                    items={myTickets}
+                    keyOf={(tk) => tk.id}
+                    padX={16}
+                    render={(tk) => (
+                      <EventTicketCard ticket={tk} compact onPress={() => router.push(`/tiket?kind=event&id=${tk.id}&eventId=${tk.event.id}` as never)} />
+                    )}
+                  />
+                </View>
+              ) : null}
+
+              {/* Tab: Tentang (deskripsi, video teaser, tag) | Formulir | Tim */}
+              {tabs.length ? (
+                <View className="mx-4 mt-4 gap-2.5">
+                  {tabs.length > 1 ? (
+                    <DetailTabs tabs={tabs} value={activeTab} onChange={setTab} />
+                  ) : (
+                    <SectionHead title={activeTab === 'about' ? t('event.about_event') : activeTab === 'forms' ? t('uform.section') : t('ibadah.team')} />
+                  )}
+                  {activeTab === 'about' ? (
+                    <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3">
+                      {/* Deskripsi ditulis dengan markdown di Portal → dirender (tebal, poin, tautan). */}
+                      {hasDesc ? (
+                        <Collapsible>
+                          <AnnouncementMarkdown source={event.deskripsi!} compact />
+                        </Collapsible>
+                      ) : null}
+                      {/* Video teaser — YouTube diputar di dalam app; link lain dibuka di luar. */}
+                      {hasVideo ? <VideoTeaser url={event.videoUrl!.trim()} /> : null}
+                      {event.tags && event.tags.length > 0 ? (
+                        <View className="flex-row flex-wrap gap-2">
+                          {event.tags.map((tag) => (
+                            <View key={tag} className="px-2.5 py-1 bg-neutral-100 rounded-full">
+                              <Text className="text-xs text-neutral-600">#{tag}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      ) : null}
                     </View>
-                  ))}
+                  ) : null}
+                  {/* Universal Form (2.5.1) — hanya untuk peserta terdaftar, per peserta */}
+                  {activeTab === 'forms' ? <FormCards sourceType="EVENT" sourceId={event.id} /> : null}
+                  {/* Tim pelayanan — ketuk nama → profil (sama seperti detail ibadah) */}
+                  {activeTab === 'team' ? <MinistryTeamCard petugas={event.petugas} embedded /> : null}
                 </View>
               ) : null}
 
@@ -852,22 +852,27 @@ export default function EventDetailScreen() {
   );
 }
 
-function MetaRow({
+function Fact({
   icon,
+  label,
   primary,
   secondary,
+  wide = false,
 }: {
   icon: React.ReactNode;
+  label: string;
   primary: string;
   secondary?: string | null;
+  wide?: boolean;
 }) {
   return (
-    <View className="flex-row items-center gap-3">
-      <View className="w-10 h-10 rounded-xl bg-brand-50 items-center justify-center">{icon}</View>
-      <View className="flex-1">
-        <Text className="font-semibold text-neutral-900">{primary}</Text>
-        {secondary ? <Text className="text-xs text-neutral-500 mt-0.5">{secondary}</Text> : null}
+    <View className="bg-neutral-50 rounded-xl px-2.5 py-2" style={{ flexBasis: wide ? '100%' : '47%', flexGrow: 1 }}>
+      <View className="flex-row items-center gap-1">
+        {icon}
+        <Text className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wide">{label}</Text>
       </View>
+      <Text className="text-[12.5px] font-bold text-neutral-900 mt-0.5 leading-[17px]">{primary}</Text>
+      {secondary ? <Text className="text-[11px] text-neutral-500">{secondary}</Text> : null}
     </View>
   );
 }
@@ -936,6 +941,8 @@ function ParticipationStatusCard({
   voluntary = false,
   lang,
   onPress,
+  compact = false,
+  first = false,
 }: {
   participation: EventParticipation;
   isFree: boolean;
@@ -944,6 +951,9 @@ function ParticipationStatusCard({
   voluntary?: boolean;
   lang: string;
   onPress?: () => void;
+  /** Relayout 2.5.1: satu baris di dalam daftar pendaftaran. */
+  compact?: boolean;
+  first?: boolean;
 }) {
   const doneBody = () =>
     noMeeting ? (voluntary ? t('event.thanks_giving') : t('event.registered_noted')) : t('event.see_you_at_event');
@@ -1030,6 +1040,47 @@ function ParticipationStatusCard({
     const d = Math.floor(h / 24);
     return t('notifications.days_ago', { count: d });
   })();
+
+  if (compact) {
+    // Satu baris: ikon status | nama + relasi, status · nominal | chevron.
+    // Keterangan yang perlu tindakan (lanjut bayar / menunggu verifikasi) tetap tampil.
+    const needsAction = status === 'MENUNGGU_VERIFIKASI' || (status === 'DAFTAR' && !isFree);
+    return (
+      <Pressable
+        onPress={onPress}
+        android_ripple={onPress ? { color: 'rgba(0,0,0,0.05)' } : undefined}
+        className={`flex-row items-center gap-3 px-3.5 py-3 active:opacity-80 ${first ? '' : 'border-t border-neutral-100'}`}
+        accessibilityRole="button"
+      >
+        <View {...gx(`w-8 h-8 rounded-[10px] ${cfg.iconBg} items-center justify-center`)}>{cfg.icon}</View>
+        <View className="flex-1 min-w-0">
+          <View className="flex-row items-center gap-1.5">
+            <Text className="text-[13px] font-bold text-neutral-900 flex-shrink" numberOfLines={1}>
+              {namaPeserta ?? t('event.detail_self')}
+            </Text>
+            {relationLabel ? <Text className="text-[11px] text-neutral-500">· {relationLabel}</Text> : null}
+          </View>
+          <Text className={`text-[11px] font-semibold ${cfg.bodyColor}`} numberOfLines={1}>
+            {cfg.title}
+            {nominalBayar && nominalBayar > 0 ? ` · Rp ${nominalBayar.toLocaleString('id-ID')}` : ''}
+            {` · ${timeAgo}`}
+          </Text>
+          {needsAction ? (
+            <Text className={`text-[11px] ${cfg.bodyColor} mt-0.5`} numberOfLines={2}>
+              {cfg.body}
+            </Text>
+          ) : null}
+          {hasDonasi ? (
+            <Text className="text-[11px] text-neutral-500 mt-0.5" numberOfLines={1}>
+              {t('event.donasi_count_info', { count: participation.jumlahPemberian ?? (donasi?.count ?? 0) + 1 })}
+              {donasi && donasi.pending > 0 ? ` · ${t('event.donasi_tambahan_pending', { count: donasi.pending })}` : ''}
+            </Text>
+          ) : null}
+        </View>
+        {onPress ? <ChevronRight size={16} color={nc('#A3A3A3')} /> : null}
+      </Pressable>
+    );
+  }
 
   return (
     <Pressable

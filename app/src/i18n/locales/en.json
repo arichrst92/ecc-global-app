@@ -688,7 +688,8 @@
     "thanks_giving": "Thank you for your giving.",
     "registered_noted": "Your registration is recorded.",
     "my_given": "You've given",
-    "my_registered": "You're registered"
+    "my_registered": "You're registered",
+    "teaser_label": "Teaser video"
   },
   "branch": {
     "active_label": "Active branch",
@@ -3367,5 +3368,19 @@
     "show_more": "Show more",
     "show_less": "Show less",
     "next_in": "Up next in {{name}}"
+  },
+  "detail": {
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "swipe_count": "{{n}} of {{total}} · swipe",
+    "on_duty": "You're serving:",
+    "tab_about": "About",
+    "tab_team": "Ministry team",
+    "tab_team_short": "Team",
+    "tab_forms": "Forms",
+    "date_time": "Date & time",
+    "date": "Date",
+    "time": "Time",
+    "my_registration": "My registration"
   }
 }
