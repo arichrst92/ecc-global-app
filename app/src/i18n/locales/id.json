@@ -3341,6 +3341,24 @@
     "search_empty": "Video tidak ditemukan.",
     "open_youtube": "Buka di YouTube",
     "more_in": "Lainnya di {{name}}",
-    "more": "Video lainnya"
+    "more": "Video lainnya",
+    "watch_now": "Tonton sekarang",
+    "featured_kicker": "Unggulan",
+    "see_all": "Lihat semua",
+    "new_badge": "BARU",
+    "all_videos": "Semua video",
+    "cat_count": "{{count}} video · terbaru {{date}}",
+    "sort_new": "Terbaru",
+    "sort_old": "Terlama",
+    "search_title": "Cari video",
+    "recent": "Pencarian terakhir",
+    "result_count": "{{count}} video untuk “{{q}}”",
+    "share": "Bagikan",
+    "copy_link": "Salin tautan",
+    "link_copied": "Tautan disalin",
+    "about": "TENTANG VIDEO",
+    "show_more": "Selengkapnya",
+    "show_less": "Sembunyikan",
+    "next_in": "Berikutnya di {{name}}"
   }
 }

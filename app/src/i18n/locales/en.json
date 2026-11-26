@@ -3347,6 +3347,24 @@
     "search_empty": "No videos found.",
     "open_youtube": "Open in YouTube",
     "more_in": "More in {{name}}",
-    "more": "More videos"
+    "more": "More videos",
+    "watch_now": "Watch now",
+    "featured_kicker": "Featured",
+    "see_all": "See all",
+    "new_badge": "NEW",
+    "all_videos": "All videos",
+    "cat_count": "{{count}} videos · latest {{date}}",
+    "sort_new": "Newest",
+    "sort_old": "Oldest",
+    "search_title": "Search videos",
+    "recent": "Recent searches",
+    "result_count": "{{count}} videos for “{{q}}”",
+    "share": "Share",
+    "copy_link": "Copy link",
+    "link_copied": "Link copied",
+    "about": "ABOUT THIS VIDEO",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "next_in": "Up next in {{name}}"
   }
 }

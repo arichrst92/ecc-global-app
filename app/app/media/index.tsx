@@ -8,7 +8,7 @@ import { Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, Search } from 'lucide-react-native';
 
 import { WorshipHomeView } from '../worship';
 import { VideoChannelView } from '@/components/video/VideoChannelView';
@@ -36,20 +36,31 @@ export default function MediaScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50">
-      <SafeAreaView edges={['top']} className="bg-card">
-        <View className="px-4 pt-2 flex-row items-center gap-2">
-          <Pressable onPress={() => goBack(router)} className="w-10 h-10 items-center justify-center">
+      <SafeAreaView edges={['top']} className="bg-neutral-50">
+        <View className="px-3.5 pt-1 pb-2 flex-row items-center gap-2">
+          <Pressable onPress={() => goBack(router)} className="w-9 h-9 items-center justify-center">
             <ArrowLeft size={20} color={nc('#171717')} />
           </Pressable>
-          <Text className="text-base font-bold text-neutral-900 flex-1">{t('media.title')}</Text>
+          <Text className="text-[17px] font-extrabold text-neutral-900 flex-1">{t('media.title')}</Text>
+          {active === 'video' ? (
+            <Pressable onPress={() => router.push('/media/search' as never)} className="w-9 h-9 items-center justify-center" hitSlop={4}>
+              <Search size={19} color={nc('#171717')} />
+            </Pressable>
+          ) : null}
         </View>
         {tabs.length > 1 ? (
-          <View className="flex-row border-b border-neutral-100">
+          // Segmented control (2.5.1 relayout)
+          <View className="mx-4 mb-2.5 bg-neutral-100 rounded-[14px] p-1 flex-row">
             {tabs.map((x) => {
               const on = active === x.k;
               return (
-                <Pressable key={x.k} onPress={() => setTab(x.k)} className={`flex-1 py-2.5 items-center border-b-2 ${on ? 'border-brand-500' : 'border-transparent'}`}>
-                  <Text className={`text-sm font-semibold ${on ? 'text-brand-600' : 'text-neutral-500'}`}>{x.label}</Text>
+                <Pressable
+                  key={x.k}
+                  onPress={() => setTab(x.k)}
+                  className={`flex-1 py-2 items-center rounded-[10px] ${on ? 'bg-card' : ''}`}
+                  style={on ? { shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 } : undefined}
+                >
+                  <Text className={`text-[12.5px] font-bold ${on ? 'text-neutral-900' : 'text-neutral-500'}`}>{x.label}</Text>
                 </Pressable>
               );
             })}
