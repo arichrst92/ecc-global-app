@@ -432,6 +432,15 @@ export default function EventDetailScreen() {
                   ) : null}
                 </View>
 
+                {/* Event tanpa daftar (2026-11): boleh langsung datang & self check-in */}
+                {event.butuhKehadiran && event.wajibDaftar === false && event.tipeBayar !== 'NOMINAL_TETAP' && !(event.tipeBayar === 'NOMINAL_BEBAS' && Number(event.nominal || 0) > 0) ? (
+                  <View className="flex-row items-center gap-2 mt-3 bg-emerald-50 rounded-xl px-3 py-2">
+                    <UserCheck size={14} color="#047857" />
+                    <Text className="flex-1 text-xs font-semibold text-emerald-800">
+                      {event.allowSelfCheckin ? t('event.walkin_self') : t('event.walkin')}
+                    </Text>
+                  </View>
+                ) : null}
                 <View className="mt-3">
                   {event.quotaPeserta != null ? (
                     <QuotaBar

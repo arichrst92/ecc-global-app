@@ -695,7 +695,9 @@
     "registered_noted": "Pendaftaran Anda sudah tercatat.",
     "my_given": "Anda sudah memberi",
     "my_registered": "Anda terdaftar",
-    "teaser_label": "Video teaser"
+    "teaser_label": "Video teaser",
+    "walkin": "Boleh langsung datang tanpa daftar — kehadiran dicatat oleh usher.",
+    "walkin_self": "Boleh langsung datang tanpa daftar — self check-in di sini saat acara berlangsung."
   },
   "branch": {
     "active_label": "Cabang aktif",

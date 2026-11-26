@@ -695,7 +695,9 @@
     "registered_noted": "Your registration is recorded.",
     "my_given": "You've given",
     "my_registered": "You're registered",
-    "teaser_label": "Teaser video"
+    "teaser_label": "Teaser video",
+    "walkin": "Walk-ins welcome, no registration needed — ushers record your attendance.",
+    "walkin_self": "Walk-ins welcome, no registration needed — self check-in here during the event."
   },
   "branch": {
     "active_label": "Active branch",

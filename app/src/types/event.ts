@@ -41,6 +41,8 @@ export type EventListItem = {
   butuhKehadiran: boolean;
   /** Peserta boleh self check-in dari aplikasi (15 menit sebelum mulai s.d. selesai). */
   allowSelfCheckin?: boolean;
+  /** 2026-11: false = boleh langsung datang tanpa daftar (self check-in & scan usher). */
+  wajibDaftar?: boolean;
   isPublished: boolean;
   publishedAt: string;
   sinode?: SinodeRef | null;
