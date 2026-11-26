@@ -9,6 +9,7 @@ import { ActivityIndicator, Linking, Pressable, ScrollView, Share, Text, View } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import * as Clipboard from 'expo-clipboard';
 import { ArrowLeft, ExternalLink, Link2, List, Share2 } from 'lucide-react-native';
@@ -21,7 +22,7 @@ import { useVideo } from '@/hooks/useVideos';
 import { useWorshipPlayer } from '@/stores/worship-player.store';
 import { ApiError } from '@/types/api';
 import { goBack } from '@/utils/nav';
-import { nc } from '@/theme/ThemeRoot';
+import { nc, sb } from '@/theme/ThemeRoot';
 
 const DARK = '#0B0B0B';
 
@@ -33,6 +34,9 @@ export default function VideoScreen() {
   const q = useVideo(id);
   const v = q.data;
   const [descOpen, setDescOpen] = useState(false);
+  // Status bar terang hanya saat layar ini aktif — layar yang dibuka di atasnya
+  // (halaman kategori, terang) tidak ikut ikon putih yang tak terlihat.
+  const focused = useIsFocused();
 
   useEffect(() => {
     const p = useWorshipPlayer.getState();
@@ -61,7 +65,7 @@ export default function VideoScreen() {
 
   return (
     <View className="flex-1" style={{ backgroundColor: DARK }}>
-      <StatusBar style="light" />
+      <StatusBar style={focused ? 'light' : sb()} />
       <SafeAreaView edges={['top']} style={{ backgroundColor: DARK }}>
         <View className="px-3.5 pt-1 pb-2 flex-row items-center gap-2">
           <Pressable

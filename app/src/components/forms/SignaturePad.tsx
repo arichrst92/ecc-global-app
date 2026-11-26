@@ -4,7 +4,8 @@
  * Server membentuk PNG dari angka-angka ini (tidak menerima SVG mentah).
  */
 import { useRef, useState } from 'react';
-import { Modal, PanResponder, Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
+import { PanResponder, Pressable, Text, View, type LayoutChangeEvent } from 'react-native';
+import { Modal } from '@/components/ui/Modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Svg, { Path } from 'react-native-svg';

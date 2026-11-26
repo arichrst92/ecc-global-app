@@ -57,7 +57,7 @@ export default function KonselingScreen() {
                   onPress={() => setTab(k)}
                   className={`flex-1 py-2.5 items-center flex-row justify-center gap-1.5 border-b-2 ${on ? 'border-brand-500' : 'border-transparent'}`}
                 >
-                  <Text className={`text-sm font-semibold ${on ? 'text-brand-600' : 'text-neutral-500'}`}>
+                  <Text className={`text-sm font-semibold flex-shrink ${on ? 'text-brand-600' : 'text-neutral-500'}`} numberOfLines={1}>
                     {k === 'mine' ? t('konseling.tab_mine') : t('konseling.tab_assigned')}
                   </Text>
                   {k === 'assigned' && n > 0 ? (

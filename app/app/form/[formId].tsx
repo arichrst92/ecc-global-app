@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AlertCircle, Check, Clock, Lock, ShieldCheck, X } from 'lucide-react-native';
 
 import { KeyboardSafeView } from '@/components/ui/KeyboardSafeView';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { FieldInput, InfoBlock, type FieldCtx } from '@/components/forms/FieldInputs';
 import { fmtDateTime, useCountdown } from '@/components/forms/FormCards';
 import { useFormCards, useFormDetail, FORMS_KEY } from '@/hooks/useForms';
@@ -72,6 +73,7 @@ export default function FormFillScreen() {
   const { formId, src, subjek } = useLocalSearchParams<{ formId: string; src: string; subjek?: string }>();
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const kbH = useKeyboardHeight();
   const insets = useSafeAreaInsets();
   const qc = useQueryClient();
   const q = useFormDetail(formId, src, subjek ?? null);
@@ -255,7 +257,7 @@ export default function FormFillScreen() {
         />
       ) : (
         <KeyboardSafeView className="flex-1">
-          <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 16 }}>
+          <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 16 }}>
             {errCount ? (
               <Pressable onPress={() => jumpToFirst(errors)} className="rounded-xl bg-red-50 border border-red-200 px-3 py-2.5 flex-row gap-2">
                 <AlertCircle size={15} color="#B91C1C" style={{ marginTop: 1 }} />
@@ -330,7 +332,8 @@ export default function FormFillScreen() {
                 </View>
               ))}
           </ScrollView>
-          {!readOnly ? (
+          {/* Keyboard terbuka → bilah Kirim disembunyikan supaya isian tetap terlihat di HP kecil. */}
+          {!readOnly && kbH === 0 ? (
             <View className="bg-card border-t border-neutral-100 px-4 pt-2.5" style={{ paddingBottom: insets.bottom + 10 }}>
               {errors._ ? <Text className="text-xs text-red-600 mb-1.5 text-center">{errors._}</Text> : null}
               <View className="flex-row justify-between mb-2">

@@ -248,7 +248,7 @@ export default function DoaDetailScreen() {
               placeholder={t('doa.kesaksian_ph')}
               placeholderTextColor={nc('#A3A3A3')}
               className="bg-neutral-50 rounded-xl px-3 py-3 text-sm text-neutral-900 border border-neutral-200"
-              style={{ minHeight: 110, textAlignVertical: 'top' }}
+              style={{ minHeight: 110, maxHeight: 200, textAlignVertical: 'top' }}
             />
             <Button label={t('doa.mark_answered')} loading={answerMut.isPending} onPress={() => answerMut.mutate(true)} fullWidth />
           </View>

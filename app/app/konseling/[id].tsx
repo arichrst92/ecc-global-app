@@ -328,9 +328,10 @@ function KonselorView({ id }: { id: string }) {
 
 function ContactBtn({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} className="flex-1 flex-row items-center justify-center gap-1.5 border border-neutral-200 rounded-xl py-2.5 active:opacity-70">
+    // Ikon di atas label: 3 tombol tetap muat di HP 320–360dp.
+    <Pressable onPress={onPress} className="flex-1 items-center justify-center gap-1 border border-neutral-200 rounded-xl py-2 px-1 active:opacity-70">
       {icon}
-      <Text className="text-xs font-semibold text-neutral-800">{label}</Text>
+      <Text className="text-xs font-semibold text-neutral-800" numberOfLines={1}>{label}</Text>
     </Pressable>
   );
 }

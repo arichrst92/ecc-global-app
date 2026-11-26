@@ -161,13 +161,10 @@ export default function KonselingNewScreen() {
               {!hasContact ? <Text className="text-xs text-red-600">{t('konseling.no_contact')}</Text> : null}
             </View>
             <Text className="text-[11px] text-neutral-500 mt-2">{t('konseling.consent_note')}</Text>
-            <View className="flex-row gap-2 mt-4">
-              <View className="flex-1">
-                <Button label={t('common.cancel')} variant="secondary" disabled={mut.isPending} onPress={() => setConsentOpen(false)} fullWidth singleLine />
-              </View>
-              <View className="flex-1">
-                <Button label={t('konseling.consent_agree')} loading={mut.isPending} disabled={!hasContact} onPress={() => mut.mutate()} fullWidth singleLine />
-              </View>
+            {/* Bertumpuk: label "Setuju & Kirim" terpotong bila berdampingan di HP ≤ 360dp. */}
+            <View className="gap-2 mt-4">
+              <Button label={t('konseling.consent_agree')} loading={mut.isPending} disabled={!hasContact} onPress={() => mut.mutate()} fullWidth />
+              <Button label={t('common.cancel')} variant="secondary" disabled={mut.isPending} onPress={() => setConsentOpen(false)} fullWidth />
             </View>
           </View>
         </View>
