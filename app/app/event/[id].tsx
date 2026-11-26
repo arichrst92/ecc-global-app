@@ -255,6 +255,13 @@ export default function EventDetailScreen() {
   });
 
   const isFree = event?.tipeBayar === 'GRATIS';
+  // Event tanpa wajib daftar (2026-11): keluarga yang belum terdaftar bisa self check-in.
+  const walkInEvent =
+    !!event &&
+    !!event.butuhKehadiran &&
+    event.wajibDaftar === false &&
+    event.tipeBayar !== 'NOMINAL_TETAP' &&
+    !(event.tipeBayar === 'NOMINAL_BEBAS' && Number(event.nominal || 0) > 0);
   const isFull = event?.quotaPeserta != null && event.pesertaCount >= event.quotaPeserta;
   // Sebelum check-in dibuka → terdaftar; sesudahnya → hadir (server baru).
   const nowCount = useNowTick(30_000);
@@ -433,7 +440,7 @@ export default function EventDetailScreen() {
                 </View>
 
                 {/* Event tanpa daftar (2026-11): boleh langsung datang & self check-in */}
-                {event.butuhKehadiran && event.wajibDaftar === false && event.tipeBayar !== 'NOMINAL_TETAP' && !(event.tipeBayar === 'NOMINAL_BEBAS' && Number(event.nominal || 0) > 0) ? (
+                {walkInEvent ? (
                   <View className="flex-row items-center gap-2 mt-3 bg-emerald-50 rounded-xl px-3 py-2">
                     <UserCheck size={14} color="#047857" />
                     <Text className="flex-1 text-xs font-semibold text-emerald-800">
@@ -658,7 +665,8 @@ export default function EventDetailScreen() {
           <SafeAreaView edges={['bottom']}>
             {/* Self check-in (kalau event mengizinkan): countdown → tombol → popup */}
             {/* Sudah ada tiket → check-in lewat geser di tiket masing-masing. */}
-            {event.allowSelfCheckin && myTickets.length === 0 ? (
+            {/* Event tanpa daftar → tetap tampil walau sudah punya tiket (keluarga yang datang belakangan). */}
+            {event.allowSelfCheckin && (myTickets.length === 0 || walkInEvent) ? (
               <SelfCheckinBar
                 queryKey={['event', 'self-checkin', event.id]}
                 fetcher={() => getEventSelfCheckin(event.id)}
@@ -677,6 +685,8 @@ export default function EventDetailScreen() {
                 onCheckedIn={() => {
                   queryClient.invalidateQueries({ queryKey: ['event', 'detail'] });
                   queryClient.invalidateQueries({ queryKey: ['event', 'mine-and-family', id] });
+                  // Tanpa daftar: tiket baru dibuat saat check-in → muat ulang Tiket Saya.
+                  queryClient.invalidateQueries({ queryKey: ['event-tiket'] });
                 }}
               />
             ) : null}
