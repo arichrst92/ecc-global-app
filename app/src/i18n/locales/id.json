@@ -3375,6 +3375,9 @@
     "date_time": "Tanggal & jam",
     "date": "Tanggal",
     "time": "Jam",
-    "my_registration": "Pendaftaran saya"
+    "my_registration": "Pendaftaran saya",
+    "no_desc_ibadah": "Tidak ada deskripsi ibadah",
+    "no_desc_event": "Tidak ada deskripsi event",
+    "no_team": "Belum tersedia tim pelayanan"
   }
 }

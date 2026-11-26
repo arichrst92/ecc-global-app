@@ -12,6 +12,7 @@ import { ChevronDown, ChevronUp, ExternalLink, Play } from 'lucide-react-native'
 import { YoutubePlayer } from '@/components/video/YoutubePlayer';
 import { PlayerBoundary } from '@/components/video/PlayerBoundary';
 import { useSwipeLocked } from '@/components/tiket/swipeLock';
+import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 import { isDark, nc } from '@/theme/ThemeRoot';
 
 export const gradientStyle = (g: string): ViewStyle =>
@@ -54,6 +55,18 @@ export function DetailTabs({ tabs, value, onChange }: { tabs: DetailTab[]; value
           </Pressable>
         );
       })}
+    </View>
+  );
+}
+
+// ------------------------------------------------------------------ kosong
+
+/** Isi tab kosong (deskripsi / tim pelayanan belum ada) — logo Els App + keterangan. */
+export function EmptyPane({ text }: { text: string }) {
+  return (
+    <View className="bg-card rounded-2xl border border-neutral-100 items-center py-8 px-6">
+      <ElsEmptyIcon size={44} />
+      <Text className="text-sm text-neutral-500 text-center mt-2">{text}</Text>
     </View>
   );
 }

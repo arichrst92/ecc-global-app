@@ -3381,6 +3381,9 @@
     "date_time": "Date & time",
     "date": "Date",
     "time": "Time",
-    "my_registration": "My registration"
+    "my_registration": "My registration",
+    "no_desc_ibadah": "No service description",
+    "no_desc_event": "No event description",
+    "no_team": "Ministry team not available yet"
   }
 }

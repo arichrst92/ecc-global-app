@@ -45,7 +45,7 @@ import { hariLabel } from '@/utils/hari';
 import { useScreenInterval } from '@/hooks/useScreenInterval';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 import { useSwipeLocked } from '@/components/tiket/swipeLock';
-import { Collapsible, DetailTabs, SectionHead, TicketCarousel, heroGradient, heroTop } from '@/components/detail/DetailBits';
+import { Collapsible, DetailTabs, EmptyPane, TicketCarousel, heroGradient, heroTop } from '@/components/detail/DetailBits';
 
 export default function IbadahDetailScreen() {
   const { t, i18n } = useTranslation();
@@ -147,9 +147,10 @@ export default function IbadahDetailScreen() {
   // Tab di bawah: Tentang (deskripsi) & Tim pelayanan — hanya yang berisi.
   const hasDesc = !!ibadah?.deskripsi && ibadah.deskripsi.trim().length > 0;
   const teamCount = ibadah?.petugas?.length ?? 0;
+  // Selalu tampil walau kosong → keterangan "tidak ada deskripsi" / "belum tersedia tim".
   const tabs = [
-    ...(hasDesc ? [{ key: 'about', label: t('detail.tab_about') }] : []),
-    ...(teamCount ? [{ key: 'team', label: t('detail.tab_team'), badge: teamCount }] : []),
+    { key: 'about', label: t('detail.tab_about') },
+    { key: 'team', label: t('detail.tab_team'), badge: teamCount || undefined },
   ];
   const [tab, setTab] = useState<string>('about');
   const activeTab = tabs.some((x) => x.key === tab) ? tab : (tabs[0]?.key ?? 'about');
@@ -307,20 +308,24 @@ export default function IbadahDetailScreen() {
             ) : null}
 
             {/* Tab: Tentang (deskripsi) | Tim pelayanan */}
-            {tabs.length ? (
-              <View className="px-4 pt-4 gap-2.5">
-                {tabs.length > 1 ? <DetailTabs tabs={tabs} value={activeTab} onChange={setTab} /> : <SectionHead title={tabs[0]!.key === 'about' ? t('ibadah.description') : t('ibadah.team')} />}
-                {activeTab === 'about' && hasDesc ? (
+            <View className="px-4 pt-4 gap-2.5">
+              <DetailTabs tabs={tabs} value={activeTab} onChange={setTab} />
+              {activeTab === 'about' ? (
+                hasDesc ? (
                   <View className="bg-card rounded-2xl p-4 border border-neutral-100">
                     <Collapsible>
                       <Text className="text-sm text-neutral-700 leading-relaxed">{ibadah.deskripsi}</Text>
                     </Collapsible>
                   </View>
-                ) : null}
-                {/* Petugas — ketuk nama → profil (view-only) */}
-                {activeTab === 'team' ? <MinistryTeamCard petugas={ibadah.petugas} embedded /> : null}
-              </View>
-            ) : null}
+                ) : (
+                  <EmptyPane text={t('detail.no_desc_ibadah')} />
+                )
+              ) : null}
+              {/* Petugas — ketuk nama → profil (view-only) */}
+              {activeTab === 'team' ? (
+                teamCount ? <MinistryTeamCard petugas={ibadah.petugas} embedded /> : <EmptyPane text={t('detail.no_team')} />
+              ) : null}
+            </View>
           </>
         ) : null}
       </ScrollView>

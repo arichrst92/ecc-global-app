@@ -136,7 +136,6 @@ export function MinistryTeamCard({
             {/* Dikelompokkan per kategori tugas (atau peran bila belum ada tugas) — tidak terpisah-pisah. */}
             <View className="gap-3">
               {byTugas(g.people).map((r) => {
-                const fullCount = byTugas(groups.find((x) => x.nama === g.nama)?.people ?? g.people).find((x) => x.key === r.key)?.people.length ?? r.people.length;
                 return (
                   <View key={r.key}>
                     {r.title ? (
@@ -145,7 +144,6 @@ export function MinistryTeamCard({
                           {r.title}
                         </Text>
                         <View className="flex-1 h-px bg-neutral-100" />
-                        <Text className="text-[10px] font-semibold text-neutral-400">{fullCount}</Text>
                       </View>
                     ) : null}
                     <View className="gap-2">

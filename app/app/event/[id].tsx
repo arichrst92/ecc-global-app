@@ -44,7 +44,7 @@ import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
 import { DeadlineCountdown } from '@/components/ui/DeadlineCountdown';
 import { serverNowMs } from '@/utils/serverClock';
 import { useSwipeLocked } from '@/components/tiket/swipeLock';
-import { Collapsible, DetailTabs, ExpandRow, SectionHead, TicketCarousel, VideoTeaser } from '@/components/detail/DetailBits';
+import { Collapsible, DetailTabs, EmptyPane, ExpandRow, SectionHead, TicketCarousel, VideoTeaser } from '@/components/detail/DetailBits';
 import { useFormCards } from '@/hooks/useForms';
 
 export default function EventDetailScreen() {
@@ -287,10 +287,11 @@ export default function EventDetailScreen() {
   const hasVideo = !!event?.videoUrl && event.videoUrl.trim().length > 0;
   const hasTags = !!event?.tags && event.tags.length > 0;
   const teamCount = event?.petugas?.length ?? 0;
+  // Tentang & Tim selalu tampil (kosong → keterangan); Formulir hanya bila ada.
   const tabs = [
-    ...(hasDesc || hasVideo || hasTags ? [{ key: 'about', label: t('detail.tab_about') }] : []),
+    { key: 'about', label: t('detail.tab_about') },
     ...(formCards.length ? [{ key: 'forms', label: t('detail.tab_forms'), badge: formTodo || undefined }] : []),
-    ...(teamCount ? [{ key: 'team', label: t('detail.tab_team_short'), badge: teamCount }] : []),
+    { key: 'team', label: t('detail.tab_team_short'), badge: teamCount || undefined },
   ];
   const [tab, setTab] = useState<string>('about');
   const activeTab = tabs.some((x) => x.key === tab) ? tab : (tabs[0]?.key ?? 'about');
@@ -595,21 +596,20 @@ export default function EventDetailScreen() {
               ) : null}
 
               {/* Tab: Tentang (deskripsi, video teaser, tag) | Formulir | Tim */}
-              {tabs.length ? (
+              {(
                 <View className="mx-4 mt-4 gap-2.5">
-                  {tabs.length > 1 ? (
-                    <DetailTabs tabs={tabs} value={activeTab} onChange={setTab} />
-                  ) : (
-                    <SectionHead title={activeTab === 'about' ? t('event.about_event') : activeTab === 'forms' ? t('uform.section') : t('ibadah.team')} />
-                  )}
-                  {activeTab === 'about' ? (
+                  <DetailTabs tabs={tabs} value={activeTab} onChange={setTab} />
+                  {activeTab === 'about' && !hasDesc && !hasVideo && !hasTags ? <EmptyPane text={t('detail.no_desc_event')} /> : null}
+                  {activeTab === 'about' && (hasDesc || hasVideo || hasTags) ? (
                     <View className="bg-card rounded-2xl p-4 border border-neutral-100 gap-3">
                       {/* Deskripsi ditulis dengan markdown di Portal → dirender (tebal, poin, tautan). */}
                       {hasDesc ? (
                         <Collapsible>
                           <AnnouncementMarkdown source={event.deskripsi!} compact />
                         </Collapsible>
-                      ) : null}
+                      ) : (
+                        <Text className="text-sm text-neutral-500">{t('detail.no_desc_event')}</Text>
+                      )}
                       {/* Video teaser — YouTube diputar di dalam app; link lain dibuka di luar. */}
                       {hasVideo ? <VideoTeaser url={event.videoUrl!.trim()} /> : null}
                       {event.tags && event.tags.length > 0 ? (
@@ -626,9 +626,11 @@ export default function EventDetailScreen() {
                   {/* Universal Form (2.5.1) — hanya untuk peserta terdaftar, per peserta */}
                   {activeTab === 'forms' ? <FormCards sourceType="EVENT" sourceId={event.id} /> : null}
                   {/* Tim pelayanan — ketuk nama → profil (sama seperti detail ibadah) */}
-                  {activeTab === 'team' ? <MinistryTeamCard petugas={event.petugas} embedded /> : null}
+                  {activeTab === 'team' ? (
+                    teamCount ? <MinistryTeamCard petugas={event.petugas} embedded /> : <EmptyPane text={t('detail.no_team')} />
+                  ) : null}
                 </View>
-              ) : null}
+              )}
 
               {/* Donations history section — hidden di kedua platform untuk
                   konsistensi + hindari borderline Apple 3.2.2(iv) (tracking
