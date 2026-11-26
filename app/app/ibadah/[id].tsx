@@ -303,11 +303,13 @@ export default function IbadahDetailScreen() {
             })()}
 
             {/* Tugas saya — petugas yang melayani melihat pelayanan, peran & tugasnya (2.5.1) */}
-            <MyDutyCard petugas={ibadah?.petugas} className="mt-4" />
+            {/* Jarak antar-kartu halaman ini = mb-3 (kartu di atas sudah mb-3). */}
+            <MyDutyCard petugas={ibadah?.petugas} className="mb-3" />
 
             {/* Tiket Saya — reservasi aktif ibadah ini, geser check-in per tiket */}
             {myTickets.length > 0 ? (
-              <View className="mt-4 gap-3">
+              // mb-3: kartu Okupansi / Tim pelayanan di bawahnya tidak menempel ke tiket.
+              <View className="mt-1 mb-3 gap-3">
                 <Text className="text-base font-bold text-neutral-900">{t('tiket.my_tickets')}</Text>
                 {myTickets.map((r) => (
                   <IbadahTicketCard
@@ -380,7 +382,8 @@ export default function IbadahDetailScreen() {
           <View className="flex-row gap-2">
             <View className="flex-1">
               <Button
-                label={checkinOpenNow ? t('ibadah.my_qr_short') : t('ibadah.show_my_qr')}
+                // Berdampingan dengan tombol lain → label pendek ("Tampilkan Q…" terpotong).
+                label={checkinOpenNow || !ended ? t('ibadah.my_qr_short') : t('ibadah.show_my_qr')}
                 onPress={() => router.push('/qr-card')}
                 leftIcon={<QrCode size={16} color={checkinOpenNow ? nc('#171717') : '#fff'} />}
                 variant={checkinOpenNow ? 'secondary' : 'primary'}
