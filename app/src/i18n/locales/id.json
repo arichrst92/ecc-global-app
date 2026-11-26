@@ -127,7 +127,9 @@
       "down_msg": "Layanan email sedang gangguan. Coba masuk dengan OTP WhatsApp.",
       "down_cta": "Masuk dengan OTP WhatsApp",
       "subtitle_code": "Masukkan email terdaftar. Kami kirim kode 6 digit untuk masuk.",
-      "send_code": "Kirim Kode"
+      "send_code": "Kirim Kode",
+      "mode_link": "Link masuk",
+      "mode_code": "Kode OTP"
     },
     "onboarding": {
       "intro_title": "Halo, {{name}}!",

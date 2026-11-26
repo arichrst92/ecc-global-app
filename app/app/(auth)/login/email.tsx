@@ -13,6 +13,9 @@
  * Web (2026-12): magic link membuka deeplink app, jadi di web dipakai kode
  * OTP 6 digit lewat email (POST /auth/email-otp/request LOGIN_EMAIL) lalu
  * layar /login/otp?email=… . Kode masuk dari admin cabang juga lewat layar itu.
+ *
+ * 2.5.1: jemaat memilih sendiri — "Link masuk" (magic link) atau "Kode OTP"
+ * (6 digit lewat email). Bawaan: app = link, web = kode.
  */
 import { gx } from '@/theme/gradient';
 import { useEffect, useState } from 'react';
@@ -54,6 +57,7 @@ export default function LoginEmailScreen() {
   const [emailDown, setEmailDown] = useState(false);
 
   const [email, setEmail] = useState('');
+  const [mode, setMode] = useState<'link' | 'code'>(IS_WEB ? 'code' : 'link');
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
@@ -70,7 +74,7 @@ export default function LoginEmailScreen() {
   const requestMutation = useMutation({
     // Web: kode OTP email. App: magic link.
     mutationFn: async (emailInput: string) => {
-      if (IS_WEB) {
+      if (mode === 'code') {
         const r = await requestEmailOtp({ email: emailInput, purpose: 'LOGIN_EMAIL' });
         return { otp: true as const, admin: r?.channel === 'admin' };
       }
@@ -267,8 +271,39 @@ export default function LoginEmailScreen() {
                 {t('auth.email.title')}
               </Text>
               <Text className="text-neutral-500 text-sm mb-7">
-                {IS_WEB ? t('auth.email.subtitle_code') : t('auth.email.subtitle')}
+                {mode === 'code' ? t('auth.email.subtitle_code') : t('auth.email.subtitle')}
               </Text>
+
+              {/* Pilih cara masuk lewat email: link di email atau kode OTP 6 digit */}
+              <View className="flex-row bg-neutral-100 rounded-xl p-1 mb-5" accessibilityRole="tablist">
+                {(
+                  [
+                    ['link', t('auth.email.mode_link'), Mail],
+                    ['code', t('auth.email.mode_code'), KeyRound],
+                  ] as const
+                ).map(([k, label, Icon]) => {
+                  const on = mode === k;
+                  return (
+                    <Pressable
+                      key={k}
+                      onPress={() => {
+                        setMode(k);
+                        setError(null);
+                      }}
+                      disabled={requestMutation.isPending}
+                      accessibilityRole="tab"
+                      accessibilityState={{ selected: on }}
+                      className={`flex-1 flex-row items-center justify-center gap-1.5 py-2.5 rounded-[10px] ${on ? 'bg-card' : ''}`}
+                      style={on ? { shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 } : undefined}
+                    >
+                      <Icon size={15} color={on ? '#EA580C' : nc('#737373')} />
+                      <Text className={`text-[13px] font-bold ${on ? 'text-neutral-900' : 'text-neutral-500'}`} numberOfLines={1}>
+                        {label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
 
               <TextField
                 label={t('auth.email.label')}
@@ -302,7 +337,7 @@ export default function LoginEmailScreen() {
         {!sent ? (
           <View className="px-6 pt-3 pb-3 bg-card border-t border-neutral-100">
             <Button
-              label={IS_WEB ? t('auth.email.send_code') : t('auth.email.send_link')}
+              label={mode === 'code' ? t('auth.email.send_code') : t('auth.email.send_link')}
               onPress={submit}
               loading={requestMutation.isPending}
               disabled={email.trim().length < 3}

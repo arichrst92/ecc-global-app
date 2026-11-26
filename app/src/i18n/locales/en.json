@@ -127,7 +127,9 @@
       "down_msg": "The email service is having issues. Try signing in with WhatsApp OTP.",
       "down_cta": "Sign in with WhatsApp OTP",
       "subtitle_code": "Enter your registered email. We will send a 6-digit code to sign in.",
-      "send_code": "Send Code"
+      "send_code": "Send Code",
+      "mode_link": "Sign-in link",
+      "mode_code": "OTP code"
     },
     "onboarding": {
       "intro_title": "Hi, {{name}}!",
