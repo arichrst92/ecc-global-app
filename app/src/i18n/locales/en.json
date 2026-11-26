@@ -521,7 +521,13 @@
     "bookmarks_title": "Saved Articles",
     "bookmarks_empty_title": "No Bookmarks Yet",
     "bookmarks_empty_body": "Bookmark your favorite articles from the detail page to read them again later.",
-    "bookmarks_tab": "Saved"
+    "bookmarks_tab": "Saved",
+    "read_minutes": "{{count}} min read",
+    "save": "Save",
+    "saved": "Saved",
+    "more_news": "More news",
+    "renungan_daily": "Daily Devotion",
+    "verse_today": "TODAY'S VERSE"
   },
   "persembahan": {
     "title": "Giving",

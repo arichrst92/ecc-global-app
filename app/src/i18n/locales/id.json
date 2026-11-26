@@ -521,7 +521,13 @@
     "bookmarks_title": "Artikel Tersimpan",
     "bookmarks_empty_title": "Belum Ada Bookmark",
     "bookmarks_empty_body": "Bookmark artikel favorit dari halaman detail untuk membacanya kembali.",
-    "bookmarks_tab": "Tersimpan"
+    "bookmarks_tab": "Tersimpan",
+    "read_minutes": "{{count}} menit baca",
+    "save": "Simpan",
+    "saved": "Tersimpan",
+    "more_news": "Berita lainnya",
+    "renungan_daily": "Renungan Harian",
+    "verse_today": "AYAT HARI INI"
   },
   "persembahan": {
     "title": "Persembahan",
