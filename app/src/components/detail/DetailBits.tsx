@@ -4,7 +4,7 @@
  * baris yang bisa dibuka-tutup, dan video teaser (diputar di dalam app).
  * Informasi & alur sama seperti sebelumnya — hanya tata letak yang diringkas.
  */
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Image, Linking, Platform, Pressable, ScrollView, Text, View, useWindowDimensions, type ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronUp, ExternalLink, Play } from 'lucide-react-native';
@@ -13,6 +13,7 @@ import { YoutubePlayer } from '@/components/video/YoutubePlayer';
 import { PlayerBoundary } from '@/components/video/PlayerBoundary';
 import { useSwipeLocked } from '@/components/tiket/swipeLock';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
+import { useWorshipPlayer } from '@/stores/worship-player.store';
 import { isDark, nc } from '@/theme/ThemeRoot';
 
 export const gradientStyle = (g: string): ViewStyle =>
@@ -141,8 +142,10 @@ export function TicketCarousel<T>({
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const locked = useSwipeLocked();
-  const [idx, setIdx] = useState(0);
+  const [rawIdx, setIdx] = useState(0);
   if (!items.length) return null;
+  // Tiket dibatalkan → jumlah berkurang; indeks tidak boleh melewati jumlah.
+  const idx = Math.min(rawIdx, items.length - 1);
   const single = items.length === 1;
   const cardW = Math.min(width - padX * 2 - (single ? 0 : 28), 520);
   const gap = 10;
@@ -244,6 +247,12 @@ export function VideoTeaser({ url }: { url: string }) {
   const { t } = useTranslation();
   const yt = youtubeIdOf(url);
   const [playing, setPlaying] = useState(false);
+  // Lagu ECC Worship yang sedang diputar dijeda saat teaser diputar (sama dengan Video Channel).
+  useEffect(() => {
+    if (!playing) return;
+    const p = useWorshipPlayer.getState();
+    if (p.playing) p.toggle();
+  }, [playing]);
   if (yt && playing) {
     return (
       <View style={{ borderRadius: 14, overflow: 'hidden' }}>

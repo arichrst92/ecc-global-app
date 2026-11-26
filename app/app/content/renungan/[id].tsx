@@ -10,7 +10,7 @@ import { HeroImage } from '@/components/ui/HeroImage';
 import { SimpleMarkdown } from '@/components/ui/SimpleMarkdown';
 import { useRenunganDetail, useRenunganList } from '@/hooks/useContent';
 import { useBookmarksStore } from '@/stores/bookmarks.store';
-import { formatDate } from '@/utils/date';
+import { formatDate, parseLocalDate } from '@/utils/date';
 import { buildRenunganShareUrl } from '@/utils/share';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
@@ -66,9 +66,9 @@ export default function RenunganDetailScreen() {
 
   // Tanggal besar di atas gambar: "26" + "Kamis" / "Nov 2026".
   const dateParts = useMemo(() => {
-    const iso = item?.tanggal || item?.publishedAt;
-    if (!iso) return null;
-    const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
+    // `tanggal` = tanggal renungan (TZ-safe seperti formatDate); cadangan publishedAt.
+    const d = item?.tanggal ? parseLocalDate(item.tanggal) : item?.publishedAt ? new Date(item.publishedAt) : null;
+    if (!d) return null;
     if (Number.isNaN(d.getTime())) return null;
     const loc = lang === 'en' ? 'en-GB' : 'id-ID';
     return {
@@ -235,8 +235,8 @@ function NavButton({
 }) {
   const disabled = !item;
   const Icon = direction === 'prev' ? ArrowLeft : ArrowRight;
-  const iso = item?.tanggal || item?.publishedAt;
-  const date = iso ? new Date(`${iso.slice(0, 10)}T00:00:00`).toLocaleDateString(lang === 'en' ? 'en-GB' : 'id-ID', { day: 'numeric', month: 'short' }) : '';
+  const d = item?.tanggal ? parseLocalDate(item.tanggal) : item?.publishedAt ? new Date(item.publishedAt) : null;
+  const date = d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString(lang === 'en' ? 'en-GB' : 'id-ID', { day: 'numeric', month: 'short' }) : '';
   const right = direction === 'next';
   return (
     <Pressable

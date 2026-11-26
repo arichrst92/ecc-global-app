@@ -161,7 +161,12 @@ export function VerseCard({ ayat }: { ayat: string }) {
     <View className="mt-4 rounded-[18px] px-4 py-3.5 border border-brand-200 bg-brand-50 overflow-hidden">
       <Text style={{ position: 'absolute', right: 12, top: -6, fontSize: 64, fontWeight: '800', color: 'rgba(249,115,22,0.14)' }}>“</Text>
       <Text className="text-[10px] font-extrabold text-brand-700 tracking-widest">{t('content.verse_today')}</Text>
-      {text ? <Text className="text-[15px] leading-6 italic text-brand-900 mt-1.5">{text}</Text> : null}
+      {/* Rentang panjang dibatasi 8 baris supaya kartu tidak memanjang. */}
+      {text ? (
+        <Text className="text-[15px] leading-6 italic text-brand-900 mt-1.5" numberOfLines={8}>
+          {text}
+        </Text>
+      ) : null}
       <Text className={`text-[13px] font-extrabold text-brand-800 ${text ? 'mt-2' : 'mt-1'}`}>{ref && text ? verseRefWithVersion(ref) : ayat}</Text>
     </View>
   );
