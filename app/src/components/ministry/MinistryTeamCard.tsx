@@ -36,6 +36,16 @@ export type TeamMember = {
 
 const VISIBLE = 8;
 
+/** Kelompokkan petugas satu pelayanan per peran (mis. Registrasi, Service Director). */
+function byRole(people: TeamMember[]) {
+  const m = new Map<string, TeamMember[]>();
+  for (const p of people) {
+    const k = (p.role ?? '').trim();
+    m.set(k, [...(m.get(k) ?? []), p]);
+  }
+  return [...m.entries()].map(([role, list]) => ({ role, people: list }));
+}
+
 export function MinistryTeamCard({
   petugas,
   className = '',
@@ -103,32 +113,47 @@ export function MinistryTeamCard({
               <Text className="text-[11px] text-neutral-500">{fullCount}</Text>
             </View>
 
-            <View className="gap-2.5">
-              {g.people.map((p) => (
-                <Pressable
-                  key={p.id}
-                  onPress={() => router.push(`/jemaat/${p.jemaat.id}` as never)}
-                  className="flex-row items-center gap-3 active:opacity-70"
-                  accessibilityRole="button"
-                  accessibilityLabel={`${p.jemaat.namaLengkap}, ${p.role}${p.tugas?.length ? `, ${tugasText(p.tugas)}` : ''}`}
-                >
-                  {/* Foto sejajar dua baris: nama, lalu peran · tugas di bawahnya. */}
-                  <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl ?? null} size={40} />
-                  <View className="flex-1 min-w-0">
-                    <Text className="text-sm font-semibold text-neutral-900 leading-5" numberOfLines={1}>
-                      {p.jemaat.namaLengkap}
-                      {p.isMe ? <Text className="text-xs font-semibold text-brand-600">{`  ${t('ibadah.team_you')}`}</Text> : null}
-                    </Text>
-                    {p.role || p.tugas?.length ? (
-                      <Text className="text-xs text-neutral-500 leading-4" numberOfLines={2}>
-                        {p.role}
-                        {p.tugas?.length ? (
-                          <Text className="font-medium text-brand-700">{`${p.role ? ' · ' : ''}${tugasText(p.tugas)}`}</Text>
-                        ) : null}
+            {/* Dikelompokkan per peran/tugas (urutan kemunculan dari server) — tidak terpisah-pisah. */}
+            <View className="gap-3">
+              {byRole(g.people).map((r) => (
+                <View key={r.role || '-'}>
+                  {r.role ? (
+                    <View className="flex-row items-center gap-2 mb-1.5">
+                      <Text className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide flex-shrink" numberOfLines={1}>
+                        {r.role}
                       </Text>
-                    ) : null}
+                      <View className="flex-1 h-px bg-neutral-100" />
+                      <Text className="text-[10px] font-semibold text-neutral-400">
+                        {(groups.find((x) => x.nama === g.nama)?.people ?? g.people).filter((x) => (x.role ?? '').trim() === r.role).length}
+                      </Text>
+                    </View>
+                  ) : null}
+                  <View className="gap-2">
+                    {r.people.map((p) => (
+                      <Pressable
+                        key={p.id}
+                        onPress={() => router.push(`/jemaat/${p.jemaat.id}` as never)}
+                        className="flex-row items-center gap-3 active:opacity-70"
+                        accessibilityRole="button"
+                        accessibilityLabel={`${p.jemaat.namaLengkap}, ${p.role}${p.tugas?.length ? `, ${tugasText(p.tugas)}` : ''}`}
+                      >
+                        {/* Foto sejajar nama; tugas (bila diatur koordinator) di bawah nama. */}
+                        <Avatar name={p.jemaat.namaLengkap} fotoUrl={p.jemaat.fotoUrl ?? null} size={36} />
+                        <View className="flex-1 min-w-0">
+                          <Text className="text-sm font-semibold text-neutral-900 leading-5" numberOfLines={1}>
+                            {p.jemaat.namaLengkap}
+                            {p.isMe ? <Text className="text-xs font-semibold text-brand-600">{`  ${t('ibadah.team_you')}`}</Text> : null}
+                          </Text>
+                          {p.tugas?.length ? (
+                            <Text className="text-xs font-medium text-brand-700 leading-4" numberOfLines={2}>
+                              {tugasText(p.tugas)}
+                            </Text>
+                          ) : null}
+                        </View>
+                      </Pressable>
+                    ))}
                   </View>
-                </Pressable>
+                </View>
               ))}
             </View>
           </View>
