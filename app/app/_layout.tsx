@@ -13,6 +13,7 @@ import {
   type ErrorBoundaryProps,
 } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { AnimatedSplash } from '@/components/splash/AnimatedSplash';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { AppState, Platform } from 'react-native';
@@ -208,6 +209,8 @@ export default function RootLayout() {
         <ToastContainer />
         {/* Popup pemberitahuan Els App (pengganti Alert sistem) */}
         <DialogContainer />
+        {/* Splash beranimasi (sekali per buka app) — menutup sendiri ≤ 5,5 dtk, ketuk untuk lewati */}
+        <AnimatedSplash />
         </ThemeRoot>
       </PersistQueryClientProvider>
     </SafeAreaProvider>
