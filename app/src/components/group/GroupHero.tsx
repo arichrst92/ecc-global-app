@@ -3,7 +3,8 @@
  * Hanya PIC (atau fulltimer bila group belum punya PIC) yang bisa ganti/hapus.
  */
 import { appAlert } from '@/components/ui/AppDialog';
-import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { useCappedHeight } from '@/hooks/useFoldSafe';
 import * as ImagePicker from 'expo-image-picker';
 import { launchImageLibraryCropped } from '@/components/ui/ImageCropHost';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +40,9 @@ export function GroupHero({
   const uploadMut = useUploadGroupHero(groupId);
   const deleteMut = useDeleteGroupHero(groupId);
   const busy = uploadMut.isPending || deleteMut.isPending;
+  // 16:9 selebar layar; di layar dalam HP lipat tingginya dibatasi.
+  const { width: winW } = useWindowDimensions();
+  const heroH = useCappedHeight(winW, 16 / 9, 0.45);
   const errMsg = (e: unknown) => (e instanceof ApiError ? e.message : t('error.generic'));
 
   async function pick() {
@@ -74,7 +78,7 @@ export function GroupHero({
 
   return (
     <>
-    <View style={{ aspectRatio: 16 / 9 }} className="w-full bg-brand-50 overflow-hidden">
+    <View style={{ height: heroH }} className="w-full bg-brand-50 overflow-hidden">
       {heroImageUrl ? (
         <Image source={{ uri: groupImageHref(heroImageUrl) }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
       ) : (

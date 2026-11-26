@@ -4,7 +4,7 @@
  * (sudah berisi item aktif) supaya tidak perlu endpoint baru di app.
  */
 import { gx } from '@/theme/gradient';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -21,6 +21,7 @@ import { MARKET_ICONS } from '@/components/market/brandIcons';
 import { goBack } from '@/utils/nav';
 import { nc } from '@/theme/ThemeRoot';
 import { HeroStatusBar, useHeroScroll } from '@/components/ui/HeroStatusBar';
+import { useCappedHeight, useKeepPage } from '@/hooks/useFoldSafe';
 
 export default function MarketItemScreen() {
   const hero = useHeroScroll();
@@ -33,6 +34,10 @@ export default function MarketItemScreen() {
   const biz = query.data;
   const item = biz?.items?.find((i) => i.id === itemId);
   const [page, setPage] = useState(0);
+  const pagerRef = useRef<ScrollView>(null);
+  useKeepPage(pagerRef, width, page);
+  // Layar dalam HP lipat: foto tidak setinggi layar.
+  const fotoH = useCappedHeight(width, 1.5);
   const found = !!item;
   // Hitung kunjungan item (server abaikan pemilik & dedupe 30 menit).
   useEffect(() => {
@@ -88,6 +93,7 @@ export default function MarketItemScreen() {
       <ScrollView onScroll={hero.onScroll} scrollEventThrottle={16} className="flex-1" contentContainerStyle={{ paddingBottom: 24 }}>
         <View>
           <ScrollView
+            ref={pagerRef}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -99,7 +105,7 @@ export default function MarketItemScreen() {
                 url={f}
                 fallbackEmoji={item.jenis === 'JASA' ? '🛠️' : '📦'}
                 emojiSize={48}
-                style={{ width, aspectRatio: 1.5 }}
+                style={{ width, height: fotoH }}
               />
             ))}
           </ScrollView>

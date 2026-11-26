@@ -4,7 +4,7 @@
  * baris yang bisa dibuka-tutup, dan video teaser (diputar di dalam app).
  * Informasi & alur sama seperti sebelumnya — hanya tata letak yang diringkas.
  */
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Image, Linking, Platform, Pressable, ScrollView, Text, View, useWindowDimensions, type ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronUp, ExternalLink, Play } from 'lucide-react-native';
@@ -15,6 +15,7 @@ import { useSwipeLocked } from '@/components/tiket/swipeLock';
 import { ElsEmptyIcon } from '@/components/ui/ElsEmptyIcon';
 import { useWorshipPlayer } from '@/stores/worship-player.store';
 import { isDark, nc } from '@/theme/ThemeRoot';
+import { useKeepPage } from '@/hooks/useFoldSafe';
 
 export const gradientStyle = (g: string): ViewStyle =>
   (Platform.OS === 'web' ? { backgroundImage: g } : { experimental_backgroundImage: g }) as ViewStyle;
@@ -143,6 +144,9 @@ export function TicketCarousel<T>({
   const { width } = useWindowDimensions();
   const locked = useSwipeLocked();
   const [rawIdx, setIdx] = useState(0);
+  const scRef = useRef<ScrollView>(null);
+  // HP lipat dibuka/ditutup → lebar kartu berubah; tetap di tiket yang sama.
+  useKeepPage(scRef, Math.min(width - padX * 2 - (items.length === 1 ? 0 : 28), 520) + 10, Math.min(rawIdx, Math.max(0, items.length - 1)));
   if (!items.length) return null;
   // Tiket dibatalkan → jumlah berkurang; indeks tidak boleh melewati jumlah.
   const idx = Math.min(rawIdx, items.length - 1);
@@ -159,6 +163,7 @@ export function TicketCarousel<T>({
       ) : (
         <>
           <ScrollView
+            ref={scRef}
             horizontal
             nestedScrollEnabled
             scrollEnabled={!locked}

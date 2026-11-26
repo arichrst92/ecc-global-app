@@ -27,6 +27,7 @@ import type { MyReservasi } from '@/types/ibadah';
 import { goBack } from '@/utils/nav';
 import { brandGradient } from '@/theme/gradient';
 import { useSwipeLocked } from '@/components/tiket/swipeLock';
+import { useKeepPage } from '@/hooks/useFoldSafe';
 
 const BG = '#EA580C';
 
@@ -95,6 +96,7 @@ export default function TiketScreen() {
   // horizontal tidak otomatis dibatasi tingginya (ikut tinggi konten) →
   // konten bawah terpotong & tidak bisa di-scroll. Batasi eksplisit.
   const [pageH, setPageH] = useState(0);
+  useKeepPage(listRef, width, page);
 
   // Layar terang selama tiket dibuka (QR mudah dipindai), kembali saat keluar.
   useFocusEffect(

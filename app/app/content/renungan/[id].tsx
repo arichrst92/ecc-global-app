@@ -18,11 +18,14 @@ import { nc } from '@/theme/ThemeRoot';
 import { ShareCardModal } from '@/features/share/ShareCardModal';
 import { ArticleShareCard } from '@/features/share/cards';
 import { ArticleTopBar, EndActions, LeadParagraph, ReadTime, VerseCard, readingMinutes, useArticleScroll } from '@/components/content/ArticleBits';
+import { useCappedHeight } from '@/hooks/useFoldSafe';
 import { gradientStyle } from '@/components/detail/DetailBits';
 
 export default function RenunganDetailScreen() {
   const { width } = useWindowDimensions();
-  const art = useArticleScroll(width / 1.5);
+  // Layar dalam HP lipat: gambar dibatasi supaya isi artikel langsung terlihat.
+  const heroH = useCappedHeight(width, 3 / 2);
+  const art = useArticleScroll(heroH);
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
   const router = useRouter();
@@ -144,7 +147,7 @@ export default function RenunganDetailScreen() {
           <>
             {/* Hero 3:2 — sama dengan rasio unggahan di Portal & pratinjau link; tanggal besar di atas gambar */}
             <View>
-              <HeroImage url={item.heroImageUrl} fallbackEmoji="📖" emojiSize={96} className="w-full" style={{ aspectRatio: 3 / 2 }} />
+              <HeroImage url={item.heroImageUrl} fallbackEmoji="📖" emojiSize={96} className="w-full" style={{ height: heroH }} />
               {dateParts ? (
                 <View pointerEvents="none" style={[{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '55%' }, shade]}>
                   <View style={{ position: 'absolute', left: 20, bottom: 30, flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>

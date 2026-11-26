@@ -25,6 +25,17 @@ module.exports = function withOptionalScreenFeatures(config) {
       for (const c of EXTRA_CONFIG_CHANGES) if (!cur.includes(c)) cur.push(c);
       act.$['android:configChanges'] = cur.join('|');
     }
+    // Android 16 (targetSdk 36) mengabaikan kunci portrait di layar ≥ 600 dp (layar
+    // dalam HP lipat, tablet). Tata letak app dirancang tegak → tetap tegak (bila HP
+    // dimiringkan, app tampil tegak di tengah). Hanya berlaku di targetSdk 36.
+    const app = manifest.application?.[0];
+    if (app) {
+      app.property = app.property ?? [];
+      const PROP = 'android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY';
+      if (!app.property.some((p) => p.$?.['android:name'] === PROP)) {
+        app.property.push({ $: { 'android:name': PROP, 'android:value': 'true' } });
+      }
+    }
     manifest['uses-feature'] = manifest['uses-feature'] ?? [];
     for (const name of FEATURES) {
       const existing = manifest['uses-feature'].find((f) => f.$?.['android:name'] === name);

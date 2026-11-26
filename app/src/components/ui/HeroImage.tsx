@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, useWindowDimensions } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import { env } from '@/config/env';
 import { BrandImagePlaceholder } from '@/components/ui/BrandImagePlaceholder';
+import { WIDE_MIN } from '@/hooks/useFoldSafe';
 
 type Props = {
   /** Path relatif dari BE (mis. /uploads/...) atau URL absolute */
@@ -59,6 +60,10 @@ export function HeroImage({
 }: Props) {
   const [failed, setFailed] = useState(false);
   const [naturalAspect, setNaturalAspect] = useState<number | null>(null);
+  // Layar dalam HP lipat / tablet: poster potret selebar ±690–900 dp bisa lebih
+  // tinggi dari layar → tinggi dibatasi ±60% layar (gambar tetap utuh, contain).
+  const { width: winW, height: winH } = useWindowDimensions();
+  const [boxW, setBoxW] = useState(0);
 
   const resolvedUrl = (() => {
     if (!url || failed) return null;
@@ -95,10 +100,16 @@ export function HeroImage({
     if (fitToWidth) {
       const natural = naturalAspect ?? fallbackAspect;
       // Gambar lebih tinggi dari batas (poster potret) → tinggi dibatasi, gambar utuh (contain).
-      const clamped = minAspect != null && natural < minAspect;
-      const aspect = clamped ? minAspect : natural;
+      const wideCap = winW >= WIDE_MIN && boxW > 0 && winH > 0 ? boxW / (winH * 0.6) : 0;
+      const minA = Math.max(minAspect ?? 0, wideCap);
+      const clamped = minA > 0 && natural < minA;
+      const aspect = clamped ? minA : natural;
       return (
-        <View className={`${className ?? ''} ${clamped ? 'bg-neutral-100 overflow-hidden' : ''}`} style={[style, { aspectRatio: aspect }]}>
+        <View
+          className={`${className ?? ''} ${clamped ? 'bg-neutral-100 overflow-hidden' : ''}`}
+          style={[style, { aspectRatio: aspect }]}
+          onLayout={winW >= WIDE_MIN ? (e) => setBoxW(Math.round(e.nativeEvent.layout.width)) : undefined}
+        >
           {/* Poster lebih tinggi dari batas: tampil utuh di atas latar gambar yang sama diburamkan. */}
           {clamped ? (
             <Image

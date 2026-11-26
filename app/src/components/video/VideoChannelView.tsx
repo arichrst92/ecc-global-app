@@ -4,7 +4,7 @@
  * → /media/kategori/:id). Cari = /media/search (ikon di header Media).
  * Ketuk video → /media/video/:id.
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Platform, Pressable, ScrollView, Text, View, useWindowDimensions, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import { PullRefreshControl } from '@/components/ui/PullRefreshControl';
 import { useVideoCatalog } from '@/hooks/useVideos';
 import type { VideoItem } from '@/api/videos';
 import { ApiError } from '@/types/api';
+import { useCappedHeight, useKeepPage } from '@/hooks/useFoldSafe';
 
 export const fmtVideoDate = (iso: string, lang: string) =>
   new Date(iso).toLocaleDateString(lang === 'en' ? 'en-GB' : 'id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -169,6 +170,10 @@ export function VideoChannelView() {
   const openKat = (id: string) => router.push(`/media/kategori/${id}` as never);
 
   const heroW = Math.min(width - 32, 520);
+  // Layar dalam HP lipat (terutama mendatar): kartu unggulan tidak melebihi layar.
+  const heroH = useCappedHeight(heroW, 1 / 1.075, 0.62);
+  const heroRef = useRef<ScrollView>(null);
+  useKeepPage(heroRef, heroW + 12, heroIdx);
   const hero = useMemo(() => {
     const f = d?.featured ?? [];
     return f.length ? f : (d?.videos ?? []).slice(0, 3);
@@ -195,6 +200,7 @@ export function VideoChannelView() {
       {hero.length ? (
         <View>
           <ScrollView
+            ref={heroRef}
             horizontal
             showsHorizontalScrollIndicator={false}
             snapToInterval={heroW + 12}
@@ -209,7 +215,7 @@ export function VideoChannelView() {
                 onPress={() => open(v)}
                 style={{
                   width: heroW,
-                  height: heroW * 1.075,
+                  height: heroH,
                   borderRadius: 22,
                   overflow: 'hidden',
                   backgroundColor: '#1c0f08',

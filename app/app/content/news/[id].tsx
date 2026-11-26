@@ -17,11 +17,14 @@ import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { ShareCardModal } from '@/features/share/ShareCardModal';
 import { ArticleShareCard } from '@/features/share/cards';
+import { useCappedHeight } from '@/hooks/useFoldSafe';
 import { ArticleTopBar, EndActions, LeadParagraph, ReadTime, readingMinutes, useArticleScroll } from '@/components/content/ArticleBits';
 
 export default function NewsDetailScreen() {
   const { width } = useWindowDimensions();
-  const art = useArticleScroll(width / 1.5);
+  // Layar dalam HP lipat: gambar dibatasi supaya isi artikel langsung terlihat.
+  const heroH = useCappedHeight(width, 3 / 2);
+  const art = useArticleScroll(heroH);
   const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
@@ -107,7 +110,7 @@ export default function NewsDetailScreen() {
         ) : item ? (
           <>
             {/* Hero 3:2 — sama dengan rasio unggahan di Portal & pratinjau link */}
-            <HeroImage url={item.heroImageUrl} fallbackEmoji="📰" emojiSize={96} className="w-full" style={{ aspectRatio: 3 / 2 }} />
+            <HeroImage url={item.heroImageUrl} fallbackEmoji="📰" emojiSize={96} className="w-full" style={{ height: heroH }} />
 
             {/* Lembar isi menumpang ke gambar */}
             <View className="bg-card -mt-5 rounded-t-[22px] px-5 pt-5 pb-3">

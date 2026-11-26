@@ -8,7 +8,7 @@
  * Hanya 1 kartu → tampil penuh tanpa geser. Tidak ada sama sekali →
  * ajakan bergabung + "Cari homecell terdekat".
  */
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,7 @@ import type { HomecellListItem, HomecellNextSchedule, PicArea } from '@/types/ho
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
 import { jamRange } from '@/utils/jamRange';
+import { useKeepPage } from '@/hooks/useFoldSafe';
 import { SegmenBadges } from '@/components/homecell/HomecellListCard';
 import { HomecellMaterialRow } from '@/components/home/HomecellMaterialRow';
 
@@ -269,10 +270,13 @@ function SpotCarousel({ cards }: { cards: Card[] }) {
   const [index, setIndex] = useState(0);
   const cardW = Math.max(240, width - 40 - PEEK);
   const step = cardW + GAP;
+  const scRef = useRef<ScrollView>(null);
+  useKeepPage(scRef, step, index);
   return (
     <View className="-mt-5" onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       {width > 0 ? (
         <ScrollView
+          ref={scRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           snapToInterval={step}

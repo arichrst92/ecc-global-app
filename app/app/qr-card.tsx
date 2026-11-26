@@ -21,6 +21,7 @@ import { getMyProfile } from '@/api/me';
 import { goBack } from '@/utils/nav';
 import { gx } from '@/theme/gradient';
 import { nc } from '@/theme/ThemeRoot';
+import { useKeepPage } from '@/hooks/useFoldSafe';
 
 const BLUR_AFTER_SEC = 30;
 
@@ -61,6 +62,7 @@ export default function QrCardScreen() {
   const [revealed, setRevealed] = useState(true);
   const [activeIdx, setActiveIdx] = useState(0);
   const listRef = useRef<FlatList<QrCard>>(null);
+  useKeepPage(listRef, SCREEN_W, activeIdx);
 
   // Auto-blur countdown — reset saat ganti card
   useEffect(() => {
