@@ -109,7 +109,7 @@ export default function MyFormResponseScreen() {
                         <Text className="text-sm text-neutral-400">—</Text>
                       )
                     ) : (
-                      <Text className="text-sm font-semibold text-neutral-900 mt-0.5">{f.autofill ? d.autofill[f.autofill] || '—' : textOf(f, d.jawaban[f.id], i18n.language)}</Text>
+                      <Text className="text-sm font-semibold text-neutral-900 mt-0.5">{(f.autofill ? d.autofill?.[f.autofill] : '') || textOf(f, d.jawaban[f.id], i18n.language)}</Text>
                     )}
                   </View>
                 ),

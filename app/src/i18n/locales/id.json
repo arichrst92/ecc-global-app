@@ -3248,7 +3248,8 @@
     "closed_note": "Formulir sudah ditutup.",
     "not_open_note": "Formulir belum dibuka.",
     "empty_value": "—",
-    "via_web": "Dikirim lewat Els App web"
+    "via_web": "Dikirim lewat Els App web",
+    "autofill_empty": "Data ini belum ada di profil — silakan isi."
   },
   "konseling": {
     "title": "Konseling",

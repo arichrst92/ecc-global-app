@@ -3254,7 +3254,8 @@
     "closed_note": "The form is closed.",
     "not_open_note": "The form isn't open yet.",
     "empty_value": "—",
-    "via_web": "Submitted via Els App web"
+    "via_web": "Submitted via Els App web",
+    "autofill_empty": "This isn't in the profile yet — please fill it in."
   },
   "konseling": {
     "title": "Counseling",

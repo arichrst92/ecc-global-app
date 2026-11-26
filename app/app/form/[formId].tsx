@@ -32,10 +32,15 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const isEmpty = (v: unknown) => v == null || v === '' || (Array.isArray(v) && v.length === 0);
 
 /** Validasi di HP (aturan sama dengan server; server tetap memeriksa ulang). */
-function validate(fields: FormField[], ans: Record<string, unknown>, t: (k: string, o?: Record<string, unknown>) => string) {
+function validate(
+  fields: FormField[],
+  ans: Record<string, unknown>,
+  t: (k: string, o?: Record<string, unknown>) => string,
+  locked: (f: FormField) => boolean,
+) {
   const err: Record<string, string> = {};
   for (const f of fields) {
-    if (f.tipe === 'INFO' || f.autofill) continue;
+    if (f.tipe === 'INFO' || locked(f)) continue;
     const v = f.validasi ?? {};
     let x = ans[f.id];
     if (typeof x === 'string') x = x.trim();
@@ -122,8 +127,11 @@ export default function FormFillScreen() {
   }, [ans, files, ready, draftKey, d, done]);
 
   const fields = d?.fields ?? [];
-  const inputs = fields.filter((f) => f.tipe !== 'INFO' && !f.autofill);
-  const autoFields = d?.anonim ? [] : fields.filter((f) => f.autofill);
+  // Autofill terkunci hanya bila datanya ada; kosong (mis. belum punya pasangan
+  // di menu Keluarga) → field terbuka diisi manual.
+  const locked = (f: FormField) => !!f.autofill && !d?.anonim && !!d?.autofill[f.autofill];
+  const inputs = fields.filter((f) => f.tipe !== 'INFO' && !locked(f));
+  const autoFields = fields.filter(locked);
   const answered = inputs.filter((f) => !isEmpty(ans[f.id])).length;
   const anyBusy = Object.values(busy).some(Boolean);
   const readOnly = !!d && !d.canSubmit;
@@ -157,7 +165,7 @@ export default function FormFillScreen() {
   async function submit() {
     if (!d || !formId || !src) return;
     if (anyBusy) return setErrors((e) => ({ ...e, _: t('uform.err_uploading') }));
-    const err = validate(fields, ans, t);
+    const err = validate(fields, ans, t, locked);
     if (Object.keys(err).length) {
       setErrors(err);
       jumpToFirst(err);
@@ -308,7 +316,7 @@ export default function FormFillScreen() {
             ) : null}
 
             {fields
-              .filter((f) => !f.autofill)
+              .filter((f) => !locked(f))
               .map((f) => (
                 <View key={f.id} onLayout={(e) => (ys.current[f.id] = e.nativeEvent.layout.y)}>
                   {f.tipe === 'INFO' ? (
@@ -320,6 +328,9 @@ export default function FormFillScreen() {
                         {f.wajib ? <Text className="text-red-600"> *</Text> : null}
                       </Text>
                       {f.petunjuk ? <Text className="text-[11px] text-neutral-500 mb-1.5 -mt-0.5">{f.petunjuk}</Text> : null}
+                      {f.autofill && !d.anonim ? (
+                        <Text className="text-[11px] text-amber-700 mb-1.5 -mt-0.5">{t('uform.autofill_empty')}</Text>
+                      ) : null}
                       <FieldInput f={f} value={ans[f.id]} onChange={(v) => setVal(f.id, v)} error={errors[f.id]} ctx={ctx} />
                       {errors[f.id] ? (
                         <View className="flex-row items-center gap-1 mt-1">
