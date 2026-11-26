@@ -16,7 +16,8 @@
  *  - ketuk di mana saja → langsung lewati;
  *  - "Kurangi gerakan" aktif → logo diam ±1,2 dtk lalu memudar;
  *  - error saat render (mis. SVG) → ditangkap ErrorBoundary, splash dilewati;
- *  - flag modul: tidak diputar ulang saat tema berganti (ThemeRoot remount).
+ *  - flag modul: tidak diputar ulang saat tema berganti (ThemeRoot remount);
+ *  - web: sekali per tab & hanya saat membuka beranda (link langsung → dilewati).
  */
 import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -37,6 +38,31 @@ const nd = Platform.OS !== 'web';
 
 let playedThisLaunch = false;
 
+/**
+ * Web: (1) hanya sekali per tab browser (sessionStorage); (2) dibuka langsung
+ * ke halaman tertentu (link formulir, event, pembayaran, masuk via email) →
+ * dilewati, hanya tampil saat membuka beranda. Native: sekali per buka app.
+ */
+const WEB_KEY = 'els_splash_seen';
+function skipOnWeb(): boolean {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return false;
+  try {
+    if (window.sessionStorage?.getItem(WEB_KEY) === '1') return true;
+  } catch {
+    /* sessionStorage tidak tersedia → tetap cek path */
+  }
+  const path = (window.location?.pathname ?? '/').replace(/\/+$/, '') || '/';
+  return path !== '/';
+}
+function markSeenOnWeb() {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+  try {
+    window.sessionStorage?.setItem(WEB_KEY, '1');
+  } catch {
+    /* abaikan */
+  }
+}
+
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 class SplashBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
@@ -53,11 +79,18 @@ class SplashBoundary extends Component<{ onError: () => void; children: ReactNod
 }
 
 export function AnimatedSplash() {
-  const [done, setDone] = useState(playedThisLaunch);
+  const [done, setDone] = useState(() => playedThisLaunch || skipOnWeb());
   const finish = useRef(() => {
     playedThisLaunch = true;
+    markSeenOnWeb();
     setDone(true);
   }).current;
+  // Web: tandai sejak mulai diputar — refresh di tengah animasi tidak mengulang.
+  useEffect(() => {
+    if (!done) markSeenOnWeb();
+    playedThisLaunch = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   if (done) return null;
   return (
     <SplashBoundary onError={finish}>
