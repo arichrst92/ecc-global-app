@@ -3,33 +3,29 @@
  * seluruh UI, setelah splash bawaan sistem disembunyikan.
  *
  * Urutan (±4 dtk, sesuai docs/design/motion-splash-els-app.html):
- *  0,00–0,85  lingkaran oranye tergambar searah jarum jam
- *  0,85–1,40  lingkaran berputar, membesar & memudar
- *  0,95–1,75  logo Els App "ditulis" (tirai putih bergeser ke kanan) + denyut kecil
- *  2,10–2,55  garis tipis + "BY"
- *  2,25–2,80  logo ECC Church + EL SHADDAI CREATIVE COMMUNITY (selebar logo)
- *  2,70–3,55  titik memuat + "Powered by" logo IDEA
- *  3,55–4,05  semua membesar sedikit & memudar → app
+ *  (lingkaran oranye dihapus 2026-11-27)
+ *  0,15–0,95  logo Els App "ditulis" (tirai putih bergeser ke kanan) + denyut kecil
+ *  1,30–1,75  garis tipis + "BY"
+ *  1,45–2,00  logo ECC Church + EL SHADDAI CREATIVE COMMUNITY (selebar logo)
+ *  1,90–2,75  titik memuat + "Powered by" logo IDEA
+ *  2,75–3,25  semua membesar sedikit & memudar → app
  *
  * Pengaman supaya tidak macet / crash:
  *  - batas waktu keras (MAX_MS): apa pun yang terjadi, splash ditutup;
  *  - ketuk di mana saja → langsung lewati;
  *  - "Kurangi gerakan" aktif → logo diam ±1,2 dtk lalu memudar;
- *  - error saat render (mis. SVG) → ditangkap ErrorBoundary, splash dilewati;
+ *  - error saat render → ditangkap ErrorBoundary, splash dilewati;
  *  - flag modul: tidak diputar ulang saat tema berganti (ThemeRoot remount);
  *  - web: sekali per tab & hanya saat membuka beranda (link langsung → dilewati).
  */
 import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 const ELS = require('../../../assets/images/splash-els.png');
 const ECC = require('../../../assets/images/splash-ecc.png');
 const IDEA = require('../../../assets/images/splash-idea.png');
 
 const MAX_MS = 5500;
-const R = 110;
-const CIRC = 2 * Math.PI * R;
 const LOGO_W = 112;
 const ELS_H = Math.round((LOGO_W * 459) / 600);
 const ECC_W = 64;
@@ -62,8 +58,6 @@ function markSeenOnWeb() {
     /* abaikan */
   }
 }
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 class SplashBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -101,8 +95,6 @@ export function AnimatedSplash() {
 
 function SplashStage({ onFinish }: { onFinish: () => void }) {
   const v = useRef({
-    ring: new Animated.Value(0), // 0→1 gambar lingkaran
-    ringOut: new Animated.Value(0), // 0→1 putar, besar, pudar
     write: new Animated.Value(0), // tirai tulisan Els
     pulse: new Animated.Value(0),
     mid: new Animated.Value(0),
@@ -140,7 +132,6 @@ function SplashStage({ onFinish }: { onFinish: () => void }) {
         if (reduce) {
           // Tanpa gerak: langsung tampil, tahan sebentar, pudar.
           [v.write, v.mid, v.ecc, v.foot].forEach((x) => x.setValue(1));
-          v.ringOut.setValue(1);
           main = Animated.sequence([Animated.delay(1200), t(v.exit, 1, 300)]);
           main.start(() => end());
           return;
@@ -149,17 +140,14 @@ function SplashStage({ onFinish }: { onFinish: () => void }) {
           Animated.sequence([t(v.dot, 1, 450, 0, Easing.inOut(Easing.quad)), t(v.dot, 0, 450, 0, Easing.inOut(Easing.quad))]),
         );
         main = Animated.parallel([
-          // strokeDashoffset tidak didukung native driver → JS.
-          t(v.ring, 1, 850, 0, Easing.inOut(Easing.cubic), false),
-          t(v.ringOut, 1, 550, 850, Easing.inOut(Easing.cubic)),
-          t(v.write, 1, 800, 950, Easing.bezier(0.6, 0.05, 0.3, 1)),
-          Animated.sequence([Animated.delay(1800), t(v.pulse, 1, 150), t(v.pulse, 0, 150)]),
-          t(v.mid, 1, 450, 2100),
-          t(v.ecc, 1, 550, 2250, Easing.bezier(0.2, 0.8, 0.2, 1.15)),
-          t(v.foot, 1, 400, 2700),
-          t(v.exit, 1, 500, 3550, Easing.in(Easing.cubic)),
+          t(v.write, 1, 800, 150, Easing.bezier(0.6, 0.05, 0.3, 1)),
+          Animated.sequence([Animated.delay(1000), t(v.pulse, 1, 150), t(v.pulse, 0, 150)]),
+          t(v.mid, 1, 450, 1300),
+          t(v.ecc, 1, 550, 1450, Easing.bezier(0.2, 0.8, 0.2, 1.15)),
+          t(v.foot, 1, 400, 1900),
+          t(v.exit, 1, 500, 2750, Easing.in(Easing.cubic)),
         ]);
-        setTimeout(() => !cancelled && loop?.start(), 2700);
+        setTimeout(() => !cancelled && loop?.start(), 1900);
         main.start(() => end());
       });
 
@@ -174,45 +162,11 @@ function SplashStage({ onFinish }: { onFinish: () => void }) {
 
   const stageOpacity = v.exit.interpolate({ inputRange: [0, 1], outputRange: [1, 0] });
   const stageScale = v.exit.interpolate({ inputRange: [0, 1], outputRange: [1, 1.06] });
-  const ringRotate = v.ringOut.interpolate({ inputRange: [0, 1], outputRange: ['-90deg', '270deg'] });
 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, styles.root, { opacity: stageOpacity }]} accessibilityLabel="Els App by ECC Church">
       <Pressable style={StyleSheet.absoluteFill} onPress={skip}>
         <Animated.View style={[StyleSheet.absoluteFill, styles.center, { transform: [{ scale: stageScale }] }]}>
-          {/* Lingkaran oranye searah jarum jam */}
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.ring,
-              {
-                opacity: v.ringOut.interpolate({ inputRange: [0, 0.6, 1], outputRange: [1, 0.8, 0] }),
-                transform: [{ rotate: ringRotate }, { scale: v.ringOut.interpolate({ inputRange: [0, 1], outputRange: [1, 1.35] }) }],
-              },
-            ]}
-          >
-            <Svg width={240} height={240} viewBox="0 0 240 240">
-              <Defs>
-                <LinearGradient id="splashRing" x1="0" y1="0" x2="1" y2="1">
-                  <Stop offset="0" stopColor="#FDBA74" />
-                  <Stop offset="0.5" stopColor="#F97316" />
-                  <Stop offset="1" stopColor="#C2410C" />
-                </LinearGradient>
-              </Defs>
-              <AnimatedCircle
-                cx={120}
-                cy={120}
-                r={R}
-                fill="none"
-                stroke="url(#splashRing)"
-                strokeWidth={7}
-                strokeLinecap="round"
-                strokeDasharray={`${CIRC} ${CIRC}`}
-                strokeDashoffset={v.ring.interpolate({ inputRange: [0, 1], outputRange: [CIRC, 0] })}
-              />
-            </Svg>
-          </Animated.View>
-
           {/* Logo Els App — ditulis dari kiri ke kanan */}
           <Animated.View
             style={{
@@ -297,7 +251,6 @@ function SplashStage({ onFinish }: { onFinish: () => void }) {
 const styles = StyleSheet.create({
   root: { backgroundColor: '#FFFFFF', zIndex: 9999, elevation: 9999 },
   center: { alignItems: 'center', justifyContent: 'center' },
-  ring: { position: 'absolute', width: 240, height: 240, top: '50%', left: '50%', marginTop: -150, marginLeft: -120 },
   mid: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 22, marginBottom: 14 },
   line: { width: 46, height: 1, backgroundColor: '#FDBA74' },
   by: { fontSize: 10, letterSpacing: 3, color: '#A3A3A3', fontWeight: '700' },
