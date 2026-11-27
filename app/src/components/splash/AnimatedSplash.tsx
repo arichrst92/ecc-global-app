@@ -191,7 +191,7 @@ function SplashStage({ onFinish }: { onFinish: () => void }) {
           {/* Garis + BY */}
           <Animated.View style={[styles.mid, { opacity: v.mid }]}>
             <Animated.View style={[styles.line, { transform: [{ scaleX: v.mid }] }]} />
-            <Text style={styles.by}>BY</Text>
+            <Text style={styles.by} allowFontScaling={false}>BY</Text>
             <Animated.View style={[styles.line, { transform: [{ scaleX: v.mid }] }]} />
           </Animated.View>
 
@@ -251,9 +251,9 @@ function SplashStage({ onFinish }: { onFinish: () => void }) {
 const styles = StyleSheet.create({
   root: { backgroundColor: '#FFFFFF', zIndex: 9999, elevation: 9999 },
   center: { alignItems: 'center', justifyContent: 'center' },
-  mid: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 22, marginBottom: 14 },
+  mid: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 22, marginBottom: 14 },
   line: { width: 46, height: 1, backgroundColor: '#FDBA74' },
-  by: { fontSize: 10, letterSpacing: 3, color: '#A3A3A3', fontWeight: '700' },
+  by: { fontSize: 7, letterSpacing: 2, color: '#A3A3A3', fontWeight: '700' },
   tag: {
     width: LOGO_W,
     marginTop: 8,
