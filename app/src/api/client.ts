@@ -35,35 +35,49 @@ type RequestOptions = Omit<RequestInit, 'body'> & {
 
 let refreshPromise: Promise<string | null> | null = null;
 
+/**
+ * Perbarui access token. Sesi HANYA diakhiri bila server menolak refresh token
+ * dengan jelas (4xx). Gangguan sementara — offline, timeout, server sedang
+ * deploy (502/503 HTML), 5xx, batas permintaan (429) — TIDAK me-logout: request
+ * ini gagal biasa dan dicoba lagi nanti dengan token yang sama.
+ * REFRESH_TOKEN_ROTATED (Els App web, tab lain baru saja merotasi token) → pakai
+ * token terbaru dari penyimpanan bersama, jangan logout.
+ */
 async function tryRefresh(): Promise<string | null> {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     const { refreshToken, setTokens, logout } = useAuthStore.getState();
     if (!refreshToken) return null;
+    let res: Response;
     try {
-      const res = await fetch(`${env.apiBaseUrl}/auth/refresh`, {
+      res = await fetch(`${env.apiBaseUrl}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
       });
-      const body = (await res.json()) as ApiResponse<{
-        accessToken: string;
-        refreshToken: string;
-        expiresIn: number;
-      }>;
-      if (!body.success) {
-        logout();
-        return null;
-      }
+    } catch {
+      return null; // jaringan — sesi tetap
+    }
+    type RefreshBody = ApiResponse<{ accessToken: string; refreshToken: string; expiresIn: number }>;
+    const body: RefreshBody | null = await res.json().then(
+      (x: unknown) => x as RefreshBody,
+      () => null, // bukan JSON (halaman error proxy saat deploy)
+    );
+    if (res.ok && body?.success) {
       await setTokens(body.data.accessToken, body.data.refreshToken);
       return body.data.accessToken;
-    } catch {
-      logout();
-      return null;
-    } finally {
-      refreshPromise = null;
     }
-  })();
+    if (res.status >= 500 || res.status === 429 || res.status === 408 || !body) return null;
+    const code = body && !body.success ? ((body as unknown as ApiErrorBody).error?.code as string | undefined) : undefined;
+    if (code === 'REFRESH_TOKEN_ROTATED') {
+      const latest = await useAuthStore.getState().reloadTokens();
+      if (latest && latest.refreshToken !== refreshToken && latest.accessToken) return latest.accessToken;
+    }
+    await logout();
+    return null;
+  })().finally(() => {
+    refreshPromise = null;
+  });
   return refreshPromise;
 }
 

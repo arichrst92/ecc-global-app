@@ -35,6 +35,8 @@ type AuthState = {
 
   hydrate: () => Promise<void>;
   setTokens: (accessToken: string, refreshToken: string) => Promise<void>;
+  /** Baca ulang token dari penyimpanan (web: tab lain bisa sudah merotasi). */
+  reloadTokens: () => Promise<{ accessToken: string | null; refreshToken: string | null }>;
   setUser: (user: User) => Promise<void>;
   login: (accessToken: string, refreshToken: string, user: User) => Promise<void>;
   /** Logout: clear semua tokens + user. */
@@ -88,6 +90,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
     } catch {
       set({ isHydrating: false });
+    }
+  },
+
+  reloadTokens: async () => {
+    try {
+      const [accessToken, refreshToken] = await Promise.all([storage.getItem(KEYS.accessToken), storage.getItem(KEYS.refreshToken)]);
+      if (accessToken && refreshToken) set({ accessToken, refreshToken });
+      return { accessToken, refreshToken };
+    } catch {
+      return { accessToken: null, refreshToken: null };
     }
   },
 
