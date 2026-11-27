@@ -152,13 +152,19 @@
     "plugins": [
       "./plugins/with-optional-screen-features",
       "expo-router",
-      "expo-secure-store",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Els App tidak memakai Face ID. Izin ini hanya disediakan oleh modul penyimpanan aman untuk menyimpan sesi login Anda."
+        }
+      ],
       "expo-localization",
       [
         "expo-camera",
         {
-          "cameraPermission": "Els App membutuhkan akses kamera untuk scan QR jemaat saat check-in ibadah, event, dan menambah anggota keluarga/group.",
-          "recordAudioAndroid": false
+          "cameraPermission": "Els App membutuhkan akses kamera untuk scan QR jemaat saat check-in ibadah, event, dan menambah anggota keluarga/group, serta mengambil foto bukti pembayaran, gambar di Catatan saya, dan lampiran formulir.",
+          "recordAudioAndroid": false,
+          "microphonePermission": "Els App tidak merekam suara. Izin ini hanya disediakan oleh modul kamera; Els App memakai kamera untuk scan QR dan mengambil foto."
         }
       ],
       "expo-font",
@@ -167,7 +173,8 @@
         "expo-image-picker",
         {
           "photosPermission": "Els App membutuhkan akses galeri foto untuk mengunggah foto profil, bukti pembayaran event, foto group, foto usaha Anda di Local Market, gambar di Catatan saya, dan lampiran formulir.",
-          "cameraPermission": "Els App membutuhkan akses kamera untuk scan QR jemaat saat check-in ibadah, event, dan menambah anggota keluarga/group, serta mengambil foto bukti pembayaran, gambar di Catatan saya, dan lampiran formulir."
+          "cameraPermission": "Els App membutuhkan akses kamera untuk scan QR jemaat saat check-in ibadah, event, dan menambah anggota keluarga/group, serta mengambil foto bukti pembayaran, gambar di Catatan saya, dan lampiran formulir.",
+          "microphonePermission": "Els App tidak merekam suara. Izin ini hanya disediakan oleh modul kamera; Els App memakai kamera untuk scan QR dan mengambil foto."
         }
       ],
       [
@@ -184,7 +191,9 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Els App menggunakan lokasi Anda untuk mencari homecell terdekat dan memastikan Anda berada di lokasi ibadah atau event saat self check-in."
+          "locationWhenInUsePermission": "Els App menggunakan lokasi Anda untuk mencari homecell terdekat dan memastikan Anda berada di lokasi ibadah atau event saat self check-in.",
+          "locationAlwaysAndWhenInUsePermission": "Els App menggunakan lokasi Anda untuk mencari homecell terdekat dan memastikan Anda berada di lokasi ibadah atau event saat self check-in. Els App tidak memakai lokasi di latar belakang.",
+          "locationAlwaysPermission": "Els App menggunakan lokasi Anda untuk mencari homecell terdekat dan memastikan Anda berada di lokasi ibadah atau event saat self check-in. Els App tidak memakai lokasi di latar belakang."
         }
       ],
       [
