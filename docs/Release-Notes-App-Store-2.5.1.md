@@ -2,30 +2,34 @@
 
 ## Bahasa Indonesia
 
-- **Bagikan kesaksian** — doa yang terjawab dan resolusi yang tercapai kini bisa dibagikan sebagai gambar lengkap dengan ayat pegangan, plus ajakan memberi sebagai ucapan syukur.
-- **Ayat pegangan resolusi** — tautkan ayat ke setiap resolusi tahunan cukup dengan mengetik referensinya (mis. Yoh 3:16).
-- **Mode Scanner lebih lengkap** — petugas melihat daftar hadir & belum hadir, status jendela scan, dan ringkasan kehadiran; tombol di layar scan lebih rapi.
-- **Event & tiket lebih tepat** — event sukarela menampilkan nominal yang Anda berikan dan status pemberian Anda; event tanpa kehadiran tidak lagi menampilkan QR; jam tertulis sesuai kota cabang.
-- **ECC Worship** — ajakan mendengarkan ECC Worship saat membaca Alkitab, mencatat, dan untuk homecell tanpa pemain musik.
-- **Check-in lebih mudah** — orang tua / wali bisa check-in anak langsung dari tiket CKids; jam self check-in mengikuti pengaturan tiap ibadah & event; slider "Geser untuk check-in" kini mudah digeser di semua HP.
+- **Media** — ECC Worship dan Video Channel kini dalam satu menu: video ibadah, khotbah, dan worship per kategori, cari video, dan putar langsung di app.
+- **Konseling** — ajukan permintaan konseling dari menu Profil; konselor menghubungi Anda sesuai persetujuan kontak.
+- **Formulir** — isi formulir pendaftaran dari News, Event, dan Announcement; data profil (termasuk pasangan dan orang tua / wali) terisi otomatis, lampiran & tanda tangan, serta pengingat batas pengisian.
+- **Detail Ibadah & Event lebih ringkas** — ringkasan di atas, tiket digeser ke samping, tab Tentang / Formulir / Tim, video teaser diputar di app, dan tim pelayanan berfoto dikelompokkan per tugas.
+- **News & Renungan** — tampilan baca baru dengan waktu & progres baca, teks ayat langsung di halaman, dan berita lainnya.
+- **Event tanpa daftar** — untuk event yang boleh langsung datang, Anda dan keluarga bisa langsung self check-in.
+- **Carikan homecell untuk keluarga** — cari homecell terdekat dan ajukan bergabung atas nama anggota keluarga.
+- **Masuk dengan email** — pilih link masuk atau kode OTP.
+- **Bagikan kesaksian** — doa yang terjawab dan resolusi yang tercapai bisa dibagikan sebagai gambar dengan ayat pegangan.
+- **Check-in lebih mudah** — orang tua / wali bisa check-in anak dari tiket CKids; jam self check-in mengikuti pengaturan tiap ibadah & event.
 - **Tugas pelayanan Anda** — petugas melihat pelayanan, peran, dan tugasnya di detail ibadah & event.
-- **CKids** — katalog hadiah & riwayat tukar dalam tab, mengikuti cabang aktif.
-- **Pengajuan group** — group baru yang Anda buat dikirim sebagai pengajuan dan aktif setelah disetujui admin gereja; statusnya terlihat di app.
-- **User Manual** — panduan lengkap Els App dari menu Profil.
-- **Tampilan lebih rapi** — popup pemberitahuan baru, pemilih tanggal Android yang tahunnya selalu bisa diganti, dan ulang tahun Anda tampil di kalender.
-- **Perbaikan** — pendaftaran & pengisian profil lebih lancar, serta berbagai perbaikan kecil lainnya.
+- **Mode Scanner lebih lengkap** — daftar hadir & belum hadir, status jendela scan, dan ringkasan kehadiran.
+- **Splash screen baru** dan **User Manual** di menu Profil.
+- **Perbaikan** — sesi login lebih stabil saat sinyal lemah, tampilan rapi di HP layar kecil dan HP lipat, serta berbagai perbaikan lainnya.
 
 ## English
 
-- **Share your testimony** — answered prayers and achieved resolutions can now be shared as an image with an anchor verse, plus an invitation to give thanks.
-- **Anchor verse for resolutions** — link a verse to each yearly resolution by simply typing the reference (e.g. John 3:16).
-- **Better Scanner Mode** — ushers see who is present and not yet present, the scan window status, and an attendance summary; scan screen buttons are tidier.
-- **More accurate events & tickets** — freewill events show the amount you gave and your giving status; events without attendance no longer show a QR code; times follow the branch city.
-- **ECC Worship** — invitations to listen to ECC Worship while reading the Bible, taking notes, and for homecells without a musician.
-- **Easier check-in** — parents / guardians can check their child in right from the CKids ticket; self check-in times follow each service's and event's settings; the "Swipe to check in" slider now works smoothly on every phone.
+- **Media** — ECC Worship and Video Channel in one place: service, sermon, and worship videos by category, video search, and in-app playback.
+- **Counseling** — request counseling from the Profile menu; a counselor will contact you based on your contact consent.
+- **Forms** — fill in registration forms from News, Events, and Announcements; profile data (including spouse and parents / guardians) is filled in automatically, with attachments, signatures, and deadline reminders.
+- **Cleaner service & event details** — summary at the top, swipeable tickets, About / Form / Team tabs, teaser videos played in the app, and the serving team with photos grouped by task.
+- **News & Devotions** — a new reading view with reading time & progress, verse text right on the page, and more news.
+- **Walk-in events** — for events that don't require registration, you and your family can self check in right away.
+- **Find a homecell for your family** — find the nearest homecell and request to join on behalf of a family member.
+- **Sign in with email** — choose a sign-in link or an OTP code.
+- **Share your testimony** — answered prayers and achieved resolutions can be shared as an image with an anchor verse.
+- **Easier check-in** — parents / guardians can check their child in from the CKids ticket; self check-in times follow each service's and event's settings.
 - **Your serving duty** — volunteers see their ministry, role and task on the service & event detail.
-- **CKids** — gift catalog & redeem history in tabs, following the active branch.
-- **Group requests** — new groups you create are sent for approval and become active once a church admin approves them; the status is shown in the app.
-- **User Manual** — the complete Els App guide from the Profile menu.
-- **Cleaner layout** — new notification pop-ups, an Android date picker where the year can always be changed, and your own birthday on the calendar.
-- **Fixes** — smoother sign-up and profile setup, plus various small fixes.
+- **Better Scanner Mode** — present / not yet present lists, scan window status, and an attendance summary.
+- **New splash screen** and the **User Manual** in the Profile menu.
+- **Fixes** — a more stable sign-in session on weak signal, tidier layouts on small and foldable phones, and various other fixes.
